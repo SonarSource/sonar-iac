@@ -28,7 +28,7 @@ import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
 import org.sonar.iac.terraform.visitors.TerraformProviderContext;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
-import static org.sonar.iac.common.testing.FileReaderUtils.BASE_DIR;
+import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
 
 public class TerraformVerifier {
 

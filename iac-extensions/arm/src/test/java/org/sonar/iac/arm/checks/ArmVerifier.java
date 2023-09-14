@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.testing.Verifier;
 
-import static org.sonar.iac.common.testing.FileReaderUtils.BASE_DIR;
+import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
 
 public class ArmVerifier {
 

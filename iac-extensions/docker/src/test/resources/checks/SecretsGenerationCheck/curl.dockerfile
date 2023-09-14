@@ -124,7 +124,7 @@ EOF
 # Compliant
 RUN curl --user usernameonly https://example.com
 RUN curl -u usernameonly https://example.com
-# $UNKNOWN is inknown, so do not raise an issue to avoid FP
+# $UNKNOWN is unknown, so do not raise an issue to avoid FP
 RUN curl --user "${UNKNOWN}" https://example.com
 RUN curl -u "${UNKNOWN}" https://example.com
 RUN curl --user "$UNKNOWN" https://example.com

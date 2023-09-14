@@ -19,23 +19,19 @@
  */
 package org.sonar.iac.docker.checks.utils.command;
 
-import java.util.function.Predicate;
-import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.junit.jupiter.api.Test;
 
-public class IncludeUnresolvedPredicate extends SingularPredicate {
-  public IncludeUnresolvedPredicate(Predicate<String> predicate, Type type) {
-    super(predicate, type);
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ArgumentResolutionIncludingUnresolvedArgumentsPredicateTest {
+
+  @Test
+  void shouldCheckType() {
+    IncludingUnresolvedArgumentsArgumentResolutionPredicate predicate = new IncludingUnresolvedArgumentsArgumentResolutionPredicate(arg -> true);
+
+    assertThat(predicate.hasType(CommandPredicate.Type.MATCH)).isTrue();
+    assertThat(predicate.hasType(CommandPredicate.Type.NO_MATCH)).isFalse();
   }
 
-  @Override
-  public void match(PredicateContext context) {
-    ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
-
-    matchResolution(context, resolution);
-  }
-
-  @Override
-  public boolean continueWhenUnresolved() {
-    return true;
-  }
+  // TODO more tests?
 }

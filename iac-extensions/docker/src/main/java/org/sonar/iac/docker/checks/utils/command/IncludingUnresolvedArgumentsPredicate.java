@@ -22,45 +22,20 @@ package org.sonar.iac.docker.checks.utils.command;
 import java.util.function.Predicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
-import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.CONTINUE;
-import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.FOUND_NO_PREDICATE_MATCH;
-
-public class ArgumentResolutionIncludeUnresolvedPredicate implements CommandPredicate {
-
-  private final Predicate<ArgumentResolution> predicate;
-  private final Type type;
-
-  public ArgumentResolutionIncludeUnresolvedPredicate(Predicate<ArgumentResolution> predicate, Type type) {
-    this.predicate = predicate;
-    this.type = type;
-  }
-
-  @Override
-  public boolean hasType(Type... types) {
-    for (Type t : types) {
-      if (type.equals(t)) {
-        return true;
-      }
-    }
-    return false;
+public class IncludingUnresolvedArgumentsPredicate extends SingularPredicate {
+  public IncludingUnresolvedArgumentsPredicate(Predicate<String> predicate, Type type) {
+    super(predicate, type);
   }
 
   @Override
   public void match(PredicateContext context) {
     ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
 
-    if (predicate.test(resolution)) {
-      // Add matched argument
-      context.addAsArgumentToReport(resolution);
-    } else {
-      context.setStatus(FOUND_NO_PREDICATE_MATCH);
-      return;
-    }
-    context.setStatus(CONTINUE);
+    matchResolution(context, resolution);
   }
 
   @Override
-  public boolean continueWhenUnresolved() {
+  public boolean continueOnUnresolved() {
     return true;
   }
 }

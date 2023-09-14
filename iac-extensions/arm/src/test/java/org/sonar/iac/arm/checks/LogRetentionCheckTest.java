@@ -27,7 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
 import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
-import static org.sonar.iac.common.testing.FileReaderUtils.readTemplateAndReplace;
+import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class LogRetentionCheckTest {

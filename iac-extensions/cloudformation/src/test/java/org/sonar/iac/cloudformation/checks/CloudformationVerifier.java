@@ -23,7 +23,7 @@ import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.Verifier;
 
-import static org.sonar.iac.common.testing.FileReaderUtils.BASE_DIR;
+import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
 
 public class CloudformationVerifier {
 

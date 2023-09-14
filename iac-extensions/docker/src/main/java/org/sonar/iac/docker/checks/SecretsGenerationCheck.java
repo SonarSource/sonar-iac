@@ -63,27 +63,29 @@ public class SecretsGenerationCheck implements IacCheck {
     .withAnyOptionExcluding(Collections.emptyList())
     .build();
 
-  private static final CommandDetector WGET_PASSWORD_EQUALS = wgetFlagEquals("--password");
+  // It detects: wget --password=MyPassword
+  private static final CommandDetector WGET_PASSWORD_FLAG_EQUALS_PWD = wgetFlagEquals("--password");
 
-  private static final CommandDetector WGET_PASSWORD_SPACE = commandFlagSpace("wget", "--password");
+  // It detects: wget --password MyPassword
+  private static final CommandDetector WGET_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("wget", "--password");
 
-  private static final CommandDetector WGET_FTP_PASSWORD_EQUALS = wgetFlagEquals("--ftp-password");
+  private static final CommandDetector WGET_FTP_PASSWORD_FLAG_EQUALS_PWD = wgetFlagEquals("--ftp-password");
 
-  private static final CommandDetector WGET_FTP_PASSWORD_SPACE = commandFlagSpace("wget", "--ftp-password");
-  private static final CommandDetector WGET_HTTP_PASSWORD_EQUALS = wgetFlagEquals("--http-password");
+  private static final CommandDetector WGET_FTP_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("wget", "--ftp-password");
+  private static final CommandDetector WGET_HTTP_PASSWORD_FLAG_EQUALS_PWD = wgetFlagEquals("--http-password");
 
-  private static final CommandDetector WGET_HTTP_PASSWORD_SPACE = commandFlagSpace("wget", "--http-password");
+  private static final CommandDetector WGET_HTTP_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("wget", "--http-password");
 
-  private static final CommandDetector WGET_PROXY_PASSWORD_EQUALS = wgetFlagEquals("--proxy-password");
+  private static final CommandDetector WGET_PROXY_PASSWORD_FLAG_EQUALS_PWD = wgetFlagEquals("--proxy-password");
 
-  private static final CommandDetector WGET_PROXY_PASSWORD_SPACE = commandFlagSpace("wget", "--proxy-password");
+  private static final CommandDetector WGET_PROXY_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("wget", "--proxy-password");
 
-  private static final CommandDetector CURL_USER = commandFlagSpace("curl", "--user");
-  private static final CommandDetector CURL_USER_SHORT = commandFlagSpace("curl", "-u");
+  private static final CommandDetector CURL_USER_FLAG_SPACE_PWD = commandFlagSpace("curl", "--user");
+  private static final CommandDetector CURL_USER_SHORT_FLAG_SPACE_PWD = commandFlagSpace("curl", "-u");
 
-  private static final CommandDetector SSHPASS_SPACE = commandFlagSpace("sshpass", "-p");
+  private static final CommandDetector SSHPASS_P_FLAG_SPACE_PWD = commandFlagSpace("sshpass", "-p");
 
-  private static final CommandDetector SSHPASS_NO_SPACE = CommandDetector.builder()
+  private static final CommandDetector SSHPASS_P_FLAG_NO_SPACE_PWD = CommandDetector.builder()
     .with("sshpass")
     .withAnyExcludingIncludeUnresolved(arg -> !arg.startsWith("-p"))
     .withArgumentResolutionIncludeUnresolved(resolution -> resolution.value().startsWith("-p") &&
@@ -112,19 +114,19 @@ public class SecretsGenerationCheck implements IacCheck {
     SSH_DETECTOR,
     KEYTOOL_DETECTOR,
     SENSITIVE_OPENSSL_COMMANDS,
-    WGET_PASSWORD_EQUALS,
-    WGET_PASSWORD_SPACE,
-    WGET_FTP_PASSWORD_EQUALS,
-    WGET_FTP_PASSWORD_SPACE,
-    WGET_HTTP_PASSWORD_EQUALS,
-    WGET_HTTP_PASSWORD_SPACE,
-    WGET_PROXY_PASSWORD_EQUALS,
-    WGET_PROXY_PASSWORD_SPACE,
-    SSHPASS_NO_SPACE,
-    SSHPASS_SPACE);
+    WGET_PASSWORD_FLAG_EQUALS_PWD,
+    WGET_PASSWORD_FLAG_SPACE_PWD,
+    WGET_FTP_PASSWORD_FLAG_EQUALS_PWD,
+    WGET_FTP_PASSWORD_FLAG_SPACE_PWD,
+    WGET_HTTP_PASSWORD_FLAG_EQUALS_PWD,
+    WGET_HTTP_PASSWORD_FLAG_SPACE_PWD,
+    WGET_PROXY_PASSWORD_FLAG_EQUALS_PWD,
+    WGET_PROXY_PASSWORD_FLAG_SPACE_PWD,
+    SSHPASS_P_FLAG_NO_SPACE_PWD,
+    SSHPASS_P_FLAG_SPACE_PWD);
 
-  private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER,
-    CURL_USER_SHORT);
+  private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER_FLAG_SPACE_PWD,
+    CURL_USER_SHORT_FLAG_SPACE_PWD);
 
   @Override
   public void initialize(InitContext init) {
@@ -139,8 +141,8 @@ public class SecretsGenerationCheck implements IacCheck {
 
     CURL_DETECTORS.forEach(
       detector -> detector.search(resolvedArgument).forEach(command -> {
-        ArgumentResolution lastArgument = getLastArgument(command);
-        if (lastArgument.value().contains(":")) {
+        ArgumentResolution userAndPassword = getLastArgument(command);
+        if (userAndPassword.value().contains(":")) {
           ctx.reportIssue(command, MESSAGE);
         }
       }));
@@ -151,7 +153,7 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static void checkHtpasswd(List<ArgumentResolution> resolvedArgument, CheckContext ctx) {
     HtpasswdDetector detector = HtpasswdDetector.create(resolvedArgument);
-    if (detector.isDetected()) {
+    if (detector.detectedSensitiveCommand()) {
       ctx.reportIssue(new CommandDetector.Command(resolvedArgument), MESSAGE);
     }
   }
@@ -195,7 +197,7 @@ public class SecretsGenerationCheck implements IacCheck {
       return new HtpasswdDetector(flagB, flagN, numberOfNonFlags);
     }
 
-    public boolean isDetected() {
+    public boolean detectedSensitiveCommand() {
       return flagB && ((!flagN && numberOfNonFlags == 4) || (flagN && numberOfNonFlags == 3));
     }
   }

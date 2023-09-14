@@ -32,7 +32,7 @@ public interface CommandPredicate {
 
   void match(PredicateContext context);
 
-  default boolean continueWhenUnresolved() {
+  default boolean continueOnUnresolved() {
     return false;
   }
 }

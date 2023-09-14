@@ -28,7 +28,7 @@ import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.common.testing.FileReaderUtils.BASE_DIR;
+import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
 
 public class DockerVerifier {
 
@@ -47,10 +47,6 @@ public class DockerVerifier {
 
   public static void verifyContent(String content, IacCheck check) {
     Verifier.verify(PARSER, content, check);
-  }
-
-  public static void verifyContent(String content, IacCheck check, Verifier.Issue... expectedIssues) {
-    Verifier.verify(PARSER, content, check, expectedIssues);
   }
 
   public static void verifyNoIssue(String fileName, IacCheck check) {

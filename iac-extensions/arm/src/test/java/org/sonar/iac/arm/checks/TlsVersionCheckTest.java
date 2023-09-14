@@ -22,11 +22,10 @@ package org.sonar.iac.arm.checks;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.arm.ArmTestUtils;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
 import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
-import static org.sonar.iac.common.testing.FileReaderUtils.readTemplateAndReplace;
+import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class TlsVersionCheckTest {

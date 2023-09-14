@@ -22,10 +22,9 @@ package org.sonar.iac.arm.checks;
 import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.iac.arm.ArmTestUtils;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
-import static org.sonar.iac.common.testing.FileReaderUtils.readTemplateAndReplace;
+import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class ManagedIdentityCheckTest {

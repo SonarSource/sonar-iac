@@ -111,7 +111,7 @@ RUN htpasswd -n -b -m username "$PASSWORD"
 
 
 # Compliant
-# no paassword, valid examples
+# no password, valid examples
 RUN htpasswd -n path/to/file username
 RUN htpasswd -n -b -m username
 RUN htpasswd -n -b -m -D username

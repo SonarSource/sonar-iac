@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.testing.FileReaderUtils;
+import org.sonar.iac.common.testing.TemplateFileReader;
 
 class SecretsGenerationCheckTest {
 
@@ -47,7 +47,7 @@ class SecretsGenerationCheckTest {
   @ValueSource(strings = {"--password", "--ftp-password", "--http-password", "--proxy-password"})
   @ParameterizedTest
   void testWget(String flag) {
-    String content = FileReaderUtils.readTemplateAndReplace("SecretsGenerationCheck/wget_template.dockerfile", "--flag", flag);
+    String content = TemplateFileReader.readTemplateAndReplace("SecretsGenerationCheck/wget_template.dockerfile", "--flag", flag);
     DockerVerifier.verifyContent(content, check);
   }
 
