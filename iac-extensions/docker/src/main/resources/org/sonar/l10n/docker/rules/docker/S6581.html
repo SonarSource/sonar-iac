@@ -1,10 +1,11 @@
-<p>Setting the environment variable using the <code>ENV</code> instruction creates a new layer in the Docker image. Calling <code>RUN unset
-&lt;env-variable&gt;</code> creates a new layer, but the environment variable can be still dumped from the previous layer.</p>
+<p>Setting an environment variable using the <code>ENV</code> instruction creates a new layer in the Docker image. The variable is then persisted for
+all subsequent build stages and is also present in the resulting image. Calling <code>RUN unset &lt;env-variable&gt;</code> unsets the variable only
+for this particular layer, but it is still possible to dump the environment variable from the previous layer.</p>
 <h2>Why is this an issue?</h2>
 <p>The environment variables often contain secrets, tokens, and other sensitive information. They are present in the containers and could be dumped
 anytime. Calling <code>unset</code> doesn’t prevent this information from being hidden for other commands.</p>
 <h2>How to fix it</h2>
-<p>To prevent runtime access, the environment variable can be set and unset in a single <code>RUN</code> instruction.</p>
+<p>If an environment variable is needed only during build, this variable should be set and unset in a single <code>RUN</code> instruction.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -18,8 +19,9 @@ RUN export ADMIN_USER="admin" \
     &amp;&amp; unset ADMIN_USER
 </pre>
 <h3>How does this work?</h3>
-<p>In this example, the visibility of <code>ADMIN_USER</code> is only limited to the single layer. However, the value can still be extracted from the
-image. The best solution is to use <code>ARG</code> instead.</p>
+<p>In this example, the visibility of <code>ADMIN_USER</code> is only limited to the single layer. However, it is still possible to extract the value
+from the image. The best solution is to use <code>ARG</code> instead of <code>ENV</code> or set and unset the variable in the same <code>RUN</code>
+instruction.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

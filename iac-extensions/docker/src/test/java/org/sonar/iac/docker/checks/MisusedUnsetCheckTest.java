@@ -24,6 +24,6 @@ import org.junit.jupiter.api.Test;
 class MisusedUnsetCheckTest {
   @Test
   void test() {
-    DockerVerifier.verify("MisusedUnsetCheck.dockerfile", new MisusedUnsetCheck());
+    DockerVerifier.verify("MisusedUnsetCheck/MisusedUnsetCheck.dockerfile", new MisusedUnsetCheck());
   }
 }
