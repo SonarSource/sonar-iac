@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +31,6 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromInstruction;
@@ -141,7 +139,7 @@ public class PrivilegedUserCheck implements IacCheck {
 
   // All possible image use cases
   private static boolean isScratchImage(String imageName) {
-    return imageName.equals("scratch");
+    return "scratch".equals(imageName);
   }
 
   private static boolean isUnsafeImage(String imageName) {
