@@ -152,8 +152,7 @@ public class SecretsGenerationCheck implements IacCheck {
   }
 
   private static void checkHtpasswd(List<ArgumentResolution> resolvedArgument, CheckContext ctx) {
-    HtpasswdDetector detector = HtpasswdDetector.create(resolvedArgument);
-    if (detector.detectedSensitiveCommand()) {
+    if (HtpasswdDetector.detect(resolvedArgument)) {
       ctx.reportIssue(new CommandDetector.Command(resolvedArgument), MESSAGE);
     }
   }
@@ -164,17 +163,8 @@ public class SecretsGenerationCheck implements IacCheck {
   }
 
   private static class HtpasswdDetector {
-    private final boolean flagB;
-    private final boolean flagN;
-    private final int numberOfNonFlags;
 
-    public HtpasswdDetector(boolean flagB, boolean flagN, int numberOfNonFlags) {
-      this.flagB = flagB;
-      this.flagN = flagN;
-      this.numberOfNonFlags = numberOfNonFlags;
-    }
-
-    public static HtpasswdDetector create(List<ArgumentResolution> resolvedArgument) {
+    public static boolean detect(List<ArgumentResolution> resolvedArgument) {
       boolean flagB = false;
       boolean flagN = false;
       int numberOfNonFlags = 0;
@@ -194,10 +184,10 @@ public class SecretsGenerationCheck implements IacCheck {
           numberOfNonFlags++;
         }
       }
-      return new HtpasswdDetector(flagB, flagN, numberOfNonFlags);
+      return detectedSensitiveCommand(flagB, flagN, numberOfNonFlags);
     }
 
-    public boolean detectedSensitiveCommand() {
+    private static boolean detectedSensitiveCommand(boolean flagB, boolean flagN, int numberOfNonFlags) {
       return flagB && ((!flagN && numberOfNonFlags == 4) || (flagN && numberOfNonFlags == 3));
     }
   }
