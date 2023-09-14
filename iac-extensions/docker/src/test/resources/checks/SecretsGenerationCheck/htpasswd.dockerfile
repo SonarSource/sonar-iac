@@ -1,3 +1,9 @@
+FROM ubuntu:22.04 as build
+
+# no issue in non final stage
+RUN htpasswd -b path/to/file username password
+
+
 FROM ubuntu:22.04
 
 ARG PASSWORD

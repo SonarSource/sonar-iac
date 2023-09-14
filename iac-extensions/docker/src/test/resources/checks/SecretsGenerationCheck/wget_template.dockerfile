@@ -1,3 +1,9 @@
+FROM ubuntu:22.04 as build
+
+# no issue in non final stage
+RUN wget --user=guest --flag=MySuperPassword https://example.com
+
+
 FROM ubuntu:22.04
 
 ARG PASSWORD

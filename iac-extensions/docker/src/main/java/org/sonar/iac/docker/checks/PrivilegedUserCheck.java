@@ -84,7 +84,7 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private void handle(CheckContext ctx, DockerImage dockerImage) {
-    if (!isLastDockerImageInFile(dockerImage)) {
+    if (!dockerImage.isLastDockerImageInFile()) {
       return;
     }
 
@@ -133,13 +133,6 @@ public class PrivilegedUserCheck implements IacCheck {
     } else {
       return fullImageName;
     }
-  }
-
-  private static boolean isLastDockerImageInFile(DockerImage dockerImage) {
-    Body parent = (Body) dockerImage.parent();
-    List<DockerImage> dockerImages = parent.dockerImages();
-    DockerImage last = dockerImages.get(dockerImages.size() - 1);
-    return last == dockerImage;
   }
 
   private static Optional<UserInstruction> getLastUser(DockerImage dockerImage) {

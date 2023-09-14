@@ -22,6 +22,7 @@ package org.sonar.iac.docker.checks;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -30,6 +31,7 @@ import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
@@ -133,7 +135,20 @@ public class SecretsGenerationCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, SecretsGenerationCheck::checkRunInstruction);
+    init.register(DockerImage.class, SecretsGenerationCheck::checkDockerImage);
+  }
+
+  private static void checkDockerImage(CheckContext ctx, DockerImage dockerImage) {
+    if (!dockerImage.isLastDockerImageInFile()) {
+      return;
+    }
+
+    List<RunInstruction> runInstructions = dockerImage.instructions().stream()
+      .filter(RunInstruction.class::isInstance)
+      .map(RunInstruction.class::cast)
+      .collect(Collectors.toList());
+
+    runInstructions.forEach(runInstruction -> checkRunInstruction(ctx, runInstruction));
   }
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {

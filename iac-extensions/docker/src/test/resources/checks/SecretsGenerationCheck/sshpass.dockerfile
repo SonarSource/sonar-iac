@@ -1,3 +1,9 @@
+FROM ubuntu:22.04 as build
+
+# no issue in non final stage
+RUN sshpass -p password ssh user@hostname
+
+
 FROM ubuntu:22.04
 
 ARG PASSWORD
