@@ -21,6 +21,7 @@ package org.sonar.iac.docker.visitors;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
@@ -46,7 +47,7 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected String languageKey() {
-    return new DockerLanguage().getKey();
+    return new DockerLanguage(new MapSettings().asConfig()).getKey();
   }
 
   @Test

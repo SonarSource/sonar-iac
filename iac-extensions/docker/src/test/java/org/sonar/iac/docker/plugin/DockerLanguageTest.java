@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.internal.PathPattern;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,8 +33,35 @@ class DockerLanguageTest {
 
   @Test
   void shouldReturnDockerFileSuffixes() {
-    DockerLanguage language = new DockerLanguage();
+    DockerLanguage language = new DockerLanguage(new MapSettings().asConfig());
     assertThat(language.getFileSuffixes()).isEmpty();
+  }
+
+  @Test
+  void shouldCorrectlySanitizeCustomFilenamePatterns() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, " *.ext , Dockerfile, , dockerfile.*");
+
+    DockerLanguage language = new DockerLanguage(settings.asConfig());
+    assertThat(language.filenamePatterns()).hasSize(3);
+  }
+
+  @Test
+  void shouldHaveDefaultFilenamePatternsWithNoProvidedProperty() {
+    DockerLanguage language = new DockerLanguage(new MapSettings().asConfig());
+    assertThat(language.filenamePatterns()).hasSize(2);
+    assertThat(language.filenamePatterns()).containsExactly(DockerSettings.DEFAULT_FILE_PATTERNS.split(","));
+  }
+
+  @Test
+  void shouldHaveDefaultFilenamePatternsWithEmptyProperty() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "");
+
+    DockerLanguage language = new DockerLanguage(settings.asConfig());
+
+    assertThat(language.filenamePatterns()).hasSize(2);
+    assertThat(language.filenamePatterns()).containsExactly(DockerSettings.DEFAULT_FILE_PATTERNS.split(","));
   }
 
   @ParameterizedTest
@@ -55,7 +83,6 @@ class DockerLanguageTest {
     "DockerfileFoo",
     "Dockerfile.java",
     "Helloworld.java",
-    // TODO: SONARIAC-1095 Extend DockerLanguage to include possible conflicting filePatterns
     "Dockerfile.foo"
   })
   void fileNameIsNotAssignedToLanguage(String fileName) {
@@ -63,7 +90,7 @@ class DockerLanguageTest {
   }
 
   private static boolean associatedToLanguage(String fileName) {
-    DockerLanguage language = new DockerLanguage();
+    DockerLanguage language = new DockerLanguage(new MapSettings().asConfig());
 
     // Based on 'LanguageDetection.getLanguagePatterns(...)' from SQ and SC
     Path realAbsolutePath = Path.of("src", "main", "resources", fileName).toAbsolutePath().normalize();

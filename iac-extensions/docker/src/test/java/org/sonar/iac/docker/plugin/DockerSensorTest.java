@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -146,7 +147,7 @@ class DockerSensorTest extends ExtensionSensorTest {
       fileLinesContextFactory,
       checkFactory,
       noSonarFilter,
-      new DockerLanguage());
+      new DockerLanguage(new MapSettings().asConfig()));
   }
 
   @Override
@@ -204,6 +205,6 @@ class DockerSensorTest extends ExtensionSensorTest {
       fileLinesContextFactory,
       checkFactory(sonarLintContext, rules),
       noSonarFilter,
-      new DockerLanguage());
+      new DockerLanguage(new MapSettings().asConfig()));
   }
 }
