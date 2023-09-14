@@ -42,6 +42,7 @@ public class DockerCheckList {
       HostNetworkNamespaceCheck.class,
       ImageWithDigestCheck.class,
       InstructionFormatCheck.class,
+      MisusedUnsetCheck.class,
       MountWorldPermissionCheck.class,
       PackageInstallationCheck.class,
       PackageInstallationScriptExecutionCheck.class,

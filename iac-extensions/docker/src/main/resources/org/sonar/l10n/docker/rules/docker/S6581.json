@@ -1,0 +1,21 @@
+{
+  "title": "Environment variables should not be unset on a different layer than they were set",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6581",
+  "sqKey": "S6581",
+  "scope": "All",
+  "quickfix": "unknown"
+}
