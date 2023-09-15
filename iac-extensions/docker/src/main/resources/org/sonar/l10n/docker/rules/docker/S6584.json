@@ -1,0 +1,23 @@
+{
+  "title": "Consent flag should be set to avoid manual input",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "shell"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6584",
+  "sqKey": "S6584",
+  "scope": "All",
+  "quickfix": "unknown"
+}
