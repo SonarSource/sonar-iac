@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.checks;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -29,14 +28,13 @@ import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
 
 public class DockerVerifier {
 
   private DockerVerifier() {
-
   }
 
-  public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
   private static final DockerParser PARSER = DockerParser.create();
 
   public static void verify(String fileName, IacCheck check) {
@@ -45,6 +43,10 @@ public class DockerVerifier {
     DockerSymbolVisitor symbolVisitor = new DockerSymbolVisitor();
     symbolVisitor.scan(mock(InputFileContext.class), root);
     Verifier.verify(root, BASE_DIR.resolve(fileName), check, Verifier.TestContext::new);
+  }
+
+  public static void verifyContent(String content, IacCheck check) {
+    Verifier.verify(PARSER, content, check);
   }
 
   public static void verifyNoIssue(String fileName, IacCheck check) {

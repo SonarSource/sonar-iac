@@ -17,26 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.checks;
+package org.sonar.iac.docker.checks.utils.command;
 
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.testing.Verifier;
-import org.sonar.iac.common.yaml.YamlParser;
+import org.junit.jupiter.api.Test;
 
-import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class KubernetesVerifier {
+class ArgumentResolutionIncludingUnresolvedArgumentsPredicateTest {
 
-  private KubernetesVerifier() {
+  @Test
+  void shouldCheckType() {
+    IncludingUnresolvedArgumentsArgumentResolutionPredicate predicate = new IncludingUnresolvedArgumentsArgumentResolutionPredicate(arg -> true);
+
+    assertThat(predicate.hasType(CommandPredicate.Type.MATCH)).isTrue();
+    assertThat(predicate.hasType(CommandPredicate.Type.NO_MATCH)).isFalse();
   }
 
-  private static final YamlParser PARSER = new YamlParser();
-
-  public static void verify(String fileName, IacCheck check) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
-  }
-
-  public static void verifyNoIssue(String fileName, IacCheck check) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
-  }
+  // TODO more tests?
 }

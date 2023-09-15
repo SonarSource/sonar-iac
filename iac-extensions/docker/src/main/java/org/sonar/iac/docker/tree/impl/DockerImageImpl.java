@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.symbols.Scope;
+import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.Instruction;
@@ -57,6 +58,14 @@ public class DockerImageImpl extends AbstractDockerTreeImpl implements DockerIma
   @Override
   public List<Instruction> instructions() {
     return instructions;
+  }
+
+  @Override
+  public boolean isLastDockerImageInFile() {
+    Body parent = (Body) parent();
+    List<DockerImage> dockerImages = parent.dockerImages();
+    DockerImage last = dockerImages.get(dockerImages.size() - 1);
+    return last == this;
   }
 
   @Override

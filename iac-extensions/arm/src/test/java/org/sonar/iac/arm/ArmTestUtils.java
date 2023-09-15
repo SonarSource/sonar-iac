@@ -36,7 +36,6 @@ import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.arm.checks.ArmVerifier.BASE_DIR;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public class ArmTestUtils {
@@ -88,32 +87,6 @@ public class ArmTestUtils {
       "}");
     ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
     return (ObjectExpression) resourceDeclaration.properties().get(0).value();
-  }
-
-  public static String readTemplateAndReplace(String path, String type) {
-    String content;
-    try {
-      content = Files.readString(BASE_DIR.resolve(path));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return content.replace("${type}", type);
-  }
-
-  public static String readTemplateAndReplace(String path, String... types) {
-    if (types.length % 2 == 1) {
-      throw new RuntimeException("There should be even number of strings");
-    }
-    String content;
-    try {
-      content = Files.readString(BASE_DIR.resolve(path));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    for (int i = 0; i < types.length; i = i + 2) {
-      content = content.replace(types[i], types[i + 1]);
-    }
-    return content;
   }
 
   public static List<String> recursiveTransformationOfTreeChildrenToStrings(Tree tree) {

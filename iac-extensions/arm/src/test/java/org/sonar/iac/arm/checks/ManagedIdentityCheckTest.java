@@ -22,9 +22,9 @@ package org.sonar.iac.arm.checks;
 import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.iac.arm.ArmTestUtils;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
+import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class ManagedIdentityCheckTest {
@@ -214,7 +214,7 @@ class ManagedIdentityCheckTest {
   @MethodSource(value = "managedIdentityTypes")
   @ParameterizedTest(name = "[{index}] JSON should check managed identity check for type {0}")
   void shouldCheckManagedIdentityCheckJson(String type) {
-    String content = ArmTestUtils.readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.json", type);
+    String content = readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.json", type);
     verifyContent(content, check,
       issue(8, 14, 8, 54, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
       issue(23, 16, 23, 22, "Make sure that disabling Azure Managed Identities is safe here."),
@@ -224,7 +224,7 @@ class ManagedIdentityCheckTest {
   @MethodSource(value = "managedIdentityTypes")
   @ParameterizedTest(name = "[{index}] Bicep should check managed identity check for type {0}")
   void shouldCheckManagedIdentityCheckBicep(String type) {
-    String content = ArmTestUtils.readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.bicep", type);
+    String content = readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.bicep", type);
 
     BicepVerifier.verifyContent(content, check,
       issue(1, 9, 1, 39, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),

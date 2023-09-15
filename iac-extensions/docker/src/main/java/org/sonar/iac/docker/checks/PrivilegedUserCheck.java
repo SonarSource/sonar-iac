@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +31,6 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromInstruction;
@@ -84,7 +82,7 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private void handle(CheckContext ctx, DockerImage dockerImage) {
-    if (!isLastDockerImageInFile(dockerImage)) {
+    if (!dockerImage.isLastDockerImageInFile()) {
       return;
     }
 
@@ -135,20 +133,13 @@ public class PrivilegedUserCheck implements IacCheck {
     }
   }
 
-  private static boolean isLastDockerImageInFile(DockerImage dockerImage) {
-    Body parent = (Body) dockerImage.parent();
-    List<DockerImage> dockerImages = parent.dockerImages();
-    DockerImage last = dockerImages.get(dockerImages.size() - 1);
-    return last == dockerImage;
-  }
-
   private static Optional<UserInstruction> getLastUser(DockerImage dockerImage) {
     return TreeUtils.lastDescendant(dockerImage, tree -> ((DockerTree) tree).is(DockerTree.Kind.USER)).map(UserInstruction.class::cast);
   }
 
   // All possible image use cases
   private static boolean isScratchImage(String imageName) {
-    return imageName.equals("scratch");
+    return "scratch".equals(imageName);
   }
 
   private static boolean isUnsafeImage(String imageName) {

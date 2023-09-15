@@ -33,4 +33,6 @@ public interface DockerImage extends DockerTree, HasScope {
   FromInstruction from();
 
   List<Instruction> instructions();
+
+  boolean isLastDockerImageInFile();
 }

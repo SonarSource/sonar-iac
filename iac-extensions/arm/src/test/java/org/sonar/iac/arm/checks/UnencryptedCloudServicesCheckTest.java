@@ -22,10 +22,10 @@ package org.sonar.iac.arm.checks;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
+import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class UnencryptedCloudServicesCheckTest {
@@ -203,7 +203,7 @@ class UnencryptedCloudServicesCheckTest {
     "Microsoft.DBforPostgreSQL/servers"
   })
   void testResourcesWithInfrastructureEncryptionJson(String resourceType) {
-    String content = ArmTestUtils.readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted.json", resourceType);
+    String content = readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted.json", resourceType);
 
     int resourceTypeLength = resourceType.length();
     ArmVerifier.verifyContent(content, check,
@@ -220,7 +220,7 @@ class UnencryptedCloudServicesCheckTest {
     "Microsoft.DBforPostgreSQL/servers"
   })
   void testResourcesWithInfrastructureEncryptionBicep(String resourceType) {
-    String content = ArmTestUtils.readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted_template.bicep", resourceType);
+    String content = readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted_template.bicep", resourceType);
 
     int resourceTypeLength = resourceType.length();
     BicepVerifier.verifyContent(content, check,

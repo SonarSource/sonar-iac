@@ -17,26 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.checks;
+package org.sonar.iac.docker.checks.utils.command;
 
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.testing.Verifier;
-import org.sonar.iac.common.yaml.YamlParser;
+import java.util.function.Predicate;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 
-import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
-
-public class KubernetesVerifier {
-
-  private KubernetesVerifier() {
+public class IncludingUnresolvedArgumentsPredicate extends SingularPredicate {
+  public IncludingUnresolvedArgumentsPredicate(Predicate<String> predicate, Type type) {
+    super(predicate, type);
   }
 
-  private static final YamlParser PARSER = new YamlParser();
+  @Override
+  public void match(PredicateContext context) {
+    ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
 
-  public static void verify(String fileName, IacCheck check) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
+    matchResolution(context, resolution);
   }
 
-  public static void verifyNoIssue(String fileName, IacCheck check) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+  @Override
+  public boolean continueOnUnresolved() {
+    return true;
   }
 }

@@ -23,11 +23,11 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.iac.arm.ArmTestUtils;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
 import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class LogRetentionCheckTest {
@@ -96,7 +96,7 @@ class LogRetentionCheckTest {
   @MethodSource("logRetentionAsSimpleProperty")
   @ParameterizedTest(name = "[{index}] JSON should check log retention duration for type {0}")
   void shouldCheckLogRetentionAsSimpleProperty(String type) {
-    String content = ArmTestUtils.readTemplateAndReplace("LogRetentionCheck/simpleRetentionDaysProperty_template.json", type);
+    String content = readTemplateAndReplace("LogRetentionCheck/simpleRetentionDaysProperty_template.json", type);
     int endColumnForType = 16 + type.length();
     verifyContent(content, check,
       issue(9, 8, 9, 26, "Make sure that defining a short log retention duration is safe here."),
@@ -106,7 +106,7 @@ class LogRetentionCheckTest {
   @MethodSource("logRetentionAsSimpleProperty")
   @ParameterizedTest(name = "[{index}] Bicep should check log retention duration for type {0}")
   void shouldCheckLogRetentionAsSimplePropertyBicep(String type) {
-    String content = ArmTestUtils.readTemplateAndReplace("LogRetentionCheck/simpleRetentionDaysProperty_template.bicep", type);
+    String content = readTemplateAndReplace("LogRetentionCheck/simpleRetentionDaysProperty_template.bicep", type);
     int endColumnForType = 16 + type.length();
     BicepVerifier.verifyContent(content, check,
       issue(4, 4, 4, 20, "Make sure that defining a short log retention duration is safe here."),

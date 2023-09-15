@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.sonar.iac.docker.checks.DockerVerifier.BASE_DIR;
+import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
 
 class PrivilegedUserCheckTest {
 

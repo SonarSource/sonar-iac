@@ -31,7 +31,9 @@ import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.checks.utils.command.IncludingUnresolvedArgumentsArgumentResolutionPredicate;
 import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
+import org.sonar.iac.docker.checks.utils.command.IncludingUnresolvedArgumentsPredicate;
 import org.sonar.iac.docker.checks.utils.command.MultipleUnorderedOptionsPredicate;
 import org.sonar.iac.docker.checks.utils.command.OptionPredicate;
 import org.sonar.iac.docker.checks.utils.command.PredicateContext;
@@ -136,7 +138,7 @@ public class CommandDetector {
       }
 
       // Stop argument detection when argument is unresolved to start new command detection
-      if (resolution.isUnresolved()) {
+      if (resolution.isUnresolved() && !context.getCurrentPredicate().continueOnUnresolved()) {
         // remove first element from stack as it is UNRESOLVED
         context.getNextArgumentToHandleAndRemoveFromList();
         return Collections.emptyList();
@@ -171,6 +173,10 @@ public class CommandDetector {
 
     private void addMultipleOptionsPredicate(List<OptionPredicate> expectedOptions) {
       addCommandPredicate(new MultipleUnorderedOptionsPredicate(expectedOptions));
+    }
+
+    private void addIncludeUnresolved(Predicate<String> predicate) {
+      addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, MATCH));
     }
 
     public CommandDetector.Builder with(Predicate<String> predicate) {
@@ -250,6 +256,21 @@ public class CommandDetector {
 
     public CommandDetector.Builder withPredicatesFrom(CommandDetector.Builder otherBuilder) {
       this.predicates.addAll(otherBuilder.predicates);
+      return this;
+    }
+
+    public CommandDetector.Builder withIncludeUnresolved(Predicate<String> predicate) {
+      addIncludeUnresolved(predicate);
+      return this;
+    }
+
+    public CommandDetector.Builder withAnyIncludingUnresolvedExcluding(Predicate<String> predicate) {
+      addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, ZERO_OR_MORE));
+      return this;
+    }
+
+    public CommandDetector.Builder withArgumentResolutionIncludeUnresolved(Predicate<ArgumentResolution> predicate) {
+      addCommandPredicate(new IncludingUnresolvedArgumentsArgumentResolutionPredicate(predicate));
       return this;
     }
 

@@ -1,3 +1,9 @@
+FROM ubuntu:22.04 as build
+
+# no issue in non final stage
+RUN openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
+
+
 FROM ubuntu:22.04
 
 # Noncompliant@+1 {{Change this code not to store a secret in the image.}}
@@ -46,6 +52,11 @@ RUN openssl pkey -random1
 # Noncompliant@+1
 RUN openssl genrsa -des3 && other command && other
 #   ^^^^^^^^^^^^^^^^^^^^
+
+# Noncompliant@+1
+RUN --mount=type=secret,id=mysecret,required openssl genrsa -random1
+
+# Compliant
 
 RUN openssl foobar -random1
 

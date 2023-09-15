@@ -1,3 +1,8 @@
+FROM ubuntu:22.04 as build
+
+# no issue in non final stage
+RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key
+
 FROM ubuntu:22.04
 
 # Noncompliant@+1 {{Change this code not to store a secret in the image.}}
@@ -162,6 +167,9 @@ RUN ssh-keygen -N $EMPTY     -t dsa -b 1024 -f rsync-key
 
 # Noncompliant@+1
 RUN ssh-keygen -N $NOT_EMPTY -t dsa -b 1024 -f rsync-key
+
+# Noncompliant@+1
+RUN --mount=type=secret,id=mysecret,required RUN ssh-keygen -N $NOT_EMPTY -t dsa -b 1024 -f rsync-key
 
 
 RUN ssh-keygen -N $UNRESOLVED   -t dsa -b 1024 -f rsync-key
