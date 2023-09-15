@@ -2,6 +2,7 @@ FROM scratch
 
 # Noncompliant@+1 {{Add consent flag so that this command doesn't require user confirmation.}}
 RUN apt-get install libcurl
+#   ^^^^^^^^^^^^^^^^^^^^^^^
 # Noncompliant@+1
 RUN apt install libcurl
 # Noncompliant@+1
