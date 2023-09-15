@@ -27,6 +27,9 @@ RUN wget --user=guest "--flag=$PASSWORD" https://example.com
 RUN wget --user=guest --flag="${PASSWORD}" https://example.com
 
 # Noncompliant@+1
+RUN wget --user=guest "--flag=$PASSWORD" https://example.com
+
+# Noncompliant@+1
 RUN wget --user=guest --flag="${PASSWORD:-test}" https://example.com
 
 # Noncompliant@+1

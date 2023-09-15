@@ -70,4 +70,16 @@ class SecretsGenerationCheckTest {
   void testHtpasswd() {
     DockerVerifier.verify("SecretsGenerationCheck/htpasswd.dockerfile", check);
   }
+
+  @ValueSource(strings = {"mysql", "mysqladmin", "mysqldump"})
+  @ParameterizedTest
+  void testMySqlCommands(String command) {
+    String content = TemplateFileReader.readTemplateAndReplace("SecretsGenerationCheck/mysql_template.dockerfile", "mysql", command);
+    DockerVerifier.verifyContent(content, check);
+  }
+
+  @Test
+  void testMySqlLocations() {
+    DockerVerifier.verify("SecretsGenerationCheck/mysql_locations.dockerfile", check);
+  }
 }

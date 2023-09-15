@@ -8,6 +8,10 @@ FROM ubuntu:22.04
 
 ARG PASSWORD
 
+#tmp
+# Noncompliant@+1
+RUN sshpass "-p" "${PASSWORD}" ssh user@hostname
+
 # Noncompliant@+1
 RUN sshpass -p password ssh user@hostname
 #   ^^^^^^^^^^^^^^^^^^^
@@ -23,6 +27,12 @@ RUN sshpass -p $PASSWORD ssh user@hostname
 
 # Noncompliant@+1
 RUN sshpass -p ${PASSWORD} ssh user@hostname
+
+# Noncompliant@+1
+RUN sshpass -p "${PASSWORD}" ssh user@hostname
+
+# Noncompliant@+1
+RUN sshpass "-p" "${PASSWORD}" ssh user@hostname
 
 # Noncompliant@+1
 RUN sshpass -p "$PASSWORD" ssh user@hostname
@@ -44,6 +54,8 @@ RUN sshpass -p "$(echo ${PASSWORD} | openssl passwd -6 -stdin)" ssh user@hostnam
 RUN cd /tmp && \
     sshpass -p "$(echo ${PASSWORD} | openssl passwd -6 -stdin)" ssh user@hostname
 
+# Noncompliant@+1
+RUN ["sshpass", "-p", "${PASSWORD}", "ssh", "user@hostname"]
 
 # No space after -p =================
 
@@ -65,6 +77,9 @@ RUN sshpass -p"$PASSWORD" ssh user@hostname
 
 # Noncompliant@+1
 RUN sshpass -p"${PASSWORD}" ssh user@hostname
+
+# Noncompliant@+1
+RUN sshpass "-p${PASSWORD}" ssh user@hostname
 
 # Noncompliant@+1
 RUN sshpass -p${PASSWORD-test} ssh user@hostname
