@@ -1,0 +1,35 @@
+<p>Running <code>update</code> of your package manager in a single <code>RUN</code> instruction stores the cache index in the file system. This cache
+is not needed for the installed software to work properly.</p>
+<h2>Why is this an issue?</h2>
+<p>Leaving unnecessary files in Docker image increases its size. The Docker images should be small and only contain necessary data. The cache index is
+obsolete after installation.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+RUN apk update
+RUN apt-get update
+RUN aptitude update
+</pre>
+<p>Here each line represents an update command for the most popular package managers. Each of them stores the cache index in the newly created
+layer.</p>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+RUN apk update &amp;&amp; apk add ...
+RUN apt-get update &amp;&amp; apt-get install ...
+RUN aptitude update &amp;&amp; aptitude install ...
+</pre>
+<p>Here in each line after the update, the package installation is executed. However, it happens in single <code>RUN</code> instruction so only one
+layer is created. After installing all packages the cleanup of the cache index should be done. For more details please see rule
+{rule:docker:S6587}.</p>
+<h3>How does this work?</h3>
+<p>Each execution of <code>RUN</code> instruction creates a new layer in Docker. If a single command <code>apt-get update</code> or equivalent is
+executed, the cache is stored in the new layer. This increases the size of the final image. Even removing those cache in the next <code>RUN</code>
+instruction doesn’t decrease the size of the final image. This overhead is not needed in the Docker image. Updating the cache and installing packages
+should be executed in one step (one <code>RUN</code> instruction).</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run">RUN - Best practices for writing Dockerfiles</a> </li>
+</ul>
+
