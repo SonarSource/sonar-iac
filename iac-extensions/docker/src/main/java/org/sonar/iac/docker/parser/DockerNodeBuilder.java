@@ -36,6 +36,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.DockerPreprocessor.PreprocessorResult;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.impl.AbstractDockerTreeImpl;
+import org.sonar.iac.docker.tree.impl.CompoundTextRange;
 import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -76,16 +77,45 @@ public class DockerNodeBuilder implements NodeBuilder {
     return new SyntaxTokenImpl(value, range, getCommentsForToken(range));
   }
 
+  /**
+   * Compute the {@link TextRange} from a value at the given {@code startIndex}, regarding the provided {@code input} (source code).
+   * In case it extend to multiple lines, we build a {@link CompoundTextRange} object with a reference to each line {@link TextRange}.
+   * This is required to allow to track back original source code before preprocessing, particularly needed when raising issue
+   * on the preprocessed source code.
+   */
   protected TextRange tokenRange(Input input, int startIndex, String value) {
-    int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex);
-    int[] endLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex + value.length());
+    List<TextRange> ranges = new ArrayList<>();
+    int[] currentLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex);
+    int[] previousLineAndColumn = currentLineAndColumn;
     char[] fileChars = input.input();
     boolean hasByteOrderMark = fileChars.length > 0 && fileChars[0] == BYTE_ORDER_MARK;
 
-    int startColumn = applyByteOrderMark(startLineAndColumn[1], hasByteOrderMark);
-    int endColum = applyByteOrderMark(endLineAndColumn[1], hasByteOrderMark);
+    int i;
+    for (i = startIndex + 1; i < startIndex + value.length(); i++) {
+      int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(i);
+      // detect line changes
+      if (currentLineAndColumn[0] != startLineAndColumn[0]) {
+        int startColumn = applyByteOrderMark(currentLineAndColumn[1], hasByteOrderMark);
+        int endColum = applyByteOrderMark(previousLineAndColumn[1], hasByteOrderMark);
+        ranges.add(TextRanges.range(currentLineAndColumn[0], startColumn, previousLineAndColumn[0], endColum));
+        currentLineAndColumn = startLineAndColumn;
+      }
+      previousLineAndColumn = startLineAndColumn;
+    }
 
-    return TextRanges.range(startLineAndColumn[0], startColumn, endLineAndColumn[0], endColum);
+    // Add remaining range in the list
+    // fix in case we want the range of an empty value
+    int finalIndex = value.isEmpty() ? (i - 1) : i;
+    int[] endLineAndColumn = sourceOffset.sourceLineAndColumnAt(finalIndex);
+    int startColumn = applyByteOrderMark(currentLineAndColumn[1], hasByteOrderMark);
+    int endColum = applyByteOrderMark(endLineAndColumn[1], hasByteOrderMark);
+    ranges.add(TextRanges.range(currentLineAndColumn[0], startColumn, endLineAndColumn[0], endColum));
+
+    if (ranges.size() == 1) {
+      return ranges.get(0);
+    } else {
+      return new CompoundTextRange(ranges);
+    }
   }
 
   private static int applyByteOrderMark(int column, boolean hasByteOrderMark) {

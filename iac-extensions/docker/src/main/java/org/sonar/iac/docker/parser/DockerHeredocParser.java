@@ -20,11 +20,10 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Input;
-import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.impl.CompoundTextRange;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 /**
@@ -45,33 +44,22 @@ public class DockerHeredocParser extends DockerParser {
     return new DockerHeredocParser(new DockerHeredocNodeBuilder(), DockerLexicalGrammar.HEREDOC_FORM_CONTENT);
   }
 
-  public DockerTree parse(String source, TextPointer offset) {
-    this.heredocNodeBuilder.setOffset(offset);
+  public DockerTree parse(String source, TextRange originalTextRange) {
+    this.heredocNodeBuilder.setOriginalTextRange((CompoundTextRange) originalTextRange);
     return super.parse(source);
   }
 
   static class DockerHeredocNodeBuilder extends DockerNodeBuilder {
 
-    private TextPointer offset;
+    private CompoundTextRange originalTextRange;
 
     @Override
     protected TextRange tokenRange(Input input, int startIndex, String value) {
-      TextRange textRange = super.tokenRange(input, startIndex, value);
-      return shiftTextRange(textRange);
+      return originalTextRange.computeTextRangeAtIndex(startIndex, value);
     }
 
-    private TextRange shiftTextRange(TextRange textRange) {
-      TextPointer start = textRange.start();
-      TextPointer end = textRange.end();
-      return TextRanges.range(
-        start.line() + offset.line() - 1,
-        start.lineOffset() + (start.line() == 1 ? offset.lineOffset() : 0),
-        end.line() + offset.line() - 1,
-        end.lineOffset() + (end.line() == 1 ? offset.lineOffset() : 0));
-    }
-
-    protected void setOffset(TextPointer offset) {
-      this.offset = offset;
+    protected void setOriginalTextRange(CompoundTextRange originalTextRange) {
+      this.originalTextRange = originalTextRange;
     }
   }
 }
