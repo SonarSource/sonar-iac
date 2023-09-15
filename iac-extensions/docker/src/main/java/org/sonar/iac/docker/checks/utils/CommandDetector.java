@@ -175,8 +175,8 @@ public class CommandDetector {
       addCommandPredicate(new MultipleUnorderedOptionsPredicate(expectedOptions));
     }
 
-    private void addIncludeUnresolved(Predicate<String> predicate, CommandPredicate.Type type) {
-      addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, type));
+    private void addIncludeUnresolved(Predicate<String> predicate) {
+      addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, MATCH));
     }
 
     public CommandDetector.Builder with(Predicate<String> predicate) {
@@ -260,11 +260,11 @@ public class CommandDetector {
     }
 
     public CommandDetector.Builder withIncludeUnresolved(Predicate<String> predicate) {
-      addIncludeUnresolved(predicate, MATCH);
+      addIncludeUnresolved(predicate);
       return this;
     }
 
-    public CommandDetector.Builder withAnyExcludingIncludeUnresolved(Predicate<String> predicate) {
+    public CommandDetector.Builder withAnyIncludingUnresolvedExcluding(Predicate<String> predicate) {
       addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, ZERO_OR_MORE));
       return this;
     }

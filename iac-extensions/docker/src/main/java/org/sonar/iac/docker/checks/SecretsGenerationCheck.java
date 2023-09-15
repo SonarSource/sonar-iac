@@ -22,7 +22,6 @@ package org.sonar.iac.docker.checks;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -90,7 +89,7 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final CommandDetector SSHPASS_P_FLAG_NO_SPACE_PWD = CommandDetector.builder()
     .with("sshpass")
-    .withAnyExcludingIncludeUnresolved(arg -> !arg.startsWith("-p"))
+    .withAnyIncludingUnresolvedExcluding(arg -> !arg.startsWith("-p"))
     .withArgumentResolutionIncludeUnresolved(resolution -> resolution.value().startsWith("-p") &&
       (resolution.value().length() > 2 || resolution.argument().expressions().size() > 1))
     .build();
@@ -99,7 +98,7 @@ public class SecretsGenerationCheck implements IacCheck {
     String flagAndEquals = flag + "=";
     return CommandDetector.builder()
       .with("wget")
-      .withAnyExcludingIncludeUnresolved(arg -> !arg.startsWith(flagAndEquals))
+      .withAnyIncludingUnresolvedExcluding(arg -> !arg.startsWith(flagAndEquals))
       .withIncludeUnresolved(arg -> arg.startsWith(flagAndEquals))
       .build();
   }
@@ -113,12 +112,12 @@ public class SecretsGenerationCheck implements IacCheck {
       .build();
   }
 
-  private static final Set<CommandDetector> DETECTORS = Set.of(
+  private static final Set<CommandDetector> DETECTORS_THAT_STORE_SECRETS = Set.of(
     SSH_DETECTOR,
     KEYTOOL_DETECTOR,
     SENSITIVE_OPENSSL_COMMANDS);
 
-  private static final Set<CommandDetector> DETECTORS_IGNORE_MOUNT_SECRET = Set.of(
+  private static final Set<CommandDetector> DETECTORS_THAT_HAVE_SECRETS_IN_CMD = Set.of(
     WGET_PASSWORD_FLAG_EQUALS_PWD,
     WGET_PASSWORD_FLAG_SPACE_PWD,
     WGET_FTP_PASSWORD_FLAG_EQUALS_PWD,
@@ -143,25 +142,27 @@ public class SecretsGenerationCheck implements IacCheck {
       return;
     }
 
-    List<RunInstruction> runInstructions = dockerImage.instructions().stream()
+    dockerImage.instructions().stream()
       .filter(RunInstruction.class::isInstance)
       .map(RunInstruction.class::cast)
-      .collect(Collectors.toList());
-
-    runInstructions.forEach(runInstruction -> checkRunInstruction(ctx, runInstruction));
+      .forEach(runInstruction -> checkRunInstruction(ctx, runInstruction));
   }
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
-    DETECTORS.forEach(
+    DETECTORS_THAT_STORE_SECRETS.forEach(
       detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
 
     if (isMountSecret(runInstruction)) {
+      // Let's ignore the following detectors. Tha assumptions is that, if user use RUN --mount=type=secret
+      // then user knows how to do it in safe way. Still FN are possible, e.g.:
+      // `RUN --mount=type=secret wget --password ${PASSWORD}`
+      // There is docker variable substitution used that will occur before the execution of RUN instruction
       return;
     }
 
-    DETECTORS_IGNORE_MOUNT_SECRET.forEach(
+    DETECTORS_THAT_HAVE_SECRETS_IN_CMD.forEach(
       detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
 
     CURL_DETECTORS.forEach(
