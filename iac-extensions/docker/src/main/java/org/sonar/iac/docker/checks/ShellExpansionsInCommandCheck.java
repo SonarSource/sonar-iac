@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
@@ -39,6 +40,11 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 public class ShellExpansionsInCommandCheck implements IacCheck {
   private static final String MESSAGE = "Prefix files and paths with ./ or -- when using glob.";
   private static final Set<String> exceptionCommands = Set.of("echo", "printf");
+  private static final Set<String> exceptionBashTokensBefore = Set.of(
+    // double-dash signifies the end of program options; wildcards are allowed after it
+    "--",
+    // pattern matching in for loops is not a subject to the issue
+    "for");
 
   @Override
   public void initialize(InitContext init) {
@@ -53,9 +59,9 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
       .with(ShellExpansionsInCommandCheck::isShellExpansion)
       .build();
     for (List<ArgumentResolution> argumentResolutions : splitCommands.elements()) {
-      shellExpansionDetector.search(argumentResolutions).forEach(c -> {
+      shellExpansionDetector.search(argumentResolutions).forEach((CommandDetector.Command c) -> {
         List<ArgumentResolution> argumentResolutionsBeforeMatch = argumentResolutions.subList(0, argumentResolutions.indexOf(c.getResolvedArguments().get(0)));
-        if (contains(argumentResolutionsBeforeMatch, "--") || isCompliantExceptionCommand(argumentResolutionsBeforeMatch)) {
+        if (contains(argumentResolutionsBeforeMatch, exceptionBashTokensBefore) || isCompliantExceptionCommand(argumentResolutionsBeforeMatch)) {
           return;
         }
         ctx.reportIssue(c.textRange(), MESSAGE);
@@ -69,10 +75,12 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
       !arg.contains(")");
   }
 
-  private static boolean contains(List<ArgumentResolution> argumentResolutions, String symbol) {
+  private static boolean contains(List<ArgumentResolution> argumentResolutions, Collection<String> symbols) {
     for (ArgumentResolution argumentResolution : argumentResolutions) {
-      if (symbol.equals(argumentResolution.value())) {
-        return true;
+      for (String symbol : symbols) {
+        if (symbol.equals(argumentResolution.value())) {
+          return true;
+        }
       }
     }
     return false;
@@ -82,17 +90,17 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
     // Even exception commands are not allowed to have wildcard as a first argument after flag
     // So we need to check if one of the compliant commands is somewhere before wildcard but not immediately before
     // I.e. `echo *` or `echo -n *` are noncompliant, while `echo 'Files: ' *` is.
-    if (argumentResolutionsBeforeWildcard.size() < 2 ||
-      argumentResolutionsBeforeWildcard.get(argumentResolutionsBeforeWildcard.size() - 1).value().startsWith("-")) {
-      return false;
-    }
-    for (int i = argumentResolutionsBeforeWildcard.size() - 2; i >= 0; i--) {
-      if (argumentResolutionsBeforeWildcard.get(i).value().startsWith("-")) {
+    for (int i = argumentResolutionsBeforeWildcard.size() - 1; i >= 0; i--) {
+      if (isFlag(argumentResolutionsBeforeWildcard.get(i))) {
         return false;
       } else if (exceptionCommands.contains(argumentResolutionsBeforeWildcard.get(i).value())) {
-        return true;
+        return i != argumentResolutionsBeforeWildcard.size() - 1;
       }
     }
     return false;
+  }
+
+  private static boolean isFlag(ArgumentResolution arg) {
+    return arg.value().startsWith("-");
   }
 }

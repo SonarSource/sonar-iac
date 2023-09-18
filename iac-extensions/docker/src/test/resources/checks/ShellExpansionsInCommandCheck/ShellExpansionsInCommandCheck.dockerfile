@@ -33,6 +33,12 @@ RUN rm -- *
 RUN rm file.*
 RUN echo 'Files: ' *
 RUN printf '%s ' *
+RUN for i in *.gz; do tar zxvf $i; done;
+RUN (cd ${LIBSYSTEMD}/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done);
+
+# TODO SONARIAC-1103: FP due to a bug in ArgumentSplitter
+# Noncompliant@+1
+RUN echo "* * * * * umask 007; $APP_ROOT_PATH/bin/magento"
 
 # Noncompliant@+3
 RUN case "${alpineArch##*-}" in \
