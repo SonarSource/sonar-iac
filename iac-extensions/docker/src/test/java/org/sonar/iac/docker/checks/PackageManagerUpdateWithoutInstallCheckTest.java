@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 class PackageManagerUpdateWithoutInstallCheckTest {
   @Test
-  void test() {
+  void testRule() {
     DockerVerifier.verify("PackageManagerUpdateWithoutInstallCheck/PackageManagerUpdateWithoutInstallCheck.dockerfile", new PackageManagerUpdateWithoutInstallCheck());
   }
 }

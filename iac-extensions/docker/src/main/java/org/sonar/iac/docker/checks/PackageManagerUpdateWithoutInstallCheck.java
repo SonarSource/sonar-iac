@@ -54,7 +54,7 @@ public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
 
   private static void checkPackageManagerInvocations(CheckContext ctx, RunInstruction runInstruction) {
     SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(CheckUtils.resolveInstructionArguments(runInstruction));
-    for (int i = 0; i < splitCommands.elements().size(); i++) {
+    for (var i = 0; i < splitCommands.elements().size(); i++) {
       List<ArgumentResolution> argumentResolutions = splitCommands.elements().get(i);
       for (CommandDetector.Command command : PACKAGE_MANAGER_UPDATE_DETECTOR.search(argumentResolutions)) {
         List<List<ArgumentResolution>> commandsAfterMatch = splitCommands.elements().subList(i + 1, splitCommands.elements().size());

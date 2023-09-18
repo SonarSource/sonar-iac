@@ -24,7 +24,7 @@ import java.util.List;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
-public class DockerCheckList {
+public final class DockerCheckList {
   private DockerCheckList() {
 
   }
