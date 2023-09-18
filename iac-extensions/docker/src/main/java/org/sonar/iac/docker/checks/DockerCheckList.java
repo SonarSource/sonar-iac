@@ -24,7 +24,7 @@ import java.util.List;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
-public class DockerCheckList {
+public final class DockerCheckList {
   private DockerCheckList() {
 
   }
@@ -47,6 +47,7 @@ public class DockerCheckList {
       PackageInstallationCheck.class,
       PackageInstallationScriptExecutionCheck.class,
       PackageManagerConsentFlagCheck.class,
+      PackageManagerUpdateWithoutInstallCheck.class,
       ParsingErrorCheck.class,
       PosixPermissionCheck.class,
       PrivilegedUserCheck.class,
