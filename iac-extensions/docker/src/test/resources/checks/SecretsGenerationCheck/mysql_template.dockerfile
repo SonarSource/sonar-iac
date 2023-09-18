@@ -112,6 +112,10 @@ RUN --mount=type=secret,id=mysecret,required mysql --user=user -p$(echo ${PASSWO
 RUN --mount=type=secret --user=user -p$(cat /run/secrets/mysecret | openssl passwd -6 -stdin) db_name
 RUN --mount=type=secret,id=mysecret,required mysql --user=user -p$(cat /run/secrets/mysecret | openssl passwd -6 -stdin) db_name
 
+# If you omit the password value following the --password or -p option on the command line, it prompts for one.
+RUN mysql --password db_name
+RUN mysql -p db_name
+
 RUN mysql --user=user db_name
 RUN mysql db_name
 RUN mysql -h database_host database_name

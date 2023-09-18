@@ -8,10 +8,6 @@ FROM ubuntu:22.04
 
 ARG PASSWORD
 
-#tmp
-# Noncompliant@+1
-RUN sshpass "-p" "${PASSWORD}" ssh user@hostname
-
 # Noncompliant@+1
 RUN sshpass -p password ssh user@hostname
 #   ^^^^^^^^^^^^^^^^^^^

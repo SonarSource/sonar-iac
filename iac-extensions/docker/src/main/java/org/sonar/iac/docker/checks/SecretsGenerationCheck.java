@@ -91,14 +91,14 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final CommandDetector SSHPASS_P_FLAG_SPACE_PWD = commandFlagSpace("sshpass", "-p");
 
-  private static final CommandDetector SSHPASS_P_FLAG_NO_SPACE_PWD = commandsFlagNoSpacePwd(List.of("sshpass"), "-p");
+  private static final CommandDetector SSHPASS_P_FLAG_NO_SPACE_PWD = commandsFlagNoSpace(List.of("sshpass"), "-p");
 
   private static final List<String> MYSQL_COMMANDS = List.of("mysql", "mysqladmin", "mysqldump");
   private static final CommandDetector MYSQL_PASSWORD_EQUALS_PWD = commandsFlagEquals(MYSQL_COMMANDS, PASSWORD_FLAG);
 
-  private static final CommandDetector MYSQL_P_FLAG_NO_SPACE_PWD = commandsFlagNoSpacePwd(MYSQL_COMMANDS, "-p");
+  private static final CommandDetector MYSQL_P_FLAG_NO_SPACE_PWD = commandsFlagNoSpace(MYSQL_COMMANDS, "-p");
 
-  private static CommandDetector commandsFlagNoSpacePwd(List<String> commands, String flag) {
+  private static CommandDetector commandsFlagNoSpace(List<String> commands, String flag) {
     return CommandDetector.builder()
       .with(commands)
       .withAnyIncludingUnresolvedExcluding(arg -> !arg.startsWith(flag))
