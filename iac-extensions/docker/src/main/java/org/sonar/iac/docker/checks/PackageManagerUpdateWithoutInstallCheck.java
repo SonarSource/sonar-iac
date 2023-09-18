@@ -35,12 +35,13 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S6595")
 public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
   private static final String MESSAGE = "Update cache and install packages in single RUN instruction.";
+  private static final Set<String> PACKAGE_MANAGERS = Set.of("apk", "apt", "apt-get", "aptitude");
   private static final CommandDetector PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
-    .with(Set.of("apk", "apt", "apt-get", "aptitude"))
+    .with(PACKAGE_MANAGERS)
     .withOptionalRepeating(s -> true)
     .build();
   private static final CommandDetector PACKAGE_MANAGER_UPDATE_DETECTOR = CommandDetector.builder()
-    .with(Set.of("apk", "apt", "apt-get", "aptitude"))
+    .with(PACKAGE_MANAGERS)
     .withAnyFlag()
     // all currently supported programs have the same command for update
     .with("update")
@@ -57,9 +58,9 @@ public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
       List<ArgumentResolution> argumentResolutions = splitCommands.elements().get(i);
       for (CommandDetector.Command command : PACKAGE_MANAGER_UPDATE_DETECTOR.search(argumentResolutions)) {
         List<List<ArgumentResolution>> commandsAfterMatch = splitCommands.elements().subList(i + 1, splitCommands.elements().size());
-        commandsAfterMatch.add(0, argumentResolutions.subList(
-          argumentResolutions.indexOf(command.getResolvedArguments().get(command.getResolvedArguments().size() - 1)) + 1,
-          argumentResolutions.size()));
+        // In some cases, e.g. in HEREDOC, `ArgumentSplitter` doesn't split all the sub-commands.
+        // To account for this, we also need to analyze the part of the current command the region matched by CommandDetector.
+        commandsAfterMatch.add(0, subListAfter(argumentResolutions, command.getResolvedArguments()));
         // There may be various commands that would require updated indices, so we only check presence for absence of another invocation
         boolean hasNoPackageManagerInvocation = commandsAfterMatch.stream().allMatch(resolutions -> PACKAGE_MANAGER_DETECTOR.search(resolutions).isEmpty());
         if (hasNoPackageManagerInvocation) {
@@ -67,6 +68,11 @@ public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
         }
       }
     }
+  }
 
+  private static List<ArgumentResolution> subListAfter(List<ArgumentResolution> original, List<ArgumentResolution> part) {
+    return original.subList(
+      original.indexOf(part.get(part.size() - 1)) + 1,
+      original.size());
   }
 }
