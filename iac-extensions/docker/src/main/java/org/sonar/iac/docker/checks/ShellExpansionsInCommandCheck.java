@@ -59,7 +59,7 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
       .with(ShellExpansionsInCommandCheck::isShellExpansion)
       .build();
     for (List<ArgumentResolution> argumentResolutions : splitCommands.elements()) {
-      shellExpansionDetector.search(argumentResolutions).forEach(c -> {
+      shellExpansionDetector.search(argumentResolutions).forEach((CommandDetector.Command c) -> {
         List<ArgumentResolution> argumentResolutionsBeforeMatch = argumentResolutions.subList(0, argumentResolutions.indexOf(c.getResolvedArguments().get(0)));
         if (contains(argumentResolutionsBeforeMatch, exceptionBashTokensBefore) || isCompliantExceptionCommand(argumentResolutionsBeforeMatch)) {
           return;
@@ -90,17 +90,17 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
     // Even exception commands are not allowed to have wildcard as a first argument after flag
     // So we need to check if one of the compliant commands is somewhere before wildcard but not immediately before
     // I.e. `echo *` or `echo -n *` are noncompliant, while `echo 'Files: ' *` is.
-    if (argumentResolutionsBeforeWildcard.size() < 2 ||
-      argumentResolutionsBeforeWildcard.get(argumentResolutionsBeforeWildcard.size() - 1).value().startsWith("-")) {
-      return false;
-    }
-    for (int i = argumentResolutionsBeforeWildcard.size() - 2; i >= 0; i--) {
-      if (argumentResolutionsBeforeWildcard.get(i).value().startsWith("-")) {
+    for (int i = argumentResolutionsBeforeWildcard.size() - 1; i >= 0; i--) {
+      if (isFlag(argumentResolutionsBeforeWildcard.get(i))) {
         return false;
       } else if (exceptionCommands.contains(argumentResolutionsBeforeWildcard.get(i).value())) {
-        return true;
+        return i != argumentResolutionsBeforeWildcard.size() - 1;
       }
     }
     return false;
+  }
+
+  private static boolean isFlag(ArgumentResolution arg) {
+    return arg.value().startsWith("-");
   }
 }
