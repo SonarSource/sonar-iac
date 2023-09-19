@@ -70,6 +70,7 @@ public class SecretsGenerationCheck implements IacCheck {
     .build();
 
   private static final String PASSWORD_FLAG = "--password";
+
   // It detects: wget --password=MyPassword
   private static final CommandDetector WGET_PASSWORD_FLAG_EQUALS_PWD = commandsFlagEquals(List.of("wget"), PASSWORD_FLAG);
 
@@ -104,6 +105,12 @@ public class SecretsGenerationCheck implements IacCheck {
   private static final CommandDetector USERMOD_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("usermod", PASSWORD_FLAG);
   private static final CommandDetector USERMOD_P_FLAG_SPACE_PWD = commandFlagSpace("usermod", "-p");
 
+  private static final CommandDetector NET_USER_USERNAME_PASSWORD = CommandDetector.builder()
+    .with("net")
+    .with("user")
+    .withIncludeUnresolved(StringPredicate.startsWithIgnoreQuotes("/").negate())
+    .withIncludeUnresolved(StringPredicate.startsWithIgnoreQuotes("/").negate())
+    .build();
 
   private static CommandDetector commandsFlagNoSpace(List<String> commands, String flag) {
     return CommandDetector.builder()
@@ -152,7 +159,8 @@ public class SecretsGenerationCheck implements IacCheck {
     USERADD_PASSWORD_FLAG_SPACE_PWD,
     USERADD_P_FLAG_SPACE_PWD,
     USERMOD_PASSWORD_FLAG_SPACE_PWD,
-    USERMOD_P_FLAG_SPACE_PWD);
+    USERMOD_P_FLAG_SPACE_PWD,
+    NET_USER_USERNAME_PASSWORD);
 
   private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER_FLAG_SPACE_PWD,
     CURL_USER_SHORT_FLAG_SPACE_PWD);

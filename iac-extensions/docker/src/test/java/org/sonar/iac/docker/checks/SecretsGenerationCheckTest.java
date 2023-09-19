@@ -80,16 +80,23 @@ class SecretsGenerationCheckTest {
 
   @Test
   void testMySqlLocations() {
+    // language=RegExp
+    String a = "RUN --mount=type=secret.*net user";
     DockerVerifier.verify("SecretsGenerationCheck/mysql_locations.dockerfile", check);
   }
 
   @Test
-  void testMyUseradd() {
+  void testUseradd() {
     DockerVerifier.verify("SecretsGenerationCheck/useradd.dockerfile", check);
   }
 
   @Test
-  void testMyUsermod() {
+  void testUsermod() {
     DockerVerifier.verify("SecretsGenerationCheck/usermod.dockerfile", check);
+  }
+
+  @Test
+  void testNetUser() {
+    DockerVerifier.verify("SecretsGenerationCheck/net_user.dockerfile", check);
   }
 }
