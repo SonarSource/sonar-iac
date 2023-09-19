@@ -1,0 +1,57 @@
+<p>When installing packages an index is cached locally by default. The index can be used on-the-fly and not stored locally.</p>
+<h2>Why is this an issue?</h2>
+<p>Docker images should only contain necessary data. The package index is optional for the correct working of the installed software. Storing an index
+also increases the size of the Docker image. It should be reduced to speed up deployments and reduce storage and bandwidth.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+RUN apk add nginx
+RUN apt-get update \
+  &amp;&amp; apt-get install nginx
+RUN aptitude update \
+  &amp;&amp; aptitude install nginx
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+RUN apk --no-cache add nginx
+RUN apk add nginx \
+  &amp;&amp; rm -rf /var/lib/apt/lists/*
+RUN apk add nginx \
+  &amp;&amp; rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
+
+RUN apt-get update \
+  &amp;&amp; apt-get install nginx \
+  &amp;&amp; apt-get clean
+RUN apt-get update \
+  &amp;&amp; apt-get install nginx \
+  &amp;&amp; rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  &amp;&amp; apt-get install nginx \
+  &amp;&amp; rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
+
+RUN aptitude update \
+  &amp;&amp; aptitude install nginx \
+  &amp;&amp; aptitude clean
+RUN aptitude update \
+  &amp;&amp; aptitude install nginx \
+  &amp;&amp; rm -rf /var/lib/apt/lists/*
+RUN aptitude update \
+  &amp;&amp; aptitude install nginx \
+  &amp;&amp; rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
+</pre>
+<h3>How does this work?</h3>
+<p>When installing packages using <code>apk</code>, <code>apt-get</code>, or <code>aptitude</code> they store an index in the Docker image layer in
+<code>/var/lib/apt/lists/</code>. This index is not needed after installation, so it can be removed. To do that execute the <code>clean</code> command
+of your package manager tool or just run <code>rm -rf /var/lib/apt/lists/*</code>. Additionally, some lock files are stored in
+<code>/var/cache/apt/archives</code>. They are not removed by the <code>clean</code> command, so they need to be removed manually.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run">RUN - Best practices for writing Dockerfiles</a> </li>
+  <li> <a href="https://man.archlinux.org/man/apk.8.en">apk man</a> </li>
+  <li> <a href="https://linux.die.net/man/8/apt-get">apt-get man</a> </li>
+  <li> <a href="https://linux.die.net/man/8/aptitude">aptitude man</a> </li>
+  <li> <a href="https://askubuntu.com/questions/1050800/how-do-i-remove-the-apt-package-index">How do I remove the apt package index?</a> </li>
+</ul>
+

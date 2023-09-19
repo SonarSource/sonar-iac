@@ -44,6 +44,7 @@ public final class DockerCheckList {
       InstructionFormatCheck.class,
       MisusedUnsetCheck.class,
       MountWorldPermissionCheck.class,
+      PackageInstallationCacheCheck.class,
       PackageInstallationCheck.class,
       PackageInstallationScriptExecutionCheck.class,
       PackageManagerConsentFlagCheck.class,

@@ -1,0 +1,119 @@
+{
+"docker-project:sources/docker/awesome-compose/angular/angular/Dockerfile": [
+20
+],
+"docker-project:sources/docker/awesome-compose/apache-php/app/Dockerfile": [
+11
+],
+"docker-project:sources/docker/awesome-compose/django/app/Dockerfile": [
+15
+],
+"docker-project:sources/docker/awesome-compose/fastapi/Dockerfile": [
+17
+],
+"docker-project:sources/docker/awesome-compose/flask-redis/Dockerfile": [
+19
+],
+"docker-project:sources/docker/awesome-compose/flask/app/Dockerfile": [
+19
+],
+"docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile": [
+20
+],
+"docker-project:sources/docker/awesome-compose/nginx-flask-mongo/flask/Dockerfile": [
+17
+],
+"docker-project:sources/docker/awesome-compose/nginx-flask-mysql/backend/Dockerfile": [
+24
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang-mysql/backend/Dockerfile": [
+26
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang-postgres/backend/Dockerfile": [
+26
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang/backend/Dockerfile": [
+26
+],
+"docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/flask/Dockerfile": [
+7
+],
+"docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/nginx/Dockerfile": [
+4
+],
+"docker-project:sources/docker/awesome-compose/react-express-mongodb/backend/Dockerfile": [
+21
+],
+"docker-project:sources/docker/awesome-compose/react-express-mongodb/frontend/Dockerfile": [
+31
+],
+"docker-project:sources/docker/awesome-compose/react-express-mysql/backend/Dockerfile": [
+38
+],
+"docker-project:sources/docker/awesome-compose/react-express-mysql/frontend/Dockerfile": [
+23
+],
+"docker-project:sources/docker/awesome-compose/react-java-mysql/backend/Dockerfile": [
+15
+],
+"docker-project:sources/docker/awesome-compose/react-java-mysql/frontend/Dockerfile": [
+20
+],
+"docker-project:sources/docker/awesome-compose/react-nginx/Dockerfile": [
+31
+],
+"docker-project:sources/docker/awesome-compose/react-rust-postgres/backend/Dockerfile": [
+25
+],
+"docker-project:sources/docker/awesome-compose/react-rust-postgres/frontend/Dockerfile": [
+18
+],
+"docker-project:sources/docker/awesome-compose/sparkjava-mysql/backend/Dockerfile": [
+15
+],
+"docker-project:sources/docker/awesome-compose/sparkjava/sparkjava/Dockerfile": [
+15
+],
+"docker-project:sources/docker/awesome-compose/spring-postgres/backend/Dockerfile": [
+14
+],
+"docker-project:sources/docker/awesome-compose/traefik-golang/backend/Dockerfile": [
+13
+],
+"docker-project:sources/docker/awesome-compose/vuejs/vuejs/Dockerfile": [
+17
+],
+"docker-project:sources/docker/compose-dev-env/backend/Dockerfile": [
+10
+],
+"docker-project:sources/docker/compose-dev-env/proxy/Dockerfile": [
+4
+],
+"docker-project:sources/docker/docker-containers/alpine3.7_py3.5.5_analytics/Dockerfile": [
+80
+],
+"docker-project:sources/docker/docker-containers/dockeransible/Dockerfile": [
+82
+],
+"docker-project:sources/docker/docker-containers/pyalp/alpine3.7_py3.5.5/Dockerfile": [
+80
+],
+"docker-project:sources/docker/docker-containers/pyalp/alpine3.8_py3.5.5/Dockerfile": [
+80
+],
+"docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu16.04/Dockerfile": [
+3
+],
+"docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu16.04_host_phusion/Dockerfile": [
+3
+],
+"docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu18.04/Dockerfile": [
+3
+],
+"docker-project:sources/docker/dockercoins/hasher/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockercoins/stacks/dockercoins/hasher/Dockerfile": [
+2
+]
+}
