@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Input;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -44,9 +45,9 @@ public class DockerHeredocParser extends DockerParser {
     return new DockerHeredocParser(new DockerHeredocNodeBuilder(), DockerLexicalGrammar.HEREDOC_FORM_CONTENT);
   }
 
-  public DockerTree parse(String source, TextRange originalTextRange) {
-    this.heredocNodeBuilder.setOriginalTextRange((CompoundTextRange) originalTextRange);
-    return super.parse(source);
+  public DockerTree parse(TextTree token) {
+    this.heredocNodeBuilder.setOriginalTextRange((CompoundTextRange) token.textRange());
+    return super.parse(token.value());
   }
 
   static class DockerHeredocNodeBuilder extends DockerNodeBuilder {

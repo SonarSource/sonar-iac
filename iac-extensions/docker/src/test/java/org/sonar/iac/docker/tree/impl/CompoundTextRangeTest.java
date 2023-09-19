@@ -22,17 +22,67 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class CompoundTextRangeTest {
 
   @Test
-  void equals() {
-    TextRange range = TextRanges.range(1, 2, 3, 4);
-    TextRange sameRange = TextRanges.range(1, 2, 3, 4);
-    TextRange differentRange = TextRanges.range(5, 6, 7, 8);
+  void shouldReturnCorrectIndexForSingleLine() {
+    var ranges = ranges(range(1, 1, 1, 10));
+    CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
+
+    TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "test");
+    assertRange(range, 1, 6, 1, 10);
+  }
+
+  @Test
+  void shouldReturnCorrectIndexForEmptyValue() {
+    var ranges = ranges(range(1, 1, 1, 10));
+    CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
+
+    TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "");
+    assertRange(range, 1, 6, 1, 6);
+  }
+
+  @Test
+  void shouldReturnCorrectIndexForTwoLine() {
+    var ranges = ranges(range(1, 1, 1, 10),
+      range(2, 1, 2, 10));
+    CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
+
+    TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "test_value");
+    assertRange(range, 1, 6, 2, 5);
+  }
+
+  @Test
+  void shouldReturnCorrectIndexStartingNotOnFirstLine() {
+    var ranges = ranges(range(1, 1, 1, 10),
+      range(2, 1, 2, 10));
+    CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
+
+    TextRange range = compoundTextRange.computeTextRangeAtIndex(12, "test");
+    assertRange(range, 2, 3, 2, 7);
+  }
+
+  @Test
+  void shouldReturnCorrectIndexForMultiLineWithEmptyLines() {
+    var ranges = ranges(range(1, 1, 1, 10),
+      range(2, 1, 2, 1),
+      range(3, 1, 3, 1),
+      range(4, 1, 4, 10));
+    CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
+
+    TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "test_value");
+    assertRange(range, 1, 6, 4, 3);
+  }
+
+  @Test
+  void shouldEqualsToItselfOrEquivalent() {
+    TextRange range = range(1, 2, 3, 4);
+    TextRange sameRange = range(1, 2, 3, 4);
+    TextRange differentRange = range(5, 6, 7, 8);
     CompoundTextRange compoundTextRange = new CompoundTextRange(List.of(range));
     CompoundTextRange compoundTextRangeSame = new CompoundTextRange(List.of(sameRange));
     CompoundTextRange compoundTextRangeDifferent = new CompoundTextRange(List.of(differentRange));
@@ -47,5 +97,16 @@ class CompoundTextRangeTest {
       .isNotEqualTo(compoundTextRangeEmpty)
       .isNotEqualTo(null)
       .isNotEqualTo(new Object());
+  }
+
+  List<TextRange> ranges(TextRange... ranges) {
+    return List.of(ranges);
+  }
+
+  void assertRange(TextRange range, int startLine, int startOffset, int endLine, int endOffset) {
+    assertThat(range.start().line()).withFailMessage("Invalid start line: expected %s, got %s", startLine, range.start().line()).isEqualTo(startLine);
+    assertThat(range.start().lineOffset()).withFailMessage("Invalid start line offset: expected %s, got %s", startLine, range.start().lineOffset()).isEqualTo(startOffset);
+    assertThat(range.end().line()).withFailMessage("Invalid end line: expected %s, got %s", startLine, range.end().line()).isEqualTo(endLine);
+    assertThat(range.end().lineOffset()).withFailMessage("Invalid end line offset: expected %s, got %s", startLine, range.end().lineOffset()).isEqualTo(endOffset);
   }
 }

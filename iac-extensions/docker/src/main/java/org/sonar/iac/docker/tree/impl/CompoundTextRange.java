@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.Iterator;
 import java.util.List;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -36,29 +37,40 @@ public class CompoundTextRange extends TextRange {
    * It combines the {@code startIndex} and the {@code token} length to find which of the {@link #textRanges} are covered, to compute the correct single/multi line {@link TextRange}.
    */
   public TextRange computeTextRangeAtIndex(int startIndex, String token) {
-    int i = 0;
-    TextRange current = textRanges.get(i);
-    TextRange startRange;
-    // find the textRange for start index
-    while (startIndex > current.end().lineOffset() - current.start().lineOffset()) {
-      startIndex -= current.end().lineOffset() - current.start().lineOffset() + 1;
-      i++;
-      current = textRanges.get(i);
-    }
-    startRange = current;
-    int end = startIndex + token.length();
-    // continue to look for the end index
-    while (end > current.end().lineOffset() - current.start().lineOffset()) {
-      end -= current.end().lineOffset() - current.start().lineOffset() + 1;
-      i++;
-      current = textRanges.get(i);
-    }
+    var rangeIterator = new IteratorWrapper<>(textRanges.iterator());
+    rangeIterator.next();
+
+    // find starting range
+    int index = navigateToRangeAtIndex(rangeIterator, startIndex);
+    TextRange startRange = rangeIterator.current();
+    // find ending range
+    int endIndex = index + token.length();
+    int finalIndex = navigateToRangeAtIndex(rangeIterator, endIndex);
+    TextRange endRange = rangeIterator.current();
+
     // compute the final range
     int startLine = startRange.start().line();
-    int startOffset = startRange.start().lineOffset() + startIndex;
-    int endLine = current.end().line();
-    int endOffset = (startRange.start().line() != current.end().line() ? 0 : startRange.start().lineOffset()) + end;
+    int startOffset = startRange.start().lineOffset() + index;
+    int endLine = endRange.end().line();
+    int endOffset = finalIndex;
+    if (startRange.start().line() == endRange.end().line()) {
+      endOffset += startRange.start().lineOffset();
+    }
+
     return TextRanges.range(startLine, startOffset, endLine, endOffset);
+  }
+
+  public int navigateToRangeAtIndex(IteratorWrapper<TextRange> iterator, int index) {
+    TextRange currentRange = iterator.current();
+    while (index > sizeOfRange(currentRange)) {
+      index -= sizeOfRange(currentRange) + 1;
+      currentRange = iterator.next();
+    }
+    return index;
+  }
+
+  private static int sizeOfRange(TextRange range) {
+    return range.end().lineOffset() - range.start().lineOffset();
   }
 
   @Override
@@ -76,5 +88,23 @@ public class CompoundTextRange extends TextRange {
   @Override
   public int hashCode() {
     return textRanges.hashCode();
+  }
+
+  static class IteratorWrapper<E> {
+    private final Iterator<E> iterator;
+    private E current;
+
+    public IteratorWrapper(Iterator<E> iterator) {
+      this.iterator = iterator;
+    }
+
+    public E next() {
+      current = iterator.next();
+      return current;
+    }
+
+    public E current() {
+      return current;
+    }
   }
 }
