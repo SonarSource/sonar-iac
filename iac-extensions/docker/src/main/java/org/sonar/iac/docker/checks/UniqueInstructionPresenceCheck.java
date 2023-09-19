@@ -47,23 +47,22 @@ public class UniqueInstructionPresenceCheck implements IacCheck {
 
   private static void checkUniqueInstruction(CheckContext ctx, Body body) {
     Map<DockerTree.Kind, List<Instruction>> foundInstructionsOfKind = new EnumMap<>(DockerTree.Kind.class);
-    List<Instruction> allBodyInstructions = body.dockerImages()
+
+    body.dockerImages()
       .stream()
       .flatMap(image -> image.instructions().stream())
-      .collect(Collectors.toList());
+      .forEach(instruction -> {
+        var kind = instruction.getKind();
+        if (uniqueInstructionKindsWithLabel.containsKey(kind)) {
+          foundInstructionsOfKind.computeIfAbsent(kind, key -> new ArrayList<>()).add(instruction);
+        }
+      });
 
-    for (Instruction instruction : allBodyInstructions) {
-      var kind = instruction.getKind();
-      if (uniqueInstructionKindsWithLabel.containsKey(kind)) {
-        foundInstructionsOfKind.computeIfAbsent(kind, key -> new ArrayList<>()).add(instruction);
-      }
-    }
-
-    for (Map.Entry<DockerTree.Kind, List<Instruction>> entry : foundInstructionsOfKind.entrySet()) {
-      String label = uniqueInstructionKindsWithLabel.get(entry.getKey());
-      List<Instruction> instructions = entry.getValue();
+    for (var instructionsByKind : foundInstructionsOfKind.entrySet()) {
+      String kindLabel = uniqueInstructionKindsWithLabel.get(instructionsByKind.getKey());
+      List<Instruction> instructions = instructionsByKind.getValue();
       for (Instruction instruction : instructions.subList(0, instructions.size() - 1)) {
-        ctx.reportIssue(instruction, String.format(MESSAGE, label));
+        ctx.reportIssue(instruction, String.format(MESSAGE, kindLabel));
       }
     }
   }
