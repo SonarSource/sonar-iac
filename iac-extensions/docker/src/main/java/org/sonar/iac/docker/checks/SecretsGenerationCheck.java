@@ -109,8 +109,20 @@ public class SecretsGenerationCheck implements IacCheck {
     .with("net")
     .with("user")
     .withIncludeUnresolved(StringPredicate.startsWithIgnoreQuotes("/").negate())
-    .withIncludeUnresolved(StringPredicate.startsWithIgnoreQuotes("/").negate())
+    .withIncludeUnresolved(
+      StringPredicate.startsWithIgnoreQuotes("/")
+        .or(StringPredicate.startsWithIgnoreQuotes("*"))
+        .negate())
     .build();
+
+  private static final CommandDetector DRUSH_USER_PASSWORD = CommandDetector.builder()
+    .with("drush")
+    .with(List.of("user:password", "upwd", "user-password"))
+    .with(arg -> true)
+    .withIncludeUnresolved(arg -> true)
+    .build();
+
+  private static final CommandDetector DRUSH_PASSWORD_FLAG_EQUALS_PWD = commandsFlagEquals(List.of("drush"), PASSWORD_FLAG);
 
   private static CommandDetector commandsFlagNoSpace(List<String> commands, String flag) {
     return CommandDetector.builder()
@@ -160,7 +172,9 @@ public class SecretsGenerationCheck implements IacCheck {
     USERADD_P_FLAG_SPACE_PWD,
     USERMOD_PASSWORD_FLAG_SPACE_PWD,
     USERMOD_P_FLAG_SPACE_PWD,
-    NET_USER_USERNAME_PASSWORD);
+    NET_USER_USERNAME_PASSWORD,
+    DRUSH_USER_PASSWORD,
+    DRUSH_PASSWORD_FLAG_EQUALS_PWD);
 
   private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER_FLAG_SPACE_PWD,
     CURL_USER_SHORT_FLAG_SPACE_PWD);

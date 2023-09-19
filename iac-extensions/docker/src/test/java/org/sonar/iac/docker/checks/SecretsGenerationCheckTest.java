@@ -99,4 +99,9 @@ class SecretsGenerationCheckTest {
   void testNetUser() {
     DockerVerifier.verify("SecretsGenerationCheck/net_user.dockerfile", check);
   }
+
+  @Test
+  void testDrush() {
+    DockerVerifier.verify("SecretsGenerationCheck/drush.dockerfile", check);
+  }
 }

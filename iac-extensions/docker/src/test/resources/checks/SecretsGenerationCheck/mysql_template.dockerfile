@@ -8,10 +8,6 @@ FROM ubuntu:22.04
 
 ARG PASSWORD
 
-#tmp
-# Noncompliant@+1
-RUN mysql --user=user "-p$PASSWORD" db_name
-
 # Noncompliant@+1
 RUN mysql --user=user --password=MySuperPassword db_name
 

@@ -64,10 +64,8 @@ RUN --mount=type=secret,id=mysecret,required net user username $(echo ${PASSWORD
 RUN --mount=type=secret net user username $(cat C:\ProgramData\Docker\secrets\secret | openssl passwd -6 -stdin)
 RUN --mount=type=secret,id=mysecret,required net user username $(cat C:\ProgramData\Docker\secrets\secret | openssl passwd -6 -stdin)
 
-# It's wrong usage of usermod because those flags require an argument
 RUN net user username
+RUN net user username *
 RUN net user /add
-
-RUN net user username
 RUN sudo net user username /delete
 RUN net user username /active:yes /comment:"Foo Bar"
