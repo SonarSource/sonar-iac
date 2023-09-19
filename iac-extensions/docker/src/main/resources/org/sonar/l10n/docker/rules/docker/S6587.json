@@ -1,0 +1,21 @@
+{
+  "title": "Cache should be cleaned after package installation",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6587",
+  "sqKey": "S6587",
+  "scope": "All",
+  "quickfix": "unknown"
+}
