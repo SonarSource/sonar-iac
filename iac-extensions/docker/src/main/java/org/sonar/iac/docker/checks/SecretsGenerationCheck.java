@@ -22,6 +22,7 @@ package org.sonar.iac.docker.checks;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -102,24 +103,7 @@ public class SecretsGenerationCheck implements IacCheck {
     return CommandDetector.builder()
       .with(commands)
       .withAnyIncludingUnresolvedExcluding(arg -> !arg.startsWith(flag))
-      .withArgumentResolutionIncludeUnresolved(resolution -> {
-        if (resolution.value().startsWith(flag)) {
-          if (resolution.value().length() > 2) {
-            // for -p"PASSWORD" and -p'PASSWORD'
-            return true;
-          }
-          if (resolution.argument().expressions().size() > 1) {
-            // for -p"$PASSWORD", -p$PASSWORD etc
-            return true;
-          }
-          if (resolution.argument().expressions().get(0).is(DockerTree.Kind.EXPANDABLE_STRING_LITERAL)) {
-            ExpandableStringLiteral expression = (ExpandableStringLiteral) resolution.argument().expressions().get(0);
-            // for "-p$PASSWORD"
-            return expression.expressions().size() > 1;
-          }
-        }
-        return false;
-      })
+      .withArgumentResolutionIncludeUnresolved(new FlagNoSpaceArgumentPredicate(flag))
       .build();
   }
 
@@ -256,6 +240,39 @@ public class SecretsGenerationCheck implements IacCheck {
 
     private static boolean detectedSensitiveCommand(boolean flagB, boolean flagN, int numberOfNonFlags) {
       return flagB && ((!flagN && numberOfNonFlags == 4) || (flagN && numberOfNonFlags == 3));
+    }
+  }
+
+  /**
+   * The predicate for the flag that it is glued to the argument, e.g.: {@code -pPASSWORD}
+   * (there is no space between flag and argument).
+   */
+  public static class FlagNoSpaceArgumentPredicate implements Predicate<ArgumentResolution> {
+
+    private final String flag;
+
+    public FlagNoSpaceArgumentPredicate(String flag) {
+      this.flag = flag;
+    }
+
+    @Override
+    public boolean test(ArgumentResolution resolution) {
+      if (resolution.value().startsWith(flag)) {
+        if (resolution.value().length() > flag.length()) {
+          // for -p"PASSWORD" and -p'PASSWORD'
+          return true;
+        }
+        if (resolution.argument().expressions().size() > 1) {
+          // for -p"$PASSWORD", -p$PASSWORD etc
+          return true;
+        }
+        if (resolution.argument().expressions().get(0).is(DockerTree.Kind.EXPANDABLE_STRING_LITERAL)) {
+          ExpandableStringLiteral expression = (ExpandableStringLiteral) resolution.argument().expressions().get(0);
+          // for "-p$PASSWORD"
+          return expression.expressions().size() > 1;
+        }
+      }
+      return false;
     }
   }
 }
