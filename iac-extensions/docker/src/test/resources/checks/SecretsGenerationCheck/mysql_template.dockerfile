@@ -109,7 +109,7 @@ RUN cd /tmp && \
 RUN --mount=type=secret,id=mysecret,required mysql --user=user -p$(echo ${PASSWORD} | openssl passwd -6 -stdin) db_name
 
 # Compliant
-RUN --mount=type=secret --user=user -p$(cat /run/secrets/mysecret | openssl passwd -6 -stdin) db_name
+RUN --mount=type=secret mysql --user=user -p$(cat /run/secrets/mysecret | openssl passwd -6 -stdin) db_name
 RUN --mount=type=secret,id=mysecret,required mysql --user=user -p$(cat /run/secrets/mysecret | openssl passwd -6 -stdin) db_name
 
 # If you omit the password value following the --password or -p option on the command line, it prompts for one.

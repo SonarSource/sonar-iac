@@ -99,6 +99,12 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final CommandDetector MYSQL_P_FLAG_NO_SPACE_PWD = commandsFlagNoSpace(MYSQL_COMMANDS, "-p");
 
+  private static final CommandDetector USERADD_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("useradd", PASSWORD_FLAG);
+  private static final CommandDetector USERADD_P_FLAG_SPACE_PWD = commandFlagSpace("useradd", "-p");
+  private static final CommandDetector USERMOD_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("usermod", PASSWORD_FLAG);
+  private static final CommandDetector USERMOD_P_FLAG_SPACE_PWD = commandFlagSpace("usermod", "-p");
+
+
   private static CommandDetector commandsFlagNoSpace(List<String> commands, String flag) {
     return CommandDetector.builder()
       .with(commands)
@@ -142,7 +148,11 @@ public class SecretsGenerationCheck implements IacCheck {
     SSHPASS_P_FLAG_NO_SPACE_PWD,
     SSHPASS_P_FLAG_SPACE_PWD,
     MYSQL_PASSWORD_EQUALS_PWD,
-    MYSQL_P_FLAG_NO_SPACE_PWD);
+    MYSQL_P_FLAG_NO_SPACE_PWD,
+    USERADD_PASSWORD_FLAG_SPACE_PWD,
+    USERADD_P_FLAG_SPACE_PWD,
+    USERMOD_PASSWORD_FLAG_SPACE_PWD,
+    USERMOD_P_FLAG_SPACE_PWD);
 
   private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER_FLAG_SPACE_PWD,
     CURL_USER_SHORT_FLAG_SPACE_PWD);

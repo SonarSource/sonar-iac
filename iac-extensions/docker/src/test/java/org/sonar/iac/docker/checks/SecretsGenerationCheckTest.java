@@ -82,4 +82,14 @@ class SecretsGenerationCheckTest {
   void testMySqlLocations() {
     DockerVerifier.verify("SecretsGenerationCheck/mysql_locations.dockerfile", check);
   }
+
+  @Test
+  void testMyUseradd() {
+    DockerVerifier.verify("SecretsGenerationCheck/useradd.dockerfile", check);
+  }
+
+  @Test
+  void testMyUsermod() {
+    DockerVerifier.verify("SecretsGenerationCheck/usermod.dockerfile", check);
+  }
 }
