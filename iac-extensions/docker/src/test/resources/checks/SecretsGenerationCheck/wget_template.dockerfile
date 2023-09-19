@@ -27,6 +27,9 @@ RUN wget --user=guest "--flag=$PASSWORD" https://example.com
 RUN wget --user=guest --flag="${PASSWORD}" https://example.com
 
 # Noncompliant@+1
+RUN wget --user=guest "--flag=$PASSWORD" https://example.com
+
+# Noncompliant@+1
 RUN wget --user=guest --flag="${PASSWORD:-test}" https://example.com
 
 # Noncompliant@+1
@@ -93,11 +96,17 @@ RUN wget --user=guest --flag ${PASSWORD:+test} https://example.com >> file.zip &
 RUN cd /tmp && \
     wget --user=guest --flag ${PASSWORD:+test} https://example.com >> file.zip
 
+# Noncompliant@+1
+RUN --network=none wget --user=guest --flag ${PASSWORD} https://example.com
+
+# Noncompliant@+1
+RUN --mount=type=tmpfs wget --user=guest --flag $(echo ${PASSWORD} | openssl passwd -6 -stdin) https://example.com
+
 # FN It is misuse of --mount=type=secret, but for now detection in sub shell is not possible
-RUN --mount=type=secret,id=mysecret,required wget --user=guest --flag $(echo ${PASSWORD} | openssl passwd -6 -stdin)
+RUN --mount=type=secret,id=mysecret,required wget --user=guest --flag $(echo ${PASSWORD} | openssl passwd -6 -stdin) https://example.com
 
 # Compliant
-RUN --mount=type=secret,id=mysecret,required wget --user=guest --flag $(cat /run/secrets/mysecret | openssl passwd -6 -stdin)
+RUN --mount=type=secret,id=mysecret,required wget --user=guest --flag $(cat /run/secrets/mysecret | openssl passwd -6 -stdin) https://example.com
 RUN wget https://example.com
 RUN wget --user=guest https://example.com
 RUN wget --user=guest --ask-password https://example.com
