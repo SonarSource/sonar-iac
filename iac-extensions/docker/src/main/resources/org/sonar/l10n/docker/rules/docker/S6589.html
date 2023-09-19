@@ -1,0 +1,33 @@
+<p>The Dockerfile should contain at most one <code>ENTRYPOINT</code> and one <code>CMD</code> instruction, because only the last one will have an
+effect.</p>
+<h2>Why is this an issue?</h2>
+<p>Multiple <code>ENTRYPOINT</code> or <code>CMD</code> instructions in a file can lead to confusion as we may think they are all applied, which is
+not the case. Previous <code>ENTRYPOINT</code> and <code>CMD</code> instructions should be removed to avoid this.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+ENTRYPOINT ignored_entrypoint param1 param2
+ENTRYPOINT effective_entrypoint param1 param2
+
+CMD ignored_cmd param1 param2
+CMD effective_cmd param1 param2
+</pre>
+<p>Here we have multiple <code>ENTRYPOINT</code> and <code>CMD</code> instructions. The first <code>ENTRYPOINT</code> and the first <code>CMD</code>
+instructions will have no effect. Although this is valid in Docker, this can lead to confusion and be error-prone, as we may expect each
+<code>CMD</code> and <code>ENTRYPOINT</code> to have an effect.</p>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+ENTRYPOINT effective_entrypoint param1 param2
+
+CMD effective_cmd param1 param2
+</pre>
+<p>Here we have only one ENTRYPOINT and one CMD instruction. Each of them will be considered by the docker container and have a normal effect as we
+can expect.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#entrypoint">ENTRYPOINT - Dockerfile reference</a> </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#cmd">CMD - Dockerfile reference</a> </li>
+</ul>
+

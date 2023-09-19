@@ -1,0 +1,70 @@
+{
+"docker-project:sources/docker/awesome-compose/angular/angular/Dockerfile": [
+14
+],
+"docker-project:sources/docker/awesome-compose/apache-php/app/Dockerfile": [
+5
+],
+"docker-project:sources/docker/awesome-compose/django/app/Dockerfile": [
+10
+],
+"docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile": [
+14,
+31
+],
+"docker-project:sources/docker/awesome-compose/nginx-flask-mongo/flask/Dockerfile": [
+11
+],
+"docker-project:sources/docker/awesome-compose/nginx-flask-mysql/backend/Dockerfile": [
+18
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang-mysql/backend/Dockerfile": [
+20,
+37
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang-postgres/backend/Dockerfile": [
+20,
+37
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang/backend/Dockerfile": [
+20,
+37
+],
+"docker-project:sources/docker/awesome-compose/react-express-mongodb/backend/Dockerfile": [
+16
+],
+"docker-project:sources/docker/awesome-compose/react-express-mongodb/frontend/Dockerfile": [
+26
+],
+"docker-project:sources/docker/awesome-compose/react-express-mysql/frontend/Dockerfile": [
+14
+],
+"docker-project:sources/docker/awesome-compose/react-java-mysql/frontend/Dockerfile": [
+15
+],
+"docker-project:sources/docker/awesome-compose/react-nginx/Dockerfile": [
+21
+],
+"docker-project:sources/docker/awesome-compose/react-rust-postgres/backend/Dockerfile": [
+18,
+35
+],
+"docker-project:sources/docker/awesome-compose/react-rust-postgres/frontend/Dockerfile": [
+13
+],
+"docker-project:sources/docker/awesome-compose/sparkjava-mysql/backend/Dockerfile": [
+25
+],
+"docker-project:sources/docker/awesome-compose/sparkjava/sparkjava/Dockerfile": [
+25
+],
+"docker-project:sources/docker/awesome-compose/traefik-golang/backend/Dockerfile": [
+23
+],
+"docker-project:sources/docker/awesome-compose/vuejs/vuejs/Dockerfile": [
+12
+],
+"docker-project:sources/docker/compose-dev-env/backend/Dockerfile": [
+11
+]
+}
