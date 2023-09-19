@@ -20,6 +20,8 @@
 package org.sonar.iac.docker.symbols;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,6 +35,7 @@ import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
+import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
@@ -164,6 +167,43 @@ class ArgumentResolutionTest {
     ArgumentResolution resolution = ArgumentResolution.of(label);
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(UNRESOLVED);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "FROM scratch\nARG FOO=\"foo\"\nRUN echo $FOO",
+    "FROM scratch\nARG FOO=\"foo\"\nRUN echo \"$FOO\"",
+    "FROM scratch\nARG FOO=\"foo\"\nRUN echo \"${FOO}\"",
+  // "FROM scratch\nARG FOO=\"foo\"\nRUN [\"echo\", \"\\\"${FOO}\\\"\"]",
+  })
+  void shouldNotDuplicateQuotesAfterResolution(String input) {
+    File file = parseFileAndAnalyzeSymbols(input);
+
+    List<Argument> arguments = TreeUtils.firstDescendant(file, RunInstruction.class).get().arguments();
+    List<ArgumentResolution> argumentResolutions = arguments.stream().map(ArgumentResolution::ofWithoutStrippingQuotes).collect(Collectors.toList());
+    ArgumentResolution stringArgument = argumentResolutions.get(1);
+
+    assertThat(stringArgument.value())
+      // .isEqualTo("\"foo\"")
+      .doesNotStartWith("\"\"")
+      .doesNotEndWith("\"\"");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "FROM scratch\nRUN echo \"date; $APP_ROOT_PATH/bin/magento\"",
+    "FROM scratch\nRUN echo \"date; /usr/bin/magento\"",
+    "FROM scratch\nRUN [\"echo\", \"\\\"date; $APP_ROOT_PATH/bin/magento\\\"\"]",
+  })
+  void shouldPreserveQuotesInArguments(String input) {
+    File file = parseFileAndAnalyzeSymbols(input);
+
+    List<Argument> arguments = TreeUtils.firstDescendant(file, RunInstruction.class).get().arguments();
+    List<ArgumentResolution> argumentResolutions = arguments.stream().map(ArgumentResolution::ofWithoutStrippingQuotes).collect(Collectors.toList());
+    ArgumentResolution stringArgument = argumentResolutions.get(1);
+    assertThat(stringArgument.value())
+      .matches(s -> s.startsWith("\"") || s.startsWith("\\\""))
+      .matches(s -> s.endsWith("\"") || s.endsWith("\\\""));
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {

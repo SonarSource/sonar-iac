@@ -23,4 +23,8 @@ import java.util.List;
 
 public interface ExpandableStringLiteral extends Expression {
   List<Expression> expressions();
+
+  SyntaxToken getOpenDoubleQuote();
+
+  SyntaxToken getCloseDoubleQuote();
 }

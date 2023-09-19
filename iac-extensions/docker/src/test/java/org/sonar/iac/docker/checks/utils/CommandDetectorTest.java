@@ -25,10 +25,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.docker.DockerAssertions;
+import org.sonar.iac.docker.parser.grammar.DockerKeyword;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
+import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
+import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -182,6 +186,10 @@ class CommandDetectorTest {
     int offset = 0;
     for (String str : strs) {
       Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, range(1, offset, str), List.of()))));
+      arg.expressions().forEach(e -> e.setParent(arg));
+      ArgumentList shellForm = new ShellFormImpl(List.of(arg));
+      arg.setParent(shellForm);
+      shellForm.setParent(new RunInstructionImpl(new SyntaxTokenImpl(DockerKeyword.RUN.getValue(), range(0, 0, str), List.of()), List.of(), shellForm));
       offset += str.length() + 1;
       arguments.add(ArgumentResolution.ofWithoutStrippingQuotes(arg));
     }

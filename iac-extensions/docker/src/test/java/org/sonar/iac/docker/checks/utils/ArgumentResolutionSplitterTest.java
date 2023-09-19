@@ -54,4 +54,16 @@ class ArgumentResolutionSplitterTest {
     List<String> separators = commandsWithSeparators.separators();
     assertThat(separators).containsExactly("&&", "||", ";", "&");
   }
+
+  @Test
+  void shouldNotSplitQuoted() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "\"* * * * * umask 007; $APP_ROOT_PATH/bin/magento\"");
+
+    SeparatedList<List<ArgumentResolution>, String> commandsWithSeparators = ArgumentResolutionSplitter.splitCommands(arguments);
+
+    List<List<ArgumentResolution>> commands = commandsWithSeparators.elements();
+
+    assertThat(commands).hasSize(1);
+    assertThat(commandsWithSeparators.separators()).isEmpty();
+  }
 }
