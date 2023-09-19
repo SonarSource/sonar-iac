@@ -69,6 +69,13 @@ public class SecretsGenerationCheck implements IacCheck {
     .withAnyOptionExcluding(Collections.emptyList())
     .build();
 
+  private static final CommandDetector X11VNC_STOREPASSWD_FLAG = CommandDetector.builder()
+    .with("x11vnc")
+    .withOptionalRepeatingExcept("-storepasswd")
+    .with("-storepasswd")
+    .withAnyIncludingUnresolvedExcluding(arg -> true)
+    .build();
+
   private static final String PASSWORD_FLAG = "--password";
 
   // It detects: wget --password=MyPassword
@@ -153,7 +160,8 @@ public class SecretsGenerationCheck implements IacCheck {
   private static final Set<CommandDetector> DETECTORS_THAT_STORE_SECRETS = Set.of(
     SSH_DETECTOR,
     KEYTOOL_DETECTOR,
-    SENSITIVE_OPENSSL_COMMANDS);
+    SENSITIVE_OPENSSL_COMMANDS,
+    X11VNC_STOREPASSWD_FLAG);
 
   private static final Set<CommandDetector> DETECTORS_THAT_HAVE_SECRETS_IN_CMD = Set.of(
     WGET_PASSWORD_FLAG_EQUALS_PWD,

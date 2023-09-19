@@ -104,4 +104,9 @@ class SecretsGenerationCheckTest {
   void testDrush() {
     DockerVerifier.verify("SecretsGenerationCheck/drush.dockerfile", check);
   }
+
+  @Test
+  void testX11Vnc() {
+    DockerVerifier.verify("SecretsGenerationCheck/x11vnc.dockerfile", check);
+  }
 }
