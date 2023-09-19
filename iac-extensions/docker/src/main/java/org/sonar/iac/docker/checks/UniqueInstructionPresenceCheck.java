@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -51,7 +50,7 @@ public class UniqueInstructionPresenceCheck implements IacCheck {
     body.dockerImages()
       .stream()
       .flatMap(image -> image.instructions().stream())
-      .forEach(instruction -> {
+      .forEach((Instruction instruction) -> {
         var kind = instruction.getKind();
         if (uniqueInstructionKindsWithLabel.containsKey(kind)) {
           foundInstructionsOfKind.computeIfAbsent(kind, key -> new ArrayList<>()).add(instruction);
