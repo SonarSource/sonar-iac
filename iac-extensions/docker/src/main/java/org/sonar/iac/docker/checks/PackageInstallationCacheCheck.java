@@ -46,7 +46,7 @@ public class PackageInstallationCacheCheck implements IacCheck {
 
   private static final Set<String> APK_CACHE_LOCATIONS = Set.of("/etc/apk/cache/*", "/var/cache/apk/*");
   private static final Set<String> APT_COMMANDS = Set.of("apt", "apt-get", "aptitude");
-  private static final Set<String> APT_CACHE_LOCATION = Set.of("/var/lib/apt/lists/*");
+  private static final Set<String> APT_CACHE_LOCATIONS = Set.of("/var/lib/apt/lists/*");
   private static final Predicate<String> containsROrF = s -> s.toLowerCase(Locale.ROOT).contains("r") || s.contains("f");
   private static final Predicate<String> isFlag = s -> s.startsWith("-");
   private static final Predicate<String> flagWithNecessaryRmOptions = isFlag.and(containsROrF);
@@ -69,7 +69,7 @@ public class PackageInstallationCacheCheck implements IacCheck {
     .build();
 
   private static final CommandDetector APT_CLEAN = buildCleanCacheDetector(APT_COMMANDS);
-  private static final CommandDetector REMOVE_APT_CACHE_DETECTOR = buildRemoveCacheDetector(APT_CACHE_LOCATION);
+  private static final CommandDetector REMOVE_APT_CACHE_DETECTOR = buildRemoveCacheDetector(APT_CACHE_LOCATIONS);
 
   private static CommandDetector buildCleanCacheDetector(Set<String> commandNames) {
     var builder = CommandDetector.builder()
@@ -117,8 +117,11 @@ public class PackageInstallationCacheCheck implements IacCheck {
   }
 
   private static void analyzeCommands(
-    List<ArgumentResolution> commandsToSearchIn, List<CommandDetector.Command> sensitiveInstallCommands,
-    CommandDetector installDetector, CommandDetector removeCacheCommandDetector, CommandDetector cleanCacheCommandDetector) {
+    List<ArgumentResolution> commandsToSearchIn,
+    List<CommandDetector.Command> sensitiveInstallCommands,
+    CommandDetector installDetector,
+    CommandDetector removeCacheCommandDetector,
+    CommandDetector cleanCacheCommandDetector) {
 
     sensitiveInstallCommands.addAll(installDetector.searchWithoutSplit(commandsToSearchIn));
 
@@ -149,9 +152,10 @@ public class PackageInstallationCacheCheck implements IacCheck {
     // only the last one is important
     var lastCacheCleanCommand = cacheCleaningCommands.get(cacheCleaningCommands.size() - 1);
     int latestIndexOfRemovableInstall = -1;
-    for (int j = installCommands.size() - 1; j >= 0 && latestIndexOfRemovableInstall == -1; j--) {
+    for (int j = installCommands.size() - 1; j >= 0; j--) {
       if (startsBefore(installCommands.get(j), lastCacheCleanCommand)) {
         latestIndexOfRemovableInstall = j;
+        break;
       }
     }
     installCommands.subList(0, latestIndexOfRemovableInstall + 1).clear();

@@ -26,6 +26,17 @@ RUN {$commandName} {$installCommand} nginx && rm -rf {$rmLocation} && {$commandN
 # Noncompliant@+1
 RUN {$commandName} {$installCommand} nginx && {$commandName} {$cacheCleanCommand} && {$commandName} {$installCommand} wget
 
+# Cleaning of cache before install
+# Noncompliant@+1
+RUN {$commandName} {$cacheCleanCommand} && {$commandName} {$installCommand} wget
+
+# Noncompliant@+3
+RUN <<EOF
+rm -rf {$rmLocation}
+{$commandName} {$installCommand} nginx
+EOF
+
+
 # Different ways to remove the cache with wrong flags
 # Noncompliant@+1
 RUN {$commandName} {$installCommand} nginx && rm -r {$rmLocation}
