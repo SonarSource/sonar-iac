@@ -9,10 +9,12 @@ RUN pnpm i
 
 # Noncompliant@+1
 RUN yarn install
-
+# Noncompliant@+1
+RUN yarn install --check-files
+# Noncompliant@+1
 RUN yarn
-
-RUN yarn && foo
+# Noncompliant@+1
+RUN yarn --force
 
 # Noncompliant@+1
 RUN npm install;
@@ -46,8 +48,9 @@ RUN pnpm install --ignore-scripts
 RUN npm  i --ignore-scripts
 
 RUN yarn install --force --ignore-scripts
-
 RUN yarn install --ignore-scripts --force
+RUN yarn --ignore-scripts
+RUN yarn --force --ignore-scripts
 
 RUN yarn init
 

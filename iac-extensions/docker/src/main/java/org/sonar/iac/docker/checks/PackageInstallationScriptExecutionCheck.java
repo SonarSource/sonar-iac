@@ -22,10 +22,12 @@ package org.sonar.iac.docker.checks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
@@ -52,17 +54,31 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
     .withAnyFlagExcept(REQUIRED_FLAG)
     .build();
 
+  // https://classic.yarnpkg.com/en/docs/cli/#toc-default-command: `yarn` invocation without any command is equivalent to `yarn install`
+  private static final CommandDetector YARN_PACKAGE_DEFAULT = CommandDetector.builder()
+    .with("yarn")
+    .withAnyFlagExcept(REQUIRED_FLAG)
+    .build();
+
   @Override
   public void initialize(InitContext init) {
     init.register(RunInstruction.class, PackageInstallationScriptExecutionCheck::checkRunInstruction);
   }
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
-    List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
+    List<List<ArgumentResolution>> resolvedArguments = ArgumentResolutionSplitter.splitCommands(CheckUtils.resolveInstructionArguments(runInstruction)).elements();
     List<CommandDetector.Command> sensitiveCommands = new ArrayList<>();
 
-    sensitiveCommands.addAll(NPM_PACKAGE_INSTALLATION.search(resolvedArgument));
-    sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.search(resolvedArgument));
+    for (List<ArgumentResolution> resolvedArgument : resolvedArguments) {
+      sensitiveCommands.addAll(NPM_PACKAGE_INSTALLATION.search(resolvedArgument));
+      sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.search(resolvedArgument));
+      sensitiveCommands.addAll(YARN_PACKAGE_DEFAULT.search(resolvedArgument).stream()
+        // matched starting with the start of the input
+        .filter(c -> c.getResolvedArguments().get(0).equals(resolvedArgument.get(0)))
+        // matched till the end of input
+        .filter(c -> c.getResolvedArguments().get(c.getResolvedArguments().size() - 1).equals(resolvedArgument.get(resolvedArgument.size() - 1)))
+        .collect(Collectors.toList()));
+    }
 
     sensitiveCommands.forEach(command -> ctx.reportIssue(command, MESSAGE));
   }
