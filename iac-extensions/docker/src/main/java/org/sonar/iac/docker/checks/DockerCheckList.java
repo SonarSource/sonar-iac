@@ -59,6 +59,7 @@ public final class DockerCheckList {
       SpaceBeforeEqualInKeyValuePairCheck.class,
       SpecificVersionTagCheck.class,
       UnencryptedProtocolCheck.class,
+      UniqueInstructionPresenceCheck.class,
       UnsecureConnectionCheck.class,
       VariableReferenceOutsideOfQuotesCheck.class,
       WeakHashAlgorithmsCheck.class,

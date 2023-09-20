@@ -1,0 +1,21 @@
+{
+  "title": "Dockerfile should only have one ENTRYPOINT and CMD instruction",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6589",
+  "sqKey": "S6589",
+  "scope": "All",
+  "quickfix": "unknown"
+}
