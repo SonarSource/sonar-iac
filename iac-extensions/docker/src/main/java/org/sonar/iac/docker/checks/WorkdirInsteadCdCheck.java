@@ -45,20 +45,28 @@ public class WorkdirInsteadCdCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, WorkdirInsteadCdCheck::check);
-    init.register(CmdInstruction.class, WorkdirInsteadCdCheck::check);
-    init.register(EntrypointInstruction.class, WorkdirInsteadCdCheck::check);
+    init.register(RunInstruction.class, WorkdirInsteadCdCheck::checkRunInstruction);
+    init.register(CmdInstruction.class, WorkdirInsteadCdCheck::checkGeneralCommandInstruction);
+    init.register(EntrypointInstruction.class, WorkdirInsteadCdCheck::checkGeneralCommandInstruction);
   }
 
-  private static void check(CheckContext ctx, CommandInstruction commandInstruction) {
+  private static void checkGeneralCommandInstruction(CheckContext ctx, CommandInstruction commandInstruction) {
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(commandInstruction);
     List<List<ArgumentResolution>> separatedArguments = ArgumentResolutionSplitter.splitCommands(argumentResolutions).elements();
+
     List<List<ArgumentResolution>> argumentsToCheck = takeFirstAndLastArgument(separatedArguments);
 
     for (List<ArgumentResolution> arguments : argumentsToCheck) {
       COMMAND_DETECTOR.searchWithoutSplit(arguments)
         .forEach(command -> ctx.reportIssue(command, MESSAGE));
     }
+  }
+
+  private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
+    if (runInstruction.containsHeredoc()) {
+      return;
+    }
+    checkGeneralCommandInstruction(ctx, runInstruction);
   }
 
   private static List<List<ArgumentResolution>> takeFirstAndLastArgument(List<List<ArgumentResolution>> elements) {

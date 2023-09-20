@@ -20,23 +20,30 @@
 package org.sonar.iac.docker.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.common.testing.TemplateFileReader;
 
 class WorkdirInsteadCdCheckTest {
 
   private final WorkdirInsteadCdCheck check = new WorkdirInsteadCdCheck();
 
   @Test
-  void shouldCheckRunInstruction() {
-    DockerVerifier.verify("WorkdirInsteadCdCheck/workdir_run.dockerfile", check);
+  void shouldCheckMixedCommandInstructions() {
+    DockerVerifier.verify("WorkdirInsteadCdCheck/workdir_mixed.dockerfile", check);
   }
 
-  @Test
-  void shouldCheckCmdInstruction() {
-    DockerVerifier.verify("WorkdirInsteadCdCheck/workdir_cmd.dockerfile", check);
-  }
+  @ValueSource(strings = {
+    "RUN",
+    "CMD",
+    "ENTRYPOINT"
+  })
+  @ParameterizedTest(name = "test issues for command: {0}")
+  void issuesRaisedOnTemplateShouldBeCorrect(String instructionName) {
+    String[] replacements = new String[] {
+      "{$instructionName}", instructionName};
 
-  @Test
-  void shouldCheckEntrypointInstruction() {
-    DockerVerifier.verify("WorkdirInsteadCdCheck/workdir_entrypoint.dockerfile", check);
+    String content = TemplateFileReader.readTemplateAndReplace("WorkdirInsteadCdCheck/workdir_template.dockerfile", replacements);
+    DockerVerifier.verifyContent(content, new WorkdirInsteadCdCheck());
   }
 }

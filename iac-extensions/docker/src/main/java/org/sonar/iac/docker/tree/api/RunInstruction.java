@@ -28,5 +28,14 @@ import java.util.List;
  * </pre>
  */
 public interface RunInstruction extends CommandInstruction {
+
+  /**
+   * @return the options as a list of {@link Flag}s.
+   */
   List<Flag> options();
+
+  /**
+   * @return true if the arguments of this RunInstruction are in {@link HereDocument} format.
+   */
+  boolean containsHeredoc();
 }
