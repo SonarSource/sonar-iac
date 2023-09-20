@@ -37,20 +37,18 @@ public class CompoundTextRange extends TextRange {
    * It combines the {@code startIndex} and the {@code token} length to find which of the {@link #textRanges} are covered, to compute the correct single/multi line {@link TextRange}.
    */
   public TextRange computeTextRangeAtIndex(int startIndex, String token) {
-    var rangeIterator = new IteratorWrapper<>(textRanges.iterator());
+    var rangeIterator = new TextRangeIterator(textRanges.iterator());
     rangeIterator.next();
 
-    // find starting range
-    int index = navigateToRangeAtIndex(rangeIterator, startIndex);
+    int shift = navigateToRangeAtIndex(rangeIterator, startIndex);
     TextRange startRange = rangeIterator.current();
-    // find ending range
-    int endIndex = index + token.length();
+    int endIndex = shift + token.length();
     int finalIndex = navigateToRangeAtIndex(rangeIterator, endIndex);
     TextRange endRange = rangeIterator.current();
 
     // compute the final range
     int startLine = startRange.start().line();
-    int startOffset = startRange.start().lineOffset() + index;
+    int startOffset = startRange.start().lineOffset() + shift;
     int endLine = endRange.end().line();
     int endOffset = finalIndex;
     if (startRange.start().line() == endRange.end().line()) {
@@ -60,17 +58,12 @@ public class CompoundTextRange extends TextRange {
     return TextRanges.range(startLine, startOffset, endLine, endOffset);
   }
 
-  public int navigateToRangeAtIndex(IteratorWrapper<TextRange> iterator, int index) {
-    TextRange currentRange = iterator.current();
-    while (index > sizeOfRange(currentRange)) {
-      index -= sizeOfRange(currentRange) + 1;
-      currentRange = iterator.next();
+  public int navigateToRangeAtIndex(TextRangeIterator iterator, int index) {
+    while (index > iterator.currentRangeSize()) {
+      index = index - (iterator.currentRangeSize() + 1);
+      iterator.next();
     }
     return index;
-  }
-
-  private static int sizeOfRange(TextRange range) {
-    return range.end().lineOffset() - range.start().lineOffset();
   }
 
   @Override
@@ -90,21 +83,25 @@ public class CompoundTextRange extends TextRange {
     return textRanges.hashCode();
   }
 
-  static class IteratorWrapper<E> {
-    private final Iterator<E> iterator;
-    private E current;
+  static class TextRangeIterator {
+    private final Iterator<TextRange> iterator;
+    private TextRange current;
 
-    public IteratorWrapper(Iterator<E> iterator) {
+    public TextRangeIterator(Iterator<TextRange> iterator) {
       this.iterator = iterator;
     }
 
-    public E next() {
+    public TextRange next() {
       current = iterator.next();
       return current;
     }
 
-    public E current() {
+    public TextRange current() {
       return current;
+    }
+
+    public int currentRangeSize() {
+      return current.end().lineOffset() - current.start().lineOffset();
     }
   }
 }

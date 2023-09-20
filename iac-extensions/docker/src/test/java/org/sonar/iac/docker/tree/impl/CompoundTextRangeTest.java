@@ -19,63 +19,73 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class CompoundTextRangeTest {
 
   @Test
   void shouldReturnCorrectIndexForSingleLine() {
-    var ranges = ranges(range(1, 1, 1, 10));
+    var ranges = ranges(code("this test is good"));
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
     TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "test");
-    assertRange(range, 1, 6, 1, 10);
+    assertRange(range, 1, 5, 1, 9);
   }
 
   @Test
   void shouldReturnCorrectIndexForEmptyValue() {
-    var ranges = ranges(range(1, 1, 1, 10));
+    var ranges = ranges(code("this test is good"));
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
     TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "");
-    assertRange(range, 1, 6, 1, 6);
+    assertRange(range, 1, 5, 1, 5);
   }
 
   @Test
   void shouldReturnCorrectIndexForTwoLine() {
-    var ranges = ranges(range(1, 1, 1, 10),
-      range(2, 1, 2, 10));
+    var ranges = ranges(code(
+      "this test_",
+      "value is good"));
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
-    TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "test_value");
-    assertRange(range, 1, 6, 2, 5);
+    TextRange range1 = compoundTextRange.computeTextRangeAtIndex(5, "test_");
+    assertRange(range1, 1, 5, 1, 10);
+    TextRange range2 = compoundTextRange.computeTextRangeAtIndex(11, "value");
+    assertRange(range2, 2, 0, 2, 5);
   }
 
   @Test
   void shouldReturnCorrectIndexStartingNotOnFirstLine() {
-    var ranges = ranges(range(1, 1, 1, 10),
-      range(2, 1, 2, 10));
+    var ranges = ranges(code(
+      "multi line code",
+      "with test value"));
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
-    TextRange range = compoundTextRange.computeTextRangeAtIndex(12, "test");
-    assertRange(range, 2, 3, 2, 7);
+    TextRange range = compoundTextRange.computeTextRangeAtIndex(21, "test");
+    assertRange(range, 2, 5, 2, 9);
   }
 
   @Test
   void shouldReturnCorrectIndexForMultiLineWithEmptyLines() {
-    var ranges = ranges(range(1, 1, 1, 10),
-      range(2, 1, 2, 1),
-      range(3, 1, 3, 1),
-      range(4, 1, 4, 10));
+    var ranges = ranges(code(
+      "this test_",
+      "",
+      "",
+      "value in my code"));
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
-    TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "test_value");
-    assertRange(range, 1, 6, 4, 3);
+    TextRange range1 = compoundTextRange.computeTextRangeAtIndex(5, "test_");
+    assertRange(range1, 1, 5, 1, 10);
+    TextRange range2 = compoundTextRange.computeTextRangeAtIndex(13, "value");
+    assertRange(range2, 4, 0, 4, 5);
   }
 
   @Test
@@ -99,8 +109,21 @@ class CompoundTextRangeTest {
       .isNotEqualTo(new Object());
   }
 
-  List<TextRange> ranges(TextRange... ranges) {
-    return List.of(ranges);
+  List<TextRange> ranges(String code) {
+    List<TextRange> ranges = new ArrayList<>();
+    int line = 1;
+    int column = 0;
+    for (char c : code.toCharArray()) {
+      if (c == '\n') {
+        ranges.add(TextRanges.range(line, 0, line, column));
+        line++;
+        column = 0;
+      } else {
+        column++;
+      }
+    }
+    ranges.add(TextRanges.range(line, 0, line, column));
+    return ranges;
   }
 
   void assertRange(TextRange range, int startLine, int startOffset, int endLine, int endOffset) {

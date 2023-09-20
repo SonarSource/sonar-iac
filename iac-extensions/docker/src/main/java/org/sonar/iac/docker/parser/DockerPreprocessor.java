@@ -22,14 +22,14 @@ package org.sonar.iac.docker.parser;
 import com.sonar.sslr.api.typed.Input;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.sonar.iac.common.parser.grammar.LexicalConstant.WHITESPACE;

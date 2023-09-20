@@ -35,6 +35,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.DockerPreprocessor.PreprocessorResult;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.impl.AbstractDockerTreeImpl;
 import org.sonar.iac.docker.tree.impl.CompoundTextRange;
 import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
@@ -80,8 +81,12 @@ public class DockerNodeBuilder implements NodeBuilder {
   /**
    * Compute the {@link TextRange} from a value at the given {@code startIndex}, regarding the provided {@code input} (source code).
    * In case it extend to multiple lines, we build a {@link CompoundTextRange} object with a reference to each line {@link TextRange}.
-   * This is required to allow to track back original source code before preprocessing, particularly needed when raising issue
-   * on the preprocessed source code.
+   * It is used to track back tokens in HereDoc, as currently the full HereDoc content of an instruction is considered as a single {@link SyntaxToken},
+   * before it is being parsed by a specific HereDoc parser which then call this tokenRange method to split into multiple {@link SyntaxToken} with
+   * correct range.
+   * The {@code startIndex} is the position on the instruction line where the provided value begin.
+   * In the line {@code RUN <<EOT cmd ...}, the {@code startIndex} would be 4 (to skip the {@code RUN } part) and the value would be the HereDoc
+   * content: {@code <<EOT cmd ...}
    */
   protected TextRange tokenRange(Input input, int startIndex, String value) {
     List<TextRange> ranges = new ArrayList<>();
@@ -90,22 +95,30 @@ public class DockerNodeBuilder implements NodeBuilder {
     char[] fileChars = input.input();
     boolean hasByteOrderMark = fileChars.length > 0 && fileChars[0] == BYTE_ORDER_MARK;
 
-    int i;
-    for (i = startIndex + 1; i < startIndex + value.length(); i++) {
-      int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(i);
+    int index;
+    for (index = startIndex + 1; index < startIndex + value.length(); index++) {
+      int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(index);
       // detect line changes
-      if (currentLineAndColumn[0] != startLineAndColumn[0]) {
-        int startColumn = applyByteOrderMark(currentLineAndColumn[1], hasByteOrderMark);
-        int endColum = applyByteOrderMark(previousLineAndColumn[1], hasByteOrderMark);
-        ranges.add(TextRanges.range(currentLineAndColumn[0], startColumn, previousLineAndColumn[0], endColum));
+      var startLine = startLineAndColumn[0];
+      var currentLine = currentLineAndColumn[0];
+      var currentColumn = currentLineAndColumn[1];
+      var previousLine = previousLineAndColumn[0];
+      var previousColumn = previousLineAndColumn[1];
+      if (currentLine != startLine) {
+        int startColumn = applyByteOrderMark(currentColumn, hasByteOrderMark);
+        int endColum = applyByteOrderMark(previousColumn, hasByteOrderMark);
+        ranges.add(TextRanges.range(currentLine, startColumn, previousLine, endColum));
         currentLineAndColumn = startLineAndColumn;
       }
       previousLineAndColumn = startLineAndColumn;
     }
 
     // Add remaining range in the list
+    int finalIndex = index;
     // fix in case we want the range of an empty value
-    int finalIndex = value.isEmpty() ? (i - 1) : i;
+    if (value.isEmpty()) {
+      finalIndex--;
+    }
     int[] endLineAndColumn = sourceOffset.sourceLineAndColumnAt(finalIndex);
     int startColumn = applyByteOrderMark(currentLineAndColumn[1], hasByteOrderMark);
     int endColum = applyByteOrderMark(endLineAndColumn[1], hasByteOrderMark);
