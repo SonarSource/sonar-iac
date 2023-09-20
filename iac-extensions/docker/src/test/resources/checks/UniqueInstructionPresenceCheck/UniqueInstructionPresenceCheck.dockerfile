@@ -8,12 +8,13 @@ FROM scratch
   ENTRYPOINT myEntrypoint
 # ^^^^^^^^^^^^^^^^^^^^^^^
 
+CMD lastCommand
+ENTRYPOINT lastEntrypoint
+
 FROM scratch
 RUN run1
 RUN run2
-# Noncompliant@+1
-CMD cmd
 
-# Compliants
-CMD lastCmd
-ENTRYPOINT lastEntrypoint
+FROM scratch
+CMD onlyCommand
+ENTRYPOINT onlyEntrypoint

@@ -23,11 +23,13 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.Body;
+import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Instruction;
 
@@ -35,7 +37,7 @@ import org.sonar.iac.docker.tree.api.Instruction;
 public class UniqueInstructionPresenceCheck implements IacCheck {
 
   private static final String MESSAGE = "Remove this %s instruction which will be ignored.";
-  private static final Map<DockerTree.Kind, String> uniqueInstructionKindsWithLabel = Map.of(
+  private static final Map<DockerTree.Kind, String> UNIQUE_INSTRUCTION_KINDS_WITH_LABEL = Map.of(
     DockerTree.Kind.CMD, "CMD",
     DockerTree.Kind.ENTRYPOINT, "ENTRYPOINT");
 
@@ -45,24 +47,28 @@ public class UniqueInstructionPresenceCheck implements IacCheck {
   }
 
   private static void checkUniqueInstruction(CheckContext ctx, Body body) {
+    for (DockerImage image : body.dockerImages()) {
+      var foundInstructionsPerKind = searchInstructionOfKinds(image.instructions(), UNIQUE_INSTRUCTION_KINDS_WITH_LABEL.keySet());
+      reportIssueOnDuplicateInstruction(ctx, foundInstructionsPerKind);
+    }
+  }
+
+  private static Map<DockerTree.Kind, List<Instruction>> searchInstructionOfKinds(List<Instruction> instructions, Set<DockerTree.Kind> kinds) {
     Map<DockerTree.Kind, List<Instruction>> foundInstructionsOfKind = new EnumMap<>(DockerTree.Kind.class);
+    instructions.stream()
+      .filter(instruction -> kinds.contains(instruction.getKind()))
+      .forEach(instruction -> foundInstructionsOfKind.computeIfAbsent(instruction.getKind(), key -> new ArrayList<>()).add(instruction));
+    return foundInstructionsOfKind;
+  }
 
-    body.dockerImages()
-      .stream()
-      .flatMap(image -> image.instructions().stream())
-      .forEach((Instruction instruction) -> {
-        var kind = instruction.getKind();
-        if (uniqueInstructionKindsWithLabel.containsKey(kind)) {
-          foundInstructionsOfKind.computeIfAbsent(kind, key -> new ArrayList<>()).add(instruction);
-        }
-      });
-
-    for (var instructionsByKind : foundInstructionsOfKind.entrySet()) {
-      String kindLabel = uniqueInstructionKindsWithLabel.get(instructionsByKind.getKey());
-      List<Instruction> instructions = instructionsByKind.getValue();
+  private static void reportIssueOnDuplicateInstruction(CheckContext ctx, Map<DockerTree.Kind, List<Instruction>> instructionsPerKind) {
+    for (var instructionsWithKind : instructionsPerKind.entrySet()) {
+      String kindLabel = UNIQUE_INSTRUCTION_KINDS_WITH_LABEL.get(instructionsWithKind.getKey());
+      List<Instruction> instructions = instructionsWithKind.getValue();
       for (Instruction instruction : instructions.subList(0, instructions.size() - 1)) {
         ctx.reportIssue(instruction, String.format(MESSAGE, kindLabel));
       }
     }
   }
+
 }

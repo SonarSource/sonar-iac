@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class UniqueInstructionPresenceCheckTest {
 
   @Test
-  void testUniqueInstructionIsPresentOnlyOnce() {
+  void shouldCheckUniqueInstructionPresence() {
     DockerVerifier.verify("UniqueInstructionPresenceCheck/UniqueInstructionPresenceCheck.dockerfile", new UniqueInstructionPresenceCheck());
   }
 
