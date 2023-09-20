@@ -19,12 +19,29 @@
  */
 package org.sonar.iac.docker.checks;
 
-import org.junit.jupiter.api.Test;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.common.testing.TemplateFileReader;
 
 class PackageInstallationCheckTest {
 
-  @Test
-  void test() {
-    DockerVerifier.verify("PackageInstallationCheck/PackageInstallationCheck.dockerfile", new PackageInstallationCheck());
+  @MethodSource
+  @ParameterizedTest(name = "test for command: {0}")
+  void issuesRaisedOnTemplateShouldBeCorrect(String commandName, String safeFlag) {
+    String[] replacements = new String[] {
+      "{$commandName}", commandName,
+      "{$safeFlag}", safeFlag};
+
+    String content = TemplateFileReader.readTemplateAndReplace("PackageInstallationCheck/packageInstall_template.dockerfile", replacements);
+    DockerVerifier.verifyContent(content, new PackageInstallationCheck());
+  }
+
+  private static Stream<Arguments> issuesRaisedOnTemplateShouldBeCorrect() {
+    return Stream.of(
+      Arguments.of("apt", "--no-install-recommends"),
+      Arguments.of("apt-get", "--no-install-recommends"),
+      Arguments.of("aptitude", "--without-recommends"));
   }
 }

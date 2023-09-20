@@ -37,15 +37,16 @@ public class PackageInstallationCheck implements IacCheck {
 
   private static final Set<String> APT_COMMANDS = Set.of("apt", "apt-get");
   private static final CommandDetector SENSITIVE_APT_COMMAND = CommandDetector.builder()
-    .with(APT_COMMANDS::contains)
-    .withAnyFlag()
-    .with("install"::equals)
+    .with(APT_COMMANDS)
+    .withAnyFlagExcept("--no-install-recommends")
+    .with("install")
     .withAnyFlagExcept("--no-install-recommends")
     .build();
+
   private static final CommandDetector SENSITIVE_APTITUDE_COMMAND = CommandDetector.builder()
-    .with("aptitude"::equals)
-    .withAnyFlag()
-    .with("install"::equals)
+    .with("aptitude")
+    .withAnyFlagExcept("--without-recommends")
+    .with("install")
     .withAnyFlagExcept("--without-recommends")
     .build();
 

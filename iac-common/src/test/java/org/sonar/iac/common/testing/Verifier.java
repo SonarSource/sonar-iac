@@ -86,7 +86,7 @@ public final class Verifier {
     verifier.assertOneOrMoreIssues();
   }
 
-  private static File contentToTmp(@Nullable String content) {
+  public static File contentToTmp(@Nullable String content) {
     File tempFile;
     try {
       tempFile = File.createTempFile("tmp-parser-", "");
