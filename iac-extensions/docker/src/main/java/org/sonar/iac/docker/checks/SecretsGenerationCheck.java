@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
@@ -58,9 +57,9 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final CommandDetector KEYTOOL_DETECTOR = CommandDetector.builder()
     .with("keytool")
-    .withAnyOptionExcluding(SENSITIVE_KEYTOOL_FLAGS)
+    .withOptionalRepeating(arg -> !SENSITIVE_KEYTOOL_FLAGS.contains(arg))
     .with(SENSITIVE_KEYTOOL_FLAGS)
-    .withAnyOptionExcluding(SENSITIVE_KEYTOOL_FLAGS)
+    .withOptionalRepeating(arg -> true)
     .build();
 
   private static final Set<String> SENSITIVE_OPENSSL_SUBCOMMANDS = Set.of("req", "genrsa", "rsa", "gendsa", "ec", "ecparam", "x509", "genpkey", "pkey");
@@ -68,8 +67,8 @@ public class SecretsGenerationCheck implements IacCheck {
   private static final CommandDetector SENSITIVE_OPENSSL_COMMANDS = CommandDetector.builder()
     .with("openssl")
     .with(SENSITIVE_OPENSSL_SUBCOMMANDS)
-    // every flag that comes after a MATCH of the sensitive subcommand should be flagged as well
-    .withAnyOptionExcluding(Collections.emptyList())
+    // every flag or argument that comes after a MATCH of the sensitive subcommand should be flagged as well
+    .withOptionalRepeating(arg -> true)
     .build();
 
   private static final CommandDetector X11VNC_STOREPASSWD_FLAG = CommandDetector.builder()
