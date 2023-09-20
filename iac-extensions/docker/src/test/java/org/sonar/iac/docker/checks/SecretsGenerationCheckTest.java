@@ -30,83 +30,81 @@ class SecretsGenerationCheckTest {
   final IacCheck check = new SecretsGenerationCheck();
 
   @Test
-  void testSshKeygen() {
+  void shouldCheckSshKeygen() {
     DockerVerifier.verify("SecretsGenerationCheck/sshKeygen.dockerfile", new SecretsGenerationCheck());
   }
 
   @Test
-  void testKeytool() {
+  void shouldCheckKeytool() {
     DockerVerifier.verify("SecretsGenerationCheck/keytool.dockerfile", check);
   }
 
   @Test
-  void testOpenssl() {
+  void shouldCheckOpenssl() {
     DockerVerifier.verify("SecretsGenerationCheck/openssl.dockerfile", check);
   }
 
   @ValueSource(strings = {"--password", "--ftp-password", "--http-password", "--proxy-password"})
   @ParameterizedTest
-  void testWget(String flag) {
+  void shouldCheckWget(String flag) {
     String content = TemplateFileReader.readTemplateAndReplace("SecretsGenerationCheck/wget_template.dockerfile", "--flag", flag);
     DockerVerifier.verifyContent(content, check);
   }
 
   @Test
-  void testWgetLocation() {
+  void shouldCheckWgetLocation() {
     DockerVerifier.verify("SecretsGenerationCheck/wget_location.dockerfile", check);
   }
 
   @Test
-  void testCurl() {
+  void shouldCheckCurl() {
     DockerVerifier.verify("SecretsGenerationCheck/curl.dockerfile", check);
   }
 
   @Test
-  void testSshpass() {
+  void shouldCheckSshpass() {
     DockerVerifier.verify("SecretsGenerationCheck/sshpass.dockerfile", check);
   }
 
   @Test
-  void testHtpasswd() {
+  void shouldCheckHtpasswd() {
     DockerVerifier.verify("SecretsGenerationCheck/htpasswd.dockerfile", check);
   }
 
   @ValueSource(strings = {"mysql", "mysqladmin", "mysqldump"})
   @ParameterizedTest
-  void testMySqlCommands(String command) {
+  void shouldCheckMySqlCommands(String command) {
     String content = TemplateFileReader.readTemplateAndReplace("SecretsGenerationCheck/mysql_template.dockerfile", "mysql", command);
     DockerVerifier.verifyContent(content, check);
   }
 
   @Test
-  void testMySqlLocations() {
-    // language=RegExp
-    String a = "RUN --mount=type=secret.*net user";
+  void shouldCheckMySqlLocations() {
     DockerVerifier.verify("SecretsGenerationCheck/mysql_locations.dockerfile", check);
   }
 
   @Test
-  void testUseradd() {
+  void shouldCheckUseradd() {
     DockerVerifier.verify("SecretsGenerationCheck/useradd.dockerfile", check);
   }
 
   @Test
-  void testUsermod() {
+  void shouldCheckUsermod() {
     DockerVerifier.verify("SecretsGenerationCheck/usermod.dockerfile", check);
   }
 
   @Test
-  void testNetUser() {
+  void shouldCheckNetUser() {
     DockerVerifier.verify("SecretsGenerationCheck/net_user.dockerfile", check);
   }
 
   @Test
-  void testDrush() {
+  void shouldCheckDrush() {
     DockerVerifier.verify("SecretsGenerationCheck/drush.dockerfile", check);
   }
 
   @Test
-  void testX11Vnc() {
+  void shouldCheckX11Vnc() {
     DockerVerifier.verify("SecretsGenerationCheck/x11vnc.dockerfile", check);
   }
 }

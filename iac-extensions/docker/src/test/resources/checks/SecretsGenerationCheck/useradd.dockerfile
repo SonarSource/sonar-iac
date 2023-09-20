@@ -115,6 +115,8 @@ RUN --mount=type=secret,id=mysecret,required useradd -p $(cat /run/secrets/mysec
 # It's wrong usage of useradd because those flags require an argument
 RUN useradd --password
 RUN useradd -p
+RUN useradd --password=myPassword
+RUN useradd -p=myPassword
 
 RUN useradd username
 RUN sudo useradd username

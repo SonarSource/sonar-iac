@@ -173,8 +173,8 @@ RUN --mount=type=secret,id=mysecret,required ssh-keygen -N $NOT_EMPTY -t dsa -b 
 
 # Noncompliant@+2
 RUN <<EOF
-RUN ssh-keygen -N "" -b 1024 -f rsync-key -t dsa
-cd ..
+  ssh-keygen -N "" -b 1024 -f rsync-key -t dsa
+  cd ..
 EOF
 
 

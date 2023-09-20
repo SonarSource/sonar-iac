@@ -34,6 +34,12 @@ RUN drush user:password username "${PASSWORD:-test}"
 RUN drush user:password username "${PASSWORD:+test}"
 
 # Noncompliant@+1
+RUN drush -v --yes user:password username "$PASSWORD"
+
+# Noncompliant@+1
+RUN drush user:password username "$PASSWORD" -v --yes
+
+# Noncompliant@+1
 RUN drush user:password username "$(echo ${PASSWORD} | openssl passwd -6 -stdin)"
 
 # Noncompliant@+1
@@ -51,6 +57,9 @@ RUN cd /tmp && \
 
 # Noncompliant@+1
 RUN drush upwd username password
+
+# Noncompliant@+1
+RUN drush -v upwd username password
 
 # Noncompliant@+1
 RUN drush user-password username password
@@ -115,12 +124,14 @@ RUN drush foo newuser "--password=$PASSWORD"
 RUN --mount=type=secret,id=mysecret,required drush user:password username $(echo ${PASSWORD} | openssl passwd -6 -stdin)
 
 # Compliant
-RUN --mount=type=secret drush user:password username $(cat C:\ProgramData\Docker\secrets\secret | openssl passwd -6 -stdin)
-RUN --mount=type=secret,id=mysecret,required drush user:password username $(cat C:\ProgramData\Docker\secrets\secret | openssl passwd -6 -stdin)
+RUN --mount=type=secret drush user:password username $(cat /run/secrets/mysecret | openssl passwd -6 -stdin)
+RUN --mount=type=secret,id=mysecret,required drush user:password username $(cat /run/secrets/mysecret | openssl passwd -6 -stdin)
+
 
 # It's wrong usage of usermod because those flags require an argument
 RUN drush en modulename
 RUN drush cc css-js
 
+RUN drush upwd username
 RUN drush user:create newuser
 RUN sudo drush user:password username
