@@ -38,7 +38,7 @@ class StringPredicateTest {
     "\"value\"",
     "'value'"
   })
-  void equalsWithSingleValueIsTrue(String value) {
+  void equalsWithSingleValueShouldBeTrue(String value) {
     Predicate<String> predicate = equalsIgnoreQuotes("value");
 
     assertThat(predicate.test(value)).isTrue();
@@ -57,14 +57,14 @@ class StringPredicateTest {
     "'value",
     "value'"
   })
-  void equalsWithSingleValueIsFalse(String value) {
+  void equalsWithSingleValueShouldBeFalse(String value) {
     Predicate<String> predicate = equalsIgnoreQuotes("value");
 
     assertThat(predicate.test(value)).isFalse();
   }
 
   @Test
-  void testMultipleValue() {
+  void shouldMatchMultipleValues() {
     Predicate<String> predicate = containsIgnoreQuotes(Set.of("string", "value"));
     assertThat(predicate.test("string")).isTrue();
     assertThat(predicate.test("\"string\"")).isTrue();
@@ -86,7 +86,7 @@ class StringPredicateTest {
     "\"value123\"",
     "'value123'"
   })
-  void startsWithWithSingleValueIsTrue(String value) {
+  void startsWithWithSingleValueShouldBeTrue(String value) {
     Predicate<String> predicate = startsWithIgnoreQuotes("value");
 
     assertThat(predicate.test(value)).isTrue();
@@ -103,7 +103,7 @@ class StringPredicateTest {
     "\"value",
     "'value"
   })
-  void startsWithWithSingleValueIsFalse(String value) {
+  void startsWithWithSingleValueShouldBeFalse(String value) {
     Predicate<String> predicate = startsWithIgnoreQuotes("value");
 
     assertThat(predicate.test(value)).isFalse();

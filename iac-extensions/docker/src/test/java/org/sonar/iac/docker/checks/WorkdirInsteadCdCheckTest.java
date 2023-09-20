@@ -26,17 +26,17 @@ class WorkdirInsteadCdCheckTest {
   private final WorkdirInsteadCdCheck check = new WorkdirInsteadCdCheck();
 
   @Test
-  void testRunInstruction() {
+  void shouldCheckRunInstruction() {
     DockerVerifier.verify("WorkdirInsteadCdCheck/workdir_run.dockerfile", check);
   }
 
   @Test
-  void testCmdInstruction() {
+  void shouldCheckCmdInstruction() {
     DockerVerifier.verify("WorkdirInsteadCdCheck/workdir_cmd.dockerfile", check);
   }
 
   @Test
-  void testEntrypointInstruction() {
+  void shouldCheckEntrypointInstruction() {
     DockerVerifier.verify("WorkdirInsteadCdCheck/workdir_entrypoint.dockerfile", check);
   }
 }

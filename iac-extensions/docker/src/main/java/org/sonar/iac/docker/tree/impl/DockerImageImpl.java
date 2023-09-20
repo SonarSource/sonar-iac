@@ -64,8 +64,8 @@ public class DockerImageImpl extends AbstractDockerTreeImpl implements DockerIma
   public boolean isLastDockerImageInFile() {
     Body parent = (Body) parent();
     List<DockerImage> dockerImages = parent.dockerImages();
-    DockerImage last = dockerImages.get(dockerImages.size() - 1);
-    return last == this;
+    var lastImage = dockerImages.get(dockerImages.size() - 1);
+    return lastImage == this;
   }
 
   @Override

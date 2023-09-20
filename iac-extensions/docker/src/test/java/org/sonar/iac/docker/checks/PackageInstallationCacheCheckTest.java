@@ -29,13 +29,13 @@ import org.sonar.iac.common.testing.TemplateFileReader;
 class PackageInstallationCacheCheckTest {
 
   @Test
-  void testMixingAllCommands() {
+  void shouldCheckWithAllCommandsMixed() {
     DockerVerifier.verify("PackageInstallationCacheCheck/mixed.dockerfile", new PackageInstallationCacheCheck());
   }
 
   @MethodSource
   @ParameterizedTest(name = "test for command: {0}")
-  void testCommandsTemplate(String commandName, String installCommand, String rmLocation, String cleanCacheCommand) {
+  void shouldCheckOnCommandsTemplate(String commandName, String installCommand, String rmLocation, String cleanCacheCommand) {
     String[] replacements = new String[] {
       "{$commandName}", commandName,
       "{$installCommand}", installCommand,
@@ -46,7 +46,7 @@ class PackageInstallationCacheCheckTest {
     DockerVerifier.verifyContent(content, new PackageInstallationCacheCheck());
   }
 
-  private static Stream<Arguments> testCommandsTemplate() {
+  private static Stream<Arguments> shouldCheckOnCommandsTemplate() {
     return Stream.of(
       Arguments.of("apk", "add", "/etc/apk/cache/*", "cache clean"),
       Arguments.of("apk", "add", "/var/cache/apk/*", "cache clean"),

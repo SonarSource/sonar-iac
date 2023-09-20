@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.docker.DockerAssertions;
-import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
@@ -127,7 +126,7 @@ class CommandDetectorTest {
   }
 
   @Test
-  void shouldParseCommandWithProperRange2() {
+  void shouldParseCommandWithProperRangeWithDoubleAmpersand() {
     List<ArgumentResolution> arguments = buildArgumentList("command1&&command2&&command3");
     CommandDetector detector = CommandDetector.builder()
       .with(s -> true)

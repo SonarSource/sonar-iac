@@ -17,13 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
-
-import org.junit.jupiter.api.Test;
-
-class PackageManagerUpdateWithoutInstallCheckTest {
-  @Test
-  void shouldExecuteCheck() {
-    DockerVerifier.verify("PackageManagerUpdateWithoutInstallCheck/PackageManagerUpdateWithoutInstallCheck.dockerfile", new PackageManagerUpdateWithoutInstallCheck());
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.docker.checks.utils.shell;

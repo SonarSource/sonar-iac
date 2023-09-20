@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 class DeprecatedInstructionCheckTest {
   @Test
-  void test() {
+  void shouldExecuteCheck() {
     DockerVerifier.verify("DeprecatedInstructionCheck/deprecated.dockerfile", new DeprecatedInstructionCheck());
   }
 }

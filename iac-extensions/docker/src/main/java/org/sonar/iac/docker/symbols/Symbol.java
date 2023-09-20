@@ -41,7 +41,7 @@ public class Symbol {
   }
 
   public void addUsage(Scope scope, DockerTree tree, Usage.Kind kind) {
-    Usage usage = new Usage(scope, tree, kind);
+    var usage = new Usage(scope, tree, kind);
     usages.add(usage);
     if (tree instanceof HasSymbol) {
       ((HasSymbol) tree).setSymbol(new Symbol(this));
@@ -59,8 +59,8 @@ public class Symbol {
   public Scope.Kind lastDeclarationScope() {
     Scope.Kind declarationScope = Scope.Kind.IMAGE;
     for (int i = usages.size() - 1; i >= 0; i--) {
-      Usage usage = usages.get(i);
-      if (usage.kind().equals(Usage.Kind.ASSIGNMENT)) {
+      var usage = usages.get(i);
+      if (Usage.Kind.ASSIGNMENT == usage.kind()) {
         declarationScope = usage.scope().kind();
         // we stop at the first assignment we find, as we store usages in the same order they appear in Dockerfile
         break;

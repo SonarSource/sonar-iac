@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 class ArgDefinedOutsideOfScopeCheckTest {
   @Test
-  void test() {
+  void shouldExecuteCheck() {
     DockerVerifier.verify("ArgDefinedOutsideOfScopeCheck/Dockerfile", new ArgDefinedOutsideOfScopeCheck());
   }
 }

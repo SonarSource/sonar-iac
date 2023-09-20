@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -34,7 +33,7 @@ import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
-public class ArgumentResolutionSplitter {
+public final class ArgumentResolutionSplitter {
 
   private static final String STRING_IN_DOUBLE_QUOTES = "\"(?:\\\\.|[^\"])*+\"";
   private static final String STRING_IN_SIMPLE_QUOTES = "'(?:\\\\.|[^'])*+'";
@@ -64,8 +63,8 @@ public class ArgumentResolutionSplitter {
   /**
    * Split commands by separators: {@code &&}, {@code ||}, {@code &}, {@code |} and {@code ;}.
    */
-  public static SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
-    CommandDetector.SeparatedListBuilder separatedListBuilder = new CommandDetector.SeparatedListBuilder();
+  public static SeparatedList<List<ArgumentResolution>, String> splitCommands(Iterable<ArgumentResolution> resolvedArguments) {
+    var separatedListBuilder = new CommandDetector.SeparatedListBuilder();
 
     for (ArgumentResolution resolvedArgument : resolvedArguments) {
       parseCommand(separatedListBuilder, resolvedArgument);
@@ -75,7 +74,7 @@ public class ArgumentResolutionSplitter {
 
   private static void parseCommand(CommandDetector.SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument) {
     String argument = resolvedArgument.value();
-    Matcher fullMatcher = FIRST_COMMAND_AND_REST_REGEX.matcher(argument);
+    var fullMatcher = FIRST_COMMAND_AND_REST_REGEX.matcher(argument);
     if (fullMatcher.find()) {
       String firstCommand = fullMatcher.group(FIRST_COMMAND);
       String remainder = fullMatcher.group(REMAINDER);
@@ -89,9 +88,12 @@ public class ArgumentResolutionSplitter {
     }
   }
 
-  private static void parseRemainderOfTheCommand(CommandDetector.SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument, Matcher fullMatcher,
+  private static void parseRemainderOfTheCommand(
+    CommandDetector.SeparatedListBuilder separatedListBuilder,
+    ArgumentResolution resolvedArgument,
+    Matcher fullMatcher,
     String remainder) {
-    Matcher matcher = OPERATOR_AND_COMMAND_REGEX.matcher(remainder);
+    var matcher = OPERATOR_AND_COMMAND_REGEX.matcher(remainder);
     while (matcher.find()) {
       String operator = matcher.group(OPERATOR);
       String command = matcher.group(COMMAND);
@@ -104,10 +106,10 @@ public class ArgumentResolutionSplitter {
   }
 
   private static ArgumentResolution buildSubArgument(ArgumentResolution resolvedArgument, String firstCommand, int offsetShift) {
-    TextRange argumentRange = resolvedArgument.argument().textRange();
+    var argumentRange = resolvedArgument.argument().textRange();
     SyntaxToken token = new SyntaxTokenImpl(firstCommand, range(argumentRange.start().line(), argumentRange.start().lineOffset() + offsetShift, firstCommand),
       Collections.emptyList());
-    LiteralImpl literal = new LiteralImpl(token);
+    var literal = new LiteralImpl(token);
     Argument newArg = new ArgumentImpl(List.of(literal));
     return ArgumentResolution.ofWithoutStrippingQuotes(newArg);
   }

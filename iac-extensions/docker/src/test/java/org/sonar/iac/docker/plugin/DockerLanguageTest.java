@@ -71,7 +71,7 @@ class DockerLanguageTest {
     "filename.Dockerfile",
     "filename.dOckerFilE"
   })
-  void fileNameIsAssignedToLanguage(String fileName) {
+  void fileNameShouldBeAssignedToLanguage(String fileName) {
     assertThat(associatedToLanguage(fileName)).isTrue();
   }
 
@@ -85,7 +85,7 @@ class DockerLanguageTest {
     "Helloworld.java",
     "Dockerfile.foo"
   })
-  void fileNameIsNotAssignedToLanguage(String fileName) {
+  void fileNameShouldNotBeAssignedToLanguage(String fileName) {
     assertThat(associatedToLanguage(fileName)).isFalse();
   }
 

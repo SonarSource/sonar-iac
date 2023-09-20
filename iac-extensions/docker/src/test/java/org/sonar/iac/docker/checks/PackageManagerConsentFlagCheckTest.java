@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 class PackageManagerConsentFlagCheckTest {
   @Test
-  void test() {
+  void shouldExecuteCheck() {
     DockerVerifier.verify("PackageManagerConsentFlagCheck/PackageManagerConsentFlagCheck.dockerfile", new PackageManagerConsentFlagCheck());
   }
 }

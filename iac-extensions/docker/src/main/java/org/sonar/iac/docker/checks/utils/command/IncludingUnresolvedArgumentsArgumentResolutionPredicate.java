@@ -36,7 +36,7 @@ public class IncludingUnresolvedArgumentsArgumentResolutionPredicate implements 
   @Override
   public boolean hasType(Type... types) {
     for (Type t : types) {
-      if (Type.MATCH.equals(t)) {
+      if (Type.MATCH == t) {
         return true;
       }
     }

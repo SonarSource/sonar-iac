@@ -31,23 +31,17 @@ import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.checks.utils.command.IncludingUnresolvedArgumentsArgumentResolutionPredicate;
 import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
+import org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type;
+import org.sonar.iac.docker.checks.utils.command.IncludingUnresolvedArgumentsArgumentResolutionPredicate;
 import org.sonar.iac.docker.checks.utils.command.IncludingUnresolvedArgumentsPredicate;
-import org.sonar.iac.docker.checks.utils.command.MultipleUnorderedOptionsPredicate;
-import org.sonar.iac.docker.checks.utils.command.OptionPredicate;
 import org.sonar.iac.docker.checks.utils.command.PredicateContext;
+import org.sonar.iac.docker.checks.utils.command.PredicateContext.Status;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
 import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.splitCommands;
-import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
-import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
-import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.OPTIONAL;
-import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.ZERO_OR_MORE;
-import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.ABORT;
-import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.FOUND_NO_PREDICATE_MATCH;
 
 public class CommandDetector {
 
@@ -120,8 +114,8 @@ public class CommandDetector {
    * The method is then called again with a reduced argument stack until there are no more arguments on the stack.
    * If a predicate can be applied multiple times to the argument stack, it is placed on the predicate stack again at the end of the loop.
    */
-  // Cognitive Complexity of methods should not be too high
-  @SuppressWarnings("java:S3776")
+  // Cognitive Complexity of methods should not be too high; Methods should not have too many return statements
+  @SuppressWarnings({"java:S3776", "java:S1142"})
   private static List<ArgumentResolution> fullMatch(PredicateContext context) {
     context.startNewfullMatchOn(context.getDetectorPredicates());
 
@@ -148,7 +142,7 @@ public class CommandDetector {
 
       // For FOUND_NO_PREDICATE_MATCH:
       // Stop argument detection in case the argument does not match and the predicate is not optional or should not be matched
-      if (context.is(ABORT, FOUND_NO_PREDICATE_MATCH)) {
+      if (context.is(Status.ABORT, Status.FOUND_NO_PREDICATE_MATCH)) {
         return Collections.emptyList();
       }
     }
@@ -163,24 +157,16 @@ public class CommandDetector {
       predicates.add(commandPredicate);
     }
 
-    private void addSingularPredicate(Predicate<String> predicate, CommandPredicate.Type type) {
+    private void addSingularPredicate(Predicate<String> predicate, Type type) {
       addCommandPredicate(new SingularPredicate(predicate, type));
     }
 
-    private void addOptionPredicate(SingularPredicate flag, SingularPredicate value) {
-      addCommandPredicate(new OptionPredicate(flag, value));
-    }
-
-    private void addMultipleOptionsPredicate(List<OptionPredicate> expectedOptions) {
-      addCommandPredicate(new MultipleUnorderedOptionsPredicate(expectedOptions));
-    }
-
     private void addIncludeUnresolved(Predicate<String> predicate) {
-      addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, MATCH));
+      addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, Type.MATCH));
     }
 
     public CommandDetector.Builder with(Predicate<String> predicate) {
-      addSingularPredicate(predicate, MATCH);
+      addSingularPredicate(predicate, Type.MATCH);
       return this;
     }
 
@@ -193,17 +179,17 @@ public class CommandDetector {
     }
 
     public CommandDetector.Builder withOptional(Predicate<String> predicate) {
-      addSingularPredicate(predicate, OPTIONAL);
+      addSingularPredicate(predicate, Type.OPTIONAL);
       return this;
     }
 
     public CommandDetector.Builder notWith(Predicate<String> predicate) {
-      addSingularPredicate(predicate, NO_MATCH);
+      addSingularPredicate(predicate, Type.NO_MATCH);
       return this;
     }
 
     public CommandDetector.Builder withOptionalRepeating(Predicate<String> predicate) {
-      addSingularPredicate(predicate, ZERO_OR_MORE);
+      addSingularPredicate(predicate, Type.ZERO_OR_MORE);
       return this;
     }
 
@@ -241,19 +227,6 @@ public class CommandDetector {
       return withOptionalRepeating(s -> s.startsWith("-"));
     }
 
-    public CommandDetector.Builder withAnyOptionExcluding(Collection<String> excludedFlags) {
-      SingularPredicate flagPredicate = new SingularPredicate(s -> s.startsWith("-") && !excludedFlags.contains(s), ZERO_OR_MORE);
-      // should not test for any flag only possible values
-      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || excludedFlags.contains(s)), ZERO_OR_MORE);
-      addOptionPredicate(flagPredicate, valuePredicate);
-      return this;
-    }
-
-    public CommandDetector.Builder withMultipleUnorderedOptions(List<OptionPredicate> expectedOptions) {
-      addMultipleOptionsPredicate(expectedOptions);
-      return this;
-    }
-
     public CommandDetector.Builder withPredicatesFrom(CommandDetector.Builder otherBuilder) {
       this.predicates.addAll(otherBuilder.predicates);
       return this;
@@ -265,7 +238,7 @@ public class CommandDetector {
     }
 
     public CommandDetector.Builder withAnyIncludingUnresolvedExcluding(Predicate<String> predicate) {
-      addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, ZERO_OR_MORE));
+      addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, Type.ZERO_OR_MORE));
       return this;
     }
 
