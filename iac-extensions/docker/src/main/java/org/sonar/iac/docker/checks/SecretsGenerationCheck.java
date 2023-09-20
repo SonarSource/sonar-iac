@@ -22,7 +22,6 @@ package org.sonar.iac.docker.checks;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -33,10 +32,12 @@ import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.StringPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+
+import static org.sonar.iac.docker.checks.utils.StandardCommandDetectors.commandFlagEquals;
+import static org.sonar.iac.docker.checks.utils.StandardCommandDetectors.commandFlagNoSpace;
+import static org.sonar.iac.docker.checks.utils.StandardCommandDetectors.commandFlagSpace;
 
 @Rule(key = "S6437")
 public class SecretsGenerationCheck implements IacCheck {
@@ -79,19 +80,19 @@ public class SecretsGenerationCheck implements IacCheck {
     .build();
 
   // It detects: wget --password=MyPassword
-  private static final CommandDetector WGET_PASSWORD_FLAG_EQUALS_PWD = commandsFlagEquals("wget", PASSWORD_FLAG);
+  private static final CommandDetector WGET_PASSWORD_FLAG_EQUALS_PWD = commandFlagEquals("wget", PASSWORD_FLAG);
 
   // It detects: wget --password MyPassword
   private static final CommandDetector WGET_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("wget", PASSWORD_FLAG);
 
-  private static final CommandDetector WGET_FTP_PASSWORD_FLAG_EQUALS_PWD = commandsFlagEquals("wget", "--ftp-password");
+  private static final CommandDetector WGET_FTP_PASSWORD_FLAG_EQUALS_PWD = commandFlagEquals("wget", "--ftp-password");
 
   private static final CommandDetector WGET_FTP_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("wget", "--ftp-password");
-  private static final CommandDetector WGET_HTTP_PASSWORD_FLAG_EQUALS_PWD = commandsFlagEquals("wget", "--http-password");
+  private static final CommandDetector WGET_HTTP_PASSWORD_FLAG_EQUALS_PWD = commandFlagEquals("wget", "--http-password");
 
   private static final CommandDetector WGET_HTTP_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("wget", "--http-password");
 
-  private static final CommandDetector WGET_PROXY_PASSWORD_FLAG_EQUALS_PWD = commandsFlagEquals("wget", "--proxy-password");
+  private static final CommandDetector WGET_PROXY_PASSWORD_FLAG_EQUALS_PWD = commandFlagEquals("wget", "--proxy-password");
 
   private static final CommandDetector WGET_PROXY_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("wget", "--proxy-password");
 
@@ -100,12 +101,12 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final CommandDetector SSHPASS_P_FLAG_SPACE_PWD = commandFlagSpace("sshpass", PASSWORD_FLAG_SHORT);
 
-  private static final CommandDetector SSHPASS_P_FLAG_NO_SPACE_PWD = commandsFlagNoSpace("sshpass", PASSWORD_FLAG_SHORT);
+  private static final CommandDetector SSHPASS_P_FLAG_NO_SPACE_PWD = commandFlagNoSpace("sshpass", PASSWORD_FLAG_SHORT);
 
   private static final List<String> MYSQL_COMMANDS = List.of("mysql", "mysqladmin", "mysqldump");
-  private static final CommandDetector MYSQL_PASSWORD_EQUALS_PWD = commandsFlagEquals(MYSQL_COMMANDS, PASSWORD_FLAG);
+  private static final CommandDetector MYSQL_PASSWORD_EQUALS_PWD = commandFlagEquals(MYSQL_COMMANDS, PASSWORD_FLAG);
 
-  private static final CommandDetector MYSQL_P_FLAG_NO_SPACE_PWD = commandsFlagNoSpace(MYSQL_COMMANDS, PASSWORD_FLAG_SHORT);
+  private static final CommandDetector MYSQL_P_FLAG_NO_SPACE_PWD = commandFlagNoSpace(MYSQL_COMMANDS, PASSWORD_FLAG_SHORT);
 
   private static final CommandDetector USERADD_PASSWORD_FLAG_SPACE_PWD = commandFlagSpace("useradd", PASSWORD_FLAG);
   private static final CommandDetector USERADD_P_FLAG_SPACE_PWD = commandFlagSpace("useradd", PASSWORD_FLAG_SHORT);
@@ -130,7 +131,7 @@ public class SecretsGenerationCheck implements IacCheck {
     .withIncludeUnresolved(arg -> true)
     .build();
 
-  private static final CommandDetector DRUSH_PASSWORD_FLAG_EQUALS_PWD = commandsFlagEquals("drush", PASSWORD_FLAG);
+  private static final CommandDetector DRUSH_PASSWORD_FLAG_EQUALS_PWD = commandFlagEquals("drush", PASSWORD_FLAG);
 
   private static final Set<CommandDetector> DETECTORS_THAT_STORE_SECRETS = Set.of(
     SSH_DETECTOR,
@@ -161,40 +162,6 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER_FLAG_SPACE_PWD,
     CURL_USER_SHORT_FLAG_SPACE_PWD);
-
-  private static CommandDetector commandsFlagNoSpace(String command, String flag) {
-    return commandsFlagNoSpace(List.of(command), flag);
-  }
-
-  private static CommandDetector commandsFlagNoSpace(List<String> commands, String flag) {
-    return CommandDetector.builder()
-      .with(commands)
-      .withAnyIncludingUnresolvedExcluding(arg -> !arg.startsWith(flag))
-      .withArgumentResolutionIncludeUnresolved(new FlagNoSpaceArgumentPredicate(flag))
-      .build();
-  }
-
-  private static CommandDetector commandsFlagEquals(String commands, String flag) {
-    return commandsFlagEquals(List.of(commands), flag);
-  }
-
-  private static CommandDetector commandsFlagEquals(List<String> commands, String flag) {
-    String flagAndEquals = flag + "=";
-    return CommandDetector.builder()
-      .with(commands)
-      .withAnyIncludingUnresolvedExcluding(arg -> !arg.startsWith(flagAndEquals))
-      .withIncludeUnresolved(arg -> arg.startsWith(flagAndEquals))
-      .build();
-  }
-
-  private static CommandDetector commandFlagSpace(String command, String flag) {
-    return CommandDetector.builder()
-      .with(command)
-      .withOptionalRepeatingExcept(StringPredicate.equalsIgnoreQuotes(flag))
-      .with(StringPredicate.equalsIgnoreQuotes(flag))
-      .withIncludeUnresolved(a -> true)
-      .build();
-  }
 
   @Override
   public void initialize(InitContext init) {
@@ -230,7 +197,7 @@ public class SecretsGenerationCheck implements IacCheck {
       detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
 
     CURL_DETECTORS.forEach(
-      detector -> detector.search(resolvedArgument).forEach(command -> {
+      detector -> detector.search(resolvedArgument).forEach((CommandDetector.Command command) -> {
         ArgumentResolution userAndPassword = getLastArgument(command);
         if (userAndPassword.value().contains(":")) {
           ctx.reportIssue(command, MESSAGE);
@@ -265,10 +232,10 @@ public class SecretsGenerationCheck implements IacCheck {
   private static class HtpasswdDetector {
 
     public static boolean detect(List<ArgumentResolution> resolvedArgument) {
-      boolean flagB = false;
-      boolean flagN = false;
-      int numberOfNonFlags = 0;
-      for (int i = 0; i < resolvedArgument.size(); i++) {
+      var flagB = false;
+      var flagN = false;
+      var numberOfNonFlags = 0;
+      for (var i = 0; i < resolvedArgument.size(); i++) {
         String current = resolvedArgument.get(i).value();
         if (i == 0 && !"htpasswd".equals(current)) {
           break;
@@ -288,40 +255,15 @@ public class SecretsGenerationCheck implements IacCheck {
     }
 
     private static boolean detectedSensitiveCommand(boolean flagB, boolean flagN, int numberOfNonFlags) {
-      return flagB && ((!flagN && numberOfNonFlags == 4) || (flagN && numberOfNonFlags == 3));
-    }
-  }
-
-  /**
-   * The predicate for the flag that it is glued to the argument, e.g.: {@code -pPASSWORD}
-   * (there is no space between flag and argument).
-   */
-  public static class FlagNoSpaceArgumentPredicate implements Predicate<ArgumentResolution> {
-
-    private final String flag;
-
-    public FlagNoSpaceArgumentPredicate(String flag) {
-      this.flag = flag;
+      return flagB && (notFlagNAnd4NonFlags(flagN, numberOfNonFlags) || flagNAnd3NonFlags(flagN, numberOfNonFlags));
     }
 
-    @Override
-    public boolean test(ArgumentResolution resolution) {
-      if (resolution.value().startsWith(flag)) {
-        if (resolution.value().length() > flag.length()) {
-          // for -p"PASSWORD" and -p'PASSWORD'
-          return true;
-        }
-        if (resolution.argument().expressions().size() > 1) {
-          // for -p"$PASSWORD", -p$PASSWORD etc
-          return true;
-        }
-        if (resolution.argument().expressions().get(0).is(DockerTree.Kind.EXPANDABLE_STRING_LITERAL)) {
-          ExpandableStringLiteral expression = (ExpandableStringLiteral) resolution.argument().expressions().get(0);
-          // for "-p$PASSWORD"
-          return expression.expressions().size() > 1;
-        }
-      }
-      return false;
+    private static boolean flagNAnd3NonFlags(boolean flagN, int numberOfNonFlags) {
+      return flagN && numberOfNonFlags == 3;
+    }
+
+    private static boolean notFlagNAnd4NonFlags(boolean flagN, int numberOfNonFlags) {
+      return !flagN && numberOfNonFlags == 4;
     }
   }
 }
