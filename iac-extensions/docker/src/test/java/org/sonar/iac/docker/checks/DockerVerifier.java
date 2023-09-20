@@ -39,14 +39,19 @@ public class DockerVerifier {
 
   public static void verify(String fileName, IacCheck check) {
     Path path = BASE_DIR.resolve(fileName);
-    Tree root = Verifier.parse(PARSER, path);
-    DockerSymbolVisitor symbolVisitor = new DockerSymbolVisitor();
-    symbolVisitor.scan(mock(InputFileContext.class), root);
-    Verifier.verify(root, BASE_DIR.resolve(fileName), check, Verifier.TestContext::new);
+    verify(path, check);
   }
 
   public static void verifyContent(String content, IacCheck check) {
-    Verifier.verify(PARSER, content, check);
+    Path path = Verifier.contentToTmp(content).toPath();
+    verify(path, check);
+  }
+
+  private static void verify(Path path, IacCheck check) {
+    Tree root = Verifier.parse(PARSER, path);
+    DockerSymbolVisitor symbolVisitor = new DockerSymbolVisitor();
+    symbolVisitor.scan(mock(InputFileContext.class), root);
+    Verifier.verify(root, path, check, Verifier.TestContext::new);
   }
 
   public static void verifyNoIssue(String fileName, IacCheck check) {
