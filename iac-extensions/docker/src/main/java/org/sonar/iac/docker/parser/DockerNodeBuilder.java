@@ -81,9 +81,10 @@ public class DockerNodeBuilder implements NodeBuilder {
   /**
    * Compute the {@link TextRange} from a value at the given {@code startIndex}, regarding the provided {@code input} (source code).
    * In case it extend to multiple lines, we build a {@link CompoundTextRange} object with a reference to each line {@link TextRange}.
-   * It is used to track back tokens in HereDoc, as currently the full HereDoc content of an instruction is considered as a single {@link SyntaxToken},
-   * before it is being parsed by a specific HereDoc parser which then call this tokenRange method to split into multiple {@link SyntaxToken} with
-   * correct range.
+   * It is used to track back tokens in HereDoc, as currently the full HereDoc content of an instruction is considered as a single {@link SyntaxToken}
+   * that extend to multiple lines, which is then parsed by a specific HereDoc parser. This is this parser that call this {@link #tokenRange(Input, int, String)}
+   * method to split this big {@link SyntaxToken} into multiple {@link SyntaxToken}, each with its own  range.
+   * <br />
    * The {@code startIndex} is the position on the instruction line where the provided value begin.
    * In the line {@code RUN <<EOT cmd ...}, the {@code startIndex} would be 4 (to skip the {@code RUN } part) and the value would be the HereDoc
    * content: {@code <<EOT cmd ...}
@@ -98,12 +99,12 @@ public class DockerNodeBuilder implements NodeBuilder {
     int index;
     for (index = startIndex + 1; index < startIndex + value.length(); index++) {
       int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(index);
-      // detect line changes
       var startLine = startLineAndColumn[0];
       var currentLine = currentLineAndColumn[0];
       var currentColumn = currentLineAndColumn[1];
       var previousLine = previousLineAndColumn[0];
       var previousColumn = previousLineAndColumn[1];
+      // detect line changes
       if (currentLine != startLine) {
         int startColumn = applyByteOrderMark(currentColumn, hasByteOrderMark);
         int endColum = applyByteOrderMark(previousColumn, hasByteOrderMark);
