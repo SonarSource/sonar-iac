@@ -27,7 +27,7 @@ class SpecificVersionTagCheckTest {
   final IacCheck check = new SpecificVersionTagCheck();
 
   @Test
-  void test() {
+  void shouldExecuteCheck() {
     DockerVerifier.verify("SpecificVersionTagCheck/specificVersionTagCheck.dockerfile", check);
   }
 }

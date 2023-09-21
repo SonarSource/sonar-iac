@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class SpaceBeforeEqualInKeyValuePairCheckTest {
 
   @Test
-  void test() {
+  void shouldExecuteCheck() {
     DockerVerifier.verify("SpaceBeforeEqualInKeyValuePairCheck/SpaceBeforeEqualInKeyValuePairCheck.dockerfile", new SpaceBeforeEqualInKeyValuePairCheck());
   }
 

@@ -44,7 +44,7 @@ public class ArgDefinedOutsideOfScopeCheck implements IacCheck {
       return;
     }
 
-    if (Scope.Kind.GLOBAL.equals(variable.symbol().lastDeclarationScope())) {
+    if (Scope.Kind.GLOBAL == variable.symbol().lastDeclarationScope()) {
       ctx.reportIssue(variable.textRange(), MESSAGE);
     }
   }

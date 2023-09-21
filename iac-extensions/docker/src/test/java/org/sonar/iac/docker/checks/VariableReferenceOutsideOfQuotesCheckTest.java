@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class VariableReferenceOutsideOfQuotesCheckTest {
 
   @Test
-  void test() {
+  void shouldExecuteCheck() {
     DockerVerifier.verify("VariableReferenceOutsideOfQuotesCheck/VariableReferenceOutsideOfQuotesCheck.dockerfile", new VariableReferenceOutsideOfQuotesCheck());
   }
 

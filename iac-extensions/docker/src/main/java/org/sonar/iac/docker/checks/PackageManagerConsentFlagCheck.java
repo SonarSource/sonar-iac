@@ -54,7 +54,7 @@ public class PackageManagerConsentFlagCheck implements IacCheck {
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(runInstruction);
-    DEBIAN_PACKAGE_MANAGER_DETECTOR.search(argumentResolutions).forEach(c -> {
+    DEBIAN_PACKAGE_MANAGER_DETECTOR.search(argumentResolutions).forEach((CommandDetector.Command c) -> {
       if (isPackageManagerInvocationWithoutConsent(c)) {
         ctx.reportIssue(c.textRange(), MESSAGE);
       }
@@ -70,8 +70,8 @@ public class PackageManagerConsentFlagCheck implements IacCheck {
   }
 
   static class CommandOption {
-    final String shortVariant;
-    final List<String> longVariants;
+    private final String shortVariant;
+    private final List<String> longVariants;
 
     CommandOption(String shortVariant, List<String> longVariants) {
       this.shortVariant = shortVariant;

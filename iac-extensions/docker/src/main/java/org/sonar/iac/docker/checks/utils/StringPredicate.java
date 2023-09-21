@@ -19,10 +19,10 @@
  */
 package org.sonar.iac.docker.checks.utils;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.function.Predicate;
 
-public class StringPredicate {
+public final class StringPredicate {
   private StringPredicate() {
   }
 
@@ -34,7 +34,7 @@ public class StringPredicate {
     return str -> stripQuotes(str).equals(value);
   }
 
-  public static Predicate<String> containsIgnoreQuotes(Set<String> values) {
+  public static Predicate<String> containsIgnoreQuotes(Collection<String> values) {
     return str -> values.contains(stripQuotes(str));
   }
 

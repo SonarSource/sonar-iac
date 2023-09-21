@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 class ShellExpansionsInCommandCheckTest {
   @Test
-  void test() {
+  void shouldExecuteCheck() {
     DockerVerifier.verify("ShellExpansionsInCommandCheck/ShellExpansionsInCommandCheck.dockerfile", new ShellExpansionsInCommandCheck());
   }
 }

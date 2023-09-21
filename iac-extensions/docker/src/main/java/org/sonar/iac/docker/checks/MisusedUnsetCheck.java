@@ -69,7 +69,7 @@ public class MisusedUnsetCheck implements IacCheck {
   private static void reportArgumentIfNonCompliant(ArgumentResolution resolution, CheckContext ctx, Scope scope) {
     // Arguments of RUN instruction should always be string literals
     Literal argument = (Literal) resolution.argument().expressions().get(0);
-    Symbol symbol = scope.getSymbol(argument.value());
+    var symbol = scope.getSymbol(argument.value());
     if (symbol != null && isDefinedAsEnv(symbol)) {
       ctx.reportIssue(argument.textRange(), MESSAGE);
     }

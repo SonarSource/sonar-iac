@@ -26,7 +26,6 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.FromInstruction;
@@ -49,7 +48,7 @@ public class SpecificVersionTagCheck implements IacCheck {
   }
 
   private static void checkFromInstruction(CheckContext ctx, FromInstruction fromInstruction, Set<String> encounteredAlias) {
-    ArgumentResolution resolvedImage = ArgumentResolution.of(fromInstruction.image());
+    var resolvedImage = ArgumentResolution.of(fromInstruction.image());
     if (resolvedImage.isUnresolved()) {
       return;
     }
@@ -59,7 +58,7 @@ public class SpecificVersionTagCheck implements IacCheck {
       ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE);
     }
 
-    Alias alias = fromInstruction.alias();
+    var alias = fromInstruction.alias();
     if (alias != null) {
       encounteredAlias.add(alias.alias().value());
     }
@@ -71,7 +70,7 @@ public class SpecificVersionTagCheck implements IacCheck {
     } else if (fullImageName.contains(":")) {
       // raise an issue if the version tag is "latest"
       String[] splitImageName = fullImageName.split(":");
-      return splitImageName.length >= 2 && splitImageName[1].equals("latest");
+      return splitImageName.length > 1 && "latest".equals(splitImageName[1]);
     } else {
       // no version tag specified, docker assumes "latest"
       return true;
