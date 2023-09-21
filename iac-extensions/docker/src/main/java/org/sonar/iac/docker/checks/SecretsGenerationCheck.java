@@ -29,7 +29,6 @@ import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.StringPredicate;
-import org.sonar.iac.docker.checks.utils.shell.HtpasswdDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.Flag;
@@ -219,7 +218,7 @@ public class SecretsGenerationCheck implements IacCheck {
   }
 
   private static void checkHtpasswd(List<ArgumentResolution> resolvedArgument, CheckContext ctx) {
-    if (HtpasswdDetector.detect(resolvedArgument)) {
+    if (HtpasswdDetector.detectSensitiveCommand(resolvedArgument)) {
       ctx.reportIssue(new CommandDetector.Command(resolvedArgument), MESSAGE);
     }
   }
@@ -227,5 +226,45 @@ public class SecretsGenerationCheck implements IacCheck {
   private static ArgumentResolution getLastArgument(CommandDetector.Command command) {
     List<ArgumentResolution> arguments = command.getResolvedArguments();
     return arguments.get(arguments.size() - 1);
+  }
+
+  private static final class HtpasswdDetector {
+    private HtpasswdDetector() {
+    }
+
+    public static boolean detectSensitiveCommand(List<ArgumentResolution> resolvedArgument) {
+      var flagB = false;
+      var flagN = false;
+      var numberOfNonFlags = 0;
+      for (var i = 0; i < resolvedArgument.size(); i++) {
+        String current = resolvedArgument.get(i).value();
+        if (i == 0 && !"htpasswd".equals(current)) {
+          break;
+        }
+        if (current.startsWith("-")) {
+          if (current.contains("b")) {
+            flagB = true;
+          }
+          if (current.contains("n")) {
+            flagN = true;
+          }
+        } else {
+          numberOfNonFlags++;
+        }
+      }
+      return isSensitive(flagB, flagN, numberOfNonFlags);
+    }
+
+    private static boolean isSensitive(boolean flagB, boolean flagN, int numberOfNonFlags) {
+      return flagB && (notFlagNAnd4NonFlags(flagN, numberOfNonFlags) || flagNAnd3NonFlags(flagN, numberOfNonFlags));
+    }
+
+    private static boolean flagNAnd3NonFlags(boolean flagN, int numberOfNonFlags) {
+      return flagN && numberOfNonFlags == 3;
+    }
+
+    private static boolean notFlagNAnd4NonFlags(boolean flagN, int numberOfNonFlags) {
+      return !flagN && numberOfNonFlags == 4;
+    }
   }
 }
