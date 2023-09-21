@@ -30,15 +30,18 @@ import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
  */
 public class FlagNoSpaceArgumentPredicate implements Predicate<ArgumentResolution> {
   private final String flag;
+  private final boolean ignoreQuotes;
 
-  public FlagNoSpaceArgumentPredicate(String flag) {
+  public FlagNoSpaceArgumentPredicate(String flag, boolean ignoreQuotes) {
     this.flag = flag;
+    this.ignoreQuotes = ignoreQuotes;
   }
 
   @Override
   public boolean test(ArgumentResolution resolution) {
-    if (resolution.value().startsWith(flag)) {
-      if (resolution.value().length() > flag.length()) {
+    String resolvedValue = ignoreQuotes ? StringPredicate.stripQuotes(resolution.value()) : resolution.value();
+    if (resolvedValue.startsWith(flag)) {
+      if (resolvedValue.length() > flag.length()) {
         // for -p"PASSWORD" and -p'PASSWORD'
         return true;
       }

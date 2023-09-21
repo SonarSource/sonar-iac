@@ -125,7 +125,7 @@ public class SecretsGenerationCheck implements IacCheck {
   private static final CommandDetector DRUSH_USER_PASSWORD = CommandDetector.builder()
     .with("drush")
     .withAnyFlag()
-    .with(List.of("user:password", "upwd", "user-password"))
+    .with(StringPredicate.containsIgnoreQuotes(List.of("user:password", "upwd", "user-password")))
     .with(arg -> true)
     .withIncludeUnresolved(arg -> true)
     .build();

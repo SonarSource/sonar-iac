@@ -110,7 +110,11 @@ public final class ArgumentResolutionSplitter {
     SyntaxToken token = new SyntaxTokenImpl(firstCommand, range(argumentRange.start().line(), argumentRange.start().lineOffset() + offsetShift, firstCommand),
       Collections.emptyList());
     var literal = new LiteralImpl(token);
+    token.setParent(literal);
     Argument newArg = new ArgumentImpl(List.of(literal));
+    literal.setParent(newArg);
+    // workaround to keep the quotes preservation logic of ArgumentResolution who checks if the parent is ShellForm
+    newArg.setParent(resolvedArgument.argument().parent());
     return ArgumentResolution.ofWithoutStrippingQuotes(newArg);
   }
 }
