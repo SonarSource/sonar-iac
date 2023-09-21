@@ -16,8 +16,9 @@ RUN ./script -p $SECRET_VALUE && unset SECRET_VALUE SECRET_USER
 # Noncompliant@+1
 RUN ./script -p $SECRET_VALUE && unset LD_LIBRARY_PATH SECRET_USER
 #                                                      ^^^^^^^^^^^
-# Noncompliant@+3
+# Noncompliant@+4
 RUN <<EOF
+#!/usr/bin/env bash
 ./script -p $SECRET_VALUE
 unset SECRET_VALUE
 EOF
