@@ -30,21 +30,17 @@ import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.
 import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.FOUND_NO_PREDICATE_MATCH;
 
 public class SingularPredicate implements CommandPredicate {
-  final Predicate<String> predicate;
-  final Type type;
+  private final Predicate<String> predicate;
+  private final Type type;
 
   public SingularPredicate(Predicate<String> predicate, Type type) {
     this.predicate = predicate;
     this.type = type;
   }
 
-  public static SingularPredicate equalMatch(String string) {
-    return new SingularPredicate(string::equals, Type.MATCH);
-  }
-
   public boolean hasType(Type... types) {
     for (Type t : types) {
-      if (this.type.equals(t)) {
+      if (this.type == t) {
         return true;
       }
     }
@@ -72,7 +68,7 @@ public class SingularPredicate implements CommandPredicate {
         return;
       }
       // Re-add predicate to stack to be reevaluated on the next argument
-      if (this.hasType(ZERO_OR_MORE) && !(context.getCurrentPredicate() instanceof MultipleUnorderedOptionsPredicate)) {
+      if (this.hasType(ZERO_OR_MORE)) {
         // only needed in this case, if the currentPredicate is MultipleUnorderedOptionsPredicate the calling method will handle this case
         context.detectCurrentPredicateAgain();
       }
