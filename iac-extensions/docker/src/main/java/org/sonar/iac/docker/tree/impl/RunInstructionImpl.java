@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -60,7 +59,10 @@ public class RunInstructionImpl extends AbstractCommandInstructionImpl implement
   }
 
   @Override
-  public boolean containsHeredoc() {
-    return arguments instanceof HereDocument;
+  public Kind getKindOfArgumentList() {
+    if (arguments == null) {
+      return null;
+    }
+    return arguments.getKind();
   }
 }

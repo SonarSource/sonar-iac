@@ -34,6 +34,8 @@ import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
+import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringHeredoc;
+
 @Rule(key = "S6597")
 public class WorkdirInsteadCdCheck implements IacCheck {
   private static final String MESSAGE = "WORKDIR instruction should be used instead of cd command.";
@@ -45,12 +47,12 @@ public class WorkdirInsteadCdCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, WorkdirInsteadCdCheck::checkRunInstruction);
-    init.register(CmdInstruction.class, WorkdirInsteadCdCheck::checkGeneralCommandInstruction);
-    init.register(EntrypointInstruction.class, WorkdirInsteadCdCheck::checkGeneralCommandInstruction);
+    init.register(RunInstruction.class, ignoringHeredoc(WorkdirInsteadCdCheck::checkCommandInstruction));
+    init.register(CmdInstruction.class, WorkdirInsteadCdCheck::checkCommandInstruction);
+    init.register(EntrypointInstruction.class, WorkdirInsteadCdCheck::checkCommandInstruction);
   }
 
-  private static void checkGeneralCommandInstruction(CheckContext ctx, CommandInstruction commandInstruction) {
+  private static void checkCommandInstruction(CheckContext ctx, CommandInstruction commandInstruction) {
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(commandInstruction);
     List<List<ArgumentResolution>> separatedArguments = ArgumentResolutionSplitter.splitCommands(argumentResolutions).elements();
 
@@ -60,13 +62,6 @@ public class WorkdirInsteadCdCheck implements IacCheck {
       COMMAND_DETECTOR.searchWithoutSplit(arguments)
         .forEach(command -> ctx.reportIssue(command, MESSAGE));
     }
-  }
-
-  private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
-    if (runInstruction.containsHeredoc()) {
-      return;
-    }
-    checkGeneralCommandInstruction(ctx, runInstruction);
   }
 
   private static List<List<ArgumentResolution>> takeFirstAndLastArgument(List<List<ArgumentResolution>> elements) {

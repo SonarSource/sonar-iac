@@ -35,7 +35,7 @@ public interface RunInstruction extends CommandInstruction {
   List<Flag> options();
 
   /**
-   * @return true if the arguments of this RunInstruction are in {@link HereDocument} format.
+   * @return The {@link Kind} of the {@link ArgumentList} of this RunInstruction.
    */
-  boolean containsHeredoc();
+  Kind getKindOfArgumentList();
 }

@@ -1,9 +1,4 @@
 FROM scratch
-RUN <<EOF
-    apk add --no-cache openssl git
-    cd /etc/nginx
-    git init
-EOF
 
 # Test issue location
 # Noncompliant@+1 {{WORKDIR instruction should be used instead of cd command.}}
@@ -23,9 +18,9 @@ ENTRYPOINT ["/entrypoint.sh", "&&", "cd", "/tmp"]
 #                                   ^^^^^^^^^^^^
 
 # Currently we don't raise issues on any heredoc
-RUN <<"EOT"
+RUN <<EOF
   cd foo/bar
-EOT
+EOF
 
 RUN <<EOF
     apk add --no-cache openssl git
