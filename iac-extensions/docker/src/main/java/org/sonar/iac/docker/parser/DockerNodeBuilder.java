@@ -35,7 +35,9 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.DockerPreprocessor.PreprocessorResult;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.impl.AbstractDockerTreeImpl;
+import org.sonar.iac.docker.tree.impl.CompoundTextRange;
 import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -76,16 +78,58 @@ public class DockerNodeBuilder implements NodeBuilder {
     return new SyntaxTokenImpl(value, range, getCommentsForToken(range));
   }
 
+  /**
+   * Compute the {@link TextRange} from a value at the given {@code startIndex}, regarding the provided {@code input} (source code).
+   * In case it extend to multiple lines, we build a {@link CompoundTextRange} object with a reference to each line {@link TextRange}.
+   * It is used to track back tokens in HereDoc, as currently the full HereDoc content of an instruction is considered as a single {@link SyntaxToken}
+   * that extend to multiple lines, which is then parsed by a specific HereDoc parser. This is this parser that call this {@link #tokenRange(Input, int, String)}
+   * method to split this big {@link SyntaxToken} into multiple {@link SyntaxToken}, each with its own  range.
+   * <br />
+   * The {@code startIndex} is the position on the instruction line where the provided value begin.
+   * In the line {@code RUN <<EOT cmd ...}, the {@code startIndex} would be 4 (to skip the {@code RUN } part) and the value would be the HereDoc
+   * content: {@code <<EOT cmd ...}
+   */
   protected TextRange tokenRange(Input input, int startIndex, String value) {
-    int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex);
-    int[] endLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex + value.length());
+    List<TextRange> ranges = new ArrayList<>();
+    int[] currentLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex);
+    int[] previousLineAndColumn = currentLineAndColumn;
     char[] fileChars = input.input();
     boolean hasByteOrderMark = fileChars.length > 0 && fileChars[0] == BYTE_ORDER_MARK;
 
-    int startColumn = applyByteOrderMark(startLineAndColumn[1], hasByteOrderMark);
-    int endColum = applyByteOrderMark(endLineAndColumn[1], hasByteOrderMark);
+    int index;
+    for (index = startIndex + 1; index < startIndex + value.length(); index++) {
+      int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(index);
+      var startLine = startLineAndColumn[0];
+      var currentLine = currentLineAndColumn[0];
+      var currentColumn = currentLineAndColumn[1];
+      var previousLine = previousLineAndColumn[0];
+      var previousColumn = previousLineAndColumn[1];
+      // detect line changes
+      if (currentLine != startLine) {
+        int startColumn = applyByteOrderMark(currentColumn, hasByteOrderMark);
+        int endColum = applyByteOrderMark(previousColumn, hasByteOrderMark);
+        ranges.add(TextRanges.range(currentLine, startColumn, previousLine, endColum));
+        currentLineAndColumn = startLineAndColumn;
+      }
+      previousLineAndColumn = startLineAndColumn;
+    }
 
-    return TextRanges.range(startLineAndColumn[0], startColumn, endLineAndColumn[0], endColum);
+    // Add remaining range in the list
+    int finalIndex = index;
+    // fix in case we want the range of an empty value
+    if (value.isEmpty()) {
+      finalIndex--;
+    }
+    int[] endLineAndColumn = sourceOffset.sourceLineAndColumnAt(finalIndex);
+    int startColumn = applyByteOrderMark(currentLineAndColumn[1], hasByteOrderMark);
+    int endColum = applyByteOrderMark(endLineAndColumn[1], hasByteOrderMark);
+    ranges.add(TextRanges.range(currentLineAndColumn[0], startColumn, endLineAndColumn[0], endColum));
+
+    if (ranges.size() == 1) {
+      return ranges.get(0);
+    } else {
+      return new CompoundTextRange(ranges);
+    }
   }
 
   private static int applyByteOrderMark(int column, boolean hasByteOrderMark) {

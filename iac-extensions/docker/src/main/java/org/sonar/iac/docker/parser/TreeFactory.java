@@ -216,7 +216,7 @@ public class TreeFactory {
   }
 
   public HereDocument hereDocument(SyntaxToken token) {
-    return (HereDocument) HEREDOC_PARSER.parse(token.value(), token.textRange().start());
+    return (HereDocument) HEREDOC_PARSER.parse(token);
   }
 
   public HereDocument hereDocumentContent(Argument firstArgument, Optional<List<Argument>> otherArguments) {

@@ -44,6 +44,13 @@ RUN {$commandName} update && \
       subversion \
     && rm -rf /var/lib/apt/lists/*
 
+# Noncompliant@+3
+RUN <<-EOF
+    {$commandName} update && \
+    {$commandName} install -y \
+      bzr
+EOF
+
 RUN foobar
 
 RUN {$commandName} install -y $UNRESOLVED
@@ -54,3 +61,4 @@ RUN {$commandName} install -y $UNRESOLVED && {$commandName} install -y geary
 ARG RESOLVED=geary
 # Noncompliant@+1
 RUN {$commandName} install -y $RESOLVED
+
