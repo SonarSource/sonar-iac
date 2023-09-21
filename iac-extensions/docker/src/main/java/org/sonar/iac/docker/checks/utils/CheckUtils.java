@@ -19,14 +19,19 @@
  */
 package org.sonar.iac.docker.checks.utils;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HasArguments;
+import org.sonar.iac.docker.tree.api.RunInstruction;
 
-public class CheckUtils {
+public final class CheckUtils {
 
   private CheckUtils() {
     // utils class
@@ -45,7 +50,15 @@ public class CheckUtils {
     return name.substring(lastIndexOf + 1);
   }
 
-  public static Optional<Flag> getParamByName(List<Flag> params, String name) {
+  public static Optional<Flag> getParamByName(Collection<Flag> params, String name) {
     return params.stream().filter(param -> name.equals(param.name())).findFirst();
+  }
+
+  public static BiConsumer<CheckContext, RunInstruction> ignoringHeredoc(BiConsumer<CheckContext, RunInstruction> visitor) {
+    return (ctx, runInstruction) -> {
+      if (DockerTree.Kind.HEREDOCUMENT != runInstruction.getKindOfArgumentList()) {
+        visitor.accept(ctx, runInstruction);
+      }
+    };
   }
 }

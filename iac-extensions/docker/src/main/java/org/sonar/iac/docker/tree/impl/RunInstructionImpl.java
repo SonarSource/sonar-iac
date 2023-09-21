@@ -57,4 +57,12 @@ public class RunInstructionImpl extends AbstractCommandInstructionImpl implement
   public List<Flag> options() {
     return options;
   }
+
+  @Override
+  public Kind getKindOfArgumentList() {
+    if (arguments == null) {
+      return null;
+    }
+    return arguments.getKind();
+  }
 }

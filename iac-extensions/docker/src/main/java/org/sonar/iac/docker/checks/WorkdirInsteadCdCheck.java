@@ -34,6 +34,8 @@ import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
+import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringHeredoc;
+
 @Rule(key = "S6597")
 public class WorkdirInsteadCdCheck implements IacCheck {
   private static final String MESSAGE = "WORKDIR instruction should be used instead of cd command.";
@@ -45,14 +47,15 @@ public class WorkdirInsteadCdCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, WorkdirInsteadCdCheck::check);
-    init.register(CmdInstruction.class, WorkdirInsteadCdCheck::check);
-    init.register(EntrypointInstruction.class, WorkdirInsteadCdCheck::check);
+    init.register(RunInstruction.class, ignoringHeredoc(WorkdirInsteadCdCheck::checkCommandInstruction));
+    init.register(CmdInstruction.class, WorkdirInsteadCdCheck::checkCommandInstruction);
+    init.register(EntrypointInstruction.class, WorkdirInsteadCdCheck::checkCommandInstruction);
   }
 
-  private static void check(CheckContext ctx, CommandInstruction commandInstruction) {
+  private static void checkCommandInstruction(CheckContext ctx, CommandInstruction commandInstruction) {
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(commandInstruction);
     List<List<ArgumentResolution>> separatedArguments = ArgumentResolutionSplitter.splitCommands(argumentResolutions).elements();
+
     List<List<ArgumentResolution>> argumentsToCheck = takeFirstAndLastArgument(separatedArguments);
 
     for (List<ArgumentResolution> arguments : argumentsToCheck) {
