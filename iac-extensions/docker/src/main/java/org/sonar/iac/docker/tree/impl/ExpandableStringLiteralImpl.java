@@ -22,13 +22,14 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
+import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class ExpandableStringLiteralImpl extends AbstractDockerTreeImpl implements ExpandableStringLiteral {
 
   private final SyntaxToken openDoubleQuote;
+
   private final List<Expression> elements;
   private final SyntaxToken closeDoubleQuote;
 
@@ -41,6 +42,16 @@ public class ExpandableStringLiteralImpl extends AbstractDockerTreeImpl implemen
   @Override
   public List<Expression> expressions() {
     return elements;
+  }
+
+  @Override
+  public SyntaxToken getOpenDoubleQuote() {
+    return openDoubleQuote;
+  }
+
+  @Override
+  public SyntaxToken getCloseDoubleQuote() {
+    return closeDoubleQuote;
   }
 
   @Override

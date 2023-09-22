@@ -20,12 +20,17 @@
 package org.sonar.iac.docker.symbols;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -33,6 +38,7 @@ import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
+import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
@@ -164,6 +170,67 @@ class ArgumentResolutionTest {
     ArgumentResolution resolution = ArgumentResolution.of(label);
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(UNRESOLVED);
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldCorrectlyHandleQuotes(String runInstruction, String expectedSecondArgument) {
+    File file = parseFileAndAnalyzeSymbols(code(
+      "FROM scratch",
+      "ARG FOO=\"foo\"",
+      runInstruction));
+
+    List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, RunInstruction.class).get());
+    ArgumentResolution stringArgument = argumentResolutions.get(1);
+
+    assertThat(stringArgument.value()).isEqualTo(expectedSecondArgument);
+  }
+
+  static Stream<Arguments> shouldCorrectlyHandleQuotes() {
+    return Stream.of(
+      // argument of `echo` is StringLiteral
+      "RUN echo foo#foo",
+      "RUN echo \"foo\"#\"foo\"",
+      "RUN echo 'foo'#'foo'",
+      "RUN echo '\"foo\"'#'\"foo\"'",
+      "RUN echo \"\"foo\"\"#\"\"foo\"\"",
+      "RUN echo \"'foo'\"#\"'foo'\"",
+      // argument of `echo` is ExpandableStringLiteral
+      "RUN echo $FOO#foo",
+      "RUN echo \"$FOO\"#\"foo\"",
+      // single-quoted variables are not substituted by Docker, so we shouldn't resolve them
+      "RUN echo '$FOO'#'$FOO'",
+      "RUN echo \"\"$FOO\"\"#\"\"foo\"\"",
+      "RUN echo ${FOO}#foo",
+      "RUN echo \"${FOO}\"#\"foo\"",
+      "RUN echo '${FOO}'#'${FOO}'",
+      "RUN echo \"\"${FOO}\"\"#\"\"foo\"\"",
+      // in ExecForm all arguments in an array are ExpandableStringLiterals
+      "RUN [\"echo\", \"$FOO\"]#foo",
+      "RUN [\"echo\", \"'$FOO'\"]#'foo'",
+      "RUN [\"echo\", \"${FOO}\"]#foo",
+      "RUN [\"echo\", \"'${FOO}'\"]#'foo'",
+      // in ExecForm quotes have to be escaped and we are not un-escaping them
+      "RUN [\"echo\", \"\\\"$FOO\\\"\"]#\\\"foo\\\"",
+      "RUN [\"echo\", \"\\\"${FOO}\\\"\"]#\\\"foo\\\"")
+      .map(s -> s.split("#"))
+      .map(Arguments::of);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "FROM scratch\nRUN echo \"date; $APP_ROOT_PATH/bin/magento\"",
+    "FROM scratch\nRUN echo \"date; /usr/bin/magento\"",
+    "FROM scratch\nRUN [\"echo\", \"\\\"date; $APP_ROOT_PATH/bin/magento\\\"\"]",
+  })
+  void shouldPreserveQuotesInArguments(String input) {
+    File file = parseFileAndAnalyzeSymbols(input);
+
+    List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, RunInstruction.class).get());
+    ArgumentResolution stringArgument = argumentResolutions.get(1);
+    assertThat(stringArgument.value())
+      .matches(s -> s.startsWith("\"") || s.startsWith("\\\""))
+      .matches(s -> s.endsWith("\"") || s.endsWith("\\\""));
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {

@@ -17,14 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.checks.utils;
 
-import java.util.List;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-public interface ExpandableStringLiteral extends Expression {
-  List<Expression> expressions();
+import static org.assertj.core.api.Assertions.assertThat;
 
-  SyntaxToken getOpenDoubleQuote();
+class PredicatesTest {
+  @ParameterizedTest
+  @CsvSource({
+    "-p,-pvalue,true",
+    "-p,pvalue,false",
+    "--password,--passwordvalue,true",
+    "--password,passwordvalue,false",
+  })
+  void shouldMatchFlagsWithoutSpace(String flag, String input, boolean expected) {
+    var predicate = new FlagNoSpaceArgumentPredicate(flag);
 
-  SyntaxToken getCloseDoubleQuote();
+    var result = predicate.test(CommandDetectorTest.buildArgumentList(input).get(0));
+
+    assertThat(result).isEqualTo(expected);
+  }
 }

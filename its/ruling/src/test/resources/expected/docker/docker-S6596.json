@@ -2,6 +2,9 @@
 "docker-project:ruling/src/test/resources/sources/docker/S6473/Dockerfile.6473": [
 1
 ],
+"docker-project:ruling/src/test/resources/sources/docker/S6573/S6573.dockerfile": [
+1
+],
 "docker-project:sources/docker/awesome-compose/nginx-golang-mysql/backend/Dockerfile": [
 39
 ],

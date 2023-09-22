@@ -37,8 +37,9 @@ public class FlagNoSpaceArgumentPredicate implements Predicate<ArgumentResolutio
 
   @Override
   public boolean test(ArgumentResolution resolution) {
-    if (resolution.value().startsWith(flag)) {
-      if (resolution.value().length() > flag.length()) {
+    var resolvedValue = StringPredicate.stripQuotes(resolution.value());
+    if (resolvedValue.startsWith(flag)) {
+      if (resolvedValue.length() > flag.length()) {
         // for -p"PASSWORD" and -p'PASSWORD'
         return true;
       }
