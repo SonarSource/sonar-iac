@@ -32,7 +32,7 @@ import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Literal;
-import org.sonar.iac.docker.tree.api.ShellForm;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
 
@@ -173,13 +173,9 @@ public class ArgumentResolution {
           builder.addValue(((ExpandableStringCharacters) expression).value());
           break;
         case EXPANDABLE_STRING_LITERAL:
-          if (shouldKeepQuotes(expression)) {
-            builder.addValue(((ExpandableStringLiteral) expression).getOpenDoubleQuote().value());
-          }
+          maybeAddQuote(expression, ((ExpandableStringLiteral) expression).getOpenDoubleQuote());
           resolveExpressions(((ExpandableStringLiteral) expression).expressions());
-          if (shouldKeepQuotes(expression)) {
-            builder.addValue(((ExpandableStringLiteral) expression).getCloseDoubleQuote().value());
-          }
+          maybeAddQuote(expression, ((ExpandableStringLiteral) expression).getCloseDoubleQuote());
           break;
         case REGULAR_VARIABLE:
           resolveVariable((Variable) expression);
@@ -198,7 +194,13 @@ public class ArgumentResolution {
     }
 
     private boolean shouldKeepQuotes(Expression expression) {
-      return !stripQuotes && expression.parent() != null && expression.parent().parent() instanceof ShellForm;
+      return !stripQuotes && expression.parent() != null && expression.parent().parent().is(DockerTree.Kind.SHELL_FORM);
+    }
+
+    private void maybeAddQuote(Expression expression, SyntaxToken quote) {
+      if (shouldKeepQuotes(expression)) {
+        builder.addValue(quote.value());
+      }
     }
 
     /**

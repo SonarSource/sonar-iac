@@ -174,8 +174,11 @@ class ArgumentResolutionTest {
 
   @ParameterizedTest
   @MethodSource
-  void shouldCorrectlyHandleQuotes(String input, String expectedSecondArgument) {
-    File file = parseFileAndAnalyzeSymbols(input);
+  void shouldCorrectlyHandleQuotes(String runInstruction, String expectedSecondArgument) {
+    File file = parseFileAndAnalyzeSymbols(code(
+      "FROM scratch",
+      "ARG FOO=\"foo\"",
+      runInstruction));
 
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, RunInstruction.class).get());
     ArgumentResolution stringArgument = argumentResolutions.get(1);
@@ -210,7 +213,6 @@ class ArgumentResolutionTest {
       // in ExecForm quotes have to be escaped and we are not un-escaping them
       "RUN [\"echo\", \"\\\"$FOO\\\"\"]#\\\"foo\\\"",
       "RUN [\"echo\", \"\\\"${FOO}\\\"\"]#\\\"foo\\\"")
-      .map(s -> "FROM scratch\nARG FOO=\"foo\"\n" + s)
       .map(s -> s.split("#"))
       .map(Arguments::of);
   }

@@ -2,6 +2,9 @@
 "docker-project:ruling/src/test/resources/sources/docker/S6476/Dockerfile": [
 1
 ],
+"docker-project:ruling/src/test/resources/sources/docker/S6573/S6573.dockerfile": [
+1
+],
 "docker-project:ruling/src/test/resources/sources/docker/filename/Bar.Dockerfile": [
 1
 ],

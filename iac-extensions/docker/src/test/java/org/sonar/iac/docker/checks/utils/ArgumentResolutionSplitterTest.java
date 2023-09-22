@@ -63,9 +63,9 @@ class ArgumentResolutionSplitterTest {
 
     List<List<ArgumentResolution>> commands = commandsWithSeparators.elements();
 
-    assertThat(commands).hasSize(1);
     assertThat(commands.get(0).get(0)).hasValue("echo");
     assertThat(commands.get(0).get(1)).hasValue("\"* * * * * umask 007; $APP_ROOT_PATH/bin/magento\"");
+    assertThat(commands).hasSize(1);
     assertThat(commandsWithSeparators.separators()).isEmpty();
   }
 }

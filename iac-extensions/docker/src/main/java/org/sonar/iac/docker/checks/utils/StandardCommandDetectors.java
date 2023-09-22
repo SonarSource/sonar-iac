@@ -34,7 +34,7 @@ public final class StandardCommandDetectors {
     return CommandDetector.builder()
       .with(commands)
       .withAnyIncludingUnresolvedExcluding(StringPredicate.startsWithIgnoreQuotes(flag).negate())
-      .withArgumentResolutionIncludeUnresolved(new FlagNoSpaceArgumentPredicate(flag, true))
+      .withArgumentResolutionIncludeUnresolved(new FlagNoSpaceArgumentPredicate(flag))
       .build();
   }
 
