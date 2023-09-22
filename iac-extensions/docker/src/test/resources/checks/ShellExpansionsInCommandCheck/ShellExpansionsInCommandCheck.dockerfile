@@ -35,6 +35,7 @@ RUN echo 'Files: ' *
 RUN printf '%s ' *
 RUN for i in *.gz; do tar zxvf $i; done;
 RUN (cd ${LIBSYSTEMD}/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done);
+CMD [ "/usr/bin/daemon", "--allowed", "*"]
 RUN echo "* * * * * umask 007; $APP_ROOT_PATH/bin/magento"
 
 # Noncompliant@+3

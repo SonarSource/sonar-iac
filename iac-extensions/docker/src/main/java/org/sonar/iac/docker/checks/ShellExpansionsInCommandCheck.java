@@ -36,6 +36,8 @@ import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
+import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringExecForm;
+
 @Rule(key = "S6573")
 public class ShellExpansionsInCommandCheck implements IacCheck {
   private static final String MESSAGE = "Prefix files and paths with ./ or -- when using glob.";
@@ -48,9 +50,9 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, ShellExpansionsInCommandCheck::check);
-    init.register(CmdInstruction.class, ShellExpansionsInCommandCheck::check);
-    init.register(EntrypointInstruction.class, ShellExpansionsInCommandCheck::check);
+    init.register(RunInstruction.class, ignoringExecForm(ShellExpansionsInCommandCheck::check));
+    init.register(CmdInstruction.class, ignoringExecForm(ShellExpansionsInCommandCheck::check));
+    init.register(EntrypointInstruction.class, ignoringExecForm(ShellExpansionsInCommandCheck::check));
   }
 
   private static void check(CheckContext ctx, CommandInstruction cmd) {

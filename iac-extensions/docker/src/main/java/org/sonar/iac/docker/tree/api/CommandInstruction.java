@@ -26,4 +26,8 @@ package org.sonar.iac.docker.tree.api;
  * </pre>
  */
 public interface CommandInstruction extends Instruction, HasArguments {
+  /**
+   * @return The {@link Kind} of the {@link ArgumentList} of this CommandInstruction.
+   */
+  Kind getKindOfArgumentList();
 }

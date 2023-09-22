@@ -55,4 +55,12 @@ public abstract class AbstractCommandInstructionImpl extends InstructionImpl imp
     }
     return arguments.arguments();
   }
+
+  @Override
+  public Kind getKindOfArgumentList() {
+    if (arguments == null) {
+      return null;
+    }
+    return arguments.getKind();
+  }
 }

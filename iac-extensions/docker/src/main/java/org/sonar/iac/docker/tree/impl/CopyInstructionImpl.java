@@ -41,4 +41,9 @@ public class CopyInstructionImpl extends AbstractTransferInstructionImpl impleme
   public List<Argument> arguments() {
     return srcsAndDest.arguments();
   }
+
+  @Override
+  public Kind getKindOfArgumentList() {
+    return srcsAndDest.getKind();
+  }
 }
