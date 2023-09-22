@@ -38,7 +38,7 @@ public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
   private static final Set<String> PACKAGE_MANAGERS = Set.of("apk", "apt", "apt-get", "aptitude");
   private static final CommandDetector PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
     .with(PACKAGE_MANAGERS)
-    .withOptionalRepeating(s -> true)
+    .withAnyIncludingUnresolvedExcluding(s -> true)
     .build();
   private static final CommandDetector PACKAGE_MANAGER_UPDATE_DETECTOR = CommandDetector.builder()
     .with(PACKAGE_MANAGERS)
