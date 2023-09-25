@@ -132,3 +132,8 @@ COPY "${JAR_FILE}" application.jar
 COPY "${JAR_FILE:-file.jar}" application.jar
 COPY "${JAR_FILE:+file.jar}" application.jar
 COPY 'file.jar' application.jar
+
+COPY <<EOF /workbench/trace.sh
+#!/usr/bin/env bash
+echo "********"
+EOF

@@ -19,31 +19,41 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DirectoryCopySourceCheckTest {
 
   @Test
-  void test_add() {
+  void shouldExecuteCheckOnAddInstruction() {
     DockerVerifier.verify("DirectoryCopySourceCheck/Dockerfile_add", new DirectoryCopySourceCheck());
   }
 
   @Test
-  void test_copy() {
+  void shouldExecuteCheckOnCopyInstruction() {
     DockerVerifier.verify("DirectoryCopySourceCheck/Dockerfile_copy", new DirectoryCopySourceCheck());
   }
 
-  @Test
-  void test_normalize() {
-    assertThat(DirectoryCopySourceCheck.normalize("./test")).isEqualTo(new String[] {".", "test"});
-    assertThat(DirectoryCopySourceCheck.normalize("./p/../test")).isEqualTo(new String[] {".", "test"});
-    assertThat(DirectoryCopySourceCheck.normalize("/test")).isEqualTo(new String[] {"", "test"});
-    assertThat(DirectoryCopySourceCheck.normalize("/./test")).isEqualTo(new String[] {"", "test"});
-    assertThat(DirectoryCopySourceCheck.normalize("test")).isEqualTo(new String[] {"test"});
-    assertThat(DirectoryCopySourceCheck.normalize("test/p")).isEqualTo(new String[] {"test", "p"});
-    assertThat(DirectoryCopySourceCheck.normalize("c:/test")).isEqualTo(new String[] {"c:", "test"});
-    assertThat(DirectoryCopySourceCheck.normalize("./test/a*")).isEqualTo(new String[] {".", "test", "a*"});
+  @MethodSource
+  @ParameterizedTest(name = "Should normalize \"{0}\"")
+  void shouldNormalizePath(String path, String[] expectedNormalizedResult) {
+    assertThat(DirectoryCopySourceCheck.normalize(path)).isEqualTo(expectedNormalizedResult);
+  }
+
+  private static Stream<Arguments> shouldNormalizePath() {
+    return Stream.of(
+      Arguments.of("./test", new String[] {".", "test"}),
+      Arguments.of("./p/../test", new String[] {".", "test"}),
+      Arguments.of("/test", new String[] {"", "test"}),
+      Arguments.of("/./test", new String[] {"", "test"}),
+      Arguments.of("test", new String[] {"test"}),
+      Arguments.of("test/p", new String[] {"test", "p"}),
+      Arguments.of("c:/test", new String[] {"c:", "test"}),
+      Arguments.of("./test/a*", new String[] {".", "test", "a*"}));
   }
 }

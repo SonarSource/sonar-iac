@@ -28,9 +28,19 @@ import java.util.List;
  * </pre>
  */
 public interface TransferInstruction extends Instruction {
+
+  /**
+   * @return The list of {@link Flag} for this transfer instruction.
+   */
   List<Flag> options();
 
+  /**
+   * @return The list of sources of type {@link Argument} to transfer.
+   */
   List<Argument> srcs();
 
+  /**
+   * @return The destination of type {@link Argument} to transfer to.
+   */
   Argument dest();
 }
