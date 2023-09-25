@@ -26,6 +26,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HasArguments;
@@ -57,6 +58,20 @@ public final class CheckUtils {
   public static BiConsumer<CheckContext, RunInstruction> ignoringHeredoc(BiConsumer<CheckContext, RunInstruction> visitor) {
     return (ctx, runInstruction) -> {
       if (DockerTree.Kind.HEREDOCUMENT != runInstruction.getKindOfArgumentList()) {
+        visitor.accept(ctx, runInstruction);
+      }
+    };
+  }
+
+  /**
+   * Only execute the visitor if this CommandInstruction is not an ExecForm.
+   * <br/>
+   * Unlike the shell form, the exec form does not invoke a command shell. This means that normal shell processing does not happen.
+   * Thus, checks about shell best practices are not applicable to commands in ExecForm.
+   */
+  public static <T extends CommandInstruction> BiConsumer<CheckContext, T> ignoringExecForm(BiConsumer<CheckContext, T> visitor) {
+    return (ctx, runInstruction) -> {
+      if (DockerTree.Kind.EXEC_FORM != runInstruction.getKindOfArgumentList()) {
         visitor.accept(ctx, runInstruction);
       }
     };
