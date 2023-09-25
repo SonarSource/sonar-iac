@@ -30,7 +30,6 @@ import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HasArguments;
-import org.sonar.iac.docker.tree.api.RunInstruction;
 
 public final class CheckUtils {
 
@@ -55,10 +54,10 @@ public final class CheckUtils {
     return params.stream().filter(param -> name.equals(param.name())).findFirst();
   }
 
-  public static BiConsumer<CheckContext, RunInstruction> ignoringHeredoc(BiConsumer<CheckContext, RunInstruction> visitor) {
-    return (ctx, runInstruction) -> {
-      if (DockerTree.Kind.HEREDOCUMENT != runInstruction.getKindOfArgumentList()) {
-        visitor.accept(ctx, runInstruction);
+  public static <T extends CommandInstruction> BiConsumer<CheckContext, T> ignoringHeredoc(BiConsumer<CheckContext, T> visitor) {
+    return (ctx, commandInstruction) -> {
+      if (DockerTree.Kind.HEREDOCUMENT != commandInstruction.getKindOfArgumentList()) {
+        visitor.accept(ctx, commandInstruction);
       }
     };
   }
@@ -70,9 +69,9 @@ public final class CheckUtils {
    * Thus, checks about shell best practices are not applicable to commands in ExecForm.
    */
   public static <T extends CommandInstruction> BiConsumer<CheckContext, T> ignoringExecForm(BiConsumer<CheckContext, T> visitor) {
-    return (ctx, runInstruction) -> {
-      if (DockerTree.Kind.EXEC_FORM != runInstruction.getKindOfArgumentList()) {
-        visitor.accept(ctx, runInstruction);
+    return (ctx, commandInstruction) -> {
+      if (DockerTree.Kind.EXEC_FORM != commandInstruction.getKindOfArgumentList()) {
+        visitor.accept(ctx, commandInstruction);
       }
     };
   }

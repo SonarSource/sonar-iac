@@ -33,6 +33,8 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
 
+import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringHeredoc;
+
 @Rule(key = "S6470")
 public class DirectoryCopySourceCheck implements IacCheck {
 
@@ -43,12 +45,12 @@ public class DirectoryCopySourceCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(AddInstruction.class, DirectoryCopySourceCheck::checkAdd);
-    init.register(CopyInstruction.class, DirectoryCopySourceCheck::checkCopy);
+    init.register(CopyInstruction.class, ignoringHeredoc(DirectoryCopySourceCheck::checkCopy));
   }
 
   private static void checkAdd(CheckContext ctx, AddInstruction add) {
     for (Argument src : add.srcs()) {
-      ArgumentResolution resolution = ArgumentResolution.of(src);
+      var resolution = ArgumentResolution.of(src);
       String path = resolution.value();
       if (resolution.isResolved() && path != null && !path.startsWith("http://") && !path.startsWith("https://")) {
         reportIfSensitive(ctx, src, isSensitivePath(path), "Adding files");
@@ -57,11 +59,12 @@ public class DirectoryCopySourceCheck implements IacCheck {
   }
 
   private static void checkCopy(CheckContext ctx, CopyInstruction copyInstruction) {
-    if (hasFromOption(copyInstruction.options()))
+    if (hasFromOption(copyInstruction.options())) {
       return;
+    }
 
     for (Argument src : copyInstruction.srcs()) {
-      ArgumentResolution resolution = ArgumentResolution.of(src);
+      var resolution = ArgumentResolution.of(src);
       String path = resolution.value();
       if (resolution.isResolved() && path != null) {
         reportIfSensitive(ctx, src, isSensitivePath(path), "Copying");
@@ -70,7 +73,7 @@ public class DirectoryCopySourceCheck implements IacCheck {
   }
 
   private static boolean hasFromOption(List<Flag> options) {
-    return options.stream().anyMatch(param -> param.name().equals("from"));
+    return options.stream().anyMatch(param -> "from".equals(param.name()));
   }
 
   private static void reportIfSensitive(CheckContext ctx, Argument src, PathSensitivity sensitivity, String messagePrefix) {
@@ -97,13 +100,13 @@ public class DirectoryCopySourceCheck implements IacCheck {
    */
   private static PathSensitivity isSensitivePath(String path) {
     String[] levels = normalize(path);
-    if (levels.length == 0)
+    if (levels.length == 0 || (levels.length == 1 && isRootOrCurrent(levels[0]))) {
       return PathSensitivity.ROOT_OR_CURRENT;
-    if (levels.length == 1 && (isRootOrCurrent(levels[0])))
-      return PathSensitivity.ROOT_OR_CURRENT;
+    }
     int topLevel = getLevelToCheckIndex(levels);
-    if (levels[topLevel].endsWith("*") && levels.length == topLevel + 1)
+    if (levels[topLevel].endsWith("*") && levels.length == topLevel + 1) {
       return PathSensitivity.TOP_LEVEL_GLOBBING;
+    }
     return PathSensitivity.SAFE;
   }
 
@@ -119,8 +122,9 @@ public class DirectoryCopySourceCheck implements IacCheck {
    * - will return index 1 : ./a, /a, c:/a
    */
   private static int getLevelToCheckIndex(String[] levels) {
-    if (isRootOrCurrent(levels[0]))
+    if (isRootOrCurrent(levels[0])) {
       return 1;
+    }
     return 0;
   }
 
