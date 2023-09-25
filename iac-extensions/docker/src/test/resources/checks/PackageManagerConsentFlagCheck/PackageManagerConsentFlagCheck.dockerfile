@@ -20,6 +20,9 @@ RUN apt-get dist-upgrade
 
 RUN apt-get install -y libcurl
 RUN apt-get update
+RUN apt-get clean
+RUN apt clean
+RUN aptitude clean
 RUN apt-get -y update
 RUN apt install -y libcurl
 RUN aptitude install -y libcurl
