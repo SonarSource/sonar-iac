@@ -34,7 +34,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S6570")
 public class VariableReferenceOutsideOfQuotesCheck implements IacCheck {
 
-  private static final String MESSAGE = "Add the missing double quotes to this variable, as it can lead to unexpected behaviour.";
+  private static final String MESSAGE = "Surround this variable with double quotes; otherwise, it can lead to unexpected behavior.";
 
   @Override
   public void initialize(InitContext init) {

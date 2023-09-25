@@ -3,7 +3,7 @@ ARG SENSITIVE_OPTION=k
 ARG COMPLIANT_OPTION=other
 
 ## All sensitive options
-# Noncompliant@+1 {{Disabling TLS certificate verification is security-sensitive.}}
+# Noncompliant@+1 {{Enable server certificate validation on this SSL/TLS connection.}}
   RUN wget --no-check-certificate https://expired.badssl.com
 #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

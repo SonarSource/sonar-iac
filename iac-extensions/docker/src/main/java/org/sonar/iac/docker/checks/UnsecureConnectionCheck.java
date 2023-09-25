@@ -33,7 +33,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S4830")
 public class UnsecureConnectionCheck implements IacCheck {
 
-  private static final String MESSAGE = "Disabling TLS certificate verification is security-sensitive.";
+  private static final String MESSAGE = "Enable server certificate validation on this SSL/TLS connection.";
 
   private static final Set<String> SENSITIVE_CURL_OPTION = Set.of("-k", "--insecure", "--proxy-insecure", "--doh-insecure");
 

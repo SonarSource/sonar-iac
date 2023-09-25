@@ -15,8 +15,8 @@ Docker image size.</p>
   <li> Avoid installing package dependencies that are not strictly required. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
-<pre>
-FROM debian:latest
+<pre data-diff-id="1" data-diff-type="noncompliant">
+FROM ubuntu:22.04
 
 # Sensitive
 RUN apt install -y build-essential
@@ -28,14 +28,14 @@ RUN apt-get install -y build-essential
 RUN aptitude install -y build-essential
 </pre>
 <h2>Compliant Solution</h2>
-<pre>
-FROM debian:latest
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM ubuntu:22.04
 
-RUN apt install -y --no-install-recommends build-essential
+RUN apt --no-install-recommends install -y build-essential
 
-RUN apt-get install -y --no-install-recommends build-essential
+RUN apt-get --no-install-recommends install -y build-essential
 
-RUN aptitude install -y --without-recommends build-essential
+RUN aptitude --without-recommends install -y build-essential
 </pre>
 <h2>See</h2>
 <ul>

@@ -1,7 +1,8 @@
 <p>The variable is not available in the current scope. It will be evaluated to an empty value.</p>
 <h2>Why is this an issue?</h2>
-<p>The variables defined by <code>ARG</code> instruction have a scope from the definition to the end of the build stage where it was defined. The
-variables will be unresolved (it will be empty) which may lead to unintended behaviour.</p>
+<p>The variables defined by <code>ARG</code> instruction have a scope from the definition to the end of the build stage where it was defined. If it
+was defined in the beginning of the Dockerfile (outside of any build stage), then its scope is restricted to only <code>FROM</code> instructions.
+Outside of their scope, variables will be resolved to empty string which may lead to unintended behaviour.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -10,7 +11,7 @@ ARG SETTINGS
 FROM busybox
 RUN ./run/setup $SETTINGS
 </pre>
-<p>In this case the <code>$SETTINGS</code> variable will be not evaluated.</p>
+<p>In this case the <code>$SETTINGS</code> variable will be evaluated to empty string.</p>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 FROM busybox
@@ -25,8 +26,7 @@ ARG SETTINGS="--default-settings"
 FROM busybox
 RUN ./run/setup $SETTINGS
 </pre>
-<p>In this case the <code>$SETTINGS</code> variable will be not evaluated, just the text <code>$SETTINGS</code> will be passed to <code>RUN</code>
-instruction.</p>
+<p>In this case the <code>$SETTINGS</code> variable will be evaluated to empty string.</p>
 <h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
 ARG SETTINGS="--default-settings"
@@ -34,7 +34,8 @@ FROM busybox
 ARG SETTINGS
 RUN ./run/setup $SETTINGS
 </pre>
-<p>In this case the flag <code>--default-settings</code> will be passed to <code>RUN</code> instruction.</p>
+<p>In this case the flag <code>--default-settings</code> will be passed to <code>RUN</code> instruction (unless another value is provided during build
+time).</p>
 <h3>How does this work?</h3>
 <p>The <code>FROM</code> instruction starts a new build stage where variables defined by previous <code>ARG</code> instructions are out of this new
 scope. To make it accessible for the build stage they need to be defined after the <code>FROM</code> instruction.</p>

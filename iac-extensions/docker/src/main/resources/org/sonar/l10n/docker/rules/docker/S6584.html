@@ -5,18 +5,22 @@ required when installing, updating, or removing programs and packages. General c
 is aborted because there is no confirming manual input. As a result, instructions, such as installation or update of packages, cannot be performed in
 an automated way. This applies, among others, to the package manager used in Debian-based systems, Advanced Package Tool (APT).</p>
 <h2>How can I fix it?</h2>
-<h3>Noncompliant Code Example</h3>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 RUN apt-get install ca-certificates
 RUN aptitude install ca-certificates
 RUN apt install ca-certificates
 </pre>
-<h3>Compliant Solution</h3>
+<p>Here each line represents a package installation command command for the most popular package managers. Each of them is trying to perform an
+installation in interactive mode, it will wait for prompt that will never come, so it will result in aborted execution.</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
-RUN apt-get install -y ca-certificates
+RUN apt-get -y install ca-certificates
 RUN aptitude -y install ca-certificates
 RUN apt -y install ca-certificates
 </pre>
+<p>Here in each line we added the option <code>-y</code>, it will assume yes to all prompts and continue execution.</p>
 <h3>How does this work?</h3>
 <p>If the <code>-y</code> flag is set, no manual input is expected, and the package manager can run non-interactively. For <code>apt</code> and
 <code>apt-get</code>, the long versions <code>--yes</code> and <code>--assume-yes</code> also exist. For <code>aptitude</code>, the long version
@@ -24,9 +28,9 @@ RUN apt -y install ca-certificates
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://linux.die.net/man/8/apt">apt - Linux man page</a> </li>
-  <li> <a href="https://linux.die.net/man/8/apt-get">apt-get - Linux man page</a> </li>
-  <li> <a href="https://wiki.debian.org/Aptitude">aptitude - Linux aptitude command</a> ] </li>
+  <li> <a href="https://manpages.debian.org/bookworm/apt/apt.8.en.html">apt - Linux man page</a> </li>
+  <li> <a href="https://manpages.debian.org/bookworm/apt/apt-get.8.en.html">apt-get - Linux man page</a> </li>
+  <li> <a href="https://wiki.debian.org/Aptitude">aptitude - Linux aptitude command</a> </li>
   <li> <a href="https://docs.docker.com/engine/reference/builder/#run">RUN - Docker reference</a> </li>
   <li> <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run">RUN - Best practices for writing Dockerfiles</a> </li>
 </ul>

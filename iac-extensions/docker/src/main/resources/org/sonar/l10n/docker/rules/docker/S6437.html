@@ -11,28 +11,41 @@ recommend only setting them at runtime, for example with the <code>--env</code> 
 similar component. For example, <strong>Docker Swarm</strong> provides a <strong>secrets</strong> service that can be used to handle most confidential
 data.</p>
 <h3>Noncompliant code example</h3>
-<pre>
+<p>The following code snippet demonstrates the creation of a file with a private key and a public key, which are then stored in the metadata of the
+container.<br> This is non-compliant, as the private key should not be exposed anywhere.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+FROM example
+
+# Noncompliant
+RUN ssh-keygen -N "passphrase" -t rsa -b 2048 -f /etc/ssh/rsa_key
+
+RUN /example.sh --ssh /etc/ssh/rsa_key
+</pre>
+<p>In the following sample, the code uses a seemingly-hidden password which is actually leaked after the container is built.</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 FROM example
 ARG PASSWORD
+
 # Noncompliant
 RUN wget --user=guest --password="$PASSWORD" https://example.com
 </pre>
 <h3>Compliant solution</h3>
 <p>For build-time secrets, use <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Buildkit’s secret mount type</a>
 instead:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 FROM example
-RUN --mount=type=secret,id=build_secret \
-    wget --user=guest --password=$(cat /run/secrets/build_secret) https://example.com
+
+RUN --mount=type=secret,id=ssh,target=/etc/ssh/rsa_key \
+    /example.sh --ssh /etc/ssh/rsa_key
 </pre>
-<p>For runtime secrets, leave the environment variables empty until runtime:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 FROM example
-ENV ACCESS_TOKEN=""
-CMD /run.sh
+
+RUN --mount=type=secret,id=wget_passwd \
+    wget --user=guest --password="$(cat /run/secrets/wget_passwd)" https://example.com
 </pre>
-<p>Store the runtime secrets in an <a href="https://docs.docker.com/compose/env-file/">environment file</a> (such as <code>.env</code>) and then start
-the container with the <a
+<p>For runtime secrets, leave the environment variables empty in the Dockerfile. Then store the runtime secrets in an <a
+href="https://docs.docker.com/compose/env-file/">environment file</a> such as <code>.env</code> and then start the container with the <a
 href="https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables—​e---env---env-file"><code>--env-file</code></a>
 argument:</p>
 <pre>
