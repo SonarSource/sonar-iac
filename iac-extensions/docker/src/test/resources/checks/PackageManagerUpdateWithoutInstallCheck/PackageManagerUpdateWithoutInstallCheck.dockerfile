@@ -47,5 +47,8 @@ RUN <<EOF
 apt-get update
 apt-get install -y git
 EOF
+# Compliant example with one unresolved argument
+RUN apt-get update \
+  && apt-get install -y ${MONGO_PACKAGE}=$MONGO_VERSION
 # This is a FN, but with curent implementation we can't disinguish strings from commands
 RUN apt-get update && echo Ready for apt-get install

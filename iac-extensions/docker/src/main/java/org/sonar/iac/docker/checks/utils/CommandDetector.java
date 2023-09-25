@@ -237,7 +237,7 @@ public class CommandDetector {
       return this;
     }
 
-    public CommandDetector.Builder withAnyIncludingUnresolvedExcluding(Predicate<String> predicate) {
+    public CommandDetector.Builder withAnyIncludingUnresolvedRepeating(Predicate<String> predicate) {
       addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, Type.ZERO_OR_MORE));
       return this;
     }
