@@ -42,8 +42,7 @@ public class PackageManagerConsentFlagCheck implements IacCheck {
   private static final CommandDetector DEBIAN_PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
     .with(Set.of("apt", "apt-get", "aptitude"))
     .withAnyFlag()
-    // these commands don't expect user confirmation even in interactive mode
-    .notWith(Set.of("update", "check", "changelog", "indextargets", "autoclean", "auto-clean")::contains)
+    .with(Set.of("upgrade", "dist-upgrade", "install", "reinstall", "remove", "purge")::contains)
     .withOptionalRepeating(s -> true)
     .build();
 
