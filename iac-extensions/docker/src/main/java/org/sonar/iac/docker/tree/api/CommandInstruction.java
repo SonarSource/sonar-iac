@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import javax.annotation.CheckForNull;
+
 /**
  * Interface to define the contract for command instruction, such as {@link RunInstruction}, {@link CmdInstruction} or {@link EntrypointInstruction}.
  * <pre>
@@ -29,5 +31,6 @@ public interface CommandInstruction extends Instruction, HasArguments {
   /**
    * @return The {@link Kind} of the {@link ArgumentList} of this CommandInstruction.
    */
+  @CheckForNull
   Kind getKindOfArgumentList();
 }
