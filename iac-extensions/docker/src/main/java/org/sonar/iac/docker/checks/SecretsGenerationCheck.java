@@ -75,7 +75,7 @@ public class SecretsGenerationCheck implements IacCheck {
     .with("x11vnc")
     .withOptionalRepeatingExcept("-storepasswd")
     .with("-storepasswd")
-    .withAnyIncludingUnresolvedExcluding(arg -> true)
+    .withAnyIncludingUnresolvedRepeating(arg -> true)
     .build();
 
   // It detects: wget --password=MyPassword

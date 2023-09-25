@@ -33,7 +33,7 @@ public final class StandardCommandDetectors {
   public static CommandDetector commandFlagNoSpace(List<String> commands, String flag) {
     return CommandDetector.builder()
       .with(commands)
-      .withAnyIncludingUnresolvedExcluding(StringPredicate.startsWithIgnoreQuotes(flag).negate())
+      .withAnyIncludingUnresolvedRepeating(StringPredicate.startsWithIgnoreQuotes(flag).negate())
       .withArgumentResolutionIncludeUnresolved(new FlagNoSpaceArgumentPredicate(flag))
       .build();
   }
@@ -46,7 +46,7 @@ public final class StandardCommandDetectors {
     String flagAndEquals = flag + "=";
     return CommandDetector.builder()
       .with(commands)
-      .withAnyIncludingUnresolvedExcluding(StringPredicate.startsWithIgnoreQuotes(flagAndEquals).negate())
+      .withAnyIncludingUnresolvedRepeating(StringPredicate.startsWithIgnoreQuotes(flagAndEquals).negate())
       .withIncludeUnresolved(StringPredicate.startsWithIgnoreQuotes(flagAndEquals))
       .build();
   }
