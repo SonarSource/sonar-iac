@@ -51,7 +51,7 @@ RUN curl --proto "=https" --tlsv1.2 -sSf -L https://might-redirect.example.com/i
 <p><code>wget</code> does not support this functionality so <code>curl</code> should be used instead.</p>
 <p>If you expect the server to return the file without redirects, <code>curl</code> should not be instructed to follow redirects. Remove any
 <code>-L</code> or <code>--location</code> options from the command.</p>
-<pre data-diff-id="1" data-diff-type="compliant">
+<pre>
 FROM ubuntu:22.04
 
 RUN curl --tlsv1.2 -sSf https://might-redirect.example.com/install.sh | sh
@@ -67,7 +67,7 @@ RUN wget --secure-protocol=TLSv1_2 --max-redirect=0 -q -O - https://might-redire
   <li> <a href="https://cwe.mitre.org/data/definitions/757">MITRE, CWE-757</a> - Selection of Less-Secure Algorithm During Negotiation ('Algorithm
   Downgrade') </li>
   <li> <a href="https://curl.se/docs/manpage.html#--proto">curl.1 the man page</a> - <code>--proto &lt;protocols&gt;</code> </li>
-  <li> <a href="https://linux.die.net/man/1/wget">wget(1) - Linux man page</a> - <code>--max-redirect=</code> </li>
+  <li> <a href="https://www.gnu.org/software/wget/manual/wget.html#HTTP-Options">wget - GNU Wget Manual</a> - <code>--max-redirect=</code> </li>
   <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#41-encrypt-everything">SSL and TLS Deployment Best
   Practices</a> - Encrypt Everything </li>
 </ul>

@@ -7,7 +7,7 @@ ARG dev_env=dev
 ARG prd_env=prd
 
 # Sensitive
-# Noncompliant@+1 {{Do not enable debugging features on production servers.}}
+# Noncompliant@+1 {{Make sure this debug feature is deactivated before delivering the code in production.}}
   ENV env=dev
 #     ^^^^^^^
 # Noncompliant@+1
@@ -63,7 +63,7 @@ ARG debug_string=debug
 ARG other=other
 
 # Sensitive
-# Noncompliant@+1 {{Do not enable debugging features on production servers.}}
+# Noncompliant@+1 {{Make sure this debug feature is deactivated before delivering the code in production.}}
   ENV debug=true
 #     ^^^^^^^^^^
 # Noncompliant@+1
@@ -112,7 +112,7 @@ ARG php_enabled=ON
 ARG php_disabled=OFF
 
 # Sensitive
-# Noncompliant@+1 {{Do not enable debugging features on production servers.}}
+# Noncompliant@+1 {{Make sure this debug feature is deactivated before delivering the code in production.}}
   ENV xdebug_mode=on
 #     ^^^^^^^^^^^^^^
 # Noncompliant@+1

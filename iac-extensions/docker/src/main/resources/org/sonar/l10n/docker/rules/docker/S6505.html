@@ -8,26 +8,28 @@ code. Post-install scripts, for example, are a common way to execute malicious c
 <h2>Recommended Secure Coding Practices</h2>
 <p>Execution of third-party scripts should be disabled if not strictly necessary for dependencies to work correctly. Doing this will reduce the attack
 surface and block a well-known supply chain attack vector.</p>
+<p>Commands that are subject to this issue are: <code>npm install</code>, <code>yarn install</code> and <code>yarn</code> (<code>yarn</code> without
+an explicit command will execute <code>install</code>).</p>
 <h2>Sensitive Code Example</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 FROM node:latest
 
 # Sensitive
 RUN npm install
 </pre>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 FROM node:latest
 
 # Sensitive
 RUN yarn install
 </pre>
 <h2>Compliant Solution</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 FROM node:latest
 
 RUN npm install --ignore-scripts
 </pre>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 FROM node:latest
 
 RUN yarn install --ignore-scripts

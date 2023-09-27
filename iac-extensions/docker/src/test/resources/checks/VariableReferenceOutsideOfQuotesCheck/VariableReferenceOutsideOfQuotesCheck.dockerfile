@@ -1,7 +1,7 @@
 FROM scratch
 
 # Non compliant test cases
-# Noncompliant@+1 {{Add the missing double quotes to this variable, as it can lead to unexpected behaviour.}}
+# Noncompliant@+1 {{Surround this variable with double quotes; otherwise, it can lead to unexpected behavior.}}
 RUN $test
 #   ^^^^^
 

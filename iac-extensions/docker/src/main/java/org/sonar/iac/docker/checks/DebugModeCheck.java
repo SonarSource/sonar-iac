@@ -31,7 +31,7 @@ import org.sonar.iac.docker.tree.api.KeyValuePair;
 @Rule(key = "S4507")
 public class DebugModeCheck implements IacCheck {
 
-  private static final String MESSAGE = "Do not enable debugging features on production servers.";
+  private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
 
   private static final Pattern ENV_DEV_NAME_PATTERN = Pattern.compile("^([_A-Z]+)?ENV(IRONMENT)?$", Pattern.CASE_INSENSITIVE);
   private static final Pattern ENV_DEV_VALUE_PATTERN = Pattern.compile("^dev(el(op(ment)?)?)?$", Pattern.CASE_INSENSITIVE);

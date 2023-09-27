@@ -6,7 +6,7 @@ ARG SENSITIVE_FLAG_VALUE=1
 ARG COMPLIANT_FLAG_VALUE=224
 
 ## All sensitive shasum commands
-# Noncompliant@+1 {{Using weak hashing algorithms is security-sensitive.}}
+# Noncompliant@+1 {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
   RUN md5sum test.txt
 #     ^^^^^^
 # Noncompliant@+1

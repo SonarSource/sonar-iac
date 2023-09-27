@@ -16,7 +16,7 @@ allows for a more reliable and reproducible behavior of Docker containers.</p>
   <li> Be mindful of the container immutability principle. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 FROM example
 
 RUN useradd exampleuser
@@ -24,10 +24,10 @@ RUN useradd exampleuser
 COPY --chown=exampleuser:exampleuser src.py dst.py
 </pre>
 <h2>Compliant Solution</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 FROM example
 
-COPY src.py dst.py
+COPY --chown=root:root --chmod=644 src.py dst.py
 </pre>
 <h2>See</h2>
 <ul>

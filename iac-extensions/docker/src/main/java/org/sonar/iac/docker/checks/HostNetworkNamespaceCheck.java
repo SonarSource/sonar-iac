@@ -31,7 +31,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S6431")
 public class HostNetworkNamespaceCheck implements IacCheck {
 
-  private static final String MESSAGE = "Do not use host operating system namespaces.";
+  private static final String MESSAGE = "Make sure it is safe to use the host operating system namespace here.";
 
   @Override
   public void initialize(InitContext init) {

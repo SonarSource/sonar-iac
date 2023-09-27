@@ -5,53 +5,86 @@ also increases the size of the Docker image. It should be reduced to speed up de
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
+<p>For apk:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 RUN apk add nginx
+</pre>
+<p>For apt-get:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 RUN apt-get update \
   &amp;&amp; apt-get install nginx
+</pre>
+<p>For aptitude:</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
 RUN aptitude update \
   &amp;&amp; aptitude install nginx
 </pre>
+<p>For apt:</p>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+RUN apt update \
+  &amp;&amp; apt install nginx
+</pre>
 <h4>Compliant solution</h4>
+<p>For apk:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 RUN apk --no-cache add nginx
-RUN apk add nginx \
-  &amp;&amp; rm -rf /var/lib/apt/lists/*
-RUN apk add nginx \
-  &amp;&amp; rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
 
+RUN apk add nginx \
+  &amp;&amp; apk cache clean
+
+RUN apk add nginx \
+  &amp;&amp; rm -rf /var/cache/apk/*
+
+# This cache location is only used in specific distributions / configurations
+RUN apk add nginx \
+  &amp;&amp; rm -rf /etc/apk/cache/*
+</pre>
+<p>For apt-get:</p>
+<pre data-diff-id="2" data-diff-type="compliant">
 RUN apt-get update \
   &amp;&amp; apt-get install nginx \
   &amp;&amp; apt-get clean
-RUN apt-get update \
-  &amp;&amp; apt-get install nginx \
-  &amp;&amp; rm -rf /var/lib/apt/lists/*
-RUN apt-get update \
-  &amp;&amp; apt-get install nginx \
-  &amp;&amp; rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
 
+RUN apt-get update \
+  &amp;&amp; apt-get install nginx \
+  &amp;&amp; rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+</pre>
+<p>For aptitude:</p>
+<pre data-diff-id="3" data-diff-type="compliant">
 RUN aptitude update \
   &amp;&amp; aptitude install nginx \
   &amp;&amp; aptitude clean
+
 RUN aptitude update \
   &amp;&amp; aptitude install nginx \
-  &amp;&amp; rm -rf /var/lib/apt/lists/*
-RUN aptitude update \
-  &amp;&amp; aptitude install nginx \
-  &amp;&amp; rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
+  &amp;&amp; rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+</pre>
+<p>For apt:</p>
+<pre data-diff-id="4" data-diff-type="compliant">
+RUN apt update \
+  &amp;&amp; apt install nginx \
+  &amp;&amp; apt clean
+
+RUN apt update \
+  &amp;&amp; apt install nginx \
+  &amp;&amp; rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 </pre>
 <h3>How does this work?</h3>
-<p>When installing packages using <code>apk</code>, <code>apt-get</code>, or <code>aptitude</code> they store an index in the Docker image layer in
-<code>/var/lib/apt/lists/</code>. This index is not needed after installation, so it can be removed. To do that execute the <code>clean</code> command
-of your package manager tool or just run <code>rm -rf /var/lib/apt/lists/*</code>. Additionally, some lock files are stored in
-<code>/var/cache/apt/archives</code>. They are not removed by the <code>clean</code> command, so they need to be removed manually.</p>
+<p>When installing packages using <code>apt-get</code>, <code>aptitude</code> or <code>apt</code> they store an index in the Docker image layer in
+<code>/var/lib/apt/lists</code>. Using <code>apk</code>, it will store an index in <code>/var/cache/apk/</code>. In some distributions and
+configurations the cache will be created in <code>/etc/apk/cache</code>.</p>
+<p>This index is not needed after installation, so it can be removed. To do that, execute the <code>clean</code> command, or run <code>rm -rf
+&lt;location&gt;</code> for the cache location of you package manager tool.</p>
+<p>Additionally, for <code>apt-get</code>, <code>aptitude</code> and <code>apt</code> some lock files are stored in
+<code>/var/cache/apt/archives</code>, which can also be removed safely. They are not removed by the <code>clean</code> command, so they need to be
+removed manually.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
   <li> <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run">RUN - Best practices for writing Dockerfiles</a> </li>
   <li> <a href="https://man.archlinux.org/man/apk.8.en">apk man</a> </li>
-  <li> <a href="https://linux.die.net/man/8/apt-get">apt-get man</a> </li>
-  <li> <a href="https://linux.die.net/man/8/aptitude">aptitude man</a> </li>
+  <li> <a href="https://manpages.debian.org/bookworm/apt/apt-get.8.en.html">apt-get man</a> </li>
+  <li> <a href="https://manpages.debian.org/testing/aptitude/aptitude.8.en.html">aptitude man</a> </li>
   <li> <a href="https://askubuntu.com/questions/1050800/how-do-i-remove-the-apt-package-index">How do I remove the apt package index?</a> </li>
 </ul>
 

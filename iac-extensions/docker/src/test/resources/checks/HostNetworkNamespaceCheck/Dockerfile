@@ -2,7 +2,7 @@ FROM scratch
 ARG sensitive_network=host
 ARG compliant_network=other
 
-# Noncompliant@+1 {{Do not use host operating system namespaces.}}
+# Noncompliant@+1 {{Make sure it is safe to use the host operating system namespace here.}}
   RUN --network=host command
 #     ^^^^^^^^^^^^^^
 # Noncompliant@+1

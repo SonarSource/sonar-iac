@@ -33,7 +33,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S4790")
 public class WeakHashAlgorithmsCheck implements IacCheck {
 
-  private static final String MESSAGE = "Using weak hashing algorithms is security-sensitive.";
+  private static final String MESSAGE = "Make sure this weak hash algorithm is not used in a sensitive context here.";
 
   private static final Set<String> OPENSSL_SENSITIVE_SUBCOMMAND = Set.of("md5", "sha1", "rmd160", "ripemd160");
   private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION = Set.of("-md2", "-md4", "-md5", "-sha1", "-ripemd160", "-ripemd", "-rmd160");
