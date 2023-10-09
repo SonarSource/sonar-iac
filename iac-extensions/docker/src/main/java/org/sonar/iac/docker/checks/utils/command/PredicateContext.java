@@ -49,7 +49,7 @@ public class PredicateContext {
 
   public boolean is(Status... statusArray) {
     for (Status specificStatus : statusArray) {
-      if (this.status.equals(specificStatus)) {
+      if (status == specificStatus) {
         return true;
       }
     }
@@ -89,20 +89,12 @@ public class PredicateContext {
     predicatesStack.addFirst(currentPredicate);
   }
 
-  public void matchOnCurrentPredicate() {
-    currentPredicate.match(this);
-  }
-
-  public int numberOfArgumentsToReport() {
-    return argumentsToReport.size();
+  public CommandPredicateResult matchOnCurrentPredicate() {
+    return currentPredicate.match(this);
   }
 
   public void addAsArgumentToReport(ArgumentResolution resolution) {
     argumentsToReport.add(resolution);
-  }
-
-  public Deque<ArgumentResolution> getArgumentStack() {
-    return argumentStack;
   }
 
   public List<CommandPredicate> getDetectorPredicates() {

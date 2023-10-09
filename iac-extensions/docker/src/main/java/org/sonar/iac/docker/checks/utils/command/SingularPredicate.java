@@ -48,7 +48,7 @@ public class SingularPredicate implements CommandPredicate {
 
   public boolean hasType(Type... types) {
     for (Type t : types) {
-      if (this.type == t) {
+      if (type == t) {
         return true;
       }
     }
@@ -56,39 +56,33 @@ public class SingularPredicate implements CommandPredicate {
   }
 
   @Override
-  public void match(PredicateContext context) {
+  public CommandPredicateResult match(PredicateContext context) {
     ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
 
-    if (resolution.isUnresolved()) {
-      context.setStatus(ABORT);
-      return;
-    }
-
-    matchResolution(context, resolution);
+    return matchResolution(context, resolution);
   }
 
-  protected void matchResolution(PredicateContext context, ArgumentResolution resolution) {
+  protected CommandPredicateResult matchResolution(PredicateContext context, ArgumentResolution resolution) {
     // Test argument resolution with predicate
-    if (this.predicate.test(resolution)) {
+    var match = predicate.test(resolution);
+    var detectCurrentPredicateAgain = false;
+    var shouldBeMatchedAgain = false;
+    if (match) {
       // Skip argument and start new command detection
-      if (this.hasType(NO_MATCH)) {
-        context.setStatus(ABORT);
-        return;
+      if (hasType(NO_MATCH)) {
+        return new CommandPredicateResult(match, ABORT, false, false);
       }
       // Re-add predicate to stack to be reevaluated on the next argument
-      if (this.hasType(ZERO_OR_MORE)) {
-        // only needed in this case, if the currentPredicate is MultipleUnorderedOptionsPredicate the calling method will handle this case
-        context.detectCurrentPredicateAgain();
+      if (hasType(ZERO_OR_MORE)) {
+        detectCurrentPredicateAgain = true;
       }
-      // Add matched argument
-      context.addAsArgumentToReport(resolution);
-    } else if (this.hasType(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
+    } else if (hasType(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
       // Re-add argument to be evaluated by the next predicate
-      context.argumentShouldBeMatchedAgain(resolution);
+      shouldBeMatchedAgain = true;
     } else {
       context.setStatus(FOUND_NO_PREDICATE_MATCH);
-      return;
+      return new CommandPredicateResult(match, FOUND_NO_PREDICATE_MATCH, false, false);
     }
-    context.setStatus(CONTINUE);
+    return new CommandPredicateResult(match, CONTINUE, detectCurrentPredicateAgain, shouldBeMatchedAgain);
   }
 }
