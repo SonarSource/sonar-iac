@@ -30,12 +30,20 @@ import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.
 import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.FOUND_NO_PREDICATE_MATCH;
 
 public class SingularPredicate implements CommandPredicate {
-  private final Predicate<String> predicate;
+  private final Predicate<ArgumentResolution> predicate;
   private final Type type;
 
-  public SingularPredicate(Predicate<String> predicate, Type type) {
+  protected SingularPredicate(Predicate<ArgumentResolution> predicate, Type type) {
     this.predicate = predicate;
     this.type = type;
+  }
+
+  public static SingularPredicate predicateString(Predicate<String> predicate, Type type) {
+    return new SingularPredicate(argumentResolution -> predicate.test(argumentResolution.value()), type);
+  }
+
+  public static SingularPredicate predicateArgument(Predicate<ArgumentResolution> predicate, Type type) {
+    return new SingularPredicate(predicate, type);
   }
 
   public boolean hasType(Type... types) {
@@ -61,7 +69,7 @@ public class SingularPredicate implements CommandPredicate {
 
   protected void matchResolution(PredicateContext context, ArgumentResolution resolution) {
     // Test argument resolution with predicate
-    if (this.predicate.test(resolution.value())) {
+    if (this.predicate.test(resolution)) {
       // Skip argument and start new command detection
       if (this.hasType(NO_MATCH)) {
         context.setStatus(ABORT);

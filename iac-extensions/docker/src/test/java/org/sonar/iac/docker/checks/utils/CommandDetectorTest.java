@@ -40,15 +40,15 @@ import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 class CommandDetectorTest {
 
   @Test
-  void commandDetectorSize1() {
+  void commandDetectorSize() {
     List<ArgumentResolution> arguments = buildArgumentList("sensitive", "sensitive");
     CommandDetector detector = CommandDetector.builder()
       .with("sensitive"::equals)
       .build();
     List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(2);
-    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+    assertThat(commands.get(0).getResolvedArguments()).containsExactly(arguments.get(0));
+    assertThat(commands.get(1).getResolvedArguments()).containsExactly(arguments.get(1));
   }
 
   @ParameterizedTest
@@ -159,9 +159,9 @@ class CommandDetectorTest {
       .build();
     List<CommandDetector.Command> commands = detector.searchWithoutSplit(arguments);
     assertThat(commands).hasSize(3);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue(operator);
-    DockerAssertions.assertThat(commands.get(2).resolvedArguments.get(0)).hasValue("command2");
+    DockerAssertions.assertThat(commands.get(0).getResolvedArguments().get(0)).hasValue("command1");
+    DockerAssertions.assertThat(commands.get(1).getResolvedArguments().get(0)).hasValue(operator);
+    DockerAssertions.assertThat(commands.get(2).getResolvedArguments().get(0)).hasValue("command2");
   }
 
   @Test
@@ -175,7 +175,7 @@ class CommandDetectorTest {
 
     List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(1);
-    List<ArgumentResolution> resolvedArguments = commands.get(0).resolvedArguments;
+    List<ArgumentResolution> resolvedArguments = commands.get(0).getResolvedArguments();
     DockerAssertions.assertThat(resolvedArguments.get(0)).hasValue("echo");
     DockerAssertions.assertThat(resolvedArguments.get(1)).hasValue("foo");
   }
@@ -206,7 +206,7 @@ class CommandDetectorTest {
     List<CommandDetector.Command> commands = detector.search(resolvedArguments);
     assertThat(commands).hasSize(commandList.length);
     for (int i = 0; i < commandList.length; i++) {
-      DockerAssertions.assertThat(commands.get(i).resolvedArguments.get(0)).hasValue(commandList[i]);
+      DockerAssertions.assertThat(commands.get(i).getResolvedArguments().get(0)).hasValue(commandList[i]);
     }
   }
 }

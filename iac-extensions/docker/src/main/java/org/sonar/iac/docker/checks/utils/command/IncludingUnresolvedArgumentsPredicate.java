@@ -24,7 +24,7 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 
 public class IncludingUnresolvedArgumentsPredicate extends SingularPredicate {
   public IncludingUnresolvedArgumentsPredicate(Predicate<String> predicate, Type type) {
-    super(predicate, type);
+    super(argumentResolution -> predicate.test(argumentResolution.value()), type);
   }
 
   @Override
