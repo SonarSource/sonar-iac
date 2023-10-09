@@ -44,17 +44,14 @@ public class IncludingUnresolvedArgumentsArgumentResolutionPredicate implements 
   }
 
   @Override
-  public void match(PredicateContext context) {
+  public CommandPredicateResult match(PredicateContext context) {
     ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
 
     if (predicate.test(resolution)) {
-      // Add matched argument
-      context.addAsArgumentToReport(resolution);
+      return new CommandPredicateResult(predicate.test(resolution), CONTINUE, false, false);
     } else {
-      context.setStatus(FOUND_NO_PREDICATE_MATCH);
-      return;
+      return new CommandPredicateResult(predicate.test(resolution), FOUND_NO_PREDICATE_MATCH, false, false);
     }
-    context.setStatus(CONTINUE);
   }
 
   @Override

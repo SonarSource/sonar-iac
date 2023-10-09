@@ -28,10 +28,10 @@ public class IncludingUnresolvedArgumentsPredicate extends SingularPredicate {
   }
 
   @Override
-  public void match(PredicateContext context) {
+  public CommandPredicateResult match(PredicateContext context) {
     ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
 
-    matchResolution(context, resolution);
+    return matchResolution(context, resolution);
   }
 
   @Override
