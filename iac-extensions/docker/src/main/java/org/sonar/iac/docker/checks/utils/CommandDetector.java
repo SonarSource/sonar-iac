@@ -43,7 +43,7 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 
 import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.splitCommands;
 
-public class CommandDetector {
+public final class CommandDetector {
 
   private final List<CommandPredicate> predicates;
 
@@ -68,7 +68,7 @@ public class CommandDetector {
     List<Command> commands = new ArrayList<>();
     Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolvedArguments);
 
-    PredicateContext context = new PredicateContext(argumentStack, predicates);
+    var context = new PredicateContext(argumentStack, predicates);
 
     while (!argumentStack.isEmpty()) {
       List<ArgumentResolution> commandArguments = fullMatch(context);
@@ -128,7 +128,11 @@ public class CommandDetector {
 
       // Stop argument detection when argument list is empty
       if (resolution == null) {
-        return context.remainingPredicatesAreOptional() ? context.getArgumentsToReport() : Collections.emptyList();
+        if (context.remainingPredicatesAreOptional()) {
+          return context.getArgumentsToReport();
+        } else {
+          return Collections.emptyList();
+        }
       }
 
       // Stop argument detection when argument is unresolved to start new command detection
@@ -151,14 +155,14 @@ public class CommandDetector {
 
   public static class Builder {
 
-    List<CommandPredicate> predicates = new ArrayList<>();
+    private List<CommandPredicate> predicates = new ArrayList<>();
 
     private void addCommandPredicate(CommandPredicate commandPredicate) {
       predicates.add(commandPredicate);
     }
 
     private void addSingularPredicate(Predicate<String> predicate, Type type) {
-      addCommandPredicate(new SingularPredicate(predicate, type));
+      addCommandPredicate(SingularPredicate.predicateString(predicate, type));
     }
 
     private void addIncludeUnresolved(Predicate<String> predicate) {
@@ -254,7 +258,7 @@ public class CommandDetector {
 
   public static class Command implements HasTextRange {
 
-    final List<ArgumentResolution> resolvedArguments;
+    private final List<ArgumentResolution> resolvedArguments;
 
     public Command(List<ArgumentResolution> resolvedArguments) {
       this.resolvedArguments = resolvedArguments;
@@ -265,11 +269,6 @@ public class CommandDetector {
       return TextRanges.mergeElementsWithTextRange(resolvedArguments.stream().map(ArgumentResolution::argument).collect(Collectors.toList()));
     }
 
-    /**
-     * TODO: After <a href="https://sonarsource.atlassian.net/browse/SONARIAC-1088">SONARIAC-1088</a> may become redundant
-     * as CommandDetector will be capable of more complex matching
-     */
-    @SuppressWarnings("java:S1135")
     public List<ArgumentResolution> getResolvedArguments() {
       return resolvedArguments;
     }
