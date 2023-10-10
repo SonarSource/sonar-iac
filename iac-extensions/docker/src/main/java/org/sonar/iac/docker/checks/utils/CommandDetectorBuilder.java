@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
-import org.sonar.iac.docker.checks.utils.command.IncludingUnresolvedArgumentsArgumentResolutionPredicate;
-import org.sonar.iac.docker.checks.utils.command.IncludingUnresolvedArgumentsPredicate;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
@@ -43,7 +41,7 @@ public class CommandDetectorBuilder {
   }
 
   private void addIncludeUnresolved(Predicate<String> predicate) {
-    addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, CommandPredicate.Type.MATCH));
+    addCommandPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
   }
 
   public CommandDetectorBuilder with(Predicate<String> predicate) {
@@ -119,12 +117,12 @@ public class CommandDetectorBuilder {
   }
 
   public CommandDetectorBuilder withAnyIncludingUnresolvedRepeating(Predicate<String> predicate) {
-    addCommandPredicate(new IncludingUnresolvedArgumentsPredicate(predicate, CommandPredicate.Type.ZERO_OR_MORE));
+    addCommandPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.ZERO_OR_MORE).includeUnresolved());
     return this;
   }
 
   public CommandDetectorBuilder withArgumentResolutionIncludeUnresolved(Predicate<ArgumentResolution> predicate) {
-    addCommandPredicate(new IncludingUnresolvedArgumentsArgumentResolutionPredicate(predicate));
+    addCommandPredicate(SingularPredicate.predicateArgument(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
     return this;
   }
 

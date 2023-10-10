@@ -46,6 +46,10 @@ public class SingularPredicate implements CommandPredicate {
     return new SingularPredicate(predicate, type);
   }
 
+  public SingularPredicate includeUnresolved() {
+    return new SingularPredicateIncludingUnresolved(predicate, type);
+  }
+
   public boolean hasType(Type... types) {
     for (Type t : types) {
       if (type == t) {
@@ -84,5 +88,16 @@ public class SingularPredicate implements CommandPredicate {
       return new CommandPredicateResult(match, FOUND_NO_PREDICATE_MATCH, false, false);
     }
     return new CommandPredicateResult(match, CONTINUE, detectCurrentPredicateAgain, shouldBeMatchedAgain);
+  }
+
+  static class SingularPredicateIncludingUnresolved extends SingularPredicate {
+    public SingularPredicateIncludingUnresolved(Predicate<ArgumentResolution> predicate, Type type) {
+      super(predicate, type);
+    }
+
+    @Override
+    public boolean continueOnUnresolved() {
+      return true;
+    }
   }
 }
