@@ -6,7 +6,7 @@
   <parent>
     <artifactId>iac-extensions</artifactId>
     <groupId>org.sonarsource.iac</groupId>
-    <version>1.22-SNAPSHOT</version>
+    <version>1.23-SNAPSHOT</version>
   </parent>
 
   <artifactId>sonar-iac-kubernetes</artifactId>
