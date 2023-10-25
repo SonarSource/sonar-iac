@@ -90,7 +90,7 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
           <sonarLintSupported>true</sonarLintSupported>
-          <sonarQubeMinVersion>8.9</sonarQubeMinVersion>
+          <pluginApiMinVersion>8.9</pluginApiMinVersion>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
         </configuration>
       </plugin>
