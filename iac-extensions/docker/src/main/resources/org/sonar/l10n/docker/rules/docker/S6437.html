@@ -1,18 +1,47 @@
+<p>Secret leaks often occur when a sensitive piece of authentication data is stored with the source code of an application. Considering the source
+code is intended to be deployed across multiple assets, including source code repositories or application hosting servers, the secrets might get
+exposed to an unintended audience.</p>
 <h2>Why is this an issue?</h2>
-<p>Sensitive data has been found in the Dockerfile or Docker image. The data should be considered breached.</p>
-<p>If malicious third parties can get a hold of such information, they could impersonate legitimate identities within the organization.<br> It is a
-clear breach of trust in the system, as the systems involved falsely assume that the authenticated entity is who it claims to be.<br> The consequences
-can be catastrophic.</p>
-<p>In Dockerfiles, secrets hard-coded, secrets passed through as variables or created at build-time will cause security risks. The secret information
-can be exposed either via the container environment itself, the image metadata or the build environment logs.</p>
-<p>Docker Buildkit’s secret mount options should be used when secrets have to be accessed at build time. For run-time secrets, best practices would
-recommend only setting them at runtime, for example with the <code>--env</code> option of the docker run command.</p>
-<p>Note that files exposing the secrets should be securely stored and not exposed to a large sphere. If possible, use a secret vault or another
-similar component. For example, <strong>Docker Swarm</strong> provides a <strong>secrets</strong> service that can be used to handle most confidential
-data.</p>
-<h3>Noncompliant code example</h3>
-<p>The following code snippet demonstrates the creation of a file with a private key and a public key, which are then stored in the metadata of the
-container.<br> This is non-compliant, as the private key should not be exposed anywhere.</p>
+<p>In most cases, trust boundaries are violated when a secret is exposed in a source code repository or an uncontrolled deployment environment.
+Unintended people who don’t need to know the secret might get access to it. They might then be able to use it to gain unwanted access to associated
+services or resources.</p>
+<p>The trust issue can be more or less severe depending on the people’s role and entitlement.</p>
+<p>In Dockerfiles, hard-coded secrets and secrets passed through as variables or created at build-time will cause security risks. The secret
+information can be exposed either via the container environment, the image metadata, or the build environment logs.</p>
+<h3>What is the potential impact?</h3>
+<p>The consequences vary greatly depending on the situation and the secret-exposed audience. Still, two main scenarios should be considered.</p>
+<h4>Financial loss</h4>
+<p>Financial losses can occur when a secret is used to access a paid third-party-provided service and is disclosed as part of the source code of
+client applications. Having the secret, each user of the application will be able to use it without limit to use the third party service to their own
+need, including in a way that was not expected.</p>
+<p>This additional use of the secret will lead to added costs with the service provider.</p>
+<p>Moreover, when rate or volume limiting is set up on the provider side, this additional use can prevent the regular operation of the affected
+application. This might result in a partial denial of service for all the application’s users.</p>
+<h4>Application’s security downgrade</h4>
+<p>A downgrade can happen when the disclosed secret is used to protect security-sensitive assets or features of the application. Depending on the
+affected asset or feature, the practical impact can range from a sensitive information leak to a complete takeover of the application, its hosting
+server or another linked component.</p>
+<p>For example, an application that would disclose a secret used to sign user authentication tokens would be at risk of user identity impersonation.
+An attacker accessing the leaked secret could sign session tokens for arbitrary users and take over their privileges and entitlements.</p>
+<h2>How to fix it</h2>
+<p>Best practices recommend using a secret vault for all secrets that must be accessed at container runtime. This will ensure the secret’s security
+and prevent any further unexpected disclosure. Depending on the development platform and the leaked secret type, multiple solutions are currently
+available.</p>
+<p>For all secrets that must be accessed at image build time, it is recommended to rely on Docker Buildkit’s secret mount options. This will prevent
+secrets from being disclosed in image’s metadata and build logs.</p>
+<p>Additionally, investigations and remediation actions should be conducted to ensure the current and future security of the infrastructure.</p>
+<p><strong>Revoke the secret</strong></p>
+<p>Revoke any leaked secrets and remove them from the application source code.</p>
+<p>Before revoking the secret, ensure that no other applications or processes are using it. Other usages of the secret will also be impacted when the
+secret is revoked.</p>
+<p><strong>Analyze recent secret use</strong></p>
+<p>When available, analyze authentication logs to identify any unintended or malicious use of the secret since its disclosure date. Doing this will
+allow determining if an attacker took advantage of the leaked secret and to what extent.</p>
+<p>This operation should be part of a global incident response process.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<p>The following code sample generates a new SSH private key that will be stored in the generated image. This key should be considered as compromised.
+Moreover, the SSH key encryption passphrase is also hardcoded.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 FROM example
 
@@ -21,7 +50,7 @@ RUN ssh-keygen -N "passphrase" -t rsa -b 2048 -f /etc/ssh/rsa_key
 
 RUN /example.sh --ssh /etc/ssh/rsa_key
 </pre>
-<p>In the following sample, the code uses a seemingly-hidden password which is actually leaked after the container is built.</p>
+<p>The following code sample uses a seemingly hidden password which is actually leaked in the image metadata after the build.</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 FROM example
 ARG PASSWORD
@@ -29,9 +58,7 @@ ARG PASSWORD
 # Noncompliant
 RUN wget --user=guest --password="$PASSWORD" https://example.com
 </pre>
-<h3>Compliant solution</h3>
-<p>For build-time secrets, use <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Buildkit’s secret mount type</a>
-instead:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 FROM example
 
@@ -41,22 +68,33 @@ RUN --mount=type=secret,id=ssh,target=/etc/ssh/rsa_key \
 <pre data-diff-id="2" data-diff-type="compliant">
 FROM example
 
-RUN --mount=type=secret,id=wget_passwd \
-    wget --user=guest --password="$(cat /run/secrets/wget_passwd)" https://example.com
+RUN --mount=type=secret,id=wget,target=/home/user/.wgetrc \
+    wget --user=guest https://example.com
 </pre>
-<p>For runtime secrets, leave the environment variables empty in the Dockerfile. Then store the runtime secrets in an <a
-href="https://docs.docker.com/compose/env-file/">environment file</a> such as <code>.env</code> and then start the container with the <a
+<p>For runtime secrets, best practices recommend relying on a vault service to pass secret information to the containers. Docker environment provides
+Swarm services that implement such a feature.</p>
+<p>If such an option can not be considered, store the runtime secrets in an <a href="https://docs.docker.com/compose/env-file/">environment file</a>
+such as <code>.env</code> and then start the container with the <a
 href="https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables—​e---env---env-file"><code>--env-file</code></a>
 argument:</p>
 <pre>
 docker run --env-file .env myImage
 </pre>
+<p>It is then important to ensure that the environment files are securely stored and generated.</p>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN command secrets mount points
+  <li> AWS Documentation - <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">What is AWS Secrets Manager</a> </li>
+  <li> Azure Documentation - <a href="https://learn.microsoft.com/en-us/azure/key-vault/">Azure Key Vault</a> </li>
+  <li> Google Cloud - <a href="https://cloud.google.com/secret-manager/docs">Secret Manager documentation</a> </li>
+  <li> HashiCorp Developer - <a href="https://developer.hashicorp.com/vault/docs">Vault Documentation</a> </li>
+  <li> Docker Documentation - <a href="https://docs.docker.com/engine/swarm/secrets/">Manage sensitive data with Docker secrets</a> </li>
+  <li> Docker Documentation - <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">RUN command secrets mount points</a>
   </li>
-  <li> <a href="https://docs.docker.com/engine/swarm/secrets/">Docker documentation</a> - Manage sensitive data with Docker secrets </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/522.html">MITRE, CWE-522</a> - Insufficiently Protected Credentials </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/798.html">MITRE, CWE-798</a> - Use of Hard-coded Credentials </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/522.html">CWE-522 - Insufficiently Protected Credentials</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/798.html">CWE-798 - Use of Hard-coded Credentials</a> </li>
 </ul>
 

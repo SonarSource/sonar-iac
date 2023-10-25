@@ -15,23 +15,24 @@ thefts.</p>
 <p>For <a href="https://docs.microsoft.com/en-us/azure/batch/nodes-and-pools#pools">Azure Batch Pools</a>:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Batch/batchAccounts/pools",
-            "apiVersion": "2022-10-01",
-            "properties": {
-                "startTask": {
-                    "userIdentity": {
-                        "autoUser": {
-                            "elevationLevel": "Admin"
-                        }
-                    }
-                }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "example",
+      "type": "Microsoft.Batch/batchAccounts/pools",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "startTask": {
+          "userIdentity": {
+            "autoUser": {
+              "elevationLevel": "Admin"
             }
+          }
         }
-    ]
+      }
+    }
+  ]
 }
 </pre>
 <pre data-diff-id="3" data-diff-type="noncompliant">
@@ -40,7 +41,7 @@ resource AdminBatchPool 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
     startTask: {
       userIdentity: {
         autoUser: {
-          elevationLevel: 'Admin' // Noncompliant
+          elevationLevel: 'Admin' // Sensitive
         }
       }
     }
@@ -50,23 +51,24 @@ resource AdminBatchPool 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
 <p>For <a href="https://azure.microsoft.com/en-us/services/container-registry/">Azure Container Registries</a>:</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.ContainerRegistry/registries",
-            "apiVersion": "2023-01-01-preview",
-            "properties": {
-                "adminUserEnabled": true
-            }
-        }
-    ]
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "example",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2023-01-01-preview",
+      "properties": {
+        "adminUserEnabled": true
+      }
+    }
+  ]
 }
 </pre>
 <pre data-diff-id="4" data-diff-type="noncompliant">
 resource acrAdminUserDisabled 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   properties: {
-    adminUserEnabled: true // Noncompliant
+    adminUserEnabled: true // Sensitive
   }
 }
 </pre>
@@ -74,23 +76,24 @@ resource acrAdminUserDisabled 'Microsoft.ContainerRegistry/registries@2021-09-01
 <p>For <a href="https://docs.microsoft.com/en-us/azure/batch/nodes-and-pools#pools">Azure Batch Pools</a>:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Batch/batchAccounts/pools",
-            "apiVersion": "2022-10-01",
-            "properties": {
-                "startTask": {
-                    "userIdentity": {
-                        "autoUser": {
-                            "elevationLevel": "NonAdmin"
-                        }
-                    }
-                }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "example",
+      "type": "Microsoft.Batch/batchAccounts/pools",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "startTask": {
+          "userIdentity": {
+            "autoUser": {
+              "elevationLevel": "NonAdmin"
             }
+          }
         }
-    ]
+      }
+    }
+  ]
 }
 </pre>
 <pre data-diff-id="3" data-diff-type="compliant">
@@ -99,7 +102,7 @@ resource AdminBatchPool 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
     startTask: {
       userIdentity: {
         autoUser: {
-          elevationLevel: 'NonAdmin' // Compliant
+          elevationLevel: 'NonAdmin'
         }
       }
     }
@@ -109,23 +112,24 @@ resource AdminBatchPool 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
 <p>For <a href="https://azure.microsoft.com/en-us/services/container-registry/">Azure Container Registries</a>:</p>
 <pre data-diff-id="2" data-diff-type="compliant">
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.ContainerRegistry/registries",
-            "apiVersion": "2023-01-01-preview",
-            "properties": {
-                "adminUserEnabled": false
-            }
-        }
-    ]
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "example",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2023-01-01-preview",
+      "properties": {
+        "adminUserEnabled": false
+      }
+    }
+  ]
 }
 </pre>
 <pre data-diff-id="4" data-diff-type="compliant">
 resource acrAdminUserDisabled 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   properties: {
-    adminUserEnabled: false // Compliant
+    adminUserEnabled: false
   }
 }
 </pre>

@@ -1,4 +1,4 @@
-<p>Disabling Managed Identities can reduce an organization’s ability to protect itself against configuration faults and credentials leaks.</p>
+<p>Disabling Managed Identities can reduce an organization’s ability to protect itself against configuration faults and credential leaks.</p>
 <p>Authenticating via managed identities to an Azure resource solely relies on an API call with a non-secret token. The process is inner to Azure:
 secrets used by Azure are not even accessible to end-users.</p>
 <p>In typical scenarios without managed identities, the use of credentials can lead to mistakenly leaving them in code bases. In addition,
@@ -21,6 +21,7 @@ management.</p>
 </ul>
 <p>Alternatively, User-Assigned Managed Identities can also be used but don’t guarantee the properties listed above.</p>
 <h2>Sensitive Code Example</h2>
+<p>Using ARM templates:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -34,7 +35,15 @@ management.</p>
     ]
 }
 </pre>
+<p>Using Bicep:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
+  name: 'apiManagementService'
+  // Sensitive: no Managed Identity is defined
+}
+</pre>
 <h2>Compliant Solution</h2>
+<p>Using ARM templates:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -49,6 +58,15 @@ management.</p>
             }
         }
     ]
+}
+</pre>
+<p>Using Bicep:</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
+  name: 'apiManagementService'
+  identity: {
+    type: 'SystemAssigned'
+  }
 }
 </pre>
 <h2>See</h2>

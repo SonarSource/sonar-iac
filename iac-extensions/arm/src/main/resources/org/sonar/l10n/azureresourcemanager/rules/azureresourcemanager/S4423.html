@@ -64,6 +64,14 @@ servers</a>.</p>
   ]
 }
 </pre>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+resource mysqlDbServer 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+  name: 'example'
+  properties: {
+    minimalTlsVersion: 'TLS1_0' // Noncompliant
+  }
+}
+</pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
@@ -79,6 +87,14 @@ servers</a>.</p>
       }
     }
   ]
+}
+</pre>
+<pre data-diff-id="3" data-diff-type="compliant">
+resource mysqlDbServer 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+  name: 'example'
+  properties: {
+    minimalTlsVersion: 'TLS1_2'
+  }
 }
 </pre>
 <h3>How does this work?</h3>
@@ -113,6 +129,14 @@ versions, and improves performance.</p>
   ]
 }
 </pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'example'
+  properties: {
+    minimumTlsVersion: 'TLS1_0'
+  }
+}
+</pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
 {
@@ -128,6 +152,14 @@ versions, and improves performance.</p>
       }
     }
   ]
+}
+</pre>
+<pre data-diff-id="4" data-diff-type="compliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'example'
+  properties: {
+    minimumTlsVersion: 'TLS1_2'
+  }
 }
 </pre>
 <h3>How does this work?</h3>
@@ -158,6 +190,5 @@ versions, and improves performance.</p>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/327">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
-  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>
 

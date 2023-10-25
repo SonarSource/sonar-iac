@@ -19,12 +19,20 @@ scope possible helps separate duties and limits what resources are at risk.</p>
   <li> Apply the least privilege principle by assigning roles granting as few permissions as possible. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+targetScope = 'subscription' // Sensitive
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(subscription().id, 'exampleRoleAssignment')
+}
+</pre>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "name": "[guid(subscription().id, 'exampleRoleAssignment')]"
@@ -33,12 +41,20 @@ scope possible helps separate duties and limits what resources are at risk.</p>
 }
 </pre>
 <h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+targetScope = 'resourceGroup'
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, 'exampleRoleAssignment')
+}
+</pre>
 <pre data-diff-id="2" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "name": "[guid(resourceGroup().id, 'exampleRoleAssignment')]"

@@ -30,7 +30,7 @@ issued to become untrusted.</p>
 </ul>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -58,7 +58,7 @@ resource example 'Microsoft.SignalRService/webPubSub@2020-07-01-preview' = {
 </pre>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -90,7 +90,7 @@ resource example 'Microsoft.Web/sites@2015-08-01' = {
 </ul>
 <pre data-diff-id="3" data-diff-type="noncompliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -116,16 +116,18 @@ resource example 'Microsoft.Web/sites@2015-08-01' = {
 </pre>
 <pre data-diff-id="4" data-diff-type="noncompliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
       "type": "Microsoft.App/containerApps",
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2022-10-01",
       "name": "example",
       "properties": {
-        "ingress": {
-          "clientCertificateMode": "accept"
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": "accept"
+          }
         }
       }
     }
@@ -133,11 +135,13 @@ resource example 'Microsoft.Web/sites@2015-08-01' = {
 }
 </pre>
 <pre data-diff-id="14" data-diff-type="noncompliant">
-resource example 'Microsoft.App/containerApps@2022-03-01' = {
+resource example 'Microsoft.App/containerApps@2022-10-01' = {
   name: 'example'
   properties: {
-    ingress: {
-      clientCertificateMode: 'accept' // Sensitive
+    configuration: {
+      ingress: {
+        clientCertificateMode: 'accept' // Sensitive
+      }
     }
   }
 }
@@ -155,13 +159,13 @@ resource example 'Microsoft.App/containerApps@2022-03-01' = {
 </ul>
 <pre data-diff-id="5" data-diff-type="noncompliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
       "type": "Microsoft.DataFactory/factories/linkedservices",
       "apiVersion": "2018-06-01",
-      "name": "example",
+      "name": "factories/example",
       "properties": {
         "type": "Web",
         "typeProperties": {
@@ -194,7 +198,7 @@ resource example 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
 </ul>
 <pre data-diff-id="6" data-diff-type="noncompliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -223,13 +227,13 @@ resource example 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
 </ul>
 <pre data-diff-id="7" data-diff-type="noncompliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
       "type": "Microsoft.ContainerRegistry/registries/tokens",
       "apiVersion": "2022-12-01",
-      "name": "example",
+      "name": "registries/example",
       "properties": {
         "credentials": {
           "passwords": [
@@ -261,7 +265,7 @@ resource example 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
 <p>Where the use of client certificates is controlled by a boolean value:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -282,14 +286,14 @@ resource example 'Microsoft.SignalRService/webPubSub@2020-07-01-preview' = {
   name: 'example'
   properties: {
     tls: {
-      clientCertEnabled: true // Compliant
+      clientCertEnabled: true
     }
   }
 }
 </pre>
 <pre data-diff-id="2" data-diff-type="compliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -308,7 +312,7 @@ resource example 'Microsoft.SignalRService/webPubSub@2020-07-01-preview' = {
 resource example 'Microsoft.Web/sites@2015-08-01' = {
   name: 'example'
   properties: {
-    clientCertEnabled: true // Compliant
+    clientCertEnabled: true
     clientCertMode: 'Required'
   }
 }
@@ -316,7 +320,7 @@ resource example 'Microsoft.Web/sites@2015-08-01' = {
 <p>Where the use of client certificates can be made optional:</p>
 <pre data-diff-id="3" data-diff-type="compliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -336,22 +340,24 @@ resource example 'Microsoft.Web/sites@2015-08-01' = {
   name: 'example'
   properties: {
     clientCertEnabled: true
-    clientCertMode: 'Required' // Sensitive
+    clientCertMode: 'Required'
   }
 }
 </pre>
 <pre data-diff-id="4" data-diff-type="compliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
       "type": "Microsoft.App/containerApps",
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2022-10-01",
       "name": "example",
       "properties": {
-        "ingress": {
-          "clientCertificateMode": "require"
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": "require"
+          }
         }
       }
     }
@@ -359,11 +365,13 @@ resource example 'Microsoft.Web/sites@2015-08-01' = {
 }
 </pre>
 <pre data-diff-id="14" data-diff-type="compliant">
-resource example 'Microsoft.App/containerApps@2022-03-01' = {
+resource example 'Microsoft.App/containerApps@2022-10-01' = {
   name: 'example'
   properties: {
-    ingress: {
-      clientCertificateMode: 'require' // Sensitive
+    configuration: {
+      ingress: {
+        clientCertificateMode: 'require'
+      }
     }
   }
 }
@@ -371,7 +379,7 @@ resource example 'Microsoft.App/containerApps@2022-03-01' = {
 <p>Where client certificates can be used to authenticate outbound requests:</p>
 <pre data-diff-id="5" data-diff-type="compliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -394,7 +402,7 @@ resource example 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   properties: {
     type: 'Web'
     typeProperties: {
-      authenticationType: 'ClientCertificate' // Compliant
+      authenticationType: 'ClientCertificate'
     }
   }
 }
@@ -402,7 +410,7 @@ resource example 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
 <p>Where a list of permitted client certificates must be provided:</p>
 <pre data-diff-id="6" data-diff-type="compliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -424,7 +432,7 @@ resource example 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
 resource example 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
   name: 'example'
   properties: {
-    clientCertificates: [ // Compliant
+    clientCertificates: [
       {
         pem: '[base64-encoded certificate]'
       }
@@ -435,7 +443,7 @@ resource example 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
 <p>Where a resouce can use both certificate-based and password-based authentication:</p>
 <pre data-diff-id="7" data-diff-type="compliant">
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -461,7 +469,7 @@ resource example 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
   name: 'example'
   properties: {
     credentials: {
-      certificates: [ // Compliant
+      certificates: [
         {
           name: 'certificate1'
           encodedPemCertificate: '[base64-encoded certificate]'

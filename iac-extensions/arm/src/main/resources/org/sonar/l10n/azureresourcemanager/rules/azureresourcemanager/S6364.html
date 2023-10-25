@@ -13,6 +13,24 @@
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-backup?pivots=deployment-language-arm-template">Azure App
 Service</a>:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'webApp'
+}
+
+resource backup 'config@2022-03-01' = {
+  name: 'backup'
+  parent: webApp
+  properties: {
+    backupSchedule: {
+      frequencyInterval: 1
+      frequencyUnit: 'Day'
+      keepAtLeastOneBackup: true
+      retentionPeriodInDays: 2  // Sensitive
+    }
+  }
+}
+</pre>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -44,12 +62,26 @@ Service</a>:</p>
 </pre>
 <p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts?pivots=deployment-language-arm-template">Azure
 Cosmos DB</a> accounts:</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
+    properties: {
+        backupPolicy: {
+            type: 'Periodic'
+            periodicModeProperties: {
+                backupIntervalInMinutes: 1440
+                backupRetentionIntervalInHours: 8  // Sensitive
+            }
+        }
+    }
+}
+</pre>
 <pre data-diff-id="4" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2023-04-15",
       "properties": {
@@ -68,6 +100,25 @@ Cosmos DB</a> accounts:</p>
 <p>For <a
 href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults/backuppolicies?pivots=deployment-language-arm-template">Azure
 Backup</a> vault policies:</p>
+<pre data-diff-id="5" data-diff-type="noncompliant">
+resource vault 'Microsoft.RecoveryServices/vaults@2023-01-01' = {
+    name: 'testVault'
+
+    resource backupPolicy 'backupPolicies@2023-01-01' = {
+        name: 'backupPolicy'
+        properties: {
+            backupManagementType: 'AzureSql'
+            retentionPolicy: {
+                retentionPolicyType: 'SimpleRetentionPolicy'
+                retentionDuration: {
+                    count: 2  // Sensitive
+                    durationType: 'Days'
+                }
+            }
+        }
+    }
+}
+</pre>
 <pre data-diff-id="6" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -101,6 +152,24 @@ Backup</a> vault policies:</p>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-backup?pivots=deployment-language-arm-template">Azure App
 Service</a>:</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'webApp'
+}
+
+resource backup 'config@2022-03-01' = {
+  name: 'backup'
+  parent: webApp
+  properties: {
+    backupSchedule: {
+      frequencyInterval: 1
+      frequencyUnit: 'Day'
+      keepAtLeastOneBackup: true
+      retentionPeriodInDays: 8
+    }
+  }
+}
+</pre>
 <pre data-diff-id="2" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -120,7 +189,7 @@ Service</a>:</p>
           "frequencyInterval": 1,
           "frequencyUnit": "Day",
           "keepAtLeastOneBackup": true,
-          "retentionPeriodInDays": 15
+          "retentionPeriodInDays": 30
         }
       },
       "dependsOn": [
@@ -132,12 +201,26 @@ Service</a>:</p>
 </pre>
 <p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts?pivots=deployment-language-arm-template">Azure
 Cosmos DB</a> accounts:</p>
+<pre data-diff-id="3" data-diff-type="compliant">
+resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
+    properties: {
+        backupPolicy: {
+            type: 'Periodic'
+            periodicModeProperties: {
+                backupIntervalInMinutes: 1440
+                backupRetentionIntervalInHours: 192
+            }
+        }
+    }
+}
+</pre>
 <pre data-diff-id="4" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2023-04-15",
       "properties": {
@@ -145,7 +228,7 @@ Cosmos DB</a> accounts:</p>
           "type": "Periodic",
           "periodicModeProperties": {
             "backupIntervalInMinutes": 1440,
-            "backupRetentionIntervalInHours": 360
+            "backupRetentionIntervalInHours": 720
           }
         }
       }
@@ -156,6 +239,25 @@ Cosmos DB</a> accounts:</p>
 <p>For <a
 href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults/backuppolicies?pivots=deployment-language-arm-template">Azure
 Backup</a> vault policies:</p>
+<pre data-diff-id="5" data-diff-type="compliant">
+resource vault 'Microsoft.RecoveryServices/vaults@2023-01-01' = {
+    name: 'testVault'
+
+    resource backupPolicy 'backupPolicies@2023-01-01' = {
+        name: 'backupPolicy'
+        properties: {
+            backupManagementType: 'AzureSql'
+            retentionPolicy: {
+                retentionPolicyType: 'SimpleRetentionPolicy'
+                retentionDuration: {
+                    count: 8
+                    durationType: 'Days'
+                }
+            }
+        }
+    }
+}
+</pre>
 <pre data-diff-id="6" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -175,7 +277,7 @@ Backup</a> vault policies:</p>
             "retentionPolicy": {
               "retentionPolicyType": "SimpleRetentionPolicy",
               "retentionDuration": {
-                "count": 8,
+                "count": 30,
                 "durationType": "Days"
               }
             }
