@@ -12,7 +12,7 @@ allow investigators to establish a timeline of the actions perpetrated by an att
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Setting log retention period to 14 days is the bare minimum. It’s recommended to increase it to 30 days or above.</p>
+<p>Increase the log retention period to an amount of time sufficient enough to be able to investigate and restore service in case of an incident.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://docs.microsoft.com/en-us/azure/firewall-manager/policy-overview">Azure Firewall Policy</a>:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -21,6 +21,7 @@ allow investigators to establish a timeline of the actions perpetrated by an att
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -43,8 +44,6 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2022-07-01' = {
   }
 }
 </pre>
-<p>Raise issue when <code>retentionDays</code> is smaller than <code>14</code>, but not <code>0</code> (zero), or if <code>isEnabled</code> is
-<code>false</code> or the <code>insights</code> block is missing.</p>
 <p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.network/networkwatchers/flowlogs">Microsoft Network Network Watchers Flow
 Logs</a>:</p>
 <pre data-diff-id="3" data-diff-type="noncompliant">
@@ -53,6 +52,7 @@ Logs</a>:</p>
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "networkWatchers/example",
       "type": "Microsoft.Network/networkWatchers/flowLogs",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -75,8 +75,6 @@ resource networkWatchersFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@202
   }
 }
 </pre>
-<p>Raise issue when <code>days</code> is smaller than <code>14</code>, but not <code>0</code> (zero), or if <code>enabled</code> is set to
-<code>false</code> or <code>retentionPolicy</code> is missing.</p>
 <p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/2021-11-01/servers/auditingsettings">Microsoft SQL Servers Auditing
 Settings</a>:</p>
 <pre data-diff-id="5" data-diff-type="noncompliant">
@@ -85,10 +83,12 @@ Settings</a>:</p>
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example/default",
       "type": "Microsoft.Sql/servers/auditingSettings",
       "apiVersion": "2021-11-01",
       "properties": {
-        "retentionDays": 7
+        "retentionDays": 7,
+        "state": "Enabled"
       }
     }
   ]
@@ -101,8 +101,7 @@ resource sqlServerAudit 'Microsoft.Sql/servers/auditingSettings@2021-11-01' = {
   }
 }
 </pre>
-<p>Raise issue when retentionDays is smaller than <code>14</code>, but not <code>0</code> (zero).</p>
-<p>The same case applies to other types (when <code>type</code> field is set to one of following):</p>
+<p>This rule also applies to log retention periods that are too short, on the following resources:</p>
 <ul>
   <li> <code>Microsoft.DBforMariaDB/servers/securityAlertPolicies</code> - for <a
   href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformariadb/2018-06-01/servers/securityalertpolicies">Microsoft DB for MariaDB
@@ -126,6 +125,7 @@ resource sqlServerAudit 'Microsoft.Sql/servers/auditingSettings@2021-11-01' = {
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -143,7 +143,7 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2022-07-01' = {
   properties: {
     insights: {
       isEnabled: true
-      retentionDays: 30  // Compliant
+      retentionDays: 30
     }
   }
 }
@@ -156,6 +156,7 @@ Logs</a>:</p>
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "networkWatchers/example",
       "type": "Microsoft.Network/networkWatchers/flowLogs",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -172,7 +173,7 @@ Logs</a>:</p>
 resource networkWatchersFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@2022-07-01' = {
   properties: {
     retentionPolicy: {
-      days: 30      // Compliant
+      days: 30
       enabled: true
     }
   }
@@ -186,10 +187,12 @@ Settings</a>:</p>
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example/default",
       "type": "Microsoft.Sql/servers/auditingSettings",
       "apiVersion": "2021-11-01",
       "properties": {
-        "retentionDays": 30
+        "retentionDays": 30,
+        "state": "Enabled"
       }
     }
   ]
@@ -198,7 +201,7 @@ Settings</a>:</p>
 <pre data-diff-id="6" data-diff-type="compliant">
 resource sqlServerAudit 'Microsoft.Sql/servers/auditingSettings@2021-11-01' = {
   properties: {
-    retentionDays: 30    // Compliant
+    retentionDays: 30
   }
 }
 </pre>

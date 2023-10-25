@@ -15,21 +15,22 @@ servers.</p>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-            "apiVersion": "2022-11-01",
-            "properties": {
-                "protocol": "*",
-                "destinationPortRange": "*",
-                "sourceAddressPrefix": "*",
-                "access": "Allow",
-                "direction": "Inbound"
-            }
-        }
-    ]
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "networkSecurityGroups/example",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "protocol": "*",
+        "destinationPortRange": "*",
+        "sourceAddressPrefix": "*",
+        "access": "Allow",
+        "direction": "Inbound"
+      }
+    }
+  ]
 }
 </pre>
 <pre data-diff-id="2" data-diff-type="noncompliant">
@@ -47,21 +48,22 @@ resource securityRules 'Microsoft.Network/networkSecurityGroups/securityRules@20
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-            "apiVersion": "2022-11-01",
-            "properties": {
-                "protocol": "*",
-                "destinationPortRange": "22",
-                "sourceAddressPrefix": "10.0.0.0/24",
-                "access": "Allow",
-                "direction": "Inbound"
-            }
-        }
-    ]
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "networkSecurityGroups/example",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "properties": {
+          "protocol": "*",
+          "destinationPortRange": "22",
+          "sourceAddressPrefix": "10.0.0.0/24",
+          "access": "Allow",
+          "direction": "Inbound"
+      }
+    }
+  ]
 }
 </pre>
 <pre data-diff-id="2" data-diff-type="compliant">

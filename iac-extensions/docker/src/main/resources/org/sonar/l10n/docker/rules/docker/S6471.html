@@ -56,7 +56,7 @@ COPY --from=builder bin/production /app
 ENTRYPOINT ["/app/production"]
 </pre>
 <h2>Compliant Solution</h2>
-<p>For Linux-based images:</p>
+<p>For Linux-based images and scratch-based images that untar a Linux distribution:</p>
 <pre>
 FROM alpine
 
@@ -75,33 +75,7 @@ RUN net user /add nonroot
 
 USER nonroot
 </pre>
-<p>If the <code>scratch</code> Dockerfile untars a Linux distribution, the "Linux image" solution should be applied. Else, you have a choice between
-using a pre-written <code>/etc/passwd</code> file (regardless of the host operating system) or using a multi-stage build.</p>
-<pre>
-FROM scratch
-
-COPY etc_passwd /etc/passwd
-# contains "nonroot:x:1337:1337:nonroot:/nonroot:/usr/sbin/nologin"
-
-USER nonroot
-
-COPY production_binary /app
-
-ENTRYPOINT ["/app/production_binary"]
-</pre>
-<p>or you can use a multi-stage build:</p>
-<pre>
-FROM alpine:latest as security_provider
-RUN addgroup -S nonroot \
-    &amp;&amp; adduser -S nonroot -G nonroot
-
-FROM scratch as production
-COPY --from=security_provider /etc/passwd /etc/passwd
-USER nonroot
-COPY production_binary /app
-ENTRYPOINT ["/app/production_binary"]
-</pre>
-<p>For multi-stage builds:</p>
+<p>For multi-stage builds, the non-root user should be on the last stage:</p>
 <pre>
 FROM alpine as builder
 COPY Makefile ./src /
@@ -113,6 +87,21 @@ RUN addgroup -S nonroot \
 COPY --from=builder bin/production /app
 USER nonroot
 ENTRYPOINT ["/app/production"]
+</pre>
+<p>For images that use <code>scratch</code> as their base, it is not possible to add non-privileged users by default. To do this, add an additional
+build stage to add the group and user, and later copy <code>/etc/passwd</code>.</p>
+<p>Here is an example that uses <code>adduser</code> in the first stage to generate a user and add it to the <code>/etc/passwd</code> file. In the
+next stage, this user is added by copying that file over from the previous stage:</p>
+<pre>
+FROM alpine:latest as security_provider
+RUN addgroup -S nonroot \
+    &amp;&amp; adduser -S nonroot -G nonroot
+
+FROM scratch as production
+COPY --from=security_provider /etc/passwd /etc/passwd
+USER nonroot
+COPY production_binary /app
+ENTRYPOINT ["/app/production_binary"]
 </pre>
 <h2>See</h2>
 <ul>

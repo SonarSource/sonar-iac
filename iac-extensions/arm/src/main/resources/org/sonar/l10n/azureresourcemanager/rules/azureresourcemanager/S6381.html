@@ -10,9 +10,9 @@ assigned as they grant sensitive permissions like the ability to reset passwords
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The user, group, or service principal doesn’t use the entirety of this extensive set of permissions to operate on a day-to-day basis. </li>
-  <li> It is possible to follow the Separation of Duties principle and split permissions between multiple users, but it’s not enforced. There is a
-  risk if you answered yes to any of these questions. </li>
+  <li> It is possible to follow the Separation of Duties principle and split permissions between multiple users, but it’s not enforced. </li>
 </ul>
+<p>There is a risk if you answered yes to any of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
   <li> Limit the assignment of Owner roles to less than 3 people or service principals. </li>
@@ -26,6 +26,7 @@ assigned as they grant sensitive permissions like the ability to reset passwords
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "properties": {
@@ -45,7 +46,7 @@ resource symbolicname 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     description: 'Assign the contributor role'
     principalId: 'string'
     principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleAssignments', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleAssignments', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Sensitive
   }
 }
 </pre>
@@ -56,6 +57,7 @@ resource symbolicname 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "properties": {

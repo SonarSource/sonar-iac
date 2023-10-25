@@ -55,6 +55,7 @@ application or system.</p>
   "resources": [
     {
       "type": "Microsoft.Web/sites",
+      "name": "example",
       "apiVersion": "2022-09-01",
       "properties": {
         "httpsOnly": false
@@ -78,6 +79,7 @@ resource symbolicname 'Microsoft.Web/sites@2022-03-01' = {
   "resources": [
     {
       "type": "Microsoft.Web/sites/config",
+      "name": "sites/example",
       "apiVersion": "2022-09-01",
       "properties": {
         "ftpsState": "AllAllowed"
@@ -101,6 +103,7 @@ resource symbolicname 'Microsoft.Web/sites/config@2022-09-01' = {
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
+      "name": "example",
       "apiVersion": "2022-09-01",
       "properties": {
         "supportsHttpsTrafficOnly": false
@@ -124,6 +127,7 @@ resource symbolicname 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   "resources": [
     {
       "type": "Microsoft.ApiManagement/service/apis",
+      "name": "service/example",
       "apiVersion": "2022-08-01",
       "properties": {
         "protocols": ["http"]
@@ -147,6 +151,7 @@ resource symbolicname 'Microsoft.ApiManagement/service/apis@2022-08-01' = {
   "resources": [
     {
       "type": "Microsoft.Cdn/profiles/endpoints",
+      "name": "profiles/example",
       "apiVersion": "2021-06-01",
       "properties": {
         "isHttpAllowed": true
@@ -171,6 +176,7 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisent
   "resources": [
     {
       "type": "Microsoft.Cache/redisEnterprise/databases",
+      "name": "redisEnterprise/example",
       "apiVersion": "2022-01-01",
       "properties": {
         "clientProtocol": "Plaintext"
@@ -182,7 +188,7 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisent
 <pre data-diff-id="13" data-diff-type="noncompliant">
 resource symbolicname 'Microsoft.Cache/redisEnterprise/databases@2022-01-01' = {
   properties: {
-    clientProtocol: "Plaintext" // Sensitive
+    clientProtocol: 'Plaintext' // Sensitive
   }
 }
 </pre>
@@ -196,6 +202,7 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
   "resources": [
     {
       "type": "Microsoft.DBforMySQL/servers",
+      "name": "example",
       "apiVersion": "2017-12-01",
       "properties": {
         "sslEnforcement": "Disabled"
@@ -207,7 +214,7 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
 <pre data-diff-id="14" data-diff-type="noncompliant">
 resource symbolicname 'Microsoft.DBforMySQL/servers@2017-12-01' = {
   properties: {
-    sslEnforcement: "Disabled" // Sensitive
+    sslEnforcement: 'Disabled' // Sensitive
   }
 }
 </pre>
@@ -220,6 +227,7 @@ resource symbolicname 'Microsoft.DBforMySQL/servers@2017-12-01' = {
   "resources": [
     {
       "type": "Microsoft.Web/sites",
+      "name": "example",
       "apiVersion": "2022-09-01",
       "properties": {
         "httpsOnly": true
@@ -243,6 +251,7 @@ resource symbolicname 'Microsoft.Web/sites@2022-03-01' = {
   "resources": [
     {
       "type": "Microsoft.Web/sites/config",
+      "name": "sites/example",
       "apiVersion": "2022-09-01",
       "properties": {
         "ftpsState": "FtpsOnly"
@@ -266,6 +275,7 @@ resource symbolicname 'Microsoft.Web/sites/config@2022-09-01' = {
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
+      "name": "example",
       "apiVersion": "2022-09-01",
       "properties": {
         "supportsHttpsTrafficOnly": true
@@ -289,6 +299,7 @@ resource symbolicname 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   "resources": [
     {
       "type": "Microsoft.ApiManagement/service/apis",
+      "name": "service/example",
       "apiVersion": "2022-08-01",
       "properties": {
         "protocols": ["https"]
@@ -312,6 +323,7 @@ resource symbolicname 'Microsoft.ApiManagement/service/apis@2022-08-01' = {
   "resources": [
     {
       "type": "Microsoft.Cdn/profiles/endpoints",
+      "name": "profiles/example",
       "apiVersion": "2021-06-01",
       "properties": {
         "isHttpAllowed": false
@@ -336,6 +348,7 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisent
   "resources": [
     {
       "type": "Microsoft.Cache/redisEnterprise/databases",
+      "name": "redisEnterprise/example",
       "apiVersion": "2022-01-01",
       "properties": {
         "clientProtocol": "Encrypted"
@@ -347,7 +360,7 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisent
 <pre data-diff-id="13" data-diff-type="compliant">
 resource symbolicname 'Microsoft.Cache/redisEnterprise/databases@2022-01-01' = {
   properties: {
-    clientProtocol: "Encrypted"
+    clientProtocol: 'Encrypted'
   }
 }
 </pre>
@@ -361,6 +374,7 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
   "resources": [
     {
       "type": "Microsoft.DBforMySQL/servers",
+      "name": "example",
       "apiVersion": "2017-12-01",
       "properties": {
         "sslEnforcement": "Enabled"
@@ -372,7 +386,7 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
 <pre data-diff-id="14" data-diff-type="compliant">
 resource symbolicname 'Microsoft.DBforMySQL/servers@2017-12-01' = {
   properties: {
-    sslEnforcement: "Enabled"
+    sslEnforcement: 'Enabled'
   }
 }
 </pre>

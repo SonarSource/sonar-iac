@@ -30,6 +30,12 @@ incidents.</p>
     ]
 }
 </pre>
+<pre data-diff-id="101" data-diff-type="noncompliant">
+resource appService 'Microsoft.Web/sites@2022-09-01' = {
+    name: 'example'
+    // Sensitive: no authentication defined
+}
+</pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 {
@@ -42,6 +48,20 @@ incidents.</p>
             "name": "example"
         }
     ]
+}
+</pre>
+<pre data-diff-id="102" data-diff-type="noncompliant">
+resource apiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
+    name: 'example'
+    // Sensitive: no portal authentication defined
+
+    resource apis 'apis@2022-09-01-preview' = {
+        name: 'exampleApi'
+        properties: {
+            path: '/test'
+            // Sensitive: no API authentication defined
+        }
+    }
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
@@ -64,6 +84,17 @@ incidents.</p>
     ]
 }
 </pre>
+<pre data-diff-id="103" data-diff-type="noncompliant">
+resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+    name: 'example'
+    properties: {
+        type: 'Web'
+        typeProperties: {
+            authenticationType: 'Anonymous' // Sensitive
+        }
+    }
+}
+</pre>
 <p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts and Storage Containers</a>:</p>
 <pre data-diff-id="4" data-diff-type="noncompliant">
 {
@@ -79,6 +110,14 @@ incidents.</p>
             }
         }
     ]
+}
+</pre>
+<pre data-diff-id="104" data-diff-type="noncompliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+    name: 'example'
+    properties: {
+        allowBlobPublicAccess: true // Sensitive
+    }
 }
 </pre>
 <pre data-diff-id="5" data-diff-type="noncompliant">
@@ -104,6 +143,22 @@ incidents.</p>
     ]
 }
 </pre>
+<pre data-diff-id="105" data-diff-type="noncompliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+    name: 'example'
+
+    resource blobService 'blobServices@2022-09-01' = {
+        name: 'default'
+
+        resource containers 'containers@2022-09-01' = {
+            name: 'exampleContainer'
+            properties: {
+                publicAccess: 'Blob' // Sensitive
+            }
+        }
+    }
+}
+</pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
 <pre data-diff-id="6" data-diff-type="noncompliant">
 {
@@ -121,6 +176,17 @@ incidents.</p>
             }
         }
     ]
+}
+</pre>
+<pre data-diff-id="106" data-diff-type="noncompliant">
+resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
+    name: 'example'
+    location: location
+    properties: {
+        redisConfiguration: {
+            authnotrequired: 'true' // Sensitive
+        }
+    }
 }
 </pre>
 <h2>Compliant Solution</h2>
@@ -149,6 +215,24 @@ incidents.</p>
             ]
         }
     ]
+}
+</pre>
+<pre data-diff-id="101" data-diff-type="compliant">
+resource appService 'Microsoft.Web/sites@2022-09-01' = {
+    name: 'example'
+
+    resource authSettings 'config@2022-09-01' = { // Compliant
+        name: 'authsettingsV2'
+        properties: {
+            globalValidation: {
+                requireAuthentication: true
+                unauthenticatedClientAction: 'AllowAnonymous'
+            }
+            platform: {
+                enabled: true
+            }
+        }
+    }
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
@@ -188,6 +272,31 @@ incidents.</p>
     ]
 }
 </pre>
+<pre data-diff-id="102" data-diff-type="compliant">
+resource apiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
+    name: 'example'
+
+    resource portalSettings 'portalsettings@2022-09-01-preview' = {
+        name: 'signin'
+        properties: {
+            enabled: true // Compliant: Sign-in is enabled for portal access
+        }
+    }
+
+    resource apis 'apis@2022-09-01-preview' = {
+        name: 'exampleApi'
+        properties: {
+            path: '/test'
+            authenticationSettings: { // Compliant: API has authentication enabled
+                openid: {
+                    bearerTokenSendingMethods: ['authorizationHeader']
+                    openidProviderId: '&lt;an OpenID provider ID&gt;'
+                }
+            }
+        }
+    }
+}
+</pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
 <pre data-diff-id="3" data-diff-type="compliant">
 {
@@ -208,6 +317,26 @@ incidents.</p>
     ]
 }
 </pre>
+<pre data-diff-id="103" data-diff-type="compliant">
+@secure()
+@description('The password for authentication')
+param password string
+
+resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+    name: 'example'
+    properties: {
+        type: 'Web'
+        typeProperties: {
+            authenticationType: 'Basic' // Compliant
+            username: 'test'
+            password: {
+                type: 'SecureString'
+                value: password
+            }
+        }
+    }
+}
+</pre>
 <p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
 <pre data-diff-id="4" data-diff-type="compliant">
 {
@@ -223,6 +352,14 @@ incidents.</p>
             }
         }
     ]
+}
+</pre>
+<pre data-diff-id="104" data-diff-type="compliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'example'
+  properties: {
+    allowBlobPublicAccess: false // Compliant
+  }
 }
 </pre>
 <pre data-diff-id="5" data-diff-type="compliant">
@@ -248,6 +385,22 @@ incidents.</p>
     ]
 }
 </pre>
+<pre data-diff-id="105" data-diff-type="compliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+    name: 'example'
+
+    resource blobService 'blobServices@2022-09-01' = {
+        name: 'default'
+
+        resource containers 'containers@2022-09-01' = {
+            name: 'exampleContainer'
+            properties: {
+                publicAccess: 'None' // Compliant
+            }
+        }
+    }
+}
+</pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
 <pre data-diff-id="6" data-diff-type="compliant">
 {
@@ -263,6 +416,17 @@ incidents.</p>
             }
         }
     ]
+}
+</pre>
+<pre data-diff-id="106" data-diff-type="compliant">
+resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
+    name: 'example'
+    location: location
+    properties: {
+        redisConfiguration: {
+            // Compliant: authentication is enabled by default
+        }
+    }
 }
 </pre>
 <h2>See</h2>

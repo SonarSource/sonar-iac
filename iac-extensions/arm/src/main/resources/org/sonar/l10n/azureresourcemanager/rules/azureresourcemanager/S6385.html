@@ -1,8 +1,9 @@
 <h2>Why is this an issue?</h2>
 <p>Defining a custom role for a Subscription or a Management group that allows all actions will give them the same capabilities as the built-in Owner
-role. It’s recommended to limit the number of subscription owners in order to mitigate the risk of being breached by a compromised owner.</p>
+role.</p>
 <p>This rule raises an issue when a custom role has an assignable scope set to a Subscription or a Management Group and allows all actions
-(<code>*</code>) ¨</p>
+(<code>*</code>).</p>
+<p>To reduce the risk of intrusion of a compromised owner, it is recommended to limit the number of subscription owners.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -12,6 +13,7 @@ role. It’s recommended to limit the number of subscription owners in order to 
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Authorization/roleDefinitions",
       "apiVersion": "2022-04-01",
       "properties": {
@@ -54,6 +56,7 @@ resource roleDef 'Microsoft.Authorization/roleDefinitions@2022-04-01' = { // Sen
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Authorization/roleDefinitions",
       "apiVersion": "2022-04-01",
       "properties": {
@@ -90,10 +93,14 @@ resource roleDef 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
 }
 </pre>
 <h3>Going the extra mile</h3>
-<p>Here is a list of recommendations that can be followed regarding good usages of roles: * Apply the least privilege principle by creating a custom
-role with as few permissions as possible. * As custom role can be updated, gradually add atomic permissions when required. * Limit the assignable
-scopes of the custom role to a set of Resources or Ressource Groups. * When necessary, use the built-in Owner role instead of a custom role granting
-subscription owner capabilities. * Limit the assignments of Owner roles to less than three people or service principals.</p>
+<p>Here is a list of recommendations that can be followed regarding good usages of roles:</p>
+<ul>
+  <li> Apply the least privilege principle by creating a custom role with as few permissions as possible. </li>
+  <li> As custom roles can be updated, gradually add atomic permissions when required. </li>
+  <li> Limit the assignable scopes of the custom role to a set of Resources or Ressource Groups. </li>
+  <li> When necessary, use the built-in Owner role instead of a custom role granting subscription owner capabilities. </li>
+  <li> Limit the assignments of Owner roles to less than three people or service principals. </li>
+</ul>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

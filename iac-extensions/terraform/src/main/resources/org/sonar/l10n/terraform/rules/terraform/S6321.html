@@ -55,19 +55,6 @@ resource "google_compute_firewall" "noncompliant" {
   source_ranges = ["0.0.0.0/0"]  # Noncompliant
 }
 </pre>
-<p>A security rule allowing all inbound SSH traffic for Azure:</p>
-<pre data-diff-id="4" data-diff-type="noncompliant">
-resource "azurerm_network_security_rule" "noncompliant" {
-  priority                    = 100
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "22"
-  source_address_prefix       = "*"  # Noncompliant
-  destination_address_prefix  = "*"
-}
-</pre>
 <h4>Compliant solution</h4>
 <p>An ingress rule allowing inbound SSH traffic from specific IP addresses for AWS:</p>
 <pre data-diff-id="1" data-diff-type="compliant">

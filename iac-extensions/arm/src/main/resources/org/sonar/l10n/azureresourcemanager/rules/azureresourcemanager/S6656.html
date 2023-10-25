@@ -13,7 +13,7 @@ can lead to important credentials being leaked to unauthorized accounts.</p>
 to the scope of the nested template. This makes it impossible to expose secure parameters defined in the parent template.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
+<pre data-diff-id="101" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -25,6 +25,7 @@ to the scope of the nested template. This makes it impossible to expose secure p
   },
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "properties": {
@@ -34,6 +35,7 @@ to the scope of the nested template. This makes it impossible to expose secure p
           "contentVersion": "1.0.0.0",
           "resources": [
             {
+              "name": "example",
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2022-11-01",
               "properties": {
@@ -50,12 +52,13 @@ to the scope of the nested template. This makes it impossible to expose secure p
 }
 </pre>
 <h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
+<pre data-diff-id="101" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
+      "name": "example",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "properties": {
@@ -74,6 +77,7 @@ to the scope of the nested template. This makes it impossible to expose secure p
           },
           "resources": [
             {
+              "name": "example",
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2022-11-01",
               "properties": {
@@ -87,6 +91,63 @@ to the scope of the nested template. This makes it impossible to expose secure p
       }
     }
   ]
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<p>In Bicep, it is recommended to use modules instead of a <code>Microsoft.Resources/deployments</code> resource. Modules allow for reuse, improve
+readability by encapsulating different parts of a deployment and therefore reduce the risk for errors. They also do not leakage of secure parameters
+from a parent resource.</p>
+<p>If it is not possible to use modules, this issue can be fixed by setting <code>properties.expressionEvaluationOptions.scope</code> to
+<code>Inner</code> in the <code>Microsoft.Resources/deployments</code> resource. By setting this property, template evaluations are limited to the
+scope of the nested template. This makes it impossible to expose secure parameters defined in the parent template.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="201" data-diff-type="noncompliant">
+@secure()
+param adminUsername string = newGuid()
+
+resource example 'Microsoft.Resources/deployments@2022-09-01' = {
+  name: 'example-deployment'
+  properties: {
+    // Noncompliant: expressionEvaluationOptions is missing (defaults to 'Outer')
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      resources: [
+        {
+          apiVersion: '2023-03-01'
+          type: 'Microsoft.Compute/virtualMachines'
+          name: 'example-vm'
+          properties: {
+            osProfile: {
+              adminUsername: adminUsername
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="201" data-diff-type="compliant">
+// main.bicep
+module example 'vm.bicep' = {
+  name: 'example-deployment'
+}
+
+// vm.bicep
+@secure()
+param adminUsername string = newGuid()
+
+resource vmExample 'Microsoft.Compute/virtualMachines@2023-03-01' = {
+  name: 'example-vm'
+  properties: {
+    osProfile: {
+      adminUsername: adminUsername
+    }
+  }
 }
 </pre>
 <h2>Resources</h2>
