@@ -16,7 +16,7 @@ jobs:
     steps:
       - run: |
           mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.version }}
-      - uses: peter-evans/create-pull-request@v3.5.1
+      - uses: peter-evans/create-pull-request@v5.0
         with:
           author: github-actions[bot] <noreply@github.com>
           commit-message: Prepare next development iteration
