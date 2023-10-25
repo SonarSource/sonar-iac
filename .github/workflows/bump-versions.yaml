@@ -8,15 +8,16 @@ on:
         type: string
 
 jobs:
-  update:
+  bump-version:
     runs-on: ubuntu-latest
     permissions:
       contents: write # write for peter-evans/create-pull-request, read for actions/checkout
       pull-requests: write # write for peter-evans/create-pull-request
     steps:
+      - uses: actions/checkout@v4
       - run: |
           mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.version }}
-      - uses: peter-evans/create-pull-request@v5.0
+      - uses: peter-evans/create-pull-request@v5
         with:
           author: github-actions[bot] <noreply@github.com>
           commit-message: Prepare next development iteration
