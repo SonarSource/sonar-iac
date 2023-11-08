@@ -11,9 +11,15 @@
 
   <artifactId>sonar-iac-helm</artifactId>
 
-  <name>SonarSource IaC Analyzer :: Extensions :: Kubernetes</name>
+  <name>SonarSource IaC Analyzer :: Extensions :: Helm</name>
 
   <dependencies>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>5.13.0</version>
+    </dependency>
+
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-iac-common</artifactId>
@@ -73,6 +79,21 @@
 
   <build>
     <plugins>
+      <plugin><groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <executable>go</executable>
+          <workingDirectory>src/main/go</workingDirectory>
+          <arguments>
+            <argument>build</argument>
+            <argument>-o</argument>
+            <argument>${project.build.directory}/classes/calc.so</argument>
+            <argument>-buildmode=c-shared</argument>
+            <argument>.</argument>
+          </arguments>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
