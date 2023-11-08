@@ -18,6 +18,7 @@
     <module>kubernetes</module>
     <module>docker</module>
     <module>arm</module>
+    <module>helm</module>
   </modules>
 
 </project>
