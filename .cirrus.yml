@@ -45,7 +45,7 @@ promote_secrets: &PROMOTE_SECRETS
 # ----------------------------------------------
 
 linux_image_template: &LINUX_IMAGE
-  image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j11-latest
+  image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
   cluster_name: ${CIRRUS_CLUSTER_NAME}
   region: eu-central-1
   namespace: default
@@ -73,7 +73,7 @@ linux_4_cpu_8G_java_17_template: &LINUX_4_CPU_8G_JAVA_17
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
     experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
-    image: base-windows-jdk11-v*
+    image: base-windows-jdk17-v*
     platform: windows
     region: eu-central-1
     type: t3.xlarge

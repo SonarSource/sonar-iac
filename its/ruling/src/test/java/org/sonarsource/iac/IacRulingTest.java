@@ -46,6 +46,7 @@ class IacRulingTest {
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String LITS_VERSION = "0.11.0.2659";
   private static final String SONAR_CONFIG_VERSION = "DEV";
+  private static final String SCANNER_VERSION = "5.0.1.3006";
 
   @RegisterExtension
   static OrchestratorExtension orchestrator = OrchestratorExtension.builderEnv()
@@ -135,6 +136,7 @@ class IacRulingTest {
 
     File litsDifferencesFile = FileLocation.of("target/" + projectKey + "-differences").getFile();
     SonarScanner build = SonarScanner.create(FileLocation.of("../").getFile())
+      .setScannerVersion(SCANNER_VERSION)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")

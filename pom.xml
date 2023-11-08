@@ -238,6 +238,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
             <showDeprecation>true</showDeprecation>
+            <source>${jdk.source.version}</source>
+            <target>${jdk.target.version}</target>
           </configuration>
         </plugin>
         <plugin>
