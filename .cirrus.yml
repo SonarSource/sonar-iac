@@ -184,7 +184,7 @@ promote_task:
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
   script:
-    - cirrus_jfrog_promote
+    - cirrus_promote_maven
     - burgr-notify-promotion
     - github-notify-promotion
   cleanup_before_cache_script: cleanup_maven_repository
