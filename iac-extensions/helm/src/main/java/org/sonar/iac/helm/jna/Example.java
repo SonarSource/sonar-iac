@@ -23,6 +23,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import java.util.Arrays;
+import org.sonar.iac.helm.jna.mapping.ExampleData;
 import org.sonar.iac.helm.jna.mapping.GoSlice;
 import org.sonar.iac.helm.jna.mapping.GoString;
 
@@ -39,10 +40,18 @@ public class Example {
     long Log(GoString.ByValue str);
   }
 
+  public interface Template extends Library {
+    long NewHandleID(GoString.ByValue name, GoString.ByValue expression);
+
+    String GetLastTemplateNameByHandle(long id);
+
+    String Execute(long templateHandle, ExampleData value);
+  }
+
   public static void main(String[] args) {
     var extension = System.getProperty("os.name").toLowerCase().startsWith("win") ? ".dll" : ".so";
     Calc calc = Native.loadLibrary(
-      Example.class.getResource("/calc" + extension).getPath(),
+      Example.class.getResource("/go-calc").getPath(),
       Calc.class);
 
     System.out.println("12+99 via JNA Go bridge: " + calc.Add(12, 99));
@@ -59,9 +68,22 @@ public class Example {
     long[] sorted = arr.getLongArray(0, nums.length);
     System.out.println("Sorted array:" + Arrays.toString(sorted));
 
-    GoString.ByValue str = new GoString.ByValue();
-    str.p = "Hello Java!";
-    str.n = str.p.length();
-    System.out.printf("Return code of Log: " + calc.Log(str));
+    GoString.ByValue str = new GoString.ByValue("Hello Java!");
+    System.out.println("Return code of Log: " + calc.Log(str));
+
+    System.out.println("Template test:");
+    // ---
+    Template template = Native.loadLibrary(
+      Example.class.getResource("/golang-template").getPath(),
+      Template.class);
+    var goName = new GoString.ByValue("test");
+    var goExpression = new GoString.ByValue("Will this be evaluated: {{.Name}} ?");
+    var tId = template.NewHandleID(goName, goExpression);
+    var templateName = template.GetLastTemplateNameByHandle(tId);
+    System.out.println(templateName);
+    var data = new ExampleData.ByValue();
+    data.Name = "yes!";
+    var result = template.Execute(tId, data);
+    System.out.println(result);
   }
 }

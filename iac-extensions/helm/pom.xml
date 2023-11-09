@@ -79,16 +79,30 @@
 
   <build>
     <plugins>
-      <plugin><groupId>org.codehaus.mojo</groupId>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>compile-go-calc</id>
+            <configuration>
+              <workingDirectory>src/main/go/calc</workingDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compile-template-wrapper</id>
+            <configuration>
+              <workingDirectory>src/main/go/template-wrapper</workingDirectory>
+            </configuration>
+          </execution>
+        </executions>
         <configuration>
-          <executable>go</executable>
-          <workingDirectory>src/main/go</workingDirectory>
+          <executable>go1.19</executable>
           <arguments>
             <argument>build</argument>
             <argument>-o</argument>
-            <argument>${project.build.directory}/classes/calc.so</argument>
+            <argument>${project.build.directory}/classes</argument>
             <argument>-buildmode=c-shared</argument>
             <argument>.</argument>
           </arguments>

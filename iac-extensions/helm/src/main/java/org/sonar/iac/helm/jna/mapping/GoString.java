@@ -24,6 +24,18 @@ import com.sun.jna.Structure;
 @Structure.FieldOrder({"p", "n"})
 public class GoString extends Structure {
   public static class ByValue extends GoString implements Structure.ByValue {
+    public ByValue(String p) {
+      super(p);
+    }
+  }
+
+  // no-arg constructor is required by JNA
+  public GoString() {
+  }
+
+  public GoString(String p) {
+    this.p = p;
+    this.n = p.length();
   }
 
   public String p;
