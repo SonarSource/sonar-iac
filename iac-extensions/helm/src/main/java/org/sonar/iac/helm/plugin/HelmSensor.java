@@ -30,8 +30,11 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.helm.checks.HelmCheckList;
+import org.sonar.iac.helm.parser.HelmParser;
 
 public class HelmSensor extends YamlSensor {
 
@@ -69,6 +72,11 @@ public class HelmSensor extends YamlSensor {
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
     return new HelmFilePredicate();
+  }
+
+  @Override
+  protected TreeParser<Tree> treeParser() {
+    return new HelmParser();
   }
 
   static class HelmFilePredicate implements FilePredicate {

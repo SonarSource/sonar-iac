@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+# testFunc is undefined, arguments are in parenthesis
+{{- include "testFunc" (list $val1 $val2) }}
+- name: web
+  containerPort: 80
+  protocol: TCP
+securityContext:
+  allowPrivilegeEscalation: true # Sensitive S6428

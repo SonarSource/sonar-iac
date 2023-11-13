@@ -11,10 +11,12 @@ import (
   "fmt"
   "strings"
   "text/template"
+  "text/template/parse"
   "sync"
 //  "unsafe"
   "reflect"
-  "helm.sh/helm/v3/pkg/engine"
+  "helm.sh/helm/v3/pkg/chartutil"
+  "github.com/Masterminds/sprig/v3"
 )
 
 var handles []*template.Template
@@ -26,8 +28,6 @@ var mtx sync.Mutex
 // }
 
 type ExampleData C.struct_ExampleData
-
-var ngin engine.Engine
 
 // Create a template with name and expression and return its handle (a numeric ID to access the template later)
 //export NewHandleID
@@ -41,7 +41,7 @@ func NewHandleID(name string, expression string) (rc int) {
 		}
 	}()
 
-	t, err := template.New(name).Parse(expression)
+	t, err := template.New(name).Funcs(sprig.FuncMap()).Parse(expression)
 	// log error to console
 	if err != nil {
 	  fmt.Println("Error parsing template: ", err)
@@ -56,6 +56,22 @@ func NewHandleID(name string, expression string) (rc int) {
 func GetLastTemplateNameByHandle(i int) *C.char {
 	t := handles[i]
 	return C.CString(t.Name())
+}
+
+//export Tree
+func Tree(templateId int) {
+  t := handles[templateId]
+  fmt.Printf("%+v\n", t.Tree)
+  fmt.Printf("%#+v\n", t.Tree.Root)
+  for _, node := range t.Tree.Root.Nodes {
+    fmt.Printf("%#+v\n", node)
+    if (node.Type() == parse.NodeAction) {
+      fmt.Printf("%#+v\n", node.(*parse.ActionNode).Pipe)
+      for _, pipe := range node.(*parse.ActionNode).Pipe.Cmds {
+        fmt.Printf("%#+v\n", pipe.Args)
+      }
+    }
+  }
 }
 
 // https://pkg.go.dev/cmd/cgo#hdr-Go_references_to_C: The C type void* is represented by Go's unsafe.Pointer
@@ -83,6 +99,28 @@ func Execute(templateId int, data *C.ExampleData) *C.char {
   tmpl := handles[templateId]
   var buf strings.Builder
   err := tmpl.Execute(&buf, *data)
+  if err != nil {
+    fmt.Println("Error executing template: ", err)
+    return C.CString("")
+  }
+  return C.CString(buf.String())
+}
+
+//export ExecuteWithValues
+func ExecuteWithValues(templateId int, valuesFilePath string) *C.char {
+  valsMap, err := chartutil.ReadValuesFile(valuesFilePath)
+  if err != nil {
+    fmt.Println("Error reading values file: ", err)
+    return C.CString("")
+  }
+  vals := struct {
+    Values map[string]interface{}
+  }{valsMap}
+  fmt.Println("Values: ", vals)
+
+  tmpl := handles[templateId]
+  var buf strings.Builder
+  err = tmpl.Execute(&buf, vals)
   if err != nil {
     fmt.Println("Error executing template: ", err)
     return C.CString("")

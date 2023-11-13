@@ -1,0 +1,6 @@
+container:
+  port: 9000
+protocol: TCP
+service:
+  annotations:
+    foo: bar

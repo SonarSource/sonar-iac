@@ -23,6 +23,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import java.util.Arrays;
+import org.sonar.iac.helm.jna.library.Template;
 import org.sonar.iac.helm.jna.mapping.ExampleData;
 import org.sonar.iac.helm.jna.mapping.GoSlice;
 import org.sonar.iac.helm.jna.mapping.GoString;
@@ -38,14 +39,6 @@ public class Example {
     void Sort(GoSlice.ByValue vals);
 
     long Log(GoString.ByValue str);
-  }
-
-  public interface Template extends Library {
-    long NewHandleID(GoString.ByValue name, GoString.ByValue expression);
-
-    String GetLastTemplateNameByHandle(long id);
-
-    String Execute(long templateHandle, ExampleData value);
   }
 
   public static void main(String[] args) {
