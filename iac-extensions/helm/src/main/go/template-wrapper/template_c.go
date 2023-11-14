@@ -15,8 +15,9 @@ import (
   "sync"
 //  "unsafe"
   "reflect"
-  "helm.sh/helm/v3/pkg/chartutil"
   "github.com/Masterminds/sprig/v3"
+  "os"
+	"sigs.k8s.io/yaml"
 )
 
 var handles []*template.Template
@@ -74,6 +75,55 @@ func Tree(templateId int) {
   }
 }
 
+//export PrintTree
+func PrintTree(templateId int) *C.char {
+  t := handles[templateId]
+  return C.CString(printTree(t.Tree.Root, 0))
+}
+
+func printTree(node parse.Node, indent int) string {
+  var text string
+	switch n := node.(type) {
+	case nil:
+		text = "nil"
+	case *parse.ActionNode:
+	  text = "ActionNode:\n" + printTree(n.Pipe, indent + 1)
+	case *parse.CommentNode:
+		text = "CommentNode:" + n.Text
+	case *parse.TextNode:
+	  text = fmt.Sprintf("TextNode of %d chars\n", len(n.Text))
+  case *parse.ListNode:
+    var buf strings.Builder
+    buf.WriteString("ListNode:\n")
+    for _, node := range n.Nodes {
+      buf.WriteString(printTree(node, indent + 1))
+    }
+    text = buf.String()
+  case *parse.PipeNode:
+    var buf strings.Builder
+    buf.WriteString("PipeNode:\n")
+    for _, decl := range n.Decl {
+      buf.WriteString(printTree(decl, indent + 1))
+    }
+    for _, cmd := range n.Cmds {
+      buf.WriteString(printTree(cmd, indent + 1))
+    }
+    text = buf.String()
+  case *parse.CommandNode:
+    var buf strings.Builder
+    buf.WriteString("CommandNode:\n")
+    for _, arg := range n.Args {
+      buf.WriteString(printTree(arg, indent + 1))
+    }
+    text = buf.String()
+  case *parse.FieldNode:
+    text = fmt.Sprintf("FieldNode: %#+v\n", n)
+  default:
+    text = fmt.Sprintf("%s: %s\n", node.Type(), node.String())
+  }
+  return strings.Repeat(" ", indent) + text
+}
+
 // https://pkg.go.dev/cmd/cgo#hdr-Go_references_to_C: The C type void* is represented by Go's unsafe.Pointer
 
 // Find a template by its handle and execute it with the given data, returning the result as a string
@@ -106,9 +156,23 @@ func Execute(templateId int, data *C.ExampleData) *C.char {
   return C.CString(buf.String())
 }
 
+func readValuesFile(filename string) (map[string]interface{}, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+
+	vals := map[string]interface{}{}
+	err = yaml.Unmarshal(data, &vals)
+	if len(vals) == 0 {
+	  vals = map[string]interface{}{}
+	}
+	return vals, err
+}
+
 //export ExecuteWithValues
 func ExecuteWithValues(templateId int, valuesFilePath string) *C.char {
-  valsMap, err := chartutil.ReadValuesFile(valuesFilePath)
+  valsMap, err := readValuesFile(valuesFilePath)
   if err != nil {
     fmt.Println("Error reading values file: ", err)
     return C.CString("")

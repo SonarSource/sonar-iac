@@ -23,37 +23,25 @@ public class HelmParser extends YamlParser {
 
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    source = processGoTemplates(source);
-    System.out.println("source after rendering:\n" + source);
+    var templateId = loadGoTemplate(source);
+//    source = renderGoTemplate(templateId);
+//    System.out.println("source after rendering:\n" + source);
 
     var fileTree = super.parse(source, inputFileContext);
 
     return fileTree;
   }
 
-  private String processGoTemplates(String source) {
-    return processGoTemplate(source);
-
-//    return Stream.of(source.split(System.lineSeparator()))
-////      .filter(line -> line.contains("{{") && line.contains("}}"))
-//      .map(line -> {
-//        if (line.contains("{{") && line.contains("}}")) {
-//          var template = line.substring(line.indexOf("{{"), line.indexOf("}}") + 2);
-//          var rendered = processGoTemplate(template);
-//          return line.replace(template, rendered);
-//        } else {
-//          return line;
-//        }
-//      })
-//      .collect(Collectors.joining(System.lineSeparator()));
-  }
-
-  private String processGoTemplate(String template) {
-    System.out.println("Processing template: " + template);
-    var templateId = templateLib.NewHandleID(new GoString.ByValue("gotpl"), new GoString.ByValue(template));
-    templateLib.Tree(templateId);
+  private String renderGoTemplate(long templateId) {
     var rendered = templateLib.ExecuteWithValues(templateId, new GoString.ByValue(valuesFilePath));
     System.out.println("rendered:\n" + rendered);
     return rendered;
+  }
+  private long loadGoTemplate(String template) {
+    System.out.println("Processing template: " + template);
+    var templateId = templateLib.NewHandleID(new GoString.ByValue("gotpl"), new GoString.ByValue(template));
+    System.out.println(templateLib.PrintTree(templateId));
+//    templateLib.Tree(templateId);
+    return templateId;
   }
 }
