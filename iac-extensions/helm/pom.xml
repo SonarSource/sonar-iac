@@ -112,6 +112,38 @@
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <phase>none</phase>
+            <id>compile-protobuf-go</id>
+            <configuration>
+              <arguments>
+                <argument>-I=${project.basedir}/src/main/proto</argument>
+                <argument>--go_out=${project.basedir}/src/main/go</argument>
+                <argument>${project.basedir}/src/main/proto/ast.proto</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>none</phase>
+            <id>compile-protobuf-java</id>
+            <configuration>
+              <arguments>
+                <argument>-I=${project.basedir}/src/main/proto</argument>
+                <argument>--java_out=${project.basedir}/target/generated-sources</argument>
+                <argument>${project.basedir}/src/main/proto/ast.proto</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <executable>protoc</executable>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
