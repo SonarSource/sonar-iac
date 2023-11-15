@@ -8,15 +8,18 @@ typedef struct {
 import "C"
 
 import (
-  "fmt"
-  "strings"
-  "text/template"
-  "text/template/parse"
-  "sync"
-//  "unsafe"
-  "reflect"
-  "github.com/Masterminds/sprig/v3"
-  "os"
+	"fmt"
+	"strings"
+	"sync"
+	"text/template"
+	"text/template/parse"
+
+  "unsafe"
+	"os"
+	"reflect"
+	org_sonarsource_iac_helm "sonarsource/golang-template/org.sonarsource.iac.helm"
+
+	"github.com/Masterminds/sprig/v3"
 	"sigs.k8s.io/yaml"
 )
 
@@ -80,6 +83,21 @@ func PrintTree(templateId int) *C.char {
   t := handles[templateId]
   return C.CString(printTree(t.Tree.Root, 0))
 }
+
+//export SerializeToProtobufBytes
+func SerializeToProtobufBytes(templateId int64) (unsafe.Pointer, C.int) {
+  t := handles[templateId]
+  bytes := org_sonarsource_iac_helm.Marshal(t.Root)
+  return C.CBytes(bytes), C.int(len(bytes))
+}
+
+// can be used to serialize to a file for debugging
+////export SerializeToFile
+// func SerializeToFile(templateId int64) {
+//   t := handles[templateId]
+//   bytes := org_sonarsource_iac_helm.Marshal(t.Root)
+//   os.WriteFile(fmt.Sprintf("tree-%d.pb", templateId), bytes, 0644)
+// }
 
 func printTree(node parse.Node, indent int) string {
   var text string

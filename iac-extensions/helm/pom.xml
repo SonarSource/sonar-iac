@@ -125,7 +125,7 @@
               <arguments>
                 <argument>-I=${project.basedir}/src/main/proto</argument>
                 <argument>-I=${user.home}/go/protobuf/include</argument>
-                <argument>--go_out=${project.basedir}/src/main/go</argument>
+                <argument>--go_out=${project.basedir}/src/main/go/template-wrapper</argument>
                 <argument>${project.basedir}/src/main/proto/ast.proto</argument>
               </arguments>
             </configuration>

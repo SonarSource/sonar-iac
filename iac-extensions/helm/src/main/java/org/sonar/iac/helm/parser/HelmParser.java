@@ -1,5 +1,6 @@
 package org.sonar.iac.helm.parser;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.sun.jna.Native;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -8,6 +9,7 @@ import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.jna.Example;
 import org.sonar.iac.helm.jna.library.Template;
 import org.sonar.iac.helm.jna.mapping.GoString;
+import org.sonarsource.iac.helm.ListNode;
 
 public class HelmParser extends YamlParser {
   private final Template templateLib;
@@ -37,11 +39,17 @@ public class HelmParser extends YamlParser {
     System.out.println("rendered:\n" + rendered);
     return rendered;
   }
+
   private long loadGoTemplate(String template) {
     System.out.println("Processing template: " + template);
     var templateId = templateLib.NewHandleID(new GoString.ByValue("gotpl"), new GoString.ByValue(template));
-    System.out.println(templateLib.PrintTree(templateId));
-//    templateLib.Tree(templateId);
+    var bytes = templateLib.SerializeToProtobufBytes(templateId).getByteArray();
+    try {
+      var list = ListNode.parser().parseFrom(bytes);
+    } catch (InvalidProtocolBufferException e) {
+      throw new RuntimeException(e);
+    }
+//    System.out.println(templateLib.PrintTree(templateId));
     return templateId;
   }
 }
