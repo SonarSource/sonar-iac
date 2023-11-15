@@ -5,6 +5,35 @@ option java_multiple_files = true;
 option java_package = "org.sonarsource.iac.helm";
 option java_outer_classname = "GoTemplateAst";
 
+import "google/protobuf/any.proto";
+
+enum NodeType {
+  NodeUnknown = 0;
+  NodeText = 1;
+  NodeAction = 2;
+  NodeBool = 3;
+  NodeChain = 4;
+  NodeCommand = 5;
+  NodeDot = 6;
+  nodeElse = 7;
+  nodeEnd = 8;
+  NodeField = 9;
+  NodeIdentifier = 10;
+  NodeIf = 11;
+  NodeList = 12;
+  NodeNil = 13;
+  NodeNumber = 14;
+  NodePipe = 15;
+  NodeRange = 16;
+  NodeString = 17;
+  NodeTemplate = 18;
+  NodeVariable = 19;
+  NodeWith = 20;
+  NodeComment = 21;
+  NodeBreak = 22;
+  NodeContinue = 23;
+}
+
 // A Node is an element in the parse tree.
 message Node {
   int64 nodeType = 1;
@@ -63,7 +92,7 @@ message ChainNode {
 message CommandNode {
   int64 nodeType = 1;
   int64 pos = 2;
-  repeated Node args = 3;
+  repeated google.protobuf.Any args = 3;
 }
 
 // CommentNode holds a comment.
@@ -109,9 +138,9 @@ message IfNode {
 
 // ListNode holds a sequence of nodes.
 message ListNode {
-  optional int64 nodeType = 1;
-  optional int64 pos = 2;
-  repeated Node nodes = 3;
+  int64 nodeType = 1;
+  int64 pos = 2;
+  repeated google.protobuf.Any nodes = 3;
 }
 
 // NilNode holds the special identifier 'nil' representing an untyped nil constant.

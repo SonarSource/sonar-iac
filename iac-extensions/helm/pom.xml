@@ -124,6 +124,7 @@
               <executable>protoc</executable>
               <arguments>
                 <argument>-I=${project.basedir}/src/main/proto</argument>
+                <argument>-I=${user.home}/go/protobuf/include</argument>
                 <argument>--go_out=${project.basedir}/src/main/go</argument>
                 <argument>${project.basedir}/src/main/proto/ast.proto</argument>
               </arguments>
@@ -136,6 +137,7 @@
               <executable>protoc</executable>
               <arguments>
                 <argument>-I=${project.basedir}/src/main/proto</argument>
+                <argument>-I=${user.home}/go/protobuf/include</argument>
                 <argument>--java_out=${project.basedir}/target/generated-sources</argument>
                 <argument>${project.basedir}/src/main/proto/ast.proto</argument>
               </arguments>
