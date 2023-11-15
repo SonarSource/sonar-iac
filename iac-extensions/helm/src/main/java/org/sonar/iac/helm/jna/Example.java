@@ -19,53 +19,15 @@
  */
 package org.sonar.iac.helm.jna;
 
-import com.sun.jna.Library;
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import java.util.Arrays;
 import org.sonar.iac.helm.jna.library.Template;
 import org.sonar.iac.helm.jna.mapping.ExampleData;
-import org.sonar.iac.helm.jna.mapping.GoSlice;
 import org.sonar.iac.helm.jna.mapping.GoString;
 
 public class Example {
-  // Mapping for functions from calc.h
-  // which is generated from main.go during `mvn exec:exec`
-  public interface Calc extends Library {
-    long Add(long a, long b);
-
-    double Cosine(double val);
-
-    void Sort(GoSlice.ByValue vals);
-
-    long Log(GoString.ByValue str);
-  }
-
-  public static void main(String[] args) {
+    public static void main(String[] args) {
     var extension = System.getProperty("os.name").toLowerCase().startsWith("win") ? ".dll" : ".so";
-    Calc calc = Native.loadLibrary(
-      Example.class.getResource("/go-calc").getPath(),
-      Calc.class);
-
-    System.out.println("12+99 via JNA Go bridge: " + calc.Add(12, 99));
-    System.out.println("cos(1.0)=" + calc.Cosine(1.0));
-
-    long[] nums = new long[] {53, 11, 5, 2, 88};
-    Memory arr = new Memory(nums.length * Native.getNativeSize(Long.TYPE));
-    arr.write(0, nums, 0, nums.length);
-    GoSlice.ByValue slice = new GoSlice.ByValue();
-    slice.data = arr;
-    slice.len = nums.length;
-    slice.cap = nums.length;
-    calc.Sort(slice);
-    long[] sorted = arr.getLongArray(0, nums.length);
-    System.out.println("Sorted array:" + Arrays.toString(sorted));
-
-    GoString.ByValue str = new GoString.ByValue("Hello Java!");
-    System.out.println("Return code of Log: " + calc.Log(str));
-
     System.out.println("Template test:");
-    // ---
     Template template = Native.loadLibrary(
       Example.class.getResource("/golang-template").getPath(),
       Template.class);

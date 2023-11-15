@@ -90,20 +90,6 @@
         <version>3.1.0</version>
         <executions>
           <execution>
-            <id>compile-go-calc</id>
-            <configuration>
-              <workingDirectory>src/main/go/calc</workingDirectory>
-              <executable>go</executable>
-              <arguments>
-                <argument>build</argument>
-                <argument>-o</argument>
-                <argument>${project.build.directory}/classes</argument>
-                <argument>-buildmode=c-shared</argument>
-                <argument>.</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
             <id>compile-template-wrapper</id>
             <configuration>
               <workingDirectory>src/main/go/template-wrapper</workingDirectory>

@@ -15,7 +15,7 @@ public interface Template extends Library {
 
   SerializeToProtobufBytes_return.ByValue SerializeToProtobufBytes(long id);
 
-//  void SerializeToFile(long id);
+  // void SerializeToFile(long id);
 
   String PrintTree(long id);
 
@@ -27,6 +27,7 @@ public interface Template extends Library {
   public class SerializeToProtobufBytes_return extends Structure {
     public static class ByValue extends SerializeToProtobufBytes_return implements Structure.ByValue {
     }
+
     public Pointer r0;
     public int r1;
 
