@@ -9,6 +9,7 @@ import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.jna.Example;
 import org.sonar.iac.helm.jna.library.Template;
 import org.sonar.iac.helm.jna.mapping.GoString;
+import org.sonarsource.iac.helm.ActionNode;
 import org.sonarsource.iac.helm.ListNode;
 
 public class HelmParser extends YamlParser {
@@ -46,6 +47,9 @@ public class HelmParser extends YamlParser {
     var bytes = templateLib.SerializeToProtobufBytes(templateId).getByteArray();
     try {
       var list = ListNode.parser().parseFrom(bytes);
+      System.out.println("List: " + list);
+      var actionNode = list.getNodes(1).unpack(ActionNode.class);
+      System.out.println("actionNode: " + actionNode);
     } catch (InvalidProtocolBufferException e) {
       throw new RuntimeException(e);
     }

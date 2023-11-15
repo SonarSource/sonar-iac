@@ -134,10 +134,40 @@ func printTree(node parse.Node, indent int) string {
       buf.WriteString(printTree(arg, indent + 1))
     }
     text = buf.String()
+  case *parse.IdentifierNode:
+    text = fmt.Sprintf("IdentifierNode: %#+v\n", n)
+  case *parse.VariableNode:
+    text = fmt.Sprintf("VariableNode: %#+v\n", n)
+  case *parse.ChainNode:
+    text = fmt.Sprintf("ChainNode: %#+v\n", n)
+  case *parse.BoolNode:
+    text = fmt.Sprintf("BoolNode: %#+v\n", n)
+  case *parse.NumberNode:
+    text = fmt.Sprintf("NumberNode: %#+v\n", n)
+  case *parse.StringNode:
+    text = fmt.Sprintf("StringNode: %#+v\n", n)
+//  case *parse.endNode:
+//    text = fmt.Sprintf("endNode: %#+v\n", n)
+//  case *parse.elseNode:
+//    text = fmt.Sprintf("elseNode: %#+v\n", n)
+  case *parse.BranchNode:
+    text = fmt.Sprintf("BranchNode: %#+v\n", n)
+  case *parse.IfNode:
+    text = fmt.Sprintf("IfNode: %#+v\n", n)
+  case *parse.BreakNode:
+    text = fmt.Sprintf("BreakNode: %#+v\n", n)
+  case *parse.ContinueNode:
+    text = fmt.Sprintf("ContinueNode: %#+v\n", n)
+  case *parse.RangeNode:
+    text = fmt.Sprintf("RangeNode: %#+v\n", n)
+  case *parse.WithNode:
+    text = fmt.Sprintf("WithNode: %#+v\n", n)
+  case *parse.TemplateNode:
+    text = fmt.Sprintf("TemplateNode: %#+v\n", n)
   case *parse.FieldNode:
     text = fmt.Sprintf("FieldNode: %#+v\n", n)
   default:
-    text = fmt.Sprintf("%s: %s\n", node.Type(), node.String())
+    text = fmt.Sprintf("default node: %s: %#+v %s\n", node.Type(), node, node.String())
   }
   return strings.Repeat(" ", indent) + text
 }
