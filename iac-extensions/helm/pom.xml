@@ -88,39 +88,35 @@
             <id>compile-go-calc</id>
             <configuration>
               <workingDirectory>src/main/go/calc</workingDirectory>
+              <executable>go</executable>
+              <arguments>
+                <argument>build</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/classes</argument>
+                <argument>-buildmode=c-shared</argument>
+                <argument>.</argument>
+              </arguments>
             </configuration>
           </execution>
           <execution>
             <id>compile-template-wrapper</id>
             <configuration>
               <workingDirectory>src/main/go/template-wrapper</workingDirectory>
+              <executable>go</executable>
+              <arguments>
+                <argument>build</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/classes</argument>
+                <argument>-buildmode=c-shared</argument>
+                <argument>.</argument>
+              </arguments>
             </configuration>
           </execution>
-        </executions>
-        <configuration>
-          <executable>go1.19</executable>
-          <arguments>
-            <argument>build</argument>
-            <argument>-o</argument>
-            <argument>${project.build.directory}/classes</argument>
-            <argument>-buildmode=c-shared</argument>
-            <argument>.</argument>
-          </arguments>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
           <execution>
             <phase>none</phase>
             <id>compile-protobuf-go</id>
             <configuration>
+              <executable>protoc</executable>
               <arguments>
                 <argument>-I=${project.basedir}/src/main/proto</argument>
                 <argument>--go_out=${project.basedir}/src/main/go</argument>
@@ -132,6 +128,7 @@
             <phase>none</phase>
             <id>compile-protobuf-java</id>
             <configuration>
+              <executable>protoc</executable>
               <arguments>
                 <argument>-I=${project.basedir}/src/main/proto</argument>
                 <argument>--java_out=${project.basedir}/target/generated-sources</argument>
@@ -140,9 +137,10 @@
             </configuration>
           </execution>
         </executions>
-        <configuration>
-          <executable>protoc</executable>
-        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
