@@ -18,8 +18,8 @@ import (
 	"os"
 	"reflect"
 	org_sonarsource_iac_helm "sonarsource/golang-template/org.sonarsource.iac.helm"
+  helm_imports "sonarsource/golang-template/helm-imports"
 
-	"github.com/Masterminds/sprig/v3"
 	"sigs.k8s.io/yaml"
 )
 
@@ -45,8 +45,9 @@ func NewHandleID(name string, expression string) (rc int) {
 		}
 	}()
 
-	t, err := template.New(name).Funcs(sprig.FuncMap()).Parse(expression)
-	// log error to console
+	t := template.New(name)
+	t.Funcs(*helm_imports.InitFunMap(t, make(map[string]helm_imports.Renderable, 0)))
+	t, err := t.Parse(expression)
 	if err != nil {
 	  fmt.Println("Error parsing template: ", err)
     return -1

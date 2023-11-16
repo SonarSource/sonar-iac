@@ -9,7 +9,6 @@ import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.jna.Example;
 import org.sonar.iac.helm.jna.library.Template;
 import org.sonar.iac.helm.jna.mapping.GoString;
-import org.sonarsource.iac.helm.ActionNode;
 import org.sonarsource.iac.helm.ListNode;
 
 public class HelmParser extends YamlParser {
@@ -41,19 +40,21 @@ public class HelmParser extends YamlParser {
     return rendered;
   }
 
-  private long loadGoTemplate(String template) {
+  public ListNode loadGoTemplate(String template) {
     System.out.println("Processing template: " + template);
     var templateId = templateLib.NewHandleID(new GoString.ByValue("gotpl"), new GoString.ByValue(template));
+    if (templateId == -1) {
+      throw new RuntimeException("Failed to parse template");
+    }
+
+    System.out.println(templateLib.PrintTree(templateId));
     var bytes = templateLib.SerializeToProtobufBytes(templateId).getByteArray();
     try {
       var list = ListNode.parser().parseFrom(bytes);
       System.out.println("List: " + list);
-      var actionNode = list.getNodes(1).unpack(ActionNode.class);
-      System.out.println("actionNode: " + actionNode);
+      return list;
     } catch (InvalidProtocolBufferException e) {
       throw new RuntimeException(e);
     }
-//    System.out.println(templateLib.PrintTree(templateId));
-    return templateId;
   }
 }
