@@ -64,7 +64,8 @@ func convert(node parse.Node) proto.Message {
     node_pb = convertWithNode(*node.(*parse.WithNode))
   default:
     node_pb = &Node{
-      NodeType: int64(node.Type()),
+      // NodeType duplicates declarations in parse.node, but with Unknown as 0
+      NodeType: (NodeType) (int(node.Type()) + 1),
       Pos: int64(node.Position()),
     }
   }
@@ -73,7 +74,7 @@ func convert(node parse.Node) proto.Message {
 
 func convertActionNode(node parse.ActionNode) proto.Message {
   return &ActionNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeAction,
     Pos: int64(node.Pos),
     Pipe: convertPipeNode(*node.Pipe),
   }
@@ -81,7 +82,7 @@ func convertActionNode(node parse.ActionNode) proto.Message {
 
 func convertBoolNode(node parse.BoolNode) proto.Message {
   return &BoolNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeBool,
     Pos: int64(node.Pos),
     True: node.True,
   }
@@ -95,7 +96,6 @@ func convertBranchNode(node parse.BranchNode) proto.Message {
     elseList = convertListNode(*node.ElseList)
   }
   return &BranchNode{
-    NodeType: int64(node.NodeType),
     Pos: int64(node.Pos),
     Pipe: convertPipeNode(*node.Pipe),
     List: convertListNode(*node.List),
@@ -105,14 +105,14 @@ func convertBranchNode(node parse.BranchNode) proto.Message {
 
 func convertBreakNode(node parse.BreakNode) proto.Message {
   return &BreakNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeBreak,
     Pos: int64(node.Pos),
   }
 }
 
 func convertChainNode(node parse.ChainNode) proto.Message {
   return &ChainNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeChain,
     Pos: int64(node.Pos),
     Field: node.Field,
   }
@@ -125,7 +125,7 @@ func convertCommandNode(node parse.CommandNode) *CommandNode {
     args[i] = any
   }
   return &CommandNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeCommand,
     Pos: int64(node.Pos),
     Args: args,
   }
@@ -133,7 +133,7 @@ func convertCommandNode(node parse.CommandNode) *CommandNode {
 
 func convertCommentNode(node parse.CommentNode) proto.Message {
   return &CommentNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeComment,
     Pos: int64(node.Pos),
     Text: &node.Text,
   }
@@ -141,21 +141,21 @@ func convertCommentNode(node parse.CommentNode) proto.Message {
 
 func convertContinueNode(node parse.ContinueNode) proto.Message {
   return &ContinueNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeContinue,
     Pos: int64(node.Pos),
   }
 }
 
 func convertDotNode(node parse.DotNode) proto.Message {
   return &DotNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeDot,
     Pos: int64(node.Pos),
   }
 }
 
 func convertFieldNode(node parse.FieldNode) proto.Message {
   return &FieldNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeField,
     Pos: int64(node.Pos),
     Ident: node.Ident,
   }
@@ -163,7 +163,7 @@ func convertFieldNode(node parse.FieldNode) proto.Message {
 
 func convertIdentifierNode(node parse.IdentifierNode) proto.Message {
   return &IdentifierNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeIdentifier,
     Pos: int64(node.Pos),
     Ident: &node.Ident,
   }
@@ -171,13 +171,15 @@ func convertIdentifierNode(node parse.IdentifierNode) proto.Message {
 
 func convertIfNode(node parse.IfNode) proto.Message {
   return &IfNode{
+    NodeType: NodeType_NodeIf,
+    Pos: int64(node.Pos),
     BranchNode: convertBranchNode(node.BranchNode).(*BranchNode),
   }
 }
 
 func convertListNode(node parse.ListNode) *ListNode {
   return &ListNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeList,
     Pos: int64(node.Pos),
     Nodes: convertAnyNodeList[parse.Node](node.Nodes),
   }
@@ -185,14 +187,14 @@ func convertListNode(node parse.ListNode) *ListNode {
 
 func convertNilNode(node parse.NilNode) proto.Message {
   return &NilNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeNil,
     Pos: int64(node.Pos),
   }
 }
 
 func convertNumberNode(node parse.NumberNode) proto.Message {
   return &NumberNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeNumber,
     Pos: int64(node.Pos),
     Text: &node.Text,
   }
@@ -208,7 +210,7 @@ func convertPipeNode(node parse.PipeNode) *PipeNode {
     cmds[i] = convertCommandNode(*cmd)
   }
   return &PipeNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodePipe,
     Pos: int64(node.Pos),
     Decl: decls,
     Cmds: cmds,
@@ -217,13 +219,15 @@ func convertPipeNode(node parse.PipeNode) *PipeNode {
 
 func convertRangeNode(node parse.RangeNode) proto.Message {
   return &RangeNode{
+    NodeType: NodeType_NodeRange,
+    Pos: int64(node.Pos),
     BranchNode: convertBranchNode(node.BranchNode).(*BranchNode),
   }
 }
 
 func convertStringNode(node parse.StringNode) proto.Message {
   return &StringNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeString,
     Pos: int64(node.Pos),
     Quoted: &node.Quoted,
     Text: &node.Text,
@@ -232,7 +236,7 @@ func convertStringNode(node parse.StringNode) proto.Message {
 
 func convertTemplateNode(node parse.TemplateNode) proto.Message {
  return &TemplateNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeTemplate,
     Pos: int64(node.Pos),
     Name: &node.Name,
   }
@@ -240,7 +244,7 @@ func convertTemplateNode(node parse.TemplateNode) proto.Message {
 
 func convertTextNode(node parse.TextNode) proto.Message {
   return &TextNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeText,
     Pos: int64(node.Pos),
     Text: node.Text,
   }
@@ -248,7 +252,7 @@ func convertTextNode(node parse.TextNode) proto.Message {
 
 func convertVariableNode(node parse.VariableNode) *VariableNode {
   return &VariableNode{
-    NodeType: int64(node.NodeType),
+    NodeType: NodeType_NodeVariable,
     Pos: int64(node.Pos),
     Ident: node.Ident,
   }
@@ -256,6 +260,8 @@ func convertVariableNode(node parse.VariableNode) *VariableNode {
 
 func convertWithNode(node parse.WithNode) proto.Message {
   return &WithNode{
+    NodeType: NodeType_NodeWith,
+    Pos: int64(node.Pos),
     BranchNode: convertBranchNode(node.BranchNode).(*BranchNode),
   }
 }
