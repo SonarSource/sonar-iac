@@ -2,6 +2,8 @@ package org.sonar.iac.helm.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.sun.jna.Native;
+import java.io.File;
+import java.net.URISyntaxException;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
@@ -19,9 +21,12 @@ public class HelmParser extends YamlParser {
   public HelmParser() {
     super();
 
-    this.templateLib = Native.loadLibrary(
-      Example.class.getResource("/golang-template").getPath(),
-      Template.class);
+    try {
+      String path = new File(Example.class.getResource("/golang-template").toURI()).getPath();
+      this.templateLib = Native.load(path, Template.class);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
