@@ -219,12 +219,21 @@ func readValuesFile(filename string) (map[string]interface{}, error) {
 	return vals, err
 }
 
+type ListeningBuilder struct {
+  strings.Builder
+  Offsets []int
+}
+func (b *ListeningBuilder) Write(p []byte) (int, error) {
+  b.Offsets = append(b.Offsets, len(b.String()))
+  return b.Builder.Write(p)
+}
+
 //export ExecuteWithValues
-func ExecuteWithValues(templateId int, valuesFilePath string) *C.char {
+func ExecuteWithValues(templateId int, valuesFilePath string) (*C.char, unsafe.Pointer, int) {
   valsMap, err := readValuesFile(valuesFilePath)
   if err != nil {
     fmt.Println("Error reading values file: ", err)
-    return C.CString("")
+    return C.CString(""), nil, 0
   }
   vals := struct {
     Values map[string]interface{}
@@ -232,13 +241,23 @@ func ExecuteWithValues(templateId int, valuesFilePath string) *C.char {
   fmt.Println("Values: ", vals)
 
   tmpl := handles[templateId]
-  var buf strings.Builder
+
+  var buf ListeningBuilder
   err = tmpl.Execute(&buf, vals)
   if err != nil {
     fmt.Println("Error executing template: ", err)
-    return C.CString("")
+    return C.CString(""), nil, 0
   }
-  return C.CString(buf.String())
+  fmt.Println("Offsets: ", buf.Offsets)
+  // convert buf.Offsets to []byte
+  bytes := make([]byte, len(buf.Offsets) * 4)
+  for i, offset := range buf.Offsets {
+    bytes[i * 4] = byte(offset)
+    bytes[i * 4 + 1] = byte(offset >> 8)
+    bytes[i * 4 + 2] = byte(offset >> 16)
+    bytes[i * 4 + 3] = byte(offset >> 24)
+  }
+  return C.CString(buf.String()), C.CBytes(bytes), len(bytes)
 }
 
 // function Execute that accepts data as any type

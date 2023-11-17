@@ -4,6 +4,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.sun.jna.Native;
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
@@ -16,6 +19,7 @@ import org.sonarsource.iac.helm.ListNode;
 public class HelmParser extends YamlParser {
   private final Template templateLib;
   private final String valuesFilePath = Thread.currentThread().getContextClassLoader().getResource("values.yaml").getPath();
+  private final Map<Long, ListNode> templateIdToAst = new HashMap<>();
 
   public HelmParser() {
     super();
@@ -31,8 +35,8 @@ public class HelmParser extends YamlParser {
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
     var templateId = loadGoTemplate(source);
-//    source = renderGoTemplate(templateId);
-//    System.out.println("source after rendering:\n" + source);
+    source = renderGoTemplate(templateId);
+    // System.out.println("source after rendering:\n" + source);
 
     var fileTree = super.parse(source, inputFileContext);
 
@@ -40,12 +44,15 @@ public class HelmParser extends YamlParser {
   }
 
   private String renderGoTemplate(long templateId) {
-    var rendered = templateLib.ExecuteWithValues(templateId, new GoString.ByValue(valuesFilePath));
+    var obj = templateLib.ExecuteWithValues(templateId, new GoString.ByValue(valuesFilePath));
+    var rendered = obj.r0;
+    var offsets = obj.r1.getIntArray(0, obj.r2 / 4);
     System.out.println("rendered:\n" + rendered);
+    System.out.println("Offsets of rendered templates: " + Arrays.toString(offsets));
     return rendered;
   }
 
-  public ListNode loadGoTemplate(String template) {
+  public long loadGoTemplate(String template) {
     System.out.println("Processing template: " + template);
     var templateId = templateLib.NewHandleID(new GoString.ByValue("gotpl"), new GoString.ByValue(template));
     if (templateId == -1) {
@@ -57,9 +64,14 @@ public class HelmParser extends YamlParser {
     try {
       var list = ListNode.parser().parseFrom(bytes);
       System.out.println("List: " + list);
-      return list;
+      templateIdToAst.put(templateId, list);
+      return templateId;
     } catch (InvalidProtocolBufferException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public ListNode getAst(long templateId) {
+    return templateIdToAst.get(templateId);
   }
 }

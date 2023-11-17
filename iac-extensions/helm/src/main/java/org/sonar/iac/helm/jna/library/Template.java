@@ -21,7 +21,7 @@ public interface Template extends Library {
 
   String Execute(long templateHandle, ExampleData value);
 
-  String ExecuteWithValues(long templateHandle, GoString.ByValue valuesFilePath);
+  ExecuteWithValues_return.ByValue ExecuteWithValues(long templateHandle, GoString.ByValue valuesFilePath);
 
   @Structure.FieldOrder({"r0", "r1"})
   public class SerializeToProtobufBytes_return extends Structure {
@@ -34,5 +34,15 @@ public interface Template extends Library {
     public byte[] getByteArray() {
       return r0.getByteArray(0, r1);
     }
+  }
+
+  @Structure.FieldOrder({"r0", "r1", "r2"})
+  public class ExecuteWithValues_return extends Structure {
+    public static class ByValue extends ExecuteWithValues_return implements Structure.ByValue {
+    }
+
+    public String r0;
+    public Pointer r1;
+    public int r2;
   }
 }

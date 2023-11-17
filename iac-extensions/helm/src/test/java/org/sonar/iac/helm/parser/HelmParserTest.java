@@ -15,9 +15,11 @@ class HelmParserTest {
     "L1M5.yaml",
   })
   void shouldBuildAndLoadAst(String filename) throws IOException {
-    var listNode = new HelmParser().loadGoTemplate(
+    var helmParser = new HelmParser();
+    var templateId = helmParser.loadGoTemplate(
       new String(
         Thread.currentThread().getContextClassLoader().getResourceAsStream(filename).readAllBytes()));
+    var listNode = helmParser.getAst(templateId);
 
     Assertions.assertThat(listNode).isNotNull();
   }
