@@ -34,6 +34,9 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 
@@ -55,6 +58,11 @@ public class KubernetesSensor extends YamlSensor {
     descriptor
       .onlyOnLanguages(YAML_LANGUAGE_KEY)
       .name("IaC " + language.getName() + " Sensor");
+  }
+
+  @Override
+  protected TreeParser<Tree> treeParser() {
+    return new KubernetesParser();
   }
 
   @Override
@@ -81,39 +89,25 @@ public class KubernetesSensor extends YamlSensor {
     return new KubernetesFilePredicate();
   }
 
-  static class KubernetesFilePredicate implements FilePredicate {
+  @Override
+  protected InputFileContext buildInputFileContext(SensorContext sensorContext, InputFile inputFile) {
+    return new KubernetesInputFileContext(sensorContext, inputFile, new HelmDetector().process(inputFile));
+  }
 
+  abstract static class AbstractFileProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractFileProcessor.class);
     private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
-
-    // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
-    private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata", "spec");
-    private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
-    @Override
-    public boolean apply(InputFile inputFile) {
-      return hasKubernetesObjectStructure(inputFile);
-    }
-
-    private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
-      int identifierCount = 0;
-      boolean hasExpectedIdentifier = false;
-      try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
+    public boolean process(InputFile inputFile) {
+      try (var bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
         // Only firs 8k bytes is read to avoid slow execution for big one-line files
         byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
-        String text = new String(bytes, inputFile.charset());
+        var text = new String(bytes, inputFile.charset());
         String[] lines = LINE_TERMINATOR.split(text);
         for (String line : lines) {
-          if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
-            identifierCount++;
-          } else if (FILE_SEPERATOR.equals(line)) {
-            identifierCount = 0;
-          } else if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
-            LOG.debug("Line contains Helm Chart directive, file will not be analyzed.\n{}", line);
-            return false;
-          }
-          if (identifierCount == 4) {
-            hasExpectedIdentifier = true;
+          if (processLine(line)) {
+            return true;
           }
         }
       } catch (IOException e) {
@@ -121,12 +115,45 @@ public class KubernetesSensor extends YamlSensor {
         LOG.error(e.getMessage());
       }
 
-      if (hasExpectedIdentifier) {
+      return false;
+    }
+
+    public abstract boolean processLine(String line);
+  }
+
+  static final class HelmDetector extends AbstractFileProcessor {
+    @Override
+    public boolean processLine(String line) {
+      return line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find();
+    }
+  }
+
+  static final class KubernetesFilePredicate extends AbstractFileProcessor implements FilePredicate {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
+    private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata", "spec");
+    private int identifierCount;
+
+    @Override
+    public boolean apply(InputFile inputFile) {
+      identifierCount = 0;
+      if (process(inputFile)) {
         return true;
       } else {
         LOG.debug("File without Kubernetes identifier: {}", inputFile.uri());
         return false;
       }
+    }
+
+    @Override
+    public boolean processLine(String line) {
+      if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
+        identifierCount++;
+      } else if (FILE_SEPERATOR.equals(line)) {
+        identifierCount = 0;
+      }
+      return identifierCount == IDENTIFIER.size();
     }
   }
 }

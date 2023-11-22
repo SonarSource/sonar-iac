@@ -51,7 +51,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseYamlFileWithHelmChartTemplate() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
-    assertNotSourceFileIsParsed();
+    assertOneSourceFileIsParsed();
+
+    var logs = logTester.logs(Level.DEBUG);
+    assertThat(logs.get(0)).isEqualTo("Helm content detected in File 'k8.yaml'");
+
+    // TODO SONARIAC-1164 Once helm support is added, ensure this test does not throw a ParseException
   }
 
   @Test
@@ -105,7 +110,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseYamlFileWithHelmTemplateDirectives() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "{{ .Values.count }}"));
-    assertNotSourceFileIsParsed();
+    assertOneSourceFileIsParsed();
+
+    var logs = logTester.logs(Level.DEBUG);
+    assertThat(logs.get(0)).isEqualTo("Helm content detected in File 'k8.yaml'");
+    // TODO SONARIAC-1164 Once helm support is added, ensure this test does not throw a ParseException
   }
 
   @Test
@@ -128,6 +137,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldParseYamlFileWithHelmTemplateDirectives(String content) {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + content));
     assertOneSourceFileIsParsed();
+    // TODO SONARIAC-1164 Once helm support is added, ensure this test does not throw a ParseException
   }
 
   /**
