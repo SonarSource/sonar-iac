@@ -82,12 +82,11 @@ compile_binaries() {
   # Install the proper go version
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
-  # Build
-  bash -c "${path_to_binary} run generate_source.go"
-  bash -c "GOOS=darwin GOARCH=amd64 ${path_to_binary} build -o build/sonar-go-to-slang-darwin-amd64"
-  bash -c "GOOS=darwin GOARCH=arm64 ${path_to_binary} build -o build/sonar-go-to-slang-darwin-arm64"
-  bash -c "GOOS=linux GOARCH=amd64 ${path_to_binary} build -o build/sonar-go-to-slang-linux-amd64"
-  bash -c "GOOS=windows GOARCH=amd64 ${path_to_binary} build -o build/sonar-go-to-slang-windows-amd64.exe"
+  # Saving files in target/classes include files in JAR out of the box
+  bash -c "GOOS=darwin GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-darwin-amd64"
+  bash -c "GOOS=darwin GOARCH=arm64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-darwin-arm64"
+  bash -c "GOOS=linux GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-linux-amd64"
+  bash -c "GOOS=windows GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-windows-amd64.exe"
 }
 
 generate_test_report() {
@@ -95,13 +94,13 @@ generate_test_report() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
   # Test
-  bash -c "${path_to_binary} test -json > test-report.out"
+  bash -c "${path_to_binary} test -json > target/test-report.out"
 }
 
 
 main() {
   if [[ "${#}" -ne 1 ]]; then
-    echo "Usage: ${0} build | clean | generate-test-report"
+    echo "Usage: ${0} build | clean | test"
     exit 0
   fi
   local command="${1}"
@@ -109,12 +108,11 @@ main() {
     build)
       compile_binaries
       ;;
-    generate-test-report)
+    test)
       generate_test_report
       ;;
     clean)
-      rm -f goparser_generated.go
-      rm -f build/sonar-go-to-slang-*
+      rm -f target/classes/sonar-helm-for-iac-*
       rm -f test-report.out
       ;;
     *)
