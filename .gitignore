@@ -39,3 +39,6 @@ Desktop.ini
 
 # ---- RSPEC
 *rule-api*
+
+# In case of manual Go compilation
+sonar-helm-for-iac/sonar-helm-for-iac

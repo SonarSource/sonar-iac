@@ -13,10 +13,6 @@
 
   <name>SonarSource IaC Analyzer :: Sonar Helm for IaC</name>
 
-  <dependencies>
-
-  </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -31,9 +27,8 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>sh</executable>
+              <executable>${script.command}</executable>
               <arguments>
-                <argument>make.sh</argument>
                 <argument>build</argument>
               </arguments>
             </configuration>
@@ -42,9 +37,8 @@
             <id>clean-go-code</id>
             <phase>clean</phase>
             <configuration>
-              <executable>sh</executable>
+              <executable>make.sh</executable>
               <arguments>
-                <argument>make.sh</argument>
                 <argument>clean</argument>
               </arguments>
             </configuration>
@@ -56,9 +50,8 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>sh</executable>
+              <executable>make.sh</executable>
               <arguments>
-                <argument>make.sh</argument>
                 <argument>test</argument>
               </arguments>
             </configuration>
@@ -72,4 +65,28 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>Windows</id>
+      <activation>
+        <os>
+          <family>Windows</family>
+        </os>
+      </activation>
+      <properties>
+        <script.command>make.bat</script.command>
+      </properties>
+    </profile>
+    <profile>
+      <id>unix</id>
+      <activation>
+        <os>
+          <family>unix</family>
+        </os>
+      </activation>
+      <properties>
+        <script.command>./make.sh</script.command>
+      </properties>
+    </profile>
+  </profiles>
 </project>

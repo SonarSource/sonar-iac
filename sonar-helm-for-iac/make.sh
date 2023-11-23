@@ -44,8 +44,8 @@ install_go() {
 
   local go_version="${1}"
   local go_binary
-
   local go_in_path
+
   go_in_path=$(command -v go)
   if [[ -n "${go_in_path}" ]]; then
     if is_go_binary_the_expected_version "${go_in_path}" "${go_version}"; then
