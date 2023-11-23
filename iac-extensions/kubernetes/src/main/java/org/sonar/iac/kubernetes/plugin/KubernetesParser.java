@@ -46,9 +46,9 @@ public class KubernetesParser extends YamlParser {
       if (inputFileContext != null) {
         filename = inputFileContext.inputFile.filename();
       }
-      LOG.debug("Helm content detected in File '{}'", filename);
+      LOG.debug("Helm content detected in file '{}'", filename);
       LOG.debug("The content will not be processed.");
-      // TODO process the helm content of this kubernete file + process the result
+      // TODO SONARIAC-1150 process the helm content of this kubernete file + process the result
       return super.parse("{}", inputFileContext);
     }
     return super.parse(source, inputFileContext);

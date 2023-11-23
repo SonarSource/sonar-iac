@@ -54,7 +54,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs.get(0)).isEqualTo("Helm content detected in File 'k8.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'k8.yaml'");
   }
 
   @Test
@@ -111,7 +111,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs.get(0)).isEqualTo("Helm content detected in File 'k8.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'k8.yaml'");
   }
 
   @Test

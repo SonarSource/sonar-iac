@@ -53,7 +53,7 @@ class KubernetesParserTest {
     assertThat(file.documents().get(0).children()).isEmpty();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs.get(0)).isEqualTo("Helm content detected in File 'foo.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'foo.yaml'");
   }
 
   @Test
@@ -63,7 +63,7 @@ class KubernetesParserTest {
     assertThat(file.documents().get(0).children()).isEmpty();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs.get(0)).isEqualTo("Helm content detected in File ''");
+    assertThat(logs).contains("Helm content detected in file ''");
   }
 
   @Test
@@ -71,6 +71,9 @@ class KubernetesParserTest {
     FileTree file = parser.parse("foo: {bar: 1234}", inputFileContext);
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isNotEmpty();
+
+    var logs = logTester.logs(Level.DEBUG);
+    assertThat(logs).isEmpty();
   }
 
 }
