@@ -1,11 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-REM set "-euox" "pipefail"
-SET GO_VERSION=1.21.1
-SET DEFAULT_GO_BINARY_DIRECTORY="%GOPATH%/go}/bin"
-SET DEFAULT_GO_BINARY="%DEFAULT_GO_BINARY_DIRECTORY%/go"
-REM CALL :main "%@%"
+CALL :go_installed_check
 CALL :main %*
 
 EXIT /B %ERRORLEVEL%
@@ -17,6 +13,14 @@ EXIT /B 0
 :generate_test_report
 go test -json > target/test-report.out
 EXIT /B 0
+
+:go_install_check
+WHERE /q gob
+IF ERRORLEVEL 1 (
+    ECHO go is not installed
+    EXIT "1"
+)
+EXIT /B
 
 :main
 set argC=0
