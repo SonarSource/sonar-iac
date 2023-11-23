@@ -7,11 +7,26 @@ CALL :main %*
 EXIT /B %ERRORLEVEL%
 
 :compile_binaries
-go build -o target/classes/sonar-helm-for-iac-windows-amd64.exe
+SET GOOS=darwin
+SET GOARCH=amd64
+CALL go build -o target/classes/sonar-helm-for-iac-darwin-amd64
+
+SET GOOS=darwin
+SET GOARCH=arm64
+CALL go build -o target/classes/sonar-helm-for-iac-darwin-arm64
+
+SET GOOS=linux
+SET GOARCH=amd64
+CALL go build -o target/classes/sonar-helm-for-iac-linux-amd64
+
+SET GOOS=windows
+SET GOARCH=amd64
+CALL go build -o target/classes/sonar-helm-for-iac-windows-amd64.exe
+
 EXIT /B 0
 
 :generate_test_report
-go test -json > target/test-report.out
+CALL go test -json > target/test-report.out
 EXIT /B 0
 
 :go_install_check
@@ -35,8 +50,8 @@ IF "%~1%" == "build" (
 ) ELSE IF "%~1%"=="test" (
   CALL :generate_test_report
 ) ELSE IF "%~1%"=="clean" (
-  DEL  "target/classes/sonar-helm-for-iac-*"
-  DEL  "test-report.out"
+  DEL "target\classes\sonar-helm-for-iac-*"
+  DEL "test-report.out"
 ) ELSE (
   echo "Unrecognized command %~1%"
   exit "1"

@@ -118,8 +118,11 @@ qa_os_win_task:
   maven_cache:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
+  _lib:
+    - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
   build_script:
     - choco install golang --version 1.21.1
+    - *refreshpath
     - source cirrus-env CI
     - mvn.cmd clean verify
 
