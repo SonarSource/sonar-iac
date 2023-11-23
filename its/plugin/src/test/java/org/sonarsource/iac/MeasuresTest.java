@@ -34,7 +34,7 @@ class MeasuresTest extends TestBase {
   @CsvSource({
     "cloudformationYamlMeasures, cloudformation, file1.yaml, 2, 5, 1, 1=1;4=1;5=1;6=1;7=1",
     "cloudformationJsonMeasures, cloudformation, file1.json, 2, 9, 0, 1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;9=1",
-    "kubernetesYamlMeasures, kubernetes, file_with_indicators.yml, 1, 10, 1, 1=1;2=1;3=1;4=1;5=1;7=1;8=1;9=1;10=1;11=1",
+    "kubernetesYamlMeasures, kubernetes, file_with_indicators.yml, 2, 10, 1, 1=1;2=1;3=1;4=1;5=1;7=1;8=1;9=1;10=1;11=1",
     "dockerMeasures, docker, Dockerfile, 1, 7, 1, 2=1;3=1;4=1;5=1;6=1;7=1;8=1",
   })
   void testMeasures(String projectKey, String languageKey, String file, int expectedFiles, int expectedNcloc, int expectedCommentLines, String expectedNclocData) {
