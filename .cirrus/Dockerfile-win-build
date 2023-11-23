@@ -1,0 +1,4 @@
+FROM base-windows-jdk17-v*
+
+RUN choco install golang --version 1.21.1
+
