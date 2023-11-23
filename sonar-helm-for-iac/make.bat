@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-CALL :go_installed_check
+CALL :go_install_check
 CALL :main %*
 
 EXIT /B %ERRORLEVEL%
@@ -15,7 +15,7 @@ go test -json > target/test-report.out
 EXIT /B 0
 
 :go_install_check
-WHERE /q gob
+WHERE /q go
 IF ERRORLEVEL 1 (
     ECHO go is not installed
     EXIT "1"
