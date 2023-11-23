@@ -20,11 +20,15 @@
 package org.sonar.iac.terraform.checks.azure;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
+import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
@@ -83,10 +87,16 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
         .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE));
 
     register("azurerm_application_insights",
-      resource -> Set.of("internet_ingestion_enabled", "internet_query_enabled").forEach(
-        attribute -> resource.attribute(attribute)
-          .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE)
-          .reportIfAbsent(OMITTING_MESSAGE)));
+      resource -> {
+        List<AttributeSymbol> attributes = Stream.of("internet_ingestion_enabled", "internet_query_enabled").map(resource::attribute).collect(Collectors.toList());
+        if (attributes.stream().allMatch(ContextualTree::isAbsent)) {
+          resource.report(String.format(OMITTING_MESSAGE, "internet_ingestion_enabled\" and \"internet_query_enabled"));
+        } else {
+          attributes.forEach(attribute -> attribute
+            .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE)
+            .reportIfAbsent(OMITTING_MESSAGE));
+        }
+      });
 
     register("azurerm_sql_managed_instance",
       resource -> resource.attribute("public_data_endpoint_enabled")
