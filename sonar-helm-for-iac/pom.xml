@@ -31,8 +31,9 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>make.sh</executable>
+              <executable>sh</executable>
               <arguments>
+                <argument>make.sh</argument>
                 <argument>build</argument>
               </arguments>
             </configuration>
@@ -41,8 +42,9 @@
             <id>clean-go-code</id>
             <phase>clean</phase>
             <configuration>
-              <executable>make.sh</executable>
+              <executable>sh</executable>
               <arguments>
+                <argument>make.sh</argument>
                 <argument>clean</argument>
               </arguments>
             </configuration>
@@ -54,8 +56,9 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>make.sh</executable>
+              <executable>sh</executable>
               <arguments>
+                <argument>make.sh</argument>
                 <argument>test</argument>
               </arguments>
             </configuration>
