@@ -13,6 +13,15 @@
 
   <name>SonarSource IaC Analyzer :: Sonar Helm for IaC</name>
 
+  <properties>
+    <sonar.sources>.</sonar.sources>
+    <sonar.inclusions>**/*.go</sonar.inclusions>
+    <sonar.exclusions>**/target/**</sonar.exclusions>
+    <sonar.tests>.</sonar.tests>
+    <sonar.test.inclusions>**/*_test.go</sonar.test.inclusions>
+    <sonar.go.tests.reportPaths>target/test-report.out</sonar.go.tests.reportPaths>
+  </properties>
+
   <build>
     <plugins>
       <plugin>

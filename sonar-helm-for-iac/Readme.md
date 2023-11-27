@@ -44,3 +44,11 @@ go test
 ```shell
 sonar-helm-for-iac.exe
 ```
+
+## Tricks and tips
+
+### missing go.sum entry for module providing package
+
+```shell
+go mod tidy
+```
