@@ -34,16 +34,12 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 
 public class KubernetesSensor extends YamlSensor {
-  private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
-  private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
-  private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
-  private static final String CODEFRESH_VARIABLES = "\\{\\{[\\w\\s]+}}";
-  private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("(" +
-    String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language) {
@@ -55,6 +51,11 @@ public class KubernetesSensor extends YamlSensor {
     descriptor
       .onlyOnLanguages(YAML_LANGUAGE_KEY)
       .name("IaC " + language.getName() + " Sensor");
+  }
+
+  @Override
+  protected TreeParser<Tree> treeParser() {
+    return new KubernetesParser();
   }
 
   @Override
@@ -106,11 +107,8 @@ public class KubernetesSensor extends YamlSensor {
         for (String line : lines) {
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
             identifierCount++;
-          } else if (FILE_SEPERATOR.equals(line)) {
+          } else if (FILE_SEPARATOR.equals(line)) {
             identifierCount = 0;
-          } else if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
-            LOG.debug("Line contains Helm Chart directive, file will not be analyzed.\n{}", line);
-            return false;
           }
           if (identifierCount == 4) {
             hasExpectedIdentifier = true;
