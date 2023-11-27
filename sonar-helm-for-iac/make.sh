@@ -78,6 +78,27 @@ install_go() {
   echo "${go_binary}"
 }
 
+verifyLicenseHeader() {
+  echo "Verify License Header"
+  hasAllLicenseHeader=0
+  for file in *.go; do
+    [ -f "$file" ] || continue
+    IFS= read -r line < "$file" || [ -n "$line" ] || continue
+    case $line in
+      ("// SonarQube IaC Plugin"*)
+        ;;
+      *)
+        printf 'No license header: %s\n' "$file"
+        hasAllLicenseHeader=1
+        ;;
+    esac
+  done
+  if [[ hasAllLicenseHeader -eq 1 ]]; then
+    printf 'Please fix license headers'
+    exit 1;
+  fi
+}
+
 compile_binaries() {
   # Install the proper go version
   local path_to_binary
@@ -87,6 +108,7 @@ compile_binaries() {
   bash -c "GOOS=darwin GOARCH=arm64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-darwin-arm64"
   bash -c "GOOS=linux GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-linux-amd64"
   bash -c "GOOS=windows GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-windows-amd64.exe"
+  verifyLicenseHeader
 }
 
 generate_test_report() {
