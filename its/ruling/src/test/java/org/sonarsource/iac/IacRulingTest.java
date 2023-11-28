@@ -45,7 +45,6 @@ class IacRulingTest {
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String LITS_VERSION = "0.11.0.2659";
-  private static final String SONAR_CONFIG_VERSION = "DEV";
   private static final String SCANNER_VERSION = "5.0.1.3006";
 
   @RegisterExtension
@@ -54,7 +53,6 @@ class IacRulingTest {
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-iac-plugin/target"), "sonar-iac-plugin-*.jar"))
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
-    .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", SONAR_CONFIG_VERSION))
     .build();
 
   private static final boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
