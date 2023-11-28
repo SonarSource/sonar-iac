@@ -41,16 +41,14 @@ func EvaluateTemplate(path string, content string, valuesFileContent string) *C.
 // For tests, the C code doesn't work in tests
 func evaluateTemplateInternal(path string, content string, valuesFileContent string) string {
 	templateId := newHandleID(path, content)
+	if templateId == -1 {
+		return "{}"
+	}
 	return executeWithValues(templateId, valuesFileContent)
 }
 
 // Create a template with name and expression and return its handle (a numeric ID to access the template later)
 func newHandleID(name string, content string) (rc int) {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println("panic occurred: ", err)
-		}
-	}()
 
 	t := template.New(name)
 	t.Funcs(*addCustomFunctions())
@@ -68,7 +66,7 @@ func executeWithValues(templateId int, valuesFilePath string) string {
 	valuesMap, err := yamlToMap(valuesFilePath)
 	if err != nil {
 		fmt.Println("Error reading values file: ", err)
-		return ""
+		return "{}"
 	}
 	vals := struct {
 		Values map[string]interface{}
@@ -79,7 +77,7 @@ func executeWithValues(templateId int, valuesFilePath string) string {
 	err = tmpl.Execute(&buf, vals)
 	if err != nil {
 		fmt.Println("Error executing template: ", err)
-		return ""
+		return "{}"
 	}
 	return buf.String()
 }

@@ -24,6 +24,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_call_main(t *testing.T) {
+	main()
+}
+
 func Test_evaluate_template(t *testing.T) {
 	template := `
 apiVersion: v1
@@ -65,6 +69,31 @@ spec:
 	assert.Equal(t, expected, result)
 }
 
+func Test_evaluate_template_missing_value(t *testing.T) {
+	template := `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: {{ .Values.container.port }}
+          protocol: TCP
+`
+
+	values := `
+container: foo
+`
+
+	result := evaluateTemplateInternal("a.yaml", template, values)
+
+	assert.Equal(t, "{}", result)
+}
+
 func Test_evaluate_template_containing_sprig_functions(t *testing.T) {
 	template := `
 apiVersion: v1
@@ -81,8 +110,6 @@ spec:
           protocol: {{ upper "tcp" }}
 `
 
-	values := ""
-
 	expected := `
 apiVersion: v1
 kind: Pod
@@ -98,7 +125,7 @@ spec:
           protocol: TCP
 `
 
-	result := evaluateTemplateInternal("a.yaml", template, values)
+	result := evaluateTemplateInternal("a.yaml", template, "")
 
 	assert.Equal(t, expected, result)
 }
@@ -119,8 +146,6 @@ spec:
           protocol: TCP
 `
 
-	values := ""
-
 	expected := `
 apiVersion: v1
 kind: Pod
@@ -136,7 +161,28 @@ spec:
           protocol: TCP
 `
 
-	result := evaluateTemplateInternal("a.yaml", template, values)
+	result := evaluateTemplateInternal("a.yaml", template, "")
 
 	assert.Equal(t, expected, result)
+}
+
+func Test_evaluate_invalid_template(t *testing.T) {
+	template := `
+apiVersion: {{ hello
+`
+	result := evaluateTemplateInternal("a.yaml", template, "")
+
+	assert.Equal(t, "{}", result)
+}
+func Test_evaluate_invalid_values(t *testing.T) {
+	template := `
+apiVersion: v1
+`
+	values := `
+foo: bar: baz
+`
+
+	result := evaluateTemplateInternal("a.yaml", template, values)
+
+	assert.Equal(t, "{}", result)
 }
