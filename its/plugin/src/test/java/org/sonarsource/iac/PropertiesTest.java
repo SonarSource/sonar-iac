@@ -68,6 +68,28 @@ class PropertiesTest extends TestBase {
     executeBuildAndAssertMetric(projectKey, "docker", "patterns", patterns, "files", expectedFiles);
   }
 
+  @ParameterizedTest
+  @CsvSource(delimiter = ';', value = {
+    "jsonDefaultSuffix; json; ''; 9",
+    "jsonCustomSuffix; json; .jsn; 9",
+    "jsonExtendedSuffix; json; .json,.jsn; 18"
+  })
+  void testJsonSuffix(String projectKey, String language, String suffixes, int expectedNcloc) {
+    // Since json language itself wouldn't publish files, we analyze json files that get picked up by cloudformation sensor
+    executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiter = ';', value = {
+    "yamlDefaultSuffix; yaml; ''; 10",
+    "yamlCustomSuffix; yaml; .rml; 5",
+    "yamlExtendedSuffix; yaml; .yml,.yaml,.rml; 15"
+  })
+  void testYamlSuffix(String projectKey, String language, String suffixes, int expectedNcloc) {
+    // Since yaml lanuage itself wouldn't publish files, we analyze yaml files that get picked up by cloudformation sensor
+    executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
+  }
+
   private void executeBuildAndAssertMetric(
     String projectKey, String language,
     String propertySuffix, String propertyValue,

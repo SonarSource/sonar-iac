@@ -17,29 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.common.yaml;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class YamlBuiltInProfileDefinition implements BuiltInQualityProfilesDefinition {
 
-class IacPluginTest {
+  private static final String PROFILE_NAME = "Sonar way";
 
-  private static final Version VERSION_8_9 = Version.create(8, 9);
-
-  private final IacPlugin iacPlugin = new IacPlugin();
-
-  @Test
-  void sonarqubeExtensionsShouldBeDefined() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(46);
+  @Override
+  public void define(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, YamlLanguage.KEY);
+    profile.setDefault(true);
+    profile.done();
   }
+
 }

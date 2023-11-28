@@ -1,0 +1,6 @@
+data:
+  handler: sub/handler.test4
+  events:
+    - http:
+        path: /test4
+        method: get
