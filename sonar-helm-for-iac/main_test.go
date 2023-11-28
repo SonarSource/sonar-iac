@@ -62,7 +62,7 @@ spec:
 
 	result := evaluateTemplateInternal("a.yaml", template, values)
 
-	assert.Equal(t, result, expected)
+	assert.Equal(t, expected, result)
 }
 
 func Test_evaluate_template_containing_sprig_functions(t *testing.T) {
@@ -100,5 +100,43 @@ spec:
 
 	result := evaluateTemplateInternal("a.yaml", template, values)
 
-	assert.Equal(t, result, expected)
+	assert.Equal(t, expected, result)
+}
+
+func Test_evaluate_template_extra_functions(t *testing.T) {
+	template := `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: {{ lookup "v1" "Pod" "mynamespace" "mypod" }}
+      ports:
+        - name: web
+          containerPort:{{ getHostByName "www.google.com" }}
+          protocol: TCP
+`
+
+	values := ""
+
+	expected := `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: map[]
+      ports:
+        - name: web
+          containerPort:
+          protocol: TCP
+`
+
+	result := evaluateTemplateInternal("a.yaml", template, values)
+
+	assert.Equal(t, expected, result)
 }
