@@ -7,18 +7,6 @@ CALL :main %*
 EXIT /B %ERRORLEVEL%
 
 :compile_binaries
-SET GOOS=darwin
-SET GOARCH=amd64
-CALL go build -o target/classes/sonar-helm-for-iac-darwin-amd64
-
-SET GOOS=darwin
-SET GOARCH=arm64
-CALL go build -o target/classes/sonar-helm-for-iac-darwin-arm64
-
-SET GOOS=linux
-SET GOARCH=amd64
-CALL go build -o target/classes/sonar-helm-for-iac-linux-amd64
-
 SET GOOS=windows
 SET GOARCH=amd64
 CALL go build -o target/classes/sonar-helm-for-iac-windows-amd64.exe

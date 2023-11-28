@@ -103,11 +103,41 @@ compile_binaries() {
   # Install the proper go version
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
-  # Saving files in target/classes include files in JAR out of the box
-  bash -c "GOOS=darwin GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-darwin-amd64"
-  bash -c "GOOS=darwin GOARCH=arm64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-darwin-arm64"
-  bash -c "GOOS=linux GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-linux-amd64"
-  bash -c "GOOS=windows GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-windows-amd64.exe"
+
+  # Note: CGO_ENABLED is required to build with CGO, which is activated by `import "C"` in Go sources.
+  # Note: Saving files in target/classes include files in JAR out of the box.
+  # Note: CGO_ENABLED will be set to 1 automatically if GOOS/GOARCH match the current system, but we set it explicitly for consistency.
+  if [ "$(uname)" != "Linux" ]; then
+    GOOS=$(${path_to_binary} env GOOS)
+    GOARCH=$(${path_to_binary} env GOARCH)
+    echo "Building only for host architecture: ${GOOS}/${GOARCH}"
+    CGO_ENABLED=1 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+  else
+    echo "Building for all architectures"
+    mkdir -p target/classes
+    # `golang-crossbuild` container runs as root, so we need to change ownership of the files
+    USER_ID=$(id -u)
+    GROUP_ID=$(id -g)
+
+    (
+      GOOS=darwin
+      for GOARCH in amd64 arm64; do
+        # Debian10 is required, because default image bundles too old MacOS SDK for Go 1.21
+        docker run --rm -v "$(pwd)":/app docker.elastic.co/beats-dev/golang-crossbuild:"$GO_VERSION"-darwin-debian10 -p "darwin/amd64" \
+          --build-cmd "CGO_ENABLED=1 go build -o target/classes/sonar-helm-for-iac-${GOOS}-${GOARCH} && chown ${USER_ID}:${GROUP_ID} target/classes/sonar-helm-for-iac-${GOOS}-${GOARCH}"
+      done
+    )
+    (
+      GOOS=linux GOARCH=amd64
+      CGO_ENABLED=1 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    )
+    (
+      GOOS=windows GOARCH=amd64
+      docker run --rm -v "$(pwd)":/app docker.elastic.co/beats-dev/golang-crossbuild:"$GO_VERSION"-main -p "windows/amd64" \
+        --build-cmd "CGO_ENABLED=1 go build -o target/classes/sonar-helm-for-iac-${GOOS}-${GOARCH} && chown ${USER_ID}:${GROUP_ID} target/classes/sonar-helm-for-iac-${GOOS}-${GOARCH}"
+    )
+  fi
+
   verifyLicenseHeader
 }
 
