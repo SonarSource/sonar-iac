@@ -24,20 +24,6 @@ import (
 	"text/template"
 )
 
-func addCustomFunctions() *template.FuncMap {
-	funcMap := addSprigFunctions()
-
-	funcMap["lookup"] = func(string, string, string, string) (map[string]interface{}, error) {
-		return map[string]interface{}{}, nil
-	}
-
-	funcMap["getHostByName"] = func(name string) string {
-		return ""
-	}
-
-	return &funcMap
-}
-
 var sprigFunctionsWhitelist = []string{
 	"abbrev",
 	"abbrevboth",
@@ -214,14 +200,30 @@ var sprigFunctionsWhitelist = []string{
 	"wrapWith",
 }
 
-func addSprigFunctions() template.FuncMap {
-	sprigFunctions := sprig.TxtFuncMap()
+var sprigFunctions = initSprigFunctions()
+
+func initSprigFunctions() template.FuncMap {
+	sprigAllFunctions := sprig.TxtFuncMap()
 
 	result := make(template.FuncMap)
-	for key, value := range sprigFunctions {
+	for key, value := range sprigAllFunctions {
 		if slices.Contains(sprigFunctionsWhitelist, key) {
 			result[key] = value
 		}
 	}
 	return result
+}
+
+func addCustomFunctions() *template.FuncMap {
+	funcMap := sprigFunctions
+
+	funcMap["lookup"] = func(string, string, string, string) (map[string]interface{}, error) {
+		return map[string]interface{}{}, nil
+	}
+
+	funcMap["getHostByName"] = func(name string) string {
+		return ""
+	}
+
+	return &funcMap
 }
