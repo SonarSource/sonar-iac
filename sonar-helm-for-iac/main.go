@@ -67,7 +67,6 @@ func newHandleID(name string, content string) (rc int) {
 func executeWithValues(templateId int, valuesFilePath string) string {
 	valuesMap, err := yamlToMap(valuesFilePath)
 	if err != nil {
-		//TODO return error to Java?
 		fmt.Println("Error reading values file: ", err)
 		return ""
 	}
