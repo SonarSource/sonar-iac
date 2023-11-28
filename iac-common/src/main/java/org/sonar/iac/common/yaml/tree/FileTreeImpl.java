@@ -21,15 +21,20 @@ package org.sonar.iac.common.yaml.tree;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class FileTreeImpl extends YamlTreeImpl implements FileTree {
   private final List<YamlTree> documents;
+  @Nullable
+  private final String template;
 
-  public FileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata) {
+  public FileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata, @Nullable String template) {
     // A file on its own has no comments. They will be attached to the root node.
     super(metadata);
     this.documents = documents;
+    this.template = template;
   }
 
   @Override
@@ -42,4 +47,9 @@ public class FileTreeImpl extends YamlTreeImpl implements FileTree {
     return new ArrayList<>(documents);
   }
 
+  @CheckForNull
+  @Override
+  public String template() {
+    return template;
+  }
 }

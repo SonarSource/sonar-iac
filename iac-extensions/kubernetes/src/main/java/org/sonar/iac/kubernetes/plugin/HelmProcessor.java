@@ -19,26 +19,24 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.sonar.api.Plugin;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
-public class KubernetesExtension {
+@ScannerSide
+@SonarLintSide
+@ExtensionPoint
+public class HelmProcessor {
 
-  public static final String REPOSITORY_KEY = "kubernetes";
+  private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
+  private static final Pattern HELM_CODE = Pattern.compile("\\{\\{[^{]*\\}\\}");
 
-  private KubernetesExtension() {
-  }
-
-  public static void define(Plugin.Context context) {
-    context.addExtensions(
-      // Language
-      KubernetesLanguage.class,
-      // Sensor
-      KubernetesSensor.class,
-      // Rules and profiles
-      KubernetesRulesDefinition.class,
-      KubernetesProfileDefinition.class,
-      // Other extensions
-      HelmProcessor.class);
-    context.addExtensions(KubernetesSettings.getProperties());
+  public String processHelmTemplate(String source) {
+    LOG.debug("The helm content will be ignored");
+    // TODO SONARIAC-1150 process the helm content of this kubernete file + process the result
+    return HELM_CODE.matcher(source).replaceAll("");
   }
 }

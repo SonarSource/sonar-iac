@@ -70,6 +70,6 @@ class TreePredicatesTest {
   }
 
   private FileTreeImpl notTextTree() {
-    return new FileTreeImpl(null, null);
+    return new FileTreeImpl(null, null, null);
   }
 }

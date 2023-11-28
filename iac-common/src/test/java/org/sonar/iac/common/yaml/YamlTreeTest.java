@@ -33,6 +33,11 @@ public abstract class YamlTreeTest {
     return parser.parse(source, null);
   }
 
+  protected static FileTree parse(String source, String template) {
+    YamlParser parser = new YamlParser();
+    return parser.parse(source, null, template);
+  }
+
   protected static <T extends YamlTree> T parse(String source, Class<T> clazz) {
     FileTree fileTree = parse(source);
     assertThat(fileTree.documents()).as("Parsed source code contains not a single document").hasSize(1);

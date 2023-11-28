@@ -17,28 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.plugin;
-
-import org.sonar.api.Plugin;
-
-public class KubernetesExtension {
-
-  public static final String REPOSITORY_KEY = "kubernetes";
-
-  private KubernetesExtension() {
-  }
-
-  public static void define(Plugin.Context context) {
-    context.addExtensions(
-      // Language
-      KubernetesLanguage.class,
-      // Sensor
-      KubernetesSensor.class,
-      // Rules and profiles
-      KubernetesRulesDefinition.class,
-      KubernetesProfileDefinition.class,
-      // Other extensions
-      HelmProcessor.class);
-    context.addExtensions(KubernetesSettings.getProperties());
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.kubernetes.visitors;

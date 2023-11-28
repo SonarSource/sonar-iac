@@ -35,9 +35,15 @@ public class KubernetesParser extends YamlParser {
   private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
   private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
   private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
-  private static final String CODEFRESH_VARIABLES = "\\{\\{[\\w\\s]+}}";
+  private static final String CODEFRESH_VARIABLES = "\\$\\{\\{[\\w\\s]+}}";
   private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("(" +
     String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
+
+  private final HelmProcessor helmProcessor;
+
+  public KubernetesParser(HelmProcessor helmProcessor) {
+    this.helmProcessor = helmProcessor;
+  }
 
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
@@ -47,9 +53,8 @@ public class KubernetesParser extends YamlParser {
         filename = inputFileContext.inputFile.filename();
       }
       LOG.debug("Helm content detected in file '{}'", filename);
-      LOG.debug("The content will not be processed.");
-      // TODO SONARIAC-1150 process the helm content of this kubernete file + process the result
-      return super.parse("{}", inputFileContext);
+      source = helmProcessor.processHelmTemplate(source);
+      return super.parse(source, inputFileContext, "helm");
     }
     return super.parse(source, inputFileContext);
   }
