@@ -109,7 +109,6 @@ compile_binaries() {
   if [ -n "${GOOS:-}" ]; then
     # GOOS is already set, so we perform build for it
     echo "Building for target OS: ${GOOS}"
-    go env
     case "${GOOS}" in
       "darwin")
         for GOARCH in amd64 arm64; do
@@ -130,9 +129,8 @@ compile_binaries() {
     GOOS=$(${path_to_binary} env GOOS)
     GOARCH=$(${path_to_binary} env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    ${path_to_binary} env
     # Note: CGO_ENABLED will be set to 1 automatically if GOOS/GOARCH match the current system, but we set it explicitly for consistency.
-    CGO_ENABLED=1 ${path_to_binary} build -x -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=1 ${path_to_binary} build -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
   fi
 
   verifyLicenseHeader
