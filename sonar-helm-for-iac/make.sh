@@ -109,15 +109,16 @@ compile_binaries() {
   if [ -n "${GOOS:-}" ]; then
     # GOOS is already set, so we perform build for it
     echo "Building for target OS: ${GOOS}"
+    go env
     case "${GOOS}" in
       "darwin")
         for GOARCH in amd64 arm64; do
-          CGO_ENABLED=1 go build -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+          CGO_ENABLED=1 go build -x -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
         done
         ;;
       "linux"|"windows")
         GOARCH="amd64"
-        CGO_ENABLED=1 go build -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+        CGO_ENABLED=1 go build -x -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
         ;;
       *)
         echo "Unsupported GOOS: ${GOOS}"
@@ -129,8 +130,9 @@ compile_binaries() {
     GOOS=$(${path_to_binary} env GOOS)
     GOARCH=$(${path_to_binary} env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
+    ${path_to_binary} env
     # Note: CGO_ENABLED will be set to 1 automatically if GOOS/GOARCH match the current system, but we set it explicitly for consistency.
-    CGO_ENABLED=1 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=1 ${path_to_binary} build -x -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
   fi
 
   verifyLicenseHeader
