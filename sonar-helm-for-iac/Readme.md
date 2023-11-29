@@ -47,7 +47,7 @@ sonar-helm-for-iac.exe
 
 ## Tricks and tips
 
-### missing go.sum entry for module providing package
+### Exception during build: "missing go.sum entry for module providing package"
 
 ```shell
 go mod tidy
