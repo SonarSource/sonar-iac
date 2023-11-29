@@ -36,7 +36,7 @@ public class JsonLanguage extends ConfigurationLanguage {
   public static final String DEFAULT_FILE_SUFFIXES = ".json";
 
   public JsonLanguage(Configuration configuration) {
-    super(KEY, NAME, configuration, DEFAULT_FILE_SUFFIXES);
+    super(KEY, NAME, configuration, FILE_SUFFIXES_KEY, DEFAULT_FILE_SUFFIXES);
   }
 
   public static PropertyDefinition getProperty() {

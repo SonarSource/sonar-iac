@@ -33,10 +33,10 @@ public class ConfigurationLanguage extends AbstractLanguage {
 
   private final Configuration configuration;
 
-  public ConfigurationLanguage(String key, String name, Configuration configuration, String defaultSuffixes) {
+  public ConfigurationLanguage(String key, String name, Configuration configuration, String fileSuffixesKey, String defaultSuffixes) {
     super(key, name);
     this.configuration = configuration;
-    this.fileSuffixesKey = "sonar." + key + ".file.suffixes";
+    this.fileSuffixesKey = fileSuffixesKey;
     this.defaultFileSuffixes = defaultSuffixes;
 
   }
