@@ -16,6 +16,8 @@ env:
   # Allows to run builds for the 50 last commits in a branch:
   CIRRUS_CLONE_DEPTH: 1
 
+  GO_VERSION: 1.21.1
+
 maven_cache: &MAVEN_CACHE
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
@@ -113,18 +115,42 @@ qa_task_filter_template: &QA_TASK_FILTER
 # -------------------TASKS----------------------
 # ----------------------------------------------
 
+build_go_darwin_task:
+  container:
+    # Debian10 is required, because default image bundles too old macOS SDK for Go 1.21
+    image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-darwin-debian10
+  build_script:
+    - cd sonar-helm-for-iac
+    - /crossbuild --platforms="darwin/amd64" --build-cmd="bash make.sh build"
+  go_binaries_artifacts:
+    path: sonar-helm-for-iac/target/classes/sonar-helm-for-iac-*
+build_go_windows_task:
+  container:
+    image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-main
+  build_script:
+    - cd sonar-helm-for-iac
+    - /crossbuild --platforms="windows/amd64" --build-cmd="bash make.sh build"
+  go_binaries_artifacts:
+    path: sonar-helm-for-iac/target/classes/sonar-helm-for-iac-*
+
 build_task:
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
     cpu: 3.5
     memory: 7G
   <<: *MAVEN_CACHE
+  depends_on:
+    - build_go_darwin
+    - build_go_windows
   env:
     <<: *BUILD_SECRETS
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
   build_script:
     - source cirrus-env BUILD
+    - curl -sL https://api.cirrus-ci.com/v1/artifact/build/$CIRRUS_BUILD_ID/go_binaries.zip -o go_binaries.zip
+    - mkdir -p sonar-helm-for-iac/target/classes/
+    - unzip -o go_binaries.zip -d . && rm go_binaries.zip
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
