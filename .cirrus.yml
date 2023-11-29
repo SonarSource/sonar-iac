@@ -143,9 +143,10 @@ qa_os_win_task:
 sca_scan_task:
   depends_on:
     - build
-  <<: *LINUX_IMAGE_WITH_GCC
   <<: *MAVEN_CACHE
   <<: *ONLY_MAIN_BRANCHES
+  eks_container:
+    <<: *LINUX_IMAGE_WITH_GCC
   env:
     <<: *WS_SCAN_SECRETS
   whitesource_script:
