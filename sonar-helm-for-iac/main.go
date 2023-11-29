@@ -26,6 +26,7 @@ import (
 	"sigs.k8s.io/yaml"
 	"strings"
 	"text/template"
+	"unsafe"
 )
 
 func main() {
@@ -35,14 +36,14 @@ func main() {
 var handles []*template.Template
 
 //export EvaluateTemplate
-func EvaluateTemplate(path string, content string, valuesFileContent string) *C.char {
+func EvaluateTemplate(path string, content string, valuesFileContent string) (unsafe.Pointer, C.int) {
 	evaluatedTemplate, err := evaluateTemplateInternal(path, content, valuesFileContent)
 	result, err := toProtobuf(evaluatedTemplate, err)
 	if err != nil {
 		fmt.Println("Failed to serialize evaluated template to Protobuf for " + path + " error: " + err.Error())
-		return C.CString("")
+		return nil, C.int(0)
 	}
-	return C.CString(string(result))
+	return C.CBytes(result), C.int(len(result))
 }
 
 // For tests, the C code doesn't work in tests

@@ -77,6 +77,8 @@
     <version.slf4j>1.7.30</version.slf4j>
     <version.snakeyaml>2.6</version.snakeyaml>
     <version.spotless>2.34.0</version.spotless>
+    <version.jna>5.13.0</version.jna>
+    <version.protobuf.java>3.25.0</version.protobuf.java>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
     <!-- Release: enable publication to Bintray -->
     <artifactsToPublish>${project.groupId}:sonar-iac-plugin:jar</artifactsToPublish>
@@ -116,6 +118,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-iac-arm</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-helm-for-iac</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -273,6 +280,11 @@
               </eclipse>
             </java>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>3.1.0</version>
         </plugin>
       </plugins>
     </pluginManagement>

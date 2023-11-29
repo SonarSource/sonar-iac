@@ -115,12 +115,12 @@ compile_binaries() {
     case "${GOOS}" in
       "darwin")
         for GOARCH in amd64 arm64; do
-          CGO_ENABLED=1 go build -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+          CGO_ENABLED=1 go build -ldflags="-s -w" -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
         done
         ;;
       "linux"|"windows")
         GOARCH="amd64"
-        CGO_ENABLED=1 go build -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+        CGO_ENABLED=1 go build -ldflags="-s -w" -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
         ;;
       *)
         echo "Unsupported GOOS: ${GOOS}"
