@@ -1,7 +1,4 @@
 env:
-  CIRRUS_VAULT_URL: https://vault.sonar.build:8200
-  CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
-  CIRRUS_VAULT_ROLE: cirrusci-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}
 
   ARTIFACTORY_URL: VAULT[development/kv/data/repox data.url]
   ARTIFACTORY_PRIVATE_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader
@@ -146,9 +143,10 @@ qa_os_win_task:
 sca_scan_task:
   depends_on:
     - build
-  <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
   <<: *ONLY_MAIN_BRANCHES
+  eks_container:
+    <<: *LINUX_IMAGE_WITH_GCC
   env:
     <<: *WS_SCAN_SECRETS
   whitesource_script:

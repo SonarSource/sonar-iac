@@ -45,7 +45,7 @@ go test
 sonar-helm-for-iac.exe
 ```
 
-## Tricks and tips
+## Tips and Tricks
 
 ### Exception during build: "missing go.sum entry for module providing package"
 
