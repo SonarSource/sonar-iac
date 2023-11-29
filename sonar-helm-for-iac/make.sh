@@ -78,15 +78,38 @@ install_go() {
   echo "${go_binary}"
 }
 
+verifyLicenseHeader() {
+  echo "Verify License Header"
+  hasAllLicenseHeader=0
+  for file in *.go; do
+    [ -f "$file" ] || continue
+    IFS= read -r line < "$file" || [ -n "$line" ] || continue
+    case $line in
+      ("// SonarQube IaC Plugin"*)
+        ;;
+      *)
+        printf 'No license header: %s\n' "$file"
+        hasAllLicenseHeader=1
+        ;;
+    esac
+  done
+  if [[ hasAllLicenseHeader -eq 1 ]]; then
+    printf 'Please fix license headers'
+    exit 1;
+  fi
+}
+
 compile_binaries() {
   # Install the proper go version
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
-  # Saving files in target/classes include files in JAR out of the box
-  bash -c "GOOS=darwin GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-darwin-amd64"
-  bash -c "GOOS=darwin GOARCH=arm64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-darwin-arm64"
-  bash -c "GOOS=linux GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-linux-amd64"
-  bash -c "GOOS=windows GOARCH=amd64 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-windows-amd64.exe"
+
+  GOOS=$(${path_to_binary} env GOOS)
+  GOARCH=$(${path_to_binary} env GOARCH)
+  echo "Building for architecture: ${GOOS}/${GOARCH}"
+  CGO_ENABLED=1 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+
+  verifyLicenseHeader
 }
 
 generate_test_report() {
@@ -94,7 +117,7 @@ generate_test_report() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
   # Test
-  bash -c "${path_to_binary} test -json > target/test-report.out"
+  bash -c "${path_to_binary} test -coverprofile=target/test-coverage.out -json > target/test-report.out"
 }
 
 

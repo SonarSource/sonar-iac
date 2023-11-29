@@ -50,6 +50,19 @@ linux_image_template: &LINUX_IMAGE
   namespace: default
   use_in_memory_disk: true
 
+linux_image_with_gcc_template: &LINUX_IMAGE_WITH_GCC
+  dockerfile: .cirrus/Dockerfile
+  docker_arguments:
+    CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+  cluster_name: ${CIRRUS_CLUSTER_NAME}
+  builder_role: cirrus-builder
+  builder_image: docker-builder-v*
+  builder_instance_type: t3.small
+  builder_subnet_id: ${CIRRUS_AWS_SUBNET}
+  region: eu-central-1
+  namespace: default
+  use_in_memory_disk: true
+
 linux_1_cpu_1G_template: &LINUX_1_CPU_1G
   eks_container:
     <<: *LINUX_IMAGE
@@ -101,7 +114,10 @@ qa_task_filter_template: &QA_TASK_FILTER
 # ----------------------------------------------
 
 build_task:
-  <<: *LINUX_3_5_CPU_7G
+  eks_container:
+    <<: *LINUX_IMAGE_WITH_GCC
+    cpu: 3.5
+    memory: 7G
   <<: *MAVEN_CACHE
   env:
     <<: *BUILD_SECRETS

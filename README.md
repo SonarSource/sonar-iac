@@ -46,7 +46,12 @@ for Kubernetes in `iac-extensions/kubernetes` and
 for Terraform in `iac-extensions/terraform`.
 
 ## Build & Test
-The project uses Maven as a build tool.
+
+### Requirements
+* Java 11
+* Maven
+* Go (Windows & Mac)
+
 #### Build and run unit tests:
 ```shell
 mvn clean install
