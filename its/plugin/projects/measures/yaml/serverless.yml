@@ -1,0 +1,55 @@
+service: myservice
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+
+custom:
+  data:
+    handler: handler.test3
+    events:
+      - http:
+          path: /test3
+          method: get
+
+functions:
+  test1:
+    handler: handler.test1
+    events:
+      - http:
+          path: /test1
+          method: get
+
+  test2:
+    handler: handler.test2
+    events:
+      - httpApi:
+          path: /test2
+          method: get
+
+  test3: ${self:custom.data}
+  test4: ${file(sub/external.yml):data}
+
+  test5:
+    handler: sub/handler.test5
+    events:
+      - http:
+          path: /test5
+          method: get
+
+  test6:
+    handler: handler.test6
+    events:
+      - notHttp:
+          path: /test6
+          method: get
+
+  test7:
+    handler: handler.test7
+    events:
+      - httpApi:
+          path: /test7
+          method: get
+    integration: mock

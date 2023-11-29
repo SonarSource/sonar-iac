@@ -21,15 +21,12 @@ package org.sonarsource.iac;
 
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.MavenLocation;
-
 import java.io.File;
 
 public class TestsSetup {
 
   static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
-  static final String SONAR_CONFIG_VERSION = "DEV";
 
   public static final FileLocation IAC_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(new File("../../sonar-iac-plugin/target"), "sonar-iac-plugin-*.jar");
 
@@ -37,10 +34,11 @@ public class TestsSetup {
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(IAC_PLUGIN_LOCATION)
-    .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", SONAR_CONFIG_VERSION))
     .restoreProfileAtStartup(FileLocation.of("src/test/resources/nosonar-terraform.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/test/resources/aws-provider-terraform.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-docker.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-json.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-yaml.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-cloudformation.xml"))
     .build();
 }

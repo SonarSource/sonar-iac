@@ -51,7 +51,7 @@ class MeasuresTest extends TestBase {
   }
 
   @Test
-  void terraform_measures() {
+  void terraformMeasures() {
     final String projectKey = "terraformMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "terraform"));
 
@@ -73,4 +73,23 @@ class MeasuresTest extends TestBase {
 
     softly.assertAll();
   }
+
+  @Test
+  void yamlMeasures() {
+    final String projectKey = "yamlMeasures";
+    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "yaml"));
+
+    // should be null, since YAML language doesn't publish files by default, only if they are analyzed by a sensor
+    assertThat(getMeasureAsInt(projectKey, "files")).isNull();
+  }
+
+  @Test
+  void jsonMeasures() {
+    final String projectKey = "jsonMeasures";
+    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "json"));
+
+    // should be null, since JSON language doesn't publish files by default, only if they are analyzed by a sensor
+    assertThat(getMeasureAsInt(projectKey, "files")).isNull();
+  }
+
 }
