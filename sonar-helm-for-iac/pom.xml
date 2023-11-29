@@ -16,7 +16,7 @@
   <properties>
     <sonar.sources>.</sonar.sources>
     <sonar.inclusions>**/*.go</sonar.inclusions>
-    <sonar.exclusions>**/target/**</sonar.exclusions>
+    <sonar.exclusions>**/target/**,**/org.sonarsource.iac.helm/**</sonar.exclusions>
     <sonar.tests>.</sonar.tests>
     <sonar.test.inclusions>**/*_test.go</sonar.test.inclusions>
     <sonar.go.tests.reportPaths>target/test-report.out</sonar.go.tests.reportPaths>
@@ -30,6 +30,22 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <executions>
+          <execution>
+            <id>compile-protobuf-go</id>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>protoc</executable>
+              <arguments>
+                <argument>-I=${project.basedir}</argument>
+                <argument>-I=${user.home}/go/protobuf/include</argument>
+                <argument>--go_out=${project.basedir}</argument>
+                <argument>${project.basedir}/protobuf.proto</argument>
+              </arguments>
+              <useMavenLogger>true</useMavenLogger>
+            </configuration>
+          </execution>
           <execution>
             <id>compile-go-code</id>
             <phase>generate-sources</phase>
@@ -52,6 +68,7 @@
               <arguments>
                 <argument>clean</argument>
               </arguments>
+              <useMavenLogger>true</useMavenLogger>
             </configuration>
           </execution>
           <execution>
@@ -65,6 +82,7 @@
               <arguments>
                 <argument>test</argument>
               </arguments>
+              <useMavenLogger>true</useMavenLogger>
             </configuration>
           </execution>
         </executions>

@@ -64,7 +64,7 @@ spec:
           protocol: TCP
 `
 
-	result := evaluateTemplateInternal("a.yaml", template, values)
+	result, _ := evaluateTemplateInternal("a.yaml", template, values)
 
 	assert.Equal(t, expected, result)
 }
@@ -89,9 +89,13 @@ spec:
 container: foo
 `
 
-	result := evaluateTemplateInternal("a.yaml", template, values)
+	result, err := evaluateTemplateInternal("a.yaml", template, values)
 
-	assert.Equal(t, "{}", result)
+	assert.Equal(t, "", result)
+	assert.Equal(t,
+		"template: a.yaml:12:35: executing \"a.yaml\" at <.Values.container.port>: "+
+			"can't evaluate field port in type interface {}",
+		err.Error())
 }
 
 func Test_evaluate_template_containing_sprig_functions(t *testing.T) {
@@ -125,7 +129,7 @@ spec:
           protocol: TCP
 `
 
-	result := evaluateTemplateInternal("a.yaml", template, "")
+	result, _ := evaluateTemplateInternal("a.yaml", template, "")
 
 	assert.Equal(t, expected, result)
 }
@@ -161,7 +165,7 @@ spec:
           protocol: TCP
 `
 
-	result := evaluateTemplateInternal("a.yaml", template, "")
+	result, _ := evaluateTemplateInternal("a.yaml", template, "")
 
 	assert.Equal(t, expected, result)
 }
@@ -170,9 +174,10 @@ func Test_evaluate_invalid_template(t *testing.T) {
 	template := `
 apiVersion: {{ hello
 `
-	result := evaluateTemplateInternal("a.yaml", template, "")
+	result, err := evaluateTemplateInternal("a.yaml", template, "")
 
-	assert.Equal(t, "{}", result)
+	assert.Equal(t, "", result)
+	assert.Equal(t, "template: a.yaml:2: function \"hello\" not defined", err.Error())
 }
 func Test_evaluate_invalid_values(t *testing.T) {
 	template := `
@@ -182,7 +187,10 @@ apiVersion: v1
 foo: bar: baz
 `
 
-	result := evaluateTemplateInternal("a.yaml", template, values)
+	result, err := evaluateTemplateInternal("a.yaml", template, values)
 
-	assert.Equal(t, "{}", result)
+	assert.Equal(t, "", result)
+	assert.Equal(t,
+		"error converting YAML to JSON: yaml: line 2: mapping values are not allowed in this context",
+		err.Error())
 }

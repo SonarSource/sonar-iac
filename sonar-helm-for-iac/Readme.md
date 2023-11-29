@@ -6,8 +6,9 @@ A help project written in GoLang for support evaluating and parsing Helm Chars i
 It is a small glue code for re-use the implementation of Helm Charts templates evaluations and parsing.
 
 ## Requirements
-
 * Go 1.21.1
+* protoc 25.0
+* protoc-gen-go 1.31.0
 
 ## The build
 
@@ -31,6 +32,11 @@ go test
 ### The build if Go is not installed (Linux only and CI)
 ```shell
 ./make.sh test
+```
+
+### Compile protobuf to Go
+```shell
+mvn exec:exec@compile-protobuf-go
 ```
 
 ## Execution
