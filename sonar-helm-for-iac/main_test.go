@@ -19,6 +19,8 @@
 package main
 
 import (
+	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
+	"google.golang.org/protobuf/proto"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -179,6 +181,7 @@ apiVersion: {{ hello
 	assert.Equal(t, "", result)
 	assert.Equal(t, "template: a.yaml:2: function \"hello\" not defined", err.Error())
 }
+
 func Test_evaluate_invalid_values(t *testing.T) {
 	template := `
 apiVersion: v1
@@ -193,4 +196,31 @@ foo: bar: baz
 	assert.Equal(t,
 		"error converting YAML to JSON: yaml: line 2: mapping values are not allowed in this context",
 		err.Error())
+}
+
+func Test_to_protobuf_valid(t *testing.T) {
+	template := "apiVersion: {{ .Values.api }}"
+	values := "api: v1"
+
+	evaluatedTemplate, err := evaluateTemplateInternal("a.yaml", template, values)
+	result, err := toProtobuf(evaluatedTemplate, err)
+
+	templateFromProto := &iac_helm.TemplateEvaluationResult{}
+	proto.Unmarshal(result, templateFromProto)
+
+	assert.Equal(t, "apiVersion: v1", templateFromProto.Template)
+	assert.Equal(t, "", templateFromProto.Error)
+}
+
+func Test_to_protobuf_invalid(t *testing.T) {
+	template := "apiVersion: {{ .Values.api"
+
+	evaluatedTemplate, err := evaluateTemplateInternal("a.yaml", template, "")
+	result, err := toProtobuf(evaluatedTemplate, err)
+
+	templateFromProto := &iac_helm.TemplateEvaluationResult{}
+	proto.Unmarshal(result, templateFromProto)
+
+	assert.Equal(t, "", templateFromProto.Template)
+	assert.Equal(t, "template: a.yaml:1: unclosed action", templateFromProto.Error)
 }

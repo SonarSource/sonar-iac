@@ -9,4 +9,4 @@ RUN wget https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz >/dev/null 2>&1 &&
 
 USER sonarsource
 
-RUN export PATH="/opt/go/bin:${PATH}"
+ENV PATH="/opt/go/bin:${PATH}"

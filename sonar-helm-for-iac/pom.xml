@@ -41,7 +41,7 @@
                 <argument>-I=${project.basedir}</argument>
                 <argument>-I=${user.home}/go/protobuf/include</argument>
                 <argument>--go_out=${project.basedir}</argument>
-                <argument>${project.basedir}/protobuf.proto</argument>
+                <argument>${project.basedir}/template-evaluation.proto</argument>
               </arguments>
               <useMavenLogger>true</useMavenLogger>
             </configuration>

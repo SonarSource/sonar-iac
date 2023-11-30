@@ -37,11 +37,11 @@ var handles []*template.Template
 //export EvaluateTemplate
 func EvaluateTemplate(path string, content string, valuesFileContent string) *C.char {
 	evaluatedTemplate, err := evaluateTemplateInternal(path, content, valuesFileContent)
-	message := iac_helm.TemplateEvaluationResult{
-		Template: evaluatedTemplate,
-		Error:    err.Error(),
+	result, err := toProtobuf(evaluatedTemplate, err)
+	if err != nil {
+		fmt.Println("Failed to serialize evaluated template to Protobuf for " + path + " error: " + err.Error())
+		return C.CString("")
 	}
-	result, _ := proto.Marshal(&message)
 	return C.CString(string(result))
 }
 
@@ -52,6 +52,18 @@ func evaluateTemplateInternal(path string, content string, valuesFileContent str
 		return "", err
 	}
 	return executeWithValues(templateId, valuesFileContent)
+}
+
+func toProtobuf(evaluatedTemplate string, err error) ([]byte, error) {
+	errorText := ""
+	if err != nil {
+		errorText = err.Error()
+	}
+	message := iac_helm.TemplateEvaluationResult{
+		Template: evaluatedTemplate,
+		Error:    errorText,
+	}
+	return proto.Marshal(&message)
 }
 
 // Create a template with name and expression and return its handle (a numeric ID to access the template later)

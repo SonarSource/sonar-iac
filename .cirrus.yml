@@ -142,7 +142,6 @@ build_task:
     - curl -sL https://api.cirrus-ci.com/v1/artifact/build/$CIRRUS_BUILD_ID/go_binaries.zip -o go_binaries.zip
     - mkdir -p sonar-helm-for-iac/target/classes/
     - unzip -o go_binaries.zip -d . && rm go_binaries.zip && find ./sonar-helm-for-iac/target/classes -name "*.h" -delete
-    - export PATH="/opt/go/bin:${PATH}"
     - go version
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
