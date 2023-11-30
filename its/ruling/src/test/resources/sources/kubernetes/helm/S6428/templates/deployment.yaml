@@ -32,4 +32,4 @@ spec:
               path: /
               port: http
           securityContext:
-            privileged: true # TODO: Raise an issue here!
+            privileged: true # TODO SONARIAC-1173 Issues should be raised in ITS on helm files

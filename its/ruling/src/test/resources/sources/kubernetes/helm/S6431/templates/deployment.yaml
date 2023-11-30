@@ -14,7 +14,7 @@ spec:
       labels:
         {{- include "hello-world.selectorLabels" . | nindent 8 }}
     spec:
-      hostIPC: true # TODO: Raise issue here!
+      hostIPC: true # TODO SONARIAC-1173 Issues should be raised in ITS on helm files
       serviceAccountName: {{ include "hello-world.serviceAccountName" . }}
       containers:
         - name: {{ .Chart.Name }}
