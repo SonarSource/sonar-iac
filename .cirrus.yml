@@ -68,12 +68,6 @@ linux_1_cpu_1G_template: &LINUX_1_CPU_1G
     cpu: 1
     memory: 1G
 
-linux_3_5_cpu_7G_template: &LINUX_3_5_CPU_7G
-  eks_container:
-    <<: *LINUX_IMAGE
-    cpu: 3.5
-    memory: 7G
-
 linux_4_cpu_8G_java_17_template: &LINUX_4_CPU_8G_JAVA_17
   eks_container:
     <<: *LINUX_IMAGE
@@ -148,6 +142,7 @@ build_task:
     - curl -sL https://api.cirrus-ci.com/v1/artifact/build/$CIRRUS_BUILD_ID/go_binaries.zip -o go_binaries.zip
     - mkdir -p sonar-helm-for-iac/target/classes/
     - unzip -o go_binaries.zip -d . && rm go_binaries.zip && find ./sonar-helm-for-iac/target/classes -name "*.h" -delete
+    - go version
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 

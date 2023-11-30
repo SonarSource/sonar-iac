@@ -50,7 +50,9 @@ for Terraform in `iac-extensions/terraform`.
 ### Requirements
 * Java 11
 * Maven
-* Go (Windows & Mac)
+* Go 1.21.1
+* protoc 25.0
+* protoc-gen-go 1.31.0
 
 #### Build and run unit tests:
 ```shell

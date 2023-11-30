@@ -74,6 +74,8 @@ install_go() {
     # Set up env variables for go
     export PATH="${PATH}:${DEFAULT_GO_BINARY_DIRECTORY}"
     go_binary="${DEFAULT_GO_BINARY}"
+    # Install protoc-gen-go
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.5.3
   fi
   echo "${go_binary}"
 }
@@ -100,6 +102,7 @@ verifyLicenseHeader() {
 }
 
 compile_binaries() {
+  echo "Compile binaries"
   # Install the proper go version
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
