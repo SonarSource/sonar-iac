@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 set -euox pipefail
 
-readonly GO_VERSION="1.21.1"
+readonly GO_VERSION="${GO_VERSION:-1.21.1}"
 readonly DEFAULT_GO_BINARY_DIRECTORY="${GOPATH:=${HOME}/go}/bin"
 readonly DEFAULT_GO_BINARY="${DEFAULT_GO_BINARY_DIRECTORY}/go"
 
@@ -104,10 +104,34 @@ compile_binaries() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
 
-  GOOS=$(${path_to_binary} env GOOS)
-  GOARCH=$(${path_to_binary} env GOARCH)
-  echo "Building for architecture: ${GOOS}/${GOARCH}"
-  CGO_ENABLED=1 ${path_to_binary} build -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+  # Note: CGO_ENABLED is required to build with CGO, which is activated by `import "C"` in Go sources.
+  # Note: Saving files in target/classes include files in JAR out of the box.
+  if [ -n "${GOOS:-}" ]; then
+    # GOOS is already set, so we perform build for it
+    echo "Building for target OS: ${GOOS}"
+    case "${GOOS}" in
+      "darwin")
+        for GOARCH in amd64 arm64; do
+          CGO_ENABLED=1 go build -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+        done
+        ;;
+      "linux"|"windows")
+        GOARCH="amd64"
+        CGO_ENABLED=1 go build -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+        ;;
+      *)
+        echo "Unsupported GOOS: ${GOOS}"
+        exit 1
+        ;;
+    esac
+  else
+    # GOOS and GOARCH are not set, so we build for the host system.
+    GOOS=$(${path_to_binary} env GOOS)
+    GOARCH=$(${path_to_binary} env GOARCH)
+    echo "Building only for host architecture: ${GOOS}/${GOARCH}"
+    # Note: CGO_ENABLED will be set to 1 automatically if GOOS/GOARCH match the current system, but we set it explicitly for consistency.
+    CGO_ENABLED=1 ${path_to_binary} build -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+  fi
 
   verifyLicenseHeader
 }
