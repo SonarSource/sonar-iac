@@ -19,9 +19,6 @@
 [submodule "its/sources/kubernetes/helm-chart-sonarqube"]
 	path = its/sources/kubernetes/helm-chart-sonarqube
 	url = https://github.com/SonarSource/helm-chart-sonarqube.git
-[submodule "its/sources/kubernetes/helm-examples"]
-	path = its/sources/kubernetes/helm-examples
-	url = https://github.com/helm/examples.git
 [submodule "its/sources/docker/dockerfile-examples"]
 	path = its/sources/docker/dockerfile-examples
 	url = https://github.com/komljen/dockerfile-examples.git
