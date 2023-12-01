@@ -148,7 +148,7 @@ spec:
       image: {{ lookup "v1" "Pod" "mynamespace" "mypod" }}
       ports:
         - name: web
-          containerPort:{{ getHostByName "www.google.com" }}
+          containerPort: {{ getHostByName "www.google.com" }}
           protocol: TCP
 `
 
@@ -163,13 +163,60 @@ spec:
       image: map[]
       ports:
         - name: web
-          containerPort:
+          containerPort: 192.0.2.0
           protocol: TCP
 `
 
 	result, _ := evaluateTemplateInternal("a.yaml", template, "")
 
 	assert.Equal(t, expected, result)
+}
+
+func Test_evaluate_template_custom_functions(t *testing.T) {
+	template := `
+apiVersion: {{ lookup "v1" "Pod" "mynamespace" "mypod" }}
+kind: Pod
+metadata:
+  app.kubernetes.io/version: {{ tpl .Values.image.tag . | quote }}
+  include/init-sysctl: {{ include "/init-sysctl.yaml" . }}
+  checksum/init-sysctl: {{ include "/init-sysctl.yaml" . | sha256sum }}
+  foo: {{ required "A valid foo is required!" .Values.foo }}
+  host: {{ getHostByName "www.google.com" }}
+  len: {{ len .Values.foo }}
+  anchovy-or-anchovies: {{ len .Values.foo | plural "one anchovy" "many anchovies" }}
+{{- $myList := list 1 2 3 }}
+  index0: {{ index $myList 0 }}
+  urlquery: {{ urlquery "example.com/search?foo=bar" }}
+spec:
+`
+
+	values := `
+image:
+  tag: 1.0.0-{{ .Values.edition }}
+edition: "community"
+foo: foo-value
+`
+
+	expected := `
+apiVersion: map[]
+kind: Pod
+metadata:
+  app.kubernetes.io/version: "sonar-generated-tpl-0"
+  include/init-sysctl: sonar-generated-include-1
+  checksum/init-sysctl: 7853347def13052a4585b34d7b152b3d43c90f09071f94e8ffeca7c825b804bd
+  foo: foo-value
+  host: 192.0.2.0
+  len: 9
+  anchovy-or-anchovies: many anchovies
+  index0: 1
+  urlquery: example.com%2Fsearch%3Ffoo%3Dbar
+spec:
+`
+
+	result, err := evaluateTemplateInternal("a.yaml", template, values)
+
+	assert.Equal(t, expected, result)
+	assert.Equal(t, nil, err)
 }
 
 func Test_evaluate_invalid_template(t *testing.T) {

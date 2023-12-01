@@ -19,8 +19,10 @@
 package main
 
 import (
+	"errors"
 	"github.com/Masterminds/sprig/v3"
 	"slices"
+	"strconv"
 	"text/template"
 )
 
@@ -93,6 +95,7 @@ var sprigFunctionsWhitelist = []string{
 	"kindIs",
 	"kindOf",
 	"last",
+	"list",
 	"lower",
 	"max",
 	"maxf",
@@ -202,6 +205,8 @@ var sprigFunctionsWhitelist = []string{
 
 var sprigFunctions = initSprigFunctions()
 
+var generatedNamesCount = 0
+
 func initSprigFunctions() template.FuncMap {
 	sprigAllFunctions := sprig.TxtFuncMap()
 
@@ -214,16 +219,50 @@ func initSprigFunctions() template.FuncMap {
 	return result
 }
 
-func addCustomFunctions() *template.FuncMap {
-	funcMap := sprigFunctions
+type Values = struct{ Values map[string]interface{} }
 
-	funcMap["lookup"] = func(string, string, string, string) (map[string]interface{}, error) {
+func addCustomFunctions() *template.FuncMap {
+	functions := sprigFunctions
+
+	functions["lookup"] = func(string, string, string, string) (map[string]interface{}, error) {
 		return map[string]interface{}{}, nil
 	}
 
-	funcMap["getHostByName"] = func(name string) string {
-		return ""
+	functions["tpl"] = func(templateContent string, values Values) (string, error) {
+		//TODO: change
+		text := "sonar-generated-tpl-" + strconv.Itoa(generatedNamesCount)
+		generatedNamesCount++
+		return text, nil
 	}
 
-	return &funcMap
+	functions["include"] = func(name string, data interface{}) (string, error) {
+		text := "sonar-generated-include-" + strconv.Itoa(generatedNamesCount)
+		generatedNamesCount++
+		return text, nil
+	}
+
+	functions["required"] = func(warningMessage string, value interface{}) (interface{}, error) {
+		if value == nil {
+			return nil, errors.New(warningMessage)
+		}
+		text, ok := value.(string)
+		if ok {
+			if text == "" {
+				return text, errors.New(warningMessage)
+			}
+		}
+		return value, nil
+	}
+
+	functions["getHostByName"] = func(name string) string {
+		// IP for documentation purpose
+		return "192.0.2.0"
+	}
+	functions["fail"] = emptyText
+
+	return &functions
+}
+
+func emptyText(_ string) string {
+	return ""
 }
