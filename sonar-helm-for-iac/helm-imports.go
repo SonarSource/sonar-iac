@@ -229,7 +229,6 @@ func addCustomFunctions() *template.FuncMap {
 	}
 
 	functions["tpl"] = func(templateContent string, values Values) (string, error) {
-		//TODO: change
 		text := "sonar-generated-tpl-" + strconv.Itoa(generatedNamesCount)
 		generatedNamesCount++
 		return text, nil
@@ -241,18 +240,7 @@ func addCustomFunctions() *template.FuncMap {
 		return text, nil
 	}
 
-	functions["required"] = func(warningMessage string, value interface{}) (interface{}, error) {
-		if value == nil {
-			return nil, errors.New(warningMessage)
-		}
-		text, ok := value.(string)
-		if ok {
-			if text == "" {
-				return text, errors.New(warningMessage)
-			}
-		}
-		return value, nil
-	}
+	functions["required"] = required
 
 	functions["getHostByName"] = func(name string) string {
 		// IP for documentation purpose
@@ -261,6 +249,19 @@ func addCustomFunctions() *template.FuncMap {
 	functions["fail"] = emptyText
 
 	return &functions
+}
+
+func required(warningMessage string, value interface{}) (interface{}, error) {
+	if value == nil {
+		return nil, errors.New(warningMessage)
+	}
+	text, ok := value.(string)
+	if ok {
+		if text == "" {
+			return text, errors.New(warningMessage)
+		}
+	}
+	return value, nil
 }
 
 func emptyText(_ string) string {

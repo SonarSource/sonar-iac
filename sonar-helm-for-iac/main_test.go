@@ -187,6 +187,7 @@ metadata:
 {{- $myList := list 1 2 3 }}
   index0: {{ index $myList 0 }}
   urlquery: {{ urlquery "example.com/search?foo=bar" }}
+  fail: {{ fail "Please do not fail" }}
 spec:
 `
 
@@ -210,6 +211,7 @@ metadata:
   anchovy-or-anchovies: many anchovies
   index0: 1
   urlquery: example.com%2Fsearch%3Ffoo%3Dbar
+  fail: 
 spec:
 `
 
