@@ -27,6 +27,8 @@ import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -50,6 +52,25 @@ public class RaiseIssue implements IacCheck {
     init.register(FileTree.class, (ctx, tree) -> {
       ctx.reportIssue((TextRange) null, message);
     });
+  }
+
+  public static class RaiseIssueOnWord implements IacCheck {
+    private final String word;
+    private final String message1;
+
+    public RaiseIssueOnWord(String word, String message) {
+      this.word = word;
+      message1 = message;
+    }
+
+    @Override
+    public void initialize(InitContext init) {
+      init.register(ScalarTree.class, (ctx, tree) -> {
+        if (word.equals(tree.value())) {
+          ctx.reportIssue(tree.textRange(), message1);
+        }
+      });
+    }
   }
 
   public abstract static class RaiseIssueOnLocation extends RaiseIssue {

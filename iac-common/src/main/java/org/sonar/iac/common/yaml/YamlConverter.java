@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
@@ -64,7 +63,7 @@ public class YamlConverter {
     return converters.get(node.getClass()).apply(node);
   }
 
-  public FileTree convertFile(List<Node> nodes, @Nullable String template) {
+  public FileTree convertFile(List<Node> nodes, FileTree.Template template) {
     if (nodes.isEmpty()) {
       throw new ParseException("Unexpected empty nodes list while converting file", null, null);
     }

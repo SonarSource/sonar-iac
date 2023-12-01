@@ -35,7 +35,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
-public class AdaptableContextAdapter implements InitContext, CheckContext {
+public class AdjustableContextAdapter implements InitContext, CheckContext {
 
   private final TreeVisitor<InputFileContext> treeVisitor;
   private final DurationStatistics statistics;
@@ -43,7 +43,7 @@ public class AdaptableContextAdapter implements InitContext, CheckContext {
   private final LocationShifter locationShifter;
   private InputFileContext currentCtx;
 
-  public AdaptableContextAdapter(TreeVisitor<InputFileContext> visitor, DurationStatistics statistics, RuleKey ruleKey, LocationShifter locationShifter) {
+  public AdjustableContextAdapter(TreeVisitor<InputFileContext> visitor, DurationStatistics statistics, RuleKey ruleKey, LocationShifter locationShifter) {
     this.treeVisitor = visitor;
     this.statistics = statistics;
     this.ruleKey = ruleKey;
@@ -79,21 +79,16 @@ public class AdaptableContextAdapter implements InitContext, CheckContext {
   }
 
   private void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-    try {
-      var shiftedTextRange = textRange;
-      if (textRange != null) {
-        shiftedTextRange = locationShifter.computeShiftedLocation(textRange);
-      }
-      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream().map(this::adaptSecondaryLocation).collect(Collectors.toList());
-      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, shiftedSecondaryLocations);
-    } catch (Exception e) {
-      e.setStackTrace(new StackTraceElement[0]);
-      throw e;
+    var shiftedTextRange = textRange;
+    if (textRange != null) {
+      shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
     }
+    List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream().map(this::adaptSecondaryLocation).collect(Collectors.toList());
+    currentCtx.reportIssue(ruleKey, shiftedTextRange, message, shiftedSecondaryLocations);
   }
 
   private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
-    var shiftedTextRange = locationShifter.computeShiftedLocation(secondaryLocation.textRange);
+    var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
     return new SecondaryLocation(shiftedTextRange, secondaryLocation.message);
   }
 }

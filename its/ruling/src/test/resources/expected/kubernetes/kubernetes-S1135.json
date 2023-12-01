@@ -1,4 +1,19 @@
 {
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S5849/templates/deployment.yaml": [
+37
+],
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S6428/templates/deployment.yaml": [
+35
+],
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S6429/templates/deployment.yaml": [
+37
+],
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S6431/templates/deployment.yaml": [
+17
+],
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S6433/templates/deployment.yaml": [
+37
+],
 "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
 13,
 24

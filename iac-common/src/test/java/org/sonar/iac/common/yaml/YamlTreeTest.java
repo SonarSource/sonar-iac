@@ -33,7 +33,7 @@ public abstract class YamlTreeTest {
     return parser.parse(source, null);
   }
 
-  protected static FileTree parse(String source, String template) {
+  protected static FileTree parse(String source, FileTree.Template template) {
     YamlParser parser = new YamlParser();
     return parser.parse(source, null, template);
   }

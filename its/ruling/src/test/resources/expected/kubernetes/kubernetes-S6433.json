@@ -1,4 +1,10 @@
 {
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S6429/templates/deployment.yaml": [
+37
+],
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S6433/templates/deployment.yaml": [
+37
+],
 "kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
 52,
 55

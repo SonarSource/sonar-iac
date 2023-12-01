@@ -20,11 +20,13 @@
 package org.sonar.iac.common.yaml.tree;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
 
 public interface FileTree extends YamlTree {
   List<YamlTree> documents();
 
-  @CheckForNull
-  String template();
+  Template template();
+
+  enum Template {
+    NONE, HELM
+  }
 }

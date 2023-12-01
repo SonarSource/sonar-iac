@@ -39,9 +39,10 @@ public class AdjustableChecksVisitor extends TreeVisitor<InputFileContext> {
     this.checks = checks;
     this.statistics = statistics;
     this.locationShifter = locationShifter;
+    initialize();
   }
 
-  public void initialize() {
+  private void initialize() {
     Collection<IacCheck> activeChecks = checks.all();
     for (IacCheck check : activeChecks) {
       var ruleKey = checks.ruleKey(check);
@@ -51,6 +52,6 @@ public class AdjustableChecksVisitor extends TreeVisitor<InputFileContext> {
   }
 
   protected InitContext context(RuleKey ruleKey) {
-    return new AdaptableContextAdapter(this, statistics, ruleKey, locationShifter);
+    return new AdjustableContextAdapter(this, statistics, ruleKey, locationShifter);
   }
 }

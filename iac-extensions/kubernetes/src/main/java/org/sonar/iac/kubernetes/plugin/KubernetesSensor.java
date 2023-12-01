@@ -78,15 +78,8 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
     var locationShifter = new LocationShifter();
-
-    var helmLocationVisitor = new CommentLocationVisitor(locationShifter);
-    helmLocationVisitor.initialize();
-    visitors.add(helmLocationVisitor);
-
-    var adjustableChecksVisitor = new AdjustableChecksVisitor(checks, statistics, locationShifter);
-    adjustableChecksVisitor.initialize();
-    visitors.add(adjustableChecksVisitor);
-
+    visitors.add(new CommentLocationVisitor(locationShifter));
+    visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter));
     return visitors;
   }
 

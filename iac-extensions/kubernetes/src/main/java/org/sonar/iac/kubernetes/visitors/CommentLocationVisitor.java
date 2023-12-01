@@ -19,9 +19,7 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -45,13 +43,15 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   private static final Logger LOG = LoggerFactory.getLogger(CommentLocationVisitor.class);
 
   private static final Pattern IS_LINE_NUMBER = Pattern.compile("^\\d+$");
+  private static final Pattern LINE_SEPARATOR = Pattern.compile("\\r\\n|[\\n\\r\\u2028\\u2029]");
   private final LocationShifter shifter;
 
   public CommentLocationVisitor(LocationShifter shifter) {
     this.shifter = shifter;
+    initialize();
   }
 
-  public void initialize() {
+  private void initialize() {
     register(YamlTree.class, this::visitComment);
   }
 
@@ -66,7 +66,7 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   }
 
   private static boolean isFileWithHelmTemplate(@Nullable Tree node) {
-    return node instanceof FileTree && "helm".equals(((FileTree) node).template());
+    return node instanceof FileTree && ((FileTree) node).template() == FileTree.Template.HELM;
   }
 
   private static boolean isNotFileTree(@Nullable Tree node) {
@@ -74,27 +74,25 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   }
 
   public void readLinesSizes(InputFileContext ctx) {
-    var inputFile = ctx.inputFile;
-    try (var bufferedReader = new BufferedReader(new InputStreamReader(inputFile.inputStream(), inputFile.charset()))) {
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        shifter.addLineSize(line.length());
+    try {
+      var lines = LINE_SEPARATOR.split(ctx.inputFile.contents());
+      for (var lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
+        shifter.addLineSize(ctx, lineNumber, lines[lineNumber - 1].length());
       }
     } catch (IOException e) {
-      LOG.error("Unable to read file: {}.", inputFile.uri());
-      LOG.error(e.getMessage());
+      LOG.error("Unable to read file: {}.", ctx.inputFile.uri(), e);
     }
   }
 
   public void visitComment(InputFileContext ctx, YamlTree tree) {
-    tree.metadata().comments().forEach(this::processComment);
+    tree.metadata().comments().forEach(comment -> processComment(ctx, comment));
   }
 
-  private void processComment(Comment comment) {
+  private void processComment(InputFileContext ctx, Comment comment) {
     if (IS_LINE_NUMBER.matcher(comment.contentText()).matches()) {
       int lineCommentLocation = comment.textRange().start().line();
       var lineCommentValue = Integer.parseInt(comment.contentText());
-      shifter.addShiftedLine(lineCommentLocation, lineCommentValue);
+      shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentValue);
     }
   }
 }

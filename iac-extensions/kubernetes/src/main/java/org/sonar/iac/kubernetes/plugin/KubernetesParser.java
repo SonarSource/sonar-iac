@@ -54,7 +54,7 @@ public class KubernetesParser extends YamlParser {
       }
       LOG.debug("Helm content detected in file '{}'", filename);
       source = helmProcessor.processHelmTemplate(source);
-      return super.parse(source, inputFileContext, "helm");
+      return super.parse(source, inputFileContext, FileTree.Template.HELM);
     }
     return super.parse(source, inputFileContext);
   }

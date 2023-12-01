@@ -19,9 +19,8 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -44,32 +43,76 @@ class CommentLocationVisitorTest {
 
   @Test
   void shouldFindShiftedLocation() throws IOException {
-    scanFile("helm",
-      code("test:",
-        "  key:value"),
-      code("test: #1",
-        "  additional:line",
-        "  key:value #2"));
+    String originalCode = code("test:",
+      "{{ helm code }}");
+    String transformedCode = code("test: #1",
+      "- key1:value1 #2",
+      "- key2:value2 #2");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
 
-    TextRange shiftedLocation = shifter.computeShiftedLocation(TextRanges.range(3, 1, 3, 5));
-    assertThat(shiftedLocation).hasRange(2, 0, 2, 11);
+    scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
+
+    TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
+    assertThat(shiftedLocation1).hasRange(2, 0, 2, 15);
+    TextRange shiftedLocation2 = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 5));
+    assertThat(shiftedLocation2).hasRange(2, 0, 2, 15);
   }
 
-  private FileTree scanFile(String template, String originalCode, String transformedCode) throws IOException {
-    InputFileContext inputFileContext = mockInputFileContext("test.yaml", originalCode);
-    FileTree file = new KubernetesParser(new HelmProcessor()).parse(transformedCode, inputFileContext);
+  @Test
+  @Disabled("SONARIAC-1175 Add support for already commented lines")
+  void shouldFindShiftedLocationWithExistingComment() throws IOException {
+    String originalCode = code("test:",
+      "{{ helm code }} # some comment");
+    String transformedCode = code("test: #1",
+      "- key1:value1 #2",
+      "- key2:value2 # some comment #2");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
+
+    scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
+
+    TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
+    assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
+    TextRange shiftedLocation2 = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 5));
+    assertThat(shiftedLocation2).hasRange(2, 0, 2, 30);
+  }
+
+  @Test
+  void shouldHandleWhenLineCommentIsMissingOrNotDetectedProperly() throws IOException {
+    String originalCode = code("test:",
+      "{{ helm code }}");
+    String transformedCode = code("test: #1",
+      "- key1:value1",
+      "- key2:value2 #2",
+      "- key3:value3");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
+
+    scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
+
+    TextRange textRange1 = TextRanges.range(2, 1, 2, 5);
+    TextRange shiftedTextRange1 = shifter.computeShiftedLocation(ctx, textRange1);
+    assertThat(textRange1).isSameAs(shiftedTextRange1);
+
+    TextRange textRange2 = TextRanges.range(2, 1, 3, 5);
+    TextRange shiftedTextRange2 = shifter.computeShiftedLocation(ctx, textRange2);
+    assertThat(shiftedTextRange2).hasRange(2, 1, 2, 15);
+
+    TextRange textRange3 = TextRanges.range(3, 1, 4, 5);
+    TextRange shiftedTextRange3 = shifter.computeShiftedLocation(ctx, textRange3);
+    assertThat(shiftedTextRange3).hasRange(2, 0, 4, 5);
+  }
+
+  private FileTree scanFile(FileTree.Template template, InputFileContext ctx, String originalCode, String transformedCode) throws IOException {
+    FileTree file = new KubernetesParser(new HelmProcessor()).parse(transformedCode, ctx);
     file = new FileTreeImpl(file.documents(), file.metadata(), template);
     CommentLocationVisitor visitor = new CommentLocationVisitor(shifter);
-    visitor.initialize();
-    visitor.scan(inputFileContext, file);
+    visitor.scan(ctx, file);
     return file;
   }
 
   private InputFileContext mockInputFileContext(String name, String content) throws IOException {
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(name);
-    when(inputFile.inputStream()).thenReturn(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
-    when(inputFile.charset()).thenReturn(StandardCharsets.UTF_8);
+    when(inputFile.contents()).thenReturn(content);
     return new InputFileContext(mock(SensorContext.class), inputFile);
   }
 }

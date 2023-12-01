@@ -1,4 +1,7 @@
 {
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S5849/templates/deployment.yaml": [
+36
+],
 "kubernetes-project:sources/kubernetes/examples/cassandra/cassandra-statefulset.yaml": [
 41
 ],

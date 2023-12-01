@@ -19,62 +19,83 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 /**
  * This class is used to store all lines that has to be shifted.
- * The data are stored into this class through methods {@link #addLineSize(int)} and {@link #addShiftedLine(int, int)}.
- * Then we can use those data through the method {@link #computeShiftedLocation(TextRange)}, which for a given {@link TextRange} will provide
+ * The data are stored into this class through methods {@link #addLineSize(InputFileContext, int, int)} and {@link #addShiftedLine(InputFileContext, int, int)}.
+ * Then we can use those data through the method {@link #computeShiftedLocation(InputFileContext, TextRange)}, which for a given {@link TextRange} will provide
  * a shifted {@link TextRange}.
+ * Every store or access methods is required to provide the concerned {@link InputFileContext}, as the data are stored contextually to this object.
  * This is especially used in helm context, when the issue we are detecting on the transformed code should be raised on the original code.
  */
 public class LocationShifter {
 
-  private final Map<Integer, Integer> shiftedLines = new HashMap<>();
-  private final List<Integer> linesSize = new ArrayList<>();
+  private final Map<InputFileContext, LinesShifting> linesShiftingPerContext = new HashMap<>();
 
-  public void addShiftedLine(int originalLine, int targetLine) {
-    shiftedLines.put(originalLine, targetLine);
+  public void addShiftedLine(InputFileContext ctx, int originalLine, int targetLine) {
+    getOrCreateLinesShifting(ctx)
+      .getOrCreateLinesData(originalLine).targetLine = targetLine;
   }
 
-  public void clear() {
-    shiftedLines.clear();
-    linesSize.clear();
+  public void addLineSize(InputFileContext ctx, int originalLine, int size) {
+    getOrCreateLinesShifting(ctx)
+      .getOrCreateLinesData(originalLine).originalLineSize = size;
   }
 
-  public void addLineSize(int size) {
-    linesSize.add(size);
-  }
-
-  public TextRange computeShiftedLocation(TextRange textRange) {
+  public TextRange computeShiftedLocation(InputFileContext ctx, TextRange textRange) {
     int lineStart = textRange.start().line();
     int lineEnd = textRange.end().line();
+    var linesData = getOrCreateLinesShifting(ctx).linesData;
+    var lineStartData = linesData.get(lineStart);
+    var lineEndData = linesData.get(lineEnd);
 
-    if (!shiftedLines.containsKey(lineStart) && !shiftedLines.containsKey(lineEnd)) {
+    if ((lineStartData == null || lineStartData.targetLine == null)
+      && (lineEndData == null || lineEndData.targetLine == null)) {
       return textRange;
     }
 
     TextPointer start;
     TextPointer end;
 
-    if (shiftedLines.containsKey(lineStart)) {
-      start = new TextPointer(shiftedLines.get(lineStart), 0);
+    if (lineStartData != null && lineStartData.targetLine != null) {
+      start = new TextPointer(lineStartData.targetLine, 0);
     } else {
       start = textRange.start();
     }
 
-    if (shiftedLines.containsKey(lineEnd)) {
-      int shiftedLine = shiftedLines.get(lineEnd);
-      end = new TextPointer(shiftedLine, linesSize.get(shiftedLine - 1));
+    if (lineEndData != null && lineEndData.targetLine != null) {
+      end = new TextPointer(lineEndData.targetLine, linesData.get(lineEndData.targetLine).originalLineSize);
     } else {
       end = textRange.end();
     }
 
     return new TextRange(start, end);
+  }
+
+  private LinesShifting getOrCreateLinesShifting(InputFileContext ctx) {
+    return linesShiftingPerContext.computeIfAbsent(ctx, context -> new LinesShifting());
+  }
+
+  /**
+   * Store information related to an original line number.
+   * The {@link #linesData} Map contain the original line number as the key.
+   * The original line length and target line number are stored in the value, as a {@link LineData} object.
+   */
+  static class LinesShifting {
+    private final Map<Integer, LineData> linesData = new HashMap<>();
+
+    private LineData getOrCreateLinesData(Integer originalLine) {
+      return linesData.computeIfAbsent(originalLine, line -> new LineData());
+    }
+  }
+
+  static class LineData {
+    private Integer targetLine;
+    private int originalLineSize;
   }
 }

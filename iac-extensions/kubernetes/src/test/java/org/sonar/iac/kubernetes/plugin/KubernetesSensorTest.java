@@ -20,7 +20,9 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
@@ -47,6 +49,7 @@ import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -178,6 +181,32 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldParseTwoHelmFileInARowAndNotMixShiftedLocation() {
+    final String originalSourceCode1 = K8_IDENTIFIERS + "{{ long helm code on line 5 }}\n{{ long helm code on line 6 }}";
+    final String transformedSourceCode1 = K8_IDENTIFIERS + "new_5_1: compliant #5\nnew_5_2: non_compliant #5\nnew_6_1: compliant #6\nnew_6_2: compliant #6";
+    final String originalSourceCode2 = K8_IDENTIFIERS + "{{ helm code on line 5 }}\n{{ helm code on line 6 }}";
+    final String transformedSourceCode2 = K8_IDENTIFIERS + "new_5_1: compliant #5\nnew_5_2: compliant #5\nnew_6_1: compliant #6\nnew_6_2: non_compliant #6";
+
+    HelmProcessor helmProcessor = mockHelmProcessor(Map.of(
+      originalSourceCode1, transformedSourceCode1,
+      originalSourceCode2, transformedSourceCode2));
+
+    var issueRaiser = new RaiseIssue.RaiseIssueOnWord("non_compliant", "Sensitive word 'Issue' detected !");
+    CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
+
+    analyse(sensor(helmProcessor, checkFactory), inputFile("file1.yaml", originalSourceCode1), inputFile("file2.yaml", originalSourceCode2));
+    assertThat(context.allIssues()).hasSize(2);
+    Iterator<Issue> iterator = context.allIssues().iterator();
+    Issue issue1 = iterator.next();
+    Issue issue2 = iterator.next();
+
+    assertThat(issue1.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file2.yaml");
+    assertTextRange(issue1.primaryLocation().textRange(), 6, 0, 6, 25);
+    assertThat(issue2.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file1.yaml");
+    assertTextRange(issue2.primaryLocation().textRange(), 5, 0, 5, 30);
+  }
+
+  @Test
   void shouldParseHelmAndRaiseIssueNullLocation() {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5";
@@ -261,6 +290,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertTextRange(issueLocation.textRange(), startLine, startLineOffset, endLine, endLineOffset);
   }
 
+  private HelmProcessor mockHelmProcessor(Map<String, String> inputToOutput) {
+    HelmProcessor helmProcessor = mock(HelmProcessor.class);
+    when(helmProcessor.processHelmTemplate(anyString())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(0).toString(), ""));
+    return helmProcessor;
+  }
+
   /**
    * When identifying whether an input file is a Kubernetes file, various identifiers are retrieved from the file.
    * In order not to spend too much time on this verification in large files, it is only applied to the first 8kb.
@@ -284,6 +319,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.INFO)).contains("1 source file to be analyzed");
   }
 
+  protected InputFile inputFile(String name, String content) {
+    return super.inputFile(name, content);
+  }
+
   protected InputFile inputFile(String content) {
     return super.inputFile("k8.yaml", content);
   }
@@ -301,7 +340,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     return sensor(checkFactory(rules));
   }
 
-  private CheckFactory mockCheckFactoryIssueOn(RaiseIssue issueRaiser) {
+  private CheckFactory mockCheckFactoryIssueOn(IacCheck issueRaiser) {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks<IacCheck> checks = mock(Checks.class);
     Mockito.<Checks<IacCheck>>when(checkFactory.create(any())).thenReturn(checks);
