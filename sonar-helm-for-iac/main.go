@@ -37,8 +37,7 @@ var handles []*template.Template
 //export EvaluateTemplate
 func EvaluateTemplate(path string, content string, valuesFileContent string) *C.char {
 	evaluatedTemplate, err := evaluateTemplateInternal(path, content, valuesFileContent)
-	templateSerialization := newTemplateSerialization(toProtobuf)
-	result, err := templateSerialization.toProtobuf(evaluatedTemplate, err)
+	result, err := toProtobuf(evaluatedTemplate, err)
 	if err != nil {
 		fmt.Println("Failed to serialize evaluated template to Protobuf for " + path + " error: " + err.Error())
 		return C.CString("")
@@ -59,14 +58,6 @@ func evaluateTemplateInternal(path string, content string, valuesFileContent str
 func evaluateTemplateInGoTypes(path string, content string, valuesFileContent string) string {
 	result := EvaluateTemplate(path, content, valuesFileContent)
 	return C.GoString(result)
-}
-
-type TemplateSerialization struct {
-	toProtobuf func(evaluatedTemplate string, err error) ([]byte, error)
-}
-
-func newTemplateSerialization(toProtobuf func(evaluatedTemplate string, err error) ([]byte, error)) TemplateSerialization {
-	return TemplateSerialization{toProtobuf: toProtobuf}
 }
 
 func toProtobuf(evaluatedTemplate string, err error) ([]byte, error) {
