@@ -229,12 +229,14 @@ func addCustomFunctions() *template.FuncMap {
 	}
 
 	functions["tpl"] = func(templateContent string, values Values) (string, error) {
+		// TODO SONARIAC-1177 Add "tpl" function to Helm template evaluation
 		text := "sonar-generated-tpl-" + strconv.Itoa(generatedNamesCount)
 		generatedNamesCount++
 		return text, nil
 	}
 
 	functions["include"] = func(name string, data interface{}) (string, error) {
+		// TODO SONARIAC-1176 Add "include" function to Helm template evaluation
 		text := "sonar-generated-include-" + strconv.Itoa(generatedNamesCount)
 		generatedNamesCount++
 		return text, nil
@@ -256,10 +258,8 @@ func required(warningMessage string, value interface{}) (interface{}, error) {
 		return nil, errors.New(warningMessage)
 	}
 	text, ok := value.(string)
-	if ok {
-		if text == "" {
-			return text, errors.New(warningMessage)
-		}
+	if ok && text == "" {
+		return text, errors.New(warningMessage)
 	}
 	return value, nil
 }
