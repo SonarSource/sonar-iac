@@ -19,12 +19,10 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.iac.kubernetes.jna.Loader;
-import org.sonar.iac.kubernetes.jna.library.IacHelmLibrary;
-import org.sonarsource.iac.helm.TemplateEvaluationResult;
+import org.sonar.iac.helm.jna.Loader;
+import org.sonar.iac.helm.jna.library.IacHelmLibrary;
 
 import javax.annotation.Nullable;
 import java.util.regex.Pattern;
@@ -34,13 +32,14 @@ public final class HelmPreprocessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmPreprocessor.class);
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
+  private static final Loader LOADER = new Loader();
   @Nullable
   private final IacHelmLibrary iacHelmLibrary;
 
   public HelmPreprocessor() {
     IacHelmLibrary library;
     try {
-      library = Loader.load("/sonar-helm-for-iac", IacHelmLibrary.class);
+      library = LOADER.load("/sonar-helm-for-iac", IacHelmLibrary.class);
     } catch (RuntimeException e) {
       LOG.debug("Native library not loaded, Helm integration will be disabled", e);
       library = null;
@@ -53,25 +52,13 @@ public final class HelmPreprocessor {
       LOG.debug("Template cannot be evaluated, skipping processing of Helm file {}", path);
       return "{}";
     }
-    var rawEvaluationResult = iacHelmLibrary.evaluateTemplate(path, content, valuesFileContent).getByteArray();
-    TemplateEvaluationResult evaluationResult = null;
-    var errorMessage = "";
     try {
-      evaluationResult = TemplateEvaluationResult.parseFrom(rawEvaluationResult);
-      if (!evaluationResult.getError().isEmpty()) {
-        errorMessage = "[go] " + evaluationResult.getError();
-      }
-    } catch (InvalidProtocolBufferException e) {
-      errorMessage = e.getMessage();
-    }
-    if (rawEvaluationResult.length == 0 || !errorMessage.isEmpty() || evaluationResult == null) {
-      LOG.debug("Template evaluation failed, skipping processing of Helm file {}", path);
-      if (!errorMessage.isEmpty()) {
-        LOG.debug("Reason: {}", errorMessage);
-      }
+      var evaluationResult = iacHelmLibrary.evaluateTemplate(path, content, valuesFileContent);
+      return evaluationResult.getTemplate();
+    } catch (IllegalStateException e) {
+      LOG.debug("Template evaluation failed, skipping processing of Helm file {}. Reason: ", path, e);
       return "{}";
     }
-    return evaluationResult.getTemplate();
   }
 
   /**

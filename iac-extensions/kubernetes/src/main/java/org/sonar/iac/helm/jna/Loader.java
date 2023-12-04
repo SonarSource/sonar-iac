@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.jna;
+package org.sonar.iac.helm.jna;
 
 import com.sun.jna.FunctionMapper;
 import com.sun.jna.Library;
@@ -28,17 +28,33 @@ import org.apache.commons.lang.StringUtils;
 import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class Loader {
-  private Loader() {
-  }
+  /**
+   * Platforms, for which sonar-helm-for-iac is built.
+   */
+  private static final Set<String> SUPPORTED_PLATFORMS = Set.of("darwin-amd64", "darwin-arm64", "windows-amd64", "linux-amd64");
 
   /**
    * Load a native library. This method takes into account that we use OS and architecture as suffixes of the library name.
    * It also takes care of mapping Go function names to Java method names not to break camelCase convention on Java side.
    */
-  public static <T extends Library> T load(String name, Class<T> libraryClass) {
+  public <T extends Library> T load(String name, Class<T> libraryClass) {
+    var os = getNormalizedOsName();
+    var arch = System.getProperty("os.arch").toLowerCase(Locale.ROOT);
+
+    if (!SUPPORTED_PLATFORMS.contains(os + "-" + arch)) {
+      throw new IllegalStateException("Unsupported platform: " + os + "-" + arch);
+    }
+
+    return Native.load(name + "-" + os + "-" + arch, libraryClass, Map.of(
+      Library.OPTION_FUNCTION_MAPPER, (FunctionMapper) (NativeLibrary library, Method method) -> StringUtils.capitalize(method.getName())));
+  }
+
+  public String getNormalizedOsName() {
     var os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
+    // Normalize OS name, e.g. map `windows server 2020` to `windows`
     if (os.startsWith("mac")) {
       os = "darwin";
     } else if (os.startsWith("win")) {
@@ -48,9 +64,6 @@ public class Loader {
     } else {
       throw new IllegalStateException("Unsupported OS: " + os);
     }
-    var arch = System.getProperty("os.arch").toLowerCase(Locale.ROOT);
-
-    return Native.load(name + "-" + os + "-" + arch, libraryClass, Map.of(
-      Library.OPTION_FUNCTION_MAPPER, (FunctionMapper) (NativeLibrary library, Method method) -> StringUtils.capitalize(method.getName())));
+    return os;
   }
 }

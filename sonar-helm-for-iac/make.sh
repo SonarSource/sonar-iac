@@ -112,15 +112,16 @@ compile_binaries() {
   if [ -n "${GOOS:-}" ]; then
     # GOOS is already set, so we perform build for it
     echo "Building for target OS: ${GOOS}"
+    GO_FLAGS='-ldflags="-s -w" -buildmode=c-shared'
     case "${GOOS}" in
       "darwin")
         for GOARCH in amd64 arm64; do
-          CGO_ENABLED=1 go build -ldflags="-s -w" -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+          CGO_ENABLED=1 go build "$GO_FLAGS" -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
         done
         ;;
       "linux"|"windows")
         GOARCH="amd64"
-        CGO_ENABLED=1 go build -ldflags="-s -w" -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+        CGO_ENABLED=1 go build "$GO_FLAGS" -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
         ;;
       *)
         echo "Unsupported GOOS: ${GOOS}"

@@ -20,24 +20,19 @@
 package org.sonar.iac.kubernetes.jna.library;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.kubernetes.jna.Loader;
-import org.sonarsource.iac.helm.TemplateEvaluationResult;
+import org.mockito.Mockito;
+import org.sonar.iac.helm.jna.Loader;
+import org.sonar.iac.helm.jna.library.IacHelmLibrary;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.mockito.ArgumentMatchers.any;
+
 class IacHelmLibraryTest {
-  private static IacHelmLibrary iacHelmLibrary;
-
-  @BeforeAll
-  public static void setUp() {
-    iacHelmLibrary = Loader.load("/sonar-helm-for-iac", IacHelmLibrary.class);
-  }
-
   @Test
   void shouldFailWhenLoadingNonExistingLibrary() {
     var os = System.getProperty("os.name").toLowerCase();
@@ -49,18 +44,30 @@ class IacHelmLibraryTest {
       os = "linux";
     }
     var arch = System.getProperty("os.arch").toLowerCase();
-    Assertions.assertThatThrownBy(() -> Loader.load("/non-existing-library", IacHelmLibrary.class))
+    Assertions.assertThatThrownBy(() -> (new Loader()).load("/non-existing-library", IacHelmLibrary.class))
       .isInstanceOf(UnsatisfiedLinkError.class)
       .hasMessageStartingWith("Unable to load library '/non-existing-library-" + os + "-" + arch + "'");
   }
 
   @Test
+  void shouldFailWhenLoadingForUnknownPlatform() {
+    var loader = Mockito.mock(Loader.class);
+    Mockito.when(loader.getNormalizedOsName()).thenReturn("freebsd");
+    Mockito.when(loader.load(any(), any())).thenCallRealMethod();
+    var arch = System.getProperty("os.arch").toLowerCase();
+
+    Assertions.assertThatThrownBy(() -> loader.load("/sonar-helm-for-iac", IacHelmLibrary.class))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unsupported platform: freebsd-" + arch);
+  }
+
+  @Test
   void shouldEvaluateTemplate() throws URISyntaxException, IOException {
+    var iacHelmLibrary = (new Loader()).load("/sonar-helm-for-iac", IacHelmLibrary.class);
+
     ClassLoader classLoader = getClass().getClassLoader();
     var template = new String(Files.readAllBytes(Path.of(classLoader.getResource("helm/templates/pod.yaml").toURI())));
-    var rawEvaluationResult = iacHelmLibrary.evaluateTemplate("/helm/templates/pod.yaml", template, "container:\n  port: 8080")
-      .getByteArray();
-    var evaluationResult = TemplateEvaluationResult.parseFrom(rawEvaluationResult);
+    var evaluationResult = iacHelmLibrary.evaluateTemplate("/helm/templates/pod.yaml", template, "container:\n  port: 8080");
 
     Assertions.assertThat(evaluationResult.getError()).isEmpty();
     Assertions.assertThat(evaluationResult.getTemplate()).isEqualTo("apiVersion: v1\n" +

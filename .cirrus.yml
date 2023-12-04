@@ -213,9 +213,6 @@ qa_ruling_task:
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
     - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V
-  on_failure:
-    ruling_actual_artifacts:
-      path: "its/ruling/target/actual/**/*"
   cleanup_before_cache_script: cleanup_maven_repository
 
 promote_task:
