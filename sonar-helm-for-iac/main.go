@@ -54,6 +54,12 @@ func evaluateTemplateInternal(path string, content string, valuesFileContent str
 	return executeWithValues(templateId, valuesFileContent)
 }
 
+// also for tests, but the other way around
+func evaluateTemplateInGoTypes(path string, content string, valuesFileContent string) string {
+	result := EvaluateTemplate(path, content, valuesFileContent)
+	return C.GoString(result)
+}
+
 func toProtobuf(evaluatedTemplate string, err error) ([]byte, error) {
 	errorText := ""
 	if err != nil {

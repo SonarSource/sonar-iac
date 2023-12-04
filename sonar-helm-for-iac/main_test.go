@@ -66,9 +66,11 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplateInternal("a.yaml", template, values)
+	result := evaluateTemplateInGoTypes("a.yaml", template, values)
+	templateFromProto := &iac_helm.TemplateEvaluationResult{}
+	proto.Unmarshal([]byte(result), templateFromProto)
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, templateFromProto.Template)
 }
 
 func Test_evaluate_template_missing_value(t *testing.T) {
