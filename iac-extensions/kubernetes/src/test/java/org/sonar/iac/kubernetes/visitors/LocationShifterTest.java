@@ -19,18 +19,22 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
 
 class LocationShifterTest {
 
   private final LocationShifter shifter = new LocationShifter();
-  private final InputFileContext ctx = mock(InputFileContext.class);
+  private final InputFileContext ctx = mockInputFileContext("my_uri");
 
   @Test
   void shouldReturnShiftedRange() {
@@ -110,8 +114,8 @@ class LocationShifterTest {
 
   @Test
   void shouldNotAccessShiftedRangeOfDifferentContext() {
-    InputFileContext ctx1 = mock(InputFileContext.class);
-    InputFileContext ctx2 = mock(InputFileContext.class);
+    InputFileContext ctx1 = mockInputFileContext("uri_1");
+    InputFileContext ctx2 = mockInputFileContext("uri_2");
 
     setLinesSizes(ctx1, 5, 10, 15);
     setLinesSizes(ctx2, 6, 11, 16, 21);
@@ -133,5 +137,16 @@ class LocationShifterTest {
     for (int lineNumber = 1; lineNumber <= linesSizes.length; lineNumber++) {
       shifter.addLineSize(ctx, lineNumber, linesSizes[lineNumber - 1]);
     }
+  }
+
+  InputFileContext mockInputFileContext(String uri) {
+    InputFile inputFile = mock(InputFile.class);
+    try {
+      when(inputFile.uri()).thenReturn(new URI(uri));
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+    InputFileContext ctx = new InputFileContext(null, inputFile);
+    return ctx;
   }
 }

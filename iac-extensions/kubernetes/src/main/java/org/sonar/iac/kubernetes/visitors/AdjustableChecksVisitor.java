@@ -19,39 +19,65 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.util.Collection;
-import java.util.Objects;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
-public class AdjustableChecksVisitor extends TreeVisitor<InputFileContext> {
+public class AdjustableChecksVisitor extends ChecksVisitor {
 
-  private final Checks<IacCheck> checks;
-  private final DurationStatistics statistics;
   private final LocationShifter locationShifter;
 
   public AdjustableChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, LocationShifter locationShifter) {
-    this.checks = checks;
-    this.statistics = statistics;
+    super(checks, statistics);
     this.locationShifter = locationShifter;
-    initialize();
   }
 
-  private void initialize() {
-    Collection<IacCheck> activeChecks = checks.all();
-    for (IacCheck check : activeChecks) {
-      var ruleKey = checks.ruleKey(check);
-      Objects.requireNonNull(ruleKey);
-      check.initialize(context(ruleKey));
-    }
-  }
-
+  @Override
   protected InitContext context(RuleKey ruleKey) {
-    return new AdjustableContextAdapter(this, statistics, ruleKey, locationShifter);
+    return new AdjustableContextAdapter(ruleKey);
+  }
+
+  public class AdjustableContextAdapter extends ContextAdapter {
+
+    private InputFileContext currentCtx;
+
+    public AdjustableContextAdapter(RuleKey ruleKey) {
+      super(ruleKey);
+    }
+
+    @Override
+    public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
+      AdjustableChecksVisitor.this.register(cls, statistics.time(ruleKey.rule(), (InputFileContext ctx, T tree) -> {
+        currentCtx = ctx;
+        visitor.accept(this, tree);
+      }));
+    }
+
+    @Override
+    protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+      var shiftedTextRange = textRange;
+      if (textRange != null) {
+        shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
+      }
+      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream().map(this::adaptSecondaryLocation).collect(Collectors.toList());
+      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, shiftedSecondaryLocations);
+    }
+
+    private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
+      var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
+      return new SecondaryLocation(shiftedTextRange, secondaryLocation.message);
+    }
   }
 }

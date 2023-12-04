@@ -19,8 +19,10 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -31,11 +33,12 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
  * Then we can use those data through the method {@link #computeShiftedLocation(InputFileContext, TextRange)}, which for a given {@link TextRange} will provide
  * a shifted {@link TextRange}.
  * Every store or access methods is required to provide the concerned {@link InputFileContext}, as the data are stored contextually to this object.
+ * (It is more specifically using it's stored {@link InputFile#uri()})
  * This is especially used in helm context, when the issue we are detecting on the transformed code should be raised on the original code.
  */
 public class LocationShifter {
 
-  private final Map<InputFileContext, LinesShifting> linesShiftingPerContext = new HashMap<>();
+  private final Map<URI, LinesShifting> linesShiftingPerContext = new HashMap<>();
 
   public void addShiftedLine(InputFileContext ctx, int originalLine, int targetLine) {
     getOrCreateLinesShifting(ctx)
@@ -50,26 +53,24 @@ public class LocationShifter {
   public TextRange computeShiftedLocation(InputFileContext ctx, TextRange textRange) {
     int lineStart = textRange.start().line();
     int lineEnd = textRange.end().line();
-    var linesData = getOrCreateLinesShifting(ctx).linesData;
-    var lineStartData = linesData.get(lineStart);
-    var lineEndData = linesData.get(lineEnd);
+    var shifting = getOrCreateLinesShifting(ctx);
 
-    if ((lineStartData == null || lineStartData.targetLine == null)
-      && (lineEndData == null || lineEndData.targetLine == null)) {
+    if (!isShifted(shifting, lineStart) && !isShifted(shifting, lineEnd)) {
       return textRange;
     }
 
     TextPointer start;
     TextPointer end;
 
-    if (lineStartData != null && lineStartData.targetLine != null) {
-      start = new TextPointer(lineStartData.targetLine, 0);
+    if (isShifted(shifting, lineStart)) {
+      start = new TextPointer(shifting.linesData.get(lineStart).targetLine, 0);
     } else {
       start = textRange.start();
     }
 
-    if (lineEndData != null && lineEndData.targetLine != null) {
-      end = new TextPointer(lineEndData.targetLine, linesData.get(lineEndData.targetLine).originalLineSize);
+    if (isShifted(shifting, lineEnd)) {
+      int targetEndLine = shifting.linesData.get(lineEnd).targetLine;
+      end = new TextPointer(targetEndLine, shifting.linesData.get(targetEndLine).originalLineSize);
     } else {
       end = textRange.end();
     }
@@ -77,8 +78,14 @@ public class LocationShifter {
     return new TextRange(start, end);
   }
 
+  private static boolean isShifted(LinesShifting shifting, int lineStart) {
+    var linesDataShifting = shifting.linesData;
+    var lineData = linesDataShifting.get(lineStart);
+    return lineData != null && lineData.targetLine != null;
+  }
+
   private LinesShifting getOrCreateLinesShifting(InputFileContext ctx) {
-    return linesShiftingPerContext.computeIfAbsent(ctx, context -> new LinesShifting());
+    return linesShiftingPerContext.computeIfAbsent(ctx.inputFile.uri(), context -> new LinesShifting());
   }
 
   /**

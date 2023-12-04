@@ -31,6 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -39,7 +40,10 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -309,6 +313,19 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     FilePredicate filePredicate = sensor().customFilePredicate(context);
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
+  }
+
+  @Test
+  void shouldHaveSpecificSonarlintVisitor() {
+    SonarRuntime sonarLintRuntime = SonarRuntimeImpl.forSonarLint(Version.create(6, 0));
+    InputFile inputFile = inputFile("file1.tf", "test:val");
+    context.setRuntime(sonarLintRuntime);
+
+    analyse(sensor(), inputFile);
+
+    // No highlighting and metrics in SonarLint
+    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
   }
 
   private void assertNotSourceFileIsParsed() {

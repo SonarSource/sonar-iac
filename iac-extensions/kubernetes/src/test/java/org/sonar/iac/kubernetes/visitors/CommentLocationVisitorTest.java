@@ -20,10 +20,15 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -32,13 +37,17 @@ import org.sonar.iac.common.yaml.tree.FileTreeImpl;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
 
 class CommentLocationVisitorTest {
 
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final LocationShifter shifter = new LocationShifter();
 
   @Test
@@ -77,6 +86,20 @@ class CommentLocationVisitorTest {
   }
 
   @Test
+  void shouldHandleInvalidLineNumberComment() throws IOException {
+    String originalCode = code("test:",
+      "{{ helm code }} # some comment");
+    String transformedCode = code("test: #1",
+      "- key1:value1 #a");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
+
+    scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
+
+    TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
+    assertThat(shiftedLocation1).hasRange(2, 1, 2, 5);
+  }
+
+  @Test
   void shouldHandleWhenLineCommentIsMissingOrNotDetectedProperly() throws IOException {
     String originalCode = code("test:",
       "{{ helm code }}");
@@ -101,6 +124,14 @@ class CommentLocationVisitorTest {
     assertThat(shiftedTextRange3).hasRange(2, 0, 4, 5);
   }
 
+  @Test
+  void shouldLogInaccessibleContent() throws IOException, URISyntaxException {
+    var invalidFile = mockInputFileContextIOException("invalid.yaml");
+    scanFile(FileTree.Template.HELM, invalidFile, "test:value", "test:value");
+    assertThat(logTester.logs(Level.ERROR)).hasSize(1);
+    assertThat(logTester.logs(Level.ERROR)).contains("Unable to read file: invalid.yaml.");
+  }
+
   private FileTree scanFile(FileTree.Template template, InputFileContext ctx, String originalCode, String transformedCode) throws IOException {
     FileTree file = new KubernetesParser(new HelmProcessor()).parse(transformedCode, ctx);
     file = new FileTreeImpl(file.documents(), file.metadata(), template);
@@ -113,6 +144,14 @@ class CommentLocationVisitorTest {
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(name);
     when(inputFile.contents()).thenReturn(content);
+    return new InputFileContext(mock(SensorContext.class), inputFile);
+  }
+
+  private InputFileContext mockInputFileContextIOException(String name) throws IOException, URISyntaxException {
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.filename()).thenReturn(name);
+    when(inputFile.uri()).thenReturn(new URI(name));
+    when(inputFile.contents()).thenThrow(new IOException("Mock fail"));
     return new InputFileContext(mock(SensorContext.class), inputFile);
   }
 }
