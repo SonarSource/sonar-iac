@@ -60,18 +60,19 @@ class KubernetesParserTest {
   void testParsingWhenHelmContentIsDetected() {
     FileTree file = parser.parse("foo: {{ .Value.var }}", inputFileContext);
     assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).isNotEmpty();
+    assertThat(file.documents().get(0).children()).isEmpty();
     assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'foo.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'foo.yaml'",
+      "Failed to read values file, skipping processing of Helm file 'foo.yaml'");
   }
 
   @Test
   void testParsingWhenHelmContentIsDetectedNoInputFileContext() {
     FileTree file = parser.parse("foo: {{ .Value.var }}", null);
     assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).isNotEmpty();
+    assertThat(file.documents().get(0).children()).isEmpty();
     assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
 
     var logs = logTester.logs(Level.DEBUG);

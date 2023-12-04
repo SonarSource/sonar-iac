@@ -66,10 +66,11 @@ spec:
           protocol: TCP
 `
 
-	result := evaluateTemplateInGoTypes("a.yaml", template, values)
+	result, length := evaluateTemplateInGoTypes("a.yaml", template, values)
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
-	proto.Unmarshal([]byte(result), templateFromProto)
+	proto.Unmarshal(result, templateFromProto)
 
+	assert.Equal(t, 197, length)
 	assert.Equal(t, expected, templateFromProto.Template)
 }
 

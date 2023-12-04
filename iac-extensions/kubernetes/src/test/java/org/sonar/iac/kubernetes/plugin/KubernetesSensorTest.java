@@ -19,12 +19,6 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -51,12 +45,17 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
 
@@ -163,7 +162,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.processHelmTemplate(originalSourceCode)).thenReturn(transformedSourceCode);
+    when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
     analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
@@ -215,7 +214,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.processHelmTemplate(originalSourceCode)).thenReturn(transformedSourceCode);
+    when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var issueRaiser = new RaiseIssue("Issue");
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
@@ -233,7 +232,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}\n{{ some other helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5\nSecondary: Issue #6";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.processHelmTemplate(originalSourceCode)).thenReturn(transformedSourceCode);
+    when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var secondaryLocation = new SecondaryLocation(TextRanges.range(7, 1, 7, 9), "Secondary message");
     var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocation(6, 1, 6, 5, "Primary message", secondaryLocation);
@@ -256,7 +255,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}\n{{ some other helm code }}\n{{ more helm code... }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5\nSecondary1: Issue #6\nSecondary2: Issue #7";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.processHelmTemplate(originalSourceCode)).thenReturn(transformedSourceCode);
+    when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var secondaryLocation1 = new SecondaryLocation(TextRanges.range(7, 1, 7, 10), "Secondary message 1");
     var secondaryLocation2 = new SecondaryLocation(TextRanges.range(8, 1, 8, 10), "Secondary message 2");
@@ -296,7 +295,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   private HelmProcessor mockHelmProcessor(Map<String, String> inputToOutput) {
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.processHelmTemplate(anyString())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(0).toString(), ""));
+    when(helmProcessor.processHelmTemplate(anyString(), anyString(), any())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(1).toString(), ""));
     return helmProcessor;
   }
 

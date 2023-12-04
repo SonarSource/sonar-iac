@@ -19,24 +19,83 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.jna.Loader;
+import org.sonar.iac.helm.jna.library.IacHelmLibrary;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
 
 @ScannerSide
 @SonarLintSide
 @ExtensionPoint
 public class HelmProcessor {
-
+  private static final Loader LOADER = new Loader();
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
-  private static final Pattern HELM_CODE = Pattern.compile("\\{\\{[^{]*\\}\\}");
+  @Nullable
+  private final IacHelmLibrary iacHelmLibrary;
 
-  public String processHelmTemplate(String source) {
-    LOG.debug("The helm content will be ignored");
-    // TODO SONARIAC-1150 process the helm content of this kubernete file + process the result
-    return HELM_CODE.matcher(source).replaceAll("");
+  public HelmProcessor() {
+    IacHelmLibrary library;
+    try {
+      library = LOADER.load("/sonar-helm-for-iac", IacHelmLibrary.class);
+    } catch (RuntimeException e) {
+      LOG.debug("Native library not loaded, Helm integration will be disabled", e);
+      library = null;
+    }
+    this.iacHelmLibrary = library;
+  }
+
+  @Nullable
+  String processHelmTemplate(String filename, String source, InputFileContext inputFileContext) {
+    // TODO: better support of Helm project structure
+    var valuesFile = findValuesFile(inputFileContext);
+    if (valuesFile != null) {
+      try {
+        return evaluateHelmTemplate(filename, source, valuesFile.contents());
+      } catch (IOException e) {
+        LOG.debug("Failed to read values file '{}', skipping processing of Helm file '{}'", valuesFile.filename(), filename, e);
+      }
+    } else {
+      LOG.debug("Failed to read values file, skipping processing of Helm file '{}'", filename);
+    }
+
+    return null;
+  }
+
+  private String evaluateHelmTemplate(String path, String content, String valuesFileContent) {
+    if (iacHelmLibrary == null || valuesFileContent.isBlank()) {
+      LOG.debug("Template cannot be evaluated, skipping processing of Helm file {}", path);
+      return "{}";
+    }
+    try {
+      var evaluationResult = iacHelmLibrary.evaluateTemplate(path, content, valuesFileContent);
+      return evaluationResult.getTemplate();
+    } catch (IllegalStateException e) {
+      LOG.debug("Template evaluation failed, skipping processing of Helm file {}. Reason: ", path, e);
+      return "{}";
+    }
+  }
+
+  static @Nullable InputFile findValuesFile(InputFileContext inputFileContext) {
+    var valuesFilePredicate = valuesFilePredicate(inputFileContext.sensorContext);
+    return inputFileContext.sensorContext.fileSystem().inputFile(valuesFilePredicate);
+  }
+
+  private static FilePredicate valuesFilePredicate(SensorContext sensorContext) {
+    FilePredicates predicates = sensorContext.fileSystem().predicates();
+    return predicates.and(
+      predicates.hasLanguage("yaml"),
+      predicates.hasType(InputFile.Type.MAIN),
+      predicates.hasFilename("values.yaml"));
   }
 }
