@@ -19,6 +19,7 @@
 package main
 
 import (
+	"errors"
 	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
 	"testing"
@@ -66,9 +67,11 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplateInternal("a.yaml", template, values)
+	result := evaluateTemplateInGoTypes("a.yaml", template, values)
+	templateFromProto := &iac_helm.TemplateEvaluationResult{}
+	proto.Unmarshal([]byte(result), templateFromProto)
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, templateFromProto.Template)
 }
 
 func Test_evaluate_template_missing_value(t *testing.T) {
@@ -272,4 +275,18 @@ func Test_to_protobuf_invalid(t *testing.T) {
 
 	assert.Equal(t, "", templateFromProto.Template)
 	assert.Equal(t, "template: a.yaml:1: unclosed action", templateFromProto.Error)
+}
+
+func Test_to_protobuf_error(t *testing.T) {
+	template := "apiVersion: {{ .Values.api }}"
+	values := "api: v1"
+
+	evaluatedTemplate, err := evaluateTemplateInternal("a.yaml", template, values)
+	templateSerialization := newTemplateSerialization(func(evaluatedTemplate string, err error) ([]byte, error) {
+		return nil, errors.New("mock serialization error")
+	})
+	result, err := templateSerialization.toProtobuf(evaluatedTemplate, err)
+
+	assert.Equal(t, []byte(nil), result)
+	assert.Equal(t, "mock serialization error", err.Error())
 }
