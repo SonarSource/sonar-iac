@@ -23,4 +23,10 @@ import java.util.List;
 
 public interface FileTree extends YamlTree {
   List<YamlTree> documents();
+
+  Template template();
+
+  enum Template {
+    NONE, HELM
+  }
 }

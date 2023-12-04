@@ -38,13 +38,15 @@ import org.sonar.iac.common.extension.DurationStatistics;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
-  private final DurationStatistics statistics;
+  protected final Checks<IacCheck> checks;
+  protected final DurationStatistics statistics;
 
   public ChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics) {
+    this.checks = checks;
     this.statistics = statistics;
     Collection<IacCheck> activeChecks = checks.all();
     for (IacCheck check : activeChecks) {
-      RuleKey ruleKey = checks.ruleKey(check);
+      var ruleKey = checks.ruleKey(check);
       Objects.requireNonNull(ruleKey);
       check.initialize(context(ruleKey));
     }
@@ -91,7 +93,7 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
       reportIssue(toHighlight.textRange(), message, secondaryLocations);
     }
 
-    private void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+    protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       try {
         currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
       } catch (Exception e) {

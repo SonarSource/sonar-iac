@@ -21,6 +21,8 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -35,15 +37,25 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlSensor;
+import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
+import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
+import org.sonar.iac.kubernetes.visitors.CommentLocationVisitor;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 public class KubernetesSensor extends YamlSensor {
 
+  private final HelmProcessor helmProcessor;
+
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, KubernetesLanguage language) {
+    NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmProcessor helmProcessor) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks());
+    this.helmProcessor = helmProcessor;
   }
 
   @Override
@@ -55,7 +67,20 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new KubernetesParser();
+    return new KubernetesParser(helmProcessor);
+  }
+
+  @Override
+  protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    if (isNotSonarLintContext(sensorContext)) {
+      // TODO SONARIAC-1171 put back in place the YamlHighlightingVisitor
+      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+    }
+    var locationShifter = new LocationShifter();
+    visitors.add(new CommentLocationVisitor(locationShifter));
+    visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter));
+    return visitors;
   }
 
   @Override

@@ -63,14 +63,14 @@ public class YamlConverter {
     return converters.get(node.getClass()).apply(node);
   }
 
-  public FileTree convertFile(List<Node> nodes) {
+  public FileTree convertFile(List<Node> nodes, FileTree.Template template) {
     if (nodes.isEmpty()) {
       throw new ParseException("Unexpected empty nodes list while converting file", null, null);
     }
     TextRange fileRange = TextRanges.merge(List.of(range(nodes.get(0)), range(ListUtils.getLast(nodes))));
     YamlTreeMetadata metadata = new YamlTreeMetadata("FILE", fileRange, Collections.emptyList());
     List<YamlTree> documents = nodes.stream().map(this::convert).collect(Collectors.toList());
-    return new FileTreeImpl(documents, metadata);
+    return new FileTreeImpl(documents, metadata, template);
   }
 
   protected YamlTree convertMapping(MappingNode mappingNode) {

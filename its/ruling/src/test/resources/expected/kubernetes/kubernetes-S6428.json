@@ -1,4 +1,7 @@
 {
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/S6428/templates/deployment.yaml": [
+35
+],
 "kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
 21
 ],

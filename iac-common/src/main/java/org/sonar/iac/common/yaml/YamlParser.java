@@ -49,6 +49,10 @@ public class YamlParser implements TreeParser<Tree> {
 
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
+    return parse(source, inputFileContext, FileTree.Template.NONE);
+  }
+
+  public FileTree parse(String source, @Nullable InputFileContext inputFileContext, FileTree.Template template) {
     LoadSettings settings = LoadSettings.builder().setParseComments(shouldParseComments(inputFileContext)).build();
     StreamReader reader = new StreamReader(settings, source);
     ScannerImpl scanner = new ScannerImpl(settings, reader);
@@ -56,7 +60,7 @@ public class YamlParser implements TreeParser<Tree> {
     Composer composer = new Composer(settings, parser);
     List<Node> nodes = composerNodes(composer);
 
-    return converter.convertFile(nodes);
+    return converter.convertFile(nodes, template);
   }
 
   private static List<Node> composerNodes(Composer composer) {

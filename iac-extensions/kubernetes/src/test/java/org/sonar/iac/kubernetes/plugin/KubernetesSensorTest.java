@@ -20,22 +20,43 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
+import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
 
@@ -117,7 +138,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseFileAndLogAndCatchIOException() throws IOException {
     InputFile inputFile = spy(inputFile(K8_IDENTIFIERS));
-    Mockito.when(inputFile.inputStream()).thenThrow(IOException.class);
+    when(inputFile.inputStream()).thenThrow(IOException.class);
     analyse(sensor(), inputFile);
 
     assertThat(logTester.logs(Level.ERROR)).hasSize(2);
@@ -136,6 +157,149 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
   }
 
+  @ParameterizedTest
+  @MethodSource("provideRaiseIssue")
+  void shouldParseHelmAndRaiseIssueOnShiftedLineIssue(RaiseIssue issueRaiser) {
+    String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
+    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5";
+    HelmProcessor helmProcessor = mock(HelmProcessor.class);
+    when(helmProcessor.processHelmTemplate(originalSourceCode)).thenReturn(transformedSourceCode);
+
+    CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
+    analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
+
+    assertThat(context.allIssues()).hasSize(1);
+    Issue issue = context.allIssues().iterator().next();
+    assertThat(issue.primaryLocation().message()).isEqualTo("Issue");
+
+    TextRange textRange = issue.primaryLocation().textRange();
+    assertTextRange(textRange, 5, 0, 5, 20);
+
+    assertThat(issue.flows()).isEmpty();
+  }
+
+  private static Stream<RaiseIssue> provideRaiseIssue() {
+    return Stream.of(
+      new RaiseIssue.RaiseIssueOnTextRange(6, 1, 6, 5, "Issue"),
+      new RaiseIssue.RaiseIssueOnHasTextRange(6, 1, 6, 5, "Issue"));
+  }
+
+  @Test
+  void shouldParseTwoHelmFileInARowAndNotMixShiftedLocation() {
+    final String originalSourceCode1 = K8_IDENTIFIERS + "{{ long helm code on line 5 }}\n{{ long helm code on line 6 }}";
+    final String transformedSourceCode1 = K8_IDENTIFIERS + "new_5_1: compliant #5\nnew_5_2: non_compliant #5\nnew_6_1: compliant #6\nnew_6_2: compliant #6";
+    final String originalSourceCode2 = K8_IDENTIFIERS + "{{ helm code on line 5 }}\n{{ helm code on line 6 }}";
+    final String transformedSourceCode2 = K8_IDENTIFIERS + "new_5_1: compliant #5\nnew_5_2: compliant #5\nnew_6_1: compliant #6\nnew_6_2: non_compliant #6";
+
+    HelmProcessor helmProcessor = mockHelmProcessor(Map.of(
+      originalSourceCode1, transformedSourceCode1,
+      originalSourceCode2, transformedSourceCode2));
+
+    var issueRaiser = new RaiseIssue.RaiseIssueOnWord("non_compliant", "Sensitive word 'Issue' detected !");
+    CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
+
+    analyse(sensor(helmProcessor, checkFactory), inputFile("file1.yaml", originalSourceCode1), inputFile("file2.yaml", originalSourceCode2));
+    assertThat(context.allIssues()).hasSize(2);
+    Iterator<Issue> iterator = context.allIssues().iterator();
+    Issue issue1 = iterator.next();
+    Issue issue2 = iterator.next();
+
+    assertThat(issue1.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file2.yaml");
+    assertTextRange(issue1.primaryLocation().textRange(), 6, 0, 6, 25);
+    assertThat(issue2.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file1.yaml");
+    assertTextRange(issue2.primaryLocation().textRange(), 5, 0, 5, 30);
+  }
+
+  @Test
+  void shouldParseHelmAndRaiseIssueNullLocation() {
+    String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
+    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5";
+    HelmProcessor helmProcessor = mock(HelmProcessor.class);
+    when(helmProcessor.processHelmTemplate(originalSourceCode)).thenReturn(transformedSourceCode);
+
+    var issueRaiser = new RaiseIssue("Issue");
+    CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
+    analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
+
+    assertThat(context.allIssues()).hasSize(1);
+    Issue issue = context.allIssues().iterator().next();
+    assertThat(issue.primaryLocation().message()).isEqualTo("Issue");
+    TextRange textRange = issue.primaryLocation().textRange();
+    assertThat(textRange).isNull();
+  }
+
+  @Test
+  void shouldParseHelmAndRaiseIssueOnShiftedLineIssueWithSecondaryLocation() {
+    String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}\n{{ some other helm code }}";
+    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5\nSecondary: Issue #6";
+    HelmProcessor helmProcessor = mock(HelmProcessor.class);
+    when(helmProcessor.processHelmTemplate(originalSourceCode)).thenReturn(transformedSourceCode);
+
+    var secondaryLocation = new SecondaryLocation(TextRanges.range(7, 1, 7, 9), "Secondary message");
+    var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocation(6, 1, 6, 5, "Primary message", secondaryLocation);
+    CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
+    analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
+
+    assertThat(context.allIssues()).hasSize(1);
+    Issue issue = context.allIssues().iterator().next();
+    assertThat(issue.primaryLocation().message()).isEqualTo("Primary message");
+    TextRange textRange = issue.primaryLocation().textRange();
+    assertTextRange(textRange, 5, 0, 5, 20);
+
+    assertThat(issue.flows()).hasSize(1);
+    Issue.Flow flow1 = issue.flows().get(0);
+    assertSecondaryLocation(flow1, 6, 0, 6, 26, "Secondary message");
+  }
+
+  @Test
+  void shouldParseHelmAndRaiseIssueOnShiftedLineIssueWithMultipleSecondaryLocation() {
+    String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}\n{{ some other helm code }}\n{{ more helm code... }}";
+    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5\nSecondary1: Issue #6\nSecondary2: Issue #7";
+    HelmProcessor helmProcessor = mock(HelmProcessor.class);
+    when(helmProcessor.processHelmTemplate(originalSourceCode)).thenReturn(transformedSourceCode);
+
+    var secondaryLocation1 = new SecondaryLocation(TextRanges.range(7, 1, 7, 10), "Secondary message 1");
+    var secondaryLocation2 = new SecondaryLocation(TextRanges.range(8, 1, 8, 10), "Secondary message 2");
+    var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocations(6, 1, 6, 5, "Primary message",
+      List.of(secondaryLocation1, secondaryLocation2));
+    CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
+    analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
+
+    assertThat(context.allIssues()).hasSize(1);
+    Issue issue = context.allIssues().iterator().next();
+    assertThat(issue.primaryLocation().message()).isEqualTo("Primary message");
+    TextRange textRange = issue.primaryLocation().textRange();
+    assertTextRange(textRange, 5, 0, 5, 20);
+
+    assertThat(issue.flows()).hasSize(2);
+
+    Issue.Flow flow1 = issue.flows().get(0);
+    assertSecondaryLocation(flow1, 6, 0, 6, 26, "Secondary message 1");
+    Issue.Flow flow2 = issue.flows().get(1);
+    assertSecondaryLocation(flow2, 7, 0, 7, 23, "Secondary message 2");
+  }
+
+  private void assertTextRange(@Nullable TextRange textRange, int startLine, int startLineOffset, int endLine, int endLineOffset) {
+    assertThat(textRange).isNotNull();
+    assertThat(textRange.start().line()).isEqualTo(startLine);
+    assertThat(textRange.start().lineOffset()).isEqualTo(startLineOffset);
+    assertThat(textRange.end().line()).isEqualTo(endLine);
+    assertThat(textRange.end().lineOffset()).isEqualTo(endLineOffset);
+  }
+
+  private void assertSecondaryLocation(Issue.Flow flow, int startLine, int startLineOffset, int endLine, int endLineOffset, String message) {
+    assertThat(flow.locations()).hasSize(1);
+    IssueLocation issueLocation = flow.locations().get(0);
+    assertThat(issueLocation.message()).isEqualTo(message);
+    assertTextRange(issueLocation.textRange(), startLine, startLineOffset, endLine, endLineOffset);
+  }
+
+  private HelmProcessor mockHelmProcessor(Map<String, String> inputToOutput) {
+    HelmProcessor helmProcessor = mock(HelmProcessor.class);
+    when(helmProcessor.processHelmTemplate(anyString())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(0).toString(), ""));
+    return helmProcessor;
+  }
+
   /**
    * When identifying whether an input file is a Kubernetes file, various identifiers are retrieved from the file.
    * In order not to spend too much time on this verification in large files, it is only applied to the first 8kb.
@@ -151,12 +315,29 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }
 
+  @Test
+  void shouldHaveSpecificSonarlintVisitor() {
+    SonarRuntime sonarLintRuntime = SonarRuntimeImpl.forSonarLint(Version.create(6, 0));
+    InputFile inputFile = inputFile("file1.tf", "test:val");
+    context.setRuntime(sonarLintRuntime);
+
+    analyse(sensor(), inputFile);
+
+    // No highlighting and metrics in SonarLint
+    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
+  }
+
   private void assertNotSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }
 
   private void assertOneSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("1 source file to be analyzed");
+  }
+
+  protected InputFile inputFile(String name, String content) {
+    return super.inputFile(name, content);
   }
 
   protected InputFile inputFile(String content) {
@@ -176,9 +357,22 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     return sensor(checkFactory(rules));
   }
 
+  private CheckFactory mockCheckFactoryIssueOn(IacCheck issueRaiser) {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks<IacCheck> checks = mock(Checks.class);
+    Mockito.<Checks<IacCheck>>when(checkFactory.create(any())).thenReturn(checks);
+    when(checks.all()).thenReturn(List.of(issueRaiser));
+    when(checks.ruleKey(any())).thenReturn(mock(RuleKey.class));
+    return checkFactory;
+  }
+
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage());
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(), new HelmProcessor());
+  }
+
+  protected KubernetesSensor sensor(HelmProcessor helmProcessor, CheckFactory checkFactory) {
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(), helmProcessor);
   }
 
   @Override

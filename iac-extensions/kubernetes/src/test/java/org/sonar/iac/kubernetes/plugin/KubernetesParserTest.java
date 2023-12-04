@@ -39,7 +39,7 @@ class KubernetesParserTest {
   private final InputFile inputFile = mock(InputFile.class);
   private final InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
 
-  private final KubernetesParser parser = new KubernetesParser();
+  private final KubernetesParser parser = new KubernetesParser(new HelmProcessor());
 
   @BeforeEach
   void setup() {
@@ -47,33 +47,35 @@ class KubernetesParserTest {
   }
 
   @Test
-  void testEmptyParsingWhenHelmContentIsDetected() {
+  void testParsingWhenHelmContentIsDetected() {
     FileTree file = parser.parse("foo: {{ .Value.var }}", inputFileContext);
     assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).isEmpty();
+    assertThat(file.documents().get(0).children()).isNotEmpty();
+    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("Helm content detected in file 'foo.yaml'");
   }
 
   @Test
-  void testEmptyParsingWhenHelmContentIsDetectedNoInputFileContext() {
+  void testParsingWhenHelmContentIsDetectedNoInputFileContext() {
     FileTree file = parser.parse("foo: {{ .Value.var }}", null);
     assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).isEmpty();
+    assertThat(file.documents().get(0).children()).isNotEmpty();
+    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("Helm content detected in file ''");
   }
 
   @Test
-  void testNormalParsingWhenNoHelmContent() {
+  void testParsingWhenNoHelmContent() {
     FileTree file = parser.parse("foo: {bar: 1234}", inputFileContext);
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isNotEmpty();
+    assertThat(file.template()).isEqualTo(FileTree.Template.NONE);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).isEmpty();
   }
-
 }

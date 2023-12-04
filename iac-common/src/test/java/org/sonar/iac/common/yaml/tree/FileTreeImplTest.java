@@ -35,17 +35,18 @@ import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 class FileTreeImplTest extends YamlTreeTest {
 
   @Test
-  void file_contains_single_document() {
+  void shouldParseFileThatContainsSingleDocument() {
     FileTree tree = parse("a: b");
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.children()).hasSize(1);
     assertThat(tree.documents()).hasSize(1);
     assertThat(tree.textRange()).hasRange(1, 0, 1, 4);
     assertThat(tree.textRange()).isEqualTo(tree.documents().get(0).textRange());
+    assertThat(tree.template()).isEqualTo(FileTree.Template.NONE);
   }
 
   @Test
-  void file_contains_multiple_documents() {
+  void shouldParseFileThatContainsMultipleDocuments() {
     FileTree tree = parse("a: b\n---\na: b");
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.children()).hasSize(2);
@@ -57,12 +58,12 @@ class FileTreeImplTest extends YamlTreeTest {
   }
 
   @Test
-  void empty_content_given_to_parser() {
+  void shouldParseEmptyContent() {
     assertThrows(ParseException.class, () -> parse(""));
   }
 
   @Test
-  void file_with_only_a_comment() {
+  void shouldParseFileWithOnlyAComment() {
     FileTree tree = parse("# foo");
     assertThat(tree.documents()).hasSize(1);
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
@@ -72,5 +73,11 @@ class FileTreeImplTest extends YamlTreeTest {
     assertThat(document.metadata().comments()).hasSize(1);
     assertThat(document.metadata().comments().get(0).value()).isEqualTo("# foo");
     assertThat(document.metadata().comments().get(0).contentText()).isEqualTo(" foo");
+  }
+
+  @Test
+  void shouldParseFileWithTemplate() {
+    FileTree tree = parse("a: b", FileTree.Template.HELM);
+    assertThat(tree.template()).isEqualTo(FileTree.Template.HELM);
   }
 }
