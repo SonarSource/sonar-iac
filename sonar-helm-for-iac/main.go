@@ -79,8 +79,8 @@ func newHandleID(name string, content string) (int, error) {
 	return len(handles) - 1, nil
 }
 
-func executeWithValues(templateId int, valuesFilePath string) (string, error) {
-	valuesMap, err := yamlToMap(valuesFilePath)
+func executeWithValues(templateId int, valuesFileContent string) (string, error) {
+	valuesMap, err := yamlToMap(valuesFileContent)
 	if err != nil {
 		return "", err
 	}
