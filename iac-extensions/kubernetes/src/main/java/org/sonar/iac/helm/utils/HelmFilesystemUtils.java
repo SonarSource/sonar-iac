@@ -27,7 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
-public class HelmFilesystemUtils {
+public final class HelmFilesystemUtils {
   private HelmFilesystemUtils() {
   }
 

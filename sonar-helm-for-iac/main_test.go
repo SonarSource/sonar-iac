@@ -276,12 +276,3 @@ func Test_to_protobuf_invalid(t *testing.T) {
 	assert.Equal(t, "", templateFromProto.Template)
 	assert.Equal(t, "template: a.yaml:1: unclosed action", templateFromProto.Error)
 }
-
-//func Test_api_method_with_error(t *testing.T) {
-//	template := "apiVersion: {{ .Values.api"
-//
-//	bytes, length := evaluateTemplateInGoTypes("a.yaml", template, "")
-//
-//	assert.Equal(t, 0, length)
-//	assert.Equal(t, []byte(nil), bytes)
-//}

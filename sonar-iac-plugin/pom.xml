@@ -192,8 +192,8 @@
         </os>
       </activation>
       <properties>
-        <archive.size.max>10600000</archive.size.max>
-        <archive.size.min>10500000</archive.size.min>
+        <archive.size.max>10700000</archive.size.max>
+        <archive.size.min>10600000</archive.size.min>
       </properties>
     </profile>
   </profiles>
