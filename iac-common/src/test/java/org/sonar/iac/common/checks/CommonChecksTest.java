@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.testing;
+package org.sonar.iac.common.checks;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 import static org.apache.commons.io.filefilter.FileFilterUtils.and;
 import static org.apache.commons.io.filefilter.FileFilterUtils.notFileFilter;
@@ -34,46 +33,39 @@ import static org.apache.commons.io.filefilter.FileFilterUtils.prefixFileFilter;
 import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
 import static org.apache.commons.io.filefilter.FileFilterUtils.trueFileFilter;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public abstract class AbstractCheckListTest {
+class CommonChecksTest {
+  private final String packageCheck = "org.sonar.iac.common.checks";
 
-  protected abstract List<Class<?>> checks();
-
-  protected abstract File checkClassDir();
-
-  protected boolean hasTodoCommentCheck() {
-    return true;
-  }
-
-  @Test
-  void containsParsingErrorCheck() {
-    assertThat(checks()).contains(ParsingErrorCheck.class);
-  }
-
-  @Test
-  void containsToDoCommentCheck() {
-    assumeTrue(hasTodoCommentCheck());
-    assertThat(checks()).contains(ToDoCommentCheck.class);
-  }
-
-  /**
-   * Enforces that each check is declared in the list.
-   */
-  @Test
-  void count() {
+  private List<Class<?>> getListCommonChecks() {
     IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
-    Collection<File> files = FileUtils.listFiles(checkClassDir(), filter, trueFileFilter());
-    // We can increase the files size by 2 because the ParsingErrorCheck and ToDoCommentCheck is located in iac-commons
-    assertThat(checks()).hasSize(files.size() + 1 + (hasTodoCommentCheck() ? 1 : 0));
+    Collection<File> files = FileUtils.listFiles(new File("src/main/java/" + packageCheck.replaceAll("[.]", "/")), filter, trueFileFilter());
+    return files.stream()
+      .map(file -> getNameWithoutExtension(file.getName()))
+      .map(this::classForName)
+      .collect(Collectors.toList());
+  }
+
+  public static String getNameWithoutExtension(String fileName) {
+    int dotIndex = fileName.lastIndexOf('.');
+    return (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+  }
+
+  public Class<?> classForName(String name) {
+    try {
+      return Class.forName(packageCheck + "." + name);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
-   * Enforces that each check has a test
+   * Enforces that each check common check has a test
    */
   @Test
-  void test() {
-    for (Class<?> cls : checks()) {
+  void commonChecksShouldHaveTest() {
+    for (Class<?> cls : getListCommonChecks()) {
+      // Exception on ParsingErrorCheck that doesn't have a test class
       if (cls != ParsingErrorCheck.class) {
         String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
         assertThat(getClass().getResource(testName))
