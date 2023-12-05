@@ -42,7 +42,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   private static final Logger LOG = LoggerFactory.getLogger(CommentLocationVisitor.class);
 
-  private static final Pattern IS_LINE_NUMBER = Pattern.compile("^\\d+$");
+  private static final Pattern CONTAINS_LINE_NUMBER = Pattern.compile("#(?<number>\\d+)(\\s#\\d+)*+$");
   private static final Pattern LINE_SEPARATOR = Pattern.compile("\\r\\n|[\\n\\r\\u2028\\u2029]");
   private final LocationShifter shifter;
 
@@ -89,10 +89,13 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   }
 
   private void processComment(InputFileContext ctx, Comment comment) {
-    if (IS_LINE_NUMBER.matcher(comment.contentText()).matches()) {
+    var matcher = CONTAINS_LINE_NUMBER.matcher(comment.value());
+    if (matcher.find()) {
       int lineCommentLocation = comment.textRange().start().line();
-      var lineCommentValue = Integer.parseInt(comment.contentText());
+      var lineCommentValue = Integer.parseInt(matcher.group("number"));
       shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentValue);
+    } else {
+      LOG.debug("Line number comment not detected, comment: {}", comment.value());
     }
   }
 }

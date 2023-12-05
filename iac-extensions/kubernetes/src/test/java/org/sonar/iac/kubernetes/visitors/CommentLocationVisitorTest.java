@@ -22,7 +22,6 @@ package org.sonar.iac.kubernetes.visitors;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
@@ -37,11 +36,10 @@ import org.sonar.iac.common.yaml.tree.FileTreeImpl;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
 
 class CommentLocationVisitorTest {
@@ -59,7 +57,7 @@ class CommentLocationVisitorTest {
       "- key2:value2 #2");
     InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
 
-    scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
 
     TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
     assertThat(shiftedLocation1).hasRange(2, 0, 2, 15);
@@ -68,7 +66,6 @@ class CommentLocationVisitorTest {
   }
 
   @Test
-  @Disabled("SONARIAC-1175 Add support for already commented lines")
   void shouldFindShiftedLocationWithExistingComment() throws IOException {
     String originalCode = code("test:",
       "{{ helm code }} # some comment");
@@ -77,7 +74,7 @@ class CommentLocationVisitorTest {
       "- key2:value2 # some comment #2");
     InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
 
-    scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
 
     TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
     assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
@@ -86,17 +83,60 @@ class CommentLocationVisitorTest {
   }
 
   @Test
+  void shouldFindShiftedLocationWhenMultipleLineNumbers() throws IOException {
+    String originalCode = code(
+      "foo:",
+      "{{- range .Values.capabilities }}",
+      "  - {{ . | quote }}",
+      "{{- end }}");
+    String transformedCode = code(
+      "foo: #1 #2",
+      "  - \"SYS_ADMIN\" #3 #2",
+      "  - \"NET_ADMIN\" #3 #4");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
+
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
+
+    TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 16));
+    assertThat(shiftedLocation1).hasRange(3, 0, 3, 19);
+    TextRange shiftedLocation2 = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 16));
+    assertThat(shiftedLocation2).hasRange(3, 0, 3, 19);
+  }
+
+  @Test
+  void shouldFindShiftedLocationWhenCommentContainsHashNumber() throws IOException {
+    String originalCode = code(
+      "foo: {{ .Values.foo }} # fix in #123 issue",
+      "bar: {{ .Values.bar }} # fix in # 123 issue");
+    String transformedCode = code(
+      "foo: foo # fix in #123 issue #1",
+      "bar: bar # fix in # 123 issue #2");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
+
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
+
+    TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 1, 8));
+    assertThat(shiftedLocation1).hasRange(1, 0, 1, 42);
+    TextRange shiftedLocation2 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 8));
+    assertThat(shiftedLocation2).hasRange(2, 0, 2, 43);
+  }
+
+  @Test
   void shouldHandleInvalidLineNumberComment() throws IOException {
     String originalCode = code("test:",
       "{{ helm code }} # some comment");
     String transformedCode = code("test: #1",
-      "- key1:value1 #a");
+      "- key1:value1 #a",
+      "- key1:value1 #some comment #b");
     InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
 
-    scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
 
     TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
     assertThat(shiftedLocation1).hasRange(2, 1, 2, 5);
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Line number comment not detected, comment: #a",
+      "Line number comment not detected, comment: #some comment #b");
   }
 
   @Test
@@ -109,7 +149,7 @@ class CommentLocationVisitorTest {
       "- key3:value3");
     InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
 
-    scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
 
     TextRange textRange1 = TextRanges.range(2, 1, 2, 5);
     TextRange shiftedTextRange1 = shifter.computeShiftedLocation(ctx, textRange1);
@@ -127,12 +167,12 @@ class CommentLocationVisitorTest {
   @Test
   void shouldLogInaccessibleContent() throws IOException, URISyntaxException {
     var invalidFile = mockInputFileContextIOException("invalid.yaml");
-    scanFile(FileTree.Template.HELM, invalidFile, "test:value", "test:value");
+    scanFile(FileTree.Template.HELM, invalidFile, "test:value");
     assertThat(logTester.logs(Level.ERROR)).hasSize(1);
     assertThat(logTester.logs(Level.ERROR)).contains("Unable to read file: invalid.yaml.");
   }
 
-  private FileTree scanFile(FileTree.Template template, InputFileContext ctx, String originalCode, String transformedCode) throws IOException {
+  private FileTree scanFile(FileTree.Template template, InputFileContext ctx, String transformedCode) throws IOException {
     FileTree file = new KubernetesParser(new HelmProcessor()).parse(transformedCode, ctx);
     file = new FileTreeImpl(file.documents(), file.metadata(), template);
     CommentLocationVisitor visitor = new CommentLocationVisitor(shifter);
