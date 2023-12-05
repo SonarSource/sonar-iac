@@ -19,12 +19,10 @@
  */
 package org.sonar.iac.helm.jna.library;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import org.sonar.iac.helm.jna.mapping.GoString;
-import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 /**
  * This interface is used to call the native library.
@@ -33,26 +31,6 @@ import org.sonarsource.iac.helm.TemplateEvaluationResult;
  */
 public interface IacHelmLibrary extends Library {
   EvaluateTemplate_return.ByValue evaluateTemplate(GoString.ByValue path, GoString.ByValue content, GoString.ByValue valuesFileContent);
-
-  default TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) {
-    var rawEvaluationResult = evaluateTemplate(
-      new GoString.ByValue(path), new GoString.ByValue(content), new GoString.ByValue(valuesFileContent))
-        .getByteArray();
-
-    if (rawEvaluationResult.length == 0) {
-      throw new IllegalStateException("Empty evaluation result (serialization failed?)");
-    }
-
-    try {
-      var evaluationResult = TemplateEvaluationResult.parseFrom(rawEvaluationResult);
-      if (!evaluationResult.getError().isEmpty()) {
-        throw new IllegalStateException("[go] " + evaluationResult.getError());
-      }
-      return evaluationResult;
-    } catch (InvalidProtocolBufferException e) {
-      throw new IllegalStateException("Deserialization error", e);
-    }
-  }
 
   @Structure.FieldOrder({"r0", "r1"})
   class EvaluateTemplate_return extends Structure {

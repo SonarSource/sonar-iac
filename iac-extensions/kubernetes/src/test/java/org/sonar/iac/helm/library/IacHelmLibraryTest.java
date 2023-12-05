@@ -17,20 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.jna.library;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.sonar.iac.helm.jna.Loader;
-import org.sonar.iac.helm.jna.library.IacHelmLibrary;
+package org.sonar.iac.helm.library;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.sonar.iac.helm.jna.Loader;
+import org.sonar.iac.helm.jna.library.IacHelmLibrary;
+import org.sonar.iac.helm.jna.mapping.GoString;
+import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class IacHelmLibraryTest {
   @Test
@@ -44,7 +46,8 @@ class IacHelmLibraryTest {
       os = "linux";
     }
     var arch = System.getProperty("os.arch").toLowerCase();
-    Assertions.assertThatThrownBy(() -> (new Loader()).load("/non-existing-library", IacHelmLibrary.class))
+    var loader = new Loader();
+    Assertions.assertThatThrownBy(() -> loader.load("/non-existing-library", IacHelmLibrary.class))
       .isInstanceOf(UnsatisfiedLinkError.class)
       .hasMessageStartingWith("Unable to load library '/non-existing-library-" + os + "-" + arch + "'");
   }
@@ -52,7 +55,7 @@ class IacHelmLibraryTest {
   @Test
   void shouldFailWhenLoadingForUnknownPlatform() {
     var loader = Mockito.mock(Loader.class);
-    Mockito.when(loader.getNormalizedOsName()).thenReturn("freebsd");
+    Mockito.when(loader.getNormalizedOsName(anyString())).thenReturn("freebsd");
     Mockito.when(loader.load(any(), any())).thenCallRealMethod();
     var arch = System.getProperty("os.arch").toLowerCase();
 
@@ -67,7 +70,9 @@ class IacHelmLibraryTest {
 
     ClassLoader classLoader = getClass().getClassLoader();
     var template = new String(Files.readAllBytes(Path.of(classLoader.getResource("helm/templates/pod.yaml").toURI())));
-    var evaluationResult = iacHelmLibrary.evaluateTemplate("/helm/templates/pod.yaml", template, "container:\n  port: 8080");
+    var rawEvaluationResult = iacHelmLibrary.evaluateTemplate(
+      new GoString.ByValue("/helm/templates/pod.yaml"), new GoString.ByValue(template), new GoString.ByValue("container:\n  port: 8080"));
+    var evaluationResult = TemplateEvaluationResult.parseFrom(rawEvaluationResult.getByteArray());
 
     Assertions.assertThat(evaluationResult.getError()).isEmpty();
     Assertions.assertThat(evaluationResult.getTemplate()).isEqualTo("apiVersion: v1\n" +
@@ -82,5 +87,12 @@ class IacHelmLibraryTest {
       "        - name: web\n" +
       "          containerPort: 8080\n" +
       "          protocol: TCP\n");
+  }
+
+  @Test
+  void testGoString() {
+    // Empty constructor is required by JNA, but isn't covered by tests
+    var goString = new GoString();
+    Assertions.assertThat(goString.p).isNull();
   }
 }

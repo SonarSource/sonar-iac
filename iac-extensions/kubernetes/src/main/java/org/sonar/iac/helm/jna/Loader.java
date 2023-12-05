@@ -41,7 +41,8 @@ public class Loader {
    * It also takes care of mapping Go function names to Java method names not to break camelCase convention on Java side.
    */
   public <T extends Library> T load(String name, Class<T> libraryClass) {
-    var os = getNormalizedOsName();
+    var os = System.getProperty("os.name");
+    os = getNormalizedOsName(os);
     var arch = System.getProperty("os.arch").toLowerCase(Locale.ROOT);
 
     if (!SUPPORTED_PLATFORMS.contains(os + "-" + arch)) {
@@ -52,10 +53,12 @@ public class Loader {
       Library.OPTION_FUNCTION_MAPPER, (FunctionMapper) (NativeLibrary library, Method method) -> StringUtils.capitalize(method.getName())));
   }
 
-  public String getNormalizedOsName() {
-    var os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-    // Normalize OS name, e.g. map `windows server 2020` to `windows`
-    if (os.startsWith("mac")) {
+  /**
+   * Normalize OS name, e.g. map `windows server 2020` to `windows`
+   */
+  public String getNormalizedOsName(String os) {
+    os = os.toLowerCase(Locale.ROOT);
+    if (os.startsWith("mac") || os.startsWith("darwin")) {
       os = "darwin";
     } else if (os.startsWith("win")) {
       os = "windows";
