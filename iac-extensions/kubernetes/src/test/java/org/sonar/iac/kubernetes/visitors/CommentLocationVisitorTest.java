@@ -88,8 +88,7 @@ class CommentLocationVisitorTest {
       "foo:",
       "{{- range .Values.capabilities }}",
       "  - {{ . | quote }}",
-      "{{- end }}"
-    );
+      "{{- end }}");
     String transformedCode = code(
       "foo: #1 #2",
       "  - \"SYS_ADMIN\" #3 #2",
@@ -108,12 +107,10 @@ class CommentLocationVisitorTest {
   void shouldFindShiftedLocationWhenCommentContainsHashNumber() throws IOException {
     String originalCode = code(
       "foo: {{ .Values.foo }} # fix in #123 issue",
-      "bar: {{ .Values.bar }} # fix in # 123 issue"
-    );
+      "bar: {{ .Values.bar }} # fix in # 123 issue");
     String transformedCode = code(
       "foo: foo # fix in #123 issue #1",
-      "bar: bar # fix in # 123 issue #2"
-    );
+      "bar: bar # fix in # 123 issue #2");
     InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
 
     scanFile(FileTree.Template.HELM, ctx, transformedCode);
