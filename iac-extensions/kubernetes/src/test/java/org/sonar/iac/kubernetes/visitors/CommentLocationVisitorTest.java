@@ -68,7 +68,6 @@ class CommentLocationVisitorTest {
   }
 
   @Test
-  @Disabled("SONARIAC-1175 Add support for already commented lines")
   void shouldFindShiftedLocationWithExistingComment() throws IOException {
     String originalCode = code("test:",
       "{{ helm code }} # some comment");
@@ -90,13 +89,17 @@ class CommentLocationVisitorTest {
     String originalCode = code("test:",
       "{{ helm code }} # some comment");
     String transformedCode = code("test: #1",
-      "- key1:value1 #a");
+      "- key1:value1 #a",
+      "- key1:value1 #some comment #b");
     InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
 
     scanFile(FileTree.Template.HELM, ctx, originalCode, transformedCode);
 
     TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
     assertThat(shiftedLocation1).hasRange(2, 1, 2, 5);
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Line number comment not detected, comment: #a",
+      "Line number comment not detected, comment: #some comment #b");
   }
 
   @Test

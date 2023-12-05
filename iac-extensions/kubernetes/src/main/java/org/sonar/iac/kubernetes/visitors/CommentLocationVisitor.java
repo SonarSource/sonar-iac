@@ -43,6 +43,7 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   private static final Logger LOG = LoggerFactory.getLogger(CommentLocationVisitor.class);
 
   private static final Pattern IS_LINE_NUMBER = Pattern.compile("^\\d+$");
+  private static final Pattern CONTAINS_LINE_NUMBER = Pattern.compile("\\s#(?<number>\\d+)$");
   private static final Pattern LINE_SEPARATOR = Pattern.compile("\\r\\n|[\\n\\r\\u2028\\u2029]");
   private final LocationShifter shifter;
 
@@ -90,9 +91,20 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
 
   private void processComment(InputFileContext ctx, Comment comment) {
     if (IS_LINE_NUMBER.matcher(comment.contentText()).matches()) {
+      // there is only line comment
       int lineCommentLocation = comment.textRange().start().line();
       var lineCommentValue = Integer.parseInt(comment.contentText());
       shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentValue);
+    } else {
+      var matcher = CONTAINS_LINE_NUMBER.matcher(comment.contentText());
+      if (matcher.find()) {
+        // the comment contains a comment with line number
+        int lineCommentLocation = comment.textRange().start().line();
+        var lineCommentValue = Integer.parseInt(matcher.group("number"));
+        shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentValue);
+      } else {
+        LOG.debug("Line number comment not detected, comment: {}", comment.value());
+      }
     }
   }
 }
