@@ -23,8 +23,6 @@ import com.sun.jna.FunctionMapper;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
-import org.apache.commons.lang.StringUtils;
-
 import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.Map;
@@ -50,7 +48,8 @@ public class Loader {
     }
 
     return Native.load(name + "-" + os + "-" + arch, libraryClass, Map.of(
-      Library.OPTION_FUNCTION_MAPPER, (FunctionMapper) (NativeLibrary library, Method method) -> StringUtils.capitalize(method.getName())));
+      Library.OPTION_FUNCTION_MAPPER,
+      (FunctionMapper) (NativeLibrary library, Method method) -> method.getName().substring(0, 1).toUpperCase(Locale.ROOT) + method.getName().substring(1)));
   }
 
   /**

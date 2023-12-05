@@ -119,7 +119,7 @@ class KubernetesParserTest {
 
       var logs = logTester.logs(Level.DEBUG);
       assertThat(logs).contains("Helm content detected in file 'foo.yaml'",
-        "Failed to read values file, skipping processing of Helm file 'foo.yaml'");
+        "Failed to find values file, skipping processing of Helm file 'foo.yaml'");
     }
   }
 

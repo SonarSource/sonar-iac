@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.utils;
 
+import java.nio.file.Path;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -31,15 +32,20 @@ public class HelmFilesystemUtils {
   }
 
   public static @Nullable InputFile findValuesFile(InputFileContext inputFileContext) {
-    var valuesFilePredicate = valuesFilePredicate(inputFileContext.sensorContext);
+    var valuesFilePredicate = valuesFilePredicate(inputFileContext, inputFileContext.sensorContext);
     return inputFileContext.sensorContext.fileSystem().inputFile(valuesFilePredicate);
   }
 
-  private static FilePredicate valuesFilePredicate(SensorContext sensorContext) {
+  private static FilePredicate valuesFilePredicate(InputFileContext inputFileContext, SensorContext sensorContext) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
+    var pathToValuesFile = Path.of(inputFileContext.inputFile.uri())
+      .getParent()
+      .resolve("../values.yaml")
+      .normalize()
+      .toAbsolutePath()
+      .toString();
     return predicates.and(
-      predicates.hasLanguage("yaml"),
-      predicates.hasType(InputFile.Type.MAIN),
-      predicates.hasFilename("values.yaml"));
+      predicates.hasExtension("yaml"),
+      predicates.hasAbsolutePath(pathToValuesFile));
   }
 }

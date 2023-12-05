@@ -20,6 +20,8 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -28,6 +30,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.jna.Loader;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 
@@ -71,12 +74,13 @@ class HelmProcessorTest {
   }
 
   @Test
-  void shouldSkipHelmEvaluationIfValuesFileNotRead() throws IOException {
+  void shouldSkipHelmEvaluationIfValuesFileNotRead() throws IOException, URISyntaxException {
     var helmProcessor = new HelmProcessor();
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var badValuesFile = Mockito.mock(InputFile.class);
       when(badValuesFile.contents()).thenThrow(new IOException("Failed to read values file"));
+      when(badValuesFile.uri()).thenReturn(new URI("file:///projects/chart/values.yaml"));
       when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(badValuesFile);
       var inputFileContext = Mockito.mock(InputFileContext.class);
 
@@ -84,7 +88,7 @@ class HelmProcessorTest {
 
       assertNull(result);
       Assertions.assertThat(logTester.logs(Level.DEBUG))
-        .contains("Failed to read values file, skipping processing of Helm file 'foo.yaml'");
+        .contains("Failed to read values file at file:///projects/chart/values.yaml, skipping processing of Helm file 'foo.yaml'");
     }
   }
 
@@ -120,6 +124,26 @@ class HelmProcessorTest {
       var result = helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext);
 
       assertEquals("containerPort: 8080", result);
+    }
+  }
+
+  @Test
+  void shouldSkipHelmEvaluationIfHelmEvaluatorThrows() throws IOException {
+    var helmEvaluator = Mockito.mock(HelmEvaluator.class);
+    when(helmEvaluator.evaluateTemplate(anyString(), anyString(), anyString())).thenThrow(new IllegalStateException("Failed to evaluate template"));
+    var helmProcessor = new HelmProcessor(helmEvaluator);
+
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = Mockito.mock(InputFile.class);
+      when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
+      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(valuesFile);
+      var inputFileContext = Mockito.mock(InputFileContext.class);
+
+      var result = helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext);
+
+      assertNull(result);
+      Assertions.assertThat(logTester.logs(Level.DEBUG))
+        .contains("Template evaluation failed, skipping processing of Helm file 'foo.yaml'. Reason: ");
     }
   }
 }

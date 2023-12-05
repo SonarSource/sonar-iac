@@ -42,6 +42,14 @@ public class HelmProcessor {
   private HelmEvaluator helmEvaluator;
   protected Loader loader = new Loader();
 
+  public HelmProcessor() {
+  }
+
+  // for testing
+  HelmProcessor(HelmEvaluator helmEvaluator) {
+    this.helmEvaluator = helmEvaluator;
+  }
+
   public void initialize() {
     HelmEvaluator newHelmEvaluator;
     try {
@@ -62,15 +70,16 @@ public class HelmProcessor {
       try {
         return evaluateHelmTemplate(filename, source, valuesFile.contents());
       } catch (IOException e) {
-        LOG.debug("Failed to read values file, skipping processing of Helm file '{}'", filename, e);
+        LOG.debug("Failed to read values file at {}, skipping processing of Helm file '{}'", valuesFile.uri(), filename, e);
       }
     } else {
-      LOG.debug("Failed to read values file, skipping processing of Helm file '{}'", filename);
+      LOG.debug("Failed to find values file, skipping processing of Helm file '{}'", filename);
     }
 
     return null;
   }
 
+  @Nullable
   private String evaluateHelmTemplate(String path, String content, String valuesFileContent) {
     if (helmEvaluator == null || valuesFileContent.isBlank()) {
       LOG.debug("Template cannot be evaluated, skipping processing of Helm file '{}'", path);
@@ -81,7 +90,7 @@ public class HelmProcessor {
       return evaluationResult.getTemplate();
     } catch (IllegalStateException e) {
       LOG.debug("Template evaluation failed, skipping processing of Helm file '{}'. Reason: ", path, e);
-      return "{}";
+      return null;
     }
   }
 }
