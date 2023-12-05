@@ -103,7 +103,9 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
         var lineCommentValue = Integer.parseInt(matcher.group("number"));
         shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentValue);
       } else {
-        LOG.debug("Line number comment not detected, comment: {}", comment.value());
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Line number comment not detected, comment: {}", comment.value());
+        }
       }
     }
   }
