@@ -27,6 +27,7 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
@@ -58,13 +59,21 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
   }
 
   protected void highlight(HasTextRange tree, TypeOfText typeOfText) {
-    if (!TextRanges.isValidAndNotEmpty(tree.textRange())) {
+    highlight(tree.textRange(), typeOfText);
+  }
+
+  protected void highlight(TextRange textRange, TypeOfText typeOfText) {
+    if (!TextRanges.isValidAndNotEmpty(textRange)) {
       LOG.debug("Tried to highlight a tree with an empty or invalid range. Skipping it.");
       return;
     }
 
     newHighlighting.highlight(
-      inputFile.newRange(tree.textRange().start().line(), tree.textRange().start().lineOffset(), tree.textRange().end().line(), tree.textRange().end().lineOffset()),
+      inputFile.newRange(
+        textRange.start().line(),
+        textRange.start().lineOffset(),
+        textRange.end().line(),
+        textRange.end().lineOffset()),
       typeOfText);
   }
 

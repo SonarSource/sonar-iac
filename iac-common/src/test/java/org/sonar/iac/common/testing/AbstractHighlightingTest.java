@@ -61,6 +61,7 @@ public abstract class AbstractHighlightingTest {
     inputFile = new TestInputFileBuilder("moduleKey", tempFolder.getName())
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code)
+      .setContents(code)
       .build();
     this.code = code;
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);

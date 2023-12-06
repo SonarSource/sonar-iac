@@ -67,10 +67,14 @@ public class KubernetesParser extends YamlParser {
   public static boolean hasHelmContent(String text) {
     String[] lines = LINE_TERMINATOR.split(text);
     for (String line : lines) {
-      if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
+      if (hasHelmContentInLine(line)) {
         return true;
       }
     }
     return false;
+  }
+
+  public static boolean hasHelmContentInLine(String line) {
+    return line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find();
   }
 }
