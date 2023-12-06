@@ -39,9 +39,8 @@ public class Loader {
    * It also takes care of mapping Go function names to Java method names not to break camelCase convention on Java side.
    */
   public <T extends Library> T load(String name, Class<T> libraryClass) {
-    var os = System.getProperty("os.name");
-    os = getNormalizedOsName(os);
-    var arch = System.getProperty("os.arch").toLowerCase(Locale.ROOT);
+    var os = getNormalizedOsName(System.getProperty("os.name"));
+    var arch = getNormalizedArchName(System.getProperty("os.arch"));
 
     if (!SUPPORTED_PLATFORMS.contains(os + "-" + arch)) {
       throw new IllegalStateException("Unsupported platform: " + os + "-" + arch);
@@ -67,5 +66,17 @@ public class Loader {
       throw new IllegalStateException("Unsupported OS: " + os);
     }
     return os;
+  }
+
+  public String getNormalizedArchName(String arch) {
+    arch = arch.toLowerCase(Locale.ROOT);
+    if ("x86_64".equals(arch) || "amd64".equals(arch)) {
+      arch = "amd64";
+    } else if ("aarch64".equals(arch) || "arm64".equals(arch)) {
+      arch = "arm64";
+    } else {
+      throw new IllegalStateException("Unsupported architecture: " + arch);
+    }
+    return arch;
   }
 }

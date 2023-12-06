@@ -19,14 +19,13 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
-
-import javax.annotation.Nullable;
-import java.util.regex.Pattern;
 
 public class KubernetesParser extends YamlParser {
 
@@ -51,7 +50,7 @@ public class KubernetesParser extends YamlParser {
     if (hasHelmContent(source)) {
       if (inputFileContext != null) {
         var filename = inputFileContext.inputFile.filename();
-        LOG.debug("Helm content detected in file '{}'", filename);
+        LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
         var evaluatedSource = helmProcessor.processHelmTemplate(filename, source, inputFileContext);
         if (evaluatedSource != null) {
           return super.parse(evaluatedSource, inputFileContext, FileTree.Template.HELM);

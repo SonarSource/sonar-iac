@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
@@ -53,7 +54,7 @@ class HelmProcessorTest {
 
     helmProcessor.initialize();
 
-    Assertions.assertThat(logTester.logs(Level.DEBUG))
+    Assertions.assertThat(logTester.logs(Level.INFO))
       .contains("Native library not loaded, Helm integration will be disabled");
   }
 
@@ -81,14 +82,17 @@ class HelmProcessorTest {
       var badValuesFile = Mockito.mock(InputFile.class);
       when(badValuesFile.contents()).thenThrow(new IOException("Failed to read values file"));
       when(badValuesFile.uri()).thenReturn(new URI("file:///projects/chart/values.yaml"));
+      when(badValuesFile.toString()).thenReturn("chart/values.yaml");
       when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(badValuesFile);
-      var inputFileContext = Mockito.mock(InputFileContext.class);
+      var inputFile = Mockito.mock(InputFile.class);
+      when(inputFile.toString()).thenReturn("chart/templates/foo.yaml");
+      var inputFileContext = new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
 
       var result = helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext);
 
       assertNull(result);
       Assertions.assertThat(logTester.logs(Level.DEBUG))
-        .contains("Failed to read values file at file:///projects/chart/values.yaml, skipping processing of Helm file 'foo.yaml'");
+        .contains("Failed to read values file at chart/values.yaml, skipping processing of Helm file 'chart/templates/foo.yaml'");
     }
   }
 

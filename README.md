@@ -51,6 +51,7 @@ for Terraform in `iac-extensions/terraform`.
 * Java 11
 * Maven
 * Go 1.21.1
+* gcc (minGW on Windows)
 * protoc 25.0
 * protoc-gen-go 1.31.0
 

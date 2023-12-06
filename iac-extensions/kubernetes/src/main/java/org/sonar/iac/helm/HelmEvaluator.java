@@ -43,7 +43,7 @@ public class HelmEvaluator {
     try {
       var evaluationResult = TemplateEvaluationResult.parseFrom(rawEvaluationResult);
       if (!evaluationResult.getError().isEmpty()) {
-        throw new IllegalStateException("[go] " + evaluationResult.getError());
+        throw new IllegalStateException("Evaluation error in Go library: " + evaluationResult.getError());
       }
       return evaluationResult;
     } catch (InvalidProtocolBufferException e) {

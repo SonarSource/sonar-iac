@@ -20,7 +20,7 @@
 package org.sonar.iac.helm.utils;
 
 import java.nio.file.Path;
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
@@ -31,7 +31,8 @@ public final class HelmFilesystemUtils {
   private HelmFilesystemUtils() {
   }
 
-  public static @Nullable InputFile findValuesFile(InputFileContext inputFileContext) {
+  @CheckForNull
+  public static InputFile findValuesFile(InputFileContext inputFileContext) {
     var valuesFilePredicate = valuesFilePredicate(inputFileContext, inputFileContext.sensorContext);
     return inputFileContext.sensorContext.fileSystem().inputFile(valuesFilePredicate);
   }

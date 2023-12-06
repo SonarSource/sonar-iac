@@ -60,13 +60,16 @@ class KubernetesParserTest {
   @Test
   void testParsingWhenHelmContentIsDetected() {
     when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
+    when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
+
     FileTree file = parser.parse("foo: {{ .Value.var }}", inputFileContext);
+
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).hasSize(1);
     assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'foo.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'chart/templates/foo.yaml'");
   }
 
   @Test
@@ -98,6 +101,7 @@ class KubernetesParserTest {
     when(valuesFile.contents()).thenReturn("foo: bar");
     when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
     when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
+    when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
 
     FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
 
@@ -105,7 +109,7 @@ class KubernetesParserTest {
     assertThat(file.documents().get(0).children()).hasSize(1);
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'foo.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'chart/templates/foo.yaml'");
   }
 
   @Test
@@ -113,13 +117,16 @@ class KubernetesParserTest {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(null);
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenCallRealMethod();
+      when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
+
       FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+
       assertThat(file.documents()).hasSize(1);
       assertThat(file.documents().get(0).children()).isEmpty();
 
       var logs = logTester.logs(Level.DEBUG);
-      assertThat(logs).contains("Helm content detected in file 'foo.yaml'",
-        "Failed to find values file, skipping processing of Helm file 'foo.yaml'");
+      assertThat(logs).contains("Helm content detected in file 'chart/templates/foo.yaml'",
+        "Failed to find values file, skipping processing of Helm file 'chart/templates/foo.yaml'");
     }
   }
 

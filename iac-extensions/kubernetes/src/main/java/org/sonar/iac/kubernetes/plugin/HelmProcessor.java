@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,13 +57,13 @@ public class HelmProcessor {
       IacHelmLibrary library = loader.load("/sonar-helm-for-iac", IacHelmLibrary.class);
       newHelmEvaluator = new HelmEvaluator(library);
     } catch (RuntimeException e) {
-      LOG.debug("Native library not loaded, Helm integration will be disabled", e);
+      LOG.info("Native library not loaded, Helm integration will be disabled", e);
       newHelmEvaluator = null;
     }
     this.helmEvaluator = newHelmEvaluator;
   }
 
-  @Nullable
+  @CheckForNull
   String processHelmTemplate(String filename, String source, InputFileContext inputFileContext) {
     // TODO: better support of Helm project structure
     var valuesFile = findValuesFile(inputFileContext);
@@ -70,16 +71,16 @@ public class HelmProcessor {
       try {
         return evaluateHelmTemplate(filename, source, valuesFile.contents());
       } catch (IOException e) {
-        LOG.debug("Failed to read values file at {}, skipping processing of Helm file '{}'", valuesFile.uri(), filename, e);
+        LOG.debug("Failed to read values file at {}, skipping processing of Helm file '{}'", valuesFile, inputFileContext.inputFile, e);
       }
     } else {
-      LOG.debug("Failed to find values file, skipping processing of Helm file '{}'", filename);
+      LOG.debug("Failed to find values file, skipping processing of Helm file '{}'", inputFileContext.inputFile);
     }
 
     return null;
   }
 
-  @Nullable
+  @CheckForNull
   private String evaluateHelmTemplate(String path, String content, String valuesFileContent) {
     if (helmEvaluator == null || valuesFileContent.isBlank()) {
       LOG.debug("Template cannot be evaluated, skipping processing of Helm file '{}'", path);

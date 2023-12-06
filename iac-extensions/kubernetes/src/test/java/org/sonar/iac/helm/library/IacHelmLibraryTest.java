@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.jna.Loader;
 import org.sonar.iac.helm.jna.library.IacHelmLibrary;
 import org.sonar.iac.helm.jna.mapping.GoString;
@@ -56,6 +57,7 @@ class IacHelmLibraryTest {
   void shouldFailWhenLoadingForUnknownPlatform() {
     var loader = Mockito.mock(Loader.class);
     Mockito.when(loader.getNormalizedOsName(anyString())).thenReturn("freebsd");
+    Mockito.when(loader.getNormalizedArchName(anyString())).thenReturn("amd64");
     Mockito.when(loader.load(any(), any())).thenCallRealMethod();
     var arch = System.getProperty("os.arch").toLowerCase();
 
@@ -75,18 +77,20 @@ class IacHelmLibraryTest {
     var evaluationResult = TemplateEvaluationResult.parseFrom(rawEvaluationResult.getByteArray());
 
     Assertions.assertThat(evaluationResult.getError()).isEmpty();
-    Assertions.assertThat(evaluationResult.getTemplate()).isEqualTo("apiVersion: v1\n" +
-      "kind: Pod\n" +
-      "metadata:\n" +
-      "  name: example\n" +
-      "spec:\n" +
-      "  containers:\n" +
-      "    - name: web\n" +
-      "      image: nginx\n" +
-      "      ports:\n" +
-      "        - name: web\n" +
-      "          containerPort: 8080\n" +
-      "          protocol: TCP\n");
+    Assertions.assertThat(evaluationResult.getTemplate()).isEqualTo(IacTestUtils.code(
+      "apiVersion: v1",
+      "kind: Pod",
+      "metadata:",
+      "  name: example",
+      "spec:",
+      "  containers:",
+      "    - name: web",
+      "      image: nginx",
+      "      ports:",
+      "        - name: web",
+      "          containerPort: 8080",
+      "          protocol: TCP",
+      ""));
   }
 
   @Test

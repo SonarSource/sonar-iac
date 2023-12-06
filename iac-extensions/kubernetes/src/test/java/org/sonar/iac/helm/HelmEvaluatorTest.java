@@ -39,7 +39,7 @@ class HelmEvaluatorTest {
     Mockito.when(iacHelmLibrary.evaluateTemplate(any(), any(), any())).thenReturn(emptyRawResult);
     var helmEvaluator = new HelmEvaluator(iacHelmLibrary);
 
-    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/helm/templates/pod.yaml", "", ""))
+    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Empty evaluation result (serialization failed?)");
   }
@@ -49,7 +49,7 @@ class HelmEvaluatorTest {
     var iacHelmLibrary = (new Loader()).load("/sonar-helm-for-iac", IacHelmLibrary.class);
     var helmEvaluator = new HelmEvaluator(iacHelmLibrary);
 
-    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/helm/templates/pod.yaml", "containerPort: {{ .Values.", "container:\n  port: 8080"))
+    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.", "container:\n  port: 8080"))
       .isInstanceOf(IllegalStateException.class);
   }
 
@@ -63,7 +63,7 @@ class HelmEvaluatorTest {
       Mockito.when(iacHelmLibrary.evaluateTemplate(any(), any(), any())).thenReturn(rawEvaluationResult);
       Mockito.when(rawEvaluationResult.getByteArray()).thenReturn(new byte[1]);
 
-      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/helm/templates/pod.yaml", "", ""))
+      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Deserialization error");
     }
@@ -74,7 +74,7 @@ class HelmEvaluatorTest {
     var iacHelmLibrary = (new Loader()).load("/sonar-helm-for-iac", IacHelmLibrary.class);
     var helmEvaluator = new HelmEvaluator(iacHelmLibrary);
 
-    var evaluationResult = helmEvaluator.evaluateTemplate("/helm/templates/pod.yaml", "containerPort: {{ .Values.container.port }}", "container:\n  port: 8080");
+    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}", "container:\n  port: 8080");
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
   }

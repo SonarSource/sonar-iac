@@ -48,4 +48,24 @@ class LoaderTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Unsupported OS: freebsd");
   }
+
+  @ParameterizedTest
+  @CsvSource({
+    "amd64,amd64",
+    "x86_64,amd64",
+    "aarch64,arm64",
+    "arm64,arm64",
+  })
+  void shouldNormalizeArchNames(String archName, String expected) {
+    var loader = new Loader();
+    assertEquals(expected, loader.getNormalizedArchName(archName));
+  }
+
+  @Test
+  void shouldThrowOnUnknownArch() {
+    var loader = new Loader();
+    Assertions.assertThatThrownBy(() -> loader.getNormalizedArchName("arm"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unsupported architecture: arm");
+  }
 }
