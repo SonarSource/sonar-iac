@@ -50,15 +50,6 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     when(mockParser.parse(any(), any())).thenReturn(mockTree);
   }
 
-  // cases to remember
-  // port: !!int "80"
-  // 'this value can include a sq with the following escape '' and now it ends '
-
-  // The pipe | will start a multiline string that ends with a new key?
-  // The folding operator > will start a multiline string that ends with a new key?
-
-  // Values don't have to end in ' or " but can continue on the next line..
-
   @ParameterizedTest
   @ValueSource(strings = {
     // quoteless key
@@ -107,19 +98,6 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     assertHighlighting(keyEndIndex + 1, valueStartIndex - 1, null);
     assertHighlighting(valueStartIndex, code.length() - 1, STRING);
   }
-
-  @Test
-  @Disabled("Values without quotes don't support inclusion of '#' character")
-  void test() {
-    highlight("\"key\": value#Comment");
-    assertHighlighting(0, 4, KEYWORD);
-    assertHighlighting(5, 6, null);
-    assertHighlighting(7, 19, STRING);
-  }
-
-  // ======================================================================================
-  // WORKING AS INTENDED
-  // ======================================================================================
 
   @Test
   void valueWithComment() {

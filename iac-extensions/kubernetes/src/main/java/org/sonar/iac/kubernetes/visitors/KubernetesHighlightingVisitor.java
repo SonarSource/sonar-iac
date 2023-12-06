@@ -41,7 +41,17 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
 
 /*
   * This visitor will highlight kubernetes and helm files based on regex matching.
-  * Currently, it's not being used in the Sensor as well, but will be in one of the next commits. 
+  * Currently, it's not being used in the Sensor as well, but will be in one of the next commits.
+  *
+  * Known limitations:
+  *  - Inside single quoted strings, the only escape character is the single quote itself, which is not supported yet
+  *  - I'm not sure about quoted scalar flows, they need to be tested
+  *  - quoteless values don't allow the '#' character
+  *
+  * Test cases to add:
+  *   - multiline values after different keys or just scalar values
+  *   - multiline values with comments
+  *   - empty key / values
  */
 public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
 
