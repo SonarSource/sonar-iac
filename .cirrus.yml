@@ -146,7 +146,7 @@ build_task:
     - mkdir -p sonar-helm-for-iac/target/classes/
     - unzip -o go_binaries.zip -d . && rm go_binaries.zip && find ./sonar-helm-for-iac/target/classes -name "*.h" -delete
     - go version
-    - regular_mvn_build_deploy_analyze
+    - regular_mvn_build_deploy_analyze -Pall-go-binaries
   cleanup_before_cache_script: cleanup_maven_repository
 
 qa_os_win_task:

@@ -162,13 +162,7 @@
 
   <profiles>
     <profile>
-      <id>ci</id>
-      <activation>
-        <property>
-          <name>env.CI</name>
-          <value>true</value>
-        </property>
-      </activation>
+      <id>all-go-binaries</id>
       <properties>
         <archive.size.max>20000000</archive.size.max>
         <archive.size.min>19000000</archive.size.min>
