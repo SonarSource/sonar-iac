@@ -48,13 +48,18 @@ public class KubernetesParser extends YamlParser {
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
     if (hasHelmContent(source)) {
-      var filename = "";
       if (inputFileContext != null) {
-        filename = inputFileContext.inputFile.filename();
+        var filename = inputFileContext.inputFile.filename();
+        LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
+        var evaluatedSource = helmProcessor.processHelmTemplate(filename, source, inputFileContext);
+        if (evaluatedSource != null) {
+          return super.parse(evaluatedSource, inputFileContext, FileTree.Template.HELM);
+        }
+      } else {
+        LOG.debug("No InputFileContext provided, skipping processing of Helm file");
       }
-      LOG.debug("Helm content detected in file '{}'", filename);
-      source = helmProcessor.processHelmTemplate(source);
-      return super.parse(source, inputFileContext, FileTree.Template.HELM);
+
+      return super.parse("{}", inputFileContext, FileTree.Template.HELM);
     }
     return super.parse(source, inputFileContext);
   }

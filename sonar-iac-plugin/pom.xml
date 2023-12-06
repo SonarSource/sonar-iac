@@ -107,8 +107,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>2100000</maxsize>
-                  <minsize>1900000</minsize>
+                  <maxsize>${archive.size.max}</maxsize>
+                  <minsize>${archive.size.min}</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
@@ -159,5 +159,43 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>ci</id>
+      <activation>
+        <property>
+          <name>env.CI</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <properties>
+        <archive.size.max>20000000</archive.size.max>
+        <archive.size.min>19000000</archive.size.min>
+      </properties>
+    </profile>
+    <profile>
+      <id>local</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <archive.size.max>11000000</archive.size.max>
+        <archive.size.min>10000000</archive.size.min>
+      </properties>
+    </profile>
+    <profile>
+      <id>local-windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <archive.size.max>11000000</archive.size.max>
+        <archive.size.min>10000000</archive.size.min>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>
