@@ -32,6 +32,7 @@ import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
@@ -44,9 +45,8 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
   * Currently, it's not being used in the Sensor as well, but will be in one of the next commits.
   *
   * Known limitations:
-  *  - Inside single quoted strings, the only escape character is the single quote itself, which is not supported yet
   *  - I'm not sure about quoted scalar flows, they need to be tested
-  *  - quoteless values don't allow the '#' character
+  *  - embedded json
   *
   * Test cases to add:
   *   - multiline values after different keys or just scalar values
@@ -62,10 +62,10 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
   private static final String SINGLE_QUOTED_VALUE_GROUP_NAME = "singleQuotedValue";
   private static final String QUOTELESS_VALUE_GROUP_NAME = "quotelessValue";
 
-  private static final String DOUBLE_QUOTED_KEY = quoted("doubleQuotedKey", "\"");
-  private static final String DOUBLE_QUOTED_VALUE = quoted(DOUBLE_QUOTED_VALUE_GROUP_NAME, "\"");
-  private static final String SINGLE_QUOTED_KEY = quoted("singleQuotedKey", "'");
-  private static final String SINGLE_QUOTED_VALUE = quoted(SINGLE_QUOTED_VALUE_GROUP_NAME, "'");
+  private static final String DOUBLE_QUOTED_KEY = doubleQuoted("doubleQuotedKey");
+  private static final String DOUBLE_QUOTED_VALUE = doubleQuoted(DOUBLE_QUOTED_VALUE_GROUP_NAME);
+  private static final String SINGLE_QUOTED_KEY = singleQuoted("singleQuotedKey");
+  private static final String SINGLE_QUOTED_VALUE = singleQuoted(SINGLE_QUOTED_VALUE_GROUP_NAME);
   private static final String QUOTELESS_KEY = quoteless("quotelessKey");
   private static final String QUOTELESS_VALUE = quoteless(QUOTELESS_VALUE_GROUP_NAME);
   private static final String MULTI_LINE_OPERATORS = "(?<multilineOperator>[|>])";
@@ -103,18 +103,22 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     QUOTELESS_VALUE_GROUP_NAME, STRING,
     "comment", COMMENT);
 
-  private static String quoted(String groupName, String quotes) {
-    return "(?<" + groupName + ">" + quotes + "[^" + quotes + "]*" + quotes + ")";
+  private static String doubleQuoted(String groupName) {
+    return "(?<" + groupName + ">\"(?:\\\\.|[^\"])*\")";
+  }
+
+  private static String singleQuoted(String groupName) {
+    return "(?<" + groupName + ">'(?:''|[^'])*')";
   }
 
   // Current limitation: We don't allow '#' in quoteless variable names
   private static String quoteless(String groupName) {
-    return "(?<" + groupName + ">[^'\"%#]*)";
+    return "(?<" + groupName + ">(?:[^'\"%#](?:(?<!\\h)#|[^%#])*)?)";
   }
 
   @Override
   protected void languageSpecificHighlighting() {
-    register(Tree.class, (ctx, tree) -> highlightContent(ctx));
+    register(FileTree.class, (ctx, tree) -> highlightContent(ctx));
   }
 
   private void highlightContent(InputFileContext context) {
@@ -139,7 +143,6 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
       for (Map.Entry<String, TypeOfText> groupNameToType : GROUPNAME_TO_TYPE.entrySet()) {
         highlightMatch(combinedMatcher, groupNameToType.getKey(), lineNumber, groupNameToType.getValue());
       }
-
     } else {
       var scalarMatcher = SCALAR_VALUE_PATTERN.matcher(line);
       if (scalarMatcher.matches()) {
@@ -161,5 +164,10 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     var textRangeToHighlight = new TextRange(startPointer, endPointer);
 
     highlight(textRangeToHighlight, typeOfText);
+  }
+
+  @Override
+  public void highlightComments(Tree tree) {
+    // do nothing, this will get triggered regardless
   }
 }

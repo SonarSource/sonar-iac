@@ -77,7 +77,7 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
       typeOfText);
   }
 
-  private void highlightComments(Tree tree) {
+  public void highlightComments(Tree tree) {
     if (tree instanceof HasComments) {
       ((HasComments) tree).comments().forEach(comment -> highlight(comment, COMMENT));
     }

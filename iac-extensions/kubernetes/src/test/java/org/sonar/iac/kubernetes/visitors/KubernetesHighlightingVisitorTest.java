@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -59,6 +58,8 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     "key: 'va#lue'",
     "key: \"value\"",
     "key: \"val#ue\"",
+    "k'ey: val'ue",
+    "k\"ey: val\"ue",
 
     // single quoted key
     "'key': value",
@@ -97,6 +98,23 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     assertHighlighting(0, keyEndIndex, KEYWORD);
     assertHighlighting(keyEndIndex + 1, valueStartIndex - 1, null);
     assertHighlighting(valueStartIndex, code.length() - 1, STRING);
+  }
+
+  @Test
+  void keyWithValueWithEscapedQuotes() {
+    highlight("\"ke\\\"y\": 'val''ue'");
+    assertHighlighting(0, 6, KEYWORD);
+    assertHighlighting(7, 8, null);
+    assertHighlighting(9, 17, STRING);
+  }
+
+  @Test
+  void keyWithValueWithEscapedQuotesWithComment() {
+    highlight("'ke''y': \"val\\\"ue\" #Comment");
+    assertHighlighting(0, 6, KEYWORD);
+    assertHighlighting(7, 8, null);
+    assertHighlighting(9, 17, STRING);
+    assertHighlighting(19, 26, COMMENT);
   }
 
   @Test
@@ -224,29 +242,22 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     assertHighlighting(15, 22, COMMENT);
   }
 
-  // ======================================================================================
-  // Limitations of the highlighting
-  // ======================================================================================
-
   @Test
-  @Disabled("Values without quotes don't support inclusion of '#' character")
   void quotelessValueWithHashCharacter() {
-    highlight(" - value#Comment");
+    highlight(" - value#NoComment#");
     assertHighlighting(0, 2, null);
-    assertHighlighting(3, 16, STRING);
+    assertHighlighting(3, 18, STRING);
   }
 
   @Test
-  @Disabled("Values without quotes don't support inclusion of '#' character")
   void quotelessKeyAndValueWithHashCharacter() {
-    highlight("\"key\": value#Comment");
+    highlight("\"key\": value#NoComment#");
     assertHighlighting(0, 4, KEYWORD);
     assertHighlighting(5, 6, null);
-    assertHighlighting(7, 19, STRING);
+    assertHighlighting(7, 22, STRING);
   }
 
   @Test
-  @Disabled("Key without quotes don't support inclusion of '#' character")
   void quotelessKeyWithHashCharacter() {
     highlight("k#ey: ");
     assertHighlighting(0, 3, KEYWORD);
@@ -254,7 +265,6 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  @Disabled("Key without quotes don't support inclusion of '#' character")
   void quotelessKeyWithHashCharacterAndValue() {
     highlight("k#ey: value");
     assertHighlighting(0, 3, KEYWORD);
