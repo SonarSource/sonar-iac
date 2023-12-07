@@ -19,6 +19,12 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -45,17 +51,13 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
 
@@ -89,8 +91,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNotSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(1);
+    assertThat(logs).hasSize(2);
     assertThat(logs.get(0))
+      .isEqualTo("Skipping initialization of Helm processor");
+    assertThat(logs.get(1))
       .startsWith("File without Kubernetes identifier:").endsWith("k8.yaml");
   }
 
@@ -409,9 +413,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo(message1);
+      .isEqualTo("Skipping initialization of Helm processor");
     assertThat(logTester.logs(Level.DEBUG).get(1))
+      .isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(2))
       .startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(3);
   }
 }
