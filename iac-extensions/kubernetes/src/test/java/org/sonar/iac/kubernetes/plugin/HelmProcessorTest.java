@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
@@ -47,6 +48,7 @@ class HelmProcessorTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @Test
+  @Disabled("Helm evaluation is temporarily disabled; SONARIAC-1150 is faulty on different environments")
   void shouldDisableHelmEvaluationIfNativeLibraryNotLoaded() {
     var helmProcessor = new HelmProcessor();
     helmProcessor.loader = Mockito.mock(Loader.class);
@@ -115,6 +117,7 @@ class HelmProcessorTest {
   }
 
   @Test
+  @Disabled("Helm evaluation is temporarily disabled; SONARIAC-1150 is faulty on different environments")
   void shouldEvaluateTemplateAndReturnTemplate() throws IOException {
     var helmProcessor = new HelmProcessor();
     helmProcessor.initialize();
