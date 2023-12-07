@@ -14,7 +14,6 @@ env:
   CIRRUS_CLONE_DEPTH: 1
 
   GO_VERSION: 1.21.1
-  PROTOC_VERSION: 25.0
 
 maven_cache: &MAVEN_CACHE
   maven_cache:
@@ -54,8 +53,6 @@ linux_image_with_gcc_template: &LINUX_IMAGE_WITH_GCC
   dockerfile: .cirrus/Dockerfile
   docker_arguments:
     CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-    GO_VERSION: ${GO_VERSION}
-    PROTOC_VERSION: ${PROTOC_VERSION}
   cluster_name: ${CIRRUS_CLUSTER_NAME}
   builder_role: cirrus-builder
   builder_image: docker-builder-v*
@@ -159,9 +156,7 @@ qa_os_win_task:
     # For windows, refresh the path env variable, particularly useful after an installation with choco (RefreshEnv.cmd cannot be used in this context)
     - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
   build_script:
-    - choco install mingw --version 12.2.0.03042023
-    - choco install golang --version ${GO_VERSION}
-    - choco install protoc --version ${PROTOC_VERSION}.0
+    - choco install golang --version 1.21.1
     - *refreshpath
     - source cirrus-env CI
     - mvn.cmd clean verify
