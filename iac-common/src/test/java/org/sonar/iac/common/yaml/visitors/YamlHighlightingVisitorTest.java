@@ -43,7 +43,7 @@ class YamlHighlightingVisitorTest extends AbstractHighlightingTest {
   @Test
   void scalar() {
     highlight("value");
-    assertHighlighting(0, 2, STRING);
+    assertHighlighting(0, 4, STRING);
   }
 
   @Test

@@ -81,7 +81,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     "k: ey: value",
     "\"key\": val: ue",
   })
-  void keyScalarValueShouldHighlight(String code) {
+  void keyScalarValueShouldBeHighlighted(String code) {
     highlight(code);
 
     int keyEndIndex = code.indexOf("y");
@@ -101,7 +101,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void keyWithValueWithEscapedQuotes() {
+  void keyWithValueWithEscapedQuotesShouldBeHighlighted() {
     highlight("\"ke\\\"y\": 'val''ue'");
     assertHighlighting(0, 6, KEYWORD);
     assertHighlighting(7, 8, null);
@@ -109,7 +109,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void keyWithValueWithEscapedQuotesWithComment() {
+  void keyWithValueWithEscapedQuotesWithCommentShouldBeHighlighted() {
     highlight("'ke''y': \"val\\\"ue\" #Comment");
     assertHighlighting(0, 6, KEYWORD);
     assertHighlighting(7, 8, null);
@@ -118,7 +118,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void valueWithComment() {
+  void valueWithCommentShouldBeHighlighted() {
     highlight(" - value # Comment");
     assertHighlighting(0, 2, null);
     assertHighlighting(3, 7, STRING);
@@ -127,14 +127,14 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void singleLineComment() {
+  void singleLineCommentShouldBeHighlighted() {
     highlight("  # Comment ");
     assertHighlighting(0, 1, null);
     assertHighlighting(2, 11, COMMENT);
   }
 
   @Test
-  void keyValueWithComment() {
+  void keyValueWithCommentShouldBeHighlighted() {
     highlight("key: value  # Comment");
     assertHighlighting(0, 2, KEYWORD);
     assertHighlighting(3, 4, null);
@@ -143,27 +143,35 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void scalar() {
+  void scalarShouldBeHighlighted() {
     highlight("value");
     assertHighlighting(0, 4, STRING);
   }
 
   @Test
-  void scalarWithColon() {
+  void scalarWithColonShouldBeHighlighted() {
     // as the colon is not preceded by a whitespace, this should be interpreted as a single value
     highlight("key:value");
     assertHighlighting(0, 8, STRING);
   }
 
   @Test
-  void scalar_key() {
+  void quotesWithoutContentShouldBeHighlighted() {
+    highlight("'': \"\"");
+    assertHighlighting(0, 1, KEYWORD);
+    assertHighlighting(2, 3, null);
+    assertHighlighting(4, 5, STRING);
+  }
+
+  @Test
+  void scalarKeyShouldBeHighlighted() {
     highlight("key: ");
     assertHighlighting(0, 2, KEYWORD);
     assertHighlighting(3, 3, null);
   }
 
   @Test
-  void scalar_key_folded_value() {
+  void scalarKeyFoldedValueShouldBeHighlighted() {
     highlight("key: >\n  value");
     assertHighlighting(1, 0, 2, KEYWORD);
     assertHighlighting(1, 3, 4, null);
@@ -172,7 +180,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void scalar_key_literal_value() {
+  void scalarKeyLiteralValueShouldBeHighlighted() {
     highlight("key: |\n  value");
     assertHighlighting(1, 0, 2, KEYWORD);
     assertHighlighting(1, 3, 4, null);
@@ -181,17 +189,28 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void scalar_key_list_value() {
-    highlight("key:\n  - value \n -value2");
+  void scalarKeyLiteralValueWithCommentShouldBeHighlighted() {
+    highlight("key: \n - |\n  value");
+    assertHighlighting(1, 0, 2, KEYWORD);
+    assertHighlighting(1, 3, 4, null);
+    assertHighlighting(2, 0, 2, null);
+    assertHighlighting(2, 3, 3, KEYWORD_LIGHT);
+    assertHighlighting(3, 2, 6, STRING);
+  }
+
+  @Test
+  void scalarKeyListValueShouldBeHighlighted() {
+    highlight("key:\n  - value #Comment\n -value2");
     assertHighlighting(1, 0, 2, KEYWORD);
     assertHighlighting(1, 3, 4, null);
     assertHighlighting(2, 0, 3, null);
-    assertHighlighting(2, 4, 6, STRING);
+    assertHighlighting(2, 4, 8, STRING);
+    assertHighlighting(2, 10, 17, COMMENT);
     assertHighlighting(3, 2, 7, STRING);
   }
 
   @Test
-  void keyWithFormattingTagQuotedValue() {
+  void keyWithFormattingTagQuotedValueShouldBeHighlighted() {
     highlight("\"key\": !!int \"80\"");
     assertHighlighting(0, 4, KEYWORD);
     assertHighlighting(5, 6, null);
@@ -200,7 +219,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void keyWithFormattingTagUnquotedValue() {
+  void keyWithFormattingTagUnquotedValueShouldBeHighlighted() {
     highlight("\"key\": !!boolean true");
     assertHighlighting(0, 4, KEYWORD);
     assertHighlighting(5, 6, null);
@@ -209,7 +228,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void keyWithFormattingTagUnquotedValueWithComment() {
+  void keyWithFormattingTagUnquotedValueWithCommentShouldBeHighlighted() {
     highlight("\"key\": !!boolean true #Comment");
     assertHighlighting(0, 4, KEYWORD);
     assertHighlighting(5, 6, null);
@@ -219,7 +238,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void keyWithCustomTag() {
+  void keyWithCustomTagShouldBeHighlighted() {
     highlight("\"key\": !customTag value");
     assertHighlighting(0, 4, KEYWORD);
     assertHighlighting(5, 6, null);
@@ -228,14 +247,14 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void scalarTag() {
+  void scalarTagShouldBeHighlighted() {
     highlight("  - !customTag");
     assertHighlighting(0, 3, null);
     assertHighlighting(4, 13, KEYWORD_LIGHT);
   }
 
   @Test
-  void scalarTagWithComment() {
+  void scalarTagWithCommentShouldBeHighlighted() {
     highlight("  - !customTag #Comment");
     assertHighlighting(0, 3, null);
     assertHighlighting(4, 13, KEYWORD_LIGHT);
@@ -243,14 +262,14 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void quotelessValueWithHashCharacter() {
+  void quotelessValueWithHashCharacterShouldBeHighlighted() {
     highlight(" - value#NoComment#");
     assertHighlighting(0, 2, null);
     assertHighlighting(3, 18, STRING);
   }
 
   @Test
-  void quotelessKeyAndValueWithHashCharacter() {
+  void quotelessKeyAndValueWithHashCharacterShouldBeHighlighted() {
     highlight("\"key\": value#NoComment#");
     assertHighlighting(0, 4, KEYWORD);
     assertHighlighting(5, 6, null);
@@ -258,17 +277,43 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void quotelessKeyWithHashCharacter() {
+  void quotelessKeyWithHashCharacterShouldBeHighlighted() {
     highlight("k#ey: ");
     assertHighlighting(0, 3, KEYWORD);
     assertHighlighting(4, 5, null);
   }
 
   @Test
-  void quotelessKeyWithHashCharacterAndValue() {
+  void quotelessKeyWithHashCharacterAndValueShouldBeHighlighted() {
     highlight("k#ey: value");
     assertHighlighting(0, 3, KEYWORD);
     assertHighlighting(4, 5, null);
     assertHighlighting(6, 10, STRING);
+  }
+
+  @Test
+  void yamlDirectiveShouldBeHighlighted() {
+    highlight("%YAML 1.2 #Comment");
+    assertHighlighting(0, 4, KEYWORD_LIGHT);
+    assertHighlighting(6, 8, STRING);
+    assertHighlighting(10, 17, COMMENT);
+  }
+
+  @Test
+  void tagDirectiveShouldBeHighlighted() {
+    highlight("%TAG !yaml! tag:yaml.org,2002: #Comment");
+    assertHighlighting(0, 3, KEYWORD_LIGHT);
+    assertHighlighting(5, 29, STRING);
+    assertHighlighting(31, 38, COMMENT);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "---",
+    "..."
+  })
+  void structuralElementShouldBeHighlighted(String code) {
+    highlight(code);
+    assertHighlighting(0, 2, KEYWORD_LIGHT);
   }
 }
