@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+{{ toYaml .Values.metadataPod }}
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        allowPrivilegeEscalation: true # TODO SONARIAC-1128 Parse a Helm file containing function call with parenthesis without crash

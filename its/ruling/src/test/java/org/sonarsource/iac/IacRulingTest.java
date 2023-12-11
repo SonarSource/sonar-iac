@@ -95,7 +95,7 @@ class IacRulingTest {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.inclusions", "sources/kubernetes/**/*.yaml, ruling/src/test/resources/sources/kubernetes/**/*.yaml," +
       "sources/kubernetes/**/*.yml, ruling/src/test/resources/sources/kubernetes/**/*.yml");
-    properties.put("sonar.kubernetes.internal.helm.enable", "true");
+    properties.put("sonar.exclusions", "ruling/src/test/resources/sources/kubernetes/helm/milestone/**/*.yaml");
     run_ruling_test("kubernetes", properties);
   }
 
