@@ -114,7 +114,9 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).hasSize(1);
     assertThat(logs.get(0))
-      .startsWith("File without Kubernetes identifier:").endsWith("k8.yaml");
+      .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
+    var logsInfo = logTester.logs(Level.INFO);
+    assertThat(logsInfo).contains("Skipping initialization of Helm processor");
   }
 
   @Test
