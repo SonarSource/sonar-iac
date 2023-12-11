@@ -1,0 +1,4 @@
+service:
+  annotations:
+    annotation_1: value_1
+    annotation_2: value_2

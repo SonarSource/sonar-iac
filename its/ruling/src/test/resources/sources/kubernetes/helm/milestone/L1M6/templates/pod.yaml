@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        allowPrivilegeEscalation: {{ .Values.escalation }}  # TODO SONARIAC-1165 Resolve simple values in Helm template
+#                                 ^^^^^^^^^^^^^^^^^^^^^^^^  primary location
