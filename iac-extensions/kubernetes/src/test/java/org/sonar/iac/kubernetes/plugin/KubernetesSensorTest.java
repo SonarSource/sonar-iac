@@ -38,8 +38,10 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
@@ -80,6 +82,23 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldParseYamlFileWithHelmChartTemplateWhenEnabled() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(getActivationSettingKey(), true);
+    settings.setProperty("sonar.kubernetes.internal.helm.enable", "true");
+    context = SensorContextTester.create(baseDir).setSettings(settings);
+    var sensor = sensor();
+    sensor.execute(context);
+    analyse(sensor, inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
+    assertOneSourceFileIsParsed();
+
+    var logs = logTester.logs(Level.DEBUG);
+    assertThat(logs).contains("Helm content detected in file 'k8.yaml'");
+    var logsInfo = logTester.logs(Level.INFO);
+    assertThat(logsInfo).contains("Initializing Helm processor");
+  }
+
+  @Test
   void shouldNotParseYamlFileWithoutIdentifiers() {
     analyse(sensor(), inputFile(""));
     assertNotSourceFileIsParsed();
@@ -91,10 +110,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNotSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(2);
+    assertThat(logs).hasSize(1);
     assertThat(logs.get(0))
-      .isEqualTo("Skipping initialization of Helm processor");
-    assertThat(logs.get(1))
       .startsWith("File without Kubernetes identifier:").endsWith("k8.yaml");
   }
 
@@ -413,11 +430,9 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Skipping initialization of Helm processor");
-    assertThat(logTester.logs(Level.DEBUG).get(1))
       .isEqualTo(message1);
-    assertThat(logTester.logs(Level.DEBUG).get(2))
+    assertThat(logTester.logs(Level.DEBUG).get(1))
       .startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(3);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
 }
