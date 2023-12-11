@@ -29,6 +29,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.jna.Loader;
+import org.sonar.iac.helm.jna.library.IacHelmLibrary;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.utils.HelmFilesystemUtils.findValuesFile;
@@ -51,18 +52,15 @@ public class HelmProcessor {
   }
 
   public void initialize() {
-    LOG.debug("Skipping initialization of Helm processor");
-    /*
-     * HelmEvaluator newHelmEvaluator;
-     * try {
-     * IacHelmLibrary library = loader.load("/sonar-helm-for-iac", IacHelmLibrary.class);
-     * newHelmEvaluator = new HelmEvaluator(library);
-     * } catch (RuntimeException e) {
-     * LOG.info("Native library not loaded, Helm integration will be disabled", e);
-     * newHelmEvaluator = null;
-     * }
-     * this.helmEvaluator = newHelmEvaluator;
-     */
+    HelmEvaluator newHelmEvaluator;
+    try {
+      IacHelmLibrary library = loader.load("/sonar-helm-for-iac", IacHelmLibrary.class);
+      newHelmEvaluator = new HelmEvaluator(library);
+    } catch (RuntimeException e) {
+      LOG.info("Native library not loaded, Helm integration will be disabled", e);
+      newHelmEvaluator = null;
+    }
+    this.helmEvaluator = newHelmEvaluator;
   }
 
   @CheckForNull

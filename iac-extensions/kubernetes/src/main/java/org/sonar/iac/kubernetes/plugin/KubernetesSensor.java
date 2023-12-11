@@ -19,6 +19,12 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
@@ -43,14 +49,8 @@ import org.sonar.iac.kubernetes.visitors.CommentLocationVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 public class KubernetesSensor extends YamlSensor {
+  private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
 
   private final HelmProcessor helmProcessor;
 
@@ -58,7 +58,16 @@ public class KubernetesSensor extends YamlSensor {
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmProcessor helmProcessor) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks());
     this.helmProcessor = helmProcessor;
-    helmProcessor.initialize();
+  }
+
+  @Override
+  protected void initContext(SensorContext sensorContext) {
+    if (sensorContext.config().getBoolean("sonar.kubernetes.internal.helm.enable").orElse(false)) {
+      LOG.info("Initializing Helm processor");
+      helmProcessor.initialize();
+    } else {
+      LOG.info("Skipping initialization of Helm processor");
+    }
   }
 
   @Override

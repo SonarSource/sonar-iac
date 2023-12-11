@@ -38,8 +38,10 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
@@ -76,7 +78,26 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'k8.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
+  }
+
+  @Test
+  void shouldParseYamlFileWithHelmChartTemplateWhenEnabled() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(getActivationSettingKey(), true);
+    settings.setProperty("sonar.kubernetes.internal.helm.enable", "true");
+    context = SensorContextTester.create(baseDir).setSettings(settings);
+    var sensor = sensor();
+    sensor.execute(context);
+    analyse(sensor,
+      inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+      inputFile("values.yaml", "bar: var-value"));
+    assertOneSourceFileIsParsed();
+
+    var logs = logTester.logs(Level.DEBUG);
+    assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
+    var logsInfo = logTester.logs(Level.INFO);
+    assertThat(logsInfo).contains("Initializing Helm processor");
   }
 
   @Test
@@ -91,11 +112,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNotSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(2);
+    assertThat(logs).hasSize(1);
     assertThat(logs.get(0))
-      .isEqualTo("Skipping initialization of Helm processor");
-    assertThat(logs.get(1))
-      .startsWith("File without Kubernetes identifier:").endsWith("k8.yaml");
+      .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
+    var logsInfo = logTester.logs(Level.INFO);
+    assertThat(logsInfo).contains("Skipping initialization of Helm processor");
   }
 
   @Test
@@ -135,7 +156,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'k8.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
   }
 
   @Test
@@ -339,16 +360,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.INFO)).contains("1 source file to be analyzed");
   }
 
-  protected InputFile inputFile(String name, String content) {
-    return super.inputFile(name, content);
-  }
-
   protected InputFile inputFile(String content) {
-    return super.inputFile("k8.yaml", content);
+    return super.inputFile("templates/k8.yaml", content);
   }
 
   protected InputFile inputFileWithIdentifiers(String content) {
-    return super.inputFile("k8.yaml", content + "\n" + K8_IDENTIFIERS);
+    return super.inputFile("templates/k8.yaml", content + "\n" + K8_IDENTIFIERS);
   }
 
   @Override
@@ -409,15 +426,13 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       " in reader, line 1, column 5:\n" +
       "    a: b: c\n" +
       "        ^\n";
-    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'k8.yaml:1:1'" +
+    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'templates/k8.yaml:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Skipping initialization of Helm processor");
-    assertThat(logTester.logs(Level.DEBUG).get(1))
       .isEqualTo(message1);
-    assertThat(logTester.logs(Level.DEBUG).get(2))
+    assertThat(logTester.logs(Level.DEBUG).get(1))
       .startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(3);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
 }
