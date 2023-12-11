@@ -19,6 +19,12 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
@@ -42,15 +48,8 @@ import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.CommentLocationVisitor;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 public class KubernetesSensor extends YamlSensor {
-  private static final Logger LOG = LoggerFactory.getLogger(KubernetesParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
 
   private final HelmProcessor helmProcessor;
 

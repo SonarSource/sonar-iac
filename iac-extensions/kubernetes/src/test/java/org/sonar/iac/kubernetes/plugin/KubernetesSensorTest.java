@@ -78,7 +78,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'k8.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
   }
 
   @Test
@@ -89,11 +89,14 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     context = SensorContextTester.create(baseDir).setSettings(settings);
     var sensor = sensor();
     sensor.execute(context);
-    analyse(sensor, inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
+    analyse(sensor,
+      inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+      inputFile("values.yaml", "bar: var-value")
+    );
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'k8.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
     var logsInfo = logTester.logs(Level.INFO);
     assertThat(logsInfo).contains("Initializing Helm processor");
   }
@@ -152,7 +155,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'k8.yaml'");
+    assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
   }
 
   @Test
@@ -356,16 +359,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.INFO)).contains("1 source file to be analyzed");
   }
 
-  protected InputFile inputFile(String name, String content) {
-    return super.inputFile(name, content);
-  }
-
   protected InputFile inputFile(String content) {
-    return super.inputFile("k8.yaml", content);
+    return super.inputFile("templates/k8.yaml", content);
   }
 
   protected InputFile inputFileWithIdentifiers(String content) {
-    return super.inputFile("k8.yaml", content + "\n" + K8_IDENTIFIERS);
+    return super.inputFile("templates/k8.yaml", content + "\n" + K8_IDENTIFIERS);
   }
 
   @Override
@@ -426,7 +425,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       " in reader, line 1, column 5:\n" +
       "    a: b: c\n" +
       "        ^\n";
-    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'k8.yaml:1:1'" +
+    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'templates/k8.yaml:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
