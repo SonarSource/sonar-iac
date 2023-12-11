@@ -79,6 +79,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     "\"ke#y\": value",
     // invalid yaml, still "valid" highlighting
     "k: ey: value",
+    "ke:compositey: value",
     "\"key\": val: ue",
   })
   void keyScalarValueShouldBeHighlighted(String code) {
@@ -168,6 +169,14 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     highlight("key: ");
     assertHighlighting(0, 2, KEYWORD);
     assertHighlighting(3, 3, null);
+  }
+
+  @Test
+  void scalarKeyWithCommentShouldBeHighlighted() {
+    highlight("key: #Comment");
+    assertHighlighting(0, 2, KEYWORD);
+    assertHighlighting(3, 4, null);
+    assertHighlighting(5, 12, COMMENT);
   }
 
   @Test
@@ -295,7 +304,9 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   void yamlDirectiveShouldBeHighlighted() {
     highlight("%YAML 1.2 #Comment");
     assertHighlighting(0, 4, KEYWORD_LIGHT);
+    assertHighlighting(5, 5, null);
     assertHighlighting(6, 8, STRING);
+    assertHighlighting(9, 9, null);
     assertHighlighting(10, 17, COMMENT);
   }
 
