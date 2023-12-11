@@ -97,6 +97,8 @@ public abstract class IacSensor implements Sensor {
       importExternalReports(sensorContext);
     }
 
+    initContext(sensorContext);
+
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     List<InputFile> inputFiles = inputFiles(sensorContext);
     List<String> filenames = inputFiles.stream().map(InputFile::toString).collect(Collectors.toList());
@@ -115,6 +117,10 @@ public abstract class IacSensor implements Sensor {
       }
     }
     statistics.log();
+  }
+
+  protected void initContext(SensorContext sensorContext) {
+    // do nothing by default
   }
 
   private List<InputFile> inputFiles(SensorContext sensorContext) {
