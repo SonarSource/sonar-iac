@@ -40,6 +40,7 @@ import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.CommentLocationVisitor;
+import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import java.io.BufferedInputStream;
@@ -76,7 +77,7 @@ public class KubernetesSensor extends YamlSensor {
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     if (isNotSonarLintContext(sensorContext)) {
-      // TODO SONARIAC-1171 put back in place the YamlHighlightingVisitor
+      visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
     var locationShifter = new LocationShifter();

@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.yaml.YamlFileUtils;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 
@@ -31,7 +32,6 @@ public class KubernetesParser extends YamlParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesParser.class);
 
-  private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
   private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
   private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
   private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
@@ -65,12 +65,16 @@ public class KubernetesParser extends YamlParser {
   }
 
   public static boolean hasHelmContent(String text) {
-    String[] lines = LINE_TERMINATOR.split(text);
+    String[] lines = YamlFileUtils.splitLines(text);
     for (String line : lines) {
-      if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
+      if (hasHelmContentInLine(line)) {
         return true;
       }
     }
     return false;
+  }
+
+  public static boolean hasHelmContentInLine(String line) {
+    return line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find();
   }
 }
