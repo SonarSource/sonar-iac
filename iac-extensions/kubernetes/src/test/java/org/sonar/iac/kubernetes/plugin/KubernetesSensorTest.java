@@ -91,8 +91,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     sensor.execute(context);
     analyse(sensor,
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
-      inputFile("values.yaml", "bar: var-value")
-    );
+      inputFile("values.yaml", "bar: var-value"));
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
