@@ -51,17 +51,21 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
 
   @Override
   protected void languageSpecificHighlighting() {
-    register(FileTree.class, (ctx, tree) -> highlightContent(ctx));
+    register(FileTree.class, (ctx, tree) -> highlightContext(ctx));
   }
 
-  private void highlightContent(InputFileContext context) {
+  private void highlightContext(InputFileContext context) {
     try {
-      String[] lines = YamlFileUtils.splitLines(context.inputFile.contents());
-      for (var i = 0; i < lines.length; i++) {
-        highlightLine(lines[i], i + 1);
-      }
+      highlightContent(context.inputFile.contents());
     } catch (IOException e) {
       LOG.error("Unable to read file: {}.", context.inputFile.uri(), e);
+    }
+  }
+
+  void highlightContent(String content) {
+    String[] lines = YamlFileUtils.splitLines(content);
+    for (var i = 0; i < lines.length; i++) {
+      highlightLine(lines[i], i + 1);
     }
   }
 
@@ -128,15 +132,15 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     private static final String MULTI_LINE_OPERATORS = "(?<multilineOperator>[|>])";
     private static final String KEY = DOUBLE_QUOTED_KEY + "|" + SINGLE_QUOTED_KEY + "|" + QUOTELESS_KEY;
     private static final String VALUE = DOUBLE_QUOTED_VALUE + "|" + SINGLE_QUOTED_VALUE + "|" + QUOTELESS_VALUE;
-    private static final String COMMENT_S = "(?:\\h(?<comment>#.*))?+";
-    private static final String OPTIONAL_TAG = "(?<tag>!\\H++\\h?)?";
-    private static final String DIRECTIVES = "(?<directive>%(?:TAG|YAML))\\h*(?<handle>[!\\d][^#\\h]*+(?:\\h*+[^#\\h]++)?+)";
+    private static final String COMMENT_S = "(?<comment>(?<=\\h)#.*+)?+";
+    private static final String OPTIONAL_TAG = "(?<tag>!\\H++\\h?+)?+";
+    private static final String DIRECTIVES = "(?<directive>%(?:TAG|YAML))\\h*+(?<handle>[!\\d][^#\\h]*+(?:\\h*+[^#\\h]++)?+)";
     private static final String STRUCTURAL_ELEMENTS = "(?<structure>\\.{3}|-{3})";
-    private static final Pattern STRUCTURES = Pattern.compile("\\h*+(?:" + DIRECTIVES + "|" + STRUCTURAL_ELEMENTS + ")\\h*" + COMMENT_S);
+    private static final Pattern STRUCTURES = Pattern.compile("\\h*+(?:" + DIRECTIVES + "|" + STRUCTURAL_ELEMENTS + ")\\h*+" + COMMENT_S);
     private static final String COMBINED = "\\h*+-?+\\h*+(?:" + KEY + "):(?:\\h++" + OPTIONAL_TAG + "(?:" +
-      MULTI_LINE_OPERATORS + "|" + VALUE + ")?)?\\h*" + COMMENT_S;
+      MULTI_LINE_OPERATORS + "|" + VALUE + ")?+)?+\\h*+" + COMMENT_S;
     private static final Pattern COMBINED_PATTERN = Pattern.compile(COMBINED);
-    private static final String SCALAR_VALUE = "\\h*-?+\\h*" + OPTIONAL_TAG + "(?:" + MULTI_LINE_OPERATORS + "|" + VALUE + ")?\\h*" + COMMENT_S;
+    private static final String SCALAR_VALUE = "\\h*+-?+\\h*+" + OPTIONAL_TAG + "(?:" + MULTI_LINE_OPERATORS + "|" + VALUE + ")?+\\h*+" + COMMENT_S;
     private static final Pattern SCALAR_VALUE_PATTERN = Pattern.compile(SCALAR_VALUE);
 
     private static final Map<String, TypeOfText> GROUPNAME_TO_TYPE_STRUCTURE = Map.of(
@@ -173,7 +177,7 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     }
 
     private static String quoteless(String groupName) {
-      return "(?<" + groupName + ">(?:[^'\"%#](?:(?<!\\h)#|[^%#])*)?)";
+      return "(?<" + groupName + ">(?:[^'\"%#:\\h](?:[^%:\\h]|\\h(?!#)|:(?=\\H))*+)?+)";
     }
   }
 }
