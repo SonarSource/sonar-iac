@@ -38,7 +38,7 @@ public final class HelmPreprocessor {
     var lineCounter = 0;
     var matcher = LINE_PATTERN.matcher(content);
 
-    int lastIndex = 0;
+    var lastIndex = 0;
     while (matcher.find()) {
       lineCounter++;
       String lineContent = matcher.group("lineContent");
