@@ -5,6 +5,9 @@
 "kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/milestone/L1M4/templates/pod.yaml": [
 18
 ],
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/milestone/L1M5/templates/pod.yaml": [
+20
+],
 "kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/milestone/L1M6/templates/pod.yaml": [
 14
 ],

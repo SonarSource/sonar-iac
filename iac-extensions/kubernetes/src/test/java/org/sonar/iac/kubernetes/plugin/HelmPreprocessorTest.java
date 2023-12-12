@@ -20,18 +20,15 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 
 class HelmPreprocessorTest {
 
   @Test
-  @Disabled("TODO SONARIAC-1183 HelmPreprocessor crashes on some files")
   void shouldAddCommentLineNumberForActualChart() {
     String code = "apiVersion: v1\n" +
       "kind: Pod\n" +
@@ -52,8 +49,28 @@ class HelmPreprocessorTest {
       "          containerPort: 80\n" +
       "          protocol: TCP\n" +
       "      securityContext:\n" +
-      "        allowPrivilegeEscalation: true # TODO SONARIAC-1130 Parse a Helm file containing loops without crash\n";
-    assertThatNoException().isThrownBy(() -> HelmPreprocessor.addLineComments(code));
+      "        allowPrivilegeEscalation: true # TODO SONARIAC-1130 Parse a Helm file containing loops without crash";
+    String expected = "apiVersion: v1 #1\n" +
+      "kind: Pod #2\n" +
+      "metadata: #3\n" +
+      "  name: example #4\n" +
+      "{{ if .Values.service.annotations}} #5\n" +
+      "  annotations: #6\n" +
+      "    {{- range $key, $value := .Values.service.annotations }} #7\n" +
+      "    {{ $key }}: {{ $value | quote }} #8\n" +
+      "    {{- end }} #9\n" +
+      "{{- end }} #10\n" +
+      "spec: #11\n" +
+      "  containers: #12\n" +
+      "    - name: web #13\n" +
+      "      image: nginx #14\n" +
+      "      ports: #15\n" +
+      "        - name: web #16\n" +
+      "          containerPort: 80 #17\n" +
+      "          protocol: TCP #18\n" +
+      "      securityContext: #19\n" +
+      "        allowPrivilegeEscalation: true # TODO SONARIAC-1130 Parse a Helm file containing loops without crash #20";
+    checkHelmProcessing(code, expected);
   }
 
   @Test
