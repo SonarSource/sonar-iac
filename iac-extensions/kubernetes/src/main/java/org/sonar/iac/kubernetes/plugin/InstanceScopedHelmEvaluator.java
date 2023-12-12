@@ -17,5 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.jna.library;
+package org.sonar.iac.kubernetes.plugin;
+
+import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.iac.helm.HelmEvaluator;
+import org.sonarsource.api.sonarlint.SonarLintSide;
+
+@ScannerSide
+@SonarLintSide(lifespan = SonarLintSide.INSTANCE)
+public class InstanceScopedHelmEvaluator extends HelmEvaluator {
+  public InstanceScopedHelmEvaluator(TempFolder tempFolder) {
+    super(tempFolder.newDir());
+  }
+}

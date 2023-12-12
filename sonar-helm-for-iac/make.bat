@@ -9,8 +9,8 @@ EXIT /B %ERRORLEVEL%
 :compile_binaries
 SET GOOS=windows
 SET GOARCH=amd64
-SET CGO_ENABLED=1
-CALL go build -buildmode=c-shared -o target/classes/sonar-helm-for-iac-windows-amd64
+SET CGO_ENABLED=0
+CALL go build -buildmode=exe -o target/classes/sonar-helm-for-iac-windows-amd64
 
 EXIT /B 0
 

@@ -20,23 +20,33 @@
 package org.sonar.iac.helm;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.jna.library.IacHelmLibrary;
-import org.sonar.iac.helm.jna.mapping.GoString;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.iac.helm.utils.ExecutableHelper;
+import org.sonar.iac.helm.utils.NativeUtils;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 public class HelmEvaluator {
-  private final IacHelmLibrary iacHelmLibrary;
+  private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
 
-  public HelmEvaluator(IacHelmLibrary library) {
-    this.iacHelmLibrary = library;
+  private final File workingDir;
+  private final NativeUtils nativeUtils = new NativeUtils();
+
+  public HelmEvaluator(File workingDir) {
+    this.workingDir = workingDir;
   }
 
-  public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) {
-    var rawEvaluationResult = iacHelmLibrary.evaluateTemplate(
-      new GoString.ByValue(path), new GoString.ByValue(content), new GoString.ByValue(valuesFileContent))
-      .getByteArray();
+  public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) throws IOException {
+    var pb = prepareProcessBuilder(path, content.lines().count());
 
-    if (rawEvaluationResult.length == 0) {
+    LOG.debug("Executing: {}", pb.command());
+    var process = startProcess(pb, content, valuesFileContent);
+
+    byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
+    if (rawEvaluationResult == null || rawEvaluationResult.length == 0) {
       throw new IllegalStateException("Empty evaluation result (serialization failed?)");
     }
 
@@ -49,5 +59,25 @@ public class HelmEvaluator {
     } catch (InvalidProtocolBufferException e) {
       throw new IllegalStateException("Deserialization error", e);
     }
+  }
+
+  ProcessBuilder prepareProcessBuilder(String path, long nl) throws IOException {
+    var suffix = nativeUtils.getSuffixForCurrentPlatform();
+    var executable = ExecutableHelper.extractFromClasspath(workingDir, "sonar-helm-for-iac-" + suffix);
+    return new ProcessBuilder(
+      executable,
+      "--path=" + path,
+      "--nl=" + nl);
+  }
+
+  Process startProcess(ProcessBuilder pb, String content, String valuesFileContent) throws IOException {
+    var process = pb.start();
+    try (var os = process.getOutputStream()) {
+      os.write(content.getBytes(StandardCharsets.UTF_8));
+      // In case content doesn't have a trailing newline, add it. If there are empty lines, Go will ignore them anyway.
+      os.write("\n".getBytes(StandardCharsets.UTF_8));
+      os.write(valuesFileContent.getBytes(StandardCharsets.UTF_8));
+    }
+    return process;
   }
 }

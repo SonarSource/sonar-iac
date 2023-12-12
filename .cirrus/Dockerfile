@@ -5,13 +5,17 @@ ARG GO_VERSION
 ARG PROTOC_VERSION
 
 USER root
-RUN apt-get update && apt-get install -y gcc && rm -rf -- /var/lib/apt/lists/* /var/cache/apt/archives/*
-
-RUN wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz >/dev/null 2>&1 && \
+# Install gcc, Go, protoc and musl.
+# Static linking with musl reduces binary size (from ~10MB to ~6.6MB on Linux in the initial experiments).
+RUN apt-get update && apt-get install -y gcc make && rm -rf -- /var/lib/apt/lists/* /var/cache/apt/archives/* && \
+    wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz >/dev/null 2>&1 && \
     tar xf go${GO_VERSION}.linux-amd64.tar.gz --directory=/opt && \
     wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip >/dev/null 2>&1 && \
-    unzip protoc-${PROTOC_VERSION}-linux-x86_64.zip -d /opt/protoc
+    unzip protoc-${PROTOC_VERSION}-linux-x86_64.zip -d /opt/protoc && \
+    wget https://www.musl-libc.org/releases/musl-1.2.4.tar.gz --output-document=musl-1.2.4.tar.gz && \
+    tar xf musl-1.2.4.tar.gz && \
+    cd musl-1.2.4 && ./configure --prefix=/opt/musl && make && make install
 
 USER sonarsource
 
-ENV PATH="/opt/go/bin:/opt/protoc/bin:${PATH}"
+ENV PATH="/opt/go/bin:/opt/protoc/bin:/opt/musl/bin:${PATH}"

@@ -19,8 +19,10 @@
 package main
 
 import (
+	"bufio"
 	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,7 +32,7 @@ func Test_call_main(t *testing.T) {
 	main()
 }
 
-func Test_evaluate_template(t *testing.T) {
+func Test_evaluate_simple_template(t *testing.T) {
 	template := `
 apiVersion: v1
 kind: Pod
@@ -66,12 +68,9 @@ spec:
           protocol: TCP
 `
 
-	result, length := evaluateTemplateInGoTypes("a.yaml", template, values)
-	templateFromProto := &iac_helm.TemplateEvaluationResult{}
-	proto.Unmarshal(result, templateFromProto)
+	result, _ := evaluateTemplateInternal("a.yaml", template, values)
 
-	assert.Equal(t, 197, length)
-	assert.Equal(t, expected, templateFromProto.Template)
+	assert.Equal(t, expected, result)
 }
 
 func Test_evaluate_template_missing_value(t *testing.T) {
@@ -386,4 +385,18 @@ protocol: UDP
 	result, _ := evaluateTemplateInternal("a.yaml", template, values)
 
 	assert.Equal(t, expected, result)
+}
+
+func Test_read_n_lines_from_input(t *testing.T) {
+	scanner := bufio.NewScanner(strings.NewReader("line1\nline2\nline3"))
+	lines := bytesToString(readInput(scanner, 2))
+
+	assert.Equal(t, "line1\nline2", lines)
+}
+
+func Test_read_all_lines_from_input(t *testing.T) {
+	scanner := bufio.NewScanner(strings.NewReader("line1\nline2\nline3"))
+	lines := bytesToString(readInput(scanner, -1))
+
+	assert.Equal(t, "line1\nline2\nline3", lines)
 }

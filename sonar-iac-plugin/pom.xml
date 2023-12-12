@@ -176,8 +176,8 @@
         </property>
       </activation>
       <properties>
-        <archive.size.max>20000000</archive.size.max>
-        <archive.size.min>19000000</archive.size.min>
+        <archive.size.max>15000000</archive.size.max>
+        <archive.size.min>14000000</archive.size.min>
       </properties>
     </profile>
     <profile>
@@ -186,8 +186,8 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <archive.size.max>11000000</archive.size.max>
-        <archive.size.min>10000000</archive.size.min>
+        <archive.size.max>7000000</archive.size.max>
+        <archive.size.min>6000000</archive.size.min>
       </properties>
     </profile>
     <profile>
@@ -198,8 +198,8 @@
         </os>
       </activation>
       <properties>
-        <archive.size.max>11000000</archive.size.max>
-        <archive.size.min>10000000</archive.size.min>
+        <archive.size.max>10000000</archive.size.max>
+        <archive.size.min>8000000</archive.size.min>
       </properties>
     </profile>
   </profiles>

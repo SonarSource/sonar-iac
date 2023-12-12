@@ -32,8 +32,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.jna.Loader;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -42,28 +42,19 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 class HelmProcessorTest {
+  private final HelmEvaluator helmEvaluator = Mockito.mock(HelmEvaluator.class);
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @Test
-  void shouldDisableHelmEvaluationIfNativeLibraryNotLoaded() {
-    var helmProcessor = new HelmProcessor();
-    helmProcessor.loader = Mockito.mock(Loader.class);
-    when(helmProcessor.loader.load(anyString(), any())).thenThrow(new RuntimeException("Failed to load native library"));
-
-    helmProcessor.initialize();
-
-    Assertions.assertThat(logTester.logs(Level.INFO))
-      .contains("Native library not loaded, Helm integration will be disabled");
-  }
-
-  @Test
-  void shouldSkipHelmEvaluationIfHelmEvaluatorNotInitialized() {
-    var helmProcessor = new HelmProcessor();
+  void shouldSkipHelmEvaluationIfHelmEvaluatorNotInitialized() throws IOException {
+    var helmProcessor = new HelmProcessor(helmEvaluator);
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(Mockito.mock(InputFile.class));
+      var valuesFile = Mockito.mock(InputFile.class);
+      when(valuesFile.contents()).thenReturn("");
+      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(valuesFile);
       var inputFileContext = Mockito.mock(InputFileContext.class);
 
       var result = helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext);
@@ -76,7 +67,7 @@ class HelmProcessorTest {
 
   @Test
   void shouldSkipHelmEvaluationIfValuesFileNotRead() throws IOException, URISyntaxException {
-    var helmProcessor = new HelmProcessor();
+    var helmProcessor = new HelmProcessor(helmEvaluator);
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var badValuesFile = Mockito.mock(InputFile.class);
@@ -98,7 +89,7 @@ class HelmProcessorTest {
 
   @Test
   void shouldSkipHelmEvaluationIfValuesFileIsEmpty() throws IOException {
-    var helmProcessor = new HelmProcessor();
+    var helmProcessor = new HelmProcessor(helmEvaluator);
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var badValuesFile = Mockito.mock(InputFile.class);
@@ -116,13 +107,14 @@ class HelmProcessorTest {
 
   @Test
   void shouldEvaluateTemplateAndReturnTemplate() throws IOException {
-    var helmProcessor = new HelmProcessor();
-    helmProcessor.initialize();
+    var helmProcessor = new HelmProcessor(helmEvaluator);
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = Mockito.mock(InputFile.class);
       when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
       when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(valuesFile);
+      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), anyString()))
+        .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("containerPort: 8080 #1").build());
       var inputFileContext = Mockito.mock(InputFileContext.class);
 
       var result = helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext);

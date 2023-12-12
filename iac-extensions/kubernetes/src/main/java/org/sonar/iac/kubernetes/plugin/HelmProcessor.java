@@ -21,15 +21,12 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.jna.Loader;
-import org.sonar.iac.helm.jna.library.IacHelmLibrary;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.utils.HelmFilesystemUtils.findValuesFile;
@@ -39,28 +36,10 @@ import static org.sonar.iac.helm.utils.HelmFilesystemUtils.findValuesFile;
 @ExtensionPoint
 public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
-  @Nullable
-  private HelmEvaluator helmEvaluator;
-  protected Loader loader = new Loader();
+  private final HelmEvaluator helmEvaluator;
 
-  public HelmProcessor() {
-  }
-
-  // for testing
-  HelmProcessor(HelmEvaluator helmEvaluator) {
+  public HelmProcessor(HelmEvaluator helmEvaluator) {
     this.helmEvaluator = helmEvaluator;
-  }
-
-  public void initialize() {
-    HelmEvaluator newHelmEvaluator;
-    try {
-      IacHelmLibrary library = loader.load("/sonar-helm-for-iac", IacHelmLibrary.class);
-      newHelmEvaluator = new HelmEvaluator(library);
-    } catch (RuntimeException e) {
-      LOG.info("Native library not loaded, Helm integration will be disabled", e);
-      newHelmEvaluator = null;
-    }
-    this.helmEvaluator = newHelmEvaluator;
   }
 
   @CheckForNull
@@ -83,14 +62,14 @@ public class HelmProcessor {
 
   @CheckForNull
   private String evaluateHelmTemplate(String path, String content, String valuesFileContent) {
-    if (helmEvaluator == null || valuesFileContent.isBlank()) {
+    if (valuesFileContent.isBlank()) {
       LOG.debug("Template cannot be evaluated, skipping processing of Helm file '{}'", path);
       return "{}";
     }
     try {
       var evaluationResult = helmEvaluator.evaluateTemplate(path, content, valuesFileContent);
       return evaluationResult.getTemplate();
-    } catch (IllegalStateException e) {
+    } catch (IllegalStateException | IOException e) {
       LOG.debug("Template evaluation failed, skipping processing of Helm file '{}'. Reason: ", path, e);
       return null;
     }

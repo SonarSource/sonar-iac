@@ -38,7 +38,8 @@ public class KubernetesExtension {
       KubernetesRulesDefinition.class,
       KubernetesProfileDefinition.class,
       // Other extensions
-      HelmProcessor.class);
+      HelmProcessor.class,
+      InstanceScopedHelmEvaluator.class);
     context.addExtensions(KubernetesSettings.getProperties());
   }
 }

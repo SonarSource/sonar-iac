@@ -51,6 +51,7 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
+import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,8 +97,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
-    var logsInfo = logTester.logs(Level.INFO);
-    assertThat(logsInfo).contains("Initializing Helm processor");
   }
 
   @Test
@@ -115,8 +114,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logs).hasSize(1);
     assertThat(logs.get(0))
       .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
-    var logsInfo = logTester.logs(Level.INFO);
-    assertThat(logsInfo).contains("Skipping initialization of Helm processor");
   }
 
   @Test
@@ -388,7 +385,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(), new HelmProcessor());
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
+      new HelmProcessor(Mockito.mock(HelmEvaluator.class)));
   }
 
   protected KubernetesSensor sensor(HelmProcessor helmProcessor, CheckFactory checkFactory) {
