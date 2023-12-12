@@ -60,6 +60,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     "key: \"val#ue\"",
     "k'ey: val'ue",
     "k\"ey: val\"ue",
+    "ke:compositey: value",
 
     // single quoted key
     "'key': value",
@@ -76,11 +77,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     "\"key\": \"value\"",
     "\"key\": 'val: ue'",
     "\"key\": \"val: ue\"",
-    "\"ke#y\": value",
-    // invalid yaml, still "valid" highlighting
-    "k: ey: value",
-    "ke:compositey: value",
-    "\"key\": val: ue",
+    "\"ke#y\": value"
   })
   void keyScalarValueShouldBeHighlighted(String code) {
     highlight(code);
@@ -119,12 +116,20 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void valueWithCommentShouldBeHighlighted() {
+  void dashedValueWithCommentShouldBeHighlighted() {
     highlight(" - value # Comment");
     assertHighlighting(0, 2, null);
     assertHighlighting(3, 7, STRING);
     assertHighlighting(8, 8, null);
     assertHighlighting(9, 17, COMMENT);
+  }
+
+  @Test
+  void valueWithCommentShouldBeHighlighted() {
+    highlight(" value # Comment");
+    assertHighlighting(1, 5, STRING);
+    assertHighlighting(6, 6, null);
+    assertHighlighting(7, 15, COMMENT);
   }
 
   @Test
