@@ -38,14 +38,18 @@ public final class HelmPreprocessor {
     var lineCounter = 0;
     var matcher = LINE_PATTERN.matcher(content);
 
+    int lastIndex = 0;
     while (matcher.find()) {
       lineCounter++;
       String lineContent = matcher.group("lineContent");
       String comment = commentLineNumber(lineCounter);
       String newLine = matcher.group("newLine");
-      matcher.appendReplacement(sb, lineContent + comment + newLine);
+      sb.append(lineContent);
+      sb.append(comment);
+      sb.append(newLine);
+      lastIndex = matcher.end();
     }
-    matcher.appendTail(sb);
+    sb.append(content.substring(lastIndex));
     sb.append(commentLineNumber(lineCounter + 1));
 
     return sb.toString();

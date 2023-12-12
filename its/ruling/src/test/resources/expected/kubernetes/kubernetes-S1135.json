@@ -1,4 +1,7 @@
 {
+"kubernetes-project:ruling/src/test/resources/sources/kubernetes/helm/milestone/L1M5/templates/pod.yaml": [
+20
+],
 "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
 13,
 24
