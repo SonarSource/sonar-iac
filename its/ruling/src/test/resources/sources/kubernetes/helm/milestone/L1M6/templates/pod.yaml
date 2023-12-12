@@ -11,5 +11,5 @@ spec:
           containerPort: 80
           protocol: TCP
       securityContext:
-        allowPrivilegeEscalation: {{ .Values.escalation }}  # TODO SONARIAC-1165 Resolve simple values in Helm template
+        allowPrivilegeEscalation: {{ .Values.escalation }}
 #                                 ^^^^^^^^^^^^^^^^^^^^^^^^  primary location

@@ -127,7 +127,7 @@ class HelmProcessorTest {
 
       var result = helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext);
 
-      assertEquals("containerPort: 8080", result);
+      assertEquals("containerPort: 8080 #1", result);
     }
   }
 

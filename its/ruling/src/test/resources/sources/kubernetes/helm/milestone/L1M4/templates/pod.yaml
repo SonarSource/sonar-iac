@@ -15,4 +15,4 @@ spec:
           containerPort: 80
           protocol: TCP
       securityContext:
-        allowPrivilegeEscalation: true # TODO SONARIAC-1129 Parse a Helm file containing if conditions without crash
+        allowPrivilegeEscalation: true

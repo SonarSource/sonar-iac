@@ -11,4 +11,4 @@ spec:
           containerPort: {{ .Values.container.port }}
           protocol: TCP
       securityContext:
-        allowPrivilegeEscalation: true # TODO SONARIAC-1126 Parse a simple Helm file with single value template expressions
+        allowPrivilegeEscalation: true

@@ -49,7 +49,7 @@ mvn exec:exec@compile-protobuf-go
 
 ### The execution in Windows
 ```shell
-sonar-helm-for-iac.exe
+./sonar-helm-for-iac.exe
 ```
 
 ## Tips and Tricks
