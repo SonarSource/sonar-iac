@@ -41,12 +41,9 @@ public final class HelmPreprocessor {
     var lastIndex = 0;
     while (matcher.find()) {
       lineCounter++;
-      String lineContent = matcher.group("lineContent");
-      String comment = commentLineNumber(lineCounter);
-      String newLine = matcher.group("newLine");
-      sb.append(lineContent);
-      sb.append(comment);
-      sb.append(newLine);
+      sb.append(matcher.group("lineContent"));
+      sb.append(commentLineNumber(lineCounter));
+      sb.append(matcher.group("newLine"));
       lastIndex = matcher.end();
     }
     sb.append(content.substring(lastIndex));
