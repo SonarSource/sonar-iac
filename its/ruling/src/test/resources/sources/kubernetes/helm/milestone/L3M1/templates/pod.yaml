@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+{{ if .Values.escalation }}
+        allowPrivilegeEscalation: {{ .Values.escalation }} # Sensitive S6428
+{{- end }}
