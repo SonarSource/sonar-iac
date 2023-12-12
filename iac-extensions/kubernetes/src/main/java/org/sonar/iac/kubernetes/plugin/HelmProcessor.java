@@ -66,10 +66,11 @@ public class HelmProcessor {
   @CheckForNull
   String processHelmTemplate(String filename, String source, InputFileContext inputFileContext) {
     // TODO: better support of Helm project structure
+    var sourceWithComments = HelmPreprocessor.addLineComments(source);
     var valuesFile = findValuesFile(inputFileContext);
     if (valuesFile != null) {
       try {
-        return evaluateHelmTemplate(filename, source, valuesFile.contents());
+        return evaluateHelmTemplate(filename, sourceWithComments, valuesFile.contents());
       } catch (IOException e) {
         LOG.debug("Failed to read values file at {}, skipping processing of Helm file '{}'", valuesFile, inputFileContext.inputFile, e);
       }

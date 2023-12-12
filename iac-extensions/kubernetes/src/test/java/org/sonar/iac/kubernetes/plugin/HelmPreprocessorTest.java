@@ -20,13 +20,41 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 class HelmPreprocessorTest {
+
+  @Test
+  @Disabled("TODO SONARIAC-1183 HelmPreprocessor crashes on some files")
+  void shouldAddCommentLineNumberForActualChart() {
+    String code = "apiVersion: v1\n" +
+      "kind: Pod\n" +
+      "metadata:\n" +
+      "  name: example\n" +
+      "{{ if .Values.service.annotations}}\n" +
+      "  annotations:\n" +
+      "    {{- range $key, $value := .Values.service.annotations }}\n" +
+      "    {{ $key }}: {{ $value | quote }}\n" +
+      "    {{- end }}\n" +
+      "{{- end }}\n" +
+      "spec:\n" +
+      "  containers:\n" +
+      "    - name: web\n" +
+      "      image: nginx\n" +
+      "      ports:\n" +
+      "        - name: web\n" +
+      "          containerPort: 80\n" +
+      "          protocol: TCP\n" +
+      "      securityContext:\n" +
+      "        allowPrivilegeEscalation: true # TODO SONARIAC-1130 Parse a Helm file containing loops without crash\n";
+    assertThatNoException().isThrownBy(() -> HelmPreprocessor.addLineComments(code));
+  }
 
   @Test
   void shouldAddCommentLineNumber() {
