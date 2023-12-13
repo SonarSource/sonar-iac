@@ -132,7 +132,7 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     private static final String MULTI_LINE_OPERATORS = "(?<multilineOperator>[|>])";
     private static final String KEY = DOUBLE_QUOTED_KEY + "|" + SINGLE_QUOTED_KEY + "|" + QUOTELESS_KEY;
     private static final String VALUE = DOUBLE_QUOTED_VALUE + "|" + SINGLE_QUOTED_VALUE + "|" + QUOTELESS_VALUE;
-    private static final String COMMENT_S = "(?<comment>(?<=\\h)#.*+)?+";
+    private static final String COMMENT_S = "(?<comment>(?:(?<=\\h)|(?<![^.]))#.*+)?+";
     private static final String OPTIONAL_TAG = "(?<tag>!\\H++\\h?+)?+";
     private static final String DIRECTIVES = "(?<directive>%(?:TAG|YAML))\\h*+(?<handle>[!\\d][^#\\h]*+(?:\\h*+[^#\\h]++)?+)";
     private static final String STRUCTURAL_ELEMENTS = "(?<structure>\\.{3}|-{3})";

@@ -140,6 +140,12 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
+  void singleLineCommentWithoutSpaceShouldBeHighlighted() {
+    highlight("# Comment ");
+    assertHighlighting(0, 9, COMMENT);
+  }
+
+  @Test
   void keyValueWithCommentShouldBeHighlighted() {
     highlight("key: value  # Comment");
     assertHighlighting(0, 2, KEYWORD);
