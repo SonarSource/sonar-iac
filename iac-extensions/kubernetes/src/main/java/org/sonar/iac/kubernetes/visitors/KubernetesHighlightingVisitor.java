@@ -80,6 +80,7 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
       highlightGroupsInMatcher(structureMatcher, YamlRegexPattern.GROUPNAME_TO_TYPE_STRUCTURE, lineNumber);
       return;
     }
+
     var combinedMatcher = YamlRegexPattern.COMBINED_PATTERN.matcher(line);
     if (combinedMatcher.matches()) {
       highlightGroupsInMatcher(combinedMatcher, YamlRegexPattern.GROUPNAME_TO_TYPE_COMBINED, lineNumber);
@@ -89,11 +90,6 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     var scalarMatcher = YamlRegexPattern.SCALAR_VALUE_PATTERN.matcher(line);
     if (scalarMatcher.matches()) {
       highlightGroupsInMatcher(scalarMatcher, YamlRegexPattern.GROUPNAME_TO_TYPE_SCALAR_VALUE, lineNumber);
-    }
-
-    var commentMatcher = YamlRegexPattern.COMMENT_LINE_PATTERN.matcher(line);
-    if (commentMatcher.matches()) {
-      highlightGroupsInMatcher(commentMatcher, YamlRegexPattern.GROUPNAME_TO_TYPE_COMMENT, lineNumber);
     }
   }
 
@@ -136,18 +132,16 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     private static final String MULTI_LINE_OPERATORS = "(?<multilineOperator>[|>])";
     private static final String KEY = DOUBLE_QUOTED_KEY + "|" + SINGLE_QUOTED_KEY + "|" + QUOTELESS_KEY;
     private static final String VALUE = DOUBLE_QUOTED_VALUE + "|" + SINGLE_QUOTED_VALUE + "|" + QUOTELESS_VALUE;
-    private static final String COMMENT_AFTER_WS = "(?<comment>(?<=\\h)#.*+)?+";
-    private static final String COMMENT_WITHOUT_WS = "(?<comment>#.*+)?+";
+    private static final String COMMENT_S = "(?<comment>(?:(?<=\\h)|(?<![^.]))#.*+)?+";
     private static final String OPTIONAL_TAG = "(?<tag>!\\H++\\h?+)?+";
     private static final String DIRECTIVES = "(?<directive>%(?:TAG|YAML))\\h*+(?<handle>[!\\d][^#\\h]*+(?:\\h*+[^#\\h]++)?+)";
     private static final String STRUCTURAL_ELEMENTS = "(?<structure>\\.{3}|-{3})";
-    private static final Pattern STRUCTURES = Pattern.compile("\\h*+(?:" + DIRECTIVES + "|" + STRUCTURAL_ELEMENTS + ")\\h*+" + COMMENT_AFTER_WS);
+    private static final Pattern STRUCTURES = Pattern.compile("\\h*+(?:" + DIRECTIVES + "|" + STRUCTURAL_ELEMENTS + ")\\h*+" + COMMENT_S);
     private static final String COMBINED = "\\h*+-?+\\h*+(?:" + KEY + "):(?:\\h++" + OPTIONAL_TAG + "(?:" +
-      MULTI_LINE_OPERATORS + "|" + VALUE + ")?+)?+\\h*+" + COMMENT_AFTER_WS;
+      MULTI_LINE_OPERATORS + "|" + VALUE + ")?+)?+\\h*+" + COMMENT_S;
     private static final Pattern COMBINED_PATTERN = Pattern.compile(COMBINED);
-    private static final String SCALAR_VALUE = "\\h*+-?+\\h*+" + OPTIONAL_TAG + "(?:" + MULTI_LINE_OPERATORS + "|" + VALUE + ")?\\h*+" + COMMENT_AFTER_WS;
+    private static final String SCALAR_VALUE = "\\h*+-?+\\h*+" + OPTIONAL_TAG + "(?:" + MULTI_LINE_OPERATORS + "|" + VALUE + ")?+\\h*+" + COMMENT_S;
     private static final Pattern SCALAR_VALUE_PATTERN = Pattern.compile(SCALAR_VALUE);
-    private static final Pattern COMMENT_LINE_PATTERN = Pattern.compile(COMMENT_WITHOUT_WS);
 
     private static final Map<String, TypeOfText> GROUPNAME_TO_TYPE_STRUCTURE = Map.of(
       "directive", KEYWORD_LIGHT,
@@ -172,9 +166,6 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
       DOUBLE_QUOTED_VALUE_GROUP_NAME, STRING,
       SINGLE_QUOTED_VALUE_GROUP_NAME, STRING,
       QUOTELESS_VALUE_GROUP_NAME, STRING,
-      COMMENT_GROUP_NAME, COMMENT);
-
-    private static final Map<String, TypeOfText> GROUPNAME_TO_TYPE_COMMENT = Map.of(
       COMMENT_GROUP_NAME, COMMENT);
 
     private static String doubleQuoted(String groupName) {
