@@ -224,6 +224,69 @@ spec:
 	assert.Equal(t, nil, err)
 }
 
+func Test_evaluate_template_conversion_functions(t *testing.T) {
+	template := `
+tolerations:
+{{ toYaml .Values.tolerations | indent 2 }}
+  {{- with .Values.missingValue -}}
+  {{ toYaml . | nindent 2 }}
+  {{- end }}
+{{- $person := .Values.person | toYaml | fromYaml }}
+fromYamlExample: "My name is {{ $person.name }} and I am {{ $person.age }} years old"
+{{- $personArray := .Values.personArray | fromYamlArray }}
+fromYamlArrayExample:
+{{- range $p := $personArray }}
+  - {{ $p | quote}}
+{{- end }}
+toJsonExample: {{ toJson .Values.person }}
+{{- $personFromJson := fromJson .Values.personJson }}
+fromJsonExample: "My name is {{ $personFromJson.name }} and I am {{ $personFromJson.age }} years old"
+fromJsonArrayExample:
+{{- $fromJsonArray := .Values.personJsonArray | fromJsonArray }}
+{{- range $i := $fromJsonArray }}
+  - {{ $i | quote }}
+{{- end }}
+toTomlExample: {{ .Values.person | toToml | quote }}
+`
+	values := `
+tolerations:
+  - key: "sonarqube"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+person:
+  name: Bob
+  age: 25
+personArray: "[Alice, Bob]"
+personJson: '{"name": "Json", "age": 20}'
+personJsonArray: '["Json", "Gson", "Yaml"]'
+`
+
+	expected := `
+tolerations:
+  - effect: NoSchedule
+    key: sonarqube
+    operator: Equal
+    value: "true"
+fromYamlExample: "My name is Bob and I am 25 years old"
+fromYamlArrayExample:
+  - "Alice"
+  - "Bob"
+toJsonExample: {"age":25,"name":"Bob"}
+fromJsonExample: "My name is Json and I am 20 years old"
+fromJsonArrayExample:
+  - "Json"
+  - "Gson"
+  - "Yaml"
+toTomlExample: "age = 25.0\nname = \"Bob\"\n"
+`
+
+	result, err := evaluateTemplateInternal("a.yaml", template, values)
+
+	assert.Equal(t, expected, result)
+	assert.Equal(t, nil, err)
+}
+
 func Test_evaluate_invalid_template(t *testing.T) {
 	template := `
 apiVersion: {{ hello

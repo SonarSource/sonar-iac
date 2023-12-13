@@ -19,10 +19,15 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig/v3"
+	"sigs.k8s.io/yaml"
 	"slices"
 	"strconv"
+	"strings"
 	"text/template"
 )
 
@@ -175,7 +180,6 @@ var sprigFunctionsWhitelist = []string{
 	"title",
 	"toDate",
 	"toDecimal",
-	"toJson",
 	"toPrettyJson",
 	"toRawJson",
 	"toString",
@@ -251,6 +255,14 @@ func addCustomFunctions() *template.FuncMap {
 	}
 	functions["fail"] = emptyText
 
+	functions["toYaml"] = toYaml
+	functions["fromYaml"] = fromYaml
+	functions["fromYamlArray"] = fromYamlArray
+	functions["toJson"] = toJson
+	functions["fromJson"] = fromJson
+	functions["fromJsonArray"] = fromJsonArray
+	functions["toToml"] = toToml
+
 	return &functions
 }
 
@@ -267,4 +279,66 @@ func required(warningMessage string, value interface{}) (interface{}, error) {
 
 func emptyText(_ string) string {
 	return ""
+}
+
+func toYaml(input interface{}) string {
+	text, err := yaml.Marshal(input)
+	if err == nil {
+		return strings.TrimSuffix(string(text), "\n")
+	}
+	return ""
+}
+
+func fromYaml(input string) map[string]interface{} {
+	result := map[string]interface{}{}
+	err := yaml.Unmarshal([]byte(input), &result)
+	if err != nil {
+		result["Error"] = err.Error()
+	}
+	return result
+}
+
+func fromYamlArray(input string) []interface{} {
+	result := []interface{}{}
+	err := yaml.Unmarshal([]byte(input), &result)
+	if err != nil {
+		return []interface{}{err.Error()}
+	}
+	return result
+}
+
+func toJson(input interface{}) string {
+	text, err := json.Marshal(input)
+	if err != nil {
+		return ""
+	}
+	return string(text)
+}
+
+func fromJson(input string) map[string]interface{} {
+	result := make(map[string]interface{})
+	err := json.Unmarshal([]byte(input), &result)
+	if err != nil {
+		result["Error"] = err.Error()
+	}
+	return result
+}
+
+func fromJsonArray(input string) []interface{} {
+	result := []interface{}{}
+	err := json.Unmarshal([]byte(input), &result)
+	if err != nil {
+		return []interface{}{err.Error()}
+	}
+	return result
+}
+
+func toToml(input interface{}) string {
+	result := bytes.NewBuffer(nil)
+	encoder := toml.NewEncoder(result)
+	err := encoder.Encode(input)
+	if err != nil {
+		return err.Error()
+	}
+	return result.String()
 }
