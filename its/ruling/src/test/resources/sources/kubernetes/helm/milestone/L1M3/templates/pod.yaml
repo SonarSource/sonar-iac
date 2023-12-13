@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Pod
-{{ toYaml .Values.metadataPod }} # TODO SONARIAC-1184 HelmEvaluator evaluateTemplate fails for default and toYaml function
+metadata:
+  {{ toYaml .Values.metadataPod }}
 spec:
   containers:
     - name: web
@@ -10,4 +11,4 @@ spec:
           containerPort: 80
           protocol: TCP
       securityContext:
-        allowPrivilegeEscalation: true # TODO SONARIAC-1128 Parse a Helm file containing function call with parenthesis without crash
+        allowPrivilegeEscalation: true
