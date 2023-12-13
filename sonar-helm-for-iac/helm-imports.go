@@ -57,6 +57,7 @@ var sprigFunctionsWhitelist = []string{
 	"decryptAES",
 	"deepCopy",
 	"deepEqual",
+	"default",
 	"derivePassword",
 	"dict",
 	"dig",

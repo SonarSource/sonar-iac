@@ -276,3 +276,43 @@ func Test_to_protobuf_invalid(t *testing.T) {
 	assert.Equal(t, "", templateFromProto.Template)
 	assert.Equal(t, "template: a.yaml:1: unclosed action", templateFromProto.Error)
 }
+
+func Test_evaluate_template_default_function(t *testing.T) {
+	template := `
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: example
+  spec:
+    containers:
+      - name: web
+        image: nginx
+        ports:
+          - name: web
+            containerPort: 80
+            protocol: {{ .Values.protocol | default "TCP" | quote }}
+  `
+
+	values := `
+protocol: UDP
+`
+
+	expected := `
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: example
+  spec:
+    containers:
+      - name: web
+        image: nginx
+        ports:
+          - name: web
+            containerPort: 80
+            protocol: "UDP"
+  `
+
+	result, _ := evaluateTemplateInternal("a.yaml", template, values)
+
+	assert.Equal(t, expected, result)
+}

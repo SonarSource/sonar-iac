@@ -9,6 +9,6 @@ spec:
       ports:
         - name: web
           containerPort: 80
-          protocol: {{ .Values.protocol | default "TCP" | quote }} # TODO SONARIAC-1184 HelmEvaluator evaluateTemplate fails for default and toYaml function
+          protocol: {{ .Values.protocol | default "TCP" | quote }}
       securityContext:
-        allowPrivilegeEscalation: true # TODO SONARIAC-1127 Parse a Helm file containing a function call with pipes without crash
+        allowPrivilegeEscalation: true
