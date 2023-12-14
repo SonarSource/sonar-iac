@@ -22,11 +22,6 @@ type InputReader interface {
 	// ...
 	// END
 	ReadInput(scanner *bufio.Scanner) []Content
-
-	// readInput
-	// Reads nLines from the given scanner and returns as a single string.
-	// If nLines is negative, reads all lines until EOF.
-	readInput(scanner *bufio.Scanner, nLines int) string
 }
 
 type StdinReader struct{}
@@ -50,8 +45,12 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) []Content {
 	return contents
 }
 
+// readInput
+// Reads nLines from the given scanner and returns as a single string.
+// If nLines is negative, reads all lines until EOF.
 func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) string {
 	if nLines == 0 {
+		fmt.Fprintf(os.Stderr, "Skipping request to read 0 lines\n")
 		return ""
 	}
 	rawInput := make([][]byte, 0)

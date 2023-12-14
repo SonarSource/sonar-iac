@@ -29,17 +29,13 @@ import (
 	"text/template"
 )
 
+var stdinReader iac_helm.InputReader = iac_helm.StdinReader{}
+
 func main() {
-	fmt.Fprintln(os.Stderr, "Starting sonar-helm-for-iac")
 	scanner := bufio.NewScanner(os.Stdin)
-	var stdinReader iac_helm.InputReader = iac_helm.StdinReader{}
 	contents := stdinReader.ReadInput(scanner)
-	if len(contents) == 0 {
-		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
-		return
-	} else if len(contents) != 2 {
-		fmt.Fprintf(os.Stderr, "Expected 2 files, received %d (values.yaml missing?)\n", len(contents))
-		os.Exit(1)
+	if code := validateContents(contents); code != 0 {
+		os.Exit(code)
 	}
 
 	path := contents[0].Name
@@ -55,6 +51,17 @@ func main() {
 	}
 	fmt.Fprintf(os.Stderr, "Writing %d bytes to stdout\n", len(result))
 	os.Stdout.Write(result)
+}
+
+func validateContents(contents []iac_helm.Content) int {
+	if len(contents) == 0 {
+		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
+		return 1
+	} else if len(contents) != 2 {
+		fmt.Fprintf(os.Stderr, "Expected 2 files, received %d (values.yaml missing?)\n", len(contents))
+		return 1
+	}
+	return 0
 }
 
 var handles []*template.Template

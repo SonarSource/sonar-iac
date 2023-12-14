@@ -19,6 +19,7 @@
 package main
 
 import (
+	"bufio"
 	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
 	"testing"
@@ -26,8 +27,49 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_call_main(t *testing.T) {
+type InputReaderMock struct {
+	Contents []iac_helm.Content
+}
+
+func (i *InputReaderMock) ReadInput(*bufio.Scanner) []iac_helm.Content {
+	return i.Contents
+}
+
+func Test_no_file_provided(t *testing.T) {
+	code := validateContents([]iac_helm.Content{})
+
+	assert.Equal(t, 1, code)
+}
+
+func Test_only_one_file_provided(t *testing.T) {
+	code := validateContents([]iac_helm.Content{
+		{
+			Name:    "a.yaml",
+			Content: "apiVersion: v1",
+		},
+	})
+
+	assert.Equal(t, 1, code)
+}
+
+func Test_two_files_provided(t *testing.T) {
+	stdinReader = &InputReaderMock{
+		Contents: []iac_helm.Content{
+			{
+				Name:    "a.yaml",
+				Content: "apiVersion: v1",
+			},
+			{
+				Name:    "values.yaml",
+				Content: "foo: bar",
+			},
+		},
+	}
+
 	main()
+
+	// verify that main does not crash and this code is reached
+	assert.Nil(t, nil)
 }
 
 func Test_evaluate_simple_template(t *testing.T) {

@@ -30,13 +30,12 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
-import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.helm.utils.ExecutableHelper;
-import org.sonar.iac.kubernetes.plugin.InstanceScopedHelmEvaluator;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -56,14 +55,30 @@ class HelmEvaluatorTest {
   }
 
   @Test
-  void shouldThrowIfRawEvaluationResultIsEmpty() {
+  void shouldThrowIfGoBinaryReturnsNonZero() {
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1");
 
     Assertions.assertThat(logTester.logs(Level.DEBUG))
       // TODO: better handling of empty input
+      .contains("[exec] Skipping request to read 0 lines")
       .contains("[exec] Expected 2 files, received 3 (values.yaml missing?)");
+  }
+
+  @Test
+  void shouldThrowIfRawEvaluationResultIsEmpty() throws IOException {
+    try (var ignored = Mockito.mockStatic(ExecutableHelper.class)) {
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[0]);
+      var helmEvaluator = Mockito.spy(this.helmEvaluator);
+      var process = mock(Process.class);
+      when(process.isAlive()).thenReturn(false);
+      when(process.exitValue()).thenReturn(0);
+      doReturn(process).when(helmEvaluator).startProcess(any(), any(), any(), any());
+      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Empty evaluation result (serialization failed?)");
+    }
   }
 
   @Test
