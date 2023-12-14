@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 class HelmProcessorTest {
@@ -46,6 +47,21 @@ class HelmProcessorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+
+  @Test
+  void shouldHandleInitializationError() throws IOException {
+    doThrow(new IOException("Failed to initialize Helm evaluator")).when(helmEvaluator).initialize();
+    var helmProcessor = new HelmProcessor(helmEvaluator);
+
+    helmProcessor.initialize();
+
+    Assertions.assertThat(logTester.logs(Level.DEBUG))
+      .contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
+
+    var result = helmProcessor.processHelmTemplate("foo.yaml", "foo", Mockito.mock(InputFileContext.class));
+
+    Assertions.assertThat(result).isNull();
+  }
 
   @Test
   void shouldSkipHelmEvaluationIfHelmEvaluatorNotInitialized() throws IOException {
@@ -68,6 +84,7 @@ class HelmProcessorTest {
   @Test
   void shouldSkipHelmEvaluationIfValuesFileNotRead() throws IOException, URISyntaxException {
     var helmProcessor = new HelmProcessor(helmEvaluator);
+    helmProcessor.initialize();
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var badValuesFile = Mockito.mock(InputFile.class);
@@ -90,6 +107,7 @@ class HelmProcessorTest {
   @Test
   void shouldSkipHelmEvaluationIfValuesFileIsEmpty() throws IOException {
     var helmProcessor = new HelmProcessor(helmEvaluator);
+    helmProcessor.initialize();
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var badValuesFile = Mockito.mock(InputFile.class);
@@ -108,6 +126,7 @@ class HelmProcessorTest {
   @Test
   void shouldEvaluateTemplateAndReturnTemplate() throws IOException {
     var helmProcessor = new HelmProcessor(helmEvaluator);
+    helmProcessor.initialize();
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = Mockito.mock(InputFile.class);
@@ -125,9 +144,9 @@ class HelmProcessorTest {
 
   @Test
   void shouldSkipHelmEvaluationIfHelmEvaluatorThrows() throws IOException {
-    var helmEvaluator = Mockito.mock(HelmEvaluator.class);
     when(helmEvaluator.evaluateTemplate(anyString(), anyString(), anyString())).thenThrow(new IllegalStateException("Failed to evaluate template"));
     var helmProcessor = new HelmProcessor(helmEvaluator);
+    helmProcessor.initialize();
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = Mockito.mock(InputFile.class);

@@ -20,8 +20,11 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
+	"os"
+	"os/exec"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -33,6 +36,12 @@ type InputReaderMock struct {
 
 func (i *InputReaderMock) ReadInput(*bufio.Scanner) []iac_helm.Content {
 	return i.Contents
+}
+
+type FailingProtobufSerializer struct{}
+
+func (s FailingProtobufSerializer) Serialize(content string, err error) ([]byte, error) {
+	return nil, errors.New("serialization error")
 }
 
 func Test_no_file_provided(t *testing.T) {
@@ -50,6 +59,43 @@ func Test_only_one_file_provided(t *testing.T) {
 	})
 
 	assert.Equal(t, 1, code)
+}
+
+func Test_exit_code_with_one_file(t *testing.T) {
+	if os.Getenv("BE_CRASHER") == "1" {
+		main()
+		return
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=Test_exit_code_with_one_file")
+	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
+	stdin, _ := cmd.StdinPipe()
+	defer stdin.Close()
+	cmd.Start()
+	stdin.Write([]byte("foo.yaml\n1\napiVersion: v1\nEND\n"))
+	err := cmd.Wait()
+
+	var e *exec.ExitError
+	errors.As(err, &e)
+	assert.Equal(t, 1, e.ExitCode())
+}
+
+func Test_exit_code_with_serialization_error(t *testing.T) {
+	if os.Getenv("BE_CRASHER") == "1" {
+		serializer = FailingProtobufSerializer{}
+		main()
+		return
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=Test_exit_code_with_serialization_error")
+	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
+	stdin, _ := cmd.StdinPipe()
+	defer stdin.Close()
+	cmd.Start()
+	stdin.Write([]byte("foo.yaml\n1\napiVersion: v1\nvalues.yaml\n0\nEND\n"))
+	err := cmd.Wait()
+
+	var e *exec.ExitError
+	errors.As(err, &e)
+	assert.Equal(t, 1, e.ExitCode())
 }
 
 func Test_two_files_provided(t *testing.T) {
@@ -365,7 +411,7 @@ func Test_to_protobuf_valid(t *testing.T) {
 	values := "api: v1"
 
 	evaluatedTemplate, err := evaluateTemplateInternal("a.yaml", template, values)
-	result, err := toProtobuf(evaluatedTemplate, err)
+	result, err := serializer.Serialize(evaluatedTemplate, err)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
 	proto.Unmarshal(result, templateFromProto)
@@ -378,7 +424,7 @@ func Test_to_protobuf_invalid(t *testing.T) {
 	template := "apiVersion: {{ .Values.api"
 
 	evaluatedTemplate, err := evaluateTemplateInternal("a.yaml", template, "")
-	result, err := toProtobuf(evaluatedTemplate, err)
+	result, err := serializer.Serialize(evaluatedTemplate, err)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
 	proto.Unmarshal(result, templateFromProto)

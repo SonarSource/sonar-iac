@@ -22,7 +22,6 @@ import (
 	"bufio"
 	"fmt"
 	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
-	"google.golang.org/protobuf/proto"
 	"os"
 	"sigs.k8s.io/yaml"
 	"strings"
@@ -30,6 +29,7 @@ import (
 )
 
 var stdinReader iac_helm.InputReader = iac_helm.StdinReader{}
+var serializer iac_helm.Serializer = iac_helm.ProtobufSerializer{}
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -44,7 +44,7 @@ func main() {
 	fmt.Fprintf(os.Stderr, "Read in total %d characters from stdin; evaluating template <%s>\n", len(rawTemplate)+len(rawValues), path)
 
 	evaluatedTemplate, err := evaluateTemplateInternal(path, rawTemplate, rawValues)
-	result, err := toProtobuf(evaluatedTemplate, err)
+	result, err := serializer.Serialize(evaluatedTemplate, err)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to serialize evaluated template to Protobuf: %s\n", err.Error())
 		os.Exit(1)
@@ -73,18 +73,6 @@ func evaluateTemplateInternal(path string, content string, valuesFileContent str
 		return "", err
 	}
 	return executeWithValues(templateId, valuesFileContent)
-}
-
-func toProtobuf(evaluatedTemplate string, err error) ([]byte, error) {
-	errorText := ""
-	if err != nil {
-		errorText = err.Error()
-	}
-	message := iac_helm.TemplateEvaluationResult{
-		Template: evaluatedTemplate,
-		Error:    errorText,
-	}
-	return proto.Marshal(&message)
 }
 
 // Create a template with name and expression and return its handle (a numeric ID to access the template later)

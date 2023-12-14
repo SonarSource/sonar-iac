@@ -28,6 +28,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
@@ -66,15 +68,18 @@ class HelmEvaluatorTest {
       .contains("[exec] Expected 2 files, received 3 (values.yaml missing?)");
   }
 
-  @Test
-  void shouldThrowIfRawEvaluationResultIsEmpty() throws IOException {
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void shouldThrowIfRawEvaluationResultIsEmptyOrNull(boolean isNull) throws IOException {
+    var expectedBytes = isNull ? null : new byte[0];
     try (var ignored = Mockito.mockStatic(ExecutableHelper.class)) {
-      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[0]);
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(expectedBytes);
       var helmEvaluator = Mockito.spy(this.helmEvaluator);
       var process = mock(Process.class);
       when(process.isAlive()).thenReturn(false);
       when(process.exitValue()).thenReturn(0);
       doReturn(process).when(helmEvaluator).startProcess(any(), any(), any(), any());
+
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Empty evaluation result (serialization failed?)");
@@ -112,8 +117,8 @@ class HelmEvaluatorTest {
   }
 
   @Test
-  void shouldEvaluateTemplateWithTrailingNewline() throws IOException {
-    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n", "container:\n  port: 8080");
+  void shouldEvaluateInputsWithTrailingNewline() throws IOException {
+    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n", "container:\n  port: 8080\n\n");
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
   }
