@@ -15,7 +15,8 @@ CALL go build -buildmode=exe -o target/classes/sonar-helm-for-iac-windows-amd64
 EXIT /B 0
 
 :generate_test_report
-CALL go test -json > target/test-report.out
+SET CGO_ENABLED=0
+CALL go test ./... -json > target/test-report.out
 EXIT /B 0
 
 :go_install_check
