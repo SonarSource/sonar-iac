@@ -20,7 +20,6 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
@@ -31,15 +30,21 @@ import (
 )
 
 func main() {
-	var path string
-	var numTemplateLines int
-	flag.StringVar(&path, "path", "", "Name of the rawTemplate")
-	flag.IntVar(&numTemplateLines, "nl", 0, "Number of lines in the rawTemplate; lines after that are considered rawValues.yaml content")
-	flag.Parse()
-
+	fmt.Fprintln(os.Stderr, "Starting sonar-helm-for-iac")
 	scanner := bufio.NewScanner(os.Stdin)
-	rawTemplate := bytesToString(readInput(scanner, numTemplateLines))
-	rawValues := bytesToString(readInput(scanner, -1))
+	var stdinReader iac_helm.InputReader = iac_helm.StdinReader{}
+	contents := stdinReader.ReadInput(scanner)
+	if len(contents) == 0 {
+		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
+		return
+	} else if len(contents) != 2 {
+		fmt.Fprintf(os.Stderr, "Expected 2 files, received %d (values.yaml missing?)\n", len(contents))
+		os.Exit(1)
+	}
+
+	path := contents[0].Name
+	rawTemplate := contents[0].Content
+	rawValues := contents[1].Content
 	fmt.Fprintf(os.Stderr, "Read in total %d characters from stdin; evaluating template <%s>\n", len(rawTemplate)+len(rawValues), path)
 
 	evaluatedTemplate, err := evaluateTemplateInternal(path, rawTemplate, rawValues)
@@ -50,28 +55,6 @@ func main() {
 	}
 	fmt.Fprintf(os.Stderr, "Writing %d bytes to stdout\n", len(result))
 	os.Stdout.Write(result)
-}
-
-func readInput(scanner *bufio.Scanner, nLines int) [][]byte {
-	rawInput := make([][]byte, 0)
-	linesToRead := nLines
-	for scanner.Scan() {
-		rawInput = append(rawInput, scanner.Bytes())
-		linesToRead--
-		if linesToRead == 0 {
-			fmt.Fprintf(os.Stderr, "Read %d lines from stdin\n", len(rawInput))
-			break
-		}
-	}
-	return rawInput
-}
-
-func bytesToString(input [][]byte) string {
-	result := make([]string, len(input))
-	for i, b := range input {
-		result[i] = string(b)
-	}
-	return strings.Join(result, "\n")
 }
 
 var handles []*template.Template

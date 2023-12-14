@@ -23,6 +23,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.helm.utils.ExecutableHelper;
@@ -31,22 +34,28 @@ import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 public class HelmEvaluator {
   private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
+  private static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
 
   private final File workingDir;
   private final NativeUtils nativeUtils = new NativeUtils();
+  private final ExecutorService processMonitor = Executors.newSingleThreadExecutor();
 
   public HelmEvaluator(File workingDir) {
     this.workingDir = workingDir;
   }
 
   public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) throws IOException {
-    var pb = prepareProcessBuilder(path, content.lines().count());
+    var pb = prepareProcessBuilder();
 
     LOG.debug("Executing: {}", pb.command());
-    var process = startProcess(pb, content, valuesFileContent);
+    var process = startProcess(pb, path, content, valuesFileContent);
+    processMonitor.submit(() -> monitorProcess(process));
 
     byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
     if (rawEvaluationResult == null || rawEvaluationResult.length == 0) {
+      if (!process.isAlive() && process.exitValue() != 0) {
+        throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " exited with non-zero exit code: " + process.exitValue());
+      }
       throw new IllegalStateException("Empty evaluation result (serialization failed?)");
     }
 
@@ -61,23 +70,41 @@ public class HelmEvaluator {
     }
   }
 
-  ProcessBuilder prepareProcessBuilder(String path, long nl) throws IOException {
+  ProcessBuilder prepareProcessBuilder() throws IOException {
     var suffix = nativeUtils.getSuffixForCurrentPlatform();
-    var executable = ExecutableHelper.extractFromClasspath(workingDir, "sonar-helm-for-iac-" + suffix);
-    return new ProcessBuilder(
-      executable,
-      "--path=" + path,
-      "--nl=" + nl);
+    var executable = ExecutableHelper.extractFromClasspath(workingDir, HELM_FOR_IAC_EXECUTABLE + "-" + suffix);
+    return new ProcessBuilder(executable);
   }
 
-  Process startProcess(ProcessBuilder pb, String content, String valuesFileContent) throws IOException {
+  Process startProcess(ProcessBuilder pb, String name, String content, String valuesFileContent) throws IOException {
     var process = pb.start();
     try (var os = process.getOutputStream()) {
+      os.write(String.format("%s%n", name).getBytes(StandardCharsets.UTF_8));
+      os.write(String.format("%d%n", content.lines().count()).getBytes(StandardCharsets.UTF_8));
+      if (!content.endsWith("\n")) {
+        content += "\n";
+      }
       os.write(content.getBytes(StandardCharsets.UTF_8));
-      // In case content doesn't have a trailing newline, add it. If there are empty lines, Go will ignore them anyway.
-      os.write("\n".getBytes(StandardCharsets.UTF_8));
+      os.write(String.format("values.yaml%n").getBytes(StandardCharsets.UTF_8));
+      os.write(String.format("%d%n", valuesFileContent.lines().count()).getBytes(StandardCharsets.UTF_8));
+      if (!valuesFileContent.endsWith("\n")) {
+        valuesFileContent += "\n";
+      }
       os.write(valuesFileContent.getBytes(StandardCharsets.UTF_8));
+      os.write(String.format("END%n").getBytes(StandardCharsets.UTF_8));
     }
     return process;
+  }
+
+  private static void monitorProcess(Process process) {
+    try {
+      if (!process.waitFor(5, TimeUnit.SECONDS)) {
+        LOG.debug(HELM_FOR_IAC_EXECUTABLE + " is taking longer than 5 seconds to finish");
+        process.destroy();
+        process.waitFor();
+      }
+    } catch (InterruptedException e) {
+      LOG.warn("Interrupted while waiting for process to finish", e);
+    }
   }
 }

@@ -19,10 +19,8 @@
 package main
 
 import (
-	"bufio"
 	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -385,18 +383,4 @@ protocol: UDP
 	result, _ := evaluateTemplateInternal("a.yaml", template, values)
 
 	assert.Equal(t, expected, result)
-}
-
-func Test_read_n_lines_from_input(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("line1\nline2\nline3"))
-	lines := bytesToString(readInput(scanner, 2))
-
-	assert.Equal(t, "line1\nline2", lines)
-}
-
-func Test_read_all_lines_from_input(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("line1\nline2\nline3"))
-	lines := bytesToString(readInput(scanner, -1))
-
-	assert.Equal(t, "line1\nline2\nline3", lines)
 }

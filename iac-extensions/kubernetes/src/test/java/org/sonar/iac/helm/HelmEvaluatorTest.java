@@ -25,15 +25,17 @@ import java.io.IOException;
 import java.util.Collections;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.DefaultTempFolder;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.helm.utils.ExecutableHelper;
 import org.sonar.iac.kubernetes.plugin.InstanceScopedHelmEvaluator;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -42,13 +44,20 @@ class HelmEvaluatorTest {
   @TempDir
   File tempDir;
 
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+
   @Test
   void shouldThrowIfRawEvaluationResultIsEmpty() {
     var helmEvaluator = new HelmEvaluator(tempDir);
 
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Empty evaluation result (serialization failed?)");
+      .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1");
+
+    Assertions.assertThat(logTester.logs(Level.DEBUG))
+      // TODO: better handling of empty input
+      .contains("[exec] Expected 2 files, received 3 (values.yaml missing?)");
   }
 
   @Test
@@ -67,8 +76,8 @@ class HelmEvaluatorTest {
       when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[1]);
       var pb = mock(ProcessBuilder.class);
       when(pb.command()).thenReturn(Collections.emptyList());
-      Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder(any(), anyLong());
-      Mockito.doReturn(null).when(helmEvaluator).startProcess(any(), any(), any());
+      Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder();
+      Mockito.doReturn(null).when(helmEvaluator).startProcess(any(), any(), any(), any());
 
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)
