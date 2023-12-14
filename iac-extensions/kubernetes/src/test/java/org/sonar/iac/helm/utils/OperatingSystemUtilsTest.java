@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class NativeUtilsTest {
+class OperatingSystemUtilsTest {
   @ParameterizedTest
   @CsvSource({
     "linux,linux",
@@ -37,14 +37,12 @@ class NativeUtilsTest {
     "Windows Server 2019 Datacenter,windows",
   })
   void shouldNormalizeOsNames(String osName, String expected) {
-    var loader = new NativeUtils();
-    assertEquals(expected, loader.getNormalizedOsName(osName));
+    assertEquals(expected, OperatingSystemUtils.getNormalizedOsName(osName));
   }
 
   @Test
   void shouldThrowOnUnknownOs() {
-    var loader = new NativeUtils();
-    Assertions.assertThatThrownBy(() -> loader.getNormalizedOsName("freebsd"))
+    Assertions.assertThatThrownBy(() -> OperatingSystemUtils.getNormalizedOsName("freebsd"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Unsupported OS: freebsd");
   }
@@ -57,14 +55,12 @@ class NativeUtilsTest {
     "arm64,arm64",
   })
   void shouldNormalizeArchNames(String archName, String expected) {
-    var loader = new NativeUtils();
-    assertEquals(expected, loader.getNormalizedArchName(archName));
+    assertEquals(expected, OperatingSystemUtils.getNormalizedArchName(archName));
   }
 
   @Test
   void shouldThrowOnUnknownArch() {
-    var loader = new NativeUtils();
-    Assertions.assertThatThrownBy(() -> loader.getNormalizedArchName("arm"))
+    Assertions.assertThatThrownBy(() -> OperatingSystemUtils.getNormalizedArchName("arm"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Unsupported architecture: arm");
   }

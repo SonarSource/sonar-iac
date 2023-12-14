@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,11 +47,16 @@ class HelmEvaluatorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+  private HelmEvaluator helmEvaluator;
+
+  @BeforeEach
+  void setUp() throws IOException {
+    this.helmEvaluator = new HelmEvaluator(tempDir);
+    this.helmEvaluator.initialize();
+  }
 
   @Test
   void shouldThrowIfRawEvaluationResultIsEmpty() {
-    var helmEvaluator = new HelmEvaluator(tempDir);
-
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1");
@@ -62,8 +68,6 @@ class HelmEvaluatorTest {
 
   @Test
   void shouldThrowIfGoReturnsError() {
-    var helmEvaluator = new InstanceScopedHelmEvaluator(new DefaultTempFolder(tempDir, false));
-
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.", "container:\n  port: 8080"))
       .isInstanceOf(IllegalStateException.class);
   }
@@ -72,7 +76,7 @@ class HelmEvaluatorTest {
   void shouldThrowOnDeserializationError() throws IOException {
     try (var ignored = mockStatic(TemplateEvaluationResult.class); var ignored2 = mockStatic(ExecutableHelper.class)) {
       when(TemplateEvaluationResult.parseFrom(any(byte[].class))).thenThrow(new InvalidProtocolBufferException("Invalid input"));
-      var helmEvaluator = Mockito.spy(new HelmEvaluator(tempDir));
+      var helmEvaluator = Mockito.spy(this.helmEvaluator);
       when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[1]);
       var pb = mock(ProcessBuilder.class);
       when(pb.command()).thenReturn(Collections.emptyList());
@@ -87,8 +91,6 @@ class HelmEvaluatorTest {
 
   @Test
   void shouldEvaluateTemplate() throws IOException {
-    var helmEvaluator = new HelmEvaluator(tempDir);
-
     var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}", "container:\n  port: 8080");
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
@@ -96,8 +98,6 @@ class HelmEvaluatorTest {
 
   @Test
   void shouldEvaluateTemplateWithTrailingNewline() throws IOException {
-    var helmEvaluator = new HelmEvaluator(tempDir);
-
     var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n", "container:\n  port: 8080");
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");

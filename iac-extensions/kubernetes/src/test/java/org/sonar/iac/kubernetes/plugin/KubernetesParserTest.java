@@ -113,10 +113,10 @@ class KubernetesParserTest {
   }
 
   @Test
-  void shouldNotEvaluateHelmWithoutValuesFile() throws IOException {
+  void shouldNotEvaluateHelmWithoutValuesFile() {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(null);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenCallRealMethod();
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(null);
       when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
 
       FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
@@ -125,8 +125,7 @@ class KubernetesParserTest {
       assertThat(file.documents().get(0).children()).isEmpty();
 
       var logs = logTester.logs(Level.DEBUG);
-      assertThat(logs).contains("Helm content detected in file 'chart/templates/foo.yaml'",
-        "Failed to find values file, skipping processing of Helm file 'chart/templates/foo.yaml'");
+      assertThat(logs).contains("Helm content detected in file 'chart/templates/foo.yaml'");
     }
   }
 

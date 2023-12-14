@@ -29,24 +29,27 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.helm.utils.ExecutableHelper;
-import org.sonar.iac.helm.utils.NativeUtils;
+import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 public class HelmEvaluator {
   private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
   private static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
+  private static final int PROCESS_TIMEOUT_SECONDS = 5;
 
   private final File workingDir;
-  private final NativeUtils nativeUtils = new NativeUtils();
   private final ExecutorService processMonitor = Executors.newSingleThreadExecutor();
+  private ProcessBuilder pb;
 
   public HelmEvaluator(File workingDir) {
     this.workingDir = workingDir;
   }
 
-  public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) throws IOException {
-    var pb = prepareProcessBuilder();
+  public void initialize() throws IOException {
+    this.pb = prepareProcessBuilder();
+  }
 
+  public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) throws IOException {
     LOG.debug("Executing: {}", pb.command());
     var process = startProcess(pb, path, content, valuesFileContent);
     processMonitor.submit(() -> monitorProcess(process));
@@ -71,7 +74,7 @@ public class HelmEvaluator {
   }
 
   ProcessBuilder prepareProcessBuilder() throws IOException {
-    var suffix = nativeUtils.getSuffixForCurrentPlatform();
+    var suffix = OperatingSystemUtils.getCurrentPlatform();
     var executable = ExecutableHelper.extractFromClasspath(workingDir, HELM_FOR_IAC_EXECUTABLE + "-" + suffix);
     return new ProcessBuilder(executable);
   }
@@ -98,13 +101,14 @@ public class HelmEvaluator {
 
   private static void monitorProcess(Process process) {
     try {
-      if (!process.waitFor(5, TimeUnit.SECONDS)) {
+      if (!process.waitFor(PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
         LOG.debug(HELM_FOR_IAC_EXECUTABLE + " is taking longer than 5 seconds to finish");
         process.destroy();
         process.waitFor();
       }
     } catch (InterruptedException e) {
       LOG.warn("Interrupted while waiting for process to finish", e);
+      Thread.currentThread().interrupt();
     }
   }
 }

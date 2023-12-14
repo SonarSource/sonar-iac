@@ -7,7 +7,7 @@ It is a small glue code for re-use the implementation of Helm Charts templates e
 
 ## Requirements
 * Go 1.21.1
-* gcc (mingw on Windows)
+* musl on Linux (`musl-gcc` should be present on `PATH`)
 * protoc 25.0
 * protoc-gen-go 1.31.0
 

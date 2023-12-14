@@ -36,25 +36,36 @@ import static org.sonar.iac.helm.utils.HelmFilesystemUtils.findValuesFile;
 @ExtensionPoint
 public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
-  private final HelmEvaluator helmEvaluator;
+  private HelmEvaluator helmEvaluator;
 
   public HelmProcessor(HelmEvaluator helmEvaluator) {
     this.helmEvaluator = helmEvaluator;
   }
 
+  public void initialize() {
+    try {
+      helmEvaluator.initialize();
+    } catch (IOException e) {
+      LOG.debug("Failed to initialize Helm evaluator, analysis of Helm files will be disabled", e);
+      this.helmEvaluator = null;
+    }
+  }
+
   @CheckForNull
   String processHelmTemplate(String filename, String source, InputFileContext inputFileContext) {
-    // TODO: better support of Helm project structure
-    var sourceWithComments = HelmPreprocessor.addLineComments(source);
-    var valuesFile = findValuesFile(inputFileContext);
-    if (valuesFile != null) {
-      try {
-        return evaluateHelmTemplate(filename, sourceWithComments, valuesFile.contents());
-      } catch (IOException e) {
-        LOG.debug("Failed to read values file at {}, skipping processing of Helm file '{}'", valuesFile, inputFileContext.inputFile, e);
+    if (helmEvaluator != null) {
+      // TODO: better support of Helm project structure
+      var sourceWithComments = HelmPreprocessor.addLineComments(source);
+      var valuesFile = findValuesFile(inputFileContext);
+      if (valuesFile != null) {
+        try {
+          return evaluateHelmTemplate(filename, sourceWithComments, valuesFile.contents());
+        } catch (IOException e) {
+          LOG.debug("Failed to read values file at {}, skipping processing of Helm file '{}'", valuesFile, inputFileContext.inputFile, e);
+        }
+      } else {
+        LOG.debug("Failed to find values file, skipping processing of Helm file '{}'", inputFileContext.inputFile);
       }
-    } else {
-      LOG.debug("Failed to find values file, skipping processing of Helm file '{}'", inputFileContext.inputFile);
     }
 
     return null;

@@ -22,13 +22,16 @@ package org.sonar.iac.helm.utils;
 import java.util.Locale;
 import java.util.Set;
 
-public class NativeUtils {
+public final class OperatingSystemUtils {
   /**
    * Platforms, for which sonar-helm-for-iac is built.
    */
   public static final Set<String> SUPPORTED_PLATFORMS = Set.of("darwin-amd64", "darwin-arm64", "windows-amd64", "linux-amd64");
 
-  public String getSuffixForCurrentPlatform() {
+  private OperatingSystemUtils() {
+  }
+
+  public static String getCurrentPlatform() {
     String platform = getNormalizedOsName(System.getProperty("os.name")) + "-" + getNormalizedArchName(System.getProperty("os.arch"));
     if (!SUPPORTED_PLATFORMS.contains(platform)) {
       throw new IllegalStateException("Unsupported platform: " + platform);
@@ -39,7 +42,7 @@ public class NativeUtils {
   /**
    * Normalize OS name, e.g. map `windows server 2020` to `windows`
    */
-  public String getNormalizedOsName(String os) {
+  static String getNormalizedOsName(String os) {
     os = os.toLowerCase(Locale.ROOT);
     if (os.startsWith("mac") || os.startsWith("darwin")) {
       os = "darwin";
@@ -53,7 +56,7 @@ public class NativeUtils {
     return os;
   }
 
-  public String getNormalizedArchName(String arch) {
+  static String getNormalizedArchName(String arch) {
     arch = arch.toLowerCase(Locale.ROOT);
     if ("x86_64".equals(arch) || "amd64".equals(arch)) {
       arch = "amd64";

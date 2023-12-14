@@ -44,7 +44,7 @@ class ExecutableHelperTest {
 
   @Test
   void shouldNotUnpackIfAlreadyExists() throws IOException {
-    var executable = "sonar-helm-for-iac-" + (new NativeUtils()).getSuffixForCurrentPlatform();
+    var executable = "sonar-helm-for-iac-" + OperatingSystemUtils.getCurrentPlatform();
     var dest = new File(tempDir, executable);
     dest.delete();
     assertThat(dest).doesNotExist();
