@@ -50,6 +50,21 @@ linux_image_template: &LINUX_IMAGE
   namespace: default
   use_in_memory_disk: true
 
+go_darwin_linux_image_template: &GO_DARWIN_LINUX_IMAGE
+  # Debian10 is required, because default image bundles too old macOS SDK for Go 1.21
+  image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-darwin-debian10
+  cluster_name: ${CIRRUS_CLUSTER_NAME}
+  region: eu-central-1
+  namespace: default
+  use_in_memory_disk: true
+
+go_windows_image_template: &GO_WINDOWS_IMAGE
+  image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-main
+  cluster_name: ${CIRRUS_CLUSTER_NAME}
+  region: eu-central-1
+  namespace: default
+  use_in_memory_disk: true
+
 linux_image_with_gcc_template: &LINUX_IMAGE_WITH_GCC
   dockerfile: .cirrus/Dockerfile
   docker_arguments:
@@ -111,8 +126,7 @@ qa_task_filter_template: &QA_TASK_FILTER
 
 build_go_darwin_task:
   eks_container:
-    # Debian10 is required, because default image bundles too old macOS SDK for Go 1.21
-    image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-darwin-debian10
+    <<: *GO_DARWIN_LINUX_IMAGE
   build_script:
     - cd sonar-helm-for-iac
     - /crossbuild --platforms="darwin/amd64" --build-cmd="bash make.sh build"
@@ -120,7 +134,7 @@ build_go_darwin_task:
     path: sonar-helm-for-iac/target/classes/sonar-helm-for-iac-*
 build_go_windows_task:
   eks_container:
-    image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-main
+    <<: *GO_WINDOWS_IMAGE
   build_script:
     - cd sonar-helm-for-iac
     - /crossbuild --platforms="windows/amd64" --build-cmd="bash make.sh build"
