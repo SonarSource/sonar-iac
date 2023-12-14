@@ -110,31 +110,17 @@ qa_task_filter_template: &QA_TASK_FILTER
 # ----------------------------------------------
 
 build_go_darwin_task:
-  container:
+  eks_container:
     # Debian10 is required, because default image bundles too old macOS SDK for Go 1.21
     image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-darwin-debian10
-  env:
-    ARTIFACTORY_URL: ''
-    ARTIFACTORY_PRIVATE_USERNAME: ''
-    ARTIFACTORY_PRIVATE_PASSWORD: ''
-    ARTIFACTORY_DEPLOY_USERNAME: ''
-    ARTIFACTORY_DEPLOY_PASSWORD: ''
-    ARTIFACTORY_ACCESS_TOKEN: ''
   build_script:
     - cd sonar-helm-for-iac
     - /crossbuild --platforms="darwin/amd64" --build-cmd="bash make.sh build"
   go_binaries_artifacts:
     path: sonar-helm-for-iac/target/classes/sonar-helm-for-iac-*
 build_go_windows_task:
-  container:
+  eks_container:
     image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-main
-  env:
-    ARTIFACTORY_URL: ''
-    ARTIFACTORY_PRIVATE_USERNAME: ''
-    ARTIFACTORY_PRIVATE_PASSWORD: ''
-    ARTIFACTORY_DEPLOY_USERNAME: ''
-    ARTIFACTORY_DEPLOY_PASSWORD: ''
-    ARTIFACTORY_ACCESS_TOKEN: ''
   build_script:
     - cd sonar-helm-for-iac
     - /crossbuild --platforms="windows/amd64" --build-cmd="bash make.sh build"
