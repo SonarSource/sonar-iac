@@ -15,7 +15,7 @@ RUN apt-get update && apt-get --no-install-recommends install -y gcc make && rm 
     unzip protoc-${PROTOC_VERSION}-linux-x86_64.zip -d /opt/protoc && \
     curl --proto "https" https://www.musl-libc.org/releases/musl-${MUSL_VERSION}.tar.gz --output musl-${MUSL_VERSION}.tar.gz && \
     tar xf musl-${MUSL_VERSION}.tar.gz && \
-    cd musl-${MUSL_VERSION} && ./configure --prefix=/opt/musl && make && make install
+    cd musl-${MUSL_VERSION} && ./configure --prefix=/opt/musl --enable-gcc-wrapper=yes && make && make install
 
 USER sonarsource
 
