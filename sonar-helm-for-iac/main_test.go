@@ -233,19 +233,23 @@ tolerations:
   {{- end }}
 {{- $person := .Values.person | toYaml | fromYaml }}
 fromYamlExample: "My name is {{ $person.name }} and I am {{ $person.age }} years old"
+fromYamlError: {{ fromYaml "abc" }} 
 {{- $personArray := .Values.personArray | fromYamlArray }}
 fromYamlArrayExample:
 {{- range $p := $personArray }}
   - {{ $p | quote}}
 {{- end }}
+fromYamlArrayError: {{ fromYamlArray "{" }}
 toJsonExample: {{ toJson .Values.person }}
 {{- $personFromJson := fromJson .Values.personJson }}
 fromJsonExample: "My name is {{ $personFromJson.name }} and I am {{ $personFromJson.age }} years old"
+fromJsonError: {{ fromJson "}" }}
 fromJsonArrayExample:
 {{- $fromJsonArray := .Values.personJsonArray | fromJsonArray }}
 {{- range $i := $fromJsonArray }}
   - {{ $i | quote }}
 {{- end }}
+fromJsonArrayError: {{ fromJsonArray "{" }}
 toTomlExample: {{ .Values.person | toToml | quote }}
 `
 	values := `
@@ -269,15 +273,19 @@ tolerations:
     operator: Equal
     value: "true"
 fromYamlExample: "My name is Bob and I am 25 years old"
+fromYamlError: map[Error:error unmarshaling JSON: while decoding JSON: json: cannot unmarshal string into Go value of type map[string]interface {}]
 fromYamlArrayExample:
   - "Alice"
   - "Bob"
+fromYamlArrayError: [error converting YAML to JSON: yaml: line 1: did not find expected node content]
 toJsonExample: {"age":25,"name":"Bob"}
 fromJsonExample: "My name is Json and I am 20 years old"
+fromJsonError: map[Error:invalid character '}' looking for beginning of value]
 fromJsonArrayExample:
   - "Json"
   - "Gson"
   - "Yaml"
+fromJsonArrayError: [unexpected end of JSON input]
 toTomlExample: "age = 25.0\nname = \"Bob\"\n"
 `
 

@@ -21,7 +21,9 @@ package main
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"math"
 	"testing"
+	"unsafe"
 )
 
 func Test_required(t *testing.T) {
@@ -49,4 +51,35 @@ func Test_required(t *testing.T) {
 			assert.Equalf(t, tt.want, got, "required(%v, %v)", tt.args.warningMessage, tt.args.value)
 		})
 	}
+}
+
+type ExampleStructure struct {
+	A float64
+}
+
+func Test_toYamlError(t *testing.T) {
+
+	// NaN cause UnsupportedValueError so actual should be empty string
+	input := &ExampleStructure{A: math.NaN()}
+
+	actual := toYaml(input)
+
+	assert.Equal(t, "", actual)
+}
+
+func Test_toJsonError(t *testing.T) {
+	input := &ExampleStructure{A: math.NaN()}
+
+	actual := toJson(input)
+
+	assert.Equal(t, "", actual)
+}
+
+func Test_toTomlError(t *testing.T) {
+	type Type struct {
+		A unsafe.Pointer
+	}
+	actual := toToml(&Type{})
+
+	assert.Equal(t, "unsupported type: unsafe.Pointer", actual)
 }
