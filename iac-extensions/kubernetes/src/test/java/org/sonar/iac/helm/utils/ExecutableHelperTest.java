@@ -22,7 +22,9 @@ package org.sonar.iac.helm.utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -33,7 +35,13 @@ import static org.mockito.Mockito.when;
 
 class ExecutableHelperTest {
   @TempDir
-  File tempDir;
+  static File tempDir;
+
+  @AfterAll
+  static void cleanup() throws IOException {
+    // workaround for Windows due to https://github.com/junit-team/junit5/issues/2811
+    FileUtils.deleteDirectory(tempDir);
+  }
 
   @Test
   void shouldThrowIfResourceNotFound() {

@@ -23,7 +23,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -44,7 +46,7 @@ import static org.mockito.Mockito.when;
 
 class HelmEvaluatorTest {
   @TempDir
-  File tempDir;
+  static File tempDir;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -54,6 +56,12 @@ class HelmEvaluatorTest {
   void setUp() throws IOException {
     this.helmEvaluator = new HelmEvaluator(tempDir);
     this.helmEvaluator.initialize();
+  }
+
+  @AfterAll
+  static void cleanup() throws IOException {
+    // workaround for Windows due to https://github.com/junit-team/junit5/issues/2811
+    FileUtils.deleteDirectory(tempDir);
   }
 
   @Test
