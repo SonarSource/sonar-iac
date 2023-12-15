@@ -22,6 +22,7 @@ package org.sonar.iac.helm;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,7 +35,7 @@ import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 public class HelmEvaluator {
   private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
-  private static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
+  public static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
   private static final int PROCESS_TIMEOUT_SECONDS = 5;
 
   private final File workingDir;
@@ -82,21 +83,25 @@ public class HelmEvaluator {
   Process startProcess(ProcessBuilder pb, String name, String content, String valuesFileContent) throws IOException {
     var process = pb.start();
     try (var os = process.getOutputStream()) {
-      os.write(String.format("%s%n", name).getBytes(StandardCharsets.UTF_8));
-      os.write(String.format("%d%n", content.lines().count()).getBytes(StandardCharsets.UTF_8));
+      writeStringAsBytes(os, String.format("%s%n", name));
+      writeStringAsBytes(os, String.format("%d%n", content.lines().count()));
       if (!content.endsWith("\n")) {
         content += "\n";
       }
-      os.write(content.getBytes(StandardCharsets.UTF_8));
-      os.write(String.format("values.yaml%n").getBytes(StandardCharsets.UTF_8));
-      os.write(String.format("%d%n", valuesFileContent.lines().count()).getBytes(StandardCharsets.UTF_8));
+      writeStringAsBytes(os, content);
+      writeStringAsBytes(os, String.format("values.yaml%n"));
+      writeStringAsBytes(os, String.format("%d%n", valuesFileContent.lines().count()));
       if (!valuesFileContent.endsWith("\n")) {
         valuesFileContent += "\n";
       }
-      os.write(valuesFileContent.getBytes(StandardCharsets.UTF_8));
-      os.write(String.format("END%n").getBytes(StandardCharsets.UTF_8));
+      writeStringAsBytes(os, valuesFileContent);
+      writeStringAsBytes(os, String.format("END%n"));
     }
     return process;
+  }
+
+  private static void writeStringAsBytes(OutputStream os, String content) throws IOException {
+    os.write(content.getBytes(StandardCharsets.UTF_8));
   }
 
   private static void monitorProcess(Process process) {
@@ -104,7 +109,6 @@ public class HelmEvaluator {
       if (!process.waitFor(PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
         LOG.debug(HELM_FOR_IAC_EXECUTABLE + " is taking longer than 5 seconds to finish");
         process.destroy();
-        process.waitFor();
       }
     } catch (InterruptedException e) {
       LOG.warn("Interrupted while waiting for process to finish", e);

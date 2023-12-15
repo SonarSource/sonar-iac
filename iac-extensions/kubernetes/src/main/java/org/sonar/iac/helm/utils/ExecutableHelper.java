@@ -62,7 +62,7 @@ public final class ExecutableHelper {
     try (var is = process.getInputStream(); var es = process.getErrorStream()) {
       var rawEvaluationResult = is.readAllBytes();
       new BufferedReader(new InputStreamReader(es, StandardCharsets.UTF_8)).lines()
-        .forEach(line -> LOG.debug("[exec] {}", line));
+        .forEach(line -> LOG.debug("[{}] {}", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, line));
       return rawEvaluationResult;
     } catch (IOException e) {
       LOG.debug("Error reading process output", e);
@@ -80,7 +80,8 @@ public final class ExecutableHelper {
 
   public static byte[] getBytesFromResource(String executable) throws IOException {
     var out = new ByteArrayOutputStream();
-    try (InputStream in = HelmEvaluator.class.getClassLoader().getResourceAsStream(executable)) {
+    // For an unknown reason, accessing resource via `Thread.currentThread().getContextClassLoader()` does not find it
+    try (InputStream in = ExecutableHelper.class.getClassLoader().getResourceAsStream(executable)) {
       if (in == null) {
         throw new IllegalStateException(executable + " binary not found on class path");
       }

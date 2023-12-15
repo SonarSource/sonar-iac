@@ -21,6 +21,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
 	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
 	"os"
@@ -31,10 +32,10 @@ import (
 )
 
 type InputReaderMock struct {
-	Contents []iac_helm.Content
+	Contents []converters.Content
 }
 
-func (i *InputReaderMock) ReadInput(*bufio.Scanner) []iac_helm.Content {
+func (i *InputReaderMock) ReadInput(*bufio.Scanner) []converters.Content {
 	return i.Contents
 }
 
@@ -45,13 +46,13 @@ func (s FailingProtobufSerializer) Serialize(content string, err error) ([]byte,
 }
 
 func Test_no_file_provided(t *testing.T) {
-	code := validateContents([]iac_helm.Content{})
+	code := validateContents([]converters.Content{})
 
 	assert.Equal(t, 1, code)
 }
 
 func Test_only_one_file_provided(t *testing.T) {
-	code := validateContents([]iac_helm.Content{
+	code := validateContents([]converters.Content{
 		{
 			Name:    "a.yaml",
 			Content: "apiVersion: v1",
@@ -100,7 +101,7 @@ func Test_exit_code_with_serialization_error(t *testing.T) {
 
 func Test_two_files_provided(t *testing.T) {
 	stdinReader = &InputReaderMock{
-		Contents: []iac_helm.Content{
+		Contents: []converters.Content{
 			{
 				Name:    "a.yaml",
 				Content: "apiVersion: v1",

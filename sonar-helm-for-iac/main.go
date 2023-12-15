@@ -21,15 +21,15 @@ package main
 import (
 	"bufio"
 	"fmt"
-	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
+	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
 	"os"
 	"sigs.k8s.io/yaml"
 	"strings"
 	"text/template"
 )
 
-var stdinReader iac_helm.InputReader = iac_helm.StdinReader{}
-var serializer iac_helm.Serializer = iac_helm.ProtobufSerializer{}
+var stdinReader converters.InputReader = converters.StdinReader{}
+var serializer converters.Serializer = converters.ProtobufSerializer{}
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -53,7 +53,7 @@ func main() {
 	os.Stdout.Write(result)
 }
 
-func validateContents(contents []iac_helm.Content) int {
+func validateContents(contents []converters.Content) int {
 	if len(contents) == 0 {
 		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
 		return 1

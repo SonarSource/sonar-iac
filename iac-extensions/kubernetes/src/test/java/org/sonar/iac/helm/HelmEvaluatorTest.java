@@ -63,9 +63,8 @@ class HelmEvaluatorTest {
       .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1");
 
     Assertions.assertThat(logTester.logs(Level.DEBUG))
-      // TODO: better handling of empty input
-      .contains("[exec] Skipping request to read 0 lines")
-      .contains("[exec] Expected 2 files, received 3 (values.yaml missing?)");
+      .contains("[sonar-helm-for-iac] Skipping request to read 0 lines")
+      .contains("[sonar-helm-for-iac] Expected 2 files, received 3 (values.yaml missing?)");
   }
 
   @ParameterizedTest
