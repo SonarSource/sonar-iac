@@ -109,38 +109,25 @@ compile_binaries() {
 
   # Note: CGO_ENABLED is required to build with CGO, which is activated by `import "C"` in Go sources.
   # Note: Saving files in target/classes include files in JAR out of the box.
-  if [ -n "${GOOS:-}" ]; then
-    # GOOS is already set, so we perform build for it
-    echo "Building for target OS: ${GOOS}"
+  if [ -n "${GO_CROSS_COMPILE:-}" ]; then
     GO_FLAGS=(-ldflags="-s -w" -buildmode=exe)
-    case "${GOOS}" in
-      "darwin")
-        for GOARCH in amd64 arm64; do
-          CGO_ENABLED=0 go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
-        done
-        ;;
-      "windows")
-        GOARCH="amd64"
-        CGO_ENABLED=0 go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
-        ;;
-      "linux")
-        GOARCH="amd64"
-        CGO_ENABLED=0 CC=musl-gcc go build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
-        ;;
-      *)
-        echo "Unsupported GOOS: ${GOOS}"
-        exit 1
-        ;;
-    esac
+    echo "Building for all supported platforms"
+    GOOS="linux"
+    GOARCH="amd64"
+    CGO_ENABLED=0 CC=musl-gcc go build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+
+    GOOS="windows"
+    CGO_ENABLED=0 GOOS=$GOOS go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+
+    GOOS="darwin"
+    for GOARCH in amd64 arm64; do
+      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+    done
   else
-    # GOOS and GOARCH are not set, so we build for the host system.
     GOOS=$(${path_to_binary} env GOOS)
     GOARCH=$(${path_to_binary} env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    CGO_ENABLED=0 CC=musl-gcc \
-      ${path_to_binary} build -buildmode=exe \
-      --ldflags '-linkmode external -extldflags "-s -w -static"' \
-      -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 ${path_to_binary} build -buildmode=exe -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
   fi
 
   verifyLicenseHeader
