@@ -107,7 +107,7 @@ compile_binaries() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
 
-  # Note: CGO_ENABLED is required to build with CGO, which is activated by `import "C"` in Go sources.
+  # Note: CGO_ENABLED is required to build with CGO, and static linking musl (alternative to libc)
   # Note: Saving files in target/classes include files in JAR out of the box.
   if [ -n "${GOOS:-}" ]; then
     # GOOS is already set, so we perform build for it
@@ -137,10 +137,18 @@ compile_binaries() {
     GOOS=$(${path_to_binary} env GOOS)
     GOARCH=$(${path_to_binary} env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    CGO_ENABLED=0 CC=musl-gcc \
-      ${path_to_binary} build -buildmode=exe \
-      --ldflags '-linkmode external -extldflags "-s -w -static"' \
-      -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    if [[ "$GOOS" == "darwin" ]]; then
+      # On MacOS static compilation doesn't work
+      CGO_ENABLED=0 CC=gcc \
+        ${path_to_binary} build -buildmode=exe \
+        --ldflags '-linkmode external -extldflags "-s -w"' \
+        -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    else
+      CGO_ENABLED=0 CC=musl-gcc \
+        ${path_to_binary} build -buildmode=exe \
+        --ldflags '-linkmode external -extldflags "-s -w -static"' \
+        -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+      fi
   fi
 
   verifyLicenseHeader
