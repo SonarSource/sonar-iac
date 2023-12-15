@@ -57,13 +57,13 @@ for Terraform in `iac-extensions/terraform`.
 
 #### Build and run unit tests:
 ```shell
-mvn clean install
+./gradlew build
 ```
 
 #### Build without running unit tests:
 
 ```shell
-mvn clean install -DskipTests
+./gradlew build -x test
 ```
 
 #### Fix code formatting issues
@@ -72,30 +72,30 @@ This phase checks is the code is correctly formatted using common Sonar rules.
 If your build failed, you can fix the formatting just by running:
 
 ```shell
-mvn spotless:apply
+./gradlew spotlessApply
 ```
 
 #### Ruling integration tests
 These integration tests verify that, given a set of files, when the analyzer is run on them, all the expected issues get raised in a prepared SonarQube instance. 
-The expected findings are saved in `its/ruling/src/test/resources/expected`. To run the ruling ITS:
+The expected findings are saved in `its/ruling/src/integrationTest/resources/expected`. To run the ruling ITS:
 - Make sure the project is built with the latest changes
 - Load/update the analyzed files: `git submodule update --init`
 - In `its/ruling` run:
   
   ```shell
-  mvn clean verify -Pit-ruling
+  ./gradlew :its:ruling:integrationTest
   ``` 
 
 It is possible to keep the prepared SonarQube instance running to better inspect actual-vs-expected differences (if there are any) in the SQ UI. For this use:
   
   ```shell
-  mvn clean verify -Pit-ruling -DkeepSonarqubeRunning=true
+  ./gradlew :its:ruling:integrationTest -DkeepSonarqubeRunning=true
   ```
 #### Plugin integration tests
 These integration tests verify that the analyzer registers at and interacts with the SonarQube API correctly. For example: if file metrics get sent, and if all properties get registered.
 To run them, in `ìts/plugin` run:
 
   ```shell
-  mvn clean verify -Pit-plugin
+  ./gradlew :its:plugin:integrationTest
   ```
 
