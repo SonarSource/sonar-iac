@@ -109,8 +109,9 @@ compile_binaries() {
 
   # Note: CGO_ENABLED is required to build with CGO, which is activated by `import "C"` in Go sources.
   # Note: Saving files in target/classes include files in JAR out of the box.
+  # Note: -ldflags="-s -w" is used to strip debug information from the binary and reduce its size.
+  GO_FLAGS=(-ldflags="-s -w" -buildmode=exe)
   if [ -n "${GO_CROSS_COMPILE:-}" ]; then
-    GO_FLAGS=(-ldflags="-s -w" -buildmode=exe)
     echo "Building for all supported platforms"
     GOOS="linux"
     GOARCH="amd64"
@@ -127,7 +128,7 @@ compile_binaries() {
     GOOS=$(${path_to_binary} env GOOS)
     GOARCH=$(${path_to_binary} env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    CGO_ENABLED=0 ${path_to_binary} build -buildmode=exe -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 ${path_to_binary} build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
   fi
 
   verifyLicenseHeader
