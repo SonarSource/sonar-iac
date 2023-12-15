@@ -109,56 +109,19 @@ qa_task_filter_template: &QA_TASK_FILTER
 # -------------------TASKS----------------------
 # ----------------------------------------------
 
-build_go_darwin_task:
-  container:
-    # Debian10 is required, because default image bundles too old macOS SDK for Go 1.21
-    image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-darwin-debian10
-  env:
-    ARTIFACTORY_URL: ''
-    ARTIFACTORY_PRIVATE_USERNAME: ''
-    ARTIFACTORY_PRIVATE_PASSWORD: ''
-    ARTIFACTORY_DEPLOY_USERNAME: ''
-    ARTIFACTORY_DEPLOY_PASSWORD: ''
-    ARTIFACTORY_ACCESS_TOKEN: ''
-  build_script:
-    - cd sonar-helm-for-iac
-    - /crossbuild --platforms="darwin/amd64" --build-cmd="bash make.sh build"
-  go_binaries_artifacts:
-    path: sonar-helm-for-iac/target/classes/sonar-helm-for-iac-*
-build_go_windows_task:
-  container:
-    image: docker.elastic.co/beats-dev/golang-crossbuild:${GO_VERSION}-main
-  env:
-    ARTIFACTORY_URL: ''
-    ARTIFACTORY_PRIVATE_USERNAME: ''
-    ARTIFACTORY_PRIVATE_PASSWORD: ''
-    ARTIFACTORY_DEPLOY_USERNAME: ''
-    ARTIFACTORY_DEPLOY_PASSWORD: ''
-    ARTIFACTORY_ACCESS_TOKEN: ''
-  build_script:
-    - cd sonar-helm-for-iac
-    - /crossbuild --platforms="windows/amd64" --build-cmd="bash make.sh build"
-  go_binaries_artifacts:
-    path: sonar-helm-for-iac/target/classes/sonar-helm-for-iac-*
-
 build_task:
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
     cpu: 3.5
     memory: 7G
   <<: *MAVEN_CACHE
-  depends_on:
-    - build_go_darwin
-    - build_go_windows
   env:
     <<: *BUILD_SECRETS
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
+    GO_CROSS_COMPILE: '1'
   build_script:
     - source cirrus-env BUILD
-    - curl -sL https://api.cirrus-ci.com/v1/artifact/build/$CIRRUS_BUILD_ID/go_binaries.zip -o go_binaries.zip
-    - mkdir -p sonar-helm-for-iac/target/classes/
-    - unzip -o go_binaries.zip -d . && rm go_binaries.zip && find ./sonar-helm-for-iac/target/classes -name "*.h" -delete
     - go version
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
@@ -173,7 +136,6 @@ qa_os_win_task:
     # For windows, refresh the path env variable, particularly useful after an installation with choco (RefreshEnv.cmd cannot be used in this context)
     - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
   build_script:
-    - choco install mingw --version 12.2.0.03042023
     - choco install golang --version ${GO_VERSION}
     - choco install protoc --version ${PROTOC_VERSION}.0
     - *refreshpath
