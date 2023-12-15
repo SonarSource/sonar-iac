@@ -51,7 +51,6 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
-
   private final HelmProcessor helmProcessor;
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
@@ -134,12 +133,12 @@ public class KubernetesSensor extends YamlSensor {
     }
 
     private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
-      int identifierCount = 0;
-      boolean hasExpectedIdentifier = false;
-      try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
+      var identifierCount = 0;
+      var hasExpectedIdentifier = false;
+      try (var bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
         // Only firs 8k bytes is read to avoid slow execution for big one-line files
         byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
-        String text = new String(bytes, inputFile.charset());
+        var text = new String(bytes, inputFile.charset());
         String[] lines = LINE_TERMINATOR.split(text);
         for (String line : lines) {
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {

@@ -112,16 +112,20 @@ compile_binaries() {
   if [ -n "${GOOS:-}" ]; then
     # GOOS is already set, so we perform build for it
     echo "Building for target OS: ${GOOS}"
-    GO_FLAGS=(-ldflags="-s -w" -buildmode=c-shared)
+    GO_FLAGS=(-ldflags="-s -w" -buildmode=exe)
     case "${GOOS}" in
       "darwin")
         for GOARCH in amd64 arm64; do
-          CGO_ENABLED=1 go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+          CGO_ENABLED=0 go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
         done
         ;;
-      "linux"|"windows")
+      "windows")
         GOARCH="amd64"
-        CGO_ENABLED=1 go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+        CGO_ENABLED=0 go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+        ;;
+      "linux")
+        GOARCH="amd64"
+        CGO_ENABLED=0 CC=musl-gcc go build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
         ;;
       *)
         echo "Unsupported GOOS: ${GOOS}"
@@ -133,8 +137,10 @@ compile_binaries() {
     GOOS=$(${path_to_binary} env GOOS)
     GOARCH=$(${path_to_binary} env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    # Note: CGO_ENABLED will be set to 1 automatically if GOOS/GOARCH match the current system, but we set it explicitly for consistency.
-    CGO_ENABLED=1 ${path_to_binary} build -buildmode=c-shared -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 CC=musl-gcc \
+      ${path_to_binary} build -buildmode=exe \
+      --ldflags '-linkmode external -extldflags "-s -w -static"' \
+      -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
   fi
 
   verifyLicenseHeader
@@ -145,7 +151,7 @@ generate_test_report() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
   # Test
-  bash -c "${path_to_binary} test -coverprofile=target/test-coverage.out -json > target/test-report.out"
+  CGO_ENABLED=0 bash -c "${path_to_binary} test ./... -coverprofile=target/test-coverage.out -json > target/test-report.out"
 }
 
 

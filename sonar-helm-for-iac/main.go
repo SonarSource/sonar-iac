@@ -18,33 +18,53 @@
 
 package main
 
-import "C"
 import (
+	"bufio"
 	"fmt"
-	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
-	"google.golang.org/protobuf/proto"
+	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
+	"os"
 	"sigs.k8s.io/yaml"
 	"strings"
 	"text/template"
-	"unsafe"
 )
 
+var stdinReader converters.InputReader = converters.StdinReader{}
+var serializer converters.Serializer = converters.ProtobufSerializer{}
+
 func main() {
-	fmt.Println("Hello World!")
+	scanner := bufio.NewScanner(os.Stdin)
+	contents := stdinReader.ReadInput(scanner)
+	if code := validateContents(contents); code != 0 {
+		os.Exit(code)
+	}
+
+	path := contents[0].Name
+	rawTemplate := contents[0].Content
+	rawValues := contents[1].Content
+	fmt.Fprintf(os.Stderr, "Read in total %d characters from stdin; evaluating template <%s>\n", len(rawTemplate)+len(rawValues), path)
+
+	evaluatedTemplate, err := evaluateTemplateInternal(path, rawTemplate, rawValues)
+	result, err := serializer.Serialize(evaluatedTemplate, err)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to serialize evaluated template to Protobuf: %s\n", err.Error())
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stderr, "Writing %d bytes to stdout\n", len(result))
+	os.Stdout.Write(result)
+}
+
+func validateContents(contents []converters.Content) int {
+	if len(contents) == 0 {
+		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
+		return 1
+	} else if len(contents) != 2 {
+		fmt.Fprintf(os.Stderr, "Expected 2 files, received %d (values.yaml missing?)\n", len(contents))
+		return 1
+	}
+	return 0
 }
 
 var handles []*template.Template
-
-//export EvaluateTemplate
-func EvaluateTemplate(path string, content string, valuesFileContent string) (unsafe.Pointer, C.int) {
-	evaluatedTemplate, err := evaluateTemplateInternal(path, content, valuesFileContent)
-	result, err := toProtobuf(evaluatedTemplate, err)
-	if err != nil {
-		fmt.Println("Failed to serialize evaluated template to Protobuf for " + path + " error: " + err.Error())
-		return nil, C.int(0)
-	}
-	return C.CBytes(result), C.int(len(result))
-}
 
 // For tests, the C code doesn't work in tests
 func evaluateTemplateInternal(path string, content string, valuesFileContent string) (string, error) {
@@ -53,27 +73,6 @@ func evaluateTemplateInternal(path string, content string, valuesFileContent str
 		return "", err
 	}
 	return executeWithValues(templateId, valuesFileContent)
-}
-
-// also for tests, but the other way around
-func evaluateTemplateInGoTypes(path string, content string, valuesFileContent string) ([]byte, int) {
-	result, length := EvaluateTemplate(path, content, valuesFileContent)
-	if result == nil {
-		return nil, 0
-	}
-	return C.GoBytes(result, length), int(length)
-}
-
-func toProtobuf(evaluatedTemplate string, err error) ([]byte, error) {
-	errorText := ""
-	if err != nil {
-		errorText = err.Error()
-	}
-	message := iac_helm.TemplateEvaluationResult{
-		Template: evaluatedTemplate,
-		Error:    errorText,
-	}
-	return proto.Marshal(&message)
 }
 
 // Create a template with name and expression and return its handle (a numeric ID to access the template later)

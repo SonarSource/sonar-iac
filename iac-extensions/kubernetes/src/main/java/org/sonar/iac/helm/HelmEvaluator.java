@@ -20,23 +20,46 @@
 package org.sonar.iac.helm;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.jna.library.IacHelmLibrary;
-import org.sonar.iac.helm.jna.mapping.GoString;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.iac.helm.utils.ExecutableHelper;
+import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 public class HelmEvaluator {
-  private final IacHelmLibrary iacHelmLibrary;
+  private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
+  public static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
+  private static final int PROCESS_TIMEOUT_SECONDS = 5;
 
-  public HelmEvaluator(IacHelmLibrary library) {
-    this.iacHelmLibrary = library;
+  private final File workingDir;
+  private final ExecutorService processMonitor = Executors.newSingleThreadExecutor();
+  private ProcessBuilder pb;
+
+  public HelmEvaluator(File workingDir) {
+    this.workingDir = workingDir;
   }
 
-  public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) {
-    var rawEvaluationResult = iacHelmLibrary.evaluateTemplate(
-      new GoString.ByValue(path), new GoString.ByValue(content), new GoString.ByValue(valuesFileContent))
-      .getByteArray();
+  public void initialize() throws IOException {
+    this.pb = prepareProcessBuilder();
+  }
 
-    if (rawEvaluationResult.length == 0) {
+  public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) throws IOException {
+    LOG.debug("Executing: {}", pb.command());
+    var process = startProcess(pb, path, content, valuesFileContent);
+    processMonitor.submit(() -> monitorProcess(process));
+
+    byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
+    if (rawEvaluationResult == null || rawEvaluationResult.length == 0) {
+      if (!process.isAlive() && process.exitValue() != 0) {
+        throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " exited with non-zero exit code: " + process.exitValue());
+      }
       throw new IllegalStateException("Empty evaluation result (serialization failed?)");
     }
 
@@ -48,6 +71,48 @@ public class HelmEvaluator {
       return evaluationResult;
     } catch (InvalidProtocolBufferException e) {
       throw new IllegalStateException("Deserialization error", e);
+    }
+  }
+
+  ProcessBuilder prepareProcessBuilder() throws IOException {
+    var suffix = OperatingSystemUtils.getCurrentPlatform();
+    var executable = ExecutableHelper.extractFromClasspath(workingDir, HELM_FOR_IAC_EXECUTABLE + "-" + suffix);
+    return new ProcessBuilder(executable);
+  }
+
+  Process startProcess(ProcessBuilder pb, String name, String content, String valuesFileContent) throws IOException {
+    var process = pb.start();
+    try (var os = process.getOutputStream()) {
+      writeStringAsBytes(os, String.format("%s%n", name));
+      writeStringAsBytes(os, String.format("%d%n", content.lines().count()));
+      if (!content.endsWith("\n")) {
+        content += "\n";
+      }
+      writeStringAsBytes(os, content);
+      writeStringAsBytes(os, String.format("values.yaml%n"));
+      writeStringAsBytes(os, String.format("%d%n", valuesFileContent.lines().count()));
+      if (!valuesFileContent.endsWith("\n")) {
+        valuesFileContent += "\n";
+      }
+      writeStringAsBytes(os, valuesFileContent);
+      writeStringAsBytes(os, String.format("END%n"));
+    }
+    return process;
+  }
+
+  private static void writeStringAsBytes(OutputStream os, String content) throws IOException {
+    os.write(content.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static void monitorProcess(Process process) {
+    try {
+      if (!process.waitFor(PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        LOG.debug(HELM_FOR_IAC_EXECUTABLE + " is taking longer than 5 seconds to finish");
+        process.destroy();
+      }
+    } catch (InterruptedException e) {
+      LOG.warn("Interrupted while waiting for process to finish", e);
+      Thread.currentThread().interrupt();
     }
   }
 }

@@ -20,48 +20,87 @@
 package org.sonar.iac.helm;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
-import org.sonar.iac.helm.jna.Loader;
-import org.sonar.iac.helm.jna.library.IacHelmLibrary;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.helm.utils.ExecutableHelper;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 class HelmEvaluatorTest {
-  @Test
-  void shouldThrowIfRawEvaluationResultIsEmpty() {
-    // Mock methods that are executed by JNA in runtime
-    var emptyRawResult = Mockito.mock(IacHelmLibrary.EvaluateTemplate_return.ByValue.class);
-    Mockito.when(emptyRawResult.getByteArray()).thenReturn(new byte[0]);
-    var iacHelmLibrary = Mockito.mock(IacHelmLibrary.class);
-    Mockito.when(iacHelmLibrary.evaluateTemplate(any(), any(), any())).thenReturn(emptyRawResult);
-    var helmEvaluator = new HelmEvaluator(iacHelmLibrary);
+  @TempDir
+  File tempDir;
 
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+  private HelmEvaluator helmEvaluator;
+
+  @BeforeEach
+  void setUp() throws IOException {
+    this.helmEvaluator = new HelmEvaluator(tempDir);
+    this.helmEvaluator.initialize();
+  }
+
+  @Test
+  void shouldThrowIfGoBinaryReturnsNonZero() {
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Empty evaluation result (serialization failed?)");
+      .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1");
+
+    Assertions.assertThat(logTester.logs(Level.DEBUG))
+      .contains("[sonar-helm-for-iac] Skipping request to read 0 lines")
+      .contains("[sonar-helm-for-iac] Expected 2 files, received 3 (values.yaml missing?)");
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void shouldThrowIfRawEvaluationResultIsEmptyOrNull(boolean isNull) throws IOException {
+    var expectedBytes = isNull ? null : new byte[0];
+    try (var ignored = Mockito.mockStatic(ExecutableHelper.class)) {
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(expectedBytes);
+      var helmEvaluator = Mockito.spy(this.helmEvaluator);
+      var process = mock(Process.class);
+      when(process.isAlive()).thenReturn(false);
+      when(process.exitValue()).thenReturn(0);
+      doReturn(process).when(helmEvaluator).startProcess(any(), any(), any(), any());
+
+      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Empty evaluation result (serialization failed?)");
+    }
   }
 
   @Test
   void shouldThrowIfGoReturnsError() {
-    var iacHelmLibrary = (new Loader()).load("/sonar-helm-for-iac", IacHelmLibrary.class);
-    var helmEvaluator = new HelmEvaluator(iacHelmLibrary);
-
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.", "container:\n  port: 8080"))
       .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  void shouldThrowOnDeserializationError() throws InvalidProtocolBufferException {
-    try (var ignored = Mockito.mockStatic(TemplateEvaluationResult.class)) {
-      Mockito.when(TemplateEvaluationResult.parseFrom(any(byte[].class))).thenThrow(new InvalidProtocolBufferException("Invalid input"));
-      var iacHelmLibrary = Mockito.mock(IacHelmLibrary.class);
-      var helmEvaluator = new HelmEvaluator(iacHelmLibrary);
-      var rawEvaluationResult = Mockito.mock(IacHelmLibrary.EvaluateTemplate_return.ByValue.class);
-      Mockito.when(iacHelmLibrary.evaluateTemplate(any(), any(), any())).thenReturn(rawEvaluationResult);
-      Mockito.when(rawEvaluationResult.getByteArray()).thenReturn(new byte[1]);
+  void shouldThrowOnDeserializationError() throws IOException {
+    try (var ignored = mockStatic(TemplateEvaluationResult.class); var ignored2 = mockStatic(ExecutableHelper.class)) {
+      when(TemplateEvaluationResult.parseFrom(any(byte[].class))).thenThrow(new InvalidProtocolBufferException("Invalid input"));
+      var helmEvaluator = Mockito.spy(this.helmEvaluator);
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[1]);
+      var pb = mock(ProcessBuilder.class);
+      when(pb.command()).thenReturn(Collections.emptyList());
+      Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder();
+      Mockito.doReturn(null).when(helmEvaluator).startProcess(any(), any(), any(), any());
 
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)
@@ -70,11 +109,15 @@ class HelmEvaluatorTest {
   }
 
   @Test
-  void shouldEvaluateTemplate() {
-    var iacHelmLibrary = (new Loader()).load("/sonar-helm-for-iac", IacHelmLibrary.class);
-    var helmEvaluator = new HelmEvaluator(iacHelmLibrary);
-
+  void shouldEvaluateTemplate() throws IOException {
     var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}", "container:\n  port: 8080");
+
+    Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
+  }
+
+  @Test
+  void shouldEvaluateInputsWithTrailingNewline() throws IOException {
+    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n", "container:\n  port: 8080\n\n");
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
   }

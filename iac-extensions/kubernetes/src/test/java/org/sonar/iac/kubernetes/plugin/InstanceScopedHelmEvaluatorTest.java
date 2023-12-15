@@ -17,5 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.jna.library;
+package org.sonar.iac.kubernetes.plugin;
+
+import java.io.File;
+import java.io.IOException;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.impl.utils.DefaultTempFolder;
+
+class InstanceScopedHelmEvaluatorTest {
+  @TempDir
+  File tempDir;
+
+  @Test
+  void shouldEvaluateTemplate() throws IOException {
+    var helmEvaluator = new InstanceScopedHelmEvaluator(new DefaultTempFolder(tempDir, false));
+
+    helmEvaluator.initialize();
+    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}", "container:\n  port: 8080");
+
+    Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
+  }
+}

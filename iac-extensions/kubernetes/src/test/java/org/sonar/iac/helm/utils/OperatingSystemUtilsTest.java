@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.jna;
+package org.sonar.iac.helm.utils;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LoaderTest {
+class OperatingSystemUtilsTest {
   @ParameterizedTest
   @CsvSource({
     "linux,linux",
@@ -37,14 +37,12 @@ class LoaderTest {
     "Windows Server 2019 Datacenter,windows",
   })
   void shouldNormalizeOsNames(String osName, String expected) {
-    var loader = new Loader();
-    assertEquals(expected, loader.getNormalizedOsName(osName));
+    assertEquals(expected, OperatingSystemUtils.getNormalizedOsName(osName));
   }
 
   @Test
   void shouldThrowOnUnknownOs() {
-    var loader = new Loader();
-    Assertions.assertThatThrownBy(() -> loader.getNormalizedOsName("freebsd"))
+    Assertions.assertThatThrownBy(() -> OperatingSystemUtils.getNormalizedOsName("freebsd"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Unsupported OS: freebsd");
   }
@@ -57,14 +55,12 @@ class LoaderTest {
     "arm64,arm64",
   })
   void shouldNormalizeArchNames(String archName, String expected) {
-    var loader = new Loader();
-    assertEquals(expected, loader.getNormalizedArchName(archName));
+    assertEquals(expected, OperatingSystemUtils.getNormalizedArchName(archName));
   }
 
   @Test
   void shouldThrowOnUnknownArch() {
-    var loader = new Loader();
-    Assertions.assertThatThrownBy(() -> loader.getNormalizedArchName("arm"))
+    Assertions.assertThatThrownBy(() -> OperatingSystemUtils.getNormalizedArchName("arm"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Unsupported architecture: arm");
   }

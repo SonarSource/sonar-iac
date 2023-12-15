@@ -17,44 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.jna;
+package org.sonar.iac.helm.utils;
 
-import com.sun.jna.FunctionMapper;
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
-import java.lang.reflect.Method;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
-public class Loader {
+public final class OperatingSystemUtils {
   /**
    * Platforms, for which sonar-helm-for-iac is built.
    */
-  private static final Set<String> SUPPORTED_PLATFORMS = Set.of("darwin-amd64", "darwin-arm64", "windows-amd64", "linux-amd64");
+  public static final Set<String> SUPPORTED_PLATFORMS = Set.of("darwin-amd64", "darwin-arm64", "windows-amd64", "linux-amd64");
 
-  /**
-   * Load a native library. This method takes into account that we use OS and architecture as suffixes of the library name.
-   * It also takes care of mapping Go function names to Java method names not to break camelCase convention on Java side.
-   */
-  public <T extends Library> T load(String name, Class<T> libraryClass) {
-    var os = getNormalizedOsName(System.getProperty("os.name"));
-    var arch = getNormalizedArchName(System.getProperty("os.arch"));
+  private OperatingSystemUtils() {
+  }
 
-    if (!SUPPORTED_PLATFORMS.contains(os + "-" + arch)) {
-      throw new IllegalStateException("Unsupported platform: " + os + "-" + arch);
+  public static String getCurrentPlatform() {
+    String platform = getNormalizedOsName(System.getProperty("os.name")) + "-" + getNormalizedArchName(System.getProperty("os.arch"));
+    if (!SUPPORTED_PLATFORMS.contains(platform)) {
+      throw new IllegalStateException("Unsupported platform: " + platform);
     }
-
-    return Native.load(name + "-" + os + "-" + arch, libraryClass, Map.of(
-      Library.OPTION_FUNCTION_MAPPER,
-      (FunctionMapper) (NativeLibrary library, Method method) -> method.getName().substring(0, 1).toUpperCase(Locale.ROOT) + method.getName().substring(1)));
+    return platform;
   }
 
   /**
    * Normalize OS name, e.g. map `windows server 2020` to `windows`
    */
-  public String getNormalizedOsName(String os) {
+  static String getNormalizedOsName(String os) {
     os = os.toLowerCase(Locale.ROOT);
     if (os.startsWith("mac") || os.startsWith("darwin")) {
       os = "darwin";
@@ -68,7 +56,7 @@ public class Loader {
     return os;
   }
 
-  public String getNormalizedArchName(String arch) {
+  static String getNormalizedArchName(String arch) {
     arch = arch.toLowerCase(Locale.ROOT);
     if ("x86_64".equals(arch) || "amd64".equals(arch)) {
       arch = "amd64";

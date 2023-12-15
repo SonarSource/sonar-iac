@@ -33,6 +33,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.FileTreeImpl;
+import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 
@@ -173,7 +174,8 @@ class CommentLocationVisitorTest {
   }
 
   private FileTree scanFile(FileTree.Template template, InputFileContext ctx, String transformedCode) throws IOException {
-    FileTree file = new KubernetesParser(new HelmProcessor()).parse(transformedCode, ctx);
+    var helmEvaluator = mock(HelmEvaluator.class);
+    FileTree file = new KubernetesParser(new HelmProcessor(helmEvaluator)).parse(transformedCode, ctx);
     file = new FileTreeImpl(file.documents(), file.metadata(), template);
     CommentLocationVisitor visitor = new CommentLocationVisitor(shifter);
     visitor.scan(ctx, file);

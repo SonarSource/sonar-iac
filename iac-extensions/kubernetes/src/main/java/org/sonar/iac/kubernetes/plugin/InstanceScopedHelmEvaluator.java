@@ -17,33 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.jna.mapping;
+package org.sonar.iac.kubernetes.plugin;
 
-import com.sun.jna.Structure;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.iac.helm.HelmEvaluator;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
-/**
- * See 'sonar-helm-for-iac-*.h' for corresponding C signature.
- */
-@Structure.FieldOrder({"p", "n"})
-public class GoString extends Structure {
-  /**
-   * This class is an indicator for JNA to pass instances by value rather than by reference (i.e. address).
-   */
-  public static class ByValue extends GoString implements Structure.ByValue {
-    public ByValue(String p) {
-      super(p);
-    }
-  }
-
-  public String p;
-  public long n;
-
-  // no-arg constructor is required by JNA
-  public GoString() {
-  }
-
-  public GoString(String p) {
-    this.p = p;
-    this.n = p.length();
+@ScannerSide
+@SonarLintSide(lifespan = SonarLintSide.INSTANCE)
+public class InstanceScopedHelmEvaluator extends HelmEvaluator {
+  public InstanceScopedHelmEvaluator(TempFolder tempFolder) {
+    super(tempFolder.newDir());
   }
 }
