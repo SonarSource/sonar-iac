@@ -27,7 +27,9 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.INSTANCE)
 public class InstanceScopedHelmEvaluator extends HelmEvaluator {
+  private static final int PROCESS_TIMEOUT_MILLIS = 5_000;
+
   public InstanceScopedHelmEvaluator(TempFolder tempFolder) {
-    super(tempFolder.newDir());
+    super(tempFolder.newDir(), PROCESS_TIMEOUT_MILLIS);
   }
 }

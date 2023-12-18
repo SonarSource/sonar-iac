@@ -39,9 +39,12 @@ import org.sonar.iac.helm.utils.ExecutableHelper;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 class HelmEvaluatorTest {
@@ -54,7 +57,7 @@ class HelmEvaluatorTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    this.helmEvaluator = new HelmEvaluator(tempDir);
+    this.helmEvaluator = new HelmEvaluator(tempDir, 250);
     this.helmEvaluator.initialize();
   }
 
@@ -100,15 +103,17 @@ class HelmEvaluatorTest {
   }
 
   @Test
-  void shouldThrowOnDeserializationError() throws IOException {
+  void shouldThrowOnDeserializationError() throws IOException, InterruptedException {
     try (var ignored = mockStatic(TemplateEvaluationResult.class); var ignored2 = mockStatic(ExecutableHelper.class)) {
       when(TemplateEvaluationResult.parseFrom(any(byte[].class))).thenThrow(new InvalidProtocolBufferException("Invalid input"));
       var helmEvaluator = Mockito.spy(this.helmEvaluator);
       when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[1]);
       var pb = mock(ProcessBuilder.class);
       when(pb.command()).thenReturn(Collections.emptyList());
+      var process = mock(Process.class);
+      when(process.waitFor(anyLong(), any())).thenReturn(true);
       Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder();
-      Mockito.doReturn(null).when(helmEvaluator).startProcess(any(), any(), any(), any());
+      Mockito.doReturn(process).when(helmEvaluator).startProcess(any(), any(), any(), any());
 
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)
@@ -128,5 +133,51 @@ class HelmEvaluatorTest {
     var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n", "container:\n  port: 8080\n\n");
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
+  }
+
+  @Test
+  void shouldKillHangingProcessAndNotFailIfDataIsValid() throws IOException, InterruptedException {
+    var helmEvaluator = Mockito.spy(this.helmEvaluator);
+    var emptyResult = TemplateEvaluationResult.newBuilder().build();
+    try (var ignored = mockStatic(ExecutableHelper.class); var ignored2 = mockStatic(TemplateEvaluationResult.class)) {
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[1]);
+      var pb = mock(ProcessBuilder.class);
+      when(pb.command()).thenReturn(Collections.emptyList());
+      var process = mock(Process.class);
+      when(process.isAlive()).thenReturn(true);
+      when(process.waitFor(anyLong(), any())).thenAnswer(invocation -> {
+        Thread.sleep(1000);
+        return false;
+      }).thenReturn(false);
+      Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder();
+      Mockito.doReturn(process).when(helmEvaluator).startProcess(any(), any(), any(), any());
+      when(TemplateEvaluationResult.parseFrom(any(byte[].class))).thenReturn(emptyResult);
+
+      Assertions.assertThatCode(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+        .doesNotThrowAnyException();
+      Mockito.verify(process, times(1)).destroyForcibly();
+    }
+  }
+
+  @Test
+  void shouldHandleInterruptedException() throws IOException, InterruptedException {
+    var helmEvaluator = Mockito.spy(this.helmEvaluator);
+    var emptyResult = TemplateEvaluationResult.newBuilder().build();
+    try (var ignored = mockStatic(ExecutableHelper.class); var ignored2 = mockStatic(TemplateEvaluationResult.class)) {
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[1]);
+      var pb = mock(ProcessBuilder.class);
+      when(pb.command()).thenReturn(Collections.emptyList());
+      var process = mock(Process.class);
+      when(process.isAlive()).thenReturn(true);
+      when(process.waitFor(anyLong(), any())).thenThrow(new InterruptedException());
+      Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder();
+      Mockito.doReturn(process).when(helmEvaluator).startProcess(any(), any(), any(), any());
+      when(TemplateEvaluationResult.parseFrom(any(byte[].class))).thenReturn(emptyResult);
+
+      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Interrupted while waiting for sonar-helm-for-iac to finish");
+      Mockito.verify(process, never()).destroyForcibly();
+    }
   }
 }

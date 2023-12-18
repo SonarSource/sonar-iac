@@ -36,14 +36,15 @@ import org.sonarsource.iac.helm.TemplateEvaluationResult;
 public class HelmEvaluator {
   private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
   public static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
-  private static final int PROCESS_TIMEOUT_SECONDS = 5;
 
   private final File workingDir;
+  private final int processTimeoutSeconds;
   private final ExecutorService processMonitor = Executors.newSingleThreadExecutor();
   private ProcessBuilder pb;
 
-  public HelmEvaluator(File workingDir) {
+  public HelmEvaluator(File workingDir, int processTimeoutMillis) {
     this.workingDir = workingDir;
+    this.processTimeoutSeconds = processTimeoutMillis;
   }
 
   public void initialize() throws IOException {
@@ -53,13 +54,21 @@ public class HelmEvaluator {
   public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) throws IOException {
     LOG.debug("Executing: {}", pb.command());
     var process = startProcess(pb, path, content, valuesFileContent);
-    processMonitor.submit(() -> monitorProcess(process));
+    // if the process hangs while we are interacting with it from the main thread, it will be destroyed from another thread
+    processMonitor.submit(() -> destroyProcessAfterTimeout(process));
 
     byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
-    if (rawEvaluationResult == null || rawEvaluationResult.length == 0) {
-      if (!process.isAlive() && process.exitValue() != 0) {
+    try {
+      // Process has returned all the data; wait for it to finish. If it hangs, it will be destroyed from another thread.
+      var hasExited = process.waitFor(processTimeoutSeconds, TimeUnit.MILLISECONDS);
+      if (hasExited && process.exitValue() != 0) {
         throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " exited with non-zero exit code: " + process.exitValue());
       }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while waiting for " + HELM_FOR_IAC_EXECUTABLE + " to finish", e);
+    }
+    if (rawEvaluationResult == null || rawEvaluationResult.length == 0) {
       throw new IllegalStateException("Empty evaluation result (serialization failed?)");
     }
 
@@ -104,11 +113,12 @@ public class HelmEvaluator {
     os.write(content.getBytes(StandardCharsets.UTF_8));
   }
 
-  private static void monitorProcess(Process process) {
+  private void destroyProcessAfterTimeout(Process process) {
     try {
-      if (!process.waitFor(PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+      if (!process.waitFor(processTimeoutSeconds, TimeUnit.MILLISECONDS)) {
         LOG.debug(HELM_FOR_IAC_EXECUTABLE + " is taking longer than 5 seconds to finish");
-        process.destroy();
+        process.destroyForcibly();
+        throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " took too long. External process killed forcibly");
       }
     } catch (InterruptedException e) {
       LOG.warn("Interrupted while waiting for process to finish", e);
