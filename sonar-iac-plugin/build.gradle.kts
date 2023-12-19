@@ -15,6 +15,8 @@ dependencies {
     api(project(":iac-extensions:arm"))
     api(libs.sonar.analyzer.commons)
 
+    //implementation(files(project("sonar-helm-for-iac").projectDir))
+
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
     testImplementation(libs.archunit)
@@ -71,7 +73,12 @@ tasks.jar {
 }
 
 tasks.shadowJar {
+    dependsOn(":sonar-helm-for-iac:compileGoCode")
     minimize()
+    // inject helm executable at root of jar
+    from("${project(":sonar-helm-for-iac").projectDir}/build/executable") {
+        include("sonar-helm-for-iac-*")
+    }
     exclude("META-INF/LICENSE*")
     exclude("META-INF/NOTICE*")
     exclude("META-INF/*.RSA")
@@ -80,7 +87,7 @@ tasks.shadowJar {
     exclude("NOTICE*")
 
     doLast {
-        enforceJarSize(tasks.shadowJar.get().archiveFile.get().asFile, 4_500_000L, 5_000_000L)
+        enforceJarSize(tasks.shadowJar.get().archiveFile.get().asFile, 10_000_000, 11_000_000L)
     }
 }
 

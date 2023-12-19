@@ -35,6 +35,10 @@ tasks.named("compileJava") {
     dependsOn("compileProtobufJava")
 }
 
+tasks.processTestResources {
+    dependsOn(":sonar-helm-for-iac:compileGoCode")
+}
+
 sourceSets {
     main {
         java {

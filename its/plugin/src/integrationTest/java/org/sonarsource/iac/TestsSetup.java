@@ -34,11 +34,11 @@ public class TestsSetup {
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(IAC_PLUGIN_LOCATION)
-    .restoreProfileAtStartup(FileLocation.of("src/test/resources/nosonar-terraform.xml"))
-    .restoreProfileAtStartup(FileLocation.of("src/test/resources/aws-provider-terraform.xml"))
-    .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-docker.xml"))
-    .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-json.xml"))
-    .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-yaml.xml"))
-    .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-cloudformation.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/nosonar-terraform.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/aws-provider-terraform.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-docker.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-json.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-yaml.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-cloudformation.xml"))
     .build();
 }
