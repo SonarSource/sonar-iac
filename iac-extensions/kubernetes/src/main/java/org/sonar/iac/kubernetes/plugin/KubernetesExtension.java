@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import org.sonar.api.Plugin;
+import org.sonar.iac.helm.HelmEvaluator;
 
 public class KubernetesExtension {
 
@@ -39,7 +40,7 @@ public class KubernetesExtension {
       KubernetesProfileDefinition.class,
       // Other extensions
       HelmProcessor.class,
-      InstanceScopedHelmEvaluator.class);
+      HelmEvaluator.class);
     context.addExtensions(KubernetesSettings.getProperties());
   }
 }

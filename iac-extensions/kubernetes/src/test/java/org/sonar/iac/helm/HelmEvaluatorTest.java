@@ -34,6 +34,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.helm.utils.ExecutableHelper;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
@@ -54,7 +55,7 @@ class HelmEvaluatorTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    this.helmEvaluator = new HelmEvaluator(tempDir);
+    this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(tempDir, false));
     this.helmEvaluator.initialize();
   }
 
