@@ -23,6 +23,7 @@ tasks.register<Exec>("compileProtobufGo") {
   }
 }
 
+// Define and trigger tasks in this order: clean, compile and test go code
 tasks.register<Exec>("cleanGoCode") {
     callMake(this, "clean")
     doLast {
@@ -54,6 +55,6 @@ fun callMake(execTask: Exec, arg:String) {
   if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
     execTask.commandLine("cmd", "/c", "make.bat", arg)
   } else {
-    execTask.commandLine("sh", "make.sh", arg)
+    execTask.commandLine("sh", "./make.sh", arg)
   }
 }
