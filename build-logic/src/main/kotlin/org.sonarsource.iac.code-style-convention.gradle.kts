@@ -14,6 +14,7 @@ spotless {
                 )
             )
         licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
+        targetExclude("*/generated-sources/**")
     }
     kotlinGradle {
         ktlint().setEditorConfigPath("$rootDir/.editorconfig")

@@ -16,6 +16,7 @@ sonar-scanner-gradle = "4.4.0.3356"
 jfrog-gradle = "4.28.2"
 spotless-gradle = "6.22.0"
 blowdryer-gradle = "1.7.0"
+google-protobuf = "3.25.0"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
@@ -31,6 +32,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
 jfrog-buildinfo-gradle = { module = "org.jfrog.buildinfo:build-info-extractor-gradle", version.ref = "jfrog-gradle" }
 sonar-lint = { module = "org.sonarsource.sonarlint.core:sonarlint-core", version.ref = "sonar-lint" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
@@ -41,3 +43,4 @@ minimaljson = { module = "com.eclipsesource.minimal-json:minimal-json", version.
 sonar-scanner-gradle = { module = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin", version.ref = "sonar-scanner-gradle" }
 diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless-gradle" }
 diffplug-blowdryer = { module = "com.diffplug:blowdryer", version.ref = "blowdryer-gradle" }
+google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "google-protobuf" }

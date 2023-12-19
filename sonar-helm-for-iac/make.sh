@@ -108,27 +108,27 @@ compile_binaries() {
   path_to_binary=$(install_go "${GO_VERSION}")
 
   # Note: CGO_ENABLED is required to build with CGO, which is activated by `import "C"` in Go sources.
-  # Note: Saving files in target/classes include files in JAR out of the box.
+  # Note: Saving files in build/classes include files in JAR out of the box.
   # Note: -ldflags="-s -w" is used to strip debug information from the binary and reduce its size.
   GO_FLAGS=(-ldflags="-s -w" -buildmode=exe)
   if [ -n "${GO_CROSS_COMPILE:-}" ]; then
     echo "Building for all supported platforms"
     GOOS="linux"
     GOARCH="amd64"
-    CGO_ENABLED=0 CC=musl-gcc go build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 CC=musl-gcc go build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
 
     GOOS="windows"
-    CGO_ENABLED=0 GOOS=$GOOS go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 GOOS=$GOOS go build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
 
     GOOS="darwin"
     for GOARCH in amd64 arm64; do
-      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
     done
   else
     GOOS=$(${path_to_binary} env GOOS)
     GOARCH=$(${path_to_binary} env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    CGO_ENABLED=0 ${path_to_binary} build "${GO_FLAGS[@]}" -o target/classes/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
   fi
 
   verifyLicenseHeader
@@ -139,7 +139,7 @@ generate_test_report() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
   # Test
-  CGO_ENABLED=0 bash -c "${path_to_binary} test ./... -coverprofile=target/test-coverage.out -json > target/test-report.out"
+  CGO_ENABLED=0 bash -c "${path_to_binary} test ./... -coverprofile=build/test-coverage.out -json > build/test-report.out"
 }
 
 
@@ -157,7 +157,7 @@ main() {
       generate_test_report
       ;;
     clean)
-      rm -f target/classes/sonar-helm-for-iac-*
+      rm -f build/executable/sonar-helm-for-iac-*
       rm -f test-report.out
       ;;
     *)
