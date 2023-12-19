@@ -61,7 +61,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected void initContext(SensorContext sensorContext) {
-    if (sensorContext.config().getBoolean("sonar.kubernetes.internal.helm.enable").orElse(false)) {
+    if (sensorContext.config().getBoolean("sonar.kubernetes.internal.helm.enable").orElse(true)) {
       LOG.info("Initializing Helm processor");
       helmProcessor.initialize();
     } else {

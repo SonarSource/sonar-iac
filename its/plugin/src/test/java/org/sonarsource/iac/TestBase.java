@@ -66,8 +66,7 @@ public abstract class TestBase {
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")
-      .setSourceDirs(".")
-      .setProperty("sonar.kubernetes.internal.helm.enable", "true");
+      .setSourceDirs(".");
   }
 
   protected Measure getMeasure(String projectKey, String metricKey) {
