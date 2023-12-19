@@ -83,20 +83,40 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void shouldParseYamlFileWithHelmChartTemplateWhenEnabled() {
+  void shouldParseYamlFileWithHelmChartTemplate() {
     MapSettings settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     settings.setProperty("sonar.kubernetes.internal.helm.enable", "true");
     context = SensorContextTester.create(baseDir).setSettings(settings);
     var sensor = sensor();
-    sensor.execute(context);
     analyse(sensor,
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
     assertOneSourceFileIsParsed();
 
-    var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
+    var logs = logTester.logs();
+    assertThat(logs)
+      .contains("Helm content detected in file 'templates/k8.yaml'")
+      .contains("Initializing Helm processor")
+      .doesNotContain("Skipping initialization of Helm processor");
+  }
+
+  @Test
+  void shouldNotParseYamlFileWithHelmChartTemplateWhenDisabled() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(getActivationSettingKey(), true);
+    settings.setProperty("sonar.kubernetes.internal.helm.enable", "false");
+    context = SensorContextTester.create(baseDir).setSettings(settings);
+    var sensor = sensor();
+    analyse(sensor,
+      inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+      inputFile("values.yaml", "bar: var-value"));
+    assertOneSourceFileIsParsed();
+
+    var logs = logTester.logs();
+    assertThat(logs)
+      .contains("Skipping initialization of Helm processor")
+      .doesNotContain("Initializing Helm processor");
   }
 
   @Test
