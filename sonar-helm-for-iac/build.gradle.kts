@@ -55,6 +55,6 @@ fun callMake(execTask: Exec, arg:String) {
   if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
     execTask.commandLine("cmd", "/c", "make.bat", arg)
   } else {
-    execTask.commandLine("sh", "./make.sh", arg)
+    execTask.commandLine("./make.sh", arg)
   }
 }
