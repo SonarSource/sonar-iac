@@ -13,6 +13,9 @@ val sonar_go_tests_reportPaths by extra { "build/test-report.out" }
 val sonar_go_coverage_reportPaths by extra { "build/test-coverage.out" }
 
 tasks.register<Exec>("compileProtobufGo") {
+    description = "Compile the Go protobuf."
+    group = "build"
+
     inputs.files("template-evaluation.proto")
     outputs.files("org.sonarsource.iac.helm/template-evaluation.pb.go")
 
@@ -28,6 +31,9 @@ tasks.register<Exec>("compileProtobufGo") {
 
 // Define and trigger tasks in this order: clean, compile and test go code
 tasks.register<Exec>("cleanGoCode") {
+    description = "Clean all compiled version of the go code."
+    group = "build"
+
     callMake(this, "clean")
     doLast {
         println("cleanGoCode")
@@ -35,6 +41,9 @@ tasks.register<Exec>("cleanGoCode") {
 }
 
 tasks.register<Exec>("compileGoCode") {
+    description = "Compile the go code for the local system."
+    group = "build"
+
     inputs.files(fileTree(".").include("*.go")
         .include("make.bat")
         .include("make.sh")
@@ -48,6 +57,9 @@ tasks.register<Exec>("compileGoCode") {
 }
 
 tasks.register<Exec>("testGoCode") {
+    description = "Test the executable produced by the compile go code step."
+    group = "build"
+
     callMake(this, "test")
     doLast {
         println("testGoCode")

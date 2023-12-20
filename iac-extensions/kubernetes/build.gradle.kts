@@ -18,6 +18,12 @@ dependencies {
 }
 
 tasks.register<Exec>("compileProtobufJava") {
+    description = "Compile the protobuf for Java."
+    group = "build"
+
+    inputs.files("${project.projectDir}/../../sonar-helm-for-iac", "${project.projectDir}/../../sonar-helm-for-iac/template-evaluation.proto")
+    outputs.file("build/generated-sources")
+
     doFirst {
         val generatedSourceDir = layout.buildDirectory.dir("generated-sources")
         mkdir(generatedSourceDir)
