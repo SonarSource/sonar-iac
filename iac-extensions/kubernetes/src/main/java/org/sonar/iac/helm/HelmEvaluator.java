@@ -29,10 +29,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.iac.helm.utils.ExecutableHelper;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
+@ScannerSide
+@SonarLintSide(lifespan = SonarLintSide.INSTANCE)
 public class HelmEvaluator {
   private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
   public static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
@@ -42,8 +47,8 @@ public class HelmEvaluator {
   private final ExecutorService processMonitor = Executors.newSingleThreadExecutor();
   private ProcessBuilder pb;
 
-  public HelmEvaluator(File workingDir) {
-    this.workingDir = workingDir;
+  public HelmEvaluator(TempFolder tempFolder) {
+    workingDir = tempFolder.newDir();
   }
 
   public void initialize() throws IOException {
