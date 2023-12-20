@@ -186,7 +186,7 @@ qa_plugin_task:
   plugin_script:
     - source cirrus-env QA
     - source set_gradle_build_version $BUILD_NUMBER
-    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest
+    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest --info
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_ruling_task:
