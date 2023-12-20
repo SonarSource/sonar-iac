@@ -105,7 +105,7 @@ qa_task_filter_template: &QA_TASK_FILTER
 setup_gradle_cache_template: &SETUP_GRADLE_CACHE
   gradle_cache:
     folder: .gradle/caches
-    fingerprint_script: git rev-parse HEAD
+    fingerprint_script: echo "abc"
   create_gradle_directory_script:
     - mkdir -p "${CIRRUS_WORKING_DIR}/.gradle"
 
