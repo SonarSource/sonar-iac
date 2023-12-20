@@ -21,8 +21,8 @@ tasks.register<Exec>("compileProtobufJava") {
     description = "Compile the protobuf for Java."
     group = "build"
 
-    inputs.files("${project.projectDir}/../../sonar-helm-for-iac", "${project.projectDir}/../../sonar-helm-for-iac/template-evaluation.proto")
-    outputs.file("build/generated-sources")
+    inputs.files("${project.projectDir}/../../sonar-helm-for-iac/template-evaluation.proto")
+    outputs.dir("build/generated-sources")
 
     doFirst {
         val generatedSourceDir = layout.buildDirectory.dir("generated-sources")
@@ -38,6 +38,10 @@ tasks.register<Exec>("compileProtobufJava") {
 }
 
 tasks.named("compileJava") {
+    dependsOn("compileProtobufJava")
+}
+
+tasks.named("sourcesJar") {
     dependsOn("compileProtobufJava")
 }
 
