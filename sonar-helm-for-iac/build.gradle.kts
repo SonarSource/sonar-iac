@@ -18,6 +18,7 @@ tasks.register<Exec>("compileProtobufGo") {
 
     inputs.files("template-evaluation.proto")
     outputs.files("org.sonarsource.iac.helm/template-evaluation.pb.go")
+    outputs.cacheIf { true }
 
     commandLine("protoc", "-I=${project.projectDir}", "-I=" + System.getProperty("user.home") + "/go/protobuf/include",
     "--go_out=${project.projectDir}", "${project.projectDir}/template-evaluation.proto")
@@ -49,6 +50,7 @@ tasks.register<Exec>("compileGoCode") {
         .include("make.sh")
         .include("template-evaluation.proto"))
     outputs.files(fileTree("build/executable").include("sonar-helm-for-iac-*"))
+    outputs.cacheIf { true }
 
     callMake(this, "build")
     doLast {

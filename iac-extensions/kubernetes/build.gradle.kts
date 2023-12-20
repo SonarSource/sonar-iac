@@ -23,11 +23,8 @@ tasks.register<Exec>("compileProtobufJava") {
 
     inputs.files("${project.projectDir}/../../sonar-helm-for-iac/template-evaluation.proto")
     outputs.dir("build/generated-sources")
+    outputs.cacheIf { true }
 
-    doFirst {
-        val generatedSourceDir = layout.buildDirectory.dir("generated-sources")
-        mkdir(generatedSourceDir)
-    }
     commandLine(
         "protoc",
         "-I=${project.projectDir}/../../sonar-helm-for-iac/",
