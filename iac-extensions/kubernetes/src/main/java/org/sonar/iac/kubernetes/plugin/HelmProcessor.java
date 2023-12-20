@@ -20,11 +20,13 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -51,38 +53,50 @@ public class HelmProcessor {
     }
   }
 
-  @CheckForNull
-  String processHelmTemplate(String filename, String source, InputFileContext inputFileContext) {
-    if (helmEvaluator != null) {
-      // TODO: better support of Helm project structure
-      var sourceWithComments = HelmPreprocessor.addLineComments(source);
-      var valuesFile = findValuesFile(inputFileContext);
-      if (valuesFile != null) {
-        try {
-          return evaluateHelmTemplate(filename, sourceWithComments, valuesFile.contents());
-        } catch (IOException e) {
-          LOG.debug("Failed to read values file at {}, skipping processing of Helm file '{}'", valuesFile, inputFileContext.inputFile, e);
-        }
-      } else {
-        LOG.debug("Failed to find values file, skipping processing of Helm file '{}'", inputFileContext.inputFile);
-      }
-    }
-
-    return null;
+  public boolean isHelmEvaluatorInitialized() {
+    return helmEvaluator != null;
   }
 
-  @CheckForNull
-  private String evaluateHelmTemplate(String path, String content, String valuesFileContent) {
-    if (valuesFileContent.isBlank()) {
-      LOG.debug("Template cannot be evaluated, skipping processing of Helm file '{}'", path);
-      return "{}";
+  String processHelmTemplate(String filename, String source, InputFileContext inputFileContext) {
+    if (helmEvaluator == null) {
+      throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
+
+    // TODO: better support of Helm project structure
+    var sourceWithComments = HelmPreprocessor.addLineComments(source);
+    var valuesFile = findValuesFile(inputFileContext);
+    var valuesFileContent = validateAndReadValuesFile(valuesFile, inputFileContext.inputFile);
+    return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, valuesFileContent);
+  }
+
+  private static String validateAndReadValuesFile(@Nullable InputFile valuesFile, InputFile inputFile) {
+    if (valuesFile == null) {
+      throw new ParseException("Failed to find values file, skipping processing of Helm file " + inputFile,
+        inputFile.newPointer(0, 0), null);
+    }
+
+    String valuesFileContent;
+    try {
+      valuesFileContent = valuesFile.contents();
+    } catch (IOException e) {
+      throw new ParseException("Failed to read values file at " + valuesFile + " while evaluating Helm file " + inputFile,
+        inputFile.newPointer(0, 0), e.getMessage());
+    }
+
+    if (valuesFileContent.isBlank()) {
+      throw new ParseException("Values file at " + valuesFile + " is empty, skipping processing of Helm file " + inputFile,
+        inputFile.newPointer(0, 0), null);
+    }
+
+    return valuesFileContent;
+  }
+
+  private String evaluateHelmTemplate(String path, InputFile inputFile, String content, String valuesFileContent) {
     try {
       var evaluationResult = helmEvaluator.evaluateTemplate(path, content, valuesFileContent);
       return evaluationResult.getTemplate();
     } catch (IllegalStateException | IOException e) {
-      LOG.debug("Template evaluation failed, skipping processing of Helm file '{}'. Reason: ", path, e);
-      return null;
+      throw new ParseException("Template evaluation failed, skipping processing of Helm file " + path, inputFile.newPointer(0, 0), e.getMessage());
     }
   }
 }
