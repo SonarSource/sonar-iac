@@ -43,25 +43,34 @@ public final class ExecutableHelper {
   private ExecutableHelper() {
   }
 
+  /**
+   * It extracts the binary executable from JAR file to {@code workDir}.
+   *
+   * @param workDir Working directory where executable needs to be extracted
+   * @param executable The executable filename what needs to be extracted
+   * @return The executable absolute path
+   * @throws IOException If any IO Error
+   */
   public static String extractFromClasspath(File workDir, String executable) throws IOException {
     byte[] executableData = getBytesFromResource(executable);
-    var dest = new File(workDir, executable);
-    if (!fileMatch(dest, executableData)) {
-      Files.write(dest.toPath(), executableData);
+    var destination = new File(workDir, executable);
+    if (!fileContentMatches(destination, executableData)) {
+      Files.write(destination.toPath(), executableData);
       if (!System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
-        var perms = Files.getPosixFilePermissions(dest.toPath());
-        perms.add(PosixFilePermission.OWNER_EXECUTE);
-        Files.setPosixFilePermissions(dest.toPath(), perms);
+        // The Zip compression doesn't preserve the executable flag on Windows, so it needs to be set after extraction
+        var permissions = Files.getPosixFilePermissions(destination.toPath());
+        permissions.add(PosixFilePermission.OWNER_EXECUTE);
+        Files.setPosixFilePermissions(destination.toPath(), permissions);
       }
     }
-    return dest.getAbsolutePath();
+    return destination.getAbsolutePath();
   }
 
   @CheckForNull
   public static byte[] readProcessOutput(Process process) {
-    try (var is = process.getInputStream(); var es = process.getErrorStream()) {
-      var rawEvaluationResult = is.readAllBytes();
-      new BufferedReader(new InputStreamReader(es, StandardCharsets.UTF_8)).lines()
+    try (var output = process.getInputStream(); var errorOutput = process.getErrorStream()) {
+      var rawEvaluationResult = output.readAllBytes();
+      new BufferedReader(new InputStreamReader(errorOutput, StandardCharsets.UTF_8)).lines()
         .forEach(line -> LOG.debug("[{}] {}", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, line));
       return rawEvaluationResult;
     } catch (IOException e) {
@@ -70,15 +79,18 @@ public final class ExecutableHelper {
     }
   }
 
-  static boolean fileMatch(File dest, byte[] expectedContent) throws IOException {
-    if (!dest.exists()) {
+  /**
+   * It can be true if the executable is not cleaned up properly from another scan
+   */
+  static boolean fileContentMatches(File destination, byte[] expectedContent) throws IOException {
+    if (!destination.exists()) {
       return false;
     }
-    byte[] actualContent = Files.readAllBytes(dest.toPath());
+    byte[] actualContent = Files.readAllBytes(destination.toPath());
     return Arrays.equals(actualContent, expectedContent);
   }
 
-  public static byte[] getBytesFromResource(String executable) throws IOException {
+  static byte[] getBytesFromResource(String executable) throws IOException {
     var out = new ByteArrayOutputStream();
     // For an unknown reason, accessing resource via `Thread.currentThread().getContextClassLoader()` does not find it
     try (InputStream in = ExecutableHelper.class.getClassLoader().getResourceAsStream(executable)) {
