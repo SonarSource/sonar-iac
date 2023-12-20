@@ -105,7 +105,7 @@ qa_task_filter_template: &QA_TASK_FILTER
 setup_gradle_cache_template: &SETUP_GRADLE_CACHE
   gradle_cache:
     folder: .gradle/caches
-    fingerprint_script: echo "abc"
+    fingerprint_script: git rev-parse HEAD
   create_gradle_directory_script:
     - mkdir -p "${CIRRUS_WORKING_DIR}/.gradle"
 
@@ -175,7 +175,9 @@ sca_scan_task:
 
 qa_plugin_task:
   <<: *QA_TASK_FILTER
-  <<: *LINUX_4_CPU_8G_JAVA_17
+  <<: *LINUX_IMAGE_WITH_GCC
+  #TODO replace the LINUX with GCC by below one, gradle cache must be fixed for this to work
+  #<<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
   env:
     matrix:
@@ -191,7 +193,9 @@ qa_plugin_task:
 
 qa_ruling_task:
   <<: *QA_TASK_FILTER
-  <<: *LINUX_4_CPU_8G_JAVA_17
+  <<: *LINUX_IMAGE_WITH_GCC
+  #TODO replace the LINUX with GCC by below one, gradle cache must be fixed for this to work
+  #<<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
   submodules_script:
     - git submodule update --init
@@ -215,3 +219,4 @@ promote_task:
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
   script: cirrus_promote_gradle
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+
