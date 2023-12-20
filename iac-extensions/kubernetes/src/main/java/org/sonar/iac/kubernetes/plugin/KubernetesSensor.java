@@ -51,6 +51,7 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
+  private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
   private final HelmProcessor helmProcessor;
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
@@ -61,11 +62,11 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected void initContext(SensorContext sensorContext) {
-    if (sensorContext.config().getBoolean("sonar.kubernetes.internal.helm.enable").orElse(true)) {
-      LOG.info("Initializing Helm processor");
+    if (shouldEnableHelmAnalysis(sensorContext)) {
+      LOG.debug("Initializing Helm processor");
       helmProcessor.initialize();
     } else {
-      LOG.info("Skipping initialization of Helm processor");
+      LOG.debug("Skipping initialization of Helm processor");
     }
   }
 
@@ -118,6 +119,10 @@ public class KubernetesSensor extends YamlSensor {
     return new KubernetesFilePredicate();
   }
 
+  private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
+    return isNotSonarLintContext(sensorContext) && sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
+  }
+
   static class KubernetesFilePredicate implements FilePredicate {
 
     private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
@@ -146,7 +151,7 @@ public class KubernetesSensor extends YamlSensor {
           } else if (FILE_SEPARATOR.equals(line)) {
             identifierCount = 0;
           }
-          if (identifierCount == 4) {
+          if (identifierCount == IDENTIFIER.size()) {
             hasExpectedIdentifier = true;
           }
         }

@@ -38,7 +38,6 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
@@ -84,10 +83,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldParseYamlFileWithHelmChartTemplate() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(getActivationSettingKey(), true);
-    settings.setProperty("sonar.kubernetes.internal.helm.enable", "true");
-    context = SensorContextTester.create(baseDir).setSettings(settings);
     var sensor = sensor();
     analyse(sensor,
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
@@ -106,9 +101,39 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     MapSettings settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     settings.setProperty("sonar.kubernetes.internal.helm.enable", "false");
-    context = SensorContextTester.create(baseDir).setSettings(settings);
+    context.setSettings(settings);
     var sensor = sensor();
     analyse(sensor,
+      inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+      inputFile("values.yaml", "bar: var-value"));
+    assertOneSourceFileIsParsed();
+
+    var logs = logTester.logs();
+    assertThat(logs)
+      .contains("Skipping initialization of Helm processor")
+      .doesNotContain("Initializing Helm processor");
+  }
+
+  @Test
+  void shouldNotParseYamlFileWithHelmChartTemplateInSonarLintContext() {
+    analyse(sonarLintContext, sonarLintSensor(),
+      inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+      inputFile("values.yaml", "bar: var-value"));
+    assertOneSourceFileIsParsed();
+
+    var logs = logTester.logs();
+    assertThat(logs)
+      .contains("Skipping initialization of Helm processor")
+      .doesNotContain("Initializing Helm processor");
+  }
+
+  @Test
+  void shouldNotParseYamlFileWithHelmChartTemplateInSonarLintContextAndHelmAnalysisDisabled() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(getActivationSettingKey(), true);
+    settings.setProperty("sonar.kubernetes.internal.helm.enable", "false");
+    sonarLintContext.setSettings(settings);
+    analyse(sonarLintContext, sonarLintSensor(),
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
     assertOneSourceFileIsParsed();
@@ -131,8 +156,9 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNotSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(1);
-    assertThat(logs.get(0))
+    assertThat(logs).hasSize(2);
+    assertThat(logs.get(0)).isEqualTo("Initializing Helm processor");
+    assertThat(logs.get(1))
       .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
   }
 
@@ -448,9 +474,21 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo(message1);
+      .isEqualTo("Initializing Helm processor");
     assertThat(logTester.logs(Level.DEBUG).get(1))
+      .isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(2))
       .startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(3);
+  }
+
+  private KubernetesSensor sonarLintSensor(String... rules) {
+    return new KubernetesSensor(
+      SonarRuntimeImpl.forSonarLint(Version.create(9, 2)),
+      fileLinesContextFactory,
+      checkFactory(sonarLintContext, rules),
+      noSonarFilter,
+      new KubernetesLanguage(),
+      new HelmProcessor(Mockito.mock(HelmEvaluator.class)));
   }
 }
