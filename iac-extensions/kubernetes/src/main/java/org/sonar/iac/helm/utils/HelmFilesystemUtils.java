@@ -39,14 +39,16 @@ public final class HelmFilesystemUtils {
 
   private static FilePredicate valuesFilePredicate(InputFileContext inputFileContext, SensorContext sensorContext) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
-    var pathToValuesFile = Path.of(inputFileContext.inputFile.uri())
-      .getParent()
+    var parentPath = Path.of(inputFileContext.inputFile.uri())
+      .getParent();
+    var yamlPath = parentPath
       .resolve("../values.yaml")
       .normalize()
-      .toAbsolutePath()
-      .toString();
-    return predicates.and(
-      predicates.hasExtension("yaml"),
-      predicates.hasAbsolutePath(pathToValuesFile));
+      .toUri();
+    var ymlPath = parentPath
+      .resolve("../values.yml")
+      .normalize()
+      .toUri();
+    return predicates.or(predicates.hasURI(yamlPath), predicates.hasURI(ymlPath));
   }
 }
