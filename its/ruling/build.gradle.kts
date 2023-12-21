@@ -7,11 +7,7 @@ plugins {
 description = "SonarSource IaC Analyzer :: Integration Testing"
 
 dependencies {
-    "integrationTestImplementation"(project(":iac-extensions:terraform"))
-    "integrationTestImplementation"(project(":iac-extensions:cloudformation"))
-    "integrationTestImplementation"(project(":iac-extensions:kubernetes"))
-    "integrationTestImplementation"(project(":iac-extensions:docker"))
-    "integrationTestImplementation"(project(":iac-extensions:arm"))
+    "integrationTestImplementation"(project(":sonar-iac-plugin", configuration = "shadow"))
     "integrationTestImplementation"(libs.junit.jupiter)
     "integrationTestImplementation"(libs.assertj.core)
     "integrationTestImplementation"(libs.sonar.analyzer.commons)
@@ -20,5 +16,5 @@ dependencies {
 }
 
 tasks.integrationTest {
-    inputs.files("$projectDir/projects")
+    inputs.files("$projectDir/projects", "../../sonar-iac-plugin/build/libs")
 }
