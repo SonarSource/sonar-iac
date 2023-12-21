@@ -20,7 +20,9 @@ package converters
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"github.com/samber/mo"
 	"os"
 	"strconv"
 	"strings"
@@ -39,37 +41,56 @@ type InputReader interface {
 	// <template content>
 	// ...
 	// END
-	ReadInput(scanner *bufio.Scanner) []Content
+	ReadInput(scanner *bufio.Scanner) ([]Content, error)
 }
 
 type StdinReader struct{}
 
-func (s StdinReader) ReadInput(scanner *bufio.Scanner) []Content {
+func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]Content, error) {
 	contents := make([]Content, 0)
-	firstLine := s.readInput(scanner, 1)
+	firstLine, err := s.readInput(scanner, 1)
+	if err != nil {
+		return nil, err
+	}
 	if firstLine == "" {
 		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
-		return contents
+		return contents, nil
 	}
+
 	for firstLine != "END" {
 		name := firstLine
-		length, _ := strconv.Atoi(s.readInput(scanner, 1))
-		fmt.Fprintf(os.Stderr, "Reading %d lines from stdin\n", length)
-		content := s.readInput(scanner, length)
+
+		var content string
+		contentResult := mo.TupleToResult(s.readInput(scanner, 1)).FlatMap(
+			func(lengthStr string) mo.Result[string] {
+				length, _ := strconv.Atoi(lengthStr)
+				fmt.Fprintf(os.Stderr, "Reading %d lines from stdin\n", length)
+				return mo.TupleToResult(s.readInput(scanner, length))
+			})
+		if contentResult.IsOk() {
+			content = contentResult.MustGet()
+		}
+
+		firstLine, err = contentResult.FlatMap(func(string) mo.Result[string] {
+			return mo.TupleToResult(s.readInput(scanner, 1))
+		}).Get()
+
+		if err != nil {
+			return nil, err
+		}
+
 		contents = append(contents, Content{Name: name, Content: content})
-		firstLine = s.readInput(scanner, 1)
 	}
 	fmt.Fprintf(os.Stderr, "Received END signal, exiting\n")
-	return contents
+	return contents, nil
 }
 
 // readInput
 // Reads nLines from the given scanner and returns as a single string.
 // If nLines is negative, reads all lines until EOF.
-func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) string {
+func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) (string, error) {
 	if nLines == 0 {
-		fmt.Fprintf(os.Stderr, "Skipping request to read 0 lines\n")
-		return ""
+		return "", errors.New("won't read 0 lines")
 	}
 	rawInput := make([][]byte, 0)
 	linesToRead := nLines
@@ -80,7 +101,8 @@ func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) string {
 			break
 		}
 	}
-	return bytesToString(rawInput)
+	// if scanner has encountered an error, scanner.Err will return it here
+	return bytesToString(rawInput), scanner.Err()
 }
 
 func bytesToString(input [][]byte) string {

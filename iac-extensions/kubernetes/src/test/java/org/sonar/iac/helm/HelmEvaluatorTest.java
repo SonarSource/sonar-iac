@@ -66,14 +66,29 @@ class HelmEvaluatorTest {
   }
 
   @Test
-  void shouldThrowIfGoBinaryReturnsNonZero() {
+  void shouldThrowIfGoBinaryRejectsEmptyInput() {
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1");
+      .hasMessage("Evaluation error in Go library: read input: won't read 0 lines");
 
     Assertions.assertThat(logTester.logs(Level.DEBUG))
-      .contains("[sonar-helm-for-iac] Skipping request to read 0 lines")
-      .contains("[sonar-helm-for-iac] Expected 2 files, received 3 (values.yaml missing?)");
+      .contains("[sonar-helm-for-iac] Reading 0 lines from stdin");
+  }
+
+  @Test
+  void shouldThrowIfGoBinaryReturnsNonZero() throws IOException {
+    try (var ignored = Mockito.mockStatic(ExecutableHelper.class)) {
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[0]);
+      var helmEvaluator = Mockito.spy(this.helmEvaluator);
+      var process = mock(Process.class);
+      when(process.isAlive()).thenReturn(false);
+      when(process.exitValue()).thenReturn(1);
+      doReturn(process).when(helmEvaluator).startProcess(any(), any(), any());
+
+      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1");
+    }
   }
 
   @ParameterizedTest
