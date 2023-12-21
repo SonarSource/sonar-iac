@@ -159,6 +159,8 @@ sca_scan_task:
   <<: *ONLY_MAIN_BRANCHES
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
+    cpu: 4
+    memory: 8G
   env:
     <<: *WS_SCAN_SECRETS
     GO_CROSS_COMPILE: '1'
@@ -177,6 +179,8 @@ qa_plugin_task:
   <<: *QA_TASK_FILTER
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
+    cpu: 4
+    memory: 8G
   #TODO replace the LINUX with GCC by below one, gradle cache must be fixed for this to work
   #<<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
