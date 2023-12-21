@@ -53,7 +53,7 @@ linux_image_template: &LINUX_IMAGE
 linux_image_with_gcc_template: &LINUX_IMAGE_WITH_GCC
   dockerfile: .cirrus/Dockerfile
   docker_arguments:
-    CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+    CIRRUS_AWS_ACCOUNT: "460386131003"
     GO_VERSION: ${GO_VERSION}
     PROTOC_VERSION: ${PROTOC_VERSION}
   cluster_name: ${CIRRUS_CLUSTER_NAME}
