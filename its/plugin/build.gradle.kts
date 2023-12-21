@@ -17,5 +17,6 @@ dependencies {
 }
 
 tasks.integrationTest {
-    inputs.files("$projectDir/projects")
+    dependsOn(":sonar-iac-plugin:shadowJar")
+    inputs.files("../../sonar-iac-plugin/build/libs")
 }
