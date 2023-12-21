@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    values: {{.Values.test.Name}}
+spec:
+  restartPolicy: {{default "Never" .Values.restartPolicy}}
+  containers:
+    - name: waiter
+      image: "alpine:latest"
+      command: ["/bin/sleep","9000"]

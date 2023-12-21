@@ -58,7 +58,7 @@ public class HelmProcessor {
   }
 
   String processHelmTemplate(String filename, String source, InputFileContext inputFileContext) {
-    if (helmEvaluator == null) {
+    if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
 
@@ -71,21 +71,18 @@ public class HelmProcessor {
 
   private static String validateAndReadValuesFile(@Nullable InputFile valuesFile, InputFile inputFile) {
     if (valuesFile == null) {
-      throw new ParseException("Failed to find values file, skipping processing of Helm file " + inputFile,
-        inputFile.newPointer(0, 0), null);
+      throw newParseExceptionFor(inputFile, "Failed to find values file", null);
     }
 
     String valuesFileContent;
     try {
       valuesFileContent = valuesFile.contents();
     } catch (IOException e) {
-      throw new ParseException("Failed to read values file at " + valuesFile + " while evaluating Helm file " + inputFile,
-        inputFile.newPointer(0, 0), e.getMessage());
+      throw newParseExceptionFor(inputFile, "Failed to read values file at " + valuesFile, e.getMessage());
     }
 
     if (valuesFileContent.isBlank()) {
-      throw new ParseException("Values file at " + valuesFile + " is empty, skipping processing of Helm file " + inputFile,
-        inputFile.newPointer(0, 0), null);
+      throw newParseExceptionFor(inputFile, "Values file at " + valuesFile + " is empty", null);
     }
 
     return valuesFileContent;
@@ -96,7 +93,11 @@ public class HelmProcessor {
       var evaluationResult = helmEvaluator.evaluateTemplate(path, content, valuesFileContent);
       return evaluationResult.getTemplate();
     } catch (IllegalStateException | IOException e) {
-      throw new ParseException("Template evaluation failed, skipping processing of Helm file " + path, inputFile.newPointer(0, 0), e.getMessage());
+      throw newParseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());
     }
+  }
+
+  private static ParseException newParseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
+    return new ParseException("Failed to evaluate Helm file " + inputFile + ": " + cause, inputFile.newPointer(1, 0), details);
   }
 }

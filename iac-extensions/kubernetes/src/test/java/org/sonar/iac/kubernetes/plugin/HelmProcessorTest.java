@@ -112,7 +112,7 @@ class HelmProcessorTest {
 
       Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
         .isInstanceOf(ParseException.class)
-        .hasMessage("Failed to read values file at chart/values.yaml while evaluating Helm file chart/templates/foo.yaml");
+        .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Failed to read values file at chart/values.yaml");
     }
   }
 
@@ -165,7 +165,7 @@ class HelmProcessorTest {
 
       Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext))
         .isInstanceOf(ParseException.class)
-        .hasMessage("Template evaluation failed, skipping processing of Helm file foo.yaml");
+        .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Template evaluation failed");
     }
   }
 
