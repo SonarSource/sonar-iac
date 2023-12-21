@@ -132,6 +132,7 @@ build_task:
     GO_CROSS_COMPILE: '1'
   build_script:
     - source cirrus-env BUILD
+    - source .cirrus/use-gradle-wrapper.sh
     - go version
     - regular_gradle_build_deploy_analyze
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
@@ -177,12 +178,7 @@ sca_scan_task:
 
 qa_plugin_task:
   <<: *QA_TASK_FILTER
-  eks_container:
-    <<: *LINUX_IMAGE_WITH_GCC
-    cpu: 4
-    memory: 8G
-  #TODO replace the LINUX with GCC by below one, gradle cache must be fixed for this to work
-  #<<: *LINUX_4_CPU_8G_JAVA_17
+  <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
   env:
     matrix:
@@ -198,10 +194,7 @@ qa_plugin_task:
 
 qa_ruling_task:
   <<: *QA_TASK_FILTER
-  eks_container:
-    <<: *LINUX_IMAGE_WITH_GCC
-  #TODO replace the LINUX with GCC by below one, gradle cache must be fixed for this to work
-  #<<: *LINUX_4_CPU_8G_JAVA_17
+  <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
   submodules_script:
     - git submodule update --init
