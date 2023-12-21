@@ -102,7 +102,11 @@ tasks.shadowJar {
                 maxSize = 8_000_000
             }
         }
-        enforceJarSize(tasks.shadowJar.get().archiveFile.get().asFile, minSize, maxSize)
+        val jarFile = tasks.shadowJar.get().archiveFile.get().asFile
+        val sizeInBytes = jarFile.length()
+        val formattedSizeInBytes = String.format("%,d", sizeInBytes)
+        println("Size of the fat JAR file: ${formattedSizeInBytes}")
+        enforceJarSize(jarFile, minSize, maxSize)
     }
 }
 
