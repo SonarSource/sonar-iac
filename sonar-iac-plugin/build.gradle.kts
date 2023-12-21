@@ -76,19 +76,6 @@ tasks.jar {
     }
 }
 
-fun displayJarContent(filepath:String) {
-    ZipFile(filepath).use { zip ->
-        zip.entries().toList().forEach { entry ->
-            val size = if (entry.isDirectory) {
-                "Directory"
-            } else {
-                entry.size
-            }
-            println("${entry.name}: $size")
-        }
-    }
-}
-
 tasks.shadowJar {
     dependsOn(":sonar-helm-for-iac:compileGoCode")
     minimize()
@@ -107,9 +94,15 @@ tasks.shadowJar {
         val minSize: Long;
         val maxSize: Long;
         val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
+        val isCrossCompile: Boolean = System.getenv("GO_CROSS_COMPILE")?.equals("1") ?: false
         if (isCi) {
-            minSize = 7_000_000
-            maxSize = 17_000_000
+            if (isCrossCompile) {
+                minSize = 16_000_000
+                maxSize = 17_000_000
+            } else {
+                minSize = 7_000_000
+                maxSize = 8_000_000
+            }
         } else {
             if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
                 minSize = 10_000_000
@@ -119,11 +112,7 @@ tasks.shadowJar {
                 maxSize = 8_000_000
             }
         }
-        displayJarContent(tasks.shadowJar.get().archiveFile.get().asFile.absolutePath)
         val jarFile = tasks.shadowJar.get().archiveFile.get().asFile
-        val sizeInBytes = jarFile.length()
-        val formattedSizeInBytes = String.format("%,d", sizeInBytes)
-        println("Size of the fat JAR file: ${formattedSizeInBytes}")
         enforceJarSize(jarFile, minSize, maxSize)
     }
 }
