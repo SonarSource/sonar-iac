@@ -146,7 +146,6 @@ sca_scan_task:
   depends_on:
     - build
   <<: *MAVEN_CACHE
-  <<: *ONLY_MAIN_BRANCHES
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
   env:
