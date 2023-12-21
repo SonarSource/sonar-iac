@@ -76,16 +76,16 @@ class IacRulingTest {
   @Test
   void test_terraform() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/terraform/**/*.tf, ruling/src/test/resources/sources/terraform/**/*.tf");
+    properties.put("sonar.inclusions", "sources/terraform/**/*.tf, ruling/src/integrationTest/resources/sources/terraform/**/*.tf");
     run_ruling_test("terraform", properties);
   }
 
   @Test
   void test_cloudformation() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/cloudformation/**/*.json, ruling/src/test/resources/sources/cloudformation/**/*.json," +
-      "sources/cloudformation/**/*.yaml, ruling/src/test/resources/sources/cloudformation/**/*.yaml," +
-      "sources/cloudformation/**/*.yml, ruling/src/test/resources/sources/cloudformation/**/*.yml,");
+    properties.put("sonar.inclusions", "sources/cloudformation/**/*.json, ruling/src/integrationTest/resources/sources/cloudformation/**/*.json," +
+      "sources/cloudformation/**/*.yaml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yaml," +
+      "sources/cloudformation/**/*.yml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
     run_ruling_test("cloudformation", properties);
   }
@@ -93,23 +93,23 @@ class IacRulingTest {
   @Test
   void test_kubernetes() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/kubernetes/**/*.yaml, ruling/src/test/resources/sources/kubernetes/**/*.yaml," +
-      "sources/kubernetes/**/*.yml, ruling/src/test/resources/sources/kubernetes/**/*.yml");
+    properties.put("sonar.inclusions", "sources/kubernetes/**/*.yaml, ruling/src/integrationTest/resources/sources/kubernetes/**/*.yaml," +
+      "sources/kubernetes/**/*.yml, ruling/src/integrationTest/resources/sources/kubernetes/**/*.yml");
     run_ruling_test("kubernetes", properties);
   }
 
   @Test
   void test_docker() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/docker/**/Dockerfile*, ruling/src/test/resources/sources/docker/**/**");
+    properties.put("sonar.inclusions", "sources/docker/**/Dockerfile*, ruling/src/integrationTest/resources/sources/docker/**/**");
     run_ruling_test("docker", properties);
   }
 
   @Test
   void test_arm() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/azureresourcemanager/**/*.json, ruling/src/test/resources/sources/azureresourcemanager/**/*.json," +
-      "sources/azureresourcemanager/**/*.bicep, ruling/src/test/resources/sources/azureresourcemanager/**/*.bicep");
+    properties.put("sonar.inclusions", "sources/azureresourcemanager/**/*.json, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.json," +
+      "sources/azureresourcemanager/**/*.bicep, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.bicep");
     run_ruling_test("azureresourcemanager", properties);
   }
 
@@ -141,7 +141,7 @@ class IacRulingTest {
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
       .setProperties(properties)
-      .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/resources/expected/" + project).getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.old", FileLocation.of("src/integrationTest/resources/expected/" + project).getFile().getAbsolutePath())
       .setProperty("sonar.lits.dump.new", actualDirectory.getAbsolutePath())
       .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath())
       .setProperty("sonar.scm.disabled", "true")

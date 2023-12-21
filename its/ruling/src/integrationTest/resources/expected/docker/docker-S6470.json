@@ -1,5 +1,5 @@
 {
-"docker-project:ruling/src/test/resources/sources/docker/S6476/Dockerfile": [
+"docker-project:ruling/src/integrationTest/resources/sources/docker/S6476/Dockerfile": [
 3
 ],
 "docker-project:sources/docker/awesome-compose/angular/angular/Dockerfile": [

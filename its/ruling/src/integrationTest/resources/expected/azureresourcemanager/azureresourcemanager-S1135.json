@@ -1,5 +1,5 @@
 {
-"azureresourcemanager-project:ruling/src/test/resources/sources/azureresourcemanager/rules/S1135.bicep": [
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/S1135.bicep": [
 4
 ],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/resources.bicep": [

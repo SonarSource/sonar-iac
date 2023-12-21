@@ -1,5 +1,5 @@
 {
-"azureresourcemanager-project:ruling/src/test/resources/sources/azureresourcemanager/parseError.json": [
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/parseError.json": [
 4
 ],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/conditional-definition.bicep": [

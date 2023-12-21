@@ -1,9 +1,9 @@
 {
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6275.json": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6275.json": [
 7,
 12
 ],
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6275.yaml": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6275.yaml": [
 6,
 9
 ]

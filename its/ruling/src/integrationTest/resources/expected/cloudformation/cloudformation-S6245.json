@@ -1,28 +1,28 @@
 {
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6252.json": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6252.json": [
 5,
 13,
 21,
 29,
 37
 ],
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6252.yaml": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6252.yaml": [
 4,
 10,
 15,
 22,
 28
 ],
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.json": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6270.json": [
 5
 ],
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.yaml": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6270.yaml": [
 4
 ],
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.json": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6273.json": [
 5
 ],
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.yaml": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6273.yaml": [
 7
 ],
 "cloudformation-project:sources/cloudformation/taskcat/tests/data/retain-resources/test.template.yaml": [

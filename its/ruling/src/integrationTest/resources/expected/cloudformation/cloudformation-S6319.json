@@ -1,8 +1,8 @@
 {
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6319.json": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6319.json": [
 5
 ],
-"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6319.yaml": [
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6319.yaml": [
 4
 ]
 }
