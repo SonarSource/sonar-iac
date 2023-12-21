@@ -91,8 +91,8 @@ tasks.shadowJar {
         val maxSize: Long;
         val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
         if (isCi) {
-            minSize = 16_000_000
-            maxSize = 17_000_000
+            minSize = 7_000_000
+            maxSize = 8_000_000
         } else {
             if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
                 minSize = 10_000_000
