@@ -47,21 +47,28 @@ public class KubernetesParser extends YamlParser {
 
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    if (hasHelmContent(source)) {
-      if (inputFileContext != null) {
-        var filename = inputFileContext.inputFile.filename();
-        LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
-        var evaluatedSource = helmProcessor.processHelmTemplate(filename, source, inputFileContext);
-        if (evaluatedSource != null) {
-          return super.parse(evaluatedSource, inputFileContext, FileTree.Template.HELM);
-        }
-      } else {
-        LOG.debug("No InputFileContext provided, skipping processing of Helm file");
-      }
-
-      return super.parse("{}", inputFileContext, FileTree.Template.HELM);
+    if (!hasHelmContent(source)) {
+      return super.parse(source, inputFileContext);
+    } else {
+      return parseHelmFile(source, inputFileContext);
     }
-    return super.parse(source, inputFileContext);
+  }
+
+  private FileTree parseHelmFile(String source, @Nullable InputFileContext inputFileContext) {
+    if (inputFileContext == null) {
+      LOG.debug("No InputFileContext provided, skipping processing of Helm file");
+      return super.parse("{}", null, FileTree.Template.HELM);
+    }
+
+    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
+    if (!helmProcessor.isHelmEvaluatorInitialized()) {
+      LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
+      return super.parse("{}", null, FileTree.Template.HELM);
+    }
+
+    var filename = inputFileContext.inputFile.filename();
+    var evaluatedSource = helmProcessor.processHelmTemplate(filename, source, inputFileContext);
+    return super.parse(evaluatedSource, inputFileContext, FileTree.Template.HELM);
   }
 
   public static boolean hasHelmContent(String text) {
