@@ -1,7 +1,3 @@
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.zip.ZipFile
-
 plugins {
     id("org.sonarsource.iac.java-conventions")
     id("org.sonarsource.iac.artifactory-configuration")
@@ -91,8 +87,8 @@ tasks.shadowJar {
     exclude("NOTICE*")
 
     doLast {
-        val minSize: Long;
-        val maxSize: Long;
+        val minSize: Long
+        val maxSize: Long
         val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
         val isCrossCompile: Boolean = System.getenv("GO_CROSS_COMPILE")?.equals("1") ?: false
         if (isCi) {

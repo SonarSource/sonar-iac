@@ -211,7 +211,7 @@ promote_task:
     - qa_plugin
   <<: *ONLY_IF_SONARSOURCE_QA
   <<: *LINUX_1_CPU_1G
-  <<: *SETUP_GRADLE_CACHE
+#  <<: *SETUP_GRADLE_CACHE
   env:
     <<: *PROMOTE_SECRETS
     #artifacts that will have downloadable links in burgr
