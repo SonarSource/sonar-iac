@@ -122,6 +122,8 @@ build_task:
     GO_CROSS_COMPILE: '1'
   build_script:
     - source cirrus-env BUILD
+    - source .cirrus/use-podman-instead-docker.sh
+    - docker -v
     - go version
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository

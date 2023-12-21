@@ -6,38 +6,19 @@ A help project written in GoLang for support evaluating and parsing Helm Chars i
 It is a small glue code for re-use the implementation of Helm Charts templates evaluations and parsing.
 
 ## Requirements
-* Go 1.21.1
-* musl on Linux (`musl-gcc` should be present on `PATH`)
-* protoc 25.0
-* protoc-gen-go 1.31.0
+* Docker
 
 ## The build
 
-### The build using installed Go (Windows, Linux, MacOS)
+### Build Docker Image
 ```shell
-go build
+mvn exec:exec@build-docker-image
 ```
 
-### The build if Go is not installed (Linux only and CI)
-```shell
-./make.sh build
-```
+### Execute Docker Image, generating Go code, build Go binaries, executing tests, validate license headers
 
-## Run test
-
-### Run tests using installed Go (Windows, Linux, MacOS)
 ```shell
-go test
-```
-
-### The build if Go is not installed (Linux only and CI)
-```shell
-./make.sh test
-```
-
-### Compile protobuf to Go
-```shell
-mvn exec:exec@compile-protobuf-go
+mvn exec:exec@build-go-code
 ```
 
 ## Execution
