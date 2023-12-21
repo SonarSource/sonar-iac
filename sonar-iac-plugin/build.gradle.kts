@@ -1,3 +1,7 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.zip.ZipFile
+
 plugins {
     id("org.sonarsource.iac.java-conventions")
     id("org.sonarsource.iac.artifactory-configuration")
@@ -72,6 +76,19 @@ tasks.jar {
     }
 }
 
+fun displayJarContent(filepath:String) {
+    ZipFile(filepath).use { zip ->
+        zip.entries().toList().forEach { entry ->
+            val size = if (entry.isDirectory) {
+                "Directory"
+            } else {
+                entry.size
+            }
+            println("${entry.name}: $size")
+        }
+    }
+}
+
 tasks.shadowJar {
     dependsOn(":sonar-helm-for-iac:compileGoCode")
     minimize()
@@ -102,6 +119,7 @@ tasks.shadowJar {
                 maxSize = 8_000_000
             }
         }
+        displayJarContent(tasks.shadowJar.get().archiveFile.get().asFile.absolutePath)
         val jarFile = tasks.shadowJar.get().archiveFile.get().asFile
         val sizeInBytes = jarFile.length()
         val formattedSizeInBytes = String.format("%,d", sizeInBytes)
