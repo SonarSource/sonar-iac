@@ -20,14 +20,25 @@
 package org.sonar.iac.arm.plugin;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ArmLanguageTest {
 
   @Test
-  void should_return_arm_file_suffixes() {
-    ArmLanguage language = new ArmLanguage();
-    assertThat(language.getFileSuffixes()).containsExactly(".bicep");
+  void shouldReturnArmFileSuffixes() {
+    MapSettings settings = new MapSettings();
+    ArmLanguage language = new ArmLanguage(settings.asConfig());
+    assertThat(language.getFileSuffixes()).containsOnly(".bicep");
+
+    settings.setProperty(ArmSettings.FILE_SUFFIXES_KEY, "");
+    assertThat(language.getFileSuffixes()).containsOnly(".bicep");
+
+    settings.setProperty(ArmSettings.FILE_SUFFIXES_KEY, ".bar, .foo");
+    assertThat(language.getFileSuffixes()).containsOnly(".bar", ".foo");
+
+    settings.setProperty(ArmSettings.FILE_SUFFIXES_KEY, ".foo, , ");
+    assertThat(language.getFileSuffixes()).containsOnly(".foo");
   }
 }
