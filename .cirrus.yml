@@ -154,7 +154,7 @@ sca_scan_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - mvn clean install -DskipTests -P-ci,local
-    - source ws_scan.sh -d "${PWD},sonar-helm-for-iac"
+    - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"
   allow_failures: "true"
   always:
     ws_artifacts:
