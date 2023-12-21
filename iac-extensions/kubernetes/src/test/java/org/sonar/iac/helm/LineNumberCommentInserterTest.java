@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.plugin;
+package org.sonar.iac.helm;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class HelmPreprocessorTest {
+class LineNumberCommentInserterTest {
 
   @Test
   void shouldAddCommentLineNumberForActualChart() {
@@ -127,7 +127,7 @@ class HelmPreprocessorTest {
   }
 
   void checkHelmProcessing(String source, String expect) {
-    assertThat(HelmPreprocessor.addLineComments(source)).isEqualTo(expect);
+    assertThat(LineNumberCommentInserter.addLineComments(source)).isEqualTo(expect);
   }
 
   String codeSpecific(String carriageReturn, String... lines) {

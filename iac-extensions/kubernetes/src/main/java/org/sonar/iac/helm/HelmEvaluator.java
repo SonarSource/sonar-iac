@@ -45,19 +45,19 @@ public class HelmEvaluator {
 
   private final File workingDir;
   private final ExecutorService processMonitor = Executors.newSingleThreadExecutor();
-  private ProcessBuilder pb;
+  private ProcessBuilder processBuilder;
 
   public HelmEvaluator(TempFolder tempFolder) {
     workingDir = tempFolder.newDir();
   }
 
   public void initialize() throws IOException {
-    this.pb = prepareProcessBuilder();
+    this.processBuilder = prepareProcessBuilder();
   }
 
   public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) throws IOException {
-    LOG.debug("Executing: {}", pb.command());
-    var process = startProcess(pb, path, content, valuesFileContent);
+    LOG.debug("Executing: {}", processBuilder.command());
+    var process = startProcess(path, content, valuesFileContent);
     processMonitor.submit(() -> monitorProcess(process));
 
     byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
@@ -85,28 +85,28 @@ public class HelmEvaluator {
     return new ProcessBuilder(executable);
   }
 
-  Process startProcess(ProcessBuilder pb, String name, String content, String valuesFileContent) throws IOException {
-    var process = pb.start();
-    try (var os = process.getOutputStream()) {
-      writeStringAsBytes(os, String.format("%s%n", name));
-      writeStringAsBytes(os, String.format("%d%n", content.lines().count()));
+  Process startProcess(String name, String content, String valuesFileContent) throws IOException {
+    var process = this.processBuilder.start();
+    try (var out = process.getOutputStream()) {
+      writeStringAsBytes(out, String.format("%s%n", name));
+      writeStringAsBytes(out, String.format("%d%n", content.lines().count()));
       if (!content.endsWith("\n")) {
         content += "\n";
       }
-      writeStringAsBytes(os, content);
-      writeStringAsBytes(os, String.format("values.yaml%n"));
-      writeStringAsBytes(os, String.format("%d%n", valuesFileContent.lines().count()));
+      writeStringAsBytes(out, content);
+      writeStringAsBytes(out, String.format("values.yaml%n"));
+      writeStringAsBytes(out, String.format("%d%n", valuesFileContent.lines().count()));
       if (!valuesFileContent.endsWith("\n")) {
         valuesFileContent += "\n";
       }
-      writeStringAsBytes(os, valuesFileContent);
-      writeStringAsBytes(os, String.format("END%n"));
+      writeStringAsBytes(out, valuesFileContent);
+      writeStringAsBytes(out, String.format("END%n"));
     }
     return process;
   }
 
-  private static void writeStringAsBytes(OutputStream os, String content) throws IOException {
-    os.write(content.getBytes(StandardCharsets.UTF_8));
+  private static void writeStringAsBytes(OutputStream out, String content) throws IOException {
+    out.write(content.getBytes(StandardCharsets.UTF_8));
   }
 
   private static void monitorProcess(Process process) {

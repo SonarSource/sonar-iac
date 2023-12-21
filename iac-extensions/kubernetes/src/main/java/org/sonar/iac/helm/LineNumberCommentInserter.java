@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.plugin;
+package org.sonar.iac.helm;
 
 import java.util.regex.Pattern;
 
-public final class HelmPreprocessor {
+public final class LineNumberCommentInserter {
 
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
 
-  private HelmPreprocessor() {
+  private LineNumberCommentInserter() {
   }
 
   /**

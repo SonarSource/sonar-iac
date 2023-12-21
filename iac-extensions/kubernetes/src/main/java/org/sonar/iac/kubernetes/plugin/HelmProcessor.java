@@ -31,6 +31,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
+import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 import static org.sonar.iac.helm.utils.HelmFilesystemUtils.findValuesFile;
 
 @ScannerSide
@@ -63,7 +64,7 @@ public class HelmProcessor {
     }
 
     // TODO: better support of Helm project structure
-    var sourceWithComments = HelmPreprocessor.addLineComments(source);
+    var sourceWithComments = addLineComments(source);
     var valuesFile = findValuesFile(inputFileContext);
     var valuesFileContent = validateAndReadValuesFile(valuesFile, inputFileContext.inputFile);
     return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, valuesFileContent);
@@ -71,18 +72,18 @@ public class HelmProcessor {
 
   private static String validateAndReadValuesFile(@Nullable InputFile valuesFile, InputFile inputFile) {
     if (valuesFile == null) {
-      throw newParseExceptionFor(inputFile, "Failed to find values file", null);
+      throw parseExceptionFor(inputFile, "Failed to find values file", null);
     }
 
     String valuesFileContent;
     try {
       valuesFileContent = valuesFile.contents();
     } catch (IOException e) {
-      throw newParseExceptionFor(inputFile, "Failed to read values file at " + valuesFile, e.getMessage());
+      throw parseExceptionFor(inputFile, "Failed to read values file at " + valuesFile, e.getMessage());
     }
 
     if (valuesFileContent.isBlank()) {
-      throw newParseExceptionFor(inputFile, "Values file at " + valuesFile + " is empty", null);
+      throw parseExceptionFor(inputFile, "Values file at " + valuesFile + " is empty", null);
     }
 
     return valuesFileContent;
@@ -93,11 +94,11 @@ public class HelmProcessor {
       var evaluationResult = helmEvaluator.evaluateTemplate(path, content, valuesFileContent);
       return evaluationResult.getTemplate();
     } catch (IllegalStateException | IOException e) {
-      throw newParseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());
+      throw parseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());
     }
   }
 
-  private static ParseException newParseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
-    return new ParseException("Failed to evaluate Helm file " + inputFile + ": " + cause, inputFile.newPointer(1, 0), details);
+  private static ParseException parseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
+    return new ParseException("Failed to evaluate Helm file " + inputFile + ": " + cause, null, details);
   }
 }

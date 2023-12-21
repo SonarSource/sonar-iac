@@ -24,9 +24,10 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.yaml.YamlFileUtils;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
+
+import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
 public class KubernetesParser extends YamlParser {
 
@@ -72,7 +73,7 @@ public class KubernetesParser extends YamlParser {
   }
 
   public static boolean hasHelmContent(String text) {
-    String[] lines = YamlFileUtils.splitLines(text);
+    String[] lines = splitLines(text);
     for (String line : lines) {
       if (hasHelmContentInLine(line)) {
         return true;
