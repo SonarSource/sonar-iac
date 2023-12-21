@@ -86,7 +86,7 @@ class HelmEvaluatorTest {
       var process = mock(Process.class);
       when(process.isAlive()).thenReturn(false);
       when(process.exitValue()).thenReturn(0);
-      doReturn(process).when(helmEvaluator).startProcess(any(), any(), any(), any());
+      doReturn(process).when(helmEvaluator).startProcess(any(), any(), any());
 
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)
@@ -109,7 +109,7 @@ class HelmEvaluatorTest {
       var pb = mock(ProcessBuilder.class);
       when(pb.command()).thenReturn(Collections.emptyList());
       Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder();
-      Mockito.doReturn(null).when(helmEvaluator).startProcess(any(), any(), any(), any());
+      Mockito.doReturn(null).when(helmEvaluator).startProcess(any(), any(), any());
 
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)

@@ -31,7 +31,6 @@ import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
-import org.sonar.iac.common.yaml.YamlFileUtils;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 
@@ -39,6 +38,7 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD_LIGHT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
+import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
 /*
   * This visitor will highlight kubernetes and helm files based on regex matching.
@@ -63,7 +63,7 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
   }
 
   void highlightContent(String content) {
-    String[] lines = YamlFileUtils.splitLines(content);
+    String[] lines = splitLines(content);
     for (var i = 0; i < lines.length; i++) {
       highlightLine(lines[i], i + 1);
     }
@@ -75,21 +75,21 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
       return;
     }
 
-    var structureMatcher = YamlRegexPattern.STRUCTURES.matcher(line);
+    var structureMatcher = YamlRegexPattern.STRUCTURAL_LINE_PATTERN.matcher(line);
     if (structureMatcher.matches()) {
-      highlightGroupsInMatcher(structureMatcher, YamlRegexPattern.GROUPNAME_TO_TYPE_STRUCTURE, lineNumber);
+      highlightGroupsInMatcher(structureMatcher, YamlRegexPattern.STRUCTURAL_LINE_GROUPNAMES, lineNumber);
       return;
     }
 
-    var combinedMatcher = YamlRegexPattern.COMBINED_PATTERN.matcher(line);
+    var combinedMatcher = YamlRegexPattern.KEY_VALUE_LINE_PATTERN.matcher(line);
     if (combinedMatcher.matches()) {
-      highlightGroupsInMatcher(combinedMatcher, YamlRegexPattern.GROUPNAME_TO_TYPE_COMBINED, lineNumber);
+      highlightGroupsInMatcher(combinedMatcher, YamlRegexPattern.KEY_VALUE_LINE_GROUPNAMES, lineNumber);
       return;
     }
 
-    var scalarMatcher = YamlRegexPattern.SCALAR_VALUE_PATTERN.matcher(line);
+    var scalarMatcher = YamlRegexPattern.VALUE_LINE_PATTERN.matcher(line);
     if (scalarMatcher.matches()) {
-      highlightGroupsInMatcher(scalarMatcher, YamlRegexPattern.GROUPNAME_TO_TYPE_SCALAR_VALUE, lineNumber);
+      highlightGroupsInMatcher(scalarMatcher, YamlRegexPattern.VALUE_LINE_GROUPNAMES, lineNumber);
     }
   }
 
@@ -136,20 +136,20 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     private static final String OPTIONAL_TAG = "(?<tag>!\\H++\\h?+)?+";
     private static final String DIRECTIVES = "(?<directive>%(?:TAG|YAML))\\h*+(?<handle>[!\\d][^#\\h]*+(?:\\h*+[^#\\h]++)?+)";
     private static final String STRUCTURAL_ELEMENTS = "(?<structure>\\.{3}|-{3})";
-    private static final Pattern STRUCTURES = Pattern.compile("\\h*+(?:" + DIRECTIVES + "|" + STRUCTURAL_ELEMENTS + ")\\h*+" + COMMENT_S);
-    private static final String COMBINED = "\\h*+-?+\\h*+(?:" + KEY + "):(?:\\h++" + OPTIONAL_TAG + "(?:" +
+    private static final String KEY_VALUE_LINE = "\\h*+-?+\\h*+(?:" + KEY + "):(?:\\h++" + OPTIONAL_TAG + "(?:" +
       MULTI_LINE_OPERATORS + "|" + VALUE + ")?+)?+\\h*+" + COMMENT_S;
-    private static final Pattern COMBINED_PATTERN = Pattern.compile(COMBINED);
-    private static final String SCALAR_VALUE = "\\h*+-?+\\h*+" + OPTIONAL_TAG + "(?:" + MULTI_LINE_OPERATORS + "|" + VALUE + ")?+\\h*+" + COMMENT_S;
-    private static final Pattern SCALAR_VALUE_PATTERN = Pattern.compile(SCALAR_VALUE);
+    private static final String VALUE_LINE = "\\h*+-?+\\h*+" + OPTIONAL_TAG + "(?:" + MULTI_LINE_OPERATORS + "|" + VALUE + ")?+\\h*+" + COMMENT_S;
+    private static final Pattern STRUCTURAL_LINE_PATTERN = Pattern.compile("\\h*+(?:" + DIRECTIVES + "|" + STRUCTURAL_ELEMENTS + ")\\h*+" + COMMENT_S);
+    private static final Pattern KEY_VALUE_LINE_PATTERN = Pattern.compile(KEY_VALUE_LINE);
+    private static final Pattern VALUE_LINE_PATTERN = Pattern.compile(VALUE_LINE);
 
-    private static final Map<String, TypeOfText> GROUPNAME_TO_TYPE_STRUCTURE = Map.of(
+    private static final Map<String, TypeOfText> STRUCTURAL_LINE_GROUPNAMES = Map.of(
       "directive", KEYWORD_LIGHT,
       "structure", KEYWORD_LIGHT,
       "handle", STRING,
       COMMENT_GROUP_NAME, COMMENT);
 
-    private static final Map<String, TypeOfText> GROUPNAME_TO_TYPE_SCALAR_VALUE = Map.of(
+    private static final Map<String, TypeOfText> VALUE_LINE_GROUPNAMES = Map.of(
       "multilineOperator", KEYWORD_LIGHT,
       DOUBLE_QUOTED_VALUE_GROUP_NAME, STRING,
       SINGLE_QUOTED_VALUE_GROUP_NAME, STRING,
@@ -157,7 +157,7 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
       "tag", KEYWORD_LIGHT,
       COMMENT_GROUP_NAME, COMMENT);
 
-    private static final Map<String, TypeOfText> GROUPNAME_TO_TYPE_COMBINED = Map.of(
+    private static final Map<String, TypeOfText> KEY_VALUE_LINE_GROUPNAMES = Map.of(
       "doubleQuotedKey", KEYWORD,
       "singleQuotedKey", KEYWORD,
       "quotelessKey", KEYWORD,

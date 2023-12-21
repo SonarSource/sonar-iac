@@ -31,6 +31,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
+import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 import static org.sonar.iac.helm.utils.HelmFilesystemUtils.findValuesFile;
 
 @ScannerSide
@@ -63,7 +64,7 @@ public class HelmProcessor {
     }
 
     // TODO: better support of Helm project structure
-    var sourceWithComments = HelmPreprocessor.addLineComments(source);
+    var sourceWithComments = addLineComments(source);
     var valuesFile = findValuesFile(inputFileContext);
     var valuesFileContent = validateAndReadValuesFile(valuesFile, inputFileContext.inputFile);
     return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, valuesFileContent);

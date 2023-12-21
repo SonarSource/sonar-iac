@@ -28,9 +28,10 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.common.yaml.YamlFileUtils;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+
+import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
 /**
  * This visitor has two goals:
@@ -75,7 +76,7 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
 
   public void readLinesSizes(InputFileContext ctx) {
     try {
-      var lines = YamlFileUtils.splitLines(ctx.inputFile.contents());
+      var lines = splitLines(ctx.inputFile.contents());
       for (var lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
         shifter.addLineSize(ctx, lineNumber, lines[lineNumber - 1].length());
       }

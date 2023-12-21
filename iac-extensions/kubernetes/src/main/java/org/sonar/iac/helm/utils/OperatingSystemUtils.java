@@ -40,31 +40,31 @@ public final class OperatingSystemUtils {
   }
 
   /**
-   * Normalize OS name, e.g. map `windows server 2020` to `windows`
+   * Normalize OperatingSystem name, e.g. map `windows server 2020` to `windows`
    */
-  static String getNormalizedOsName(String os) {
-    os = os.toLowerCase(Locale.ROOT);
-    if (os.startsWith("mac") || os.startsWith("darwin")) {
-      os = "darwin";
-    } else if (os.startsWith("win")) {
-      os = "windows";
-    } else if (os.startsWith("linux")) {
-      os = "linux";
+  static String getNormalizedOsName(String operatingSystem) {
+    operatingSystem = operatingSystem.toLowerCase(Locale.ROOT);
+    if (operatingSystem.startsWith("mac") || operatingSystem.startsWith("darwin")) {
+      operatingSystem = "darwin";
+    } else if (operatingSystem.startsWith("win")) {
+      operatingSystem = "windows";
+    } else if (operatingSystem.startsWith("linux")) {
+      operatingSystem = "linux";
     } else {
-      throw new IllegalStateException("Unsupported OS: " + os);
+      throw new IllegalStateException("Unsupported OS: " + operatingSystem);
     }
-    return os;
+    return operatingSystem;
   }
 
-  static String getNormalizedArchName(String arch) {
-    arch = arch.toLowerCase(Locale.ROOT);
-    if ("x86_64".equals(arch) || "amd64".equals(arch)) {
-      arch = "amd64";
-    } else if ("aarch64".equals(arch) || "arm64".equals(arch)) {
-      arch = "arm64";
+  static String getNormalizedArchName(String architecture) {
+    architecture = architecture.toLowerCase(Locale.ROOT);
+    if ("x86_64".equals(architecture) || "amd64".equals(architecture)) {
+      architecture = "amd64";
+    } else if ("aarch64".equals(architecture) || "arm64".equals(architecture)) {
+      architecture = "arm64";
     } else {
-      throw new IllegalStateException("Unsupported architecture: " + arch);
+      throw new IllegalStateException("Unsupported architecture: " + architecture);
     }
-    return arch;
+    return architecture;
   }
 }
