@@ -35,8 +35,8 @@ type InputReaderMock struct {
 	Contents []converters.Content
 }
 
-func (i *InputReaderMock) ReadInput(*bufio.Scanner) []converters.Content {
-	return i.Contents
+func (i *InputReaderMock) ReadInput(*bufio.Scanner) ([]converters.Content, error) {
+	return i.Contents, nil
 }
 
 type FailingProtobufSerializer struct{}
@@ -46,38 +46,22 @@ func (s FailingProtobufSerializer) Serialize(content string, err error) ([]byte,
 }
 
 func Test_no_file_provided(t *testing.T) {
-	code := validateContents([]converters.Content{})
+	err := validateContents([]converters.Content{})
 
-	assert.Equal(t, 1, code)
+	assert.NotNil(t, err)
+	assert.Equal(t, "no input received", err.Error())
 }
 
 func Test_only_one_file_provided(t *testing.T) {
-	code := validateContents([]converters.Content{
+	err := validateContents([]converters.Content{
 		{
 			Name:    "a.yaml",
 			Content: "apiVersion: v1",
 		},
 	})
 
-	assert.Equal(t, 1, code)
-}
-
-func Test_exit_code_with_one_file(t *testing.T) {
-	if os.Getenv("BE_CRASHER") == "1" {
-		main()
-		return
-	}
-	cmd := exec.Command(os.Args[0], "-test.run=Test_exit_code_with_one_file")
-	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
-	stdin, _ := cmd.StdinPipe()
-	defer stdin.Close()
-	cmd.Start()
-	stdin.Write([]byte("foo.yaml\n1\napiVersion: v1\nEND\n"))
-	err := cmd.Wait()
-
-	var e *exec.ExitError
-	errors.As(err, &e)
-	assert.Equal(t, 1, e.ExitCode())
+	assert.NotNil(t, err)
+	assert.Equal(t, "expected 2 files, received 1 files, possible missing values file", err.Error())
 }
 
 func Test_exit_code_with_serialization_error(t *testing.T) {
@@ -403,7 +387,7 @@ foo: bar: baz
 
 	assert.Equal(t, "", result)
 	assert.Equal(t,
-		"error converting YAML to JSON: yaml: line 2: mapping values are not allowed in this context",
+		"error parsing values file: error converting YAML to JSON: yaml: line 2: mapping values are not allowed in this context",
 		err.Error())
 }
 

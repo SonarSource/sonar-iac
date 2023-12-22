@@ -20,6 +20,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
 	"os"
@@ -32,19 +33,17 @@ var stdinReader converters.InputReader = converters.StdinReader{}
 var serializer converters.Serializer = converters.ProtobufSerializer{}
 
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	contents := stdinReader.ReadInput(scanner)
-	if code := validateContents(contents); code != 0 {
-		os.Exit(code)
+	path, rawTemplate, rawValues, processingError := prepareData()
+
+	evaluatedTemplate := ""
+	if processingError == nil {
+		fmt.Fprintf(os.Stderr, "Read in total %d characters from stdin; evaluating template <%s>\n", len(rawTemplate)+len(rawValues), path)
+		evaluatedTemplate, processingError = evaluateTemplateInternal(path, rawTemplate, rawValues)
+	} else {
+		fmt.Fprintf(os.Stderr, "Failed to read input: %s\n", processingError.Error())
 	}
 
-	path := contents[0].Name
-	rawTemplate := contents[0].Content
-	rawValues := contents[1].Content
-	fmt.Fprintf(os.Stderr, "Read in total %d characters from stdin; evaluating template <%s>\n", len(rawTemplate)+len(rawValues), path)
-
-	evaluatedTemplate, err := evaluateTemplateInternal(path, rawTemplate, rawValues)
-	result, err := serializer.Serialize(evaluatedTemplate, err)
+	result, err := serializer.Serialize(evaluatedTemplate, processingError)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to serialize evaluated template to Protobuf: %s\n", err.Error())
 		os.Exit(1)
@@ -53,15 +52,29 @@ func main() {
 	os.Stdout.Write(result)
 }
 
-func validateContents(contents []converters.Content) int {
-	if len(contents) == 0 {
-		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
-		return 1
-	} else if len(contents) != 2 {
-		fmt.Fprintf(os.Stderr, "Expected 2 files, received %d (values.yaml missing?)\n", len(contents))
-		return 1
+func prepareData() (string, string, string, error) {
+	scanner := bufio.NewScanner(os.Stdin)
+	contents, err := stdinReader.ReadInput(scanner)
+	if err != nil {
+		return "", "", "", fmt.Errorf("error reading content: %w", err)
 	}
-	return 0
+	if err = validateContents(contents); err != nil {
+		return "", "", "", fmt.Errorf("error validating content: %w", err)
+	}
+
+	path := contents[0].Name
+	rawTemplate := contents[0].Content
+	rawValues := contents[1].Content
+	return path, rawTemplate, rawValues, nil
+}
+
+func validateContents(contents []converters.Content) error {
+	if len(contents) == 0 {
+		return errors.New("no input received")
+	} else if len(contents) != 2 {
+		return fmt.Errorf("expected 2 files, received %d files, possible missing values file", len(contents))
+	}
+	return nil
 }
 
 var handles []*template.Template
@@ -91,7 +104,7 @@ func newHandleID(name string, content string) (int, error) {
 func executeWithValues(templateId int, valuesFileContent string) (string, error) {
 	valuesMap, err := yamlToMap(valuesFileContent)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error parsing values file: %w", err)
 	}
 	vals := struct {
 		Values map[string]interface{}

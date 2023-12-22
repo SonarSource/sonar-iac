@@ -63,9 +63,9 @@ public class HelmEvaluator {
     byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
     if (rawEvaluationResult == null || rawEvaluationResult.length == 0) {
       if (!process.isAlive() && process.exitValue() != 0) {
-        throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " exited with non-zero exit code: " + process.exitValue());
+        throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " exited with non-zero exit code: " + process.exitValue() + ", possible serialization failure");
       }
-      throw new IllegalStateException("Empty evaluation result (serialization failed?)");
+      throw new IllegalStateException("Empty evaluation result returned from " + HELM_FOR_IAC_EXECUTABLE);
     }
 
     try {

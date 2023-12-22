@@ -176,8 +176,8 @@
         </property>
       </activation>
       <properties>
-        <archive.size.max>15000000</archive.size.max>
-        <archive.size.min>14000000</archive.size.min>
+        <archive.size.max>15500000</archive.size.max>
+        <archive.size.min>14500000</archive.size.min>
       </properties>
     </profile>
     <profile>
