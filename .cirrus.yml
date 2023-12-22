@@ -62,7 +62,7 @@ linux_image_with_gcc_template: &LINUX_IMAGE_WITH_GCC
   namespace: default
   use_in_memory_disk: true
 
-linux_1_cpu_1G_template: &LINUX_1_CPU_1G
+linux_1_cpu_2G_template: &LINUX_1_CPU_2G
   eks_container:
     <<: *LINUX_IMAGE
     cpu: 1
@@ -210,7 +210,7 @@ promote_task:
     - qa_ruling
     - qa_plugin
   <<: *ONLY_IF_SONARSOURCE_QA
-  <<: *LINUX_1_CPU_1G
+  <<: *LINUX_1_CPU_2G
 #  <<: *SETUP_GRADLE_CACHE
   env:
     <<: *PROMOTE_SECRETS
