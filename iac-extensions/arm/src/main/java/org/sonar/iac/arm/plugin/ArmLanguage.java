@@ -38,7 +38,7 @@ public class ArmLanguage extends AbstractLanguage {
   @Override
   public String[] getFileSuffixes() {
     String[] suffixes = Arrays.stream(configuration.getStringArray(ArmSettings.FILE_SUFFIXES_KEY))
-      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
+      .filter(s -> !s.isBlank()).toArray(String[]::new);
     if (suffixes.length > 0) {
       return suffixes;
     }
