@@ -105,6 +105,26 @@ class PropertiesTest extends TestBase {
     executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
   }
 
+  // The active property will always win over the deprecated one if set
+  @ParameterizedTest
+  @CsvSource(delimiter = ';', value = {
+    "armDeprecatedPropertyTestActivePropertyEnabledDeprecatedPropertyDisabled; false; true; 22",
+    "armDeprecatedPropertyTestDeprecatedPropertyEnabledActivePropertyDisabled; true; false;",
+    "armDeprecatedPropertyTestOnlyActivePropertyDisabled;; false;",
+    "armDeprecatedPropertyTestOnlyDeprecatedPropertyDisabled; false;;",
+  })
+  void testDeprecatedArmActivationPropertyKey(String projectKey, Boolean armPropertyValue, Boolean azureresourcemanagerPropertyValue, Integer expectedNcloc) {
+    SonarScanner sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + "suffixes/", "azureresourcemanager");
+    if (armPropertyValue != null) {
+      sonarScanner.setProperty("sonar.arm.activate", armPropertyValue.toString());
+    }
+    if (azureresourcemanagerPropertyValue != null) {
+      sonarScanner.setProperty("sonar.azureresourcemanager.activate", azureresourcemanagerPropertyValue.toString());
+    }
+    ORCHESTRATOR.executeBuild(sonarScanner);
+    assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNcloc);
+  }
+
   private void executeBuildAndAssertMetric(
     String projectKey, String language,
     String propertySuffix, String propertyValue,

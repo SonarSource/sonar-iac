@@ -29,12 +29,13 @@ public class ArmSettings {
 
   private static final String ARM_CATEGORY = "AzureResourceManager";
   private static final String GENERAL_SUBCATEGORY = "General";
+  protected static final String PROPERTY_KEY_PREFIX = "sonar." + ArmLanguage.KEY;
 
-  protected static final String ACTIVATION_KEY = "sonar.arm.activate";
+  protected static final String ACTIVATION_KEY = PROPERTY_KEY_PREFIX + ".activate";
   protected static final String ACTIVATION_DEFAULT_VALUE = "true";
-  protected static final String FILE_SUFFIXES_KEY = "sonar.azureresourcemanager.file.suffixes";
+  protected static final String FILE_SUFFIXES_KEY = PROPERTY_KEY_PREFIX + ".file.suffixes";
   protected static final String FILE_SUFFIXES_DEFAULT_VALUE = ".bicep";
-  protected static final String FILE_IDENTIFIER_KEY = "sonar.arm.file.identifier";
+  protected static final String FILE_IDENTIFIER_KEY = PROPERTY_KEY_PREFIX + ".file.identifier";
   protected static final String FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/";
 
   private ArmSettings() {
@@ -51,6 +52,7 @@ public class ArmSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(ARM_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
+        .deprecatedKey("sonar.arm.activate")
         .build(),
 
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
@@ -72,6 +74,7 @@ public class ArmSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(ARM_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
+        .deprecatedKey("sonar.arm.file.identifier")
         .build());
   }
 }
