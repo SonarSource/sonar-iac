@@ -15,7 +15,3 @@ dependencies {
     "integrationTestImplementation"(libs.sonar.lint)
     "integrationTestImplementation"(libs.sonar.plugin.api)
 }
-
-tasks.integrationTest {
-    inputs.files("../../sonar-iac-plugin/build/libs")
-}

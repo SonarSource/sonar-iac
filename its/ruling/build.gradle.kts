@@ -14,7 +14,3 @@ dependencies {
     "integrationTestImplementation"(libs.sonar.orchestrator)
     "integrationTestImplementation"(libs.sonar.orchestrator.junit5)
 }
-
-tasks.integrationTest {
-    inputs.files("$projectDir/projects", "../../sonar-iac-plugin/build/libs")
-}

@@ -62,6 +62,7 @@ tasks.register<Exec>("testGoCode") {
     description = "Test the executable produced by the compile go code step."
     group = "build"
 
+    dependsOn("compileGoCode")
     callMake(this, "test")
     doLast {
         println("testGoCode")
@@ -72,7 +73,7 @@ tasks.named("clean") {
     dependsOn("cleanGoCode")
 }
 
-tasks.named("build") {
+tasks.named("assemble") {
     dependsOn("compileGoCode")
 }
 
