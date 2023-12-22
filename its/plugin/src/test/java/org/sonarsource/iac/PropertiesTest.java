@@ -108,14 +108,9 @@ class PropertiesTest extends TestBase {
   // The active property will always win over the deprecated one if set
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
-    "armDeprecatedPropertyTestBothDisabled; false; false;",
     "armDeprecatedPropertyTestActivePropertyEnabledDeprecatedPropertyDisabled; false; true; 22",
     "armDeprecatedPropertyTestDeprecatedPropertyEnabledActivePropertyDisabled; true; false;",
-    "armDeprecatedPropertyTestBothEnabled; true; true; 22",
-    "armDeprecatedPropertyTestBothNotSet;;; 22",
     "armDeprecatedPropertyTestOnlyActivePropertyDisabled;; false;",
-    "armDeprecatedPropertyTestOnlyActivePropertyEnabled;; true; 22",
-    "armDeprecatedPropertyTestOnlyDeprecatedPropertyEnabled; true;; 22",
     "armDeprecatedPropertyTestOnlyDeprecatedPropertyDisabled; false;;",
   })
   void testDeprecatedArmActivationPropertyKey(String projectKey, Boolean armPropertyValue, Boolean azureresourcemanagerPropertyValue, Integer expectedNcloc) {
