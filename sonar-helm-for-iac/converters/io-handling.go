@@ -63,7 +63,10 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]Content, error) {
 		var content string
 		contentResult := mo.TupleToResult(s.readInput(scanner, 1)).FlatMap(
 			func(lengthStr string) mo.Result[string] {
-				length, _ := strconv.Atoi(lengthStr)
+				length, err := strconv.Atoi(lengthStr)
+				if err != nil {
+					return mo.Err[string](err)
+				}
 				fmt.Fprintf(os.Stderr, "Reading %d lines from stdin\n", length)
 				return mo.TupleToResult(s.readInput(scanner, length))
 			})
@@ -90,7 +93,7 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]Content, error) {
 // If nLines is negative, reads all lines until EOF.
 func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) (string, error) {
 	if nLines == 0 {
-		return "", errors.New("won't read 0 lines")
+		return "", errors.New("request to read 0 lines aborted")
 	}
 	rawInput := make([][]byte, 0)
 	linesToRead := nLines

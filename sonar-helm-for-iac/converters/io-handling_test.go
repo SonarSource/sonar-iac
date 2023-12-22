@@ -97,7 +97,7 @@ func Test_should_stop_if_zero_length(t *testing.T) {
 	contents, err := stdinReader.ReadInput(scanner)
 
 	assert.Nil(t, contents)
-	assert.EqualError(t, err, "won't read 0 lines")
+	assert.EqualError(t, err, "request to read 0 lines aborted")
 }
 
 type ReaderWithError struct {

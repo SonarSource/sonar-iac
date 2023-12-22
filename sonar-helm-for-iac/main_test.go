@@ -49,7 +49,7 @@ func Test_no_file_provided(t *testing.T) {
 	err := validateContents([]converters.Content{})
 
 	assert.NotNil(t, err)
-	assert.Equal(t, "received empty input", err.Error())
+	assert.Equal(t, "no input received", err.Error())
 }
 
 func Test_only_one_file_provided(t *testing.T) {
@@ -61,7 +61,7 @@ func Test_only_one_file_provided(t *testing.T) {
 	})
 
 	assert.NotNil(t, err)
-	assert.Equal(t, "expected 2 files, received 1 (values.yaml missing?)", err.Error())
+	assert.Equal(t, "expected 2 files, received 1 files, possible missing values file", err.Error())
 }
 
 func Test_exit_code_with_serialization_error(t *testing.T) {

@@ -69,7 +69,7 @@ class HelmEvaluatorTest {
   void shouldThrowIfGoBinaryRejectsEmptyInput() {
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Evaluation error in Go library: read input: won't read 0 lines");
+      .hasMessage("Evaluation error in Go library: error reading content: request to read 0 lines aborted");
 
     Assertions.assertThat(logTester.logs(Level.DEBUG))
       .contains("[sonar-helm-for-iac] Reading 0 lines from stdin");
@@ -87,7 +87,7 @@ class HelmEvaluatorTest {
 
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)
-        .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1");
+        .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1, possible serialization failure");
     }
   }
 
@@ -105,7 +105,7 @@ class HelmEvaluatorTest {
 
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
         .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Empty evaluation result (serialization failed?)");
+        .hasMessage("Empty evaluation result returned from sonar-helm-for-iac");
     }
   }
 

@@ -56,10 +56,10 @@ func prepareData() (string, string, string, error) {
 	scanner := bufio.NewScanner(os.Stdin)
 	contents, err := stdinReader.ReadInput(scanner)
 	if err != nil {
-		return "", "", "", fmt.Errorf("read input: %w", err)
+		return "", "", "", fmt.Errorf("error reading content: %w", err)
 	}
 	if err = validateContents(contents); err != nil {
-		return "", "", "", fmt.Errorf("validate contents: %w", err)
+		return "", "", "", fmt.Errorf("error validating content: %w", err)
 	}
 
 	path := contents[0].Name
@@ -70,9 +70,9 @@ func prepareData() (string, string, string, error) {
 
 func validateContents(contents []converters.Content) error {
 	if len(contents) == 0 {
-		return errors.New("received empty input")
+		return errors.New("no input received")
 	} else if len(contents) != 2 {
-		return fmt.Errorf("expected 2 files, received %d (values.yaml missing?)", len(contents))
+		return fmt.Errorf("expected 2 files, received %d files, possible missing values file", len(contents))
 	}
 	return nil
 }
