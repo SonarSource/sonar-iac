@@ -19,6 +19,7 @@
  */
 package org.sonarsource.iac;
 
+import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -58,6 +59,7 @@ class PropertiesTest extends TestBase {
   @CsvSource(delimiter = ';', value = {
     "dockerCustomFilenamePatternsDefaultValue;  Dockerfile,*.dockerfile; 4",
     // Empty property defaults to default value
+    "dockerCustomFilenamePatternsNoPropertyDefined;; 4",
     "dockerCustomFilenamePatternsEmpty; ''; 4",
     "dockerCustomFilenamePatternsWithEmptyValueInside; Dockerfile,  ,*.dockerfile; 4",
     // Dockerfile.* are scanned by default and can't be disabled at the moment
@@ -70,7 +72,8 @@ class PropertiesTest extends TestBase {
 
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
-    "jsonDefaultSuffix; json; ''; 9",
+    "jsonDefaultSuffixNoProvidedProperty; json;; 9",
+    "jsonDefaultSuffixEmptyPropertyValue; json; ''; 9",
     "jsonCustomSuffix; json; .jsn; 9",
     "jsonExtendedSuffix; json; .json,.jsn; 18"
   })
@@ -81,7 +84,8 @@ class PropertiesTest extends TestBase {
 
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
-    "yamlDefaultSuffix; yaml; ''; 10",
+    "yamlDefaultSuffixNoProvidedProperty; yaml;; 10",
+    "yamlDefaultSuffixEmptyPropertyValue; yaml; ''; 10",
     "yamlCustomSuffix; yaml; .rml; 5",
     "yamlExtendedSuffix; yaml; .yml,.yaml,.rml; 15"
   })
@@ -90,12 +94,26 @@ class PropertiesTest extends TestBase {
     executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
   }
 
+  @ParameterizedTest
+  @CsvSource(delimiter = ';', value = {
+    "armDefaultSuffixNoProvidedProperty; azureresourcemanager;; 22",
+    "armDefaultSuffixEmptyPropertyValue; azureresourcemanager; ''; 22",
+    "armCustomSuffix; azureresourcemanager; .bicep; 22",
+    "armExtendedSuffix; azureresourcemanager; .bicep,.tricep; 44"
+  })
+  void testArmSuffix(String projectKey, String language, String suffixes, int expectedNcloc) {
+    executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
+  }
+
   private void executeBuildAndAssertMetric(
     String projectKey, String language,
     String propertySuffix, String propertyValue,
     String metricKey, int expectedResultOfMetric) {
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + propertySuffix + "/", language)
-      .setProperty("sonar." + language + ".file." + propertySuffix, propertyValue));
+    SonarScanner sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + propertySuffix + "/", language);
+    if (propertyValue != null) {
+      sonarScanner.setProperty("sonar." + language + ".file." + propertySuffix, propertyValue);
+    }
+    ORCHESTRATOR.executeBuild(sonarScanner);
     assertThat(getMeasureAsInt(projectKey, metricKey)).isEqualTo(expectedResultOfMetric);
   }
 
