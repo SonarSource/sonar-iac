@@ -28,7 +28,9 @@ import (
 	"strings"
 )
 
-type Content struct {
+// SourceCode represents a source file which is passed from the Helm evaluator.
+// Can be template itself, values.yaml or any imported file.
+type SourceCode struct {
 	Name    string
 	Content string
 }
@@ -36,18 +38,18 @@ type Content struct {
 type InputReader interface {
 	// ReadInput
 	// Reads from the given scanner expecting the following format:
-	// <template name>
+	// <file name>
 	// <number of lines to read>
-	// <template content>
-	// ...
+	// <file content>
+	// [<more blocks in the format above>]
 	// END
-	ReadInput(scanner *bufio.Scanner) ([]Content, error)
+	ReadInput(scanner *bufio.Scanner) ([]SourceCode, error)
 }
 
 type StdinReader struct{}
 
-func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]Content, error) {
-	contents := make([]Content, 0)
+func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]SourceCode, error) {
+	contents := make([]SourceCode, 0)
 	firstLine, err := s.readInput(scanner, 1)
 	if err != nil {
 		return nil, err
@@ -82,7 +84,7 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]Content, error) {
 			return nil, err
 		}
 
-		contents = append(contents, Content{Name: name, Content: content})
+		contents = append(contents, SourceCode{Name: name, Content: content})
 	}
 	fmt.Fprintf(os.Stderr, "Received END signal, exiting\n")
 	return contents, nil

@@ -32,10 +32,10 @@ import (
 )
 
 type InputReaderMock struct {
-	Contents []converters.Content
+	Contents []converters.SourceCode
 }
 
-func (i *InputReaderMock) ReadInput(*bufio.Scanner) ([]converters.Content, error) {
+func (i *InputReaderMock) ReadInput(*bufio.Scanner) ([]converters.SourceCode, error) {
 	return i.Contents, nil
 }
 
@@ -46,14 +46,14 @@ func (s FailingProtobufSerializer) Serialize(content string, err error) ([]byte,
 }
 
 func Test_no_file_provided(t *testing.T) {
-	err := validateContents([]converters.Content{})
+	err := validateInput([]converters.SourceCode{})
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "no input received", err.Error())
 }
 
 func Test_only_one_file_provided(t *testing.T) {
-	err := validateContents([]converters.Content{
+	err := validateInput([]converters.SourceCode{
 		{
 			Name:    "a.yaml",
 			Content: "apiVersion: v1",
@@ -85,7 +85,7 @@ func Test_exit_code_with_serialization_error(t *testing.T) {
 
 func Test_two_files_provided(t *testing.T) {
 	stdinReader = &InputReaderMock{
-		Contents: []converters.Content{
+		Contents: []converters.SourceCode{
 			{
 				Name:    "a.yaml",
 				Content: "apiVersion: v1",
@@ -139,7 +139,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplateInternal("a.yaml", template, values)
+	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
 
 	assert.Equal(t, expected, result)
 }
@@ -164,7 +164,7 @@ spec:
 container: foo
 `
 
-	result, err := evaluateTemplateInternal("a.yaml", template, values)
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
 
 	assert.Equal(t, "", result)
 	assert.Equal(t,
@@ -204,7 +204,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplateInternal("a.yaml", template, "")
+	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, ""})
 
 	assert.Equal(t, expected, result)
 }
@@ -240,7 +240,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplateInternal("a.yaml", template, "")
+	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, ""})
 
 	assert.Equal(t, expected, result)
 }
@@ -288,7 +288,7 @@ metadata:
 spec:
 `
 
-	result, err := evaluateTemplateInternal("a.yaml", template, values)
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
 
 	assert.Equal(t, expected, result)
 	assert.Equal(t, nil, err)
@@ -359,7 +359,7 @@ fromJsonArrayError: [unexpected end of JSON input]
 toTomlExample: "age = 25.0\nname = \"Bob\"\n"
 `
 
-	result, err := evaluateTemplateInternal("a.yaml", template, values)
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
 
 	assert.Equal(t, expected, result)
 	assert.Equal(t, nil, err)
@@ -369,7 +369,7 @@ func Test_evaluate_invalid_template(t *testing.T) {
 	template := `
 apiVersion: {{ hello
 `
-	result, err := evaluateTemplateInternal("a.yaml", template, "")
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, ""})
 
 	assert.Equal(t, "", result)
 	assert.Equal(t, "template: a.yaml:2: function \"hello\" not defined", err.Error())
@@ -383,7 +383,7 @@ apiVersion: v1
 foo: bar: baz
 `
 
-	result, err := evaluateTemplateInternal("a.yaml", template, values)
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
 
 	assert.Equal(t, "", result)
 	assert.Equal(t,
@@ -395,7 +395,7 @@ func Test_to_protobuf_valid(t *testing.T) {
 	template := "apiVersion: {{ .Values.api }}"
 	values := "api: v1"
 
-	evaluatedTemplate, err := evaluateTemplateInternal("a.yaml", template, values)
+	evaluatedTemplate, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
 	result, err := serializer.Serialize(evaluatedTemplate, err)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
@@ -408,7 +408,7 @@ func Test_to_protobuf_valid(t *testing.T) {
 func Test_to_protobuf_invalid(t *testing.T) {
 	template := "apiVersion: {{ .Values.api"
 
-	evaluatedTemplate, err := evaluateTemplateInternal("a.yaml", template, "")
+	evaluatedTemplate, err := evaluateTemplate(&TemplateSources{"a.yaml", template, ""})
 	result, err := serializer.Serialize(evaluatedTemplate, err)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
@@ -453,7 +453,7 @@ protocol: UDP
             protocol: "UDP"
   `
 
-	result, _ := evaluateTemplateInternal("a.yaml", template, values)
+	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
 
 	assert.Equal(t, expected, result)
 }
