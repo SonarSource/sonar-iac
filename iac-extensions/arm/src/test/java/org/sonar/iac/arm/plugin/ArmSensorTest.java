@@ -93,7 +93,7 @@ class ArmSensorTest extends ExtensionSensorTest {
 
   @Override
   protected ArmSensor sensor(CheckFactory checkFactory) {
-    return new ArmSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new ArmLanguage());
+    return new ArmSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new ArmLanguage(new MapSettings().asConfig()));
   }
 
   private ArmSensor sensor(String... rules) {

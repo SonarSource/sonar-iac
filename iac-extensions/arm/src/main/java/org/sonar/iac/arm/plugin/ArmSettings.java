@@ -30,11 +30,12 @@ public class ArmSettings {
   private static final String ARM_CATEGORY = "AzureResourceManager";
   private static final String GENERAL_SUBCATEGORY = "General";
 
-  static final String ACTIVATION_KEY = "sonar.arm.activate";
-  static final String ACTIVATION_DEFAULT_VALUE = "true";
-
-  static final String FILE_IDENTIFIER_KEY = "sonar.arm.file.identifier";
-  static final String FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/";
+  protected static final String ACTIVATION_KEY = "sonar.arm.activate";
+  protected static final String ACTIVATION_DEFAULT_VALUE = "true";
+  protected static final String FILE_SUFFIXES_KEY = "sonar.azureresourcemanager.file.suffixes";
+  protected static final String FILE_SUFFIXES_DEFAULT_VALUE = ".bicep";
+  protected static final String FILE_IDENTIFIER_KEY = "sonar.arm.file.identifier";
+  protected static final String FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/";
 
   private ArmSettings() {
   }
@@ -49,6 +50,17 @@ public class ArmSettings {
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .category(ARM_CATEGORY)
+        .subCategory(GENERAL_SUBCATEGORY)
+        .build(),
+
+      PropertyDefinition.builder(FILE_SUFFIXES_KEY)
+        .index(2)
+        .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
+        .name("File Suffixes")
+        .description("List of suffixes of AzureResourceManager files to analyze next to JSON.")
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(ARM_CATEGORY)
+        .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
 

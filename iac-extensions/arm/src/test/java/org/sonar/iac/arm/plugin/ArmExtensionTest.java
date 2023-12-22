@@ -34,11 +34,11 @@ class ArmExtensionTest {
   private static final Version VERSION_10_0 = Version.create(10, 0);
 
   @Test
-  void sonarqube_extensions() {
+  void sonarqubeExtensionsShouldBeDefined() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_10_0, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     ArmExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(6);
+    assertThat(context.getExtensions()).hasSize(7);
   }
 
 }

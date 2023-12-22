@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.arm.plugin;
 
+import java.util.Arrays;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
 public class ArmLanguage extends AbstractLanguage {
@@ -26,12 +28,20 @@ public class ArmLanguage extends AbstractLanguage {
   public static final String KEY = "azureresourcemanager";
   public static final String NAME = "AzureResourceManager";
 
-  public ArmLanguage() {
+  private final Configuration configuration;
+
+  public ArmLanguage(Configuration configuration) {
     super(KEY, NAME);
+    this.configuration = configuration;
   }
 
   @Override
   public String[] getFileSuffixes() {
-    return new String[] {".bicep"};
+    String[] suffixes = Arrays.stream(configuration.getStringArray(ArmSettings.FILE_SUFFIXES_KEY))
+      .filter(s -> !s.isBlank()).toArray(String[]::new);
+    if (suffixes.length > 0) {
+      return suffixes;
+    }
+    return ArmSettings.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
   }
 }
