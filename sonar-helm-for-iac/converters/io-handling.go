@@ -48,40 +48,53 @@ type InputReader interface {
 
 type StdinReader struct{}
 
+func FlatMap[T, V any](mapper func(T) mo.Result[V], result mo.Result[T]) mo.Result[V] {
+	if result.IsOk() {
+		return mapper(result.MustGet())
+	}
+	return mo.Err[V](result.Error())
+}
+
+func Map[T, V any](mapper func(T) (V, error), result mo.Result[T]) mo.Result[V] {
+	if result.IsOk() {
+		return mo.TupleToResult(mapper(result.MustGet()))
+	}
+	return mo.Err[V](result.Error())
+}
+
 func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]SourceCode, error) {
 	contents := make([]SourceCode, 0)
-	firstLine, err := s.readInput(scanner, 1)
-	if err != nil {
-		return nil, err
+	firstLine := s.readInput(scanner, 1)
+	if firstLine.IsError() {
+		return nil, firstLine.Error()
 	}
-	if firstLine == "" {
+	if firstLine.MustGet() == "" {
 		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
 		return contents, nil
 	}
 
-	for firstLine != "END" {
-		name := firstLine
+	for firstLine.MustGet() != "END" {
+		name := firstLine.MustGet()
 
 		var content string
-		contentResult := mo.TupleToResult(s.readInput(scanner, 1)).FlatMap(
-			func(lengthStr string) mo.Result[string] {
-				length, err := strconv.Atoi(lengthStr)
-				if err != nil {
-					return mo.Err[string](err)
-				}
-				fmt.Fprintf(os.Stderr, "Reading %d lines from stdin\n", length)
-				return mo.TupleToResult(s.readInput(scanner, length))
-			})
+		contentResult :=
+			FlatMap(
+				func(length int) mo.Result[string] {
+					fmt.Fprintf(os.Stderr, "Reading %d lines from stdin\n", length)
+					return s.readInput(scanner, length)
+				},
+				Map(strconv.Atoi,
+					s.readInput(scanner, 1)))
 		if contentResult.IsOk() {
 			content = contentResult.MustGet()
 		}
 
-		firstLine, err = contentResult.FlatMap(func(string) mo.Result[string] {
-			return mo.TupleToResult(s.readInput(scanner, 1))
-		}).Get()
+		firstLine = contentResult.FlatMap(func(string) mo.Result[string] {
+			return s.readInput(scanner, 1)
+		})
 
-		if err != nil {
-			return nil, err
+		if firstLine.IsError() {
+			return nil, firstLine.Error()
 		}
 
 		contents = append(contents, SourceCode{Name: name, Content: content})
@@ -93,9 +106,9 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]SourceCode, error) {
 // readInput
 // Reads nLines from the given scanner and returns as a single string.
 // If nLines is negative, reads all lines until EOF.
-func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) (string, error) {
+func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) mo.Result[string] {
 	if nLines == 0 {
-		return "", errors.New("request to read 0 lines aborted")
+		return mo.Err[string](errors.New("request to read 0 lines aborted"))
 	}
 	rawInput := make([][]byte, 0)
 	linesToRead := nLines
@@ -107,13 +120,13 @@ func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) (string, erro
 		}
 	}
 	// if scanner has encountered an error, scanner.Err will return it here
-	return bytesToString(rawInput), scanner.Err()
+	return Map[[][]byte, string](bytesToString, mo.TupleToResult(rawInput, scanner.Err()))
 }
 
-func bytesToString(input [][]byte) string {
+func bytesToString(input [][]byte) (string, error) {
 	result := make([]string, len(input))
 	for i, b := range input {
 		result[i] = string(b)
 	}
-	return strings.Join(result, "\n")
+	return strings.Join(result, "\n"), nil
 }

@@ -46,17 +46,17 @@ func Test_read_with_end_marker(t *testing.T) {
 func Test_read_n_lines_from_input(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("line1\nline2\nline3"))
 	stdinReader := StdinReader{}
-	lines, _ := stdinReader.readInput(scanner, 2)
+	lines := stdinReader.readInput(scanner, 2)
 
-	assert.Equal(t, "line1\nline2", lines)
+	assert.Equal(t, "line1\nline2", lines.MustGet())
 }
 
 func Test_read_all_lines_from_input(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("line1\nline2\nline3"))
 	stdinReader := StdinReader{}
-	lines, _ := stdinReader.readInput(scanner, -1)
+	lines := stdinReader.readInput(scanner, -1)
 
-	assert.Equal(t, "line1\nline2\nline3", lines)
+	assert.Equal(t, "line1\nline2\nline3", lines.MustGet())
 }
 
 func Test_read_one_file(t *testing.T) {
