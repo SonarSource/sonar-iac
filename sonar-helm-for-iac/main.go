@@ -32,13 +32,30 @@ import (
 var stdinReader converters.InputReader = converters.StdinReader{}
 var serializer converters.Serializer = converters.ProtobufSerializer{}
 
+// TemplateSources contains all the sources needed to evaluate a template
+type TemplateSources struct {
+	Name        string
+	RawTemplate string
+	RawValues   string
+}
+
+// NumSources returns the number of sources required for this template.
+// Currently, we only use the template and values files; in the future other files will be included.
+func (ts *TemplateSources) NumSources() int {
+	return 2
+}
+
+func NewTemplateSourcesFromRawSources(rawSources []converters.SourceCode) *TemplateSources {
+	return &TemplateSources{rawSources[0].Name, rawSources[0].Content, rawSources[1].Content}
+}
+
 func main() {
-	path, rawTemplate, rawValues, processingError := prepareData()
+	templateSources, processingError := readAndValidateSources()
 
 	evaluatedTemplate := ""
 	if processingError == nil {
-		fmt.Fprintf(os.Stderr, "Read in total %d characters from stdin; evaluating template <%s>\n", len(rawTemplate)+len(rawValues), path)
-		evaluatedTemplate, processingError = evaluateTemplateInternal(path, rawTemplate, rawValues)
+		fmt.Fprintf(os.Stderr, "Read in total %d files from stdin; evaluating template <%s>\n", templateSources.NumSources(), templateSources.Name)
+		evaluatedTemplate, processingError = evaluateTemplate(templateSources)
 	} else {
 		fmt.Fprintf(os.Stderr, "Failed to read input: %s\n", processingError.Error())
 	}
@@ -52,78 +69,69 @@ func main() {
 	os.Stdout.Write(result)
 }
 
-func prepareData() (string, string, string, error) {
+func readAndValidateSources() (*TemplateSources, error) {
 	scanner := bufio.NewScanner(os.Stdin)
-	contents, err := stdinReader.ReadInput(scanner)
+	sources, err := stdinReader.ReadInput(scanner)
 	if err != nil {
-		return "", "", "", fmt.Errorf("error reading content: %w", err)
+		return nil, fmt.Errorf("error reading content: %w", err)
 	}
-	if err = validateContents(contents); err != nil {
-		return "", "", "", fmt.Errorf("error validating content: %w", err)
+	if err = validateInput(sources); err != nil {
+		return nil, fmt.Errorf("error validating content: %w", err)
 	}
 
-	path := contents[0].Name
-	rawTemplate := contents[0].Content
-	rawValues := contents[1].Content
-	return path, rawTemplate, rawValues, nil
+	return NewTemplateSourcesFromRawSources(sources), nil
 }
 
-func validateContents(contents []converters.Content) error {
-	if len(contents) == 0 {
+func validateInput(sources []converters.SourceCode) error {
+	if len(sources) == 0 {
 		return errors.New("no input received")
-	} else if len(contents) != 2 {
-		return fmt.Errorf("expected 2 files, received %d files, possible missing values file", len(contents))
+	} else if len(sources) != 2 {
+		return fmt.Errorf("expected 2 files, received %d files, possible missing values file", len(sources))
 	}
 	return nil
 }
 
-var handles []*template.Template
-
-// For tests, the C code doesn't work in tests
-func evaluateTemplateInternal(path string, content string, valuesFileContent string) (string, error) {
-	templateId, err := newHandleID(path, content)
+func evaluateTemplate(templateSources *TemplateSources) (string, error) {
+	tmpl, err := newTemplate(templateSources.Name, templateSources.RawTemplate)
 	if err != nil {
 		return "", err
 	}
-	return executeWithValues(templateId, valuesFileContent)
+	return executeWithValues(tmpl, templateSources.RawValues)
 }
 
-// Create a template with name and expression and return its handle (a numeric ID to access the template later)
-func newHandleID(name string, content string) (int, error) {
-	t := template.New(name)
-	t.Funcs(*addCustomFunctions())
-	t, err := t.Parse(content)
+func newTemplate(name string, content string) (*template.Template, error) {
+	tmpl := template.New(name)
+	tmpl.Funcs(*addCustomFunctions())
+	tmpl, err := tmpl.Parse(content)
 	if err != nil {
-		return -1, err
+		return nil, err
 	}
 
-	handles = append(handles, t)
-	return len(handles) - 1, nil
+	return tmpl, nil
 }
 
-func executeWithValues(templateId int, valuesFileContent string) (string, error) {
-	valuesMap, err := yamlToMap(valuesFileContent)
+func executeWithValues(tmpl *template.Template, valuesFileContent string) (string, error) {
+	valuesMap, err := unmarshalYamlToMap(valuesFileContent)
 	if err != nil {
 		return "", fmt.Errorf("error parsing values file: %w", err)
 	}
-	vals := struct {
+	values := struct {
 		Values map[string]interface{}
 	}{valuesMap}
 
-	tmpl := handles[templateId]
 	var buf strings.Builder
-	err = tmpl.Execute(&buf, vals)
+	err = tmpl.Execute(&buf, values)
 	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil
 }
 
-func yamlToMap(input string) (map[string]interface{}, error) {
-	vals := map[string]interface{}{}
-	err := yaml.Unmarshal([]byte(input), &vals)
-	if len(vals) == 0 {
-		vals = map[string]interface{}{}
+func unmarshalYamlToMap(input string) (map[string]interface{}, error) {
+	values := map[string]interface{}{}
+	err := yaml.Unmarshal([]byte(input), &values)
+	if len(values) == 0 {
+		values = map[string]interface{}{}
 	}
-	return vals, err
+	return values, err
 }
