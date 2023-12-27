@@ -43,3 +43,6 @@ Desktop.ini
 # In case of manual Go compilation
 sonar-helm-for-iac/sonar-helm-for-iac
 **/sonar-helm-for-iac.exe
+
+#Docker cache
+sonar-helm-for-iac/.cache/*
