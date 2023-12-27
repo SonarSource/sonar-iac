@@ -107,8 +107,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>16000000</maxsize>
-                  <minsize>15000000</minsize>
+                  <maxsize>${archive.size.max}</maxsize>
+                  <minsize>${archive.size.min}</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
@@ -165,4 +165,32 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>local-windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <archive.size.max>16000000</archive.size.max>
+        <archive.size.min>15000000</archive.size.min>
+      </properties>
+    </profile>
+    <!-- The CI build on Windows on CI build only one executable so the JAR is smaller -->
+    <profile>
+      <id>not-windows</id>
+      <activation>
+        <os>
+          <family>!windows</family>
+        </os>
+      </activation>
+      <properties>
+        <archive.size.max>10000000</archive.size.max>
+        <archive.size.min>8000000</archive.size.min>
+      </properties>
+    </profile>
+  </profiles>
 </project>
