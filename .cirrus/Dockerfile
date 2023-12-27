@@ -1,5 +1,5 @@
 ARG CIRRUS_AWS_ACCOUNT
-FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base-pr-419:j17-latest
+FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
 
 ARG GO_VERSION
 ARG PROTOC_VERSION
