@@ -150,11 +150,12 @@ sca_scan_task:
     <<: *LINUX_IMAGE_WITH_GCC
   env:
     <<: *WS_SCAN_SECRETS
-  whitesource_script:
+  prebuild_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - mvn clean install -DskipTests -P-ci,local
-    - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac" -detect
+  whitesource_script:
+    - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"
   allow_failures: "true"
   always:
     ws_artifacts:
