@@ -34,21 +34,21 @@ var serializer converters.Serializer = converters.ProtobufSerializer{}
 
 // TemplateSources contains all the sources needed to evaluate a template
 type TemplateSources struct {
-	Name        string
-	RawTemplate string
-	sources     map[string]string
+	Name                  string
+	RawTemplate           string
+	fileNameToFileContent map[string]string
 }
 
 // NumAdditionalSources returns the number of sources required for this template.
 func (ts *TemplateSources) NumAdditionalSources() int {
-	return len(ts.sources)
+	return len(ts.fileNameToFileContent)
 }
 
 func (ts *TemplateSources) SourceFile(name string) (string, error) {
-	if _, ok := ts.sources[name]; !ok {
+	if _, ok := ts.fileNameToFileContent[name]; !ok {
 		return "", fmt.Errorf("source file %s not found", name)
 	}
-	return ts.sources[name], nil
+	return ts.fileNameToFileContent[name], nil
 }
 
 func (ts *TemplateSources) Values() string {
