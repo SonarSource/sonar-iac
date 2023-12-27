@@ -36,17 +36,33 @@ var serializer converters.Serializer = converters.ProtobufSerializer{}
 type TemplateSources struct {
 	Name        string
 	RawTemplate string
-	RawValues   string
+	sources     map[string]string
 }
 
-// NumSources returns the number of sources required for this template.
-// Currently, we only use the template and values files; in the future other files will be included.
-func (ts *TemplateSources) NumSources() int {
-	return 2
+// NumAdditionalSources returns the number of sources required for this template.
+func (ts *TemplateSources) NumAdditionalSources() int {
+	return len(ts.sources)
+}
+
+func (ts *TemplateSources) SourceFile(name string) (string, error) {
+	if _, ok := ts.sources[name]; !ok {
+		return "", fmt.Errorf("source file %s not found", name)
+	}
+	return ts.sources[name], nil
+}
+
+func (ts *TemplateSources) Values() string {
+	valuesFile, _ := ts.SourceFile("values.yaml")
+	return valuesFile
 }
 
 func NewTemplateSourcesFromRawSources(rawSources []converters.SourceCode) *TemplateSources {
-	return &TemplateSources{rawSources[0].Name, rawSources[0].Content, rawSources[1].Content}
+	sources := make(map[string]string)
+	// The first file is assumed to be the main template, the rest are additional files
+	for _, source := range rawSources[1:] {
+		sources[source.Name] = source.Content
+	}
+	return &TemplateSources{rawSources[0].Name, rawSources[0].Content, sources}
 }
 
 func main() {
@@ -54,7 +70,7 @@ func main() {
 
 	evaluatedTemplate := ""
 	if processingError == nil {
-		fmt.Fprintf(os.Stderr, "Read in total %d files from stdin; evaluating template <%s>\n", templateSources.NumSources(), templateSources.Name)
+		fmt.Fprintf(os.Stderr, "Read in total %d files from stdin; evaluating template <%s>\n", templateSources.NumAdditionalSources(), templateSources.Name)
 		evaluatedTemplate, processingError = evaluateTemplate(templateSources)
 	} else {
 		fmt.Fprintf(os.Stderr, "Failed to read input: %s\n", processingError.Error())
@@ -96,7 +112,7 @@ func evaluateTemplate(templateSources *TemplateSources) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return executeWithValues(tmpl, templateSources.RawValues)
+	return executeWithValues(tmpl, templateSources.Values())
 }
 
 func newTemplate(name string, content string) (*template.Template, error) {

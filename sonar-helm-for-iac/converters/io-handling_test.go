@@ -91,6 +91,20 @@ func Test_read_two_files(t *testing.T) {
 	assert.Equal(t, "line3", contents[1].Content)
 }
 
+func Test_read_three_files(t *testing.T) {
+	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nfile3\n1\nline4\nEND"))
+	stdinReader := StdinReader{}
+	contents, _ := stdinReader.ReadInput(scanner)
+
+	assert.Equal(t, 3, len(contents))
+	assert.Equal(t, "file1", contents[0].Name)
+	assert.Equal(t, "line1\nline2", contents[0].Content)
+	assert.Equal(t, "file2", contents[1].Name)
+	assert.Equal(t, "line3", contents[1].Content)
+	assert.Equal(t, "file3", contents[2].Name)
+	assert.Equal(t, "line4", contents[2].Content)
+}
+
 func Test_should_stop_if_zero_length(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("file1\n0\n"))
 	stdinReader := StdinReader{}

@@ -141,7 +141,7 @@ class HelmProcessorTest {
       var valuesFile = Mockito.mock(InputFile.class);
       when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
       when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(valuesFile);
-      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), anyString()))
+      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
         .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("containerPort: 8080 #1").build());
       var inputFileContext = Mockito.mock(InputFileContext.class);
 
@@ -153,7 +153,7 @@ class HelmProcessorTest {
 
   @Test
   void shouldSkipHelmEvaluationIfHelmEvaluatorThrows() throws IOException {
-    when(helmEvaluator.evaluateTemplate(anyString(), anyString(), anyString())).thenThrow(new IllegalStateException("Failed to evaluate template"));
+    when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any())).thenThrow(new IllegalStateException("Failed to evaluate template"));
     var helmProcessor = new HelmProcessor(helmEvaluator);
     helmProcessor.initialize();
 

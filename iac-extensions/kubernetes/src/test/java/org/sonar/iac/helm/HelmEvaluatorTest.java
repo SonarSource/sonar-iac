@@ -23,6 +23,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
@@ -67,7 +68,8 @@ class HelmEvaluatorTest {
 
   @Test
   void shouldThrowIfGoBinaryRejectsEmptyInput() {
-    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+    var templateDependencies = Map.<String, String>of();
+    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Evaluation error in Go library: error reading content: request to read 0 lines aborted");
 
@@ -85,7 +87,8 @@ class HelmEvaluatorTest {
       when(process.exitValue()).thenReturn(1);
       doReturn(process).when(helmEvaluator).startProcess(any(), any(), any());
 
-      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+      var templateDependencies = Map.<String, String>of();
+      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1, possible serialization failure");
     }
@@ -103,7 +106,8 @@ class HelmEvaluatorTest {
       when(process.exitValue()).thenReturn(0);
       doReturn(process).when(helmEvaluator).startProcess(any(), any(), any());
 
-      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+      var templateDependencies = Map.of("values.yaml", "");
+      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Empty evaluation result returned from sonar-helm-for-iac");
     }
@@ -111,7 +115,8 @@ class HelmEvaluatorTest {
 
   @Test
   void shouldThrowIfGoReturnsError() {
-    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.", "container:\n  port: 8080"))
+    var templateDependencies = Map.of("values.yaml", "container:\n  port: 8080");
+    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.", templateDependencies))
       .isInstanceOf(IllegalStateException.class);
   }
 
@@ -126,7 +131,8 @@ class HelmEvaluatorTest {
       Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder();
       Mockito.doReturn(null).when(helmEvaluator).startProcess(any(), any(), any());
 
-      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", ""))
+      var templateDependencies = Map.<String, String>of();
+      Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Deserialization error");
     }
@@ -134,14 +140,16 @@ class HelmEvaluatorTest {
 
   @Test
   void shouldEvaluateTemplate() throws IOException {
-    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}", "container:\n  port: 8080");
+    var templateDependencies = Map.of("values.yaml", "container:\n  port: 8080");
+    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}", templateDependencies);
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
   }
 
   @Test
   void shouldEvaluateInputsWithTrailingNewline() throws IOException {
-    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n", "container:\n  port: 8080\n\n");
+    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n",
+      Map.of("values.yaml", "container:\n  port: 8080\n\n"));
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
   }
