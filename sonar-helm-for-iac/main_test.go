@@ -139,7 +139,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
+	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
 
 	assert.Equal(t, expected, result)
 }
@@ -164,7 +164,7 @@ spec:
 container: foo
 `
 
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
 
 	assert.Equal(t, "", result)
 	assert.Equal(t,
@@ -204,7 +204,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, ""})
+	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": ""}})
 
 	assert.Equal(t, expected, result)
 }
@@ -240,7 +240,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, ""})
+	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": ""}})
 
 	assert.Equal(t, expected, result)
 }
@@ -288,7 +288,7 @@ metadata:
 spec:
 `
 
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
 
 	assert.Equal(t, expected, result)
 	assert.Equal(t, nil, err)
@@ -359,7 +359,7 @@ fromJsonArrayError: [unexpected end of JSON input]
 toTomlExample: "age = 25.0\nname = \"Bob\"\n"
 `
 
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
 
 	assert.Equal(t, expected, result)
 	assert.Equal(t, nil, err)
@@ -369,7 +369,7 @@ func Test_evaluate_invalid_template(t *testing.T) {
 	template := `
 apiVersion: {{ hello
 `
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, ""})
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": ""}})
 
 	assert.Equal(t, "", result)
 	assert.Equal(t, "template: a.yaml:2: function \"hello\" not defined", err.Error())
@@ -383,7 +383,7 @@ apiVersion: v1
 foo: bar: baz
 `
 
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
+	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
 
 	assert.Equal(t, "", result)
 	assert.Equal(t,
@@ -395,7 +395,7 @@ func Test_to_protobuf_valid(t *testing.T) {
 	template := "apiVersion: {{ .Values.api }}"
 	values := "api: v1"
 
-	evaluatedTemplate, err := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
+	evaluatedTemplate, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
 	result, err := serializer.Serialize(evaluatedTemplate, err)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
@@ -408,7 +408,7 @@ func Test_to_protobuf_valid(t *testing.T) {
 func Test_to_protobuf_invalid(t *testing.T) {
 	template := "apiVersion: {{ .Values.api"
 
-	evaluatedTemplate, err := evaluateTemplate(&TemplateSources{"a.yaml", template, ""})
+	evaluatedTemplate, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": ""}})
 	result, err := serializer.Serialize(evaluatedTemplate, err)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
@@ -453,7 +453,46 @@ protocol: UDP
             protocol: "UDP"
   `
 
-	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, values})
+	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
 
 	assert.Equal(t, expected, result)
+}
+
+func Test_template_struct_from_2_sources(t *testing.T) {
+	sources := []converters.SourceCode{
+		{
+			Name:    "a.yaml",
+			Content: "apiVersion: v1",
+		},
+		{
+			Name:    "values.yaml",
+			Content: "foo: bar",
+		},
+	}
+
+	templateSources := NewTemplateSourcesFromRawSources(sources)
+
+	assert.Equal(t, 1, templateSources.NumAdditionalSources())
+}
+
+func Test_template_struct_from_3_sources(t *testing.T) {
+	sources := []converters.SourceCode{
+		{
+			Name:    "a.yaml",
+			Content: "apiVersion: v1",
+		},
+		{
+			Name:    "_helpers.tpl",
+			Content: "{{/* comment */}}",
+		},
+		{
+			Name:    "values.yaml",
+			Content: "foo: bar",
+		},
+	}
+
+	templateSources := NewTemplateSourcesFromRawSources(sources)
+
+	assert.Equal(t, 2, templateSources.NumAdditionalSources())
+	assert.Equal(t, "foo: bar", templateSources.Values())
 }

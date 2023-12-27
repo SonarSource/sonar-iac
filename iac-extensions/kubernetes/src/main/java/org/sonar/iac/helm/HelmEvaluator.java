@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -55,9 +56,9 @@ public class HelmEvaluator {
     this.processBuilder = prepareProcessBuilder();
   }
 
-  public TemplateEvaluationResult evaluateTemplate(String path, String content, String valuesFileContent) throws IOException {
+  public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) throws IOException {
     LOG.debug("Executing: {}", processBuilder.command());
-    var process = startProcess(path, content, valuesFileContent);
+    var process = startProcess(path, content, templateDependencies);
     processMonitor.submit(() -> monitorProcess(process));
 
     byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
@@ -85,24 +86,25 @@ public class HelmEvaluator {
     return new ProcessBuilder(executable);
   }
 
-  Process startProcess(String name, String content, String valuesFileContent) throws IOException {
+  Process startProcess(String name, String content, Map<String, String> templateDependencies) throws IOException {
     var process = this.processBuilder.start();
     try (var out = process.getOutputStream()) {
-      writeStringAsBytes(out, String.format("%s%n", name));
-      writeStringAsBytes(out, String.format("%d%n", content.lines().count()));
-      if (!content.endsWith("\n")) {
-        content += "\n";
+      writeFileToProcess(out, name, content);
+      for (var filenameToFileContent : templateDependencies.entrySet()) {
+        writeFileToProcess(out, filenameToFileContent.getKey(), filenameToFileContent.getValue());
       }
-      writeStringAsBytes(out, content);
-      writeStringAsBytes(out, String.format("values.yaml%n"));
-      writeStringAsBytes(out, String.format("%d%n", valuesFileContent.lines().count()));
-      if (!valuesFileContent.endsWith("\n")) {
-        valuesFileContent += "\n";
-      }
-      writeStringAsBytes(out, valuesFileContent);
       writeStringAsBytes(out, String.format("END%n"));
     }
     return process;
+  }
+
+  private static void writeFileToProcess(OutputStream out, String fileName, String content) throws IOException {
+    writeStringAsBytes(out, String.format("%s%n", fileName));
+    writeStringAsBytes(out, String.format("%d%n", content.lines().count()));
+    if (!content.endsWith("\n")) {
+      content += "\n";
+    }
+    writeStringAsBytes(out, content);
   }
 
   private static void writeStringAsBytes(OutputStream out, String content) throws IOException {

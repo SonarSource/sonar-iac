@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,10 @@ public class HelmProcessor {
     var sourceWithComments = addLineComments(source);
     var valuesFile = findValuesFile(inputFileContext);
     var valuesFileContent = validateAndReadValuesFile(valuesFile, inputFileContext.inputFile);
-    return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, valuesFileContent);
+    // TODO: SONARIAC-1225 Pass all files of the Helm project directory to HelmEvaluator
+    var templateDependencies = Map.of(
+      "values.yaml", valuesFileContent);
+    return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, templateDependencies);
   }
 
   private static String validateAndReadValuesFile(@Nullable InputFile valuesFile, InputFile inputFile) {
@@ -89,9 +93,9 @@ public class HelmProcessor {
     return valuesFileContent;
   }
 
-  private String evaluateHelmTemplate(String path, InputFile inputFile, String content, String valuesFileContent) {
+  private String evaluateHelmTemplate(String path, InputFile inputFile, String content, Map<String, String> templateDependencies) {
     try {
-      var evaluationResult = helmEvaluator.evaluateTemplate(path, content, valuesFileContent);
+      var evaluationResult = helmEvaluator.evaluateTemplate(path, content, templateDependencies);
       return evaluationResult.getTemplate();
     } catch (IllegalStateException | IOException e) {
       throw parseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());
