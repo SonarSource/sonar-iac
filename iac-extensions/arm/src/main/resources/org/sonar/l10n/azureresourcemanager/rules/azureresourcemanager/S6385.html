@@ -1,10 +1,39 @@
+<p>Defining a custom role at the <code>Subscription</code> or <code>Management group</code> scope that allows all actions will give it the same
+capabilities as the built-in <code>Owner</code> role.</p>
 <h2>Why is this an issue?</h2>
-<p>Defining a custom role for a Subscription or a Management group that allows all actions will give them the same capabilities as the built-in Owner
-role.</p>
-<p>This rule raises an issue when a custom role has an assignable scope set to a Subscription or a Management Group and allows all actions
-(<code>*</code>).</p>
-<p>To reduce the risk of intrusion of a compromised owner, it is recommended to limit the number of subscription owners.</p>
+<p>In Azure, the <code>Owner</code> role of a <code>Subscription</code> or a <code>Management group</code> provides entities it is assigned to with
+the maximum level of privileges. The <code>Owner</code> role allows managing all resources and assigning any role to other entities.</p>
+<p>Because it is a powerful entitlement, it should be granted to as few users as possible.</p>
+<p>When a custom role has the same level of permissions as the <code>Owner</code> one, there are greater chances that high privileges are granted to
+too many users.</p>
+<h3>What is the potential impact?</h3>
+<p>Custom roles that provide the same level of permissions as <code>Owner</code> might indicate a configuration issue. Any entity assigned with it can
+perform any action on the <code>Subscription</code> or <code>Management group</code>, including changing roles and permissions.</p>
+<p>If the affected role is unexpectedly assigned to users, they can compromise the affected scope. They can do so in the long term by assigning
+dangerous roles to other users or entities.</p>
+<p>Depending on the scope to which the role is assignable, the exact impact of a successful exploitation may vary. It generally ranges from data
+compromise to the takeover of the cloud infrastructure.</p>
+<h4>Infrastructure takeover</h4>
+<p>By obtaining the right role, an attacker can gain control over part or all of the Azure infrastructure. They can modify DNS settings, redirect
+traffic, or launch malicious instances that can be used for various nefarious activities, including launching DDoS attacks, hosting phishing websites,
+or distributing malware. Malicious instances may also be used for resource-intensive tasks such as cryptocurrency mining.</p>
+<p>This can result in legal liability, but also increased costs, degraded performance, and potential service disruptions.</p>
+<p>Furthermore, corporate Azure infrastructures are often connected to other services and to the internal networks of the organization. Because of
+this, cloud infrastructure is often used by attackers as a gateway to other assets. Attackers can leverage this gateway to gain access to more
+services, to compromise more business-critical data, and to cause more damage to the overall infrastructure.</p>
+<h4>Compromise of sensitive data</h4>
+<p>If the affected service is used to store or process personally identifiable information or other sensitive data, attackers with the correct role
+could be able to access it. Depending on the type of data that is compromised, it could lead to privacy violations, identity theft, financial loss, or
+other negative outcomes.</p>
+<p>In most cases, a company suffering a sensitive data compromise will face a reputational loss when the security issue is publicly disclosed.</p>
+<h4>Financial loss</h4>
+<p>Financial losses can occur when a malicious user is able to use a paid third-party-provided service. Each users assigned with a bad role will be
+able to use it without limit to use the third party service to their own need, including in a way that was not expected.</p>
+<p>This additional use will lead to added costs with the Azure service provider.</p>
+<p>Moreover, when rate or volume limiting is set up on the provider side, this additional use can prevent the regular operation of the affected
+environment. This might result in a partial denial of service for all legitimate users.</p>
 <h2>How to fix it</h2>
+<p>To reduce the risk of intrusion of a compromised owner, it is recommended to limit the number of subscription owners.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -93,24 +122,27 @@ resource roleDef 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
 }
 </pre>
 <h3>Going the extra mile</h3>
-<p>Here is a list of recommendations that can be followed regarding good usages of roles:</p>
+<p>Here is a list of recommendations that can be followed regarding good usage of roles:</p>
 <ul>
   <li> Apply the least privilege principle by creating a custom role with as few permissions as possible. </li>
   <li> As custom roles can be updated, gradually add atomic permissions when required. </li>
-  <li> Limit the assignable scopes of the custom role to a set of Resources or Ressource Groups. </li>
+  <li> Limit the assignable scopes of the custom role to a set of Resources or Resource Groups. </li>
   <li> When necessary, use the built-in Owner role instead of a custom role granting subscription owner capabilities. </li>
   <li> Limit the assignments of Owner roles to less than three people or service principals. </li>
 </ul>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
-  <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control.html">OWASP Top 10 2017 Category A5</a> - Broken Access
-  Control </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/266">MITRE, CWE-266</a> - Incorrect Privilege Assignment </li>
-  <li> <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles">Azure Documentation</a> - Azure custom roles </li>
-  <li> <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/best-practices">Azure Documentation</a> - Best practices for Azure
-  RBAC </li>
+  <li> Azure Documentation - <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles">Azure custom roles</a> </li>
+  <li> Azure Documentation - <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/best-practices">Best practices for Azure
+  RBAC</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> OWASP - <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">Top 10 2021 Category A1 - Broken Access Control</a> </li>
+  <li> OWASP - <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">Top 10 2021 Category A4 - Insecure Design</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control.html">Top 10 2017 Category A5 - Broken Access
+  Control</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/266">CWE-266 - Incorrect Privilege Assignment</a> </li>
 </ul>
 
