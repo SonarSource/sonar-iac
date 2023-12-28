@@ -45,6 +45,11 @@ func (s FailingProtobufSerializer) Serialize(content string, err error) ([]byte,
 	return nil, errors.New("serialization error")
 }
 
+var DefaultChartYaml = `
+name: test-project
+apiVersion: v3
+`
+
 func Test_no_file_provided(t *testing.T) {
 	err := validateInput([]converters.SourceCode{})
 
@@ -86,7 +91,7 @@ func Test_two_files_provided(t *testing.T) {
 	stdinReader = &InputReaderMock{
 		Contents: []converters.SourceCode{
 			{
-				Name:    "a.yaml",
+				Name:    "test-project/templates/a.yaml",
 				Content: "apiVersion: v1",
 			},
 			{
@@ -138,7 +143,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
+	result, _ := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": values, "Chart.yaml": DefaultChartYaml}))
 
 	assert.Equal(t, expected, result)
 }
@@ -163,11 +168,11 @@ spec:
 container: foo
 `
 
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
+	result, err := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": values, "Chart.yaml": DefaultChartYaml}))
 
 	assert.Equal(t, "", result)
 	assert.Equal(t,
-		"template: a.yaml:12:35: executing \"a.yaml\" at <.Values.container.port>: "+
+		"template: test-project/templates/a.yaml:12:35: executing \"test-project/templates/a.yaml\" at <.Values.container.port>: "+
 			"can't evaluate field port in type interface {}",
 		err.Error())
 }
@@ -203,7 +208,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": ""}})
+	result, _ := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": "", "Chart.yaml": DefaultChartYaml}))
 
 	assert.Equal(t, expected, result)
 }
@@ -239,7 +244,7 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": ""}})
+	result, _ := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": "", "Chart.yaml": DefaultChartYaml}))
 
 	assert.Equal(t, expected, result)
 }
@@ -287,7 +292,7 @@ metadata:
 spec:
 `
 
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
+	result, err := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": values, "Chart.yaml": DefaultChartYaml}))
 
 	assert.Equal(t, expected, result)
 	assert.Equal(t, nil, err)
@@ -358,7 +363,7 @@ fromJsonArrayError: [unexpected end of JSON input]
 toTomlExample: "age = 25.0\nname = \"Bob\"\n"
 `
 
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
+	result, err := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": values, "Chart.yaml": DefaultChartYaml}))
 
 	assert.Equal(t, expected, result)
 	assert.Equal(t, nil, err)
@@ -368,10 +373,10 @@ func Test_evaluate_invalid_template(t *testing.T) {
 	template := `
 apiVersion: {{ hello
 `
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": ""}})
+	result, err := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": ""}))
 
 	assert.Equal(t, "", result)
-	assert.Equal(t, "template: a.yaml:2: function \"hello\" not defined", err.Error())
+	assert.Equal(t, "template: test-project/templates/a.yaml:2: function \"hello\" not defined", err.Error())
 }
 
 func Test_evaluate_invalid_values(t *testing.T) {
@@ -382,7 +387,7 @@ apiVersion: v1
 foo: bar: baz
 `
 
-	result, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
+	result, err := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": values, "Chart.yaml": DefaultChartYaml}))
 
 	assert.Equal(t, "", result)
 	assert.Equal(t,
@@ -394,7 +399,7 @@ func Test_to_protobuf_valid(t *testing.T) {
 	template := "apiVersion: {{ .Values.api }}"
 	values := "api: v1"
 
-	evaluatedTemplate, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
+	evaluatedTemplate, err := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": values, "Chart.yaml": DefaultChartYaml}))
 	result, err := serializer.Serialize(evaluatedTemplate, err)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
@@ -407,14 +412,14 @@ func Test_to_protobuf_valid(t *testing.T) {
 func Test_to_protobuf_invalid(t *testing.T) {
 	template := "apiVersion: {{ .Values.api"
 
-	evaluatedTemplate, err := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": ""}})
+	evaluatedTemplate, err := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": ""}))
 	result, err := serializer.Serialize(evaluatedTemplate, err)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
 	proto.Unmarshal(result, templateFromProto)
 
 	assert.Equal(t, "", templateFromProto.Template)
-	assert.Equal(t, "template: a.yaml:1: unclosed action", templateFromProto.Error)
+	assert.Equal(t, "template: test-project/templates/a.yaml:1: unclosed action", templateFromProto.Error)
 }
 
 func Test_evaluate_template_default_function(t *testing.T) {
@@ -452,7 +457,7 @@ protocol: UDP
             protocol: "UDP"
   `
 
-	result, _ := evaluateTemplate(&TemplateSources{"a.yaml", template, map[string]string{"values.yaml": values}})
+	result, _ := evaluateTemplate(converters.NewTemplateSources("test-project/templates/a.yaml", template, map[string]string{"values.yaml": values, "Chart.yaml": DefaultChartYaml}))
 
 	assert.Equal(t, expected, result)
 }
@@ -460,7 +465,7 @@ protocol: UDP
 func Test_template_struct_from_2_sources(t *testing.T) {
 	sources := []converters.SourceCode{
 		{
-			Name:    "a.yaml",
+			Name:    "test-project/templates/a.yaml",
 			Content: "apiVersion: v1",
 		},
 		{
@@ -477,7 +482,7 @@ func Test_template_struct_from_2_sources(t *testing.T) {
 func Test_template_struct_from_3_sources(t *testing.T) {
 	sources := []converters.SourceCode{
 		{
-			Name:    "a.yaml",
+			Name:    "test-project/templates/a.yaml",
 			Content: "apiVersion: v1",
 		},
 		{

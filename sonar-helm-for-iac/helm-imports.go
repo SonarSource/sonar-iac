@@ -24,6 +24,7 @@ import (
 	"errors"
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig/v3"
+	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
 	"sigs.k8s.io/yaml"
 	"slices"
 	"strconv"
@@ -224,8 +225,6 @@ func initSprigFunctions() template.FuncMap {
 	return result
 }
 
-type Values = struct{ Values map[string]interface{} }
-
 func addCustomFunctions() *template.FuncMap {
 	functions := sprigFunctions
 
@@ -233,7 +232,7 @@ func addCustomFunctions() *template.FuncMap {
 		return map[string]interface{}{}, nil
 	}
 
-	functions["tpl"] = func(templateContent string, values Values) (string, error) {
+	functions["tpl"] = func(templateContent string, values converters.Values) (string, error) {
 		// TODO SONARIAC-1177 Add "tpl" function to Helm template evaluation
 		text := "sonar-generated-tpl-" + strconv.Itoa(generatedNamesCount)
 		generatedNamesCount++
