@@ -36,7 +36,7 @@ class TerraformProfileDefinitionTest {
     assertThat(profile.name()).isEqualTo("Sonar way");
     assertThat(profile.rules()).hasSizeGreaterThan(3);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .contains("S6245") // DisabledS3EncryptionCheck
+      .doesNotContain("S6245") // DisabledS3EncryptionCheck - deprecated
       .doesNotContain("S2260"); // ParsingErrorCheck
   }
 }
