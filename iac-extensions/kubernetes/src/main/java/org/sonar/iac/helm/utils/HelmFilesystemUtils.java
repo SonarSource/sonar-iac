@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -34,15 +35,14 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public final class HelmFilesystemUtils {
-
   private static final Logger LOG = LoggerFactory.getLogger(HelmFilesystemUtils.class);
-
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
 
   private HelmFilesystemUtils() {
   }
 
-  public static Map<String, InputFile> retrieveFilesInHelmProject(InputFileContext inputFileContext) {
+  // TODO: SONARIAC-1239 Ignore additional file pattern mentioned in .helmignore
+  public static Map<String, InputFile> additionalFilesOfHelmProjectDirectory(InputFileContext inputFileContext) {
     Map<String, InputFile> result = new HashMap<>();
 
     var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()));
@@ -51,7 +51,7 @@ public final class HelmFilesystemUtils {
       return result;
     }
 
-    var filePredicate = helmProjectPredicate(inputFileContext, helmDirectoryPath);
+    var filePredicate = additionalHelmDependenciesPredicate(inputFileContext, helmDirectoryPath);
     Iterable<InputFile> inputFiles = inputFileContext.sensorContext.fileSystem().inputFiles(filePredicate);
 
     for (InputFile additionalFile : inputFiles) {
@@ -60,7 +60,7 @@ public final class HelmFilesystemUtils {
     return result;
   }
 
-  static FilePredicate helmProjectPredicate(InputFileContext inputFileContext, Path helmProjectDirectoryPath) {
+  static FilePredicate additionalHelmDependenciesPredicate(InputFileContext inputFileContext, Path helmProjectDirectoryPath) {
     FilePredicates predicates = inputFileContext.sensorContext.fileSystem().predicates();
     // Can be null or throw error?
 
@@ -71,7 +71,7 @@ public final class HelmFilesystemUtils {
       var relativizedPath = basePath.relativize(helmProjectDirectoryPath.toRealPath());
       pathPattern = relativizedPath + File.separator + "**";
     } catch (IOException e) {
-      LOG.debug("Failed to resolve Helm project file predicate for {}", inputFileContext.inputFile.uri());
+      LOG.debug("Failed to resolve Helm project file predicate for {}", inputFileContext.inputFile);
     }
 
     if (pathPattern == null) {
@@ -91,17 +91,17 @@ public final class HelmFilesystemUtils {
     return predicates.or(extensionPredicates);
   }
 
+  @CheckForNull
   static Path retrieveHelmProjectFolder(Path inputFilePath) {
-    var templateDirectoryPath = inputFilePath.getParent();
+    var helmProjectDirectoryPath = inputFilePath.getParent();
 
-    if (templateDirectoryPath != null) {
-      templateDirectoryPath = templateDirectoryPath.getParent();
+    if (helmProjectDirectoryPath != null) {
+      helmProjectDirectoryPath = helmProjectDirectoryPath.getParent();
     }
-    return templateDirectoryPath;
+    return helmProjectDirectoryPath;
   }
 
   private static String resolveToInputFile(Path helmDirectoryPath, InputFile additionalFile) {
     return helmDirectoryPath.relativize(Path.of(additionalFile.uri())).toString();
   }
-
 }

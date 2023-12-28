@@ -101,8 +101,6 @@ func readAndValidateSources() (*TemplateSources, error) {
 func validateInput(sources []converters.SourceCode) error {
 	if len(sources) == 0 {
 		return errors.New("no input received")
-	} else if len(sources) != 2 {
-		return fmt.Errorf("expected 2 files, received %d files, possible missing values file", len(sources))
 	}
 	return nil
 }

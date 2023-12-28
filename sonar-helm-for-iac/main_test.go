@@ -60,8 +60,7 @@ func Test_only_one_file_provided(t *testing.T) {
 		},
 	})
 
-	assert.NotNil(t, err)
-	assert.Equal(t, "expected 2 files, received 1 files, possible missing values file", err.Error())
+	assert.NoError(t, err)
 }
 
 func Test_exit_code_with_serialization_error(t *testing.T) {

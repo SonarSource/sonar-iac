@@ -120,7 +120,7 @@ class KubernetesParserTest {
   @Test
   void shouldNotEvaluateHelmWithoutValuesFile() {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(Map.of());
+      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(Map.of());
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");

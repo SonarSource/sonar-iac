@@ -32,16 +32,10 @@
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/change-admin-password-hook.yml": [
 0
 ],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/ingress.yaml": [
-0
-],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/networkpolicy.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/podDistributionBudget.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/prometheus-podmonitor.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/service.yaml": [

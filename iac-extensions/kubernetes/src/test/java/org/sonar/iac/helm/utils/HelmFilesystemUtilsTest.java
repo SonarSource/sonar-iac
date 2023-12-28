@@ -74,7 +74,7 @@ class HelmFilesystemUtilsTest {
     InputFile additionalFile = createInputFile(helmProjectPathPrefix + relativePath);
     addToFilesystem(context, helmTemplate, additionalFile);
 
-    Map<String, InputFile> helmDependentFiles = HelmFilesystemUtils.retrieveFilesInHelmProject(templateInputFileContext);
+    Map<String, InputFile> helmDependentFiles = HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(templateInputFileContext);
     InputFile resultingInputFile = helmDependentFiles.get(relativePath.replace("/", File.separator));
 
     if (shouldBeIncluded) {
@@ -83,45 +83,6 @@ class HelmFilesystemUtilsTest {
       assertThat(resultingInputFile).isEqualTo(additionalFile);
     } else {
       assertThat(helmDependentFiles).isEmpty();
-    }
-  }
-
-  @Test
-  void faultyRealPathResolvingShouldReturnNonePredicate() throws IOException {
-    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
-    Path helmProjectPath = mock(Path.class);
-    when(helmProjectPath.toRealPath()).thenThrow(IOException.class);
-
-    FilePredicate filePredicate = HelmFilesystemUtils.helmProjectPredicate(templateInputFileContext, helmProjectPath);
-    assertThat(filePredicate).isEqualTo(context.fileSystem().predicates().none());
-  }
-
-  @Test
-  void retrievingParentPathShouldReturnNull() {
-    Path inputFilePath = mock(Path.class);
-    when(inputFilePath.getParent()).thenReturn(null);
-
-    Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath);
-    assertThat(parentPath).isNull();
-  }
-
-  @Test
-  void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenCallRealMethod();
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(null);
-
-      InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-      InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
-      Map<String, InputFile> result = HelmFilesystemUtils.retrieveFilesInHelmProject(templateInputFileContext);
-      assertThat(result).isEmpty();
-    }
-  }
-
-  protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {
-    for (InputFile inputFile : inputFiles) {
-      sensorContext.fileSystem().add(inputFile);
     }
   }
 
@@ -140,6 +101,45 @@ class HelmFilesystemUtilsTest {
       Arguments.of("templates/file.txt", true),
       Arguments.of("file.jpg", false),
       Arguments.of("file.java", false));
+  }
+
+  @Test
+  void faultyRealPathResolvingShouldReturnNonePredicate() throws IOException {
+    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+    InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
+    Path helmProjectPath = mock(Path.class);
+    when(helmProjectPath.toRealPath()).thenThrow(IOException.class);
+
+    FilePredicate filePredicate = HelmFilesystemUtils.additionalHelmDependenciesPredicate(templateInputFileContext, helmProjectPath);
+    assertThat(filePredicate).isEqualTo(context.fileSystem().predicates().none());
+  }
+
+  @Test
+  void retrievingParentPathShouldReturnNull() {
+    Path inputFilePath = mock(Path.class);
+    when(inputFilePath.getParent()).thenReturn(null);
+
+    Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath);
+    assertThat(parentPath).isNull();
+  }
+
+  @Test
+  void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenCallRealMethod();
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(null);
+
+      InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+      InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
+      Map<String, InputFile> result = HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(templateInputFileContext);
+      assertThat(result).isEmpty();
+    }
+  }
+
+  protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {
+    for (InputFile inputFile : inputFiles) {
+      sensorContext.fileSystem().add(inputFile);
+    }
   }
 
   protected InputFile createInputFile(String relativePath) throws IOException {

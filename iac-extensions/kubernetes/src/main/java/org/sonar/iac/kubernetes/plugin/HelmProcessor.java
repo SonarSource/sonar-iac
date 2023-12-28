@@ -34,7 +34,7 @@ import org.sonar.iac.helm.HelmEvaluator;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
-import static org.sonar.iac.helm.utils.HelmFilesystemUtils.retrieveFilesInHelmProject;
+import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory;
 
 @ScannerSide
 @SonarLintSide
@@ -67,13 +67,14 @@ public class HelmProcessor {
 
     // TODO: better support of Helm project structure
     var sourceWithComments = addLineComments(source);
-    Map<String, InputFile> additionalFiles = retrieveFilesInHelmProject(inputFileContext);
+    Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
     var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
     return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, fileContents);
   }
 
   private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
-    if (files.get("values.yaml") == null && files.get("values.yml") == null) {
+    // Currently we are only looking for the default location of the values file
+    if (!files.containsKey("values.yaml") && !files.containsKey("values.yml")) {
       throw parseExceptionFor(inputFile, "Failed to find values file", null);
     }
 
