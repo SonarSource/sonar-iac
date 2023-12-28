@@ -146,8 +146,7 @@ sca_scan_task:
   depends_on:
     - build
   <<: *MAVEN_CACHE
-#  TODO uncomment before merge
-#  <<: *ONLY_MAIN_BRANCHES
+  <<: *ONLY_MAIN_BRANCHES
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
   env:
