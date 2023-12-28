@@ -1,25 +1,51 @@
+<p>For mounts types <code>secret</code> and <code>ssh</code>, Dockerfile’s <code>RUN</code> instruction supports a <code>mode</code> option for
+setting permissions. If you set this mode so that any user of the operating system can access the mount, it is vulnerable to leaks.</p>
 <h2>Why is this an issue?</h2>
 <p>Docker offers a feature to mount files and directories for specific <code>RUN</code> instructions when building Docker images. This feature can be
-used to provide secrets to the commands that are executed during the build without baking them into the image. Additionally, it can be used to access
-SSH agents during the build.</p>
-<p>By using the <code>mode</code> option the permissions of the secrets or agents can be modified. By default, access is limited to the root user.</p>
-<p>When such secrets are exposed with lax permissions, they might get compromised during the image build process. A successful compromise can only
-happen during the execution of the command the <code>mount</code> option has been added to. While this might seem like a very hard exploitation
-requirement, supply chain attacks, and other related threats, should still be considered.</p>
-<p>If you are executing a command as a low-privileged user and need to access secrets or agents, you can use the options <code>uid</code> and
+used to provide secrets to commands that are executed during the build without baking them into the image. Additionally, it can be used to access SSH
+agents during the build.</p>
+<p>The <code>mode</code> option is an octal value that allows you to specify the permissions for a particular file or directory. By default, on
+Docker, when mounting a <code>secret</code>, it is set to <code>0400</code>.</p>
+<p>For <code>ssh</code>, it is set by default to <code>0600</code>:</p>
+<ul>
+  <li> The first digit <code>0</code> stands for special permissions (like setuid, setgid and sticky bit) and in this case means that no special
+  permissions are set. </li>
+  <li> The following <code>6</code> (4+2 in octal format) means that the <code>owner</code> has read (4) and write (2) permissions </li>
+  <li> <code>00</code> means that the <code>group</code> and <code>others</code> have no permissions. </li>
+</ul>
+<p>If the <code>others</code> bit is set to a value other than 0 at build-time, any other process can access it when the <code>RUN</code> command is
+executed: the secrets are vulnerable to supply chain attacks that aim to siphon secrets from containers.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unauthorized access</h4>
+<p>The unintended audience can exploit the leaked private key or equivalent to authenticate themselves as the legitimate owner, gaining unauthorized
+entry to systems, servers, or accounts that accept the key for authentication.</p>
+<p>This unauthorized access opens the door for various malicious activities, including data breaches, unauthorized modifications, and misuse of
+sensitive information.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+# Noncompliant
+RUN --mount=type=secret,id=build_secret,mode=0777 ./installer.sh
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+RUN --mount=type=secret,id=build_secret,mode=0700 ./installer.sh
+</pre>
+<h3>How does this work?</h3>
+<p>In general, always follow the least privilege principle, and set the <code>others</code> bit to <code>0</code>. By default, if <code>mode</code> is
+not set, permissions are safe.</p>
+<p>In case you made this change because you need to access secrets or agents as a low-privileged user, you can use the options <code>uid</code> and
 <code>gid</code> to provide access without having to resort to world-readable or writable permissions that might expose them to unintended
 parties.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-RUN --mount=type=secret,id=build_secret,mode=0777 ./installer.sh # Noncompliant
-</pre>
-<h3>Compliant solution</h3>
-<pre>
-RUN --mount=type=secret,id=build_secret,uid=1000 ./installer.sh
-</pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://cwe.mitre.org/data/definitions/732">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
-  <li> <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN --mount </li>
+  <li> Dockerfile Reference - <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">RUN --mount=type=secret</a> </li>
+  <li> Red Hat - <a href="https://www.redhat.com/sysadmin/linux-file-permissions-explained">Linux file permissions explained</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a> </li>
 </ul>
 
