@@ -19,36 +19,89 @@
  */
 package org.sonar.iac.helm.utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
-import javax.annotation.CheckForNull;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public final class HelmFilesystemUtils {
+
+  private static final Logger LOG = LoggerFactory.getLogger(HelmFilesystemUtils.class);
+
+  private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
+
   private HelmFilesystemUtils() {
   }
 
-  @CheckForNull
-  public static InputFile findValuesFile(InputFileContext inputFileContext) {
-    var valuesFilePredicate = valuesFilePredicate(inputFileContext, inputFileContext.sensorContext);
-    return inputFileContext.sensorContext.fileSystem().inputFile(valuesFilePredicate);
+  public static Map<String, InputFile> retrieveFilesInHelmProject(InputFileContext inputFileContext) {
+    Map<String, InputFile> result = new HashMap<>();
+
+    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()));
+    if (helmDirectoryPath == null) {
+      LOG.debug("Failed to resolve Helm project directory for {}", inputFileContext.inputFile.uri());
+      return result;
+    }
+
+    var filePredicate = helmProjectPredicate(inputFileContext, helmDirectoryPath);
+    Iterable<InputFile> inputFiles = inputFileContext.sensorContext.fileSystem().inputFiles(filePredicate);
+
+    for (InputFile additionalFile : inputFiles) {
+      result.put(resolveToInputFile(helmDirectoryPath, additionalFile), additionalFile);
+    }
+    return result;
   }
 
-  private static FilePredicate valuesFilePredicate(InputFileContext inputFileContext, SensorContext sensorContext) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    var parentPath = Path.of(inputFileContext.inputFile.uri())
-      .getParent();
-    var yamlPath = parentPath
-      .resolve("../values.yaml")
-      .normalize()
-      .toUri();
-    var ymlPath = parentPath
-      .resolve("../values.yml")
-      .normalize()
-      .toUri();
-    return predicates.or(predicates.hasURI(yamlPath), predicates.hasURI(ymlPath));
+  static FilePredicate helmProjectPredicate(InputFileContext inputFileContext, Path helmProjectDirectoryPath) {
+    FilePredicates predicates = inputFileContext.sensorContext.fileSystem().predicates();
+    // Can be null or throw error?
+
+    String pathPattern = null;
+
+    try {
+      var basePath = inputFileContext.sensorContext.fileSystem().baseDir().toPath().toRealPath();
+      var relativizedPath = basePath.relativize(helmProjectDirectoryPath.toRealPath());
+      pathPattern = relativizedPath + File.separator + "**";
+    } catch (IOException e) {
+      LOG.debug("Failed to resolve Helm project file predicate for {}", inputFileContext.inputFile.uri());
+    }
+
+    if (pathPattern == null) {
+      return predicates.none();
+    }
+    return predicates.and(
+      predicates.matchesPathPattern(pathPattern),
+      extensionPredicate(predicates),
+      predicates.not(predicates.hasURI(inputFileContext.inputFile.uri())));
   }
+
+  private static FilePredicate extensionPredicate(FilePredicates predicates) {
+    Set<FilePredicate> extensionPredicates = INCLUDED_EXTENSIONS.stream()
+      .map(predicates::hasExtension)
+      .collect(Collectors.toSet());
+
+    return predicates.or(extensionPredicates);
+  }
+
+  static Path retrieveHelmProjectFolder(Path inputFilePath) {
+    var templateDirectoryPath = inputFilePath.getParent();
+
+    if (templateDirectoryPath != null) {
+      templateDirectoryPath = templateDirectoryPath.getParent();
+    }
+    return templateDirectoryPath;
+  }
+
+  private static String resolveToInputFile(Path helmDirectoryPath, InputFile additionalFile) {
+    return helmDirectoryPath.relativize(Path.of(additionalFile.uri())).toString();
+  }
+
 }

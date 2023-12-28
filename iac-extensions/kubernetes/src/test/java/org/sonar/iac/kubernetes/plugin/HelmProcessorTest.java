@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.plugin;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -71,8 +72,10 @@ class HelmProcessorTest {
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = Mockito.mock(InputFile.class);
+      var files = Map.of("values.yaml", valuesFile);
+      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(files);
       when(valuesFile.contents()).thenReturn("");
-      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(valuesFile);
+      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(files);
       var inputFileContext = Mockito.mock(InputFileContext.class);
 
       Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
@@ -87,7 +90,7 @@ class HelmProcessorTest {
     helmProcessor.initialize();
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(null);
+      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(Map.of());
       var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
 
       Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
@@ -105,14 +108,15 @@ class HelmProcessorTest {
       when(badValuesFile.contents()).thenThrow(new IOException("Failed to read values file"));
       when(badValuesFile.uri()).thenReturn(new URI("file:///projects/chart/values.yaml"));
       when(badValuesFile.toString()).thenReturn("chart/values.yaml");
-      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(badValuesFile);
+      var files = Map.of("values.yaml", badValuesFile);
+      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(files);
       var inputFile = Mockito.mock(InputFile.class);
       when(inputFile.toString()).thenReturn("chart/templates/foo.yaml");
       var inputFileContext = new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
 
       Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
         .isInstanceOf(ParseException.class)
-        .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Failed to read values file at chart/values.yaml");
+        .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Failed to read file at chart/values.yaml");
     }
   }
 
@@ -123,8 +127,9 @@ class HelmProcessorTest {
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var badValuesFile = Mockito.mock(InputFile.class);
+      var files = Map.of("values.yaml", badValuesFile);
       when(badValuesFile.contents()).thenReturn("");
-      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(badValuesFile);
+      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(files);
       var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
 
       Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
@@ -140,7 +145,8 @@ class HelmProcessorTest {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = Mockito.mock(InputFile.class);
       when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
-      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(valuesFile);
+      var files = Map.of("values.yaml", valuesFile);
+      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(files);
       when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
         .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("containerPort: 8080 #1").build());
       var inputFileContext = Mockito.mock(InputFileContext.class);
@@ -160,7 +166,8 @@ class HelmProcessorTest {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = Mockito.mock(InputFile.class);
       when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
-      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(valuesFile);
+      var files = Map.of("values.yaml", valuesFile);
+      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(files);
       var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
 
       Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext))

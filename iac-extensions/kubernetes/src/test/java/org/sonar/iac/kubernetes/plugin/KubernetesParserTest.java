@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -119,7 +120,7 @@ class KubernetesParserTest {
   @Test
   void shouldNotEvaluateHelmWithoutValuesFile() {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.findValuesFile(any())).thenReturn(null);
+      when(HelmFilesystemUtils.retrieveFilesInHelmProject(any())).thenReturn(Map.of());
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
