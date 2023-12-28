@@ -1,4 +1,4 @@
-<p>Exposing administration services can lead to unauthorized access of containers or escalation of privileges inside of containers.</p>
+<p>Exposing administration services can lead to unauthorized access to containers or escalation of privilege inside of containers.</p>
 <p>A port that is commonly used for administration services is marked as being open through the <code>EXPOSE</code> command. Administration services
 like SSH might contain vulnerabilities, hard-coded credentials, or other security issues that increase the attack surface of a Docker deployment.<br>
 Even if the ports of the services do not get forwarded to the host system, by default they are reachable from other containers in the same network. A
