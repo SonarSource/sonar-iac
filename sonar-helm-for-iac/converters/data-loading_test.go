@@ -25,6 +25,17 @@ func Test_store_multiple_sources_in_memory(t *testing.T) {
 	assert.Contains(t, data, "Chart")
 }
 
+func Test_return_error_for_missing_file(t *testing.T) {
+	templateSources := NewTemplateSources(
+		"test-project/templates/a.yaml",
+		"apiVersion: v1",
+		map[string]string{"values.yaml": "foo: bar"})
+
+	_, err := templateSources.SourceFile("Chart.yaml")
+
+	assert.Error(t, err)
+}
+
 func Test_chart_data_has_all_fields(t *testing.T) {
 	templateSources := NewTemplateSources(
 		"test-project/templates/a.yaml",
@@ -55,6 +66,18 @@ func Test_malformed_chart_yaml(t *testing.T) {
 	_, err := LoadChart("foo: bar: baz")
 
 	assert.Error(t, err)
+}
+
+func Test_error_when_preparing_data(t *testing.T) {
+	templateSources := NewTemplateSources(
+		"test-project/templates/a.yaml",
+		"apiVersion: v1",
+		map[string]string{"values.yaml": "foo: bar"})
+
+	_, err := PrepareChartValues(templateSources)
+
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, "source file Chart.yaml not found")
 }
 
 func Test_base_path(t *testing.T) {
