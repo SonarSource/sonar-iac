@@ -19,23 +19,38 @@
  */
 package org.sonar.iac.docker.checks.utils.command;
 
-import java.util.function.Predicate;
-import org.sonar.iac.docker.symbols.ArgumentResolution;
+public class CommandPredicateResult {
 
-public class IncludingUnresolvedArgumentsPredicate extends SingularPredicate {
-  public IncludingUnresolvedArgumentsPredicate(Predicate<String> predicate, Type type) {
-    super(predicate, type);
+  private final boolean match;
+  private final PredicateContext.Status status;
+
+  private final boolean detectCurrentPredicateAgain;
+
+  private final boolean shouldBeMatchedAgain;
+
+  public CommandPredicateResult(boolean match,
+    PredicateContext.Status status,
+    boolean detectCurrentPredicateAgain,
+    boolean shouldBeMatchedAgain) {
+    this.match = match;
+    this.status = status;
+    this.detectCurrentPredicateAgain = detectCurrentPredicateAgain;
+    this.shouldBeMatchedAgain = shouldBeMatchedAgain;
   }
 
-  @Override
-  public void match(PredicateContext context) {
-    ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
-
-    matchResolution(context, resolution);
+  public boolean isMatch() {
+    return match;
   }
 
-  @Override
-  public boolean continueOnUnresolved() {
-    return true;
+  public PredicateContext.Status getStatus() {
+    return status;
+  }
+
+  public boolean isDetectCurrentPredicateAgain() {
+    return detectCurrentPredicateAgain;
+  }
+
+  public boolean isShouldBeMatchedAgain() {
+    return shouldBeMatchedAgain;
   }
 }

@@ -28,6 +28,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
+import org.sonar.iac.docker.checks.utils.CommandDetectorBuilder;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
@@ -49,23 +50,23 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final Predicate<String> OPTIONAL_OTHER_FLAGS = s -> s.startsWith("-") && !SENSITIVE_FLAGS.contains(s);
 
   // common predicates of detectors
-  private static final CommandDetector.Builder REDIRECTION_PREDICATES = CommandDetector.builder()
+  private static final CommandDetectorBuilder REDIRECTION_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .with(REDIRECTION_FLAGS)
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
-  private static final CommandDetector.Builder PROTO_FLAG_MISSING_OPTION_PREDICATES = CommandDetector.builder()
+  private static final CommandDetectorBuilder PROTO_FLAG_MISSING_OPTION_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .with(PROTO_FLAG)
     .notWith(EQUALS_PROTO_FLAG_OPTION)
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
-  private static final CommandDetector.Builder PROTO_FLAG_MISSING_PREDICATES = CommandDetector.builder()
+  private static final CommandDetectorBuilder PROTO_FLAG_MISSING_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .notWith(PROTO_FLAG::equals)
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
-  private static final CommandDetector.Builder PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES = CommandDetector.builder()
+  private static final CommandDetectorBuilder PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .with(PROTO_FLAG)
     .with(not(EQUALS_PROTO_FLAG_OPTION))
