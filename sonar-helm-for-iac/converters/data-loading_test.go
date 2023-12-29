@@ -34,10 +34,15 @@ func Test_chart_data_has_all_fields(t *testing.T) {
 	chartData, _ := PrepareChartValues(templateSources)
 
 	assert.Contains(t, chartData, "Values")
+	assert.Equal(t, Values{"foo": "bar"}, chartData["Values"])
 	assert.Contains(t, chartData, "Chart")
+	assert.Equal(t, Chart{"name": "test-project"}, chartData["Chart"])
 	assert.Contains(t, chartData, "Capabilities")
+	assert.Equal(t, DefaultCapabilities, chartData["Capabilities"])
 	assert.Contains(t, chartData, "Release")
+	assert.Equal(t, DefaultReleaseMetadata, chartData["Release"])
 	assert.Contains(t, chartData, "Template")
+	assert.Equal(t, Template{Name: "test-project/templates/a.yaml", BasePath: "test-project/templates"}, chartData["Template"])
 }
 
 func Test_malformed_values(t *testing.T) {

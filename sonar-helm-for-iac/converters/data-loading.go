@@ -38,18 +38,18 @@ func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{
 	result := map[string]interface{}{}
 
 	values := mo.TupleToResult(LoadValues(templateSources.Values()))
-	chart, err := Map(values, func(values *Values) (*Chart, error) {
+	chart, err := FlatMap(values, func(values *Values) mo.Result[*Chart] {
 		return Map(mo.TupleToResult(templateSources.SourceFile("Chart.yaml")), func(content string) (*Chart, error) {
 			return LoadChart(content)
-		}).Get()
+		})
 	}).Get()
 
 	if err != nil {
 		return nil, err
 	}
 
-	result["Values"] = values.MustGet()
-	result["Chart"] = chart
+	result["Values"] = *values.MustGet()
+	result["Chart"] = *chart
 
 	result["Capabilities"] = DefaultCapabilities
 	result["Release"] = DefaultReleaseMetadata
@@ -94,6 +94,13 @@ func unmarshalYamlToMap(input string) (map[string]interface{}, error) {
 func Map[T any, R any](result mo.Result[T], mapper func(T) (R, error)) mo.Result[R] {
 	if result.IsOk() {
 		return mo.TupleToResult(mapper(result.MustGet()))
+	}
+	return mo.Err[R](result.Error())
+}
+
+func FlatMap[T any, R any](result mo.Result[T], mapper func(T) mo.Result[R]) mo.Result[R] {
+	if result.IsOk() {
+		return mapper(result.MustGet())
 	}
 	return mo.Err[R](result.Error())
 }

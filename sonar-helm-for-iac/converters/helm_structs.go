@@ -36,7 +36,17 @@ var DefaultCapabilities = map[string]interface{}{
 	},
 	// It is possible to directly use `k8s.io/apimachinery/pkg/runtime/scheme.go`, as does Helm. Not sure if we need it.
 	"APIVersions": []string{"v1"},
-	"HelmVersion": "v3",
+	"HelmVersion": struct {
+		Version      string
+		GitCommit    string
+		GitTreeState string
+		GoVersion    string
+	}{
+		"v3.5",
+		"276121c8693b48978eae5c09602b1e74d9a2a7e6",
+		"clean",
+		"go1.21",
+	},
 }
 
 type Template = struct {
