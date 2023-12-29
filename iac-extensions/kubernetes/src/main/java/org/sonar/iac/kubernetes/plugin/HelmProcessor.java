@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ import org.sonar.iac.helm.HelmEvaluator;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
-import static org.sonar.iac.helm.utils.HelmFilesystemUtils.findValuesFile;
+import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory;
 
 @ScannerSide
 @SonarLintSide
@@ -66,31 +67,34 @@ public class HelmProcessor {
 
     // TODO: better support of Helm project structure
     var sourceWithComments = addLineComments(source);
-    var valuesFile = findValuesFile(inputFileContext);
-    var valuesFileContent = validateAndReadValuesFile(valuesFile, inputFileContext.inputFile);
-    // TODO: SONARIAC-1225 Pass all files of the Helm project directory to HelmEvaluator
-    var templateDependencies = Map.of(
-      "values.yaml", valuesFileContent);
-    return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, templateDependencies);
+    Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
+    var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
+    return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, fileContents);
   }
 
-  private static String validateAndReadValuesFile(@Nullable InputFile valuesFile, InputFile inputFile) {
-    if (valuesFile == null) {
+  private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
+    // Currently we are only looking for the default location of the values file
+    if (!files.containsKey("values.yaml") && !files.containsKey("values.yml")) {
       throw parseExceptionFor(inputFile, "Failed to find values file", null);
     }
 
-    String valuesFileContent;
-    try {
-      valuesFileContent = valuesFile.contents();
-    } catch (IOException e) {
-      throw parseExceptionFor(inputFile, "Failed to read values file at " + valuesFile, e.getMessage());
-    }
+    Map<String, String> fileContents = new HashMap<>(files.size());
 
-    if (valuesFileContent.isBlank()) {
-      throw parseExceptionFor(inputFile, "Values file at " + valuesFile + " is empty", null);
-    }
+    for (Map.Entry<String, InputFile> filenameToInputFile : files.entrySet()) {
+      var additionalInputFile = filenameToInputFile.getValue();
+      String fileContent;
+      try {
+        fileContent = additionalInputFile.contents();
+      } catch (IOException e) {
+        throw parseExceptionFor(inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
+      }
 
-    return valuesFileContent;
+      if (fileContent.isBlank()) {
+        throw parseExceptionFor(inputFile, "File at " + additionalInputFile + " is empty", null);
+      }
+      fileContents.put(filenameToInputFile.getKey(), fileContent);
+    }
+    return fileContents;
   }
 
   private String evaluateHelmTemplate(String path, InputFile inputFile, String content, Map<String, String> templateDependencies) {
