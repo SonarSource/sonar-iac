@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
 	"os"
-	"sigs.k8s.io/yaml"
 	"strings"
 	"text/template"
 )
@@ -32,37 +31,13 @@ import (
 var stdinReader converters.InputReader = converters.StdinReader{}
 var serializer converters.Serializer = converters.ProtobufSerializer{}
 
-// TemplateSources contains all the sources needed to evaluate a template
-type TemplateSources struct {
-	Name                  string
-	RawTemplate           string
-	fileNameToFileContent map[string]string
-}
-
-// NumAdditionalSources returns the number of sources required for this template.
-func (ts *TemplateSources) NumAdditionalSources() int {
-	return len(ts.fileNameToFileContent)
-}
-
-func (ts *TemplateSources) SourceFile(name string) (string, error) {
-	if _, ok := ts.fileNameToFileContent[name]; !ok {
-		return "", fmt.Errorf("source file %s not found", name)
-	}
-	return ts.fileNameToFileContent[name], nil
-}
-
-func (ts *TemplateSources) Values() string {
-	valuesFile, _ := ts.SourceFile("values.yaml")
-	return valuesFile
-}
-
-func NewTemplateSourcesFromRawSources(rawSources []converters.SourceCode) *TemplateSources {
+func NewTemplateSourcesFromRawSources(rawSources []converters.SourceCode) *converters.TemplateSources {
 	sources := make(map[string]string)
 	// The first file is assumed to be the main template, the rest are additional files
 	for _, source := range rawSources[1:] {
 		sources[source.Name] = source.Content
 	}
-	return &TemplateSources{rawSources[0].Name, rawSources[0].Content, sources}
+	return converters.NewTemplateSources(rawSources[0].Name, rawSources[0].Content, sources)
 }
 
 func main() {
@@ -85,7 +60,7 @@ func main() {
 	os.Stdout.Write(result)
 }
 
-func readAndValidateSources() (*TemplateSources, error) {
+func readAndValidateSources() (*converters.TemplateSources, error) {
 	scanner := bufio.NewScanner(os.Stdin)
 	sources, err := stdinReader.ReadInput(scanner)
 	if err != nil {
@@ -105,12 +80,16 @@ func validateInput(sources []converters.SourceCode) error {
 	return nil
 }
 
-func evaluateTemplate(templateSources *TemplateSources) (string, error) {
+func evaluateTemplate(templateSources *converters.TemplateSources) (string, error) {
 	tmpl, err := newTemplate(templateSources.Name, templateSources.RawTemplate)
-	if err != nil {
-		return "", err
+	if err == nil {
+		var data any
+		data, err = converters.PrepareChartValues(templateSources)
+		if err == nil {
+			return executeWithValues(tmpl, data)
+		}
 	}
-	return executeWithValues(tmpl, templateSources.Values())
+	return "", err
 }
 
 func newTemplate(name string, content string) (*template.Template, error) {
@@ -124,28 +103,11 @@ func newTemplate(name string, content string) (*template.Template, error) {
 	return tmpl, nil
 }
 
-func executeWithValues(tmpl *template.Template, valuesFileContent string) (string, error) {
-	valuesMap, err := unmarshalYamlToMap(valuesFileContent)
-	if err != nil {
-		return "", fmt.Errorf("error parsing values file: %w", err)
-	}
-	values := struct {
-		Values map[string]interface{}
-	}{valuesMap}
-
+func executeWithValues(tmpl *template.Template, data any) (string, error) {
 	var buf strings.Builder
-	err = tmpl.Execute(&buf, values)
+	err := tmpl.Execute(&buf, data)
 	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil
-}
-
-func unmarshalYamlToMap(input string) (map[string]interface{}, error) {
-	values := map[string]interface{}{}
-	err := yaml.Unmarshal([]byte(input), &values)
-	if len(values) == 0 {
-		values = map[string]interface{}{}
-	}
-	return values, err
 }

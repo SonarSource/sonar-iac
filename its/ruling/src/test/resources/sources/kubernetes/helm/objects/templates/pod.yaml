@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  annotations:
+    helmVersion: {{ .Capabilities.HelmVersion.Version }}
+    kubeVersion: {{ .Capabilities.KubeVersion.Version }}
+  labels:
+    appName: {{ .Chart.Name }}
+    name: {{ .Template.Name }}
+    revision: {{ .Release.Revision }}
