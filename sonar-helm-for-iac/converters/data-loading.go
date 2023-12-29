@@ -8,30 +8,34 @@ import (
 
 // TemplateSources contains all the sources needed to evaluate a template
 type TemplateSources struct {
-	Name                  string
-	RawTemplate           string
-	fileNameToFileContent map[string]string
+	Name  string
+	files Files
 }
 
-func NewTemplateSources(name string, rawTemplate string, fileNameToFileContent map[string]string) *TemplateSources {
-	return &TemplateSources{name, rawTemplate, fileNameToFileContent}
+func NewTemplateSources(name string, fileNameToFileContent Files) *TemplateSources {
+	return &TemplateSources{name, fileNameToFileContent}
 }
 
-// NumAdditionalSources returns the number of sources required for this template.
-func (ts *TemplateSources) NumAdditionalSources() int {
-	return len(ts.fileNameToFileContent)
+// NumSources returns the number of sources required for evaluation of this template (including itself).
+func (ts *TemplateSources) NumSources() int {
+	return len(ts.files)
 }
 
-func (ts *TemplateSources) SourceFile(name string) (string, error) {
-	if _, ok := ts.fileNameToFileContent[name]; !ok {
-		return "", fmt.Errorf("source file %s not found", name)
+func (ts *TemplateSources) SourceFile(name string) ([]byte, error) {
+	if _, ok := ts.files[name]; !ok {
+		return nil, fmt.Errorf("source file %s not found", name)
 	}
-	return ts.fileNameToFileContent[name], nil
+	return ts.files[name], nil
+}
+
+func (ts *TemplateSources) TemplateFile() string {
+	templateFile, _ := ts.SourceFile(ts.Name)
+	return string(templateFile)
 }
 
 func (ts *TemplateSources) Values() string {
 	valuesFile, _ := ts.SourceFile("values.yaml")
-	return valuesFile
+	return string(valuesFile)
 }
 
 func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{}, error) {
@@ -39,8 +43,8 @@ func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{
 
 	values := mo.TupleToResult(LoadValues(templateSources.Values()))
 	chart, err := FlatMap(values, func(values *Values) mo.Result[*Chart] {
-		return Map(mo.TupleToResult(templateSources.SourceFile("Chart.yaml")), func(content string) (*Chart, error) {
-			return LoadChart(content)
+		return Map(mo.TupleToResult(templateSources.SourceFile("Chart.yaml")), func(content []byte) (*Chart, error) {
+			return LoadChart(string(content))
 		})
 	}).Get()
 
@@ -50,6 +54,7 @@ func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{
 
 	result["Values"] = *values.MustGet()
 	result["Chart"] = *chart
+	result["Files"] = templateSources.files
 
 	result["Capabilities"] = DefaultCapabilities
 	result["Release"] = DefaultReleaseMetadata

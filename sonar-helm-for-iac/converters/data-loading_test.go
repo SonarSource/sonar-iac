@@ -8,17 +8,18 @@ import (
 
 func Test_store_multiple_sources_in_memory(t *testing.T) {
 	templateSources := &TemplateSources{
-		Name:        "test-project/templates/a.yaml",
-		RawTemplate: "apiVersion: v1",
-		fileNameToFileContent: map[string]string{
-			"values.yaml": "foo: bar",
-			"Chart.yaml":  "name: test-project",
-		},
+		Name: "test-project/templates/a.yaml",
+		files: filesFromStrings(map[string]string{
+			"test-project/templates/a.yaml": "apiVersion: v1",
+			"values.yaml":                   "foo: bar",
+			"Chart.yaml":                    "name: test-project",
+		}),
 	}
 
-	assert.Equal(t, 2, templateSources.NumAdditionalSources())
+	assert.Equal(t, 3, templateSources.NumSources())
+	assert.Equal(t, "apiVersion: v1", templateSources.TemplateFile())
 	assert.Equal(t, "foo: bar", templateSources.Values())
-	assert.Equal(t, "name: test-project", mo.TupleToResult(templateSources.SourceFile("Chart.yaml")).MustGet())
+	assert.Equal(t, "name: test-project", string(mo.TupleToResult(templateSources.SourceFile("Chart.yaml")).MustGet()))
 
 	data, _ := PrepareChartValues(templateSources)
 
@@ -26,10 +27,8 @@ func Test_store_multiple_sources_in_memory(t *testing.T) {
 }
 
 func Test_return_error_for_missing_file(t *testing.T) {
-	templateSources := NewTemplateSources(
-		"test-project/templates/a.yaml",
-		"apiVersion: v1",
-		map[string]string{"values.yaml": "foo: bar"})
+	templateSources := NewTemplateSources("test-project/templates/a.yaml", filesFromStrings(map[string]string{
+		"test-project/templates/a.yaml": "apiVersion: v1", "values.yaml": "foo: bar"}))
 
 	_, err := templateSources.SourceFile("Chart.yaml")
 
@@ -37,10 +36,8 @@ func Test_return_error_for_missing_file(t *testing.T) {
 }
 
 func Test_chart_data_has_all_fields(t *testing.T) {
-	templateSources := NewTemplateSources(
-		"test-project/templates/a.yaml",
-		"apiVersion: v1",
-		map[string]string{"values.yaml": "foo: bar", "Chart.yaml": "name: test-project"})
+	templateSources := NewTemplateSources("test-project/templates/a.yaml", filesFromStrings(map[string]string{
+		"test-project/templates/a.yaml": "apiVersion: v1", "values.yaml": "foo: bar", "Chart.yaml": "name: test-project"}))
 
 	chartData, _ := PrepareChartValues(templateSources)
 
@@ -69,10 +66,8 @@ func Test_malformed_chart_yaml(t *testing.T) {
 }
 
 func Test_error_when_preparing_data(t *testing.T) {
-	templateSources := NewTemplateSources(
-		"test-project/templates/a.yaml",
-		"apiVersion: v1",
-		map[string]string{"values.yaml": "foo: bar"})
+	templateSources := NewTemplateSources("test-project/templates/a.yaml", filesFromStrings(map[string]string{
+		"test-project/templates/a.yaml": "apiVersion: v1", "values.yaml": "foo: bar"}))
 
 	_, err := PrepareChartValues(templateSources)
 
@@ -83,4 +78,12 @@ func Test_error_when_preparing_data(t *testing.T) {
 func Test_base_path(t *testing.T) {
 	assert.Equal(t, "test-project/templates", getBasePath(&Chart{"name": "test-project"}))
 	assert.Panics(t, func() { getBasePath(&Chart{}) })
+}
+
+func filesFromStrings(filesToStringContent map[string]string) Files {
+	result := Files{}
+	for name, content := range filesToStringContent {
+		result[name] = []byte(content)
+	}
+	return result
 }

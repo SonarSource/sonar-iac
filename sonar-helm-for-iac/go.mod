@@ -8,6 +8,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/protobuf v1.31.0
 	sigs.k8s.io/yaml v1.3.0
+	github.com/gobwas/glob v0.2.3
 )
 
 require (

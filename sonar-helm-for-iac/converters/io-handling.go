@@ -20,20 +20,15 @@ package converters
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/samber/mo"
 	"os"
 	"strconv"
-	"strings"
 )
 
-// SourceCode represents a source file which is passed from the Helm evaluator.
-// Can be template itself, values.yaml or any imported file.
-type SourceCode struct {
-	Name    string
-	Content string
-}
+var END_TOKEN = []byte("END")
 
 type InputReader interface {
 	// ReadInput
@@ -43,31 +38,32 @@ type InputReader interface {
 	// <file content>
 	// [<more blocks in the format above>]
 	// END
-	ReadInput(scanner *bufio.Scanner) ([]SourceCode, error)
+	ReadInput(scanner *bufio.Scanner) (string, Files, error)
 }
 
 type StdinReader struct{}
 
-func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]SourceCode, error) {
-	contents := make([]SourceCode, 0)
+func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
+	contents := Files{}
 	firstLine, err := s.readInput(scanner, 1)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
-	if firstLine == "" {
+	if len(firstLine) == 0 {
 		fmt.Fprintf(os.Stderr, "Received empty input, exiting\n")
-		return contents, nil
+		return "", contents, nil
 	}
 
-	for firstLine != "END" {
-		name := firstLine
+	templateName := string(firstLine)
+	for !bytes.Equal(firstLine, END_TOKEN) {
+		name := string(firstLine)
 
-		var content string
+		var content []byte
 		contentResult := mo.TupleToResult(s.readInput(scanner, 1)).FlatMap(
-			func(lengthStr string) mo.Result[string] {
-				length, err := strconv.Atoi(lengthStr)
+			func(lengthBytes []byte) mo.Result[[]byte] {
+				length, err := strconv.Atoi(string(lengthBytes))
 				if err != nil {
-					return mo.Err[string](err)
+					return mo.Err[[]byte](err)
 				}
 				fmt.Fprintf(os.Stderr, "Reading %d lines from stdin\n", length)
 				return mo.TupleToResult(s.readInput(scanner, length))
@@ -76,26 +72,26 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) ([]SourceCode, error) {
 			content = contentResult.MustGet()
 		}
 
-		firstLine, err = contentResult.FlatMap(func(string) mo.Result[string] {
+		firstLine, err = contentResult.FlatMap(func([]byte) mo.Result[[]byte] {
 			return mo.TupleToResult(s.readInput(scanner, 1))
 		}).Get()
 
 		if err != nil {
-			return nil, err
+			return "", nil, err
 		}
 
-		contents = append(contents, SourceCode{Name: name, Content: content})
+		contents[name] = content
 	}
 	fmt.Fprintf(os.Stderr, "Received END signal, exiting\n")
-	return contents, nil
+	return templateName, contents, nil
 }
 
 // readInput
 // Reads nLines from the given scanner and returns as a single string.
 // If nLines is negative, reads all lines until EOF.
-func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) (string, error) {
+func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) ([]byte, error) {
 	if nLines == 0 {
-		return "", errors.New("request to read 0 lines aborted")
+		return nil, errors.New("request to read 0 lines aborted")
 	}
 	rawInput := make([][]byte, 0)
 	linesToRead := nLines
@@ -107,13 +103,16 @@ func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) (string, erro
 		}
 	}
 	// if scanner has encountered an error, scanner.Err will return it here
-	return bytesToString(rawInput), scanner.Err()
+	return joinWithDelimiter(rawInput, "\n"), scanner.Err()
 }
 
-func bytesToString(input [][]byte) string {
-	result := make([]string, len(input))
-	for i, b := range input {
-		result[i] = string(b)
+func joinWithDelimiter(bytes [][]byte, delimiter string) []byte {
+	result := make([]byte, 0)
+	for i, line := range bytes {
+		result = append(result, line...)
+		if i != len(bytes)-1 {
+			result = append(result, []byte(delimiter)...)
+		}
 	}
-	return strings.Join(result, "\n")
+	return result
 }
