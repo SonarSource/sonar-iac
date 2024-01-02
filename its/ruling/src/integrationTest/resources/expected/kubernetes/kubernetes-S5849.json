@@ -2,19 +2,19 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S5849/templates/deployment.yaml": [
 36
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/cassandra/cassandra-statefulset.yaml": [
+"kubernetes-project:sources/kubernetes/examples/cassandra/cassandra-statefulset.yaml": [
 41
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
 26
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-client-rc.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-client-rc.yaml": [
 21
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-data-rc.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-data-rc.yaml": [
 21
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-master-rc.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-master-rc.yaml": [
 21
 ]
 }

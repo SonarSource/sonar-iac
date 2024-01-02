@@ -14,7 +14,7 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6433/templates/deployment.yaml": [
 37
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
 13,
 24
 ]

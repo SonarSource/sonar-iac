@@ -5,25 +5,25 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6433/templates/deployment.yaml": [
 37
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
 52,
 55
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml": [
 57,
 64
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml": [
 21,
 31,
 37
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml": [
 16,
 26,
 32
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
 25
 ]
 }

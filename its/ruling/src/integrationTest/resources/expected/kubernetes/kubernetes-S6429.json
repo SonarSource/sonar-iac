@@ -2,16 +2,16 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6429/templates/deployment.yaml": [
 37
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
 52
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml": [
 57
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml": [
 21
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml": [
 16
 ]
 }
