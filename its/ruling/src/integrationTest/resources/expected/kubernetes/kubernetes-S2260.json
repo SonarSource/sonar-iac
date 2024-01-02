@@ -53,7 +53,13 @@
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/networkpolicy.yaml": [
 0
 ],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/prometheus-podmonitor.yaml": [
+0
+],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/pvc.yaml": [
+0
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/route.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/service.yaml": [
