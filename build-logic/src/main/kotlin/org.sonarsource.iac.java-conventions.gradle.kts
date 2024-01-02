@@ -19,9 +19,7 @@ tasks.withType<JavaCompile> {
 tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
     options {
-        this as CoreJavadocOptions
-        addStringOption("Xdoclint:none")
-        addStringOption("quiet")
+        (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
     }
 }
 
