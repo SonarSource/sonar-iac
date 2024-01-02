@@ -75,6 +75,36 @@ If your build failed, you can fix the formatting just by running:
 ./gradlew spotlessApply
 ```
 
+#### Update rule description
+
+Update all rule descriptions.
+
+```shell
+./gradlew ruleApiUpdate
+```
+
+Update all rule descriptions for a specific language.
+
+```shell
+./gradlew ruleApiUpdateArm
+./gradlew ruleApiUpdateCloudformation
+./gradlew ruleApiUpdateDocker
+./gradlew ruleApiUpdateKubernetes
+./gradlew ruleApiUpdateTerraform
+```
+
+#### Generate new rule description
+
+To fetch static files for a rule SXXXX from RSPEC for one of the language, execute the following command:
+```shell
+./gradlew ruleApiUpdateRuleArm -Prule=SXXXX
+./gradlew ruleApiUpdateRuleCloudformation -Prule=SXXXX
+./gradlew ruleApiUpdateRuleDocker -Prule=SXXXX
+./gradlew ruleApiUpdateRuleKubernetes -Prule=SXXXX
+./gradlew ruleApiUpdateRuleTerraform -Prule=SXXXX
+
+```
+
 #### Ruling integration tests
 These integration tests verify that, given a set of files, when the analyzer is run on them, all the expected issues get raised in a prepared SonarQube instance. 
 The expected findings are saved in `its/ruling/src/integrationTest/resources/expected`. To run the ruling ITS:
