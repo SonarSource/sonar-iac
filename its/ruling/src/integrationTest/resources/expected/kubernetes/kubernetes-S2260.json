@@ -17,49 +17,49 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M2/templates/pod.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/storage/vitess/etcd-controller-template.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/etcd-controller-template.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/storage/vitess/etcd-service-template.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/etcd-service-template.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/storage/vitess/vtctld-controller-template.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/vtctld-controller-template.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/storage/vitess/vtgate-controller-template.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/vtgate-controller-template.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/examples/staging/storage/vitess/vttablet-pod-template.yaml": [
+"kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/vttablet-pod-template.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/change-admin-password-hook.yml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/change-admin-password-hook.yml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/ingress.yaml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/ingress.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/networkpolicy.yaml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/networkpolicy.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/podDistributionBudget.yaml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/podDistributionBudget.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/prometheus-podmonitor.yaml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/prometheus-podmonitor.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/service.yaml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/service.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/sonarqube-application.yaml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/sonarqube-application.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/sonarqube-search.yaml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/sonarqube-search.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [
 0
 ],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/change-admin-password-hook.yml": [
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/change-admin-password-hook.yml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/deployment.yaml": [
