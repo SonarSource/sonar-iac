@@ -25,9 +25,6 @@ tasks.register<Exec>("compileProtobufGo") {
     doFirst {
         println("Running command: ${commandLine}")
     }
-    doLast {
-        println("Compile protobuf done")
-    }
 }
 
 // Define and trigger tasks in this order: clean, compile and test go code
@@ -36,9 +33,6 @@ tasks.register<Exec>("cleanGoCode") {
     group = "build"
 
     callMake(this, "clean")
-    doLast {
-        println("cleanGoCode")
-    }
 }
 
 tasks.register<Exec>("compileGoCode") {
@@ -53,9 +47,6 @@ tasks.register<Exec>("compileGoCode") {
     outputs.cacheIf { true }
 
     callMake(this, "build")
-    doLast {
-        println("compileGoCode")
-    }
 }
 
 tasks.register<Exec>("testGoCode") {
@@ -64,9 +55,6 @@ tasks.register<Exec>("testGoCode") {
 
     dependsOn("compileGoCode")
     callMake(this, "test")
-    doLast {
-        println("testGoCode")
-    }
 }
 
 tasks.named("clean") {
