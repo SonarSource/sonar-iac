@@ -1,0 +1,14 @@
+{
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/parseError.json": [
+4
+],
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/parseError.yaml": [
+3
+],
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/parseError.yml": [
+3
+],
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/recursiveAnchorParseError.yaml": [
+3
+]
+}

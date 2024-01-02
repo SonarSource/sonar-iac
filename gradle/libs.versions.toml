@@ -1,0 +1,46 @@
+[versions]
+sonarqube = "10.1.0.73491"
+sonar-plugin-api = "10.1.0.809"
+sonar-commons = "2.7.0.1482"
+sonar-orchestrator = "4.0.0.404"
+junit = "5.9.3"
+assertj = "3.23.1"
+mockito = "4.6.1"
+slf4j = "1.7.30"
+sonar-lint = "8.16.0.67686"
+sslr = "1.24.0.633"
+archunit = "1.0.1"
+snakeyaml = "2.6"
+minimaljson = "0.9.5"
+sonar-scanner-gradle = "4.4.0.3356"
+jfrog-gradle = "4.28.2"
+spotless-gradle = "6.22.0"
+blowdryer-gradle = "1.7.0"
+google-protobuf = "3.25.0"
+
+[libraries]
+sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
+sonar-analyzer-test-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-test-commons", version.ref = "sonar-commons" }
+sonar-plugin-api = { module = "org.sonarsource.api.plugin:sonar-plugin-api", version.ref = "sonar-plugin-api" }
+sonar-plugin-api-impl = { module = "org.sonarsource.sonarqube:sonar-plugin-api-impl", version.ref = "sonarqube" }
+sonar-plugin-api-test-fixtures = { module = "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures", version.ref = "sonar-plugin-api" }
+sonar-ws = { module = "org.sonarsource.sonarqube:sonar-ws", version.ref = "sonarqube" }
+sonar-orchestrator = { module = "org.sonarsource.orchestrator:sonar-orchestrator", version.ref = "sonar-orchestrator" }
+sonar-orchestrator-junit5 = { module = "org.sonarsource.orchestrator:sonar-orchestrator-junit5", version.ref = "sonar-orchestrator" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
+jfrog-buildinfo-gradle = { module = "org.jfrog.buildinfo:build-info-extractor-gradle", version.ref = "jfrog-gradle" }
+sonar-lint = { module = "org.sonarsource.sonarlint.core:sonarlint-core", version.ref = "sonar-lint" }
+sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
+sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref = "sslr" }
+archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+snakeyaml = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeyaml" }
+minimaljson = { module = "com.eclipsesource.minimal-json:minimal-json", version.ref = "minimaljson" }
+sonar-scanner-gradle = { module = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin", version.ref = "sonar-scanner-gradle" }
+diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless-gradle" }
+diffplug-blowdryer = { module = "com.diffplug:blowdryer", version.ref = "blowdryer-gradle" }
+google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "google-protobuf" }

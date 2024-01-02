@@ -1,0 +1,42 @@
+{
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6252.json": [
+5,
+13,
+21,
+29,
+37,
+45,
+49
+],
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6252.yaml": [
+4,
+10,
+15,
+22,
+28,
+34,
+38
+],
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6270.json": [
+5
+],
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6270.yaml": [
+4
+],
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6273.json": [
+5
+],
+"cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6273.yaml": [
+7
+],
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/lambda_build_with_submodules/templates/test.template.yaml": [
+3
+],
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/retain-resources/test.template.yaml": [
+26,
+33
+],
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/update_ami/generic/generic.template.json": [
+18
+]
+}

@@ -1,0 +1,8 @@
+{
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/S6321.bicep": [
+14
+],
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/darktrace-vsensor-autoscaling-azuredeploy.json": [
+347
+]
+}

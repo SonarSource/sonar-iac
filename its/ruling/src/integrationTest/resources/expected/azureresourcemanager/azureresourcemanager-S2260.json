@@ -1,0 +1,17 @@
+{
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/parseError.json": [
+4
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/conditional-definition.bicep": [
+2
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/dependsOn-definition.bicep": [
+1
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/iterative-definition.bicep": [
+3
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/scope-definition.bicep": [
+2
+]
+}

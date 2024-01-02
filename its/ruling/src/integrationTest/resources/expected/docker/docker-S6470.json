@@ -1,0 +1,71 @@
+{
+"docker-project:ruling/src/integrationTest/resources/sources/docker/S6476/Dockerfile": [
+3
+],
+"docker-project:sources/docker/awesome-compose/angular/angular/Dockerfile": [
+13
+],
+"docker-project:sources/docker/awesome-compose/aspnet-mssql/app/aspnetapp/Dockerfile": [
+6
+],
+"docker-project:sources/docker/awesome-compose/django/app/Dockerfile": [
+8
+],
+"docker-project:sources/docker/awesome-compose/flask-redis/Dockerfile": [
+10
+],
+"docker-project:sources/docker/awesome-compose/flask/app/Dockerfile": [
+10
+],
+"docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile": [
+12
+],
+"docker-project:sources/docker/awesome-compose/nginx-flask-mongo/flask/Dockerfile": [
+9
+],
+"docker-project:sources/docker/awesome-compose/nginx-flask-mysql/backend/Dockerfile": [
+9
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang-mysql/backend/Dockerfile": [
+14
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang-postgres/backend/Dockerfile": [
+14
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang/backend/Dockerfile": [
+14
+],
+"docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/flask/Dockerfile": [
+18
+],
+"docker-project:sources/docker/awesome-compose/react-express-mongodb/backend/Dockerfile": [
+12
+],
+"docker-project:sources/docker/awesome-compose/react-express-mongodb/frontend/Dockerfile": [
+20
+],
+"docker-project:sources/docker/awesome-compose/react-express-mysql/backend/Dockerfile": [
+27
+],
+"docker-project:sources/docker/awesome-compose/react-express-mysql/frontend/Dockerfile": [
+12
+],
+"docker-project:sources/docker/awesome-compose/react-java-mysql/frontend/Dockerfile": [
+10
+],
+"docker-project:sources/docker/awesome-compose/react-nginx/Dockerfile": [
+16
+],
+"docker-project:sources/docker/awesome-compose/react-rust-postgres/backend/Dockerfile": [
+12
+],
+"docker-project:sources/docker/awesome-compose/react-rust-postgres/frontend/Dockerfile": [
+11
+],
+"docker-project:sources/docker/awesome-compose/vuejs/vuejs/Dockerfile": [
+7
+],
+"docker-project:sources/docker/compose-dev-env/backend/Dockerfile": [
+3
+]
+}
