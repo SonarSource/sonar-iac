@@ -10,7 +10,7 @@ java {
 }
 
 group = "org.sonarsource.iac"
-version = "1.24-SNAPSHOT"
+version = "1.25-SNAPSHOT"
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
