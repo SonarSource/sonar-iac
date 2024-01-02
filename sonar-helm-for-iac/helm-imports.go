@@ -24,7 +24,6 @@ import (
 	"errors"
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig/v3"
-	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
 	"sigs.k8s.io/yaml"
 	"slices"
 	"strconv"
@@ -230,13 +229,6 @@ func addCustomFunctions() *template.FuncMap {
 
 	functions["lookup"] = func(string, string, string, string) (map[string]interface{}, error) {
 		return map[string]interface{}{}, nil
-	}
-
-	functions["tpl"] = func(templateContent string, values converters.Values) (string, error) {
-		// TODO SONARIAC-1177 Add "tpl" function to Helm template evaluation
-		text := "sonar-generated-tpl-" + strconv.Itoa(generatedNamesCount)
-		generatedNamesCount++
-		return text, nil
 	}
 
 	functions["include"] = func(name string, data interface{}) (string, error) {

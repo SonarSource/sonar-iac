@@ -85,6 +85,23 @@ func Test_base_path(t *testing.T) {
 	assert.Equal(t, "a.yaml", getBasePath("a.yaml"))
 }
 
+func Test_should_return_template_files(t *testing.T) {
+	templateSources := NewTemplateSources("templates/a.yaml", filesFromStrings(map[string]string{
+		"test-project/templates/a.yaml":        "apiVersion: v1",
+		"test-project/templates/b.yaml":        "apiVersion: v1",
+		"test-project/templates/nested/c.yaml": "apiVersion: v1",
+		"values.yaml":                          "foo: bar",
+		"config.properties":                    "foo=bar",
+		"Chart.yaml":                           "name: test-project"}))
+
+	templateFiles := templateSources.TemplateFiles("test-project")
+
+	assert.Equal(t, 3, len(templateFiles))
+	assert.Contains(t, templateFiles, "test-project/templates/a.yaml")
+	assert.Contains(t, templateFiles, "test-project/templates/b.yaml")
+	assert.Contains(t, templateFiles, "test-project/templates/nested/c.yaml")
+}
+
 func filesFromStrings(filesToStringContent map[string]string) Files {
 	result := Files{}
 	for name, content := range filesToStringContent {
