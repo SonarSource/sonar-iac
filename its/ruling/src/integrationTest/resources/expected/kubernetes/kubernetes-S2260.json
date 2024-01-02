@@ -1,22 +1,4 @@
 {
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S5849/templates/deployment.yaml": [
-0
-],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6428/templates/deployment.yaml": [
-0
-],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6429/templates/deployment.yaml": [
-0
-],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6431/templates/deployment.yaml": [
-0
-],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6433/templates/deployment.yaml": [
-0
-],
-"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M2/templates/pod.yaml": [
-0
-],
 "kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/etcd-controller-template.yaml": [
 0
 ],
@@ -71,13 +53,7 @@
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/networkpolicy.yaml": [
 0
 ],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/prometheus-podmonitor.yaml": [
-0
-],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/pvc.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/route.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/service.yaml": [
