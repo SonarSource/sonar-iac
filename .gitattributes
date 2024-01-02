@@ -1,2 +1,3 @@
 *                               text=auto
 /sonar-helm-for-iac/make.bat    text    eol=crlf
+/sonar-helm-for-iac/make.sh    text    eol=lf
