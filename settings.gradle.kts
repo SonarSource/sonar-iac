@@ -33,23 +33,7 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         maven {
-            url = uri("https://repox.jfrog.io/repox/sonarsource-private-releases")
-
-            val artifactoryUsername =
-                System.getenv("ARTIFACTORY_PRIVATE_USERNAME")
-                    ?: providers.gradleProperty("artifactoryUsername").getOrElse("")
-            val artifactoryPassword =
-                System.getenv("ARTIFACTORY_PRIVATE_PASSWORD")
-                    ?: providers.gradleProperty("artifactoryPassword").getOrElse("")
-
-            if (artifactoryUsername != "" && artifactoryPassword != "") {
-                authentication {
-                    credentials {
-                        username = artifactoryUsername
-                        password = artifactoryPassword
-                    }
-                }
-            }
+            url = uri("https://repox.jfrog.io/repox/sonarsource")
         }
     }
 }
