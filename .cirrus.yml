@@ -142,9 +142,28 @@ build_task:
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
     - go version
-    - regular_gradle_build_deploy_analyze --profile
+    - regular_gradle_build_deploy_analyze --profile -x test -x sonar
   <<: *STORE_PROFILE_REPORT
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+
+build_test_analyze_task:
+  eks_container:
+    <<: *LINUX_IMAGE_WITH_GCC
+    cpu: 3.5
+    memory: 7G
+  <<: *SETUP_GRADLE_CACHE
+  env:
+    <<: *BUILD_SECRETS
+    #allow deployment of pull request artifacts to repox
+    DEPLOY_PULL_REQUEST: true
+    GO_CROSS_COMPILE: '0'
+  build_script:
+    - source cirrus-env BUILD
+    - source .cirrus/use-gradle-wrapper.sh
+    - go version
+    - regular_gradle_build_deploy_analyze -x artifactoryPublish
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+
 
 qa_os_win_task:
   <<: *QA_TASK_FILTER
