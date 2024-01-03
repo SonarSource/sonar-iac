@@ -31,13 +31,8 @@ import (
 var stdinReader converters.InputReader = converters.StdinReader{}
 var serializer converters.Serializer = converters.ProtobufSerializer{}
 
-func NewTemplateSourcesFromRawSources(rawSources []converters.SourceCode) *converters.TemplateSources {
-	sources := make(map[string]string)
-	// The first file is assumed to be the main template, the rest are additional files
-	for _, source := range rawSources[1:] {
-		sources[source.Name] = source.Content
-	}
-	return converters.NewTemplateSources(rawSources[0].Name, rawSources[0].Content, sources)
+func NewTemplateSourcesFromRawSources(templateName string, rawSources converters.Files) *converters.TemplateSources {
+	return converters.NewTemplateSources(templateName, rawSources)
 }
 
 func main() {
@@ -45,7 +40,7 @@ func main() {
 
 	evaluatedTemplate := ""
 	if processingError == nil {
-		fmt.Fprintf(os.Stderr, "Read in total %d files from stdin; evaluating template <%s>\n", templateSources.NumAdditionalSources(), templateSources.Name)
+		fmt.Fprintf(os.Stderr, "Read in total %d files from stdin; evaluating template <%s>\n", templateSources.NumSources(), templateSources.Name)
 		evaluatedTemplate, processingError = evaluateTemplate(templateSources)
 	} else {
 		fmt.Fprintf(os.Stderr, "Failed to read input: %s\n", processingError.Error())
@@ -62,7 +57,7 @@ func main() {
 
 func readAndValidateSources() (*converters.TemplateSources, error) {
 	scanner := bufio.NewScanner(os.Stdin)
-	sources, err := stdinReader.ReadInput(scanner)
+	templateName, sources, err := stdinReader.ReadInput(scanner)
 	if err != nil {
 		return nil, fmt.Errorf("error reading content: %w", err)
 	}
@@ -70,10 +65,10 @@ func readAndValidateSources() (*converters.TemplateSources, error) {
 		return nil, fmt.Errorf("error validating content: %w", err)
 	}
 
-	return NewTemplateSourcesFromRawSources(sources), nil
+	return NewTemplateSourcesFromRawSources(templateName, sources), nil
 }
 
-func validateInput(sources []converters.SourceCode) error {
+func validateInput(sources converters.Files) error {
 	if len(sources) == 0 {
 		return errors.New("no input received")
 	}
@@ -81,7 +76,7 @@ func validateInput(sources []converters.SourceCode) error {
 }
 
 func evaluateTemplate(templateSources *converters.TemplateSources) (string, error) {
-	tmpl, err := newTemplate(templateSources.Name, templateSources.RawTemplate)
+	tmpl, err := newTemplate(templateSources.Name, templateSources.TemplateFile())
 	if err == nil {
 		var data any
 		data, err = converters.PrepareChartValues(templateSources)

@@ -30,7 +30,7 @@ import (
 func Test_read_with_empty_input(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader(""))
 	stdinReader := StdinReader{}
-	contents, _ := stdinReader.ReadInput(scanner)
+	_, contents, _ := stdinReader.ReadInput(scanner)
 
 	assert.Equal(t, 0, len(contents))
 }
@@ -38,7 +38,7 @@ func Test_read_with_empty_input(t *testing.T) {
 func Test_read_with_end_marker(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("END"))
 	stdinReader := StdinReader{}
-	contents, _ := stdinReader.ReadInput(scanner)
+	_, contents, _ := stdinReader.ReadInput(scanner)
 
 	assert.Equal(t, 0, len(contents))
 }
@@ -48,7 +48,7 @@ func Test_read_n_lines_from_input(t *testing.T) {
 	stdinReader := StdinReader{}
 	lines, _ := stdinReader.readInput(scanner, 2)
 
-	assert.Equal(t, "line1\nline2", lines)
+	assert.Equal(t, []byte("line1\nline2"), lines)
 }
 
 func Test_read_all_lines_from_input(t *testing.T) {
@@ -56,59 +56,59 @@ func Test_read_all_lines_from_input(t *testing.T) {
 	stdinReader := StdinReader{}
 	lines, _ := stdinReader.readInput(scanner, -1)
 
-	assert.Equal(t, "line1\nline2\nline3", lines)
+	assert.Equal(t, []byte("line1\nline2\nline3"), lines)
 }
 
 func Test_read_one_file(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nEND"))
 	stdinReader := StdinReader{}
-	contents, _ := stdinReader.ReadInput(scanner)
+	_, contents, _ := stdinReader.ReadInput(scanner)
 
 	assert.Equal(t, 1, len(contents))
-	assert.Equal(t, "file1", contents[0].Name)
-	assert.Equal(t, "line1\nline2", contents[0].Content)
+	assert.Contains(t, contents, "file1")
+	assert.Equal(t, []byte("line1\nline2"), contents["file1"])
 }
 
 func Test_read_one_file_with_trailing_newline(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\n \nEND"))
 	stdinReader := StdinReader{}
-	contents, _ := stdinReader.ReadInput(scanner)
+	_, contents, _ := stdinReader.ReadInput(scanner)
 
 	assert.Equal(t, 1, len(contents))
-	assert.Equal(t, "file1", contents[0].Name)
-	assert.Equal(t, "line1\n ", contents[0].Content)
+	assert.Contains(t, contents, "file1")
+	assert.Equal(t, []byte("line1\n "), contents["file1"])
 }
 
 func Test_read_two_files(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nEND"))
 	stdinReader := StdinReader{}
-	contents, _ := stdinReader.ReadInput(scanner)
+	_, contents, _ := stdinReader.ReadInput(scanner)
 
 	assert.Equal(t, 2, len(contents))
-	assert.Equal(t, "file1", contents[0].Name)
-	assert.Equal(t, "line1\nline2", contents[0].Content)
-	assert.Equal(t, "file2", contents[1].Name)
-	assert.Equal(t, "line3", contents[1].Content)
+	assert.Contains(t, contents, "file1")
+	assert.Equal(t, []byte("line1\nline2"), contents["file1"])
+	assert.Contains(t, contents, "file2")
+	assert.Equal(t, "line3", string(contents["file2"]))
 }
 
 func Test_read_three_files(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nfile3\n1\nline4\nEND"))
 	stdinReader := StdinReader{}
-	contents, _ := stdinReader.ReadInput(scanner)
+	_, contents, _ := stdinReader.ReadInput(scanner)
 
 	assert.Equal(t, 3, len(contents))
-	assert.Equal(t, "file1", contents[0].Name)
-	assert.Equal(t, "line1\nline2", contents[0].Content)
-	assert.Equal(t, "file2", contents[1].Name)
-	assert.Equal(t, "line3", contents[1].Content)
-	assert.Equal(t, "file3", contents[2].Name)
-	assert.Equal(t, "line4", contents[2].Content)
+	assert.Contains(t, contents, "file1")
+	assert.Equal(t, []byte("line1\nline2"), contents["file1"])
+	assert.Contains(t, contents, "file2")
+	assert.Equal(t, "line3", string(contents["file2"]))
+	assert.Contains(t, contents, "file3")
+	assert.Equal(t, "line4", string(contents["file3"]))
 }
 
 func Test_should_stop_if_zero_length(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader("file1\n0\n"))
 	stdinReader := StdinReader{}
-	contents, err := stdinReader.ReadInput(scanner)
+	_, contents, err := stdinReader.ReadInput(scanner)
 
 	assert.Nil(t, contents)
 	assert.EqualError(t, err, "request to read 0 lines aborted")
@@ -140,7 +140,7 @@ func (r *ReaderWithError) Read(p []byte) (int, error) {
 func Test_read_error_handling(t *testing.T) {
 	scanner := bufio.NewScanner(NewReaderWithError([]any{io.ErrUnexpectedEOF}))
 	stdinReader := StdinReader{}
-	_, err := stdinReader.ReadInput(scanner)
+	_, _, err := stdinReader.ReadInput(scanner)
 
 	assert.EqualError(t, err, "unexpected EOF")
 }
@@ -148,7 +148,7 @@ func Test_read_error_handling(t *testing.T) {
 func Test_read_error_handling_2(t *testing.T) {
 	scanner := bufio.NewScanner(NewReaderWithError([]any{"file1\n", errors.New("test read error")}))
 	stdinReader := StdinReader{}
-	_, err := stdinReader.ReadInput(scanner)
+	_, _, err := stdinReader.ReadInput(scanner)
 
 	assert.EqualError(t, err, "test read error")
 }
