@@ -16,6 +16,9 @@ env:
   GRADLE_COMMON_FLAGS: --console plain --no-daemon
   GO_VERSION: 1.21.1
   PROTOC_VERSION: 25.0
+  ORG_GRADLE_PROJECT_signingKey: VAULT[development/kv/data/sign data.key]
+  ORG_GRADLE_PROJECT_signingPassword: VAULT[development/kv/data/sign data.passphrase]
+  ORG_GRADLE_PROJECT_signingKeyId: 0x7DCD4258
 
 
 build_secrets: &BUILD_SECRETS
