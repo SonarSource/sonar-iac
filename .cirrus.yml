@@ -165,7 +165,7 @@ sca_scan_task:
     memory: 8G
   env:
     <<: *WS_SCAN_SECRETS
-    GO_CROSS_COMPILE: '1'
+    GO_CROSS_COMPILE: '0'
   whitesource_script:
     - source cirrus-env QA
     - source set_gradle_build_version $BUILD_NUMBER
@@ -182,6 +182,7 @@ qa_plugin_task:
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
   env:
+    GO_CROSS_COMPILE: '0'
     matrix:
       - SQ_VERSION: LATEST_RELEASE
       - SQ_VERSION: DEV
@@ -197,6 +198,8 @@ qa_ruling_task:
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
+  env:
+    GO_CROSS_COMPILE: '0'
   submodules_script:
     - git submodule update --init
   ruling_script:

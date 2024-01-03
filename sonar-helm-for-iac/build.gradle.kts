@@ -92,6 +92,7 @@ if (!isCi) {
         group = "build"
 
         inputs.file("Dockerfile")
+        setErrorOutput(System.out)
 
         val uidProvider = objects.property<Long>()
         val os = DefaultNativePlatform.getCurrentOperatingSystem()
@@ -124,13 +125,16 @@ if (!isCi) {
     tasks.register<Exec>("compileGoCode") {
         description = "Build the go code from the docker image."
         group = "build"
+        setErrorOutput(System.out)
 
         inputs.files(fileTree(".").include("*.go")
             .include("template-evaluation.proto"))
         outputs.files(fileTree("build/executable").include("sonar-helm-for-iac-*"))
         outputs.cacheIf { true }
 
-        commandLine("docker", "run", "--rm", "--mount", "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac", "sonar-iac-helm-builder")
+        commandLine("docker", "run", "--rm", "--platform", "linux/amd64", "--mount", "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac",
+            "--env", "GO_CROSS_COMPILE=${System.getenv("GO_CROSS_COMPILE") ?: "1"}",
+            "sonar-iac-helm-builder")
         dependsOn("buildDockerImage")
     }
 

@@ -75,7 +75,7 @@ install_go() {
     export PATH="${PATH}:${DEFAULT_GO_BINARY_DIRECTORY}"
     go_binary="${DEFAULT_GO_BINARY}"
     # Install protoc-gen-go
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.5.3
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
   fi
   echo "${go_binary}"
 }
@@ -111,18 +111,18 @@ compile_binaries() {
   # Note: Saving files in build/classes include files in JAR out of the box.
   # Note: -ldflags="-s -w" is used to strip debug information from the binary and reduce its size.
   GO_FLAGS=(-ldflags="-s -w" -buildmode=exe)
-  if [ -n "${GO_CROSS_COMPILE:-}" ]; then
+  if [ "${GO_CROSS_COMPILE:-}" != 0 ]; then
     echo "Building for all supported platforms"
     GOOS="linux"
     GOARCH="amd64"
-    CGO_ENABLED=0 CC=musl-gcc go build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 CC=musl-gcc ${path_to_binary} build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
 
     GOOS="windows"
-    CGO_ENABLED=0 GOOS=$GOOS go build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 GOOS=$GOOS ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
 
     GOOS="darwin"
     for GOARCH in amd64 arm64; do
-      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
     done
   else
     GOOS=$(${path_to_binary} env GOOS)
