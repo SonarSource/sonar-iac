@@ -172,9 +172,9 @@ sca_scan_task:
     memory: 8G
   env:
     <<: *WS_SCAN_SECRETS
-    GO_CROSS_COMPILE: '0'
   whitesource_script:
     - source cirrus-env QA
+    - source .cirrus/use-gradle-wrapper.sh
     - source set_gradle_build_version $BUILD_NUMBER
     - GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process --profile
     - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"
@@ -190,7 +190,6 @@ qa_plugin_task:
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
   env:
-    GO_CROSS_COMPILE: '0'
     matrix:
       - SQ_VERSION: LATEST_RELEASE
       - SQ_VERSION: DEV
@@ -198,6 +197,7 @@ qa_plugin_task:
     - git submodule update --init
   plugin_script:
     - source cirrus-env QA
+    - source .cirrus/use-gradle-wrapper.sh
     - source set_gradle_build_version $BUILD_NUMBER
     - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest --profile
   <<: *STORE_PROFILE_REPORT
@@ -207,12 +207,11 @@ qa_ruling_task:
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
-  env:
-    GO_CROSS_COMPILE: '0'
   submodules_script:
     - git submodule update --init
   ruling_script:
     - source cirrus-env QA
+    - source .cirrus/use-gradle-wrapper.sh
     - source set_gradle_build_version $BUILD_NUMBER
     - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=LATEST_RELEASE :its:ruling:integrationTest --profile
   <<: *STORE_PROFILE_REPORT
@@ -225,8 +224,13 @@ promote_task:
     - qa_plugin
   <<: *ONLY_IF_SONARSOURCE_QA
   <<: *LINUX_1_CPU_2G
+  <<: *SETUP_GRADLE_CACHE
   env:
     <<: *PROMOTE_SECRETS
+    GRADLE_OPTS: -Xmx64m -Dorg.gradle.jvmargs='-Xmx2G' -Dorg.gradle.daemon=false
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
-  script: cirrus_promote_gradle
+  script:
+    - source .cirrus/use-gradle-wrapper.sh
+    - cirrus_promote_gradle
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
