@@ -120,7 +120,7 @@ cleanup_gradle_cache_script_template: &CLEANUP_GRADLE_CACHE_SCRIPT
 
 store_profile_report_template: &STORE_PROFILE_REPORT
   on_success:
-    diff_report_artifacts:
+    profile_report_artifacts:
       path: "build/reports/profile/profile-*.html"
 
 # ----------------------------------------------
