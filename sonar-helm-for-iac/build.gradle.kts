@@ -14,6 +14,13 @@ val sonar_test_inclusions by extra { "**/*_test.go" }
 val sonar_go_tests_reportPaths by extra { "build/test-report.out" }
 val sonar_go_coverage_reportPaths by extra { "build/test-coverage.out" }
 
+val goBinaries: Configuration by configurations.creating
+val goBinariesJar by tasks.registering(Jar::class) {
+    dependsOn("compileGoCode")
+    archiveClassifier.set("binaries")
+    from("build/executable")
+}
+artifacts.add(goBinaries.name, goBinariesJar)
 
 val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
 
@@ -46,11 +53,15 @@ if (isCi) {
         description = "Compile the go code for the local system."
         group = "build"
 
-        inputs.files(fileTree(".").include("*.go")
-            .include("make.bat")
-            .include("make.sh")
-            .include("template-evaluation.proto"))
-        outputs.files(fileTree("build/executable").include("sonar-helm-for-iac-*"))
+        inputs.files(fileTree(projectDir).matching {
+            include("*.go",
+            "**/*.go",
+            "make.bat",
+            "make.sh",
+            "template-evaluation.proto")
+            exclude("build/**")
+        })
+        outputs.dir("build/executable")
         outputs.cacheIf { true }
 
         callMake(this, "build")
@@ -92,6 +103,7 @@ if (!isCi) {
         group = "build"
 
         inputs.file("Dockerfile")
+        // It is too difficult to check if image is built; Docker takes care of it anyway.
         setErrorOutput(System.out)
 
         val uidProvider = objects.property<Long>()
@@ -127,9 +139,11 @@ if (!isCi) {
         group = "build"
         setErrorOutput(System.out)
 
-        inputs.files(fileTree(".").include("*.go")
-            .include("template-evaluation.proto"))
-        outputs.files(fileTree("build/executable").include("sonar-helm-for-iac-*"))
+        inputs.files(fileTree(projectDir).matching {
+            include("*.go", "**/*.go", "template-evaluation.proto")
+            exclude("build/**")
+        })
+        outputs.dir("build/executable")
         outputs.cacheIf { true }
 
         commandLine("docker", "run", "--rm", "--platform", "linux/amd64", "--mount", "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac",

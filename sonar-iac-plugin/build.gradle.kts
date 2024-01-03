@@ -12,9 +12,9 @@ dependencies {
     api(project(":iac-extensions:kubernetes"))
     api(project(":iac-extensions:docker"))
     api(project(":iac-extensions:arm"))
+    api(project(":sonar-helm-for-iac", "goBinaries"))
     api(libs.sonar.analyzer.commons)
 
-    //implementation(files(project("sonar-helm-for-iac").projectDir))
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
@@ -54,12 +54,7 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    dependsOn(":sonar-helm-for-iac:compileGoCode")
     minimize()
-    // inject helm executable at root of jar
-    from("${project(":sonar-helm-for-iac").projectDir}/build/executable") {
-        include("sonar-helm-for-iac-*")
-    }
     exclude("META-INF/LICENSE*")
     exclude("META-INF/NOTICE*")
     exclude("META-INF/*.RSA")

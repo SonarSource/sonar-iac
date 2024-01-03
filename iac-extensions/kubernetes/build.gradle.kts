@@ -7,7 +7,7 @@ description = "SonarSource IaC Analyzer :: Extensions :: Kubernetes"
 
 dependencies {
     api(project(":iac-common"))
-    implementation(project(":sonar-helm-for-iac"))
+    implementation(project(":sonar-helm-for-iac", "goBinaries"))
     implementation(libs.google.protobuf)
 
     testImplementation(libs.junit.jupiter)
@@ -42,19 +42,10 @@ tasks.named("sourcesJar") {
     dependsOn("compileProtobufJava")
 }
 
-tasks.processTestResources {
-    dependsOn(":sonar-helm-for-iac:compileGoCode")
-}
-
 sourceSets {
     main {
         java {
             srcDir("build/generated-sources")
-        }
-    }
-    test {
-        resources {
-            srcDir("../../sonar-helm-for-iac/build/executable")
         }
     }
 }
