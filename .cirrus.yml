@@ -118,6 +118,11 @@ cleanup_gradle_cache_script_template: &CLEANUP_GRADLE_CACHE_SCRIPT
     - /usr/bin/find "${CIRRUS_WORKING_DIR}/.gradle/caches" -type d -name "8.*" -prune -maxdepth 1 -exec rm -rf {} \;
     - rm -rf "${CIRRUS_WORKING_DIR}/.gradle/caches/journal-1/"
 
+store_profile_report_template: &STORE_PROFILE_REPORT
+  on_success:
+    diff_report_artifacts:
+      path: "build/reports/profile/profile-*.html"
+
 # ----------------------------------------------
 # -------------------TASKS----------------------
 # ----------------------------------------------
@@ -138,6 +143,7 @@ build_task:
     - source .cirrus/use-gradle-wrapper.sh
     - go version
     - regular_gradle_build_deploy_analyze --profile
+  <<: *STORE_PROFILE_REPORT
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_os_win_task:
@@ -153,6 +159,7 @@ qa_os_win_task:
     - *refreshpath
     - source cirrus-env CI
     - ./gradlew ${GRADLE_COMMON_FLAGS} test --profile
+  <<: *STORE_PROFILE_REPORT
 
 sca_scan_task:
   depends_on:
@@ -169,12 +176,13 @@ sca_scan_task:
   whitesource_script:
     - source cirrus-env QA
     - source set_gradle_build_version $BUILD_NUMBER
-    - GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process
+    - GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process --profile
     - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"
   allow_failures: "true"
   always:
     ws_artifacts:
       path: "whitesource/**/*"
+  <<: *STORE_PROFILE_REPORT
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_plugin_task:
@@ -192,6 +200,7 @@ qa_plugin_task:
     - source cirrus-env QA
     - source set_gradle_build_version $BUILD_NUMBER
     - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest --profile
+  <<: *STORE_PROFILE_REPORT
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_ruling_task:
@@ -206,6 +215,7 @@ qa_ruling_task:
     - source cirrus-env QA
     - source set_gradle_build_version $BUILD_NUMBER
     - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=LATEST_RELEASE :its:ruling:integrationTest --profile
+  <<: *STORE_PROFILE_REPORT
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 promote_task:
