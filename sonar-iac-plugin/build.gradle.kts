@@ -1,7 +1,6 @@
 plugins {
     id("org.sonarsource.iac.java-conventions")
     id("org.sonarsource.iac.artifactory-configuration")
-    jacoco
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -24,24 +23,6 @@ dependencies {
     testImplementation(libs.sonar.analyzer.test.commons)
 
     compileOnly(libs.sonar.plugin.api)
-}
-
-jacoco {
-    toolVersion = "0.8.10"
-}
-
-tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        csv.required.set(false)
-        html.required.set(false)
-    }
-}
-
-// when subproject has Jacoco plugin applied we want to generate XML report for coverage
-plugins.withType<JacocoPlugin> {
-    tasks["test"].finalizedBy("jacocoTestReport")
 }
 
 // used to be done by sonar-packaging maven plugin

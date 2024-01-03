@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    jacoco
 }
 
 java {
@@ -31,4 +32,21 @@ tasks.withType<Test> {
             org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL // log the full stack trace (default is the 1st line of the stack trace)
         events("skipped", "failed")
     }
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(false)
+    }
+}
+
+plugins.withType<JacocoPlugin> {
+    tasks["test"].finalizedBy("jacocoTestReport")
 }
