@@ -4,6 +4,7 @@ plugins {
 
 sonar {
     properties {
+        property("sonar.projectName", "SonarSource IaC Analyzer")
         property("sonar.projectKey", "org.sonarsource.iac:iac")
         property("sonar.organization", "sonarsource")
         property("sonar.exclusions", "**/build/**/*")
