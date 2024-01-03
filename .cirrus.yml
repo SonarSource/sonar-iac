@@ -239,6 +239,7 @@ qa_ruling_task:
 promote_task:
   depends_on:
     - build
+    - build_test_analyze
     - qa_ruling
     - qa_plugin
   <<: *ONLY_IF_SONARSOURCE_QA
