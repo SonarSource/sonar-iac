@@ -89,16 +89,10 @@ tasks.shadowJar {
     doLast {
         val minSize: Long
         val maxSize: Long
-        val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
-        val isCrossCompile: Boolean = System.getenv("GO_CROSS_COMPILE")?.equals("1") ?: false
-        if (isCi) {
-            if (isCrossCompile) {
-                minSize = 16_000_000
-                maxSize = 17_000_000
-            } else {
-                minSize = 7_000_000
-                maxSize = 8_000_000
-            }
+        val isCrossCompile: Boolean = System.getenv("GO_CROSS_COMPILE")?.equals("1") ?: true
+        if (isCrossCompile) {
+            minSize = 16_000_000
+            maxSize = 17_000_000
         } else {
             minSize = 7_000_000
             maxSize = 8_000_000

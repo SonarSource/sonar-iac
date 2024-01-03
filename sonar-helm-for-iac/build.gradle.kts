@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     id("org.sonarsource.iac.java-conventions")
 }
@@ -90,20 +92,49 @@ if (!isCi) {
         group = "build"
 
         inputs.file("Dockerfile")
+        setErrorOutput(System.out)
 
-        commandLine("docker", "buildx", "build", "--platform", "linux/amd64", "-t", "sonar-iac-helm-builder", "--progress", "plain", "${project.projectDir}")
+        val uidProvider = objects.property<Long>()
+        val os = DefaultNativePlatform.getCurrentOperatingSystem()
+        if (os.isLinux || os.isMacOsX) {
+            // UID of the user inside the container should match this of the host user, otherwise files from the host will be not accessible by the container.
+            val uid = com.sun.security.auth.module.UnixSystem().uid
+            uidProvider.set(uid)
+        }
+
+        val arguments = buildList {
+            add("docker")
+            add("buildx")
+            add("build")
+            if (uidProvider.isPresent) {
+                add("--build-arg")
+                add("UID=${uidProvider.get()}")
+            }
+            add("--platform")
+            add("linux/amd64")
+            add("-t")
+            add("sonar-iac-helm-builder")
+            add("--progress")
+            add("plain")
+            add("${project.projectDir}")
+        }
+
+        commandLine(arguments)
     }
 
     tasks.register<Exec>("compileGoCode") {
         description = "Build the go code from the docker image."
         group = "build"
+        setErrorOutput(System.out)
 
         inputs.files(fileTree(".").include("*.go")
             .include("template-evaluation.proto"))
         outputs.files(fileTree("build/executable").include("sonar-helm-for-iac-*"))
         outputs.cacheIf { true }
 
-        commandLine("docker", "run", "--mount", "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac", "sonar-iac-helm-builder")
+        commandLine("docker", "run", "--rm", "--platform", "linux/amd64", "--mount", "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac",
+            "--env", "GO_CROSS_COMPILE=${System.getenv("GO_CROSS_COMPILE") ?: "1"}",
+            "sonar-iac-helm-builder")
         dependsOn("buildDockerImage")
     }
 
