@@ -137,7 +137,7 @@ build_task:
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
     - go version
-    - regular_gradle_build_deploy_analyze
+    - regular_gradle_build_deploy_analyze --profile
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_os_win_task:
@@ -154,7 +154,7 @@ qa_os_win_task:
     - choco install protoc --version ${PROTOC_VERSION}.0
     - *refreshpath
     - source cirrus-env CI
-    - ./gradlew ${GRADLE_COMMON_FLAGS} test
+    - ./gradlew ${GRADLE_COMMON_FLAGS} test --profile
 
 sca_scan_task:
   depends_on:
@@ -192,7 +192,7 @@ qa_plugin_task:
   plugin_script:
     - source cirrus-env QA
     - source set_gradle_build_version $BUILD_NUMBER
-    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest
+    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest --profile
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_ruling_task:
@@ -204,7 +204,7 @@ qa_ruling_task:
   ruling_script:
     - source cirrus-env QA
     - source set_gradle_build_version $BUILD_NUMBER
-    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=LATEST_RELEASE :its:ruling:integrationTest
+    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=LATEST_RELEASE :its:ruling:integrationTest --profile
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 promote_task:
@@ -219,4 +219,3 @@ promote_task:
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
   script: cirrus_promote_gradle
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
