@@ -550,19 +550,23 @@ data:
 }
 
 func Test_evaluate_template_include_function(t *testing.T) {
-	template := `foo: {{ include "app.name" $ }}`
+	template := []byte(`foo: {{ include "app.name" $ }}`)
 
-	values := `bar: 1`
+	values := []byte(`bar: 1`)
 
-	helpers := `
+	helpers := []byte(`
 {{- define "app.name" -}}
 {{- printf "My application name" -}}
-{{- end -}}`
+{{- end -}}`)
 
 	expected := `foo: My application name`
 
-	fileNameToFileContent := map[string]string{"values.yaml": values, "templates/_helpers.tpl": helpers}
-	result, _ := renderTemplate(&TemplateSources{"a.yaml", template, fileNameToFileContent})
+	fileNameToFileContent := converters.Files{
+		"a.yaml":                 template,
+		"values.yaml":            values,
+		"templates/_helpers.tpl": helpers,
+		"Chart.yaml":             DefaultChartYaml}
+	result, _ := evaluateTemplate2(converters.NewTemplateSources("a.yaml", fileNameToFileContent))
 
 	assert.Equal(t, expected, result)
 }

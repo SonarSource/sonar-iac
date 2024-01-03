@@ -228,7 +228,7 @@ func initSprigFunctions() template.FuncMap {
 	return result
 }
 
-func addCustomFunctions() *template.FuncMap {
+func addCustomFunctions(tmpl *template.Template) *template.FuncMap {
 	functions := sprigFunctions
 
 	functions["lookup"] = func(string, string, string, string) (map[string]interface{}, error) {
@@ -246,7 +246,8 @@ func addCustomFunctions() *template.FuncMap {
 		} else {
 			includedNames[name] = 1
 		}
-		err := t.ExecuteTemplate(&buf, name, data)
+		//TODO read from tmpl.common.tmpl["app.name"]
+		err := tmpl.ExecuteTemplate(&buf, name, data)
 		includedNames[name]--
 		return buf.String(), err
 	}
