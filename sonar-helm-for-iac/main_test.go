@@ -549,6 +549,24 @@ data:
 	assert.Equal(t, expected, result)
 }
 
+func Test_evaluate_template_include_function(t *testing.T) {
+	template := `foo: {{ include "app.name" $ }}`
+
+	values := `bar: 1`
+
+	helpers := `
+{{- define "app.name" -}}
+{{- printf "My application name" -}}
+{{- end -}}`
+
+	expected := `foo: My application name`
+
+	fileNameToFileContent := map[string]string{"values.yaml": values, "templates/_helpers.tpl": helpers}
+	result, _ := renderTemplate(&TemplateSources{"a.yaml", template, fileNameToFileContent})
+
+	assert.Equal(t, expected, result)
+}
+
 func Test_tpl_with_errors(t *testing.T) {
 	template := []byte(`
 apiVersion: {{ tpl .Values.api . | quote }}

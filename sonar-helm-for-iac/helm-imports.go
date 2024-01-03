@@ -212,6 +212,10 @@ var sprigFunctions = initSprigFunctions()
 
 var generatedNamesCount = 0
 
+var includedNames = make(map[string]int)
+
+const includedMaxRecursion = 1000
+
 func initSprigFunctions() template.FuncMap {
 	sprigAllFunctions := sprig.TxtFuncMap()
 
@@ -232,12 +236,20 @@ func addCustomFunctions() *template.FuncMap {
 	}
 
 	functions["include"] = func(name string, data interface{}) (string, error) {
-		// TODO SONARIAC-1176 Add "include" function to Helm template evaluation
-		text := "sonar-generated-include-" + strconv.Itoa(generatedNamesCount)
-		generatedNamesCount++
-		return text, nil
+		var buf strings.Builder
+		v, ok := includedNames[name]
+		if ok {
+			if v > includedMaxRecursion {
+				return "", errors.New("rendering t has too many recursions. Nested reference name: " + name)
+			}
+			includedNames[name]++
+		} else {
+			includedNames[name] = 1
+		}
+		err := t.ExecuteTemplate(&buf, name, data)
+		includedNames[name]--
+		return buf.String(), err
 	}
-
 	functions["required"] = required
 
 	functions["getHostByName"] = func(name string) string {
