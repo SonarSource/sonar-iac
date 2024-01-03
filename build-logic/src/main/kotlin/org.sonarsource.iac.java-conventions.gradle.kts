@@ -27,8 +27,8 @@ tasks.withType<Test> {
     useJUnitPlatform()
 
     testLogging {
-        exceptionFormat =
-            org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL // log the full stack trace (default is the 1st line of the stack trace)
+//        exceptionFormat =
+//            org.gradle.api.tasks.testing.logging.TestExceptionFormat.SHORT // log the full stack trace (default is the 1st line of the stack trace)
         events("skipped", "failed")
     }
 }
