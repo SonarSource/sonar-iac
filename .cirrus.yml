@@ -180,9 +180,8 @@ build_test_analyze_task:
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_os_win_task:
-  <<: *QA_TASK_FILTER
+  <<: *ONLY_IF_SONARSOURCE_QA
   <<: *WINDOWS_VM_DEFINITION
-  <<: *SETUP_GRADLE_CACHE
   _lib:
     # For windows, refresh the path env variable, particularly useful after an installation with choco (RefreshEnv.cmd cannot be used in this context)
     - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
@@ -192,7 +191,6 @@ qa_os_win_task:
     - *refreshpath
     - source cirrus-env CI
     - ./gradlew ${GRADLE_COMMON_FLAGS} test
-  <<: *STORE_PROFILE_REPORT
 
 sca_scan_task:
   depends_on:
