@@ -224,13 +224,11 @@ promote_task:
     - qa_plugin
   <<: *ONLY_IF_SONARSOURCE_QA
   <<: *LINUX_1_CPU_2G
-  <<: *SETUP_GRADLE_CACHE
   env:
     <<: *PROMOTE_SECRETS
-    GRADLE_OPTS: -Xmx64m -Dorg.gradle.jvmargs='-Xmx2G' -Dorg.gradle.daemon=false
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
   script:
-    - source .cirrus/use-gradle-wrapper.sh
-    - cirrus_promote_gradle
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+    - source cirrus-env PROMOTE
+    - cirrus_jfrog_promote multi
+    - burgr-notify-promotion
