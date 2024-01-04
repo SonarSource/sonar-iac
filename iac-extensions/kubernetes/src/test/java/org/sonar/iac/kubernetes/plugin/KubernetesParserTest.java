@@ -20,12 +20,15 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
@@ -99,30 +102,36 @@ class KubernetesParserTest {
   }
 
   @Test
-  void shouldLoadValuesFile() throws IOException {
-    var valuesFile = mock(InputFile.class);
-    when(valuesFile.filename()).thenReturn("values.yaml");
-    when(valuesFile.contents()).thenReturn("foo: bar");
-    when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-    when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
-    when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
+  void shouldLoadValuesFile() throws IOException, URISyntaxException {
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(valuesFile.filename()).thenReturn("values.yaml");
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(Path.of("/"));
 
-    FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+      FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
 
-    assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).hasSize(1);
+      assertThat(file.documents()).hasSize(1);
+      assertThat(file.documents().get(0).children()).hasSize(1);
 
-    var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file 'chart/templates/foo.yaml'");
+      var logs = logTester.logs(Level.DEBUG);
+      assertThat(logs).contains("Helm content detected in file 'chart/templates/foo.yaml'");
+    }
   }
 
   @Test
-  void shouldNotEvaluateHelmWithoutValuesFile() {
+  void shouldNotEvaluateHelmWithoutValuesFile() throws URISyntaxException {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(Map.of());
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(Path.of("/"));
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
       when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
 
       Assertions.assertThatThrownBy(() -> parser.parse("foo: {{ .Values.foo }}", inputFileContext))
@@ -134,4 +143,20 @@ class KubernetesParserTest {
     }
   }
 
+  @Test
+  void shouldFallbackToFilenameInCaseOfUnresolvedChartDirectory() throws URISyntaxException {
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(null);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
+
+      parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+
+      var argumentCaptor = ArgumentCaptor.forClass(String.class);
+      Mockito.verify(helmProcessor).processHelmTemplate(argumentCaptor.capture(), any(), any());
+      assertThat(argumentCaptor.getValue()).isEqualTo("foo.yaml");
+    }
+  }
 }

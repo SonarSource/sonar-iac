@@ -141,14 +141,14 @@ class HelmEvaluatorTest {
   @Test
   void shouldEvaluateTemplate() throws IOException {
     var templateDependencies = Map.of("values.yaml", "container:\n  port: 8080", "Chart.yaml", "name: foo");
-    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}", templateDependencies);
+    var evaluationResult = helmEvaluator.evaluateTemplate("templates/baz.yaml", "containerPort: {{ .Values.container.port }}", templateDependencies);
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
   }
 
   @Test
   void shouldEvaluateInputsWithTrailingNewline() throws IOException {
-    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n",
+    var evaluationResult = helmEvaluator.evaluateTemplate("templates/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n",
       Map.of("values.yaml", "container:\n  port: 8080\n\n", "Chart.yaml", "name: foo\n\n"));
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");

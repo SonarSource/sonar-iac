@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
@@ -67,8 +69,16 @@ public class KubernetesParser extends YamlParser {
       return super.parse("{}", null, FileTree.Template.HELM);
     }
 
-    var filename = inputFileContext.inputFile.filename();
-    var evaluatedSource = helmProcessor.processHelmTemplate(filename, source, inputFileContext);
+    var filePath = Path.of(inputFileContext.inputFile.uri());
+    var chartRootDirectory = HelmFilesystemUtils.retrieveHelmProjectFolder(filePath);
+
+    String fileRelativePath;
+    if (chartRootDirectory == null) {
+      fileRelativePath = inputFileContext.inputFile.filename();
+    } else {
+      fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
+    }
+    var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
     return super.parse(evaluatedSource, inputFileContext, FileTree.Template.HELM);
   }
 
