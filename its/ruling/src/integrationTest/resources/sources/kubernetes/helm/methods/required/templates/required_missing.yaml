@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: {{ required "The value is missing, preventing the files from being parsed and another issue from being raised" .Values.nothing }}
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        allowPrivilegeEscalation: {{ .Values.escalation }}
