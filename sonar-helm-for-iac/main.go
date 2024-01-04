@@ -76,15 +76,17 @@ func validateInput(sources converters.Files) error {
 }
 
 func evaluateTemplate(templateSources *converters.TemplateSources) (string, error) {
-	tmpl, err := newTemplate(templateSources.Name, templateSources.TemplateFile())
-	if err == nil {
-		var data any
-		data, err = converters.PrepareChartValues(templateSources)
-		if err == nil {
-			return executeWithValues(tmpl, data)
-		}
+	data, err := converters.PrepareChartValues(templateSources)
+	if err != nil {
+		return "", err
 	}
-	return "", err
+
+	tmpl, err := newTemplate(templateSources.Name, templateSources.TemplateFile())
+	if err != nil {
+		return "", err
+	}
+
+	return executeWithValues(tmpl, data)
 }
 
 func newTemplate(name string, content string) (*template.Template, error) {

@@ -60,7 +60,7 @@ public class HelmProcessor {
     return helmEvaluator != null;
   }
 
-  String processHelmTemplate(String filename, String source, InputFileContext inputFileContext) {
+  String processHelmTemplate(String path, String source, InputFileContext inputFileContext) {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
@@ -69,7 +69,7 @@ public class HelmProcessor {
     var sourceWithComments = addLineComments(source);
     Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
     var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
-    return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, fileContents);
+    return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
   }
 
   private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {

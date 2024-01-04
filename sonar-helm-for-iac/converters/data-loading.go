@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/samber/mo"
 	"sigs.k8s.io/yaml"
+	"strings"
 )
 
 // TemplateSources contains all the sources needed to evaluate a template
@@ -13,7 +14,10 @@ type TemplateSources struct {
 }
 
 func NewTemplateSources(name string, fileNameToFileContent Files) *TemplateSources {
-	return &TemplateSources{name, fileNameToFileContent}
+	return &TemplateSources{
+		Name:  name,
+		files: fileNameToFileContent,
+	}
 }
 
 // NumSources returns the number of sources required for evaluation of this template (including itself).
@@ -54,13 +58,27 @@ func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{
 
 	result["Values"] = *values.MustGet()
 	result["Chart"] = *chart
-	result["Files"] = templateSources.files
 
 	result["Capabilities"] = DefaultCapabilities
 	result["Release"] = DefaultReleaseMetadata
+
+	// Helm allows referencing templates (e.g. in `template` and `include`) with kind of fully-qualified path,
+	// which starts with chart name. See `pkg/chart/loader/load.go:LoadFiles`. All other files are kept intact.
+	// TODO SONARIAC-1241: handle nested charts, i.e. basePath should incorporate parent path like "parent-chart/charts/nested-chart/templates"
+	chartPathPrefix := (*chart)["name"].(string)
+	for filename, content := range templateSources.files {
+		if strings.HasPrefix(filename, "templates/") {
+			delete(templateSources.files, filename)
+			templateSources.files[chartPathPrefix+"/"+filename] = content
+		}
+	}
+	templateName := chartPathPrefix + "/" + templateSources.Name
+	templateSources.Name = templateName
+
+	result["Files"] = templateSources.files
 	result["Template"] = Template{
-		Name:     templateSources.Name,
-		BasePath: getBasePath(chart),
+		Name:     templateName,
+		BasePath: getBasePath(templateName),
 	}
 
 	return result, err
@@ -82,9 +100,9 @@ func LoadChart(content string) (*Chart, error) {
 	return &chartMap, nil
 }
 
-func getBasePath(chart *Chart) string {
-	// TODO SONARIAC-1241: handle nested charts, i.e. basePath should incorporate parent path like "parent-chart/charts/nested-chart/templates"
-	return (*chart)["name"].(string) + "/templates"
+func getBasePath(filepath string) string {
+	basePathUntrimmed := strings.SplitAfter(filepath, "templates/")[0]
+	return strings.TrimSuffix(basePathUntrimmed, "/")
 }
 
 func unmarshalYamlToMap(input string) (map[string]interface{}, error) {

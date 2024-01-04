@@ -92,7 +92,7 @@ public final class HelmFilesystemUtils {
   }
 
   @CheckForNull
-  static Path retrieveHelmProjectFolder(Path inputFilePath) {
+  public static Path retrieveHelmProjectFolder(Path inputFilePath) {
     var helmProjectDirectoryPath = inputFilePath.getParent();
 
     if (helmProjectDirectoryPath != null) {
