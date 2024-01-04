@@ -180,8 +180,7 @@ build_test_analyze_task:
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_os_win_task:
-  # <<: *QA_TASK_FILTER
-  <<: *ONLY_IF_SONARSOURCE_QA
+  <<: *QA_TASK_FILTER
   <<: *WINDOWS_VM_DEFINITION
   <<: *SETUP_GRADLE_CACHE
   _lib:
