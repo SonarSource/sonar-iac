@@ -190,8 +190,8 @@ qa_os_win_task:
     folder: "c:/temp/choco_cache"
     fingerprint_script: echo "go:${GO_VERSION} protoc:${PROTOC_VERSION}.0"
   build_script:
-    - choco install golang --version ${GO_VERSION} --no-progress --cache c:/temp/choco_cache
-    - choco install protoc --version ${PROTOC_VERSION}.0 --no-progress --cache c:/temp/choco_cache
+    - choco install golang --version ${GO_VERSION}
+    - choco install protoc --version ${PROTOC_VERSION}.0
     - *refreshpath
     - source cirrus-env CI
     - ./gradlew ${GRADLE_COMMON_FLAGS} test
