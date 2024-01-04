@@ -14,4 +14,18 @@ spotless {
     }
 }
 
+project(":sonar-helm-for-iac") {
+    sonar {
+        properties {
+            property("sonar.sources", ".")
+            property("sonar.inclusions", "**/*.go")
+            property("sonar.exclusions", "**/build/**,**/org.sonarsource.iac.helm/**")
+            property("sonar.tests", ".")
+            property("sonar.test.inclusions", "**/*_test.go")
+            property("sonar.go.tests.reportPaths", "build/test-report.out")
+            property("sonar.go.coverage.reportPaths", "build/test-coverage.out")
+        }
+    }
+}
+
 tasks.artifactoryPublish { skip = true }
