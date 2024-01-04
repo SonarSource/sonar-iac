@@ -106,3 +106,11 @@ func executeWithValues(tmpl *template.Template, data any) (string, error) {
 	}
 	return buf.String(), nil
 }
+
+func untestedCode(arg int) {
+	if arg < 0 {
+		fmt.Println("first untested branch")
+	} else {
+		fmt.Println("second untested branch")
+	}
+}
