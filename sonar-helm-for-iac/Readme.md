@@ -12,13 +12,13 @@ It is a small glue code for re-use the implementation of Helm Charts templates e
 
 ### Build Docker Image
 ```shell
-gradlew :sonar-helm-for-iac:buildDockerImage
+./gradlew :sonar-helm-for-iac:buildDockerImage
 ```
 
 ### Execute Docker Image, generating Go code, build Go binaries, executing tests, validate license headers
 
 ```shell
-gradlew :sonar-helm-for-iac:compileGoCode
+./gradlew :sonar-helm-for-iac:compileGoCode
 ```
 
 ## Execution
