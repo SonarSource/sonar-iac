@@ -13,7 +13,7 @@ env:
   # Allows to run builds for the 50 last commits in a branch:
   CIRRUS_CLONE_DEPTH: 1
   GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
-  GRADLE_COMMON_FLAGS: --console plain --no-daemon
+  GRADLE_COMMON_FLAGS: --console plain --no-daemon --profile
   GO_VERSION: 1.21.1
   PROTOC_VERSION: 25.0
 
@@ -123,6 +123,21 @@ store_profile_report_template: &STORE_PROFILE_REPORT
     profile_report_artifacts:
       path: "build/reports/profile/profile-*.html"
 
+gradle_its_template: &GRADLE_ITS_TEMPLATE
+  <<: *SETUP_GRADLE_CACHE
+  run_its_script:
+    - git submodule update --init --depth 1
+    - source cirrus-env QA
+    - source .cirrus/use-gradle-wrapper.sh
+    - source set_gradle_build_version $BUILD_NUMBER
+    - ./gradlew "${GRADLE_TASK}"
+      "-Dsonar.runtimeVersion=${SQ_VERSION}"
+      "-Dorchestrator.configUrl=https://repox.jfrog.io/repox/orchestrator.properties/orch-h2.properties"
+      "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}"
+      "-DbuildNumber=$BUILD_NUMBER"
+      --info --build-cache --console plain --no-daemon
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+
 # ----------------------------------------------
 # -------------------TASKS----------------------
 # ----------------------------------------------
@@ -142,11 +157,13 @@ build_task:
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
     - go version
-    - regular_gradle_build_deploy_analyze --profile -x test -x sonar
+    - regular_gradle_build_deploy_analyze --parallel --profile -x test -x sonar
   <<: *STORE_PROFILE_REPORT
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 build_test_analyze_task:
+  <<: *QA_TASK_FILTER
+  <<: *SETUP_GRADLE_CACHE
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
     cpu: 3.5
@@ -159,9 +176,8 @@ build_test_analyze_task:
   build_script:
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
-    - go version
     - regular_gradle_build_deploy_analyze -x artifactoryPublish
-
+  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_os_win_task:
   <<: *QA_TASK_FILTER
@@ -175,7 +191,7 @@ qa_os_win_task:
     - choco install protoc --version ${PROTOC_VERSION}.0
     - *refreshpath
     - source cirrus-env CI
-    - ./gradlew ${GRADLE_COMMON_FLAGS} test --profile
+    - ./gradlew ${GRADLE_COMMON_FLAGS} test
   <<: *STORE_PROFILE_REPORT
 
 sca_scan_task:
@@ -193,7 +209,7 @@ sca_scan_task:
     - source cirrus-env QA
     - source .cirrus/use-gradle-wrapper.sh
     - source set_gradle_build_version $BUILD_NUMBER
-    - GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process --profile
+    - GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process
     - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"
   allow_failures: "true"
   always:
@@ -205,39 +221,27 @@ sca_scan_task:
 qa_plugin_task:
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
-  <<: *SETUP_GRADLE_CACHE
   env:
+    GRADLE_TASK: ":its:plugin:integrationTest"
     matrix:
       - SQ_VERSION: LATEST_RELEASE
       - SQ_VERSION: DEV
-  submodules_script:
-    - git submodule update --init
-  plugin_script:
-    - source cirrus-env QA
-    - source .cirrus/use-gradle-wrapper.sh
-    - source set_gradle_build_version $BUILD_NUMBER
-    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest --profile
-  <<: *STORE_PROFILE_REPORT
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *GRADLE_ITS_TEMPLATE
 
 qa_ruling_task:
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
-  submodules_script:
-    - git submodule update --init
-  ruling_script:
-    - source cirrus-env QA
-    - source .cirrus/use-gradle-wrapper.sh
-    - source set_gradle_build_version $BUILD_NUMBER
-    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=LATEST_RELEASE :its:ruling:integrationTest --profile
-  <<: *STORE_PROFILE_REPORT
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  env:
+    GRADLE_TASK: ":its:ruling:integrationTest"
+    SQ_VERSION: LATEST_RELEASE
+  <<: *GRADLE_ITS_TEMPLATE
 
 promote_task:
   depends_on:
     - build
     - build_test_analyze
+    - qa_os_win
     - qa_ruling
     - qa_plugin
   <<: *ONLY_IF_SONARSOURCE_QA
