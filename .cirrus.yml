@@ -180,18 +180,19 @@ build_test_analyze_task:
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_os_win_task:
-  <<: *QA_TASK_FILTER
+  # <<: *QA_TASK_FILTER
+  <<: *ONLY_IF_SONARSOURCE_QA
   <<: *WINDOWS_VM_DEFINITION
   <<: *SETUP_GRADLE_CACHE
   _lib:
     # For windows, refresh the path env variable, particularly useful after an installation with choco (RefreshEnv.cmd cannot be used in this context)
     - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
   choco_cache:
-    folder: "$(System.DefaultWorkingDirectory)/choco_cache"
+    folder: "c:/temp/choco_cache"
     fingerprint_script: echo "go:${GO_VERSION} protoc:${PROTOC_VERSION}.0"
   build_script:
-    - choco install golang --version ${GO_VERSION} --no-progress --cache $(System.DefaultWorkingDirectory)/choco_cache
-    - choco install protoc --version ${PROTOC_VERSION}.0 --no-progress --cache $(System.DefaultWorkingDirectory)/choco_cache
+    - choco install golang --version ${GO_VERSION} --no-progress --cache c:/temp/choco_cache
+    - choco install protoc --version ${PROTOC_VERSION}.0 --no-progress --cache c:/temp/choco_cache
     - *refreshpath
     - source cirrus-env CI
     - ./gradlew ${GRADLE_COMMON_FLAGS} test
