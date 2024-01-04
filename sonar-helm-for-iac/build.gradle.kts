@@ -6,14 +6,6 @@ plugins {
 
 description = "SonarSource IaC Analyzer :: Sonar Helm for IaC"
 
-val sonar_sources by extra { "." }
-val sonar_inclusions by extra { "**/*.go" }
-val sonar_exclusions by extra { "**/build/**,**/org.sonarsource.iac.helm/**" }
-val sonar_tests by extra { "." }
-val sonar_test_inclusions by extra { "**/*_test.go" }
-val sonar_go_tests_reportPaths by extra { "build/test-report.out" }
-val sonar_go_coverage_reportPaths by extra { "build/test-coverage.out" }
-
 val goBinaries: Configuration by configurations.creating
 val goBinariesJar by tasks.registering(Jar::class) {
     dependsOn("compileGoCode")
