@@ -69,7 +69,7 @@ func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{
 func LoadValues(content string) (*Values, error) {
 	valuesMap, err := unmarshalYamlToMap(content)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing values file: %w", err)
+		return nil, fmt.Errorf("error parsing values file: %w; %s", err, content)
 	}
 	return &valuesMap, nil
 }

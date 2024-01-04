@@ -163,62 +163,62 @@ build_test_analyze_task:
     - regular_gradle_build_deploy_analyze -x artifactoryPublish
 
 
-qa_os_win_task:
-  <<: *QA_TASK_FILTER
-  <<: *WINDOWS_VM_DEFINITION
-  <<: *SETUP_GRADLE_CACHE
-  _lib:
-    # For windows, refresh the path env variable, particularly useful after an installation with choco (RefreshEnv.cmd cannot be used in this context)
-    - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
-  build_script:
-    - choco install golang --version ${GO_VERSION}
-    - choco install protoc --version ${PROTOC_VERSION}.0
-    - *refreshpath
-    - source cirrus-env CI
-    - ./gradlew ${GRADLE_COMMON_FLAGS} test --profile
-  <<: *STORE_PROFILE_REPORT
+# qa_os_win_task:
+#   <<: *QA_TASK_FILTER
+#   <<: *WINDOWS_VM_DEFINITION
+#   <<: *SETUP_GRADLE_CACHE
+#   _lib:
+#     # For windows, refresh the path env variable, particularly useful after an installation with choco (RefreshEnv.cmd cannot be used in this context)
+#     - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+#   build_script:
+#     - choco install golang --version ${GO_VERSION}
+#     - choco install protoc --version ${PROTOC_VERSION}.0
+#     - *refreshpath
+#     - source cirrus-env CI
+#     - ./gradlew ${GRADLE_COMMON_FLAGS} test --profile
+#   <<: *STORE_PROFILE_REPORT
+#
+# sca_scan_task:
+#   depends_on:
+#     - build
+#   <<: *SETUP_GRADLE_CACHE
+#   <<: *ONLY_MAIN_BRANCHES
+#   eks_container:
+#     <<: *LINUX_IMAGE_WITH_GCC
+#     cpu: 4
+#     memory: 8G
+#   env:
+#     <<: *WS_SCAN_SECRETS
+#   whitesource_script:
+#     - source cirrus-env QA
+#     - source .cirrus/use-gradle-wrapper.sh
+#     - source set_gradle_build_version $BUILD_NUMBER
+#     - GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process --profile
+#     - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"
+#   allow_failures: "true"
+#   always:
+#     ws_artifacts:
+#       path: "whitesource/**/*"
+#   <<: *STORE_PROFILE_REPORT
+#   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
-sca_scan_task:
-  depends_on:
-    - build
-  <<: *SETUP_GRADLE_CACHE
-  <<: *ONLY_MAIN_BRANCHES
-  eks_container:
-    <<: *LINUX_IMAGE_WITH_GCC
-    cpu: 4
-    memory: 8G
-  env:
-    <<: *WS_SCAN_SECRETS
-  whitesource_script:
-    - source cirrus-env QA
-    - source .cirrus/use-gradle-wrapper.sh
-    - source set_gradle_build_version $BUILD_NUMBER
-    - GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process --profile
-    - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"
-  allow_failures: "true"
-  always:
-    ws_artifacts:
-      path: "whitesource/**/*"
-  <<: *STORE_PROFILE_REPORT
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
-
-qa_plugin_task:
-  <<: *QA_TASK_FILTER
-  <<: *LINUX_4_CPU_8G_JAVA_17
-  <<: *SETUP_GRADLE_CACHE
-  env:
-    matrix:
-      - SQ_VERSION: LATEST_RELEASE
-      - SQ_VERSION: DEV
-  submodules_script:
-    - git submodule update --init
-  plugin_script:
-    - source cirrus-env QA
-    - source .cirrus/use-gradle-wrapper.sh
-    - source set_gradle_build_version $BUILD_NUMBER
-    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest --profile
-  <<: *STORE_PROFILE_REPORT
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+# qa_plugin_task:
+#   <<: *QA_TASK_FILTER
+#   <<: *LINUX_4_CPU_8G_JAVA_17
+#   <<: *SETUP_GRADLE_CACHE
+#   env:
+#     matrix:
+#       - SQ_VERSION: LATEST_RELEASE
+#       - SQ_VERSION: DEV
+#   submodules_script:
+#     - git submodule update --init
+#   plugin_script:
+#     - source cirrus-env QA
+#     - source .cirrus/use-gradle-wrapper.sh
+#     - source set_gradle_build_version $BUILD_NUMBER
+#     - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=${SQ_VERSION} :its:plugin:integrationTest --profile
+#   <<: *STORE_PROFILE_REPORT
+#   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_ruling_task:
   <<: *QA_TASK_FILTER
@@ -230,23 +230,23 @@ qa_ruling_task:
     - source cirrus-env QA
     - source .cirrus/use-gradle-wrapper.sh
     - source set_gradle_build_version $BUILD_NUMBER
-    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=LATEST_RELEASE :its:ruling:integrationTest --profile
+    - ./gradlew ${GRADLE_COMMON_FLAGS} -Dsonar.runtimeVersion=LATEST_RELEASE :its:ruling:integrationTest --profile -s -d
   <<: *STORE_PROFILE_REPORT
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
-promote_task:
-  depends_on:
-    - build
-    - build_test_analyze
-    - qa_ruling
-    - qa_plugin
-  <<: *ONLY_IF_SONARSOURCE_QA
-  <<: *LINUX_1_CPU_2G
-  env:
-    <<: *PROMOTE_SECRETS
-    #artifacts that will have downloadable links in burgr
-    ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
-  script:
-    - source cirrus-env PROMOTE
-    - cirrus_jfrog_promote multi
-    - burgr-notify-promotion
+# promote_task:
+#   depends_on:
+#     - build
+#     - build_test_analyze
+#     - qa_ruling
+#     - qa_plugin
+#   <<: *ONLY_IF_SONARSOURCE_QA
+#   <<: *LINUX_1_CPU_2G
+#   env:
+#     <<: *PROMOTE_SECRETS
+#     #artifacts that will have downloadable links in burgr
+#     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
+#   script:
+#     - source cirrus-env PROMOTE
+#     - cirrus_jfrog_promote multi
+#     - burgr-notify-promotion

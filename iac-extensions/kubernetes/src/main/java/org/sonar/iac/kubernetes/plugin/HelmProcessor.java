@@ -69,6 +69,10 @@ public class HelmProcessor {
     var sourceWithComments = addLineComments(source);
     Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
     var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
+    if (inputFileContext.inputFile != null && inputFileContext.inputFile.filename() != null && inputFileContext.inputFile.filename().contains("prometheus-podmonitor.yaml")) {
+      LOG.warn("Number of files: {}", fileContents.size());
+      // LOG.warn(fileContents.get("values.yaml"));
+    }
     return evaluateHelmTemplate(filename, inputFileContext.inputFile, sourceWithComments, fileContents);
   }
 
@@ -102,6 +106,7 @@ public class HelmProcessor {
       var evaluationResult = helmEvaluator.evaluateTemplate(path, content, templateDependencies);
       return evaluationResult.getTemplate();
     } catch (IllegalStateException | IOException e) {
+      LOG.warn("Failing with" + e.getMessage());
       throw parseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());
     }
   }
