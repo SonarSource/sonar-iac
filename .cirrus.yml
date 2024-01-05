@@ -163,7 +163,6 @@ build_task:
 
 build_test_analyze_task:
   <<: *QA_TASK_FILTER
-  <<: *SETUP_GRADLE_CACHE
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
     cpu: 3.5
@@ -177,7 +176,6 @@ build_test_analyze_task:
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
     - regular_gradle_build_deploy_analyze -x artifactoryPublish
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 qa_os_win_task:
   <<: *QA_TASK_FILTER
