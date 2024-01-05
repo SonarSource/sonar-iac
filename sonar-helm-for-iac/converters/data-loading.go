@@ -112,6 +112,16 @@ func LoadChart(content string) (*Chart, error) {
 	return &chartMap, nil
 }
 
+func (ts *TemplateSources) TemplateFiles(chartName string) Files {
+	templateFiles := Files{}
+	for filename, content := range ts.files {
+		if strings.HasPrefix(filename, chartName+"/templates/") {
+			templateFiles[filename] = content
+		}
+	}
+	return templateFiles
+}
+
 func getBasePath(filepath string) string {
 	basePathUntrimmed := strings.SplitAfter(filepath, "templates/")[0]
 	return strings.TrimSuffix(basePathUntrimmed, "/")

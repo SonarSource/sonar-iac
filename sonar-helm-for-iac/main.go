@@ -81,30 +81,50 @@ func evaluateTemplate(templateSources *converters.TemplateSources) (string, erro
 		return "", err
 	}
 
-	tmpl, err := newTemplate(templateSources.Name, templateSources.TemplateFile())
+	referenceFiles := templateSources.TemplateFiles(data["Chart"].(converters.Chart)["Name"].(string))
+	return evaluateTemplateWithReferences(templateSources.Name, templateSources.TemplateFile(), data, &referenceFiles)
+}
+
+// evaluateTemplateWithReferences evaluates a template also evaluating included templates.
+// Note: in Helm, similar function accepts templateName and basePath as parameters, but since we are evaluating only single file at a time
+// (the file passed from Java code), we don't need to. For the same reason we can assume that template `templateName` will always be subject
+// for rendering, e.g. it won't be a partial (name starting with underscore).
+func evaluateTemplateWithReferences(templateName string, templateContent string, values map[string]any, referenceFiles *converters.Files) (string, error) {
+	tmpl := template.New("aggregatingTemplate")
+	// Substitute some of the missing values with zero values. Others will be additionally handled after rendering.
+	tmpl.Option("missingkey=zero")
+
+	funcMap := *addCustomFunctions()
+	funcMap["tpl"] = func(templateContent string, values converters.Values) (string, error) {
+		result, err := evaluateTemplateWithReferences(templateName, templateContent, values, referenceFiles)
+
+		if err != nil {
+			return "", err
+		}
+		return result, nil
+	}
+	tmpl.Funcs(funcMap)
+
+	_, err := tmpl.New(templateName).Parse(templateContent)
 	if err != nil {
 		return "", err
 	}
 
-	return executeWithValues(tmpl, data)
-}
-
-func newTemplate(name string, content string) (*template.Template, error) {
-	tmpl := template.New(name)
-	tmpl.Funcs(*addCustomFunctions())
-	tmpl, err := tmpl.Parse(content)
-	if err != nil {
-		return nil, err
+	for name, content := range *referenceFiles {
+		if tmpl.Lookup(name) == nil {
+			_, err = tmpl.New(name).Parse(string(content))
+			if err != nil {
+				return "", err
+			}
+		}
 	}
 
-	return tmpl, nil
-}
-
-func executeWithValues(tmpl *template.Template, data any) (string, error) {
 	var buf strings.Builder
-	err := tmpl.Execute(&buf, data)
+	err = tmpl.ExecuteTemplate(&buf, templateName, values)
 	if err != nil {
 		return "", err
 	}
-	return buf.String(), nil
+	// Helm allows some unresolvable (i.e. not provided) values, but Go replaces them with token `<no value>`, which Helm then removes.
+	result := strings.ReplaceAll(buf.String(), "<no value>", "")
+	return result, nil
 }

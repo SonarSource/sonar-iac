@@ -1,0 +1,1 @@
+escalation: '{{ if eq .Chart.Name "test-tpl" }}true{{ else }}false{{ end }}'

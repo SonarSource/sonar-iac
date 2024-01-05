@@ -1,4 +1,7 @@
 {
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/tpl/templates/tpl_test.yaml": [
+14
+],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/required/templates/required_valid.yaml": [
 14
 ],

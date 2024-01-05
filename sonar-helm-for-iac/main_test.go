@@ -288,9 +288,9 @@ foo: foo-value
 apiVersion: map[]
 kind: Pod
 metadata:
-  app.kubernetes.io/version: "sonar-generated-tpl-0"
-  include/init-sysctl: sonar-generated-include-1
-  checksum/init-sysctl: 7853347def13052a4585b34d7b152b3d43c90f09071f94e8ffeca7c825b804bd
+  app.kubernetes.io/version: "1.0.0-community"
+  include/init-sysctl: sonar-generated-include-0
+  checksum/init-sysctl: 6817b367fc378cc1a1f95397cd064bef6598c004b669780e73f8e235e4278c23
   foo: foo-value
   host: 192.0.2.0
   len: 9
@@ -307,7 +307,7 @@ spec:
 		"Chart.yaml":       DefaultChartYaml}))
 
 	assert.Equal(t, expected, result)
-	assert.Equal(t, nil, err)
+	assert.Nil(t, err)
 }
 
 func Test_evaluate_template_conversion_functions(t *testing.T) {
@@ -411,6 +411,7 @@ foo: bar: baz
 		"Chart.yaml":       DefaultChartYaml}))
 
 	assert.Equal(t, "", result)
+	assert.NotNil(t, err)
 	assert.Equal(t,
 		"error parsing values file: error converting YAML to JSON: yaml: line 2: mapping values are not allowed in this context",
 		err.Error())
@@ -546,4 +547,49 @@ data:
 		"config.properties": config}))
 
 	assert.Equal(t, expected, result)
+}
+
+func Test_tpl_with_errors(t *testing.T) {
+	template := []byte(`
+apiVersion: {{ tpl .Values.api . | quote }}
+`)
+
+	values := []byte(`
+api: v1-{{ }}
+`)
+
+	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+		"templates/a.yaml": template,
+		"values.yaml":      values,
+		"Chart.yaml":       DefaultChartYaml}))
+
+	assert.Equal(t, "", result)
+	assert.NotNil(t, err)
+	assert.Equal(t, "template: test-project/templates/a.yaml:2:15: executing \"test-project/templates/a.yaml\" at <tpl .Values.api .>: error calling tpl: "+
+		"template: test-project/templates/a.yaml:1: missing value for command", err.Error())
+}
+
+func Test_tpl_cross_file(t *testing.T) {
+	template := []byte(`
+apiVersion: {{ template "my-tpl" . }}
+`)
+
+	values := []byte(`
+api: v1
+`)
+
+	helpers := []byte(`
+{{- define "my-tpl" -}}
+{{ tpl .Values.api . | quote }}
+{{- end -}}
+`)
+
+	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+		"templates/a.yaml":       template,
+		"values.yaml":            values,
+		"Chart.yaml":             DefaultChartYaml,
+		"templates/_helpers.tpl": helpers}))
+
+	assert.Equal(t, "\napiVersion: \"v1\"\n", result)
+	assert.Nil(t, err)
 }
