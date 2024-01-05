@@ -95,10 +95,17 @@ class IacRulingTest {
   }
 
   @Test
-  void test_kubernetes() throws IOException {
+  void testKubernetes() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/kubernetes/**/*.yaml, ruling/src/integrationTest/resources/sources/kubernetes/**/*.yaml," +
-      "sources/kubernetes/**/*.yml, ruling/src/integrationTest/resources/sources/kubernetes/**/*.yml");
+    properties.put("sonar.inclusions",
+      // when required, scope can be increased to include more files (e.g. resources)
+      "sources/kubernetes/**/*.yaml," +
+        "sources/kubernetes/**/*.yml," +
+        "sources/kubernetes/**/*.tpl," +
+        "sources/kubernetes/**/*.toml," +
+        "sources/kubernetes/**/*.txt," +
+        "sources/kubernetes/**/*.properties," +
+        "ruling/src/integrationTest/resources/sources/kubernetes/**");
     run_ruling_test("kubernetes", properties);
   }
 

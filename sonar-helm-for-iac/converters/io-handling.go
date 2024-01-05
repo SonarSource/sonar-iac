@@ -65,7 +65,7 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 				if err != nil {
 					return mo.Err[[]byte](err)
 				}
-				fmt.Fprintf(os.Stderr, "Reading %d lines from stdin\n", length)
+				fmt.Fprintf(os.Stderr, "Reading %d lines of file %s from stdin\n", length, name)
 				return mo.TupleToResult(s.readInput(scanner, length))
 			})
 		if contentResult.IsOk() {
