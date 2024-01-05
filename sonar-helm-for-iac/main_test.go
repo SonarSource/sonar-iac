@@ -264,8 +264,8 @@ apiVersion: {{ lookup "v1" "Pod" "mynamespace" "mypod" }}
 kind: Pod
 metadata:
   app.kubernetes.io/version: {{ tpl .Values.image.tag . | quote }}
-  include/init-sysctl: {{ include "/init-sysctl.yaml" . }}
-  checksum/init-sysctl: {{ include "/init-sysctl.yaml" . | sha256sum }}
+  include/init-sysctl: {{ include (print $.Template.BasePath "/init-sysctl.yaml") . }}
+  checksum/init-sysctl: {{ include (print $.Template.BasePath "/init-sysctl.yaml") . | sha256sum }}
   foo: {{ required "A valid foo is required!" .Values.foo }}
   host: {{ getHostByName "www.google.com" }}
   len: {{ len .Values.foo }}
@@ -289,8 +289,8 @@ apiVersion: map[]
 kind: Pod
 metadata:
   app.kubernetes.io/version: "1.0.0-community"
-  include/init-sysctl: sonar-generated-include-0
-  checksum/init-sysctl: 6817b367fc378cc1a1f95397cd064bef6598c004b669780e73f8e235e4278c23
+  include/init-sysctl: init-sysctl
+  checksum/init-sysctl: 5d1274616a37c4a59a71d7807619f69bc49fe86958e9c8e77bc0995a3b92fb56
   foo: foo-value
   host: 192.0.2.0
   len: 9
@@ -302,12 +302,13 @@ spec:
 `
 
 	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
-		"templates/a.yaml": template,
-		"values.yaml":      values,
-		"Chart.yaml":       DefaultChartYaml}))
+		"templates/a.yaml":           template,
+		"values.yaml":                values,
+		"Chart.yaml":                 DefaultChartYaml,
+		"templates/init-sysctl.yaml": []byte("init-sysctl")}))
 
-	assert.Equal(t, expected, result)
 	assert.Nil(t, err)
+	assert.Equal(t, expected, result)
 }
 
 func Test_evaluate_template_conversion_functions(t *testing.T) {
@@ -545,6 +546,28 @@ data:
 		"values.yaml":       values,
 		"Chart.yaml":        DefaultChartYaml,
 		"config.properties": config}))
+
+	assert.Equal(t, expected, result)
+}
+
+func Test_evaluate_template_include_function(t *testing.T) {
+	template := []byte(`foo: {{ include "app.name" $ }}`)
+
+	values := []byte(`bar: 1`)
+
+	helpers := []byte(`
+{{- define "app.name" -}}
+{{- printf "My application name" -}}
+{{- end -}}`)
+
+	expected := `foo: My application name`
+
+	fileNameToFileContent := converters.Files{
+		"templates/a.yaml":       template,
+		"values.yaml":            values,
+		"templates/_helpers.tpl": helpers,
+		"Chart.yaml":             DefaultChartYaml}
+	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", fileNameToFileContent))
 
 	assert.Equal(t, expected, result)
 }

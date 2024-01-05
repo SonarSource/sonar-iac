@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"
+	"text/template"
 	"unsafe"
 )
 
@@ -82,4 +83,17 @@ func Test_toTomlError(t *testing.T) {
 	actual := toToml(&Type{})
 
 	assert.Equal(t, "unsupported type: unsafe.Pointer", actual)
+}
+
+func Test_include_deep_recursion(t *testing.T) {
+	tmpl := template.New("test")
+	funcMap := *addCustomFunctions(tmpl)
+	tmpl.Funcs(funcMap)
+	_, err := tmpl.New("self-referencing").Parse(`{{ include "self-referencing" . }}`)
+	assert.NoError(t, err)
+	includeFn := funcMap["include"].(func(string, interface{}) (string, error))
+
+	_, err = includeFn("self-referencing", nil)
+
+	assert.ErrorContains(t, err, "rendering t has too many recursions. Nested reference name: self-referencing")
 }
