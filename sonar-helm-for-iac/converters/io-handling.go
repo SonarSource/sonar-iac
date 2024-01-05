@@ -93,26 +93,21 @@ func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) ([]byte, erro
 	if nLines == 0 {
 		return nil, errors.New("request to read 0 lines aborted")
 	}
-	rawInput := make([][]byte, 0)
+	rawInput := make([]byte, 0)
 	linesToRead := nLines
 	for scanner.Scan() {
-		rawInput = append(rawInput, scanner.Bytes())
+		rawInput = append(rawInput, scanner.Bytes()...)
+		rawInput = append(rawInput, []byte("\n")...)
 		linesToRead--
 		if linesToRead == 0 {
 			break
 		}
 	}
-	// if scanner has encountered an error, scanner.Err will return it here
-	return joinWithDelimiter(rawInput, "\n"), scanner.Err()
-}
-
-func joinWithDelimiter(bytes [][]byte, delimiter string) []byte {
-	result := make([]byte, 0)
-	for i, line := range bytes {
-		result = append(result, line...)
-		if i != len(bytes)-1 {
-			result = append(result, []byte(delimiter)...)
-		}
+	// the last delimiter added needs to be removed again
+	if len(rawInput) > 0 {
+		rawInput = rawInput[:len(rawInput)-1]
 	}
-	return result
+
+	// if scanner has encountered an error, scanner.Err will return it here
+	return rawInput, scanner.Err()
 }

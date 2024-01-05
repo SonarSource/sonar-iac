@@ -26,6 +26,7 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +46,8 @@ class IacRulingTest {
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String LITS_VERSION = "0.11.0.2659";
+  private static final File LITS_OUTPUT_DIRECTORY = FileLocation.of("build/reports/lits").getFile();
+  private static final File LITS_DIFFERENCES_FILE = Path.of(LITS_OUTPUT_DIRECTORY.toURI()).resolve("differences").toFile();
   private static final String SCANNER_VERSION = "5.0.1.3006";
 
   @RegisterExtension
@@ -65,12 +68,13 @@ class IacRulingTest {
     "azureresourcemanager");
 
   @BeforeAll
-  public static void setUp() {
+  public static void setUp() throws IOException {
     LANGUAGES.forEach(language -> {
       ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
       File languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
       orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
     });
+    Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
   }
 
   @Test
@@ -129,10 +133,6 @@ class IacRulingTest {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     LANGUAGES.forEach(lang -> orchestrator.getServer().associateProjectToQualityProfile(projectKey, lang, "rules"));
 
-    File actualDirectory = FileLocation.of("target/actual/" + project).getFile();
-    actualDirectory.mkdirs();
-
-    File litsDifferencesFile = FileLocation.of("target/" + projectKey + "-differences").getFile();
     SonarScanner build = SonarScanner.create(FileLocation.of("../").getFile())
       .setScannerVersion(SCANNER_VERSION)
       .setProjectKey(projectKey)
@@ -142,8 +142,8 @@ class IacRulingTest {
       .setSourceEncoding("utf-8")
       .setProperties(properties)
       .setProperty("sonar.lits.dump.old", FileLocation.of("src/integrationTest/resources/expected/" + project).getFile().getAbsolutePath())
-      .setProperty("sonar.lits.dump.new", actualDirectory.getAbsolutePath())
-      .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath())
+      .setProperty("sonar.lits.dump.new", FileLocation.of(LITS_OUTPUT_DIRECTORY + "/actual").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.differences", LITS_DIFFERENCES_FILE.getAbsolutePath())
       .setProperty("sonar.scm.disabled", "true")
       .setProperty("sonar.internal.analysis.failFast", "true")
       .setProperty("sonar.project", project)
@@ -151,7 +151,7 @@ class IacRulingTest {
 
     orchestrator.executeBuild(build);
 
-    String litsDifference = new String(Files.readAllBytes(litsDifferencesFile.toPath()));
+    String litsDifference = new String(Files.readAllBytes(LITS_DIFFERENCES_FILE.toPath()));
     assertThat(litsDifference).isEmpty();
   }
 
