@@ -26,7 +26,6 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"sigs.k8s.io/yaml"
 	"slices"
-	"strconv"
 	"strings"
 	"text/template"
 )
@@ -210,8 +209,6 @@ var sprigFunctionsWhitelist = []string{
 
 var sprigFunctions = initSprigFunctions()
 
-var generatedNamesCount = 0
-
 var includedNames = make(map[string]int)
 
 const includedMaxRecursion = 1000
@@ -246,7 +243,6 @@ func addCustomFunctions(tmpl *template.Template) *template.FuncMap {
 		} else {
 			includedNames[name] = 1
 		}
-		//TODO read from tmpl.common.tmpl["app.name"]
 		err := tmpl.ExecuteTemplate(&buf, name, data)
 		includedNames[name]--
 		return buf.String(), err

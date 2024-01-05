@@ -43,17 +43,6 @@ func (ts *TemplateSources) Values() string {
 	return string(valuesFile)
 }
 
-func (ts *TemplateSources) HelpSourceFiles() Files {
-	result := Files{}
-	for key, value := range ts.files {
-		if key != ts.Name && key != "values.yaml" && key != "Chart.yaml" {
-			result[key] = value
-		}
-	}
-
-	return result
-}
-
 func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{}, error) {
 	result := map[string]interface{}{}
 

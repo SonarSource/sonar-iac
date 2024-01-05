@@ -94,7 +94,7 @@ func evaluateTemplateWithReferences(templateName string, templateContent string,
 	// Substitute some of the missing values with zero values. Others will be additionally handled after rendering.
 	tmpl.Option("missingkey=zero")
 
-	funcMap := *addCustomFunctions()
+	funcMap := *addCustomFunctions(tmpl)
 	funcMap["tpl"] = func(templateContent string, values converters.Values) (string, error) {
 		result, err := evaluateTemplateWithReferences(templateName, templateContent, values, referenceFiles)
 
