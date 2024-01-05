@@ -106,6 +106,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: example
+  labels:
+    app: {{ .Chart.Name }}
 spec:
   containers:
     - name: web
@@ -126,6 +128,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: example
+  labels:
+    app: test-project
 spec:
   containers:
     - name: web

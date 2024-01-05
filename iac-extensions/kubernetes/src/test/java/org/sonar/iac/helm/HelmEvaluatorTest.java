@@ -74,7 +74,7 @@ class HelmEvaluatorTest {
       .hasMessage("Evaluation error in Go library: error reading content: request to read 0 lines aborted");
 
     Assertions.assertThat(logTester.logs(Level.DEBUG))
-      .contains("[sonar-helm-for-iac] Reading 0 lines from stdin");
+      .contains("[sonar-helm-for-iac] Reading 0 lines of file /foo/bar/baz.yaml from stdin");
   }
 
   @Test

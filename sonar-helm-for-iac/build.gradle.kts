@@ -26,11 +26,8 @@ if (isCi) {
         outputs.files("org.sonarsource.iac.helm/template-evaluation.pb.go")
         outputs.cacheIf { true }
 
-        commandLine("protoc", "-I=${project.projectDir}", "-I=" + System.getProperty("user.home") + "/go/protobuf/include",
+        commandLine("protoc", "-I=${project.projectDir}", "-I=${System.getProperty("user.home")}/go/protobuf/include",
             "--go_out=${project.projectDir}", "${project.projectDir}/template-evaluation.proto")
-        doFirst {
-            println("Running command: ${commandLine}")
-        }
     }
 
     // Define and trigger tasks in this order: clean, compile and test go code

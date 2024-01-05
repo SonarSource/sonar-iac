@@ -40,14 +40,14 @@ func Test_chart_data_has_all_fields(t *testing.T) {
 	templateSources := NewTemplateSources("templates/a.yaml", filesFromStrings(map[string]string{
 		"templates/a.yaml": "apiVersion: v1",
 		"values.yaml":      "foo: bar",
-		"Chart.yaml":       "name: test-project"}))
+		"Chart.yaml":       "name: test-project\napiVersion: v2"}))
 
 	chartData, _ := PrepareChartValues(templateSources)
 
 	assert.Contains(t, chartData, "Values")
 	assert.Equal(t, Values{"foo": "bar"}, chartData["Values"])
 	assert.Contains(t, chartData, "Chart")
-	assert.Equal(t, Chart{"name": "test-project"}, chartData["Chart"])
+	assert.Equal(t, Chart{"Name": "test-project", "APIVersion": "v2"}, chartData["Chart"])
 	assert.Contains(t, chartData, "Capabilities")
 	assert.Equal(t, DefaultCapabilities, chartData["Capabilities"])
 	assert.Contains(t, chartData, "Release")

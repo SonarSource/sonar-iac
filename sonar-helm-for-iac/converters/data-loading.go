@@ -5,6 +5,7 @@ import (
 	"github.com/samber/mo"
 	"sigs.k8s.io/yaml"
 	"strings"
+	"unicode"
 )
 
 // TemplateSources contains all the sources needed to evaluate a template
@@ -65,7 +66,7 @@ func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{
 	// Helm allows referencing templates (e.g. in `template` and `include`) with kind of fully-qualified path,
 	// which starts with chart name. See `pkg/chart/loader/load.go:LoadFiles`. All other files are kept intact.
 	// TODO SONARIAC-1241: handle nested charts, i.e. basePath should incorporate parent path like "parent-chart/charts/nested-chart/templates"
-	chartPathPrefix := (*chart)["name"].(string)
+	chartPathPrefix := (*chart)["Name"].(string)
 	for filename, content := range templateSources.files {
 		if strings.HasPrefix(filename, "templates/") {
 			delete(templateSources.files, filename)
@@ -96,6 +97,17 @@ func LoadChart(content string) (*Chart, error) {
 	chartMap, err := unmarshalYamlToMap(content)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing Chart.yaml: %w", err)
+	}
+	for key, value := range chartMap {
+		// Helm uses lowercase keys in Chart.yaml, but capitalized in the Metadata struct.
+		delete(chartMap, key)
+		if key == "apiVersion" {
+			// This field should have several letters capitalized
+			key = "APIVersion"
+		}
+		capitalizedKey := []rune(key)
+		capitalizedKey[0] = unicode.ToUpper(capitalizedKey[0])
+		chartMap[string(capitalizedKey)] = value
 	}
 	return &chartMap, nil
 }
