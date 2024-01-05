@@ -46,7 +46,7 @@ class RequiredTest {
   void requireWithoutValueShouldThrowIllegalStateException() {
     var templateDependencies = Map.of("values.yaml", "var1: myVal", "Chart.yaml", "name: foo");
     Assertions
-      .assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "field: {{ required \"Missing mandatory var2 values!\" .Values.var2 }}", templateDependencies))
+      .assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("templates/baz.yaml", "field: {{ required \"Missing mandatory var2 values!\" .Values.var2 }}", templateDependencies))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("error calling required: Missing mandatory var2 values!");
   }
@@ -54,7 +54,7 @@ class RequiredTest {
   @Test
   void requireWithValueShouldBeProcessedNormally() throws IOException {
     var templateDependencies = Map.of("values.yaml", "var1: myVal", "Chart.yaml", "name: foo");
-    var evaluationResult = helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "field: {{ required \"Missing mandatory var2 values!\" .Values.var1 }}", templateDependencies);
+    var evaluationResult = helmEvaluator.evaluateTemplate("templates/baz.yaml", "field: {{ required \"Missing mandatory var2 values!\" .Values.var1 }}", templateDependencies);
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("field: myVal");
   }
