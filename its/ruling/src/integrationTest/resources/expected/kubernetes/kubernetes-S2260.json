@@ -17,19 +17,7 @@
 "kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/vttablet-pod-template.yaml": [
 0
 ],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/change-admin-password-hook.yml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/ingress.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/networkpolicy.yaml": [
-0
-],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/podDistributionBudget.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/prometheus-podmonitor.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/service.yaml": [
@@ -42,27 +30,6 @@
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/change-admin-password-hook.yml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/deployment.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/ingress.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/networkpolicy.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/prometheus-podmonitor.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/pvc.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/route.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/service.yaml": [

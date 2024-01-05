@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -77,6 +78,8 @@ public class KubernetesParser extends YamlParser {
       fileRelativePath = inputFileContext.inputFile.filename();
     } else {
       fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
+      // transform windows to unix path
+      fileRelativePath = fileRelativePath.replace(File.separatorChar, '/');
     }
     var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
     return super.parse(evaluatedSource, inputFileContext, FileTree.Template.HELM);
