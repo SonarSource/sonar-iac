@@ -1,4 +1,7 @@
 {
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/required/templates/required_missing.yaml": [
+0
+],
 "kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/etcd-controller-template.yaml": [
 0
 ],
