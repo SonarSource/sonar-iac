@@ -20,24 +20,27 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.check.Rule;
 
-public final class KubernetesCheckList {
+import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
-  private KubernetesCheckList() {
-  }
+@Rule(key = "S6864")
+public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CapabilitiesCheck.class,
-      ContainerPrivilegedModeCheck.class,
-      DockerSocketCheck.class,
-      HostNamespacesCheck.class,
-      MemoryLimitCheck.class,
-      MountingFileSystemPathsCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegeEscalationCheck.class,
-      ToDoCommentCheck.class);
+  // Todo: change content of this message
+  private static final String MESSAGE = "MESSAGE test.";
+
+  @Override
+  void registerObjectCheck() {
+    register("Pod", pod -> pod.blocks("containers").forEach(container -> container.block("resources")
+      .block("limits")
+      .attribute("memory")
+      .reportIfValue(isSet().negate(), MESSAGE)));
+
+    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob"),
+      obj -> obj.block("template").block("spec").blocks("containers").forEach(container -> container.block("resources")
+        .block("limits")
+        .attribute("memory")
+        .reportIfValue(isSet().negate(), MESSAGE)));
   }
 }

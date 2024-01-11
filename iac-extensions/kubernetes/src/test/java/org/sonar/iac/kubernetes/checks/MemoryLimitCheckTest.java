@@ -19,25 +19,19 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public final class KubernetesCheckList {
+class MemoryLimitCheckTest {
+  IacCheck check = new MemoryLimitCheck();
 
-  private KubernetesCheckList() {
+  @Test
+  void test_pod_object() {
+    KubernetesVerifier.verify("MemoryLimitCheck/test_pod_object.yaml", check);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CapabilitiesCheck.class,
-      ContainerPrivilegedModeCheck.class,
-      DockerSocketCheck.class,
-      HostNamespacesCheck.class,
-      MemoryLimitCheck.class,
-      MountingFileSystemPathsCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegeEscalationCheck.class,
-      ToDoCommentCheck.class);
+  @Test
+  void test_template_object() {
+    KubernetesVerifier.verify("MemoryLimitCheck/test_template_object.yaml", check);
   }
 }
