@@ -27,8 +27,7 @@ import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 @Rule(key = "S6864")
 public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
-  // Todo: change content of this message
-  private static final String MESSAGE = "MESSAGE test.";
+  private static final String MESSAGE = "Make sure it is safe not to set memory limit.";
 
   @Override
   void registerObjectCheck() {

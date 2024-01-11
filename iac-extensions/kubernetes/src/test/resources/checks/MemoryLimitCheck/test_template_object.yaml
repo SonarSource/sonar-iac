@@ -22,5 +22,5 @@ spec:
         - name: noncompliant_without_memory_limit
           resources:
               limits:
-                memory: ~ # NonCompliant {{MESSAGE test.}}
+                memory: ~ # NonCompliant {{Make sure it is safe not to set memory limit.}}
               # ^^^^^^^^^
