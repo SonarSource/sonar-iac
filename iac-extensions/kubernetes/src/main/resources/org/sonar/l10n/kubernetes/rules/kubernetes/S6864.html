@@ -1,0 +1,59 @@
+<h2>Why is this an issue?</h2>
+<p>A memory limit is a configuration that sets the maximum amount of memory that a container can use. It is part of the resource management
+functionality of Kubernetes, which allows for the control and allocation of computational resources to containers.</p>
+<p>When a memory limit is set for a container, Kubernetes ensures that the container does not exceed the specified limit. If a container tries to use
+more memory than its limit, the system will reclaim the excess memory, which could lead to termination of processes within the container.</p>
+<p>Without a memory limit, a container can potentially consume all available memory on a node, which can lead to unpredictable behavior of the
+container or the node itself. Therefore, defining a memory limit for each container is a best practice in Kubernetes configurations. It helps in
+managing resources effectively and ensures that a single container does not monopolize the memory resources of a node.</p>
+<h3>What is the potential impact?</h3>
+<h4>Denial of Service</h4>
+<p>Without a memory limit, a container can consume all available memory on a node. This could lead to a Denial of Service (DoS) condition where other
+containers on the same node are starved of memory. These containers may slow down, become unresponsive, or even crash, affecting the overall
+functionality and availability of applications running on them.</p>
+<h4>Inefficient Resource Allocation</h4>
+<p>When containers lack specified resource requests, the Kubernetes scheduler may not make optimal decisions about pod placement and resource
+contention management. This could result in the scheduler placing a resource-intensive pod on a node with insufficient resources, leading to
+performance issues or even node failure.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>To avoid potential issues specify a memory limit for each container.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers: # Noncompliant
+    - name: web
+      image: nginx
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      resources:
+        limits:
+          memory: 100Mi
+</pre>
+<h3>How does this work?</h3>
+<p>A limit can be set through the property <code>resources.limits.memory</code> of a container. Alternatively, a default limit for a namespace can be
+set with <code>LimitRange</code>.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Kubernetes Documentation - <a href="https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/">Configure
+  Default Memory Requests and Limits for a Namespace</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/770">CWE-770 - Allocation of Resources Without Limits or Throttling</a> </li>
+</ul>
+
