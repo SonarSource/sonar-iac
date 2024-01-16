@@ -14,5 +14,5 @@ spec:
       image: nginx
       resources:
         limits:
-          memory: ~ # NonCompliant {{Make sure it is safe not to set memory limit.}}
+          memory: ~ # Noncompliant {{Specify a memory limit for this container.}}
         # ^^^^^^^^^

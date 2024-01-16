@@ -27,7 +27,9 @@ import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 @Rule(key = "S6864")
 public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
-  private static final String MESSAGE = "Make sure it is safe not to set memory limit.";
+  private static final String MESSAGE = "Specify a memory limit for this container.";
+
+  private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
 
   @Override
   void registerObjectCheck() {
@@ -36,7 +38,7 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
       .attribute("memory")
       .reportIfValue(isSet().negate(), MESSAGE)));
 
-    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob"),
+    register(KIND_WITH_TEMPLATE,
       obj -> obj.block("template").block("spec").blocks("containers").forEach(container -> container.block("resources")
         .block("limits")
         .attribute("memory")
