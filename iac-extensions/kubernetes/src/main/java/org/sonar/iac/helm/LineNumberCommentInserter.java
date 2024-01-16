@@ -41,8 +41,11 @@ public final class LineNumberCommentInserter {
     var lastIndex = 0;
     while (matcher.find()) {
       lineCounter++;
-      sb.append(matcher.group("lineContent"));
-      sb.append(commentLineNumber(lineCounter));
+      var lineContent = matcher.group("lineContent");
+      sb.append(lineContent);
+      if (!lineContent.equals("---")) {
+        sb.append(commentLineNumber(lineCounter));
+      }
       sb.append(matcher.group("newLine"));
       lastIndex = matcher.end();
     }
