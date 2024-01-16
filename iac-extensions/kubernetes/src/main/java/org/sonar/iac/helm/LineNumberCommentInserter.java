@@ -43,7 +43,7 @@ public final class LineNumberCommentInserter {
       lineCounter++;
       var lineContent = matcher.group("lineContent");
       sb.append(lineContent);
-      if (!lineContent.equals("---")) {
+      if (!"---".equals(lineContent)) {
         sb.append(commentLineNumber(lineCounter));
       }
       sb.append(matcher.group("newLine"));
