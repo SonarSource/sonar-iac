@@ -275,6 +275,9 @@ metadata:
   urlquery: {{ urlquery "example.com/search?foo=bar" }}
   fail: {{ fail "Please do not fail" }}
 spec:
+{{- with .Values.words }}
+  sentence: {{ join "," . }}
+{{- end }}
 `)
 
 	values := []byte(`
@@ -282,6 +285,7 @@ image:
   tag: 1.0.0-{{ .Values.edition }}
 edition: "community"
 foo: foo-value
+words: ["Hello", "World"]
 `)
 
 	expected := `
@@ -299,6 +303,7 @@ metadata:
   urlquery: example.com%2Fsearch%3Ffoo%3Dbar
   fail: 
 spec:
+  sentence: Hello,World
 `
 
 	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{

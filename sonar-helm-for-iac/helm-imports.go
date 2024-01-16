@@ -95,6 +95,7 @@ var sprigFunctionsWhitelist = []string{
 	"int",
 	"int64",
 	"isAbs",
+	"join",
 	"kebabcase",
 	"keys",
 	"kindIs",
