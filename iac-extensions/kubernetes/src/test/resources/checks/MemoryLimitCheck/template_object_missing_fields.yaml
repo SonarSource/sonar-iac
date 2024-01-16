@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers: # Noncompliant {{Specify a memory limit for this container.}}
+    # ^^^^^^^^^^
+        - name: noncompliant_without_memory_limit
+          resources:
+            limits:
+              cpu: 200m
+
+        - name: noncompliant_without_limits
+          resources:
+            requests:
+              memory: 64Mi
+
+        - name: noncompliant_without_resources

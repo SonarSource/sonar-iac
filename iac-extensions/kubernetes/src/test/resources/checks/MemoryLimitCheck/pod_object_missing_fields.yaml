@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers: # Noncompliant {{Specify a memory limit for this container.}}
+# ^^^^^^^^^^
+    - name: noncompliant_without_memory_limit
+      image: nginx
+      resources:
+        limits:
+          cpu: 200m
+
+    - name: noncompliant_without_limits
+      image: nginx
+      resources:
+        requests:
+          memory: 64Mi
+
+    - name: noncompliant_without_resources
+      image: nginx

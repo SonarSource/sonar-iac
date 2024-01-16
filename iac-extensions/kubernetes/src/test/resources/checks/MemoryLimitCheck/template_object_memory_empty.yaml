@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: noncompliant_memory_limit_tilde
+          resources:
+              limits:
+                memory: ~ # Noncompliant {{Specify a memory limit for this container.}}
+              # ^^^^^^^^^
+
+        - name: noncompliant_memory_limit_empty_brackets
+          resources:
+            limits:
+              memory: [] # Noncompliant {{Specify a memory limit for this container.}}
+            # ^^^^^^^^^^
+
+        - name: noncompliant_memory_limit_null
+          resources:
+            limits:
+              memory: null # Noncompliant {{Specify a memory limit for this container.}}
+            # ^^^^^^^^^^^^
+
+        - name: compliant_memory_limit
+          resources:
+            limits:
+              memory: 100Mi # Compliant

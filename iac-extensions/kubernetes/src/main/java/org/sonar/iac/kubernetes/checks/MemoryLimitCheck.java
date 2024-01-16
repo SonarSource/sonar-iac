@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
@@ -28,20 +29,19 @@ import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Specify a memory limit for this container.";
-
+  private static final String KIND_POD = "Pod";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+
+  private static void accept(BlockObject blockObject) {
+    blockObject.blocks("containers").forEach(container -> container.block("resources")
+      .block("limits")
+      .attribute("memory")
+      .reportIfValue(isSet().negate(), MESSAGE));
+  }
 
   @Override
   void registerObjectCheck() {
-    register("Pod", pod -> pod.blocks("containers").forEach(container -> container.block("resources")
-      .block("limits")
-      .attribute("memory")
-      .reportIfValue(isSet().negate(), MESSAGE)));
-
-    register(KIND_WITH_TEMPLATE,
-      obj -> obj.block("template").block("spec").blocks("containers").forEach(container -> container.block("resources")
-        .block("limits")
-        .attribute("memory")
-        .reportIfValue(isSet().negate(), MESSAGE)));
+    register(KIND_POD, MemoryLimitCheck::accept);
+    register(KIND_WITH_TEMPLATE, obj -> accept(obj.block("template").block("spec")));
   }
 }
