@@ -22,6 +22,7 @@ package org.sonar.iac.helm.utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -71,6 +72,8 @@ class HelmFilesystemUtilsTest {
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
     InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
 
+    InputFile chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
+    addToFilesystem(context, helmTemplate, chartYamlFile);
     InputFile additionalFile = createInputFile(helmProjectPathPrefix + relativePath);
     addToFilesystem(context, helmTemplate, additionalFile);
 
@@ -78,11 +81,11 @@ class HelmFilesystemUtilsTest {
     InputFile resultingInputFile = helmDependentFiles.get(relativePath.replace("/", File.separator));
 
     if (shouldBeIncluded) {
-      assertThat(helmDependentFiles).hasSize(1);
+      assertThat(helmDependentFiles).hasSize(2);
       assertThat(resultingInputFile).isNotNull();
       assertThat(resultingInputFile).isEqualTo(additionalFile);
     } else {
-      assertThat(helmDependentFiles).isEmpty();
+      assertThat(helmDependentFiles).hasSize(1);
     }
   }
 
@@ -91,7 +94,6 @@ class HelmFilesystemUtilsTest {
       Arguments.of("foo/file.txt", true),
       Arguments.of("values.yaml", true),
       Arguments.of("values.yml", true),
-      Arguments.of("Chart.yaml", true),
       Arguments.of("_helpers.tpl", true),
       Arguments.of("file.txt", true),
       Arguments.of("file.yml", true),
@@ -116,11 +118,15 @@ class HelmFilesystemUtilsTest {
 
   @Test
   void retrievingParentPathShouldReturnNull() {
-    Path inputFilePath = mock(Path.class);
-    when(inputFilePath.getParent()).thenReturn(null);
+    try (var ignored = Mockito.mockStatic(Files.class)) {
+      when(Files.exists(any())).thenReturn(false);
 
-    Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath);
-    assertThat(parentPath).isNull();
+      Path inputFilePath = mock(Path.class);
+      when(inputFilePath.getParent()).thenReturn(null);
+
+      Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath);
+      assertThat(parentPath).isNull();
+    }
   }
 
   @Test
@@ -134,6 +140,18 @@ class HelmFilesystemUtilsTest {
       Map<String, InputFile> result = HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(templateInputFileContext);
       assertThat(result).isEmpty();
     }
+  }
+
+  @Test
+  void shouldReturnEmptyMapWhenOnlyChartYamlIsVeryHighAbove() throws IOException {
+    createInputFile(helmProjectPathPrefix + "Chart.yaml");
+    FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4"));
+    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
+    InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
+
+    var result = HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()));
+
+    assertThat(result).isNull();
   }
 
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {
