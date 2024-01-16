@@ -21,6 +21,7 @@ package org.sonar.iac.helm.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 public final class HelmFilesystemUtils {
   private static final Logger LOG = LoggerFactory.getLogger(HelmFilesystemUtils.class);
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
+  private static final int HELM_PROJECT_DIRECTORY_MAX_DEPTH = 5;
 
   private HelmFilesystemUtils() {
   }
@@ -93,10 +95,18 @@ public final class HelmFilesystemUtils {
 
   @CheckForNull
   public static Path retrieveHelmProjectFolder(Path inputFilePath) {
-    var helmProjectDirectoryPath = inputFilePath.getParent();
+    var helmProjectDirectoryPath = inputFilePath;
+    var currentDepth = 0;
 
-    if (helmProjectDirectoryPath != null) {
+    while (helmProjectDirectoryPath != null && currentDepth < HELM_PROJECT_DIRECTORY_MAX_DEPTH) {
+      if (Files.exists(helmProjectDirectoryPath.resolve("Chart.yaml"))) {
+        break;
+      }
       helmProjectDirectoryPath = helmProjectDirectoryPath.getParent();
+      currentDepth++;
+    }
+    if (currentDepth == HELM_PROJECT_DIRECTORY_MAX_DEPTH) {
+      return null;
     }
     return helmProjectDirectoryPath;
   }
