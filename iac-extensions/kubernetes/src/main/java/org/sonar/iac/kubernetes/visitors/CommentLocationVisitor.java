@@ -44,7 +44,8 @@ import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   private static final Logger LOG = LoggerFactory.getLogger(CommentLocationVisitor.class);
 
-  private static final Pattern CONTAINS_LINE_NUMBER = Pattern.compile("#(?<number>\\d+)(\\s#\\d+)*+$");
+  private static final Pattern CONTAINS_LINE_NUMBER = Pattern.compile("#(?<number>\\d++)(\\s#\\d++:?\\d*+)*+$");
+  private static final Pattern CONTAINS_LINE_NUMBER_RANGE = Pattern.compile("#(?<rangeStart>\\d++):(?<rangeEnd>\\d++)(\\s#\\d++:?\\d*+)*+$", Pattern.UNICODE_CHARACTER_CLASS);
   private final LocationShifter shifter;
 
   public CommentLocationVisitor(LocationShifter shifter) {
@@ -91,10 +92,16 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
 
   private void processComment(InputFileContext ctx, Comment comment) {
     var matcher = CONTAINS_LINE_NUMBER.matcher(comment.value());
+    var rangeMatcher = CONTAINS_LINE_NUMBER_RANGE.matcher(comment.value());
     if (matcher.find()) {
       int lineCommentLocation = comment.textRange().start().line();
       var lineCommentValue = Integer.parseInt(matcher.group("number"));
       shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentValue);
+    } else if (rangeMatcher.find()) {
+      int lineCommentLocation = comment.textRange().start().line();
+      var lineCommentRangeStart = Integer.parseInt(rangeMatcher.group("rangeStart"));
+      var lineCommentRangeEnd = Integer.parseInt(rangeMatcher.group("rangeEnd"));
+      shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentRangeStart, lineCommentRangeEnd);
     } else {
       LOG.debug("Line number comment not detected, comment: {}", comment.value());
     }

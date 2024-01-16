@@ -173,7 +173,42 @@ class CommentLocationVisitorTest {
     assertThat(logTester.logs(Level.ERROR)).contains("Unable to read file: invalid.yaml.");
   }
 
-  private FileTree scanFile(FileTree.Template template, InputFileContext ctx, String transformedCode) throws IOException {
+  @Test
+  void shouldFindShiftedLocationFromRange() throws IOException {
+    String originalCode = code("test:",
+      "{{ ",
+      "  helm code",
+      "}}");
+    String transformedCode = code("test: #1",
+      "  value #2:4");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
+
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
+
+    TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
+    assertThat(shiftedLocation1).hasRange(2, 0, 4, 2);
+  }
+
+  @Test
+  void shouldFindShiftedLocationFromRangeWithMultipleLines() throws IOException {
+    String originalCode = code("test:",
+      "{{ ",
+      "  helm code",
+      "}}");
+    String transformedCode = code("test: #1",
+      "  - value1 #2:4",
+      "  - value2 #2:4");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
+
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
+
+    TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
+    assertThat(shiftedLocation1).hasRange(2, 0, 4, 2);
+    TextRange shiftedLocation2 = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 5));
+    assertThat(shiftedLocation2).hasRange(2, 0, 4, 2);
+  }
+
+  private FileTree scanFile(FileTree.Template template, InputFileContext ctx, String transformedCode) {
     var helmEvaluator = mock(HelmEvaluator.class);
     FileTree file = new KubernetesParser(new HelmProcessor(helmEvaluator)).parse(transformedCode, ctx);
     file = new FileTreeImpl(file.documents(), file.metadata(), template);
