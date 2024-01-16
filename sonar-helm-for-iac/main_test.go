@@ -77,7 +77,7 @@ func Test_exit_code_with_serialization_error(t *testing.T) {
 	stdin, _ := cmd.StdinPipe()
 	defer stdin.Close()
 	cmd.Start()
-	stdin.Write([]byte("foo.yaml\n1\napiVersion: v1\nvalues.yaml\n0\nEND\n"))
+	stdin.Write([]byte("foo.yaml\n1\napiVersion: v1\nvalues.yaml\n0\n\nEND\n"))
 	err := cmd.Wait()
 
 	var e *exec.ExitError
