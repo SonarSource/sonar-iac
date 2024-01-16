@@ -180,6 +180,57 @@ container: foo
 		err.Error())
 }
 
+func Test_evaluate_empty_values(t *testing.T) {
+	template := []byte(`
+apiVersion: v1
+kind: Pod
+metadata:
+spec: {{ print "foo" }}
+`)
+
+	expected := `
+apiVersion: v1
+kind: Pod
+metadata:
+spec: foo
+`
+
+	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+		"templates/a.yaml": template,
+		"values.yaml":      make([]byte, 0),
+		"Chart.yaml":       DefaultChartYaml}))
+
+	assert.Equal(t, expected, result)
+}
+
+func Test_evaluate_empty_file(t *testing.T) {
+	template := []byte(`
+apiVersion: v1
+kind: Pod
+metadata:
+spec: {{ print "foo" }}
+`)
+
+	values := []byte(`
+container: foo
+`)
+
+	expected := `
+apiVersion: v1
+kind: Pod
+metadata:
+spec: foo
+`
+
+	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+		"templates/a.yaml":     template,
+		"templates/empty.yaml": make([]byte, 0),
+		"values.yaml":          values,
+		"Chart.yaml":           DefaultChartYaml}))
+
+	assert.Equal(t, expected, result)
+}
+
 func Test_evaluate_template_containing_sprig_functions(t *testing.T) {
 	template := []byte(`
 apiVersion: v1

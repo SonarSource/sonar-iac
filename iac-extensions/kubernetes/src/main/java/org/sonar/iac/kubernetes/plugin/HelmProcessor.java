@@ -64,6 +64,10 @@ public class HelmProcessor {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
+    if (source.isBlank()) {
+      LOG.debug("The file {} is blank, skipping evaluation", inputFileContext.inputFile);
+      return source;
+    }
 
     // TODO: better support of Helm project structure
     var sourceWithComments = addLineComments(source);
@@ -89,9 +93,6 @@ public class HelmProcessor {
         throw parseExceptionFor(inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
       }
 
-      if (fileContent.isBlank()) {
-        throw parseExceptionFor(inputFile, "File at " + additionalInputFile + " is empty", null);
-      }
       fileContents.put(filenameToInputFile.getKey(), fileContent);
     }
     return fileContents;

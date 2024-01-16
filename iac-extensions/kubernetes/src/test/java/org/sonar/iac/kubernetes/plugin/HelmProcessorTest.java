@@ -38,11 +38,16 @@ import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 class HelmProcessorTest {
@@ -58,10 +63,10 @@ class HelmProcessorTest {
 
     helmProcessor.initialize();
 
-    Assertions.assertThat(logTester.logs(Level.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
 
-    Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", Mockito.mock(InputFileContext.class)))
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", Mockito.mock(InputFileContext.class)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
   }
@@ -78,7 +83,7 @@ class HelmProcessorTest {
       when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
       var inputFileContext = Mockito.mock(InputFileContext.class);
 
-      Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
+      assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
     }
@@ -93,7 +98,7 @@ class HelmProcessorTest {
       when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(Map.of());
       var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
 
-      Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
+      assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
         .isInstanceOf(ParseException.class);
     }
   }
@@ -114,26 +119,53 @@ class HelmProcessorTest {
       when(inputFile.toString()).thenReturn("chart/templates/foo.yaml");
       var inputFileContext = new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
 
-      Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
+      assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
         .isInstanceOf(ParseException.class)
         .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Failed to read file at chart/values.yaml");
     }
   }
 
   @Test
-  void shouldThrowIfValuesFileIsEmpty() throws IOException {
+  void shouldNotThrowIfValuesFileIsEmpty() throws IOException {
     var helmProcessor = new HelmProcessor(helmEvaluator);
     helmProcessor.initialize();
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var badValuesFile = Mockito.mock(InputFile.class);
-      var files = Map.of("values.yaml", badValuesFile);
-      when(badValuesFile.contents()).thenReturn("");
+      var emptyValuesFile = Mockito.mock(InputFile.class);
+      var files = Map.of("values.yaml", emptyValuesFile);
+      when(emptyValuesFile.contents()).thenReturn("");
       when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
       var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
+      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
+        .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("result: foo #1").build());
 
-      Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
-        .isInstanceOf(ParseException.class);
+      var result = helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext);
+
+      verify(helmEvaluator).evaluateTemplate(anyString(), anyString(), anyMap());
+      assertThat(result).isEqualTo("result: foo #1");
+    }
+  }
+
+  @Test
+  void shouldNotThrowIfSomeFileIsEmpty() throws IOException {
+    var helmProcessor = new HelmProcessor(helmEvaluator);
+    helmProcessor.initialize();
+
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = Mockito.mock(InputFile.class);
+      var someFile = Mockito.mock(InputFile.class);
+      var files = Map.of("values.yaml", valuesFile, "templates/some.yaml", someFile);
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(someFile.contents()).thenReturn("kind: Pod");
+      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
+      var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
+      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
+        .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("result: foo #1").build());
+
+      var result = helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext);
+
+      verify(helmEvaluator).evaluateTemplate(anyString(), anyString(), anyMap());
+      assertThat(result).isEqualTo("result: foo #1");
     }
   }
 
@@ -170,9 +202,29 @@ class HelmProcessorTest {
       when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
       var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
 
-      Assertions.assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext))
+      assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext))
         .isInstanceOf(ParseException.class)
         .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Template evaluation failed");
+    }
+  }
+
+  @Test
+  void shouldNotEvaluateIfTemplateIsEmpty() throws IOException {
+    var helmProcessor = new HelmProcessor(helmEvaluator);
+    helmProcessor.initialize();
+
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = Mockito.mock(InputFile.class);
+      var files = Map.of("values.yaml", valuesFile);
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
+      var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
+
+      helmProcessor.processHelmTemplate("foo.yaml", "", inputFileContext);
+
+      verify(helmEvaluator).initialize();
+      verifyNoMoreInteractions(helmEvaluator);
+      assertThat(logTester.logs(Level.DEBUG)).contains("The file chart/templates/foo.yaml is blank, skipping evaluation");
     }
   }
 
