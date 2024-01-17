@@ -75,8 +75,7 @@ RUN --mount=type=secret,id=wget,target=/home/user/.wgetrc \
 Swarm services that implement such a feature.</p>
 <p>If such an option can not be considered, store the runtime secrets in an <a href="https://docs.docker.com/compose/env-file/">environment file</a>
 such as <code>.env</code> and then start the container with the <a
-href="https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables—​e---env---env-file"><code>--env-file</code></a>
-argument:</p>
+href="https://docs.docker.com/engine/reference/commandline/run/#env"><code>--env-file</code></a> argument:</p>
 <pre>
 docker run --env-file .env myImage
 </pre>
@@ -94,7 +93,7 @@ docker run --env-file .env myImage
 </ul>
 <h3>Standards</h3>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/522.html">CWE-522 - Insufficiently Protected Credentials</a> </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/798.html">CWE-798 - Use of Hard-coded Credentials</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/522">CWE-522 - Insufficiently Protected Credentials</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/798">CWE-798 - Use of Hard-coded Credentials</a> </li>
 </ul>
 
