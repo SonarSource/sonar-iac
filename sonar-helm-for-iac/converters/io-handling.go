@@ -21,7 +21,6 @@ package converters
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/samber/mo"
 	"os"
@@ -66,6 +65,11 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 					return mo.Err[[]byte](err)
 				}
 				fmt.Fprintf(os.Stderr, "Reading %d lines of file %s from stdin\n", length, name)
+				if length == 0 {
+					// read new line and ignore it. HelmEvaluator writes a single empty line for empty files
+					s.readInput(scanner, 1)
+					return mo.TupleToResult(make([]byte, 0), nil)
+				}
 				return mo.TupleToResult(s.readInput(scanner, length))
 			})
 		if contentResult.IsOk() {
@@ -90,9 +94,6 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 // Reads nLines from the given scanner and returns as a single string.
 // If nLines is negative, reads all lines until EOF.
 func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) ([]byte, error) {
-	if nLines == 0 {
-		return nil, errors.New("request to read 0 lines aborted")
-	}
 	rawInput := make([]byte, 0)
 	linesToRead := nLines
 	for scanner.Scan() {

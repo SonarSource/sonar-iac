@@ -105,13 +105,15 @@ func Test_read_three_files(t *testing.T) {
 	assert.Equal(t, "line4", string(contents["file3"]))
 }
 
-func Test_should_stop_if_zero_length(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("file1\n0\n"))
+func Test_read_zero_length(t *testing.T) {
+	scanner := bufio.NewScanner(strings.NewReader("file1\n0\n\nEND"))
 	stdinReader := StdinReader{}
 	_, contents, err := stdinReader.ReadInput(scanner)
 
-	assert.Nil(t, contents)
-	assert.EqualError(t, err, "request to read 0 lines aborted")
+	assert.Equal(t, 1, len(contents))
+	assert.Contains(t, contents, "file1")
+	assert.Equal(t, []byte(""), contents["file1"])
+	assert.Nil(t, err)
 }
 
 type ReaderWithError struct {
@@ -151,4 +153,13 @@ func Test_read_error_handling_2(t *testing.T) {
 	_, _, err := stdinReader.ReadInput(scanner)
 
 	assert.EqualError(t, err, "test read error")
+}
+
+func Test_read_wrong_format(t *testing.T) {
+	scanner := bufio.NewScanner(strings.NewReader("file1\nNOTaNUMBER\n\nEND"))
+	stdinReader := StdinReader{}
+	_, contents, err := stdinReader.ReadInput(scanner)
+
+	assert.Nil(t, contents)
+	assert.EqualError(t, err, "strconv.Atoi: parsing \"NOTaNUMBER\": invalid syntax")
 }

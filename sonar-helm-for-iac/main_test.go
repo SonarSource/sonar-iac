@@ -77,7 +77,7 @@ func Test_exit_code_with_serialization_error(t *testing.T) {
 	stdin, _ := cmd.StdinPipe()
 	defer stdin.Close()
 	cmd.Start()
-	stdin.Write([]byte("foo.yaml\n1\napiVersion: v1\nvalues.yaml\n0\nEND\n"))
+	stdin.Write([]byte("foo.yaml\n1\napiVersion: v1\nvalues.yaml\n0\n\nEND\n"))
 	err := cmd.Wait()
 
 	var e *exec.ExitError
@@ -178,6 +178,57 @@ container: foo
 		"template: test-project/templates/a.yaml:12:35: executing \"test-project/templates/a.yaml\" at <.Values.container.port>: "+
 			"can't evaluate field port in type interface {}",
 		err.Error())
+}
+
+func Test_evaluate_empty_values(t *testing.T) {
+	template := []byte(`
+apiVersion: v1
+kind: Pod
+metadata:
+spec: {{ print "foo" }}
+`)
+
+	expected := `
+apiVersion: v1
+kind: Pod
+metadata:
+spec: foo
+`
+
+	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+		"templates/a.yaml": template,
+		"values.yaml":      make([]byte, 0),
+		"Chart.yaml":       DefaultChartYaml}))
+
+	assert.Equal(t, expected, result)
+}
+
+func Test_evaluate_empty_additional_file(t *testing.T) {
+	template := []byte(`
+apiVersion: v1
+kind: Pod
+metadata:
+spec: {{ print "foo" }}
+`)
+
+	values := []byte(`
+container: foo
+`)
+
+	expected := `
+apiVersion: v1
+kind: Pod
+metadata:
+spec: foo
+`
+
+	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+		"templates/a.yaml":     template,
+		"templates/empty.yaml": make([]byte, 0),
+		"values.yaml":          values,
+		"Chart.yaml":           DefaultChartYaml}))
+
+	assert.Equal(t, expected, result)
 }
 
 func Test_evaluate_template_containing_sprig_functions(t *testing.T) {
