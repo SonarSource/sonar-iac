@@ -66,7 +66,7 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 				}
 				fmt.Fprintf(os.Stderr, "Reading %d lines of file %s from stdin\n", length, name)
 				if length == 0 {
-					// read new line and ignore it
+					// read new line and ignore it. HelmEvaluator writes a single empty line for empty files
 					s.readInput(scanner, 1)
 					return mo.TupleToResult(make([]byte, 0), nil)
 				}
