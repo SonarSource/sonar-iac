@@ -203,7 +203,7 @@ spec: foo
 	assert.Equal(t, expected, result)
 }
 
-func Test_evaluate_empty_file(t *testing.T) {
+func Test_evaluate_empty_additional_file(t *testing.T) {
 	template := []byte(`
 apiVersion: v1
 kind: Pod
