@@ -1,0 +1,3 @@
+capabilities:
+  - SYS_ADMIN
+  - NET_ADMIN

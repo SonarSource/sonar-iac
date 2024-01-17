@@ -137,6 +137,24 @@ class LineNumberCommentInserterTest {
         "line3 #3"));
   }
 
+  @Test
+  void shouldNotAddLineCommentWhenSeparateDocumentAtTheEnd() {
+    checkHelmProcessing(
+      code("line1",
+        "---"),
+      code("line1 #1",
+        "---"));
+  }
+
+  @Test
+  void shouldNotAddLineCommentWhenEndDocument() {
+    checkHelmProcessing(
+      code("line1",
+        "..."),
+      code("line1 #1",
+        "..."));
+  }
+
   void checkHelmProcessing(String source, String expect) {
     assertThat(LineNumberCommentInserter.addLineComments(source)).isEqualTo(expect);
   }

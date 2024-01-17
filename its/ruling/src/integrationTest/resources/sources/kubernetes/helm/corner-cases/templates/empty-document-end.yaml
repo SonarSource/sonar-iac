@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - image: k8s.gcr.io/test-webserver
+      name: test-container
+      securityContext:
+        capabilities:
+          add:
+{{- range .Values.capabilities }}
+            - {{ . | quote }}
+{{- end }}
+---
