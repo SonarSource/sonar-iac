@@ -51,9 +51,7 @@ ENV ACCESS_TOKEN=""
 CMD /run.sh
 </pre>
 <p>Store the runtime secrets in an <a href="https://docs.docker.com/compose/env-file/">environment file</a> (such as <code>.env</code>) and then start
-the container with the <a
-href="https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables—​e---env---env-file"><code>--env-file</code></a>
-argument:</p>
+the container with the <a href="https://docs.docker.com/engine/reference/commandline/run/#env"><code>--env-file</code></a> argument:</p>
 <pre>
 docker run --env-file .env myImage
 </pre>
@@ -64,6 +62,6 @@ docker run --env-file .env myImage
   <li> <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN command secrets mount points
   </li>
   <li> <a href="https://docs.docker.com/engine/swarm/secrets/">Docker documentation</a> - Manage sensitive data with Docker secrets </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/522.html">MITRE, CWE-522</a> - Insufficiently Protected Credentials </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/522">CWE-522 - Insufficiently Protected Credentials</a> </li>
 </ul>
 
