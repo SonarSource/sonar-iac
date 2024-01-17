@@ -7,12 +7,12 @@ plugins {
 description = "SonarSource IaC Analyzer :: Sonar Plugin"
 
 dependencies {
-    api(project(":iac-extensions:terraform"))
-    api(project(":iac-extensions:cloudformation"))
-    api(project(":iac-extensions:kubernetes"))
-    api(project(":iac-extensions:docker"))
-    api(project(":iac-extensions:arm"))
-    api(project(":sonar-helm-for-iac", "goBinaries"))
+    implementation(project(":iac-extensions:terraform"))
+    implementation(project(":iac-extensions:cloudformation"))
+    implementation(project(":iac-extensions:kubernetes"))
+    implementation(project(":iac-extensions:docker"))
+    implementation(project(":iac-extensions:arm"))
+    implementation(project(":sonar-helm-for-iac", "goBinaries"))
     api(libs.sonar.analyzer.commons)
 
 

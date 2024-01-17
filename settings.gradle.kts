@@ -29,6 +29,20 @@ include(":iac-extensions:cloudformation")
 include(":its:ruling")
 include(":its:plugin")
 
+gradle.allprojects {
+    // this value is present on CI
+    val buildNumber: String? = System.getProperty("buildNumber")
+    project.extra["buildNumber"] = buildNumber
+    val version = properties["version"] as String
+    if (version.endsWith("-SNAPSHOT") && buildNumber != null) {
+        val versionSuffix = if (version.count { it == '.' } == 1) ".0.$buildNumber" else ".$buildNumber"
+        project.version =
+            version.replace("-SNAPSHOT", versionSuffix).also {
+                logger.lifecycle("Project ${project.name} version set to $it")
+            }
+    }
+}
+
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
