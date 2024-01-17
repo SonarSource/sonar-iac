@@ -43,6 +43,10 @@ public class KubernetesParser extends YamlParser {
   private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("(" +
     String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
 
+  private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
+  private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
+  private static final Pattern CONTAINS_LINE_NUMBER = Pattern.compile("(?<comment>#\\d+( #\\d+)*+)$");
+
   private final HelmProcessor helmProcessor;
 
   public KubernetesParser(HelmProcessor helmProcessor) {
@@ -70,9 +74,23 @@ public class KubernetesParser extends YamlParser {
       return super.parse("{}", null, FileTree.Template.HELM);
     }
 
+    return evaluateAndParseHelmFile(source, inputFileContext);
+  }
+
+  private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
+    var fileRelativePath = getFileRelativePath(inputFileContext);
+    var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
+    var evaluatedAndCleanedSource = removeBlankLines(evaluatedSource);
+    if (evaluatedAndCleanedSource.isBlank()) {
+      LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
+      return super.parse("{}", null, FileTree.Template.HELM);
+    }
+    return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
+  }
+
+  private static String getFileRelativePath(InputFileContext inputFileContext) {
     var filePath = Path.of(inputFileContext.inputFile.uri());
     var chartRootDirectory = HelmFilesystemUtils.retrieveHelmProjectFolder(filePath);
-
     String fileRelativePath;
     if (chartRootDirectory == null) {
       fileRelativePath = inputFileContext.inputFile.filename();
@@ -81,8 +99,43 @@ public class KubernetesParser extends YamlParser {
       // transform windows to unix path
       fileRelativePath = fileRelativePath.replace(File.separatorChar, '/');
     }
-    var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
-    return super.parse(evaluatedSource, inputFileContext, FileTree.Template.HELM);
+    return fileRelativePath;
+  }
+
+  /**
+   * This method remove blank lines that contains only trailing line comment number.
+   * Such lines may be produced after evaluation of Helm template.
+   * In some cases such lines may cause parsing issues in snakeyaml-engine.
+   */
+  private static String removeBlankLines(String source) {
+    var sb = new StringBuilder();
+    var matcher = LINE_PATTERN.matcher(source);
+
+    var lastIndex = 0;
+    while (matcher.find()) {
+      var lineContent = matcher.group("lineContent");
+      if (isLineNotBlank(lineContent)) {
+        sb.append(lineContent);
+        sb.append(matcher.group("newLine"));
+        lastIndex = matcher.end();
+      }
+    }
+    var lastLine = source.substring(lastIndex);
+    if (isLineNotBlank(lastLine)) {
+      sb.append(lastLine);
+    }
+    return sb.toString();
+  }
+
+  private static boolean isLineNotBlank(String lineContent) {
+    var commentMatcher = CONTAINS_LINE_NUMBER.matcher(lineContent);
+    if (commentMatcher.find()) {
+      var comment = commentMatcher.group("comment");
+      var endIndex = lineContent.indexOf(comment);
+      var contentWithoutComment = lineContent.substring(0, endIndex);
+      return !contentWithoutComment.isBlank();
+    }
+    return !lineContent.isBlank();
   }
 
   public static boolean hasHelmContent(String text) {
