@@ -95,9 +95,6 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 // Reads nLines from the given scanner and returns as a single string.
 // If nLines is negative, reads all lines until EOF.
 func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) ([]byte, error) {
-	if nLines == 0 {
-		return make([]byte, 0), nil
-	}
 	rawInput := make([]byte, 0)
 	linesToRead := nLines
 	for scanner.Scan() {

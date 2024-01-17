@@ -154,3 +154,12 @@ func Test_read_error_handling_2(t *testing.T) {
 
 	assert.EqualError(t, err, "test read error")
 }
+
+func Test_read_wrong_format(t *testing.T) {
+	scanner := bufio.NewScanner(strings.NewReader("file1\nNOTaNUMBER\n\nEND"))
+	stdinReader := StdinReader{}
+	_, contents, err := stdinReader.ReadInput(scanner)
+
+	assert.Nil(t, contents)
+	assert.EqualError(t, err, "strconv.Atoi: parsing \"NOTaNUMBER\": invalid syntax")
+}
