@@ -1,6 +1,7 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
+    id("org.sonarsource.iac.project-version-convention")
     id("org.sonarsource.iac.java-conventions")
 }
 
