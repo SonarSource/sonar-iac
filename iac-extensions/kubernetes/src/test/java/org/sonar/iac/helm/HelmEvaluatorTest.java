@@ -67,11 +67,11 @@ class HelmEvaluatorTest {
   }
 
   @Test
-  void shouldThrowIfGoBinaryRejectsEmptyInput() {
+  void shouldThrowIfGoBinaryNotFoundChartYaml() {
     var templateDependencies = Map.<String, String>of();
     Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Evaluation error in Go library: error reading content: request to read 0 lines aborted");
+      .hasMessage("Evaluation error in Go library: source file Chart.yaml not found");
 
     Assertions.assertThat(logTester.logs(Level.DEBUG))
       .contains("[sonar-helm-for-iac] Reading 0 lines of file /foo/bar/baz.yaml from stdin");
