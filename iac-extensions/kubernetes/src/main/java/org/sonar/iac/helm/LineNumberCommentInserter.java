@@ -19,12 +19,15 @@
  */
 package org.sonar.iac.helm;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public final class LineNumberCommentInserter {
 
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
+
+  private static final List<String> LINES_IGNORE_LINE_COUNTER = List.of("---", "...");
 
   private LineNumberCommentInserter() {
   }
@@ -41,14 +44,19 @@ public final class LineNumberCommentInserter {
     var lastIndex = 0;
     while (matcher.find()) {
       lineCounter++;
-      sb.append(matcher.group("lineContent"));
-      sb.append(commentLineNumber(lineCounter));
+      var lineContent = matcher.group("lineContent");
+      sb.append(lineContent);
+      if (!LINES_IGNORE_LINE_COUNTER.contains(lineContent)) {
+        sb.append(commentLineNumber(lineCounter));
+      }
       sb.append(matcher.group("newLine"));
       lastIndex = matcher.end();
     }
-    sb.append(content.substring(lastIndex));
-    sb.append(commentLineNumber(lineCounter + 1));
-
+    var lastLine = content.substring(lastIndex);
+    sb.append(lastLine);
+    if (!LINES_IGNORE_LINE_COUNTER.contains(lastLine)) {
+      sb.append(commentLineNumber(lineCounter + 1));
+    }
     return sb.toString();
   }
 

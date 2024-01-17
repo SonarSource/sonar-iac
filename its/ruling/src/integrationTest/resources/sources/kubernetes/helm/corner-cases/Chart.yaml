@@ -1,0 +1,3 @@
+apiVersion: v2
+name: test-corner-cases
+version: 0.1.0

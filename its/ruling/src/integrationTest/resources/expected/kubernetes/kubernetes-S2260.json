@@ -17,12 +17,6 @@
 "kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/vttablet-pod-template.yaml": [
 0
 ],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/podDistributionBudget.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/service.yaml": [
-0
-],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/sonarqube-search.yaml": [
 0
 ],
