@@ -10,9 +10,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-group = "org.sonarsource.iac"
-version = "1.25-SNAPSHOT"
-
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }

@@ -1,5 +1,4 @@
 plugins {
-    id("org.sonarsource.iac.project-version-convention")
     id("org.sonarsource.iac.code-style-convention")
     id("org.sonarsource.iac.java-conventions")
     id("java-library")
