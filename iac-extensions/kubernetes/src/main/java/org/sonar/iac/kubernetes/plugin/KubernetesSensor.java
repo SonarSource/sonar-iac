@@ -128,7 +128,7 @@ public class KubernetesSensor extends YamlSensor {
     private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
 
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
-    private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata", "spec");
+    private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata");
     private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 

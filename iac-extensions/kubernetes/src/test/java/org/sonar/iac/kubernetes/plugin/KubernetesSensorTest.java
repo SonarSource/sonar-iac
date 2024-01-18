@@ -63,7 +63,7 @@ import static org.mockito.Mockito.when;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
 
-  private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\nspec: ~\n";
+  private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\n";
   private static final String PARSING_ERROR_KEY = "S2260";
 
   @Test
@@ -152,7 +152,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldNotParseYamlFileWithIncompleteIdentifiers() {
-    analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n"));
+    analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\n"));
     assertNotSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
@@ -228,7 +228,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @MethodSource("provideRaiseIssue")
   void shouldParseHelmAndRaiseIssueOnShiftedLineIssue(RaiseIssue issueRaiser) {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
-    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5";
+    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
     when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
@@ -241,23 +241,23 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(issue.primaryLocation().message()).isEqualTo("Issue");
 
     TextRange textRange = issue.primaryLocation().textRange();
-    assertTextRange(textRange, 5, 0, 5, 20);
+    assertTextRange(textRange, 4, 0, 4, 20);
 
     assertThat(issue.flows()).isEmpty();
   }
 
   private static Stream<RaiseIssue> provideRaiseIssue() {
     return Stream.of(
-      new RaiseIssue.RaiseIssueOnTextRange(6, 1, 6, 5, "Issue"),
-      new RaiseIssue.RaiseIssueOnHasTextRange(6, 1, 6, 5, "Issue"));
+      new RaiseIssue.RaiseIssueOnTextRange(5, 1, 5, 5, "Issue"),
+      new RaiseIssue.RaiseIssueOnHasTextRange(5, 1, 5, 5, "Issue"));
   }
 
   @Test
   void shouldParseTwoHelmFileInARowAndNotMixShiftedLocation() {
     final String originalSourceCode1 = K8_IDENTIFIERS + "{{ long helm code on line 5 }}\n{{ long helm code on line 6 }}";
-    final String transformedSourceCode1 = K8_IDENTIFIERS + "new_5_1: compliant #5\nnew_5_2: non_compliant #5\nnew_6_1: compliant #6\nnew_6_2: compliant #6";
+    final String transformedSourceCode1 = K8_IDENTIFIERS + "new_5_1: compliant #4\nnew_5_2: non_compliant #4\nnew_6_1: compliant #5\nnew_6_2: compliant #5";
     final String originalSourceCode2 = K8_IDENTIFIERS + "{{ helm code on line 5 }}\n{{ helm code on line 6 }}";
-    final String transformedSourceCode2 = K8_IDENTIFIERS + "new_5_1: compliant #5\nnew_5_2: compliant #5\nnew_6_1: compliant #6\nnew_6_2: non_compliant #6";
+    final String transformedSourceCode2 = K8_IDENTIFIERS + "new_5_1: compliant #4\nnew_5_2: compliant #4\nnew_6_1: compliant #5\nnew_6_2: non_compliant #5";
 
     HelmProcessor helmProcessor = mockHelmProcessor(Map.of(
       originalSourceCode1, transformedSourceCode1,
@@ -273,9 +273,9 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Issue issue2 = iterator.next();
 
     assertThat(issue1.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file2.yaml");
-    assertTextRange(issue1.primaryLocation().textRange(), 6, 0, 6, 25);
+    assertTextRange(issue1.primaryLocation().textRange(), 5, 0, 5, 25);
     assertThat(issue2.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file1.yaml");
-    assertTextRange(issue2.primaryLocation().textRange(), 5, 0, 5, 30);
+    assertTextRange(issue2.primaryLocation().textRange(), 4, 0, 4, 30);
   }
 
   @Test
@@ -299,13 +299,13 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldParseHelmAndRaiseIssueOnShiftedLineIssueWithSecondaryLocation() {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}\n{{ some other helm code }}";
-    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5\nSecondary: Issue #6";
+    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4\nSecondary: Issue #5";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
     when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
-    var secondaryLocation = new SecondaryLocation(TextRanges.range(7, 1, 7, 9), "Secondary message");
-    var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocation(6, 1, 6, 5, "Primary message", secondaryLocation);
+    var secondaryLocation = new SecondaryLocation(TextRanges.range(6, 1, 6, 9), "Secondary message");
+    var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocation(5, 1, 5, 5, "Primary message", secondaryLocation);
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
     analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
 
@@ -313,24 +313,24 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.primaryLocation().message()).isEqualTo("Primary message");
     TextRange textRange = issue.primaryLocation().textRange();
-    assertTextRange(textRange, 5, 0, 5, 20);
+    assertTextRange(textRange, 4, 0, 4, 20);
 
     assertThat(issue.flows()).hasSize(1);
     Issue.Flow flow1 = issue.flows().get(0);
-    assertSecondaryLocation(flow1, 6, 0, 6, 26, "Secondary message");
+    assertSecondaryLocation(flow1, 5, 0, 5, 26, "Secondary message");
   }
 
   @Test
   void shouldParseHelmAndRaiseIssueOnShiftedLineIssueWithMultipleSecondaryLocation() {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}\n{{ some other helm code }}\n{{ more helm code... }}";
-    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5\nIssue: Issue #5\nSecondary1: Issue #6\nSecondary2: Issue #7";
+    String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4\nSecondary1: Issue #5\nSecondary2: Issue #6";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
     when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
-    var secondaryLocation1 = new SecondaryLocation(TextRanges.range(7, 1, 7, 10), "Secondary message 1");
-    var secondaryLocation2 = new SecondaryLocation(TextRanges.range(8, 1, 8, 10), "Secondary message 2");
-    var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocations(6, 1, 6, 5, "Primary message",
+    var secondaryLocation1 = new SecondaryLocation(TextRanges.range(6, 1, 6, 10), "Secondary message 1");
+    var secondaryLocation2 = new SecondaryLocation(TextRanges.range(7, 1, 7, 10), "Secondary message 2");
+    var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocations(5, 1, 5, 5, "Primary message",
       List.of(secondaryLocation1, secondaryLocation2));
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
     analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
@@ -339,14 +339,14 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.primaryLocation().message()).isEqualTo("Primary message");
     TextRange textRange = issue.primaryLocation().textRange();
-    assertTextRange(textRange, 5, 0, 5, 20);
+    assertTextRange(textRange, 4, 0, 4, 20);
 
     assertThat(issue.flows()).hasSize(2);
 
     Issue.Flow flow1 = issue.flows().get(0);
-    assertSecondaryLocation(flow1, 6, 0, 6, 26, "Secondary message 1");
+    assertSecondaryLocation(flow1, 5, 0, 5, 26, "Secondary message 1");
     Issue.Flow flow2 = issue.flows().get(1);
-    assertSecondaryLocation(flow2, 7, 0, 7, 23, "Secondary message 2");
+    assertSecondaryLocation(flow2, 6, 0, 6, 23, "Secondary message 2");
   }
 
   private void assertTextRange(@Nullable TextRange textRange, int startLine, int startLineOffset, int endLine, int endLineOffset) {
