@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
@@ -37,18 +36,18 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, pod -> {
+    register(KIND_POD, (BlockObject pod) -> {
       Stream<BlockObject> containers = pod.blocks("containers");
       missingMemory(pod, containers);
     });
 
-    register(KIND_WITH_TEMPLATE, obj -> {
+    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> {
       Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
       missingMemory(obj.block("template").block("spec"), containers);
     });
   }
 
-  private void missingMemory(BlockObject pod, Stream<BlockObject> containers) {
+  private static void missingMemory(BlockObject pod, Stream<BlockObject> containers) {
     List<BlockObject> collect = containers.filter(container -> container.block("resources")
       .block("limits")
       .attribute("memory")
@@ -56,7 +55,7 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
     for (BlockObject containerBlock : collect) {
       assert containerBlock.tree != null;
-      TextRange textRange = containerBlock.tree.elements().get(0).key().metadata().textRange();
+      var textRange = containerBlock.tree.elements().get(0).key().metadata().textRange();
       pod.ctx.reportIssue(textRange, MESSAGE);
     }
   }
