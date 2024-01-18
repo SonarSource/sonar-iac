@@ -50,8 +50,8 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
     return this;
   }
 
-  public Boolean isAbsent() {
-    return this.status == Status.ABSENT;
+  public boolean isAbsentOrEmpty(Predicate<YamlTree> predicate) {
+    return this.status == Status.ABSENT || (tree != null && predicate.test(tree.value()));
   }
 
   @Nullable

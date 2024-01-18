@@ -26,22 +26,12 @@ class MemoryLimitCheckTest {
   IacCheck check = new MemoryLimitCheck();
 
   @Test
-  void podObjectWithEmptyMemory() {
-    KubernetesVerifier.verify("MemoryLimitCheck/pod_object_memory_empty.yaml", check);
+  void podKindNoncompliant() {
+    KubernetesVerifier.verify("MemoryLimitCheck/pod_kind_noncompliant.yaml", check);
   }
 
   @Test
-  void podObjectWithMissingAttributesAndBlocks() {
-    KubernetesVerifier.verify("MemoryLimitCheck/pod_object_missing_fields.yaml", check);
-  }
-
-  @Test
-  void templateObjectWithEmptyMemory() {
-    KubernetesVerifier.verify("MemoryLimitCheck/template_object_memory_empty.yaml", check);
-  }
-
-  @Test
-  void templateObjectWithMissingAttributesAndBlocks() {
-    KubernetesVerifier.verify("MemoryLimitCheck/template_object_missing_fields.yaml", check);
+  void kindWithTemplateNoncompliant() {
+    KubernetesVerifier.verify("MemoryLimitCheck/kind_with_template_noncompliant.yaml", check);
   }
 }

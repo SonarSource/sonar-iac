@@ -19,3 +19,21 @@ spec:
 
     - name: noncompliant_without_resources
       image: nginx
+
+    - name: noncompliant_memory_limit_tilde
+      image: nginx
+      resources:
+        limits:
+          memory: ~
+
+    - name: noncompliant_memory_limit_empty_brackets
+      image: nginx
+      resources:
+        limits:
+          memory: "[]"
+
+    - name: noncompliant_memory_limit_null
+      image: nginx
+      resources:
+        limits:
+          memory: null

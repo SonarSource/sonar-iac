@@ -27,3 +27,18 @@ spec:
               memory: 64Mi
 
         - name: noncompliant_without_resources
+
+        - name: noncompliant_memory_limit_tilde
+          resources:
+            limits:
+              memory: ~
+
+        - name: noncompliant_memory_limit_empty_brackets
+          resources:
+            limits:
+              memory: []
+
+        - name: noncompliant_memory_limit_null
+          resources:
+            limits:
+              memory: null
