@@ -28,7 +28,6 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.YamlTreeTest;
-import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
@@ -78,6 +77,19 @@ class AttributeObjectTest extends YamlTreeTest {
     assertThat(issue.message).isEqualTo("message");
     assertThat(issue.secondaryLocations).isEmpty();
     assertThat(issue.textRange).isEqualTo(tree.textRange());
+  }
+
+  @Test
+  void isAbsentOrEmpty() {
+    TupleTree tree = parseTuple("a: b");
+    AttributeObject attr = AttributeObject.fromAbsent(ctx, "a");
+    boolean absentOrEmpty = attr.isAbsentOrEmpty(t -> true);
+    assertThat(absentOrEmpty).isTrue();
+
+    attr = AttributeObject.fromPresent(ctx, tree, "a");
+    absentOrEmpty = attr.isAbsentOrEmpty(t -> false);
+    assertThat(absentOrEmpty).isFalse();
+
   }
 
   private static class TestContext implements CheckContext {

@@ -24,7 +24,7 @@ spec:
       image: nginx
       resources:
         limits:
-          memory: ~
+          memory: "~"
 
     - name: noncompliant_memory_limit_empty_brackets
       image: nginx
@@ -36,4 +36,4 @@ spec:
       image: nginx
       resources:
         limits:
-          memory: null
+          memory: "null"

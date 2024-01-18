@@ -81,8 +81,4 @@ public class BlockObject extends YamlObject<BlockObject, MappingTree> {
       .map(attribute -> ListObject.fromPresent(ctx, attribute, key, null))
       .orElse(ListObject.fromAbsent(ctx, key));
   }
-
-  public Boolean isAbsent() {
-    return this.status == Status.ABSENT;
-  }
 }
