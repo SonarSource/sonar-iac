@@ -399,6 +399,20 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
   }
 
+  @Test
+  void shouldDetectHelmFiles() {
+    InputFile pod1 = IacTestUtils.inputFile("helm/templates/pod.yaml", "yaml");
+    InputFile pod2 = IacTestUtils.inputFile("helm/templates/nested/pod.yaml", "yaml");
+    InputFile pod3 = IacTestUtils.inputFile("helm/templates/nested/double-nested/pod.yaml", "yaml");
+    InputFile pod4 = IacTestUtils.inputFile("helm/templates/no-identifiers.yaml", "yaml");
+
+    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    assertThat(filePredicate.apply(pod1)).isTrue();
+    assertThat(filePredicate.apply(pod2)).isTrue();
+    assertThat(filePredicate.apply(pod3)).isTrue();
+    assertThat(filePredicate.apply(pod4)).isTrue();
+  }
+
   private void assertNotSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }

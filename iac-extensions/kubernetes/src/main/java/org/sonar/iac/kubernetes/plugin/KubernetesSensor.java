@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
+import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.CommentLocationVisitor;
@@ -116,7 +118,13 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
-    return new KubernetesFilePredicate();
+    FilePredicates predicates = sensorContext.fileSystem().predicates();
+    var helmTemplatePredicate = predicates.and(
+      predicates.matchesPathPattern("**/templates/**"),
+      new HelmProjectMemberPredicate());
+    return predicates.or(
+      new KubernetesFilePredicate(),
+      helmTemplatePredicate);
   }
 
   private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
@@ -166,6 +174,13 @@ public class KubernetesSensor extends YamlSensor {
         LOG.debug("File without Kubernetes identifier: {}", inputFile.uri());
         return false;
       }
+    }
+  }
+
+  static class HelmProjectMemberPredicate implements FilePredicate {
+    @Override
+    public boolean apply(InputFile inputFile) {
+      return HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(inputFile.uri())) != null;
     }
   }
 }
