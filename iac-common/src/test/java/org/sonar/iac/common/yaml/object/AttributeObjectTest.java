@@ -90,6 +90,13 @@ class AttributeObjectTest extends YamlTreeTest {
     absentOrEmpty = attr.isAbsentOrEmpty(t -> false);
     assertThat(absentOrEmpty).isFalse();
 
+    attr = AttributeObject.fromPresent(ctx, tree, "a");
+    absentOrEmpty = attr.isAbsentOrEmpty(t -> true);
+    assertThat(absentOrEmpty).isTrue();
+
+    attr = AttributeObject.fromPresent(ctx, null, "a");
+    absentOrEmpty = attr.isAbsentOrEmpty(t -> true);
+    assertThat(absentOrEmpty).isFalse();
   }
 
   private static class TestContext implements CheckContext {
