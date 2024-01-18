@@ -20,7 +20,10 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
@@ -41,7 +44,77 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
   @Override
   void registerObjectCheck() {
+    memoryCheck();
+    limitsCheck();
+    resourcesCheck();
+
+    // emptyCheck
     register(KIND_POD, MemoryLimitCheck::accept);
     register(KIND_WITH_TEMPLATE, obj -> accept(obj.block("template").block("spec")));
+  }
+
+  private void memoryCheck() {
+    register(KIND_POD, pod -> {
+      Stream<BlockObject> containers = pod.blocks("containers");
+      missingMemory(pod, containers);
+    });
+
+    register(KIND_WITH_TEMPLATE, obj -> {
+      Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
+      missingMemory(obj.block("template").block("spec"), containers);
+    });
+  }
+
+  private void missingMemory(BlockObject pod, Stream<BlockObject> containers) {
+    Optional<BlockObject> containerBlock = containers.filter(container -> container.block("resources").block("limits").attribute("memory").isAbsent())
+      .findFirst();
+    if (containerBlock.isPresent()) {
+      assert pod.tree != null;
+      TextRange textRange = pod.tree.elements().get(0).key().metadata().textRange();
+      pod.ctx.reportIssue(textRange, MESSAGE);
+    }
+  }
+
+  private void limitsCheck() {
+    register(KIND_POD, pod -> {
+      Stream<BlockObject> containers = pod.blocks("containers");
+      missingLimits(pod, containers);
+    });
+
+    register(KIND_WITH_TEMPLATE, obj -> {
+      Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
+      missingLimits(obj.block("template").block("spec"), containers);
+    });
+  }
+
+  private void missingLimits(BlockObject pod, Stream<BlockObject> containers) {
+    Optional<BlockObject> containerBlock = containers.filter(container -> container.block("resources").block("limits").isAbsent())
+      .findFirst();
+    if (containerBlock.isPresent()) {
+      assert pod.tree != null;
+      TextRange textRange = pod.tree.elements().get(0).key().metadata().textRange();
+      pod.ctx.reportIssue(textRange, MESSAGE);
+    }
+  }
+
+  private void resourcesCheck() {
+    register(KIND_POD, pod -> {
+      Stream<BlockObject> containers = pod.blocks("containers");
+      missingResources(pod, containers);
+    });
+
+    register(KIND_WITH_TEMPLATE, obj -> {
+      Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
+      missingResources(obj.block("template").block("spec"), containers);
+    });
+  }
+
+  private void missingResources(BlockObject obj, Stream<BlockObject> containers) {
+    Optional<BlockObject> containerBlock = containers.filter(container -> container.block("resources").isAbsent()).findFirst();
+    if (containerBlock.isPresent()) {
+      assert obj.tree != null;
+      TextRange textRange = obj.tree.elements().get(0).key().metadata().textRange();
+      obj.ctx.reportIssue(textRange, MESSAGE);
+    }
   }
 }

@@ -42,6 +42,6 @@ class MemoryLimitCheckTest {
 
   @Test
   void templateObjectWithMissingAttributesAndBlocks() {
-    KubernetesVerifier.verify("MemoryLimitCheck/template_object.missing_fields.yaml", check);
+    KubernetesVerifier.verify("MemoryLimitCheck/template_object_missing_fields.yaml", check);
   }
 }
