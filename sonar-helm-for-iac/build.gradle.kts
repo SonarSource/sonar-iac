@@ -45,6 +45,8 @@ if (isCi) {
         inputs.files(fileTree(projectDir).matching {
             include("*.go",
             "**/*.go",
+            "go.mod",
+            "go.sum",
             "make.bat",
             "make.sh",
             "template-evaluation.proto")
@@ -129,7 +131,7 @@ if (!isCi) {
         setErrorOutput(System.out)
 
         inputs.files(fileTree(projectDir).matching {
-            include("*.go", "**/*.go", "template-evaluation.proto")
+            include("*.go", "**/*.go", "go.mod", "go.sum","template-evaluation.proto")
             exclude("build/**")
         })
         outputs.dir("build/executable")
