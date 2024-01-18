@@ -2,6 +2,9 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6428/templates/deployment.yaml": [
 35
 ],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-templates.yaml": [
+23
+],
 "kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
 21
 ],

@@ -20,6 +20,7 @@
 package org.sonar.iac.helm;
 
 import org.apache.commons.lang.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -153,6 +154,89 @@ class LineNumberCommentInserterTest {
         "..."),
       code("line1 #1",
         "..."));
+  }
+
+  @Test
+  void shouldAddCommentLineRangeForMultilineTemplates() {
+    checkHelmProcessing(
+      code("data:",
+        "cfg: |-",
+        "{{- if or",
+        "(eq \"abc\" .Values.foo)",
+        "(eq \"def\" .Values.bar)",
+        "}}",
+        "if",
+        "{{- else }}",
+        "else",
+        "{{- end }}"),
+      code("data: #1",
+        "cfg: |- #2",
+        "{{- if or",
+        "(eq \"abc\" .Values.foo)",
+        "(eq \"def\" .Values.bar)",
+        "}} #3:6",
+        "if #7",
+        "{{- else }} #8",
+        "else #9",
+        "{{- end }} #10"));
+  }
+
+  @Test
+  void shouldNotAddCommentLineNumberWithConsecutiveGoTemplates() {
+    checkHelmProcessing(
+      code(
+        "{{- /*",
+        "comment1",
+        "*/}} {{- /*",
+        "comment2",
+        "*/}}"),
+      code(
+        "{{- /*",
+        "comment1",
+        "*/}} {{- /*",
+        "comment2",
+        "*/}} #1:5"));
+  }
+
+  @Test
+  void shouldNotAddCommentLineNumberWithThreeConsecutiveGoTemplates() {
+    checkHelmProcessing(
+      code(
+        "{{- /* comment1",
+        "*/}} {{- /* comment2 */}} {{- /* comment3",
+        "*/}}"),
+      code(
+        "{{- /* comment1",
+        "*/}} {{- /* comment2 */}} {{- /* comment3",
+        "*/}} #1:3"));
+  }
+
+  /**
+   * When `{{ end }} is misplaced, there will be no trailing line number comment on each loop iteration. I.e., this example will produce something like
+   * (not every line will have `#2` as it should have)
+   * <p/>
+   * |#1
+   * |  foo: bar #1
+   * |  bar: foo #2
+   */
+  @Test
+  void shouldAddCommentLineRangesWithLoops() {
+    checkHelmProcessing(
+      code(
+        "{{- range $key, $value := .Values.annotations }}",
+        "  {{ $key }}: {{ $value | quote }} {{- end }}{{- end }}"),
+      code(
+        "{{- range $key, $value := .Values.annotations }} #1",
+        "  {{ $key }}: {{ $value | quote }} {{- end }}{{- end }} #2"));
+  }
+
+  @Test
+  void shouldCalculateUnmatchedBraces() {
+    Assertions.assertThat(LineNumberCommentInserter.getNumberOfUnmatchedDoubleOpeningBraces("{{")).isEqualTo(1);
+    Assertions.assertThat(LineNumberCommentInserter.getNumberOfUnmatchedDoubleOpeningBraces("{{{{")).isEqualTo(2);
+    Assertions.assertThat(LineNumberCommentInserter.getNumberOfUnmatchedDoubleOpeningBraces("{{{{}}")).isEqualTo(1);
+    Assertions.assertThat(LineNumberCommentInserter.getNumberOfUnmatchedDoubleOpeningBraces("{{{{}}}}")).isZero();
+    Assertions.assertThat(LineNumberCommentInserter.getNumberOfUnmatchedDoubleOpeningBraces("{{{{}}}}}}")).isEqualTo(-1);
   }
 
   void checkHelmProcessing(String source, String expect) {

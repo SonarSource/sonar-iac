@@ -1,6 +1,10 @@
 capabilities:
   - SYS_ADMIN
   - NET_ADMIN
-
+foo: foo-value
+bar: bar-value
+annotations:
+  first: foobar
+  second: barfoo
 livenessProbe: true
 initialDelaySeconds: 5

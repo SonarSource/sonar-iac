@@ -28,6 +28,7 @@ public final class LineNumberCommentInserter {
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
 
   private static final List<String> LINES_IGNORE_LINE_COUNTER = List.of("---", "...");
+  private static final int DOUBLE_BRACE_SIZE = 2;
 
   private LineNumberCommentInserter() {
   }
@@ -42,12 +43,28 @@ public final class LineNumberCommentInserter {
     var matcher = LINE_PATTERN.matcher(content);
 
     var lastIndex = 0;
+    var goTemplateStartLine = -1;
     while (matcher.find()) {
+      // Iterate over all lines. Possible cases:
+      // - Line contains {{ and corresponding }} on the same line: add line number comment
+      // - Line contains regular text and is _not inside_ a go template: add line number comment
+      // - Line contains regular text and is inside a go template: do not add line number comment
+      // - Line contains {{ but no corresponding }} on the same line: do not add line number comment, store line number
+      // - Line contains }} but no corresponding {{ on the same line: add line number comment, reset line number
+
       lineCounter++;
       var lineContent = matcher.group("lineContent");
       sb.append(lineContent);
+
       if (!LINES_IGNORE_LINE_COUNTER.contains(lineContent)) {
-        sb.append(commentLineNumber(lineCounter));
+        if (goTemplateStartLine == -1 && getNumberOfUnmatchedDoubleOpeningBraces(lineContent) == 0) {
+          sb.append(commentLineNumber(lineCounter));
+        } else if (goTemplateStartLine == -1 && getNumberOfUnmatchedDoubleOpeningBraces(lineContent) > 0) {
+          goTemplateStartLine = lineCounter;
+        } else if (getNumberOfUnmatchedDoubleOpeningBraces(lineContent) < 0) {
+          sb.append(commentMultilineNumber(goTemplateStartLine, lineCounter));
+          goTemplateStartLine = -1;
+        }
       }
       sb.append(matcher.group("newLine"));
       lastIndex = matcher.end();
@@ -55,12 +72,38 @@ public final class LineNumberCommentInserter {
     var lastLine = content.substring(lastIndex);
     sb.append(lastLine);
     if (!LINES_IGNORE_LINE_COUNTER.contains(lastLine)) {
-      sb.append(commentLineNumber(lineCounter + 1));
+      if (goTemplateStartLine != -1) {
+        sb.append(commentMultilineNumber(goTemplateStartLine, lineCounter + 1));
+      } else {
+        sb.append(commentLineNumber(lineCounter + 1));
+      }
     }
+
     return sb.toString();
+  }
+
+  static int getNumberOfUnmatchedDoubleOpeningBraces(String line) {
+    var count = 0;
+    var index = 0;
+    while (index < line.length() - 1) {
+      if ("{{".equals(line.substring(index, index + DOUBLE_BRACE_SIZE))) {
+        count++;
+        index += DOUBLE_BRACE_SIZE;
+      } else if ("}}".equals(line.substring(index, index + DOUBLE_BRACE_SIZE))) {
+        count--;
+        index += DOUBLE_BRACE_SIZE;
+      } else {
+        index++;
+      }
+    }
+    return count;
   }
 
   private static String commentLineNumber(int number) {
     return " #" + number;
+  }
+
+  private static String commentMultilineNumber(int startLine, int endLine) {
+    return " #" + startLine + ":" + endLine;
   }
 }

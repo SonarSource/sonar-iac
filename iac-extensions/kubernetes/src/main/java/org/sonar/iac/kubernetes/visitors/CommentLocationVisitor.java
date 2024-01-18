@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -43,8 +44,7 @@ import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
  */
 public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   private static final Logger LOG = LoggerFactory.getLogger(CommentLocationVisitor.class);
-
-  private static final Pattern CONTAINS_LINE_NUMBER = Pattern.compile("#(?<number>\\d+)(\\s#\\d+)*+$");
+  private static final Pattern CONTAINS_LINE_NUMBER_OR_RANGE = Pattern.compile("#(?<rangeStart>\\d++)(:(?<rangeEnd>\\d++))?(\\s#\\d++:?\\d*+)*+$");
   private final LocationShifter shifter;
 
   public CommentLocationVisitor(LocationShifter shifter) {
@@ -90,11 +90,12 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   }
 
   private void processComment(InputFileContext ctx, Comment comment) {
-    var matcher = CONTAINS_LINE_NUMBER.matcher(comment.value());
+    var matcher = CONTAINS_LINE_NUMBER_OR_RANGE.matcher(comment.value());
     if (matcher.find()) {
       int lineCommentLocation = comment.textRange().start().line();
-      var lineCommentValue = Integer.parseInt(matcher.group("number"));
-      shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentValue);
+      var lineCommentRangeStart = Integer.parseInt(matcher.group("rangeStart"));
+      var lineCommentRangeEnd = Optional.ofNullable(matcher.group("rangeEnd")).map(Integer::parseInt).orElse(lineCommentRangeStart);
+      shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentRangeStart, lineCommentRangeEnd);
     } else {
       LOG.debug("Line number comment not detected, comment: {}", comment.value());
     }
