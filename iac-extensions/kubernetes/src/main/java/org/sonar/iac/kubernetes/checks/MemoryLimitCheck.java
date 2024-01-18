@@ -50,9 +50,9 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
   private void missingMemory(BlockObject pod, Stream<BlockObject> containers) {
     Optional<BlockObject> containerBlock = containers.filter(container -> container.block("resources")
-        .block("limits")
-        .attribute("memory")
-        .isAbsentOrEmpty(isSet().negate()))
+      .block("limits")
+      .attribute("memory")
+      .isAbsentOrEmpty(isSet().negate()))
       .findFirst();
     if (containerBlock.isPresent()) {
       assert pod.tree != null;
