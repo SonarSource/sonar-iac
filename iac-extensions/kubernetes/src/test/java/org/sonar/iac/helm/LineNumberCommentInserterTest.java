@@ -198,6 +198,19 @@ class LineNumberCommentInserterTest {
         "*/}} #1:5"));
   }
 
+  @Test
+  void shouldNotAddCommentLineNumberWithThreeConsecutiveGoTemplates() {
+    checkHelmProcessing(
+      code(
+        "{{- /* comment1",
+        "*/}} {{- /* comment2 */}} {{- /* comment3",
+        "*/}}"),
+      code(
+        "{{- /* comment1",
+        "*/}} {{- /* comment2 */}} {{- /* comment3",
+        "*/}} #1:3"));
+  }
+
   /**
    * When `{{ end }} is misplaced, there will be no trailing line number comment on each loop iteration. I.e., this example will produce something like
    * (not every line will have `#2` as it should have)

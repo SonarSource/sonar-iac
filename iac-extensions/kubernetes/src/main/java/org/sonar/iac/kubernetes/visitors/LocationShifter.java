@@ -22,16 +22,15 @@ package org.sonar.iac.kubernetes.visitors;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 /**
- * This class is used to store all lines that has to be shifted. "Original" refers to the line in the processed file, i.e. the one that is being analyzed.
- * "Target" refers to the line in the original file, i.e. the one that should be used to raise issues.
+ * This class is used to store all lines that has to be shifted.<p/>
+ * "Original" refers to the line in the processed file, i.e. the one that is being analyzed.
+ * "Target" refers to the line in the original file, i.e. the one that should be used to raise issues.<p/>
  * The data are stored into this class through methods {@link #addLineSize(InputFileContext, int, int)} and {@link #addShiftedLine(InputFileContext, int, int)}.
  * Then we can use those data through the method {@link #computeShiftedLocation(InputFileContext, TextRange)}, which for a given {@link TextRange} will provide
  * a shifted {@link TextRange}.
@@ -44,8 +43,10 @@ public class LocationShifter {
   private final Map<URI, LinesShifting> linesShiftingPerContext = new HashMap<>();
 
   public void addShiftedLine(InputFileContext ctx, int originalLine, int targetLine) {
-    getOrCreateLinesShifting(ctx)
-      .getOrCreateLinesData(originalLine).targetStartLine = targetLine;
+    var linesData = getOrCreateLinesShifting(ctx)
+      .getOrCreateLinesData(originalLine);
+    linesData.targetStartLine = targetLine;
+    linesData.targetEndLine = targetLine;
   }
 
   public void addShiftedLine(InputFileContext ctx, int originalLine, int targetStartLine, int targetEndLine) {
@@ -80,7 +81,7 @@ public class LocationShifter {
 
     if (isShifted(shifting, lineEnd)) {
       var lineEndData = shifting.linesData.get(lineEnd);
-      int targetEndLine = Objects.requireNonNullElse(lineEndData.targetEndLine, lineEndData.targetStartLine);
+      int targetEndLine = lineEndData.targetEndLine;
       end = new TextPointer(targetEndLine, shifting.linesData.get(targetEndLine).originalLineSize);
     } else {
       end = textRange.end();
@@ -114,7 +115,6 @@ public class LocationShifter {
 
   static class LineData {
     private Integer targetStartLine;
-    @Nullable
     private Integer targetEndLine;
     private int originalLineSize;
   }

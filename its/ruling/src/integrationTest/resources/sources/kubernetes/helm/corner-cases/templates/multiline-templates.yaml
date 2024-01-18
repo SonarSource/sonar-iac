@@ -11,16 +11,16 @@ metadata:
       if .Values.annotations
     }} {{- range $key, $value := .Values.annotations }}
     {{ $key }}: {{ $value | quote }} {{- end }}{{- end }}
-    cfg: |-
-      {{- if or
-        (eq "abc" .Values.foo)
-        (eq "def" .Values.bar)
-      }}
-      if
-      {{- else }}
-      else
-      {{- end }}
 spec:
   containers:
     - image: k8s.gcr.io/test-webserver
       name: test-container
+      securityContext:
+      {{- if or
+        (eq "foo-value" .Values.foo)
+        (eq "abc" .Values.bar)
+      }}
+        privileged: true
+      {{- else }}
+        privileged: false
+      {{- end }}
