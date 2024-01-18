@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
@@ -57,9 +56,7 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
 
     for (BlockObject containerBlock : collect) {
       assert containerBlock.tree != null;
-      List<Tree> children = containerBlock.tree.children();
-      Tree tree = children.get(0);
-      TextRange textRange = tree.textRange();
+      TextRange textRange = containerBlock.tree.elements().get(0).key().metadata().textRange();
       pod.ctx.reportIssue(textRange, MESSAGE);
     }
   }
