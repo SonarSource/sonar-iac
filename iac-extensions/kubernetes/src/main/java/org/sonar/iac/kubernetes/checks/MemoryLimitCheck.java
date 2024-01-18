@@ -20,9 +20,10 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
@@ -49,14 +50,16 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
   }
 
   private void missingMemory(BlockObject pod, Stream<BlockObject> containers) {
-    Optional<BlockObject> containerBlock = containers.filter(container -> container.block("resources")
+    List<BlockObject> collect = containers.filter(container -> container.block("resources")
       .block("limits")
       .attribute("memory")
-      .isAbsentOrEmpty(isSet().negate()))
-      .findFirst();
-    if (containerBlock.isPresent()) {
-      assert pod.tree != null;
-      TextRange textRange = pod.tree.elements().get(0).key().metadata().textRange();
+      .isAbsentOrEmpty(isSet().negate())).collect(Collectors.toList());
+
+    for (BlockObject containerBlock : collect) {
+      assert containerBlock.tree != null;
+      List<Tree> children = containerBlock.tree.children();
+      Tree tree = children.get(0);
+      TextRange textRange = tree.textRange();
       pod.ctx.reportIssue(textRange, MESSAGE);
     }
   }

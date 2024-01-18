@@ -3,37 +3,48 @@ kind: Pod
 metadata:
   name: example
 spec:
-  containers: # Noncompliant {{Specify a memory limit for this container.}}
-# ^^^^^^^^^^
-    - name: noncompliant_without_memory_limit
+  containers:
+    - name: noncompliant_without_memory_limit # Noncompliant {{Specify a memory limit for this container.}}
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       image: nginx
       resources:
         limits:
           cpu: 200m
 
-    - name: noncompliant_without_limits
+    - name: noncompliant_without_limits # Noncompliant {{Specify a memory limit for this container.}}
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       image: nginx
       resources:
         requests:
           memory: 64Mi
 
-    - name: noncompliant_without_resources
+    - name: noncompliant_without_resources # Noncompliant {{Specify a memory limit for this container.}}
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       image: nginx
 
-    - name: noncompliant_memory_limit_tilde
+    - name: noncompliant_memory_limit_tilde # Noncompliant {{Specify a memory limit for this container.}}
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       image: nginx
       resources:
         limits:
           memory: "~"
 
-    - name: noncompliant_memory_limit_empty_brackets
-      image: nginx
+    - name: noncompliant_memory_limit_empty_brackets # Noncompliant {{Specify a memory limit for this container.}}
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      image:
       resources:
         limits:
           memory: "[]"
 
-    - name: noncompliant_memory_limit_null
-      image: nginx
+    - image: nginx # Noncompliant {{Specify a memory limit for this container.}}
+    # ^^^^^^^^^^^^
+      name: noncompliant_memory_limit_null
       resources:
         limits:
           memory: "null"
+
+    - name: compliant_memory_limit # Compliant
+      image: nginx
+      resources:
+        limits:
+          memory: 100Mi
