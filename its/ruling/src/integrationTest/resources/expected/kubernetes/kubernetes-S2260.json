@@ -2,6 +2,12 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/required/templates/required_missing.yaml": [
 0
 ],
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-config-template.yaml": [
+0
+],
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-config-template.yaml": [
+0
+],
 "kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/etcd-controller-template.yaml": [
 0
 ],
@@ -17,10 +23,31 @@
 "kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/vttablet-pod-template.yaml": [
 0
 ],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/config.yaml": [
+13
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/install-plugins.yaml": [
+12
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/secret.yaml": [
+0
+],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/sonarqube-search.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [
+0
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/config.yaml": [
+12
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/init-fs.yaml": [
+12
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/install-plugins.yaml": [
+12
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/secret.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/tests/sonarqube-test.yaml": [
