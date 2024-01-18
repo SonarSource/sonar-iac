@@ -26,6 +26,9 @@
 "kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-server-deployment.yaml": [
 26
 ],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/sonarqube-search.yaml": [
+94
+],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/sonarqube-sts.yaml": [
 108
 ]

@@ -1,3 +1,6 @@
 capabilities:
   - SYS_ADMIN
   - NET_ADMIN
+
+livenessProbe: true
+initialDelaySeconds: 5

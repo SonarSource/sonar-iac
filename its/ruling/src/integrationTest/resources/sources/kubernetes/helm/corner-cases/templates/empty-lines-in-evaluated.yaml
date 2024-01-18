@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: foobar
+spec:
+  livenessProbe:
+    exec:
+      command:
+        - sh
+        - -c
+      {{ if .Values.livenessProbe }}
+        - |
+          foo
+      {{- else -}}
+        - |
+          bar
+      {{- end }}
+    initialDelaySeconds: {{ .Values.initialDelaySeconds }}

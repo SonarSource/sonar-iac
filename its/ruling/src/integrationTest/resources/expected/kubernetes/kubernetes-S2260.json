@@ -1,4 +1,7 @@
 {
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/S2260/parsing-error.yaml": [
+6
+],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/required/templates/required_missing.yaml": [
 0
 ],
@@ -30,9 +33,6 @@
 12
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/secret.yaml": [
-0
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/sonarqube-search.yaml": [
 0
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [

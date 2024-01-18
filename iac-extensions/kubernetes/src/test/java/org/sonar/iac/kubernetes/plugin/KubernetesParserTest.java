@@ -45,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class KubernetesParserTest {
   @RegisterExtension
@@ -157,6 +158,61 @@ class KubernetesParserTest {
       var argumentCaptor = ArgumentCaptor.forClass(String.class);
       Mockito.verify(helmProcessor).processHelmTemplate(argumentCaptor.capture(), any(), any());
       assertThat(argumentCaptor.getValue()).isEqualTo("foo.yaml");
+    }
+  }
+
+  @Test
+  void shouldRemoveEmptyLinesAfterEvaluation() throws IOException, URISyntaxException {
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(valuesFile.filename()).thenReturn("values.yaml");
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      String evaluatedSource = code("apiVersion: apps/v1 #1",
+        "kind: StatefulSet #2",
+        "metadata: #3",
+        "  name: helm-chart-sonarqube-dce-search #4",
+        "spec: #5",
+        "  livenessProbe: #6",
+        "    exec: #7",
+        "      command: #8",
+        "        - sh #9",
+        "        - -c #10",
+        "        #14",
+        "        - | #15",
+        "          bar #16 #17",
+        "    initialDelaySeconds: 60 #18",
+        "  #19");
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluatedSource);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+
+      FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+
+      assertThat(file.documents()).hasSize(1);
+      assertThat(file.documents().get(0).children()).hasSize(4);
+    }
+  }
+
+  @Test
+  void shouldNotFailIfEmptyFileAfterEvaluation() throws IOException, URISyntaxException {
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(valuesFile.filename()).thenReturn("values.yaml");
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      String evaluatedSource = code("#5");
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluatedSource);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
+
+      FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+
+      assertThat(file.documents()).hasSize(1);
+      assertThat(file.documents().get(0).children()).isEmpty();
+      var logs = logTester.logs(Level.DEBUG);
+      assertThat(logs).contains("Blank evaluated file, skipping processing of Helm file path/to/file.yaml");
     }
   }
 }

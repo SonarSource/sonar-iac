@@ -6,9 +6,9 @@
 11
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiple-documents.yaml": [
+0,
 11,
-27,
-44
+27
 ],
 "kubernetes-project:sources/kubernetes/examples/cassandra/cassandra-statefulset.yaml": [
 41
