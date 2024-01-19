@@ -21,31 +21,31 @@ spec:
             limits:
               cpu: 200m
 
-        - name: noncompliant_without_limits # Noncompliant {{Specify a memory limit for this container.}}
+        - name: noncompliant_without_limits # Noncompliant
         # ^^^^
           resources:
             requests:
               memory: 64Mi
 
-        - name: noncompliant_without_resources # Noncompliant {{Specify a memory limit for this container.}}
+        - name: noncompliant_without_resources # Noncompliant
         # ^^^^
 
-        - name: noncompliant_memory_limit_tilde # Noncompliant {{Specify a memory limit for this container.}}
-        # ^^^^
+        - name: noncompliant_memory_limit_tilde
           resources:
             limits:
-              memory: "~"
+              memory: "~" # Noncompliant
+            # ^^^^^^^^^^^
 
-        - name: noncompliant_memory_limit_empty_brackets # Noncompliant {{Specify a memory limit for this container.}}
-        # ^^^^
+        - name: noncompliant_memory_limit_empty_brackets
           resources:
             limits:
-              memory: "[]"
+              memory: "[]" # Noncompliant
+            # ^^^^^^^^^^^^
 
-        - resources: # Noncompliant {{Specify a memory limit for this container.}}
-        # ^^^^^^^^^
+        - resources:
             limits:
-              memory: "null"
+              memory: "null" # Noncompliant
+            # ^^^^^^^^^^^^^^
           name: noncompliant_memory_limit_null
 
         - name: compliant_memory_limit # Compliant

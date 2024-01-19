@@ -20,9 +20,10 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
@@ -38,25 +39,28 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
   void registerObjectCheck() {
     register(KIND_POD, (BlockObject pod) -> {
       Stream<BlockObject> containers = pod.blocks("containers");
-      missingMemory(pod, containers);
+      missingMemory(containers);
     });
 
     register(KIND_WITH_TEMPLATE, (BlockObject obj) -> {
       Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
-      missingMemory(obj.block("template").block("spec"), containers);
+      missingMemory(containers);
     });
   }
 
-  private static void missingMemory(BlockObject pod, Stream<BlockObject> containers) {
-    List<BlockObject> collect = containers.filter(container -> container.block("resources")
+  private static void missingMemory(Stream<BlockObject> containers) {
+    containers.forEach(container -> container.block("resources")
       .block("limits")
       .attribute("memory")
-      .isAbsentOrEmpty(isSet().negate())).collect(Collectors.toList());
+      .reportIfAbsent(getFirstChildElement(container), MESSAGE)
+      .reportIfValue(isSet().negate(), MESSAGE));
+  }
 
-    for (BlockObject containerBlock : collect) {
-      assert containerBlock.tree != null;
-      var textRange = containerBlock.tree.elements().get(0).key().metadata().textRange();
-      pod.ctx.reportIssue(textRange, MESSAGE);
+  @Nullable
+  private static HasTextRange getFirstChildElement(BlockObject blockObject) {
+    if (blockObject.tree != null) {
+      return blockObject.tree.elements().get(0).key().metadata();
     }
+    return null;
   }
 }

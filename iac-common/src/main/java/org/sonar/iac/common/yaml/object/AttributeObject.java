@@ -50,8 +50,18 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
     return this;
   }
 
-  public boolean isAbsentOrEmpty(Predicate<YamlTree> predicate) {
-    return this.status == Status.ABSENT || (tree != null && predicate.test(tree.value()));
+  public AttributeObject reportIfAbsent(@Nullable HasTextRange textRange, String message) {
+    if (this.status == Status.ABSENT) {
+      report(textRange, message);
+    }
+    return this;
+  }
+
+  public AttributeObject report(@Nullable HasTextRange textRange, String message) {
+    if (textRange != null) {
+      ctx.reportIssue(textRange, message);
+    }
+    return this;
   }
 
   @Nullable

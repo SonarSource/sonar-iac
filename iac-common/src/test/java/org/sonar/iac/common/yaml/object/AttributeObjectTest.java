@@ -22,6 +22,7 @@ package org.sonar.iac.common.yaml.object;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -39,7 +40,7 @@ class AttributeObjectTest extends YamlTreeTest {
   CheckContext ctx = new TestContext();
 
   @Test
-  void fromPresent() {
+  void testFromPresent() {
     TupleTree tree = parseTuple("a: b");
     AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "a");
     assertThat(attr.key).isEqualTo("a");
@@ -49,7 +50,7 @@ class AttributeObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void fromPresent_unknown() {
+  void testFromPresentUnknown() {
     YamlTree tree = parse("a:b", YamlTree.class);
     AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "a");
     assertThat(attr.key).isEqualTo("a");
@@ -59,7 +60,7 @@ class AttributeObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void fromAbsent() {
+  void testFromAbsent() {
     AttributeObject attr = AttributeObject.fromAbsent(ctx, "a");
     assertThat(attr.key).isEqualTo("a");
     assertThat(attr.status).isEqualTo(YamlObject.Status.ABSENT);
@@ -68,7 +69,7 @@ class AttributeObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void reportIfValue() {
+  void testReportIfValue() {
     TupleTree tree = parseTuple("a: b");
     AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "a");
     attr.reportIfValue(t -> true, "message");
@@ -80,23 +81,30 @@ class AttributeObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void isAbsentOrEmpty() {
+  void testReportIfAbsent() {
     TupleTree tree = parseTuple("a: b");
-    AttributeObject attr = AttributeObject.fromAbsent(ctx, "a");
-    boolean absentOrEmpty = attr.isAbsentOrEmpty(t -> true);
-    assertThat(absentOrEmpty).isTrue();
+    AttributeObject attr = AttributeObject.fromAbsent(ctx, "b");
+    attr.reportIfAbsent(tree.metadata(), "message2");
+    List<TestIssue> testIssues = raisedIssues.stream().filter(issue -> issue.message.equals("message2")).collect(Collectors.toList());
+    assertThat(testIssues).hasSize(1);
+    TestIssue testIssue = testIssues.get(0);
+    assertThat(testIssue.message).isEqualTo("message2");
+    assertThat(testIssue.secondaryLocations).isEmpty();
+    assertThat(testIssue.textRange).isEqualTo(tree.textRange());
 
-    attr = AttributeObject.fromPresent(ctx, tree, "a");
-    absentOrEmpty = attr.isAbsentOrEmpty(t -> false);
-    assertThat(absentOrEmpty).isFalse();
+    attr = AttributeObject.fromPresent(ctx, tree, "b");
+    attr.reportIfAbsent(tree.metadata(), "message3");
+    testIssues = raisedIssues.stream().filter(issue -> issue.message.equals("message3")).collect(Collectors.toList());
+    assertThat(testIssues).isEmpty();
+  }
 
-    attr = AttributeObject.fromPresent(ctx, tree, "a");
-    absentOrEmpty = attr.isAbsentOrEmpty(t -> true);
-    assertThat(absentOrEmpty).isTrue();
-
-    attr = AttributeObject.fromPresent(ctx, null, "a");
-    absentOrEmpty = attr.isAbsentOrEmpty(t -> true);
-    assertThat(absentOrEmpty).isFalse();
+  @Test
+  void testReport() {
+    TupleTree tree = parseTuple("a: b");
+    AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "b");
+    attr.report(null, "message4");
+    List<TestIssue> testIssues = raisedIssues.stream().filter(issue -> issue.message.equals("message3")).collect(Collectors.toList());
+    assertThat(testIssues).isEmpty();
   }
 
   private static class TestContext implements CheckContext {
