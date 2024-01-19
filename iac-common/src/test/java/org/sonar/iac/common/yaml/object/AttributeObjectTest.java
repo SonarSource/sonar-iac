@@ -22,12 +22,12 @@ package org.sonar.iac.common.yaml.object;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -37,42 +37,47 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AttributeObjectTest extends YamlTreeTest {
 
   static final List<TestIssue> raisedIssues = new ArrayList<>();
-  CheckContext ctx = new TestContext();
+  CheckContext checkContext = new TestContext();
+
+  @BeforeEach
+  public void init() {
+    raisedIssues.clear();
+  }
 
   @Test
   void testFromPresent() {
     TupleTree tree = parseTuple("a: b");
-    AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "a");
-    assertThat(attr.key).isEqualTo("a");
-    assertThat(attr.status).isEqualTo(YamlObject.Status.PRESENT);
-    assertThat(attr.tree).isEqualTo(tree);
-    assertThat(attr.ctx).isEqualTo(ctx);
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "a");
+    assertThat(attributeObjectStatusPresent.key).isEqualTo("a");
+    assertThat(attributeObjectStatusPresent.status).isEqualTo(YamlObject.Status.PRESENT);
+    assertThat(attributeObjectStatusPresent.tree).isEqualTo(tree);
+    assertThat(attributeObjectStatusPresent.ctx).isEqualTo(checkContext);
   }
 
   @Test
   void testFromPresentUnknown() {
     YamlTree tree = parse("a:b", YamlTree.class);
-    AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "a");
-    assertThat(attr.key).isEqualTo("a");
-    assertThat(attr.status).isEqualTo(YamlObject.Status.UNKNOWN);
-    assertThat(attr.tree).isNull();
-    assertThat(attr.ctx).isEqualTo(ctx);
+    AttributeObject attributeObjectStatusUnknown = AttributeObject.fromPresent(checkContext, tree, "a");
+    assertThat(attributeObjectStatusUnknown.key).isEqualTo("a");
+    assertThat(attributeObjectStatusUnknown.status).isEqualTo(YamlObject.Status.UNKNOWN);
+    assertThat(attributeObjectStatusUnknown.tree).isNull();
+    assertThat(attributeObjectStatusUnknown.ctx).isEqualTo(checkContext);
   }
 
   @Test
   void testFromAbsent() {
-    AttributeObject attr = AttributeObject.fromAbsent(ctx, "a");
-    assertThat(attr.key).isEqualTo("a");
-    assertThat(attr.status).isEqualTo(YamlObject.Status.ABSENT);
-    assertThat(attr.tree).isNull();
-    assertThat(attr.ctx).isEqualTo(ctx);
+    AttributeObject attributeObjectStatusAbsent = AttributeObject.fromAbsent(checkContext, "a");
+    assertThat(attributeObjectStatusAbsent.key).isEqualTo("a");
+    assertThat(attributeObjectStatusAbsent.status).isEqualTo(YamlObject.Status.ABSENT);
+    assertThat(attributeObjectStatusAbsent.tree).isNull();
+    assertThat(attributeObjectStatusAbsent.ctx).isEqualTo(checkContext);
   }
 
   @Test
   void testReportIfValue() {
     TupleTree tree = parseTuple("a: b");
-    AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "a");
-    attr.reportIfValue(t -> true, "message");
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "a");
+    attributeObjectStatusPresent.reportIfValue(t -> true, "message");
     assertThat(raisedIssues).hasSize(1);
     TestIssue issue = raisedIssues.get(0);
     assertThat(issue.message).isEqualTo("message");
@@ -81,30 +86,31 @@ class AttributeObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void testReportIfAbsent() {
+  void reportIfAbsentShouldReportIssueOnAbsentObject() {
     TupleTree tree = parseTuple("a: b");
-    AttributeObject attr = AttributeObject.fromAbsent(ctx, "b");
-    attr.reportIfAbsent(tree.metadata(), "message2");
-    List<TestIssue> testIssues = raisedIssues.stream().filter(issue -> issue.message.equals("message2")).collect(Collectors.toList());
-    assertThat(testIssues).hasSize(1);
-    TestIssue testIssue = testIssues.get(0);
-    assertThat(testIssue.message).isEqualTo("message2");
-    assertThat(testIssue.secondaryLocations).isEmpty();
-    assertThat(testIssue.textRange).isEqualTo(tree.textRange());
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromAbsent(checkContext, "b");
+    attributeObjectStatusPresent.reportIfAbsent(tree.metadata(), "message");
+    assertThat(raisedIssues).hasSize(1);
+    TestIssue issue = raisedIssues.get(0);
+    assertThat(issue.message).isEqualTo("message");
+    assertThat(issue.secondaryLocations).isEmpty();
+    assertThat(issue.textRange).isEqualTo(tree.textRange());
+  }
 
-    attr = AttributeObject.fromPresent(ctx, tree, "b");
-    attr.reportIfAbsent(tree.metadata(), "message3");
-    testIssues = raisedIssues.stream().filter(issue -> issue.message.equals("message3")).collect(Collectors.toList());
-    assertThat(testIssues).isEmpty();
+  @Test
+  void reportIfAbsentShouldNotReportIssueOnPresentObject() {
+    TupleTree tree = parseTuple("a: b");
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
+    attributeObjectStatusPresent.reportIfAbsent(tree.metadata(), "message");
+    assertThat(raisedIssues).isEmpty();
   }
 
   @Test
   void testReport() {
     TupleTree tree = parseTuple("a: b");
-    AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "b");
-    attr.report(null, "message4");
-    List<TestIssue> testIssues = raisedIssues.stream().filter(issue -> issue.message.equals("message3")).collect(Collectors.toList());
-    assertThat(testIssues).isEmpty();
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
+    attributeObjectStatusPresent.report(null, "message");
+    assertThat(raisedIssues).isEmpty();
   }
 
   private static class TestContext implements CheckContext {

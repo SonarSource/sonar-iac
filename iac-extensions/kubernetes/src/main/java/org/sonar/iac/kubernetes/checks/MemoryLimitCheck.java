@@ -39,16 +39,16 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
   void registerObjectCheck() {
     register(KIND_POD, (BlockObject pod) -> {
       Stream<BlockObject> containers = pod.blocks("containers");
-      missingMemory(containers);
+      reportMissingMemory(containers);
     });
 
     register(KIND_WITH_TEMPLATE, (BlockObject obj) -> {
       Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
-      missingMemory(containers);
+      reportMissingMemory(containers);
     });
   }
 
-  private static void missingMemory(Stream<BlockObject> containers) {
+  private static void reportMissingMemory(Stream<BlockObject> containers) {
     containers.forEach(container -> container.block("resources")
       .block("limits")
       .attribute("memory")
@@ -57,7 +57,7 @@ public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
   }
 
   @Nullable
-  private static HasTextRange getFirstChildElement(BlockObject blockObject) {
+  static HasTextRange getFirstChildElement(BlockObject blockObject) {
     if (blockObject.tree != null) {
       return blockObject.tree.elements().get(0).key().metadata();
     }
