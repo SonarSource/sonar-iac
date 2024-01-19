@@ -50,6 +50,20 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
     return this;
   }
 
+  public AttributeObject reportIfAbsent(@Nullable HasTextRange textRange, String message) {
+    if (this.status == Status.ABSENT) {
+      report(textRange, message);
+    }
+    return this;
+  }
+
+  public AttributeObject report(@Nullable HasTextRange textRange, String message) {
+    if (textRange != null) {
+      ctx.reportIssue(textRange, message);
+    }
+    return this;
+  }
+
   @Nullable
   @Override
   protected HasTextRange toHighlight() {
