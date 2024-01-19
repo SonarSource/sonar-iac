@@ -26,12 +26,12 @@ class MemoryLimitCheckTest {
   IacCheck check = new MemoryLimitCheck();
 
   @Test
-  void podKindNoncompliant() {
-    KubernetesVerifier.verify("MemoryLimitCheck/pod_kind_noncompliant.yaml", check);
+  void podKindTest() {
+    KubernetesVerifier.verify("MemoryLimitCheck/test_pod_object.yaml", check);
   }
 
   @Test
-  void kindWithTemplateNoncompliant() {
-    KubernetesVerifier.verify("MemoryLimitCheck/kind_with_template_noncompliant.yaml", check);
+  void kindWithTemplateTest() {
+    KubernetesVerifier.verify("MemoryLimitCheck/test_template_object.yaml", check);
   }
 }
