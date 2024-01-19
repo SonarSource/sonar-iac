@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
@@ -45,12 +47,14 @@ public class KubernetesParser extends YamlParser {
 
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
-  private static final Pattern CONTAINS_LINE_NUMBER = Pattern.compile("(?<comment>#\\d+( #\\d+)*+)$");
+  private static final Pattern CONTAINS_LINE_NUMBER_OR_RANGE = Pattern.compile("#(?<rangeStart>\\d++)(:(?<rangeEnd>\\d++))?(\\s#\\d++:?\\d*+)*+$");
 
   private final HelmProcessor helmProcessor;
+  private final LocationShifter locationShifter;
 
-  public KubernetesParser(HelmProcessor helmProcessor) {
+  public KubernetesParser(HelmProcessor helmProcessor, LocationShifter locationShifter) {
     this.helmProcessor = helmProcessor;
+    this.locationShifter = locationShifter;
   }
 
   @Override
@@ -80,7 +84,7 @@ public class KubernetesParser extends YamlParser {
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
     var fileRelativePath = getFileRelativePath(inputFileContext);
     var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
-    var evaluatedAndCleanedSource = removeBlankLines(evaluatedSource);
+    var evaluatedAndCleanedSource = removeBlankLines(evaluatedSource, inputFileContext);
     if (evaluatedAndCleanedSource.isBlank()) {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
       return super.parse("{}", null, FileTree.Template.HELM);
@@ -107,32 +111,42 @@ public class KubernetesParser extends YamlParser {
    * Such lines may be produced after evaluation of Helm template.
    * In some cases such lines may cause parsing issues in snakeyaml-engine.
    */
-  private static String removeBlankLines(String source) {
+  private String removeBlankLines(String source, InputFileContext inputFileContext) {
     var sb = new StringBuilder();
     var matcher = LINE_PATTERN.matcher(source);
 
     var lastIndex = 0;
+    var lineCounter = 0;
     while (matcher.find()) {
       var lineContent = matcher.group("lineContent");
-      if (isLineNotBlank(lineContent)) {
+      if (isLineNotBlankAndAddToLocationShifter(lineContent, inputFileContext, lineCounter)) {
         sb.append(lineContent);
         sb.append(matcher.group("newLine"));
         lastIndex = matcher.end();
       }
+      lineCounter++;
     }
+    lineCounter++;
     var lastLine = source.substring(lastIndex);
-    if (isLineNotBlank(lastLine)) {
+    if (isLineNotBlankAndAddToLocationShifter(lastLine, inputFileContext, lineCounter)) {
       sb.append(lastLine);
     }
     return sb.toString();
   }
 
-  private static boolean isLineNotBlank(String lineContent) {
-    var commentMatcher = CONTAINS_LINE_NUMBER.matcher(lineContent);
+  private boolean isLineNotBlankAndAddToLocationShifter(String lineContent, InputFileContext inputFileContext, int lineCounter) {
+    var commentMatcher = CONTAINS_LINE_NUMBER_OR_RANGE.matcher(lineContent);
     if (commentMatcher.find()) {
-      var comment = commentMatcher.group("comment");
+      var comment = commentMatcher.group();
       var endIndex = lineContent.indexOf(comment);
       var contentWithoutComment = lineContent.substring(0, endIndex);
+      if (contentWithoutComment.isBlank()) {
+        var lineCommentRangeStart = Integer.parseInt(commentMatcher.group("rangeStart"));
+        var lineCommentRangeEnd = Optional.ofNullable(commentMatcher.group("rangeEnd"))
+          .map(Integer::parseInt)
+          .orElse(lineCommentRangeStart);
+        locationShifter.addShiftedLine(inputFileContext, lineCounter, lineCommentRangeStart, lineCommentRangeEnd);
+      }
       return !contentWithoutComment.isBlank();
     }
     return !lineContent.isBlank();

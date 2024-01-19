@@ -40,6 +40,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,7 +55,7 @@ class KubernetesParserTest {
   private final SensorContext sensorContext = mock(SensorContext.class);
   private final InputFileContext inputFileContext = new InputFileContext(sensorContext, inputFile);
   private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
-  private final KubernetesParser parser = new KubernetesParser(helmProcessor);
+  private final KubernetesParser parser = new KubernetesParser(helmProcessor, new LocationShifter());
 
   @BeforeEach
   void setup() {

@@ -76,7 +76,7 @@ public class LocationShifter {
     if (isShifted(shifting, lineStart)) {
       start = new TextPointer(shifting.linesData.get(lineStart).targetStartLine, 0);
     } else {
-      start = textRange.start();
+      start = new TextPointer(textRange.start().line(), textRange.start().lineOffset() - 1);
     }
 
     if (isShifted(shifting, lineEnd)) {

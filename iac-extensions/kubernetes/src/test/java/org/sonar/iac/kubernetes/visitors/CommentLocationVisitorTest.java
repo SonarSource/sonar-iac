@@ -158,7 +158,7 @@ class CommentLocationVisitorTest {
 
     TextRange textRange2 = TextRanges.range(2, 1, 3, 5);
     TextRange shiftedTextRange2 = shifter.computeShiftedLocation(ctx, textRange2);
-    assertThat(shiftedTextRange2).hasRange(2, 1, 2, 15);
+    assertThat(shiftedTextRange2).hasRange(2, 0, 2, 15);
 
     TextRange textRange3 = TextRanges.range(3, 1, 4, 5);
     TextRange shiftedTextRange3 = shifter.computeShiftedLocation(ctx, textRange3);
@@ -208,9 +208,26 @@ class CommentLocationVisitorTest {
     assertThat(shiftedLocation2).hasRange(2, 0, 4, 2);
   }
 
+  @Test
+  void shouldAddLastEmptyLine() throws IOException {
+    String originalCode = code("foo:",
+      "{{ print \"# a\\n# b\" }}",
+      "");
+    String transformedCode = code("foo: #1",
+      "# a",
+      "# b #2",
+      "#3");
+    InputFileContext ctx = mockInputFileContext("test.yaml", originalCode);
+
+    scanFile(FileTree.Template.HELM, ctx, transformedCode);
+
+    TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 3, 6));
+    assertThat(shiftedLocation1).hasRange(2, 0, 2, 22);
+  }
+
   private FileTree scanFile(FileTree.Template template, InputFileContext ctx, String transformedCode) {
     var helmEvaluator = mock(HelmEvaluator.class);
-    FileTree file = new KubernetesParser(new HelmProcessor(helmEvaluator)).parse(transformedCode, ctx);
+    FileTree file = new KubernetesParser(new HelmProcessor(helmEvaluator), new LocationShifter()).parse(transformedCode, ctx);
     file = new FileTreeImpl(file.documents(), file.metadata(), template);
     CommentLocationVisitor visitor = new CommentLocationVisitor(shifter);
     visitor.scan(ctx, file);
