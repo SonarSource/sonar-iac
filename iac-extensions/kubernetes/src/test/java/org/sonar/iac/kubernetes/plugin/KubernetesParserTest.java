@@ -216,4 +216,27 @@ class KubernetesParserTest {
       assertThat(logs).contains("Blank evaluated file, skipping processing of Helm file path/to/file.yaml");
     }
   }
+
+  @Test
+  void shouldRemoveLineNumberCommentForNewDocumentAfterEvaluation() throws IOException, URISyntaxException {
+    var evaluated = code("--- #5",
+      "apiVersion: v1 #6",
+      "kind: Pod #7",
+      "metadata: #8",
+      "spec: #9");
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(valuesFile.filename()).thenReturn("values.yaml");
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
+
+      FileTree file = parser.parse("dummy: {{ dummy }}", inputFileContext);
+      assertThat(file.documents().get(0).children()).hasSize(4);
+      assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
+    }
+  }
 }

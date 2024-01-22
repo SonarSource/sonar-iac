@@ -1,0 +1,23 @@
+---
+{{- if .Values.doNotExist }}
+{{ print "foo: bar" }}
+{{- end }}
+---
+{{- if .Values.doNotExist2 }}
+{{ print "foo: bar" }}
+{{- end }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - image: k8s.gcr.io/test-webserver
+      name: test-container
+      securityContext:
+        capabilities:
+          add:
+{{- range .Values.capabilities }}
+            - {{ . | quote }}
+{{- end }}
