@@ -100,7 +100,7 @@ class LocationShifterTest {
     setLinesSizes(ctx, 5, 10, 15);
     shifter.addShiftedLine(ctx, 2, 3);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 2, 3));
-    assertThat(shiftedRange).hasRange(1, 1, 3, 15);
+    assertThat(shiftedRange).hasRange(1, 0, 3, 15);
   }
 
   @Test
