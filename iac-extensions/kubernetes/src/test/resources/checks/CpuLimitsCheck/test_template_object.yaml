@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: noncompliant_without_cpu_limit # Noncompliant {{Specify a CPU limit for this container.}}
+        # ^^^^
+          resources:
+            limits:
+              memory: 64Mi
+
+        - name: noncompliant_without_limits # Noncompliant
+        # ^^^^
+          resources:
+            requests:
+              memory: 64Mi
+
+        - name: noncompliant_without_resources # Noncompliant
+        # ^^^^
+
+        - name: noncompliant_cpu_limit_tilde
+          resources:
+            limits:
+              cpu: "~" # Noncompliant
+            # ^^^^^^^^
+
+        - name: noncompliant_cpu_limit_empty_brackets
+          resources:
+            limits:
+              cpu: "[]" # Noncompliant
+            # ^^^^^^^^^
+
+        - resources:
+            limits:
+              cpu: "null" # Noncompliant
+            # ^^^^^^^^^^^
+          name: noncompliant_cpu_limit_null
+
+        - name: compliant_cpu_limit # Compliant
+          resources:
+            limits:
+              cpu: 100m
