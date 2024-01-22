@@ -4,7 +4,7 @@ metadata:
   name: example
 spec:
   containers:
-    - name: noncompliant_without_memory_limit # Noncompliant
+    - name: noncompliant_without_memory_limit # Noncompliant {{Specify a memory limit for this container.}}
     # ^^^^
       image: nginx
       resources:

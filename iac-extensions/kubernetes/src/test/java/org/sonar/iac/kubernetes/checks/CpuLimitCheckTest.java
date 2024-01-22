@@ -27,19 +27,19 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.kubernetes.checks.CpuLimitsCheck.getFirstChildElement;
+import static org.sonar.iac.kubernetes.checks.CpuLimitCheck.getFirstChildElement;
 
-class CpuLimitsCheckTest {
-  IacCheck check = new CpuLimitsCheck();
+class CpuLimitCheckTest {
+  IacCheck check = new CpuLimitCheck();
 
   @Test
   void testPodKind() {
-    KubernetesVerifier.verify("CpuLimitsCheck/test_pod_object.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/test_pod_object.yaml", check);
   }
 
   @Test
   void testKindWithTemplate() {
-    KubernetesVerifier.verify("CpuLimitsCheck/test_template_object.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/test_template_object.yaml", check);
   }
 
   @Test

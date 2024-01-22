@@ -29,7 +29,7 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
 @Rule(key = "S6869")
-public class CpuLimitsCheck extends AbstractKubernetesObjectCheck {
+public class CpuLimitCheck extends AbstractKubernetesObjectCheck {
   private static final String MESSAGE = "Specify a CPU limit for this container.";
   private static final String KIND_POD = "Pod";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
@@ -38,16 +38,16 @@ public class CpuLimitsCheck extends AbstractKubernetesObjectCheck {
   void registerObjectCheck() {
     register(KIND_POD, (BlockObject pod) -> {
       Stream<BlockObject> containers = pod.blocks("containers");
-      reportMissingCpuLimits(containers);
+      reportMissingCpuLimit(containers);
     });
 
     register(KIND_WITH_TEMPLATE, (BlockObject obj) -> {
       Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
-      reportMissingCpuLimits(containers);
+      reportMissingCpuLimit(containers);
     });
   }
 
-  private static void reportMissingCpuLimits(Stream<BlockObject> containers) {
+  private static void reportMissingCpuLimit(Stream<BlockObject> containers) {
     containers.forEach(container -> container.block("resources")
       .block("limits")
       .attribute("cpu")
