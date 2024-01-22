@@ -19,19 +19,21 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import org.sonar.check.Rule;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
-@Rule(key = "S6869")
-public class CpuLimitCheck extends AbstractLimitsCheck {
-  private static final String MESSAGE = "Specify a CPU limit for this container.";
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.getFirstChildElement;
 
-  @Override
-  String getLimitAttributeKey() {
-    return "cpu";
-  }
-
-  @Override
-  String getMessage() {
-    return MESSAGE;
+class AbstractLimitsCheckTest {
+  @Test
+  void testGetFirstChildElement() {
+    CheckContext checkContext = mock(CheckContext.class);
+    BlockObject block = BlockObject.fromAbsent(checkContext, "a");
+    HasTextRange firstChildElement = getFirstChildElement(block);
+    assertThat(firstChildElement).isNull();
   }
 }
