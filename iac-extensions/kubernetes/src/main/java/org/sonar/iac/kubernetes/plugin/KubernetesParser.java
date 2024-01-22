@@ -48,7 +48,7 @@ public class KubernetesParser extends YamlParser {
 
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
-  private static final Pattern CONTAINS_LINE_NUMBER_OR_RANGE = Pattern.compile("#(?<rangeStart>\\d++)(:(?<rangeEnd>\\d++))?(\\s#\\d++:?\\d*+)*+$");
+  private static final Pattern CONTAINS_LINE_NUMBER_OR_RANGE = Pattern.compile("#(?<rangeStart>\\d++)(:(?<rangeEnd>\\d++))?( #\\d++:?\\d*+)*+$");
   private static final List<String> LINES_IGNORE_LINE_COUNTER = List.of("---", "...");
 
   private final HelmProcessor helmProcessor;
