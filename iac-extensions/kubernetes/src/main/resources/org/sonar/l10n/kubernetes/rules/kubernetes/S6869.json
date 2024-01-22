@@ -1,0 +1,27 @@
+{
+  "title": "CPU limits should be enforced",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6869",
+  "sqKey": "S6869",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      770
+    ]
+  },
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  }
+}

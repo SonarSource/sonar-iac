@@ -19,24 +19,20 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.check.Rule;
 
-class MemoryLimitCheckTest {
-  IacCheck check = new MemoryLimitCheck();
+@Rule(key = "S6869")
+public class CpuLimitCheck extends AbstractLimitsCheck {
+  private static final String MESSAGE = "Specify a CPU limit for this container.";
+  private static final String KEY = "cpu";
 
-  @Test
-  void testPodKind() {
-    KubernetesVerifier.verify("MemoryLimitCheck/test_pod_object.yaml", check);
+  @Override
+  String getLimitAttributeKey() {
+    return KEY;
   }
 
-  @Test
-  void testKindWithTemplate() {
-    KubernetesVerifier.verify("MemoryLimitCheck/test_template_object.yaml", check);
-  }
-
-  @Test
-  void testPodKindForHelm() {
-    KubernetesVerifier.verify("MemoryLimitCheck/helm/test_pod_object_helm.yaml", check);
+  @Override
+  String getMessage() {
+    return MESSAGE;
   }
 }

@@ -19,48 +19,20 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.yaml.object.BlockObject;
-
-import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
 @Rule(key = "S6864")
-public class MemoryLimitCheck extends AbstractKubernetesObjectCheck {
-
+public class MemoryLimitCheck extends AbstractLimitsCheck {
   private static final String MESSAGE = "Specify a memory limit for this container.";
-  private static final String KIND_POD = "Pod";
-  private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  private static final String KEY = "memory";
 
   @Override
-  void registerObjectCheck() {
-    register(KIND_POD, (BlockObject pod) -> {
-      Stream<BlockObject> containers = pod.blocks("containers");
-      reportMissingMemory(containers);
-    });
-
-    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> {
-      Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
-      reportMissingMemory(containers);
-    });
+  String getLimitAttributeKey() {
+    return KEY;
   }
 
-  private static void reportMissingMemory(Stream<BlockObject> containers) {
-    containers.forEach(container -> container.block("resources")
-      .block("limits")
-      .attribute("memory")
-      .reportIfAbsent(getFirstChildElement(container), MESSAGE)
-      .reportIfValue(isSet().negate(), MESSAGE));
-  }
-
-  @Nullable
-  static HasTextRange getFirstChildElement(BlockObject blockObject) {
-    if (blockObject.tree != null) {
-      return blockObject.tree.elements().get(0).key().metadata();
-    }
-    return null;
+  @Override
+  String getMessage() {
+    return MESSAGE;
   }
 }

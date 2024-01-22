@@ -1,0 +1,3 @@
+container:
+  memory:
+    limit: 100Mi

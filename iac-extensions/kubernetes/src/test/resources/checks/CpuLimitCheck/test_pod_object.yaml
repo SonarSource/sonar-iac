@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: noncompliant_without_cpu_limit # Noncompliant {{Specify a CPU limit for this container.}}
+    # ^^^^
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
+
+    - name: noncompliant_without_limits # Noncompliant
+    # ^^^^
+      image: nginx
+      resources:
+        requests:
+          cpu: 64m
+
+    - name: noncompliant_without_resources # Noncompliant
+    # ^^^^
+      image: nginx
+
+    - name: noncompliant_cpu_limit_tilde
+      image: nginx
+      resources:
+        limits:
+          cpu: "~" # Noncompliant
+        # ^^^^^^^^
+
+    - name: noncompliant_cpu_limit_empty_brackets
+      image: nginx
+      resources:
+        limits:
+          cpu: "[]" # Noncompliant
+        # ^^^^^^^^^
+
+    - image: nginx
+      name: noncompliant_cpu_limit_null
+      resources:
+        limits:
+          cpu: "null" # Noncompliant
+        # ^^^^^^^^^^^
+
+    - name: compliant_cpu_limit # Compliant
+      image: nginx
+      resources:
+        limits:
+          cpu: 100m
+
+    - name: compliant_cpu_limit_2 # Compliant
+      image: nginx
+      resources:
+        limits:
+          cpu: "0.5"

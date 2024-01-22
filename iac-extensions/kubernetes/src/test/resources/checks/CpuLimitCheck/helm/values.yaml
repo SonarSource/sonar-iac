@@ -1,0 +1,3 @@
+container:
+  cpu:
+    limit: 1

@@ -20,23 +20,20 @@
 package org.sonar.iac.kubernetes.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
-class MemoryLimitCheckTest {
-  IacCheck check = new MemoryLimitCheck();
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.getFirstChildElement;
 
+class AbstractLimitsCheckTest {
   @Test
-  void testPodKind() {
-    KubernetesVerifier.verify("MemoryLimitCheck/test_pod_object.yaml", check);
-  }
-
-  @Test
-  void testKindWithTemplate() {
-    KubernetesVerifier.verify("MemoryLimitCheck/test_template_object.yaml", check);
-  }
-
-  @Test
-  void testPodKindForHelm() {
-    KubernetesVerifier.verify("MemoryLimitCheck/helm/test_pod_object_helm.yaml", check);
+  void testGetFirstChildElement() {
+    CheckContext checkContext = mock(CheckContext.class);
+    BlockObject block = BlockObject.fromAbsent(checkContext, "a");
+    HasTextRange firstChildElement = getFirstChildElement(block);
+    assertThat(firstChildElement).isNull();
   }
 }

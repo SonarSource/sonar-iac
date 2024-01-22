@@ -22,21 +22,21 @@ package org.sonar.iac.kubernetes.checks;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 
-class MemoryLimitCheckTest {
-  IacCheck check = new MemoryLimitCheck();
+class CpuLimitCheckTest {
+  IacCheck check = new CpuLimitCheck();
 
   @Test
   void testPodKind() {
-    KubernetesVerifier.verify("MemoryLimitCheck/test_pod_object.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/test_pod_object.yaml", check);
   }
 
   @Test
   void testKindWithTemplate() {
-    KubernetesVerifier.verify("MemoryLimitCheck/test_template_object.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/test_template_object.yaml", check);
   }
 
   @Test
   void testPodKindForHelm() {
-    KubernetesVerifier.verify("MemoryLimitCheck/helm/test_pod_object_helm.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/helm/test_pod_object_helm.yaml", check);
   }
 }

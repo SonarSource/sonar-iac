@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: cpu_limit_helm
+      image: nginx
+      resources:
+        limits: #Kubernetes verifier does not support helm files at the moment.
+          cpu: {{ .Values.container.cpu.limit }} # Noncompliant
