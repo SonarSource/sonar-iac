@@ -1,0 +1,66 @@
+<h2>Why is this an issue?</h2>
+<p>A CPU limitation for a container is a specified boundary or restriction that determines the maximum amount of CPU resources that a container can
+utilize. It is a part of resource management in a containerized environment, and it is set to ensure that a single container does not monopolize the
+CPU resources of the host machine.</p>
+<p>CPU limitations are important for maintaining a balanced and efficient system. They help in distributing resources fairly among different
+containers, ensuring that no single container can cause a system-wide slowdown by consuming more than its fair share of CPU resources.</p>
+<h3>What is the potential impact?</h3>
+<h4>Performance degradation</h4>
+<p>Without CPU limitations, a single container could monopolize all available CPU resources, leading to a system-wide slowdown. Other containers or
+processes on the same host might be deprived of the necessary CPU resources, causing them to function inefficiently.</p>
+<h4>System instability</h4>
+<p>In extreme cases, a container with no CPU limit could cause the host machine to become unresponsive. This can lead to system downtime and potential
+loss of data, disrupting critical operations and impacting system reliability.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers: # Noncompliant
+    - name: web
+      image: nginx
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      resources:
+        limits:
+          cpu: 0.5
+</pre>
+<pre>
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-limit-range
+  namespace: default-cpu-example
+spec:
+  limits:
+  - default:
+      cpu: 0.5
+    type: Container
+</pre>
+<h3>How does this work?</h3>
+<p>A limit can be set through the property <code>resources.limits.cpu</code> of a container. Alternatively, a default limit for a namespace can be set
+with <code>LimitRange</code>.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Kubernetes Documentation - <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Resource Management for
+  Pods and Containers</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/770">CWE-770 - Allocation of Resources Without Limits or Throttling</a> </li>
+</ul>
+
