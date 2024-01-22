@@ -16,7 +16,7 @@ spec:
       image: nginx
       resources:
         requests:
-          memory: 64Mi
+          cpu: 64m
 
     - name: noncompliant_without_resources # Noncompliant
     # ^^^^
@@ -48,3 +48,9 @@ spec:
       resources:
         limits:
           cpu: 100m
+
+    - name: compliant_cpu_limit_2 # Compliant
+      image: nginx
+      resources:
+        limits:
+          cpu: "0.5"

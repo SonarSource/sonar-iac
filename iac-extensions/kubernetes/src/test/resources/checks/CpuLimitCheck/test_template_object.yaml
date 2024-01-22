@@ -52,3 +52,8 @@ spec:
           resources:
             limits:
               cpu: 100m
+
+        - name: compliant_cpu_limit_2 # Compliant
+          resources:
+            limits:
+              cpu: "0.5"

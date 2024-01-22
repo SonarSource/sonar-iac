@@ -24,10 +24,11 @@ import org.sonar.check.Rule;
 @Rule(key = "S6864")
 public class MemoryLimitCheck extends AbstractLimitsCheck {
   private static final String MESSAGE = "Specify a memory limit for this container.";
+  private static final String KEY = "memory";
 
   @Override
   String getLimitAttributeKey() {
-    return "memory";
+    return KEY;
   }
 
   @Override

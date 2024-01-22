@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: memory_limit_helm # Compliant
+      image: nginx
+      resources:
+        limits: #Kubernetes verifier does not support helm files at the moment.
+          memory: {{ .Values.container.memory.limit }} # Noncompliant

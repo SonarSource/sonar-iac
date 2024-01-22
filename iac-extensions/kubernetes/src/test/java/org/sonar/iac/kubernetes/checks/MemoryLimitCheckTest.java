@@ -34,4 +34,9 @@ class MemoryLimitCheckTest {
   void testKindWithTemplate() {
     KubernetesVerifier.verify("MemoryLimitCheck/test_template_object.yaml", check);
   }
+
+  @Test
+  void testPodKindForHelm() {
+    KubernetesVerifier.verify("MemoryLimitCheck/helm/test_pod_object_helm.yaml", check);
+  }
 }
