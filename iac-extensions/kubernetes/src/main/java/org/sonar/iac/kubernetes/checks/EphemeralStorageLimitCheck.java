@@ -19,27 +19,20 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.check.Rule;
 
-public final class KubernetesCheckList {
+@Rule(key = "S6870")
+public class EphemeralStorageLimitCheck extends AbstractLimitsCheck {
+  private static final String MESSAGE = "Specify a storage limit for this container.";
+  private static final String KEY = "ephemeral-storage";
 
-  private KubernetesCheckList() {
+  @Override
+  String getLimitAttributeKey() {
+    return KEY;
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CapabilitiesCheck.class,
-      ContainerPrivilegedModeCheck.class,
-      CpuLimitCheck.class,
-      DockerSocketCheck.class,
-      EphemeralStorageLimitCheck.class,
-      HostNamespacesCheck.class,
-      MemoryLimitCheck.class,
-      MountingFileSystemPathsCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegeEscalationCheck.class,
-      ToDoCommentCheck.class);
+  @Override
+  String getMessage() {
+    return MESSAGE;
   }
 }

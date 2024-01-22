@@ -19,27 +19,25 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public final class KubernetesCheckList {
+class EphemeralStorageLimitCheckTest {
+  IacCheck check = new EphemeralStorageLimitCheck();
 
-  private KubernetesCheckList() {
+  @Test
+  void testPodKind() {
+    KubernetesVerifier.verify("EphemeralStorageLimitCheck/test_pod_object.yaml", check);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CapabilitiesCheck.class,
-      ContainerPrivilegedModeCheck.class,
-      CpuLimitCheck.class,
-      DockerSocketCheck.class,
-      EphemeralStorageLimitCheck.class,
-      HostNamespacesCheck.class,
-      MemoryLimitCheck.class,
-      MountingFileSystemPathsCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegeEscalationCheck.class,
-      ToDoCommentCheck.class);
+  @Test
+  void testKindWithTemplate() {
+    KubernetesVerifier.verify("EphemeralStorageLimitCheck/test_template_object.yaml", check);
   }
+
+  @Test
+  void testPodKindForHelm() {
+    KubernetesVerifier.verify("EphemeralStorageLimitCheck/helm/test_pod_object_helm.yaml", check);
+  }
+
 }

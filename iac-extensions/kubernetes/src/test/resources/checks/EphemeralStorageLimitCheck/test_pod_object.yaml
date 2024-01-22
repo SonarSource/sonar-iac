@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: noncompliant_without_ephemeral-storage_limit # Noncompliant {{Specify a storage limit for this container.}}
+    # ^^^^
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
+
+    - name: noncompliant_without_limits # Noncompliant
+    # ^^^^
+      image: nginx
+      resources:
+        requests:
+          cpu: 64m
+
+    - name: noncompliant_without_resources # Noncompliant
+    # ^^^^
+      image: nginx
+
+    - name: noncompliant_ephemeral-storage_limit_tilde
+      image: nginx
+      resources:
+        limits:
+          ephemeral-storage: "~" # Noncompliant
+        # ^^^^^^^^^^^^^^^^^^^^^^
+
+    - name: noncompliant_ephemeral-storage_limit_empty_brackets
+      image: nginx
+      resources:
+        limits:
+          ephemeral-storage: "[]" # Noncompliant
+        # ^^^^^^^^^^^^^^^^^^^^^^^
+
+    - image: nginx
+      name: noncompliant_ephemeral-storage_limit_null
+      resources:
+        limits:
+          ephemeral-storage: "null" # Noncompliant
+        # ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    - name: compliant_ephemeral-storage_limit # Compliant
+      image: nginx
+      resources:
+        limits:
+          ephemeral-storage: 100Mi
