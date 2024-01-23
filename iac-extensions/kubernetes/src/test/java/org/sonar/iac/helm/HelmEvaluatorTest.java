@@ -41,6 +41,7 @@ import org.sonar.iac.helm.utils.ExecutableHelper;
 import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -85,7 +86,8 @@ class HelmEvaluatorTest {
       var process = mock(Process.class);
       when(process.isAlive()).thenReturn(false);
       when(process.exitValue()).thenReturn(1);
-      doReturn(process).when(helmEvaluator).startProcess(any(), any(), any());
+      doReturn(process).when(helmEvaluator).startProcess();
+      doNothing().when(helmEvaluator).writeTemplateAndDependencies(any(), any(), any(), any());
 
       var templateDependencies = Map.<String, String>of();
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
@@ -104,7 +106,8 @@ class HelmEvaluatorTest {
       var process = mock(Process.class);
       when(process.isAlive()).thenReturn(false);
       when(process.exitValue()).thenReturn(0);
-      doReturn(process).when(helmEvaluator).startProcess(any(), any(), any());
+      doReturn(process).when(helmEvaluator).startProcess();
+      doNothing().when(helmEvaluator).writeTemplateAndDependencies(any(), any(), any(), any());
 
       var templateDependencies = Map.of("values.yaml", "");
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
@@ -129,7 +132,8 @@ class HelmEvaluatorTest {
       var pb = mock(ProcessBuilder.class);
       when(pb.command()).thenReturn(Collections.emptyList());
       Mockito.doReturn(pb).when(helmEvaluator).prepareProcessBuilder();
-      Mockito.doReturn(null).when(helmEvaluator).startProcess(any(), any(), any());
+      Mockito.doReturn(null).when(helmEvaluator).startProcess();
+      doNothing().when(helmEvaluator).writeTemplateAndDependencies(any(), any(), any(), any());
 
       var templateDependencies = Map.<String, String>of();
       Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))

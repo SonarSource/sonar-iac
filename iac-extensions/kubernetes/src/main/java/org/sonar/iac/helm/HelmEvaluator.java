@@ -45,7 +45,7 @@ public class HelmEvaluator {
   private static final int PROCESS_TIMEOUT_SECONDS = 5;
 
   private final File workingDir;
-  private final ExecutorService processMonitor = Executors.newSingleThreadExecutor();
+  private final ExecutorService processMonitor = Executors.newFixedThreadPool(2);
   private ProcessBuilder processBuilder;
 
   public HelmEvaluator(TempFolder tempFolder) {
@@ -58,7 +58,9 @@ public class HelmEvaluator {
 
   public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) throws IOException {
     LOG.debug("Executing: {}", processBuilder.command());
-    var process = startProcess(path, content, templateDependencies);
+    var process = startProcess();
+    processMonitor.submit(() -> ExecutableHelper.readProcessErrorOutput(process));
+    writeTemplateAndDependencies(process, path, content, templateDependencies);
     processMonitor.submit(() -> monitorProcess(process));
 
     byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
@@ -86,8 +88,11 @@ public class HelmEvaluator {
     return new ProcessBuilder(executable);
   }
 
-  Process startProcess(String name, String content, Map<String, String> templateDependencies) throws IOException {
-    var process = this.processBuilder.start();
+  Process startProcess() throws IOException {
+    return this.processBuilder.start();
+  }
+
+  void writeTemplateAndDependencies(Process process, String name, String content, Map<String, String> templateDependencies) throws IOException {
     try (var out = process.getOutputStream()) {
       writeFileToProcess(out, name, content);
       for (var filenameToFileContent : templateDependencies.entrySet()) {
@@ -95,7 +100,6 @@ public class HelmEvaluator {
       }
       writeStringAsBytes(out, String.format("END%n"));
     }
-    return process;
   }
 
   private static void writeFileToProcess(OutputStream out, String fileName, String content) throws IOException {
