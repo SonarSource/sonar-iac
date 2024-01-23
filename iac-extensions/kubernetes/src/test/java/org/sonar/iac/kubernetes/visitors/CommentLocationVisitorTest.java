@@ -134,7 +134,7 @@ class CommentLocationVisitorTest {
     scanFile(FileTree.Template.HELM, ctx, transformedCode);
 
     TextRange shiftedLocation1 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 5));
-    assertThat(shiftedLocation1).hasRange(2, 1, 2, 5);
+    assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "Line number comment not detected, comment: #a",
       "Line number comment not detected, comment: #some comment #b");
@@ -154,7 +154,9 @@ class CommentLocationVisitorTest {
 
     TextRange textRange1 = TextRanges.range(2, 1, 2, 5);
     TextRange shiftedTextRange1 = shifter.computeShiftedLocation(ctx, textRange1);
-    assertThat(textRange1).isSameAs(shiftedTextRange1);
+    assertThat(shiftedTextRange1)
+      .describedAs("Line comment is missing, should use the next available comment")
+      .hasRange(2, 0, 2, 15);
 
     TextRange textRange2 = TextRanges.range(2, 1, 3, 5);
     TextRange shiftedTextRange2 = shifter.computeShiftedLocation(ctx, textRange2);
@@ -162,7 +164,9 @@ class CommentLocationVisitorTest {
 
     TextRange textRange3 = TextRanges.range(3, 1, 4, 5);
     TextRange shiftedTextRange3 = shifter.computeShiftedLocation(ctx, textRange3);
-    assertThat(shiftedTextRange3).hasRange(2, 0, 4, 5);
+    assertThat(shiftedTextRange3)
+      .describedAs("No more line comments on following lines, should fall back to the last line of the original file")
+      .hasRange(2, 0, 2, 15);
   }
 
   @Test

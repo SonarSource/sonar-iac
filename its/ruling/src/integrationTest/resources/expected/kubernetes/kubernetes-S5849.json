@@ -6,15 +6,15 @@
 11
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-documents-after-evaluation.yaml": [
-0
+20
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-line-end.yaml": [
 12
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiple-documents.yaml": [
-0,
 11,
-27
+27,
+44
 ],
 "kubernetes-project:sources/kubernetes/examples/cassandra/cassandra-statefulset.yaml": [
 41

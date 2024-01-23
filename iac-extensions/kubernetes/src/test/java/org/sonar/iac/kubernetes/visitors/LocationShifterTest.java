@@ -45,11 +45,11 @@ class LocationShifterTest {
   }
 
   @Test
-  void shouldReturnOriginalRangeIfNoShiftStored() {
+  void shouldReturnLastLineIfNoShiftStored() {
     setLinesSizes(ctx, 5);
     TextRange originalRange = TextRanges.range(1, 1, 1, 3);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, originalRange);
-    assertThat(shiftedRange).isSameAs(originalRange);
+    assertThat(shiftedRange).hasRange(1, 0, 1, 5);
   }
 
   @Test
@@ -92,7 +92,7 @@ class LocationShifterTest {
     setLinesSizes(ctx, 5, 10, 15);
     shifter.addShiftedLine(ctx, 1, 2);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 3, 3));
-    assertThat(shiftedRange).hasRange(2, 0, 3, 3);
+    assertThat(shiftedRange).hasRange(2, 0, 3, 15);
   }
 
   @Test
@@ -100,7 +100,7 @@ class LocationShifterTest {
     setLinesSizes(ctx, 5, 10, 15);
     shifter.addShiftedLine(ctx, 2, 3);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 2, 3));
-    assertThat(shiftedRange).hasRange(1, 0, 3, 15);
+    assertThat(shiftedRange).hasRange(3, 0, 3, 15);
   }
 
   @Test
@@ -110,6 +110,19 @@ class LocationShifterTest {
     shifter.addShiftedLine(ctx, 2, 4);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 2, 3));
     assertThat(shiftedRange).hasRange(3, 0, 4, 20);
+  }
+
+  @Test
+  void shouldSkipShiftingIfContextIsNotRecorded() {
+    InputFileContext ctx1 = mockInputFileContext("uri_1");
+    setLinesSizes(ctx1, 5, 10, 15);
+    shifter.addShiftedLine(ctx1, 3, 1);
+
+    InputFileContext ctx2 = mockInputFileContext("uri_2");
+
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx2, TextRanges.range(1, 1, 1, 3));
+
+    assertThat(shiftedRange).hasRange(1, 0, 1, 3);
   }
 
   @Test
@@ -125,12 +138,34 @@ class LocationShifterTest {
     TextRange shiftedRangeCtx1_1 = shifter.computeShiftedLocation(ctx1, TextRanges.range(1, 1, 1, 3));
     assertThat(shiftedRangeCtx1_1).hasRange(3, 0, 3, 15);
     TextRange shiftedRangeCtx1_2 = shifter.computeShiftedLocation(ctx1, TextRanges.range(2, 1, 2, 3));
-    assertThat(shiftedRangeCtx1_2).hasRange(2, 1, 2, 3);
+    assertThat(shiftedRangeCtx1_2).hasRange(3, 0, 3, 15);
 
     TextRange shiftedRangeCtx2_1 = shifter.computeShiftedLocation(ctx2, TextRanges.range(1, 1, 1, 3));
-    assertThat(shiftedRangeCtx2_1).hasRange(1, 1, 1, 3);
+    assertThat(shiftedRangeCtx2_1).hasRange(4, 0, 4, 21);
     TextRange shiftedRangeCtx2_2 = shifter.computeShiftedLocation(ctx2, TextRanges.range(2, 1, 2, 3));
     assertThat(shiftedRangeCtx2_2).hasRange(4, 0, 4, 21);
+  }
+
+  @Test
+  void shouldShiftLocationsWithoutExplicitNumbers() {
+    setLinesSizes(ctx, 2, 3, 4, 5, 10);
+    shifter.addShiftedLine(ctx, 4, 1);
+    shifter.addShiftedLine(ctx, 5, 2);
+
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 3));
+
+    assertThat(shiftedRange).hasRange(1, 0, 1, 2);
+  }
+
+  @Test
+  void shouldShiftLocationsWithoutExplicitNumbersWithRanges() {
+    setLinesSizes(ctx, 2, 3, 4, 5, 10);
+    shifter.addShiftedLine(ctx, 4, 1, 3);
+    shifter.addShiftedLine(ctx, 5, 4);
+
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 3));
+
+    assertThat(shiftedRange).hasRange(1, 0, 3, 4);
   }
 
   void setLinesSizes(InputFileContext ctx, int... linesSizes) {

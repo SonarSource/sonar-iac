@@ -20,8 +20,11 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.net.URI;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -29,8 +32,6 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 /**
  * This class is used to store all lines that has to be shifted.<p/>
- * "Original" refers to the line in the processed file, i.e. the one that is being analyzed.
- * "Target" refers to the line in the original file, i.e. the one that should be used to raise issues.<p/>
  * The data are stored into this class through methods {@link #addLineSize(InputFileContext, int, int)} and {@link #addShiftedLine(InputFileContext, int, int)}.
  * Then we can use those data through the method {@link #computeShiftedLocation(InputFileContext, TextRange)}, which for a given {@link TextRange} will provide
  * a shifted {@link TextRange}.
@@ -42,58 +43,76 @@ public class LocationShifter {
 
   private final Map<URI, LinesShifting> linesShiftingPerContext = new HashMap<>();
 
-  public void addShiftedLine(InputFileContext ctx, int originalLine, int targetLine) {
-    var linesData = getOrCreateLinesShifting(ctx)
-      .getOrCreateLinesData(originalLine);
+  public void addShiftedLine(InputFileContext ctx, int transformedLine, int targetLine) {
+    var shifting = getOrCreateLinesShifting(ctx);
+    var linesData = shifting.getOrCreateLinesData(transformedLine);
     linesData.targetStartLine = targetLine;
     linesData.targetEndLine = targetLine;
+    linesData.originalLineSize = shifting.originalLinesSizes.getOrDefault(targetLine, 0);
   }
 
-  public void addShiftedLine(InputFileContext ctx, int originalLine, int targetStartLine, int targetEndLine) {
-    var linesData = getOrCreateLinesShifting(ctx)
-      .getOrCreateLinesData(originalLine);
+  public void addShiftedLine(InputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
+    var shifting = getOrCreateLinesShifting(ctx);
+    var linesData = shifting.getOrCreateLinesData(transformedLine);
     linesData.targetStartLine = targetStartLine;
     linesData.targetEndLine = targetEndLine;
+    linesData.originalLineSize = shifting.originalLinesSizes.getOrDefault(targetEndLine, 0);
   }
 
   public void addLineSize(InputFileContext ctx, int originalLine, int size) {
-    getOrCreateLinesShifting(ctx)
-      .getOrCreateLinesData(originalLine).originalLineSize = size;
+    getOrCreateLinesShifting(ctx).originalLinesSizes.put(originalLine, size);
   }
 
+  /**
+   * Adjusts the given {@link TextRange} to the original file. In case there is already a line number or line numbers range associated with
+   * the given line (i.e. the line is directly followed by a comment #X:Y), use this value. In case there is no comment, this means that the line
+   * appeared during rendering of Helm templates. Then, use the value from the next line with a comment.<p/>
+   *
+   * The following example illustrates this:<br/>
+   * <code>
+   * {{ include "another.tmpl" }} #1<br/>
+   * foo: bar #2<br/>
+   * </code>
+   * <p/>
+   *
+   * After rendering, we can get something like
+   * <code>
+   * genFoo: bar<br/>
+   * genFoo2: bar<br/>
+   * genFoo3: bar<br/>
+   * genFoo4: bar #1<br/>
+   * foo: bar #2<br/>
+   * </code>
+   * <p/>
+   *
+   * And now we want to raise an issue on `genFoo3`, which is line 3, but originates from line 1.
+   * We need to find the next line number comment to get its original line correctly
+   */
   public TextRange computeShiftedLocation(InputFileContext ctx, TextRange textRange) {
+    if (!linesShiftingPerContext.containsKey(ctx.inputFile.uri())) {
+      // No location shifting is recorded for this file, we are in a regular Kubernetes context.
+      // However, we still need to adjust the offset, because it's 1-based in snakeyaml.
+      return new TextRange(new TextPointer(textRange.start().line(), textRange.start().lineOffset() - 1), textRange.end());
+    }
+
+    var shifting = getOrCreateLinesShifting(ctx);
     int lineStart = textRange.start().line();
     int lineEnd = textRange.end().line();
-    var shifting = getOrCreateLinesShifting(ctx);
 
-    if (!isShifted(shifting, lineStart) && !isShifted(shifting, lineEnd)) {
-      return textRange;
-    }
+    var rangeStart = shifting.getClosestLineData(lineStart)
+      .map(p -> p.targetStartLine)
+      .orElse(shifting.getLastOriginalLine());
+    var start = new TextPointer(rangeStart, 0);
 
-    TextPointer start;
-    TextPointer end;
-
-    if (isShifted(shifting, lineStart)) {
-      start = new TextPointer(shifting.linesData.get(lineStart).targetStartLine, 0);
-    } else {
-      start = new TextPointer(textRange.start().line(), textRange.start().lineOffset() - 1);
-    }
-
-    if (isShifted(shifting, lineEnd)) {
-      var lineEndData = shifting.linesData.get(lineEnd);
-      int targetEndLine = lineEndData.targetEndLine;
-      end = new TextPointer(targetEndLine, shifting.linesData.get(targetEndLine).originalLineSize);
-    } else {
-      end = textRange.end();
-    }
+    var endLineData = shifting.getClosestLineData(lineEnd);
+    var rangeEnd = endLineData
+      .map(p -> p.targetEndLine)
+      .orElse(shifting.getLastOriginalLine());
+    var end = new TextPointer(rangeEnd,
+      endLineData.map(p -> p.originalLineSize)
+        .orElse(shifting.originalLinesSizes.getOrDefault(shifting.getLastOriginalLine(), 0)));
 
     return new TextRange(start, end);
-  }
-
-  private static boolean isShifted(LinesShifting shifting, int lineStart) {
-    var linesDataShifting = shifting.linesData;
-    var lineData = linesDataShifting.get(lineStart);
-    return lineData != null && lineData.targetStartLine != null;
   }
 
   private LinesShifting getOrCreateLinesShifting(InputFileContext ctx) {
@@ -106,10 +125,26 @@ public class LocationShifter {
    * The original line length and target line number are stored in the value, as a {@link LineData} object.
    */
   static class LinesShifting {
-    private final Map<Integer, LineData> linesData = new HashMap<>();
+    private final Map<Integer, LineData> linesData = new TreeMap<>();
+    private final Map<Integer, Integer> originalLinesSizes = new HashMap<>();
 
-    private LineData getOrCreateLinesData(Integer originalLine) {
-      return linesData.computeIfAbsent(originalLine, line -> new LineData());
+    private LineData getOrCreateLinesData(Integer lineNumber) {
+      return linesData.computeIfAbsent(lineNumber, line -> new LineData());
+    }
+
+    private Optional<LineData> getClosestLineData(Integer lineNumber) {
+      return linesData.entrySet().stream()
+        .dropWhile(p -> p.getKey() < lineNumber)
+        .findFirst()
+        .map(Map.Entry::getValue);
+    }
+
+    private Integer getLastOriginalLine() {
+      return originalLinesSizes.keySet().stream()
+        .sorted(Comparator.reverseOrder())
+        .mapToInt(i -> i)
+        .findFirst()
+        .orElse(0);
     }
   }
 
