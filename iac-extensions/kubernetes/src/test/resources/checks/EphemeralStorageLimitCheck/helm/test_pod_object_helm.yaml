@@ -9,3 +9,6 @@ spec:
       resources:
         limits: #Kubernetes verifier does not support helm files at the moment.
           ephemeral-storage: {{ .Values.container.ephemeral-storage.limit }} # Noncompliant
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"

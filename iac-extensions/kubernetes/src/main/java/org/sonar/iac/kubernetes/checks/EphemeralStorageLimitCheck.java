@@ -19,12 +19,17 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
 @Rule(key = "S6870")
 public class EphemeralStorageLimitCheck extends AbstractLimitsCheck {
   private static final String MESSAGE = "Specify a storage limit for this container.";
   private static final String KEY = "ephemeral-storage";
+
+  private static final String KIND_POD = "Pod";
+  private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
 
   @Override
   String getLimitAttributeKey() {
@@ -34,5 +39,16 @@ public class EphemeralStorageLimitCheck extends AbstractLimitsCheck {
   @Override
   String getMessage() {
     return MESSAGE;
+  }
+
+  @Override
+  void registerObjectCheck() {
+    register(KIND_POD, (BlockObject pod) -> pod.blocks("containers")
+      .filter(container -> !container.blocks("volumeMounts").toList().isEmpty())
+      .forEach(this::reportMissingLimit));
+
+    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> obj.block("template").block("spec").blocks("containers")
+      .filter(container -> !container.blocks("volumeMounts").toList().isEmpty())
+      .forEach(this::reportMissingLimit));
   }
 }

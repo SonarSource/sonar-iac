@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
@@ -33,23 +32,15 @@ public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck 
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, (BlockObject pod) -> {
-      Stream<BlockObject> containers = pod.blocks("containers");
-      reportMissingLimit(containers);
-    });
-
-    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> {
-      Stream<BlockObject> containers = obj.block("template").block("spec").blocks("containers");
-      reportMissingLimit(containers);
-    });
+    register(KIND_POD, (BlockObject pod) -> pod.blocks("containers").forEach(this::reportMissingLimit));
+    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> obj.block("template").block("spec").blocks("containers").forEach(this::reportMissingLimit));
   }
 
-  private void reportMissingLimit(Stream<BlockObject> containers) {
-    containers.forEach(container -> container.block("resources")
-      .block("limits")
+  void reportMissingLimit(BlockObject container) {
+    container.block("resources").block("limits")
       .attribute(getLimitAttributeKey())
       .reportIfAbsent(getFirstChildElement(container), getMessage())
-      .reportIfValue(isSet().negate(), getMessage()));
+      .reportIfValue(isSet().negate(), getMessage());
   }
 
   @Nullable

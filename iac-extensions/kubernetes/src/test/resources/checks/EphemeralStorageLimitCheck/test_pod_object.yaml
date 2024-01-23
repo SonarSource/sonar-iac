@@ -10,6 +10,9 @@ spec:
       resources:
         limits:
           memory: 64Mi
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 
     - name: noncompliant_without_limits # Noncompliant
     # ^^^^
@@ -17,10 +20,16 @@ spec:
       resources:
         requests:
           cpu: 64m
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 
     - name: noncompliant_without_resources # Noncompliant
     # ^^^^
       image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 
     - name: noncompliant_ephemeral-storage_limit_tilde
       image: nginx
@@ -28,6 +37,9 @@ spec:
         limits:
           ephemeral-storage: "~" # Noncompliant
         # ^^^^^^^^^^^^^^^^^^^^^^
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 
     - name: noncompliant_ephemeral-storage_limit_empty_brackets
       image: nginx
@@ -35,6 +47,9 @@ spec:
         limits:
           ephemeral-storage: "[]" # Noncompliant
         # ^^^^^^^^^^^^^^^^^^^^^^^
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 
     - image: nginx
       name: noncompliant_ephemeral-storage_limit_null
@@ -42,9 +57,21 @@ spec:
         limits:
           ephemeral-storage: "null" # Noncompliant
         # ^^^^^^^^^^^^^^^^^^^^^^^^^
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 
     - name: compliant_ephemeral-storage_limit # Compliant
       image: nginx
       resources:
         limits:
           ephemeral-storage: 100Mi
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+
+    - name: compliant_without_volumeMounts # Compliant
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
