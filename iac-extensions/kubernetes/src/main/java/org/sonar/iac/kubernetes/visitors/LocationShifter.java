@@ -99,14 +99,18 @@ public class LocationShifter {
     int lineStart = textRange.start().line();
     int lineEnd = textRange.end().line();
 
-    var rangeStart = shifting.getClosestLineData(lineStart).map(p -> p.targetStartLine).orElse(shifting.getLastOriginalLine());
+    var rangeStart = shifting.getClosestLineData(lineStart)
+      .map(p -> p.targetStartLine)
+      .orElse(shifting.getLastOriginalLine());
     var start = new TextPointer(rangeStart, 0);
 
     var endLineData = shifting.getClosestLineData(lineEnd);
-    var rangeEnd = endLineData.map(p -> p.targetEndLine).orElse(shifting.getLastOriginalLine());
+    var rangeEnd = endLineData
+      .map(p -> p.targetEndLine)
+      .orElse(shifting.getLastOriginalLine());
     var end = new TextPointer(rangeEnd,
-      endLineData.map(p -> p.originalLineSize).orElse(
-        shifting.originalLinesSizes.getOrDefault(shifting.getLastOriginalLine(), 0)));
+      endLineData.map(p -> p.originalLineSize)
+        .orElse(shifting.originalLinesSizes.getOrDefault(shifting.getLastOriginalLine(), 0)));
 
     return new TextRange(start, end);
   }
@@ -131,11 +135,16 @@ public class LocationShifter {
     private Optional<LineData> getClosestLineData(Integer lineNumber) {
       return linesData.entrySet().stream()
         .dropWhile(p -> p.getKey() < lineNumber)
-        .findFirst().map(Map.Entry::getValue);
+        .findFirst()
+        .map(Map.Entry::getValue);
     }
 
     private Integer getLastOriginalLine() {
-      return originalLinesSizes.keySet().stream().sorted(Comparator.reverseOrder()).mapToInt(i -> i).findFirst().orElse(0);
+      return originalLinesSizes.keySet().stream()
+        .sorted(Comparator.reverseOrder())
+        .mapToInt(i -> i)
+        .findFirst()
+        .orElse(0);
     }
   }
 
