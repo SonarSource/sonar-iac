@@ -1,351 +1,357 @@
 {
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S5849/templates/deployment.yaml": [
-    19
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6428/templates/deployment.yaml": [
-    19
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6429/templates/deployment.yaml": [
-    19
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6431/templates/deployment.yaml": [
-    20
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6433/templates/deployment.yaml": [
-    19
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-document-end.yaml": [
-    7
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-templates.yaml": [
-    16
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiple-documents.yaml": [
-    7,
-    23,
-    40
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/include/templates/include_test.yaml": [
-    7
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/required/templates/required_valid.yaml": [
-    7
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/tpl/templates/tpl_test.yaml": [
-    7
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M1/templates/pod.yaml": [
-    7
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M2/templates/pod.yaml": [
-    7
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M3/templates/pod.yaml": [
-    7
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M4/templates/pod.yaml": [
-    11
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M5/templates/pod.yaml": [
-    13
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M6/templates/pod.yaml": [
-    7
-  ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L3M1/templates/pod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/all-in-one/frontend.yaml": [
-    37
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/all-in-one/guestbook-all-in-one.yaml": [
-    37,
-    81,
-    134
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/all-in-one/redis-replica.yaml": [
-    36
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/frontend-deployment.yaml": [
-    18
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/legacy/frontend-controller.yaml": [
-    14
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/legacy/redis-master-controller.yaml": [
-    19
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/legacy/redis-replica-controller.yaml": [
-    19
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/redis-master-deployment.yaml": [
-    20
-  ],
-  "kubernetes-project:sources/kubernetes/examples/guestbook/redis-replica-deployment.yaml": [
-    20
-  ],
-  "kubernetes-project:sources/kubernetes/examples/mysql-wordpress-pd/mysql-deployment.yaml": [
-    48
-  ],
-  "kubernetes-project:sources/kubernetes/examples/mysql-wordpress-pd/wordpress-deployment.yaml": [
-    48
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/cluster-dns/dns-backend-rc.yaml": [
-    17
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/cluster-dns/dns-frontend-pod.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/cockroachdb/cockroachdb-statefulset.yaml": [
-    127
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/cpu-manager/be.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/cpu-manager/shared.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
-    23
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-client-rc.yaml": [
-    18
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-data-rc.yaml": [
-    18
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-master-rc.yaml": [
-    18
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/explorer/pod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/https-nginx/nginx-app.yaml": [
-    38
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/javaee/mysql-pod.yaml": [
-    10
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/javaee/wildfly-rc.yaml": [
-    16
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/javaweb-tomcat-sidecar/javaweb-2.yaml": [
-    14
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/javaweb-tomcat-sidecar/javaweb.yaml": [
-    14
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
-    22
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml": [
-    25
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/nodesjs-mongodb/mongo-controller.yaml": [
-    15
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/nodesjs-mongodb/web-controller-demo.yaml": [
-    17
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/nodesjs-mongodb/web-controller.yaml": [
-    17
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/openshift-origin/etcd-controller.yaml": [
-    21
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/openshift-origin/etcd-discovery-controller.yaml": [
-    21
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/openshift-origin/openshift-controller.yaml": [
-    21
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/persistent-volume-provisioning/cinder/example-pod.yaml": [
-    15
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/persistent-volume-provisioning/quobyte/example-pod.yaml": [
-    15
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/persistent-volume-provisioning/rbd/pod.yaml": [
-    15
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/podsecuritypolicy/rbac/pod.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/podsecuritypolicy/rbac/pod_priv.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/spark/spark-gluster/spark-master-controller.yaml": [
-    18
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/spark/spark-gluster/spark-worker-controller.yaml": [
-    19
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/spark/spark-master-controller.yaml": [
-    15
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/spark/spark-ui-proxy-controller.yaml": [
-    15
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/spark/spark-worker-controller.yaml": [
-    15
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/spark/zeppelin-controller.yaml": [
-    15
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/storage/hazelcast/hazelcast-deployment.yaml": [
-    17
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/storage/minio/minio-distributed-statefulset.yaml": [
-    19
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/storage/minio/minio-standalone-deployment.yaml": [
-    25
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/storage/redis/redis-master.yaml": [
-    24
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/storage/redis/redis-sentinel-controller.yaml": [
-    17
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/storage/rethinkdb/admin-pod.yaml": [
-    10
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/storage/rethinkdb/rc.yaml": [
-    19
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml": [
-    41
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml": [
-    36
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/aws_ebs/aws-ebs-web.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/azure.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/blob-based-disk/account-specified-hdd/pod-uses-account-hdd.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/blob-based-disk/dedicated-hdd/pod-uses-dedicated-hdd.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/blob-based-disk/shared-hdd/pod-uses-shared-hdd.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/blob-based-disk/shared-ssd/pod-uses-shared-ssd.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/managed-disk/managed-hdd/pod-uses-managed-hdd.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/managed-disk/managed-ssd/pod-uses-managed-ssd.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/static-provisioning/managed-disk/pod-uses-existing-managed-disk.yaml": [
-    9
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_file/azure-2.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_file/azure.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/cinder/cinder-web.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/fibre_channel/fc.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
-    14
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx-dummy-attachable.yaml": [
-    8
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx-dummy.yaml": [
-    8
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx-lvm.yaml": [
-    8
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx-nfs.yaml": [
-    8
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx.yaml": [
-    8
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/flocker/flocker-pod-with-rc.yml": [
-    31
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/flocker/flocker-pod.yml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-busybox-deployment.yaml": [
-    19
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-server-deployment.yaml": [
-    16
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-web-deployment.yaml": [
-    19
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/portworx/portworx-volume-pod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/portworx/portworx-volume-pvcpod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/portworx/portworx-volume-pvcscpod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/quobyte/quobyte-pod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/scaleio/pod-sc-pvc.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/scaleio/pod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/deployment.yaml": [
-    16
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/simple-statefulset.yaml": [
-    34
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/vsphere-volume-pod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/vsphere-volume-pvcpod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/vsphere-volume-pvcscpod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/vsphere-volume-pvcscvsanpod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/volumes/cephfs/cephfs-with-secret.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/volumes/cephfs/cephfs.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/volumes/glusterfs/glusterfs-pod.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/volumes/iscsi/iscsi-chap.yaml": [
-    8
-  ],
-  "kubernetes-project:sources/kubernetes/examples/volumes/iscsi/iscsi.yaml": [
-    8
-  ],
-  "kubernetes-project:sources/kubernetes/examples/volumes/rbd/rbd-with-secret.yaml": [
-    7
-  ],
-  "kubernetes-project:sources/kubernetes/examples/volumes/rbd/rbd.yaml": [
-    7
-  ]
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S5849/templates/deployment.yaml": [
+19
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6428/templates/deployment.yaml": [
+19
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6429/templates/deployment.yaml": [
+19
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6431/templates/deployment.yaml": [
+20
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6433/templates/deployment.yaml": [
+19
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-document-end.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-documents-after-evaluation.yaml": [
+16
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-line-end.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-templates.yaml": [
+16
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiple-documents.yaml": [
+7,
+23,
+40
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/include/templates/include_test.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/required/templates/required_valid.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/tpl/templates/tpl_test.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M1/templates/pod.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M2/templates/pod.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M3/templates/pod.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M4/templates/pod.yaml": [
+11
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M5/templates/pod.yaml": [
+13
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M6/templates/pod.yaml": [
+7
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L3M1/templates/pod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/all-in-one/frontend.yaml": [
+37
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/all-in-one/guestbook-all-in-one.yaml": [
+37,
+81,
+134
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/all-in-one/redis-replica.yaml": [
+36
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/frontend-deployment.yaml": [
+18
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/legacy/frontend-controller.yaml": [
+14
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/legacy/redis-master-controller.yaml": [
+19
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/legacy/redis-replica-controller.yaml": [
+19
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/redis-master-deployment.yaml": [
+20
+],
+"kubernetes-project:sources/kubernetes/examples/guestbook/redis-replica-deployment.yaml": [
+20
+],
+"kubernetes-project:sources/kubernetes/examples/mysql-wordpress-pd/mysql-deployment.yaml": [
+48
+],
+"kubernetes-project:sources/kubernetes/examples/mysql-wordpress-pd/wordpress-deployment.yaml": [
+48
+],
+"kubernetes-project:sources/kubernetes/examples/staging/cluster-dns/dns-backend-rc.yaml": [
+17
+],
+"kubernetes-project:sources/kubernetes/examples/staging/cluster-dns/dns-frontend-pod.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/cockroachdb/cockroachdb-statefulset.yaml": [
+127
+],
+"kubernetes-project:sources/kubernetes/examples/staging/cpu-manager/be.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/cpu-manager/shared.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
+23
+],
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-client-rc.yaml": [
+18
+],
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-data-rc.yaml": [
+18
+],
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/production_cluster/es-master-rc.yaml": [
+18
+],
+"kubernetes-project:sources/kubernetes/examples/staging/explorer/pod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/https-nginx/nginx-app.yaml": [
+38
+],
+"kubernetes-project:sources/kubernetes/examples/staging/javaee/mysql-pod.yaml": [
+10
+],
+"kubernetes-project:sources/kubernetes/examples/staging/javaee/wildfly-rc.yaml": [
+16
+],
+"kubernetes-project:sources/kubernetes/examples/staging/javaweb-tomcat-sidecar/javaweb-2.yaml": [
+14
+],
+"kubernetes-project:sources/kubernetes/examples/staging/javaweb-tomcat-sidecar/javaweb.yaml": [
+14
+],
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
+22
+],
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml": [
+25
+],
+"kubernetes-project:sources/kubernetes/examples/staging/nodesjs-mongodb/mongo-controller.yaml": [
+15
+],
+"kubernetes-project:sources/kubernetes/examples/staging/nodesjs-mongodb/web-controller-demo.yaml": [
+17
+],
+"kubernetes-project:sources/kubernetes/examples/staging/nodesjs-mongodb/web-controller.yaml": [
+17
+],
+"kubernetes-project:sources/kubernetes/examples/staging/openshift-origin/etcd-controller.yaml": [
+21
+],
+"kubernetes-project:sources/kubernetes/examples/staging/openshift-origin/etcd-discovery-controller.yaml": [
+21
+],
+"kubernetes-project:sources/kubernetes/examples/staging/openshift-origin/openshift-controller.yaml": [
+21
+],
+"kubernetes-project:sources/kubernetes/examples/staging/persistent-volume-provisioning/cinder/example-pod.yaml": [
+15
+],
+"kubernetes-project:sources/kubernetes/examples/staging/persistent-volume-provisioning/quobyte/example-pod.yaml": [
+15
+],
+"kubernetes-project:sources/kubernetes/examples/staging/persistent-volume-provisioning/rbd/pod.yaml": [
+15
+],
+"kubernetes-project:sources/kubernetes/examples/staging/podsecuritypolicy/rbac/pod.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/podsecuritypolicy/rbac/pod_priv.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/spark/spark-gluster/spark-master-controller.yaml": [
+18
+],
+"kubernetes-project:sources/kubernetes/examples/staging/spark/spark-gluster/spark-worker-controller.yaml": [
+19
+],
+"kubernetes-project:sources/kubernetes/examples/staging/spark/spark-master-controller.yaml": [
+15
+],
+"kubernetes-project:sources/kubernetes/examples/staging/spark/spark-ui-proxy-controller.yaml": [
+15
+],
+"kubernetes-project:sources/kubernetes/examples/staging/spark/spark-worker-controller.yaml": [
+15
+],
+"kubernetes-project:sources/kubernetes/examples/staging/spark/zeppelin-controller.yaml": [
+15
+],
+"kubernetes-project:sources/kubernetes/examples/staging/storage/hazelcast/hazelcast-deployment.yaml": [
+17
+],
+"kubernetes-project:sources/kubernetes/examples/staging/storage/minio/minio-distributed-statefulset.yaml": [
+19
+],
+"kubernetes-project:sources/kubernetes/examples/staging/storage/minio/minio-standalone-deployment.yaml": [
+25
+],
+"kubernetes-project:sources/kubernetes/examples/staging/storage/redis/redis-master.yaml": [
+24
+],
+"kubernetes-project:sources/kubernetes/examples/staging/storage/redis/redis-sentinel-controller.yaml": [
+17
+],
+"kubernetes-project:sources/kubernetes/examples/staging/storage/rethinkdb/admin-pod.yaml": [
+10
+],
+"kubernetes-project:sources/kubernetes/examples/staging/storage/rethinkdb/rc.yaml": [
+19
+],
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml": [
+41
+],
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml": [
+36
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/aws_ebs/aws-ebs-web.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/azure.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/blob-based-disk/account-specified-hdd/pod-uses-account-hdd.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/blob-based-disk/dedicated-hdd/pod-uses-dedicated-hdd.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/blob-based-disk/shared-hdd/pod-uses-shared-hdd.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/blob-based-disk/shared-ssd/pod-uses-shared-ssd.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/managed-disk/managed-hdd/pod-uses-managed-hdd.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/claim/managed-disk/managed-ssd/pod-uses-managed-ssd.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_disk/static-provisioning/managed-disk/pod-uses-existing-managed-disk.yaml": [
+9
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_file/azure-2.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/azure_file/azure.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/cinder/cinder-web.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/fibre_channel/fc.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
+14
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx-dummy-attachable.yaml": [
+8
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx-dummy.yaml": [
+8
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx-lvm.yaml": [
+8
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx-nfs.yaml": [
+8
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/nginx.yaml": [
+8
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flocker/flocker-pod-with-rc.yml": [
+31
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flocker/flocker-pod.yml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-busybox-deployment.yaml": [
+19
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-server-deployment.yaml": [
+16
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-web-deployment.yaml": [
+19
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/portworx/portworx-volume-pod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/portworx/portworx-volume-pvcpod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/portworx/portworx-volume-pvcscpod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/quobyte/quobyte-pod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/scaleio/pod-sc-pvc.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/scaleio/pod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/deployment.yaml": [
+16
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/simple-statefulset.yaml": [
+34
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/vsphere-volume-pod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/vsphere-volume-pvcpod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/vsphere-volume-pvcscpod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/vsphere/vsphere-volume-pvcscvsanpod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/volumes/cephfs/cephfs-with-secret.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/volumes/cephfs/cephfs.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/volumes/glusterfs/glusterfs-pod.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/volumes/iscsi/iscsi-chap.yaml": [
+8
+],
+"kubernetes-project:sources/kubernetes/examples/volumes/iscsi/iscsi.yaml": [
+8
+],
+"kubernetes-project:sources/kubernetes/examples/volumes/rbd/rbd-with-secret.yaml": [
+7
+],
+"kubernetes-project:sources/kubernetes/examples/volumes/rbd/rbd.yaml": [
+7
+]
 }
