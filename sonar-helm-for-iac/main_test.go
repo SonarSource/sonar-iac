@@ -451,7 +451,7 @@ apiVersion: {{ hello
 		"Chart.yaml":       DefaultChartYaml}))
 
 	assert.Equal(t, "", result)
-	assert.Equal(t, "template: test-project/templates/a.yaml:2: function \"hello\" not defined", err.Error())
+	assert.Equal(t, "template: test-project/templates/a.yaml:3: unclosed action started at test-project/templates/a.yaml:2", err.Error())
 }
 
 func Test_evaluate_invalid_values(t *testing.T) {
