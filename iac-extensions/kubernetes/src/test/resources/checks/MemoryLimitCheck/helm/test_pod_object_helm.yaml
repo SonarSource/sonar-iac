@@ -7,5 +7,5 @@ spec:
     - name: memory_limit_helm # Compliant
       image: nginx
       resources:
-        limits: #Kubernetes verifier does not support helm files at the moment.
+        limits: #KubernetesVerifier (of the testing framework) does not support helm files at the moment.
           memory: {{ .Values.container.memory.limit }} # Noncompliant

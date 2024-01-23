@@ -27,8 +27,8 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
 public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck {
-  private static final String KIND_POD = "Pod";
-  private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  protected static final String KIND_POD = "Pod";
+  protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
 
   @Override
   void registerObjectCheck() {

@@ -18,7 +18,7 @@ spec:
     # ^^^^
       image: nginx
       resources:
-        requests:
+        limits:
           cpu: 64m
       volumeMounts:
         - name: ephemeral

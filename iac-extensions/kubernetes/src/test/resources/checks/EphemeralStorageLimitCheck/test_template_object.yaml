@@ -27,7 +27,7 @@ spec:
         - name: noncompliant_without_limits # Noncompliant
         # ^^^^
           resources:
-            requests:
+            limits:
               memory: 64Mi
           volumeMounts:
             - name: ephemeral

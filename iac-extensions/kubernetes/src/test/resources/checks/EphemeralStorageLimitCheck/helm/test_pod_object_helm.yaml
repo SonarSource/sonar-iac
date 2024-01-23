@@ -7,7 +7,7 @@ spec:
     - name: cpu_limit_helm
       image: nginx
       resources:
-        limits: #Kubernetes verifier does not support helm files at the moment.
+        limits: #KubernetesVerifier (of the testing framework) does not support helm files at the moment.
           ephemeral-storage: {{ .Values.container.ephemeral-storage.limit }} # Noncompliant
       volumeMounts:
         - name: ephemeral
