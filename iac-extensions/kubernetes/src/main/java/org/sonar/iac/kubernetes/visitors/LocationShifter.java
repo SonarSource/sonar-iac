@@ -136,7 +136,11 @@ public class LocationShifter {
       return linesData.entrySet().stream()
         .dropWhile(p -> p.getKey() < lineNumber)
         .findFirst()
-        .map(Map.Entry::getValue);
+        .map(Map.Entry::getValue)
+        .map(lineData -> {
+          lineData.originalLineSize = originalLinesSizes.getOrDefault(lineData.targetStartLine, 0);
+          return lineData;
+        });
     }
 
     private Integer getLastOriginalLine() {

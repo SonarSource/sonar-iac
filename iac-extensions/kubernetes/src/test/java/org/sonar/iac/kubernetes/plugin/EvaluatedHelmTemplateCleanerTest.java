@@ -19,7 +19,10 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.FileSystem;
@@ -29,8 +32,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.testing.IacCommonAssertions;
-import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,12 +49,13 @@ class EvaluatedHelmTemplateCleanerTest {
   private LocationShifter locationShifter;
 
   @BeforeEach
-  void setup() {
+  void setup() throws URISyntaxException {
     var fs = mock(FileSystem.class);
     when(sensorContext.fileSystem()).thenReturn(fs);
     when(fs.predicates()).thenReturn(new DefaultFilePredicates(Path.of(".")));
     when(inputFile.filename()).thenReturn("foo.yaml");
     when(inputFile.toString()).thenReturn("chart/templates/foo.yaml");
+    when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
     locationShifter = new LocationShifter();
   }
 
@@ -94,8 +96,14 @@ class EvaluatedHelmTemplateCleanerTest {
 
     assertThat(actual).isEqualTo(expected);
 
-    var textRange = locationShifter.computeShiftedLocation(inputFileContext, new TextRange(new TextPointer(18, 0), new TextPointer(18, 0)));
-    assertThat(textRange).hasRange(14,0,14,0);
+    assertLineMapping(
+      1, 1,
+      10, 10,
+      11, 14,
+      12, 15,
+      13, 16,
+      14, 18,
+      15, 19);
   }
 
   @Test
@@ -113,7 +121,15 @@ class EvaluatedHelmTemplateCleanerTest {
       "metadata:",
       "spec:");
     var actual = cleanSource(evaluated);
+
     assertThat(actual).isEqualTo(expected);
+
+    assertLineMapping(
+      1, 5,
+      2, 6,
+      3, 7,
+      4, 8,
+      5, 9);
   }
 
   @Test
@@ -131,7 +147,15 @@ class EvaluatedHelmTemplateCleanerTest {
       "spec:",
       "---");
     var actual = cleanSource(evaluated);
+
     assertThat(actual).isEqualTo(expected);
+
+    assertLineMapping(
+      1, 6,
+      2, 7,
+      3, 8,
+      4, 9,
+      5, 12);
   }
 
   @Test
@@ -149,10 +173,32 @@ class EvaluatedHelmTemplateCleanerTest {
       "spec:",
       "...");
     var actual = cleanSource(evaluated);
+
     assertThat(actual).isEqualTo(expected);
+
+    assertLineMapping(
+      1, 6,
+      2, 7,
+      3, 8,
+      4, 9,
+      5, 10);
   }
 
   private String cleanSource(String evaluated) {
     return EvaluatedHelmTemplateCleaner.cleanSource(evaluated, inputFileContext, locationShifter);
+  }
+
+  private void assertLineMapping(int... numbers) {
+    if (numbers.length % 2 == 1) {
+      throw new RuntimeException("The even number of arguments is expected");
+    }
+    for (int i = 0; i < numbers.length; i = i + 2) {
+      var textRange = getComputeShiftedLocation(numbers[i], 0, numbers[i], 0);
+      assertThat(textRange).hasRange(numbers[i + 1], 0, numbers[i + 1], 0);
+    }
+  }
+
+  private TextRange getComputeShiftedLocation(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+    return locationShifter.computeShiftedLocation(inputFileContext, new TextRange(new TextPointer(startLine, startLineOffset), new TextPointer(endLine, endLineOffset)));
   }
 }

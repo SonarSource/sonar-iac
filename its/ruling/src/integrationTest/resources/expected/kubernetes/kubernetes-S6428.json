@@ -3,7 +3,7 @@
 35
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-templates.yaml": [
-23
+18
 ],
 "kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
 21
@@ -33,6 +33,6 @@
 94
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/sonarqube-sts.yaml": [
-108
+107
 ]
 }

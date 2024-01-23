@@ -23,13 +23,16 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-line-end.yaml": [
 7
 ],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/miltiline-string.yaml": [
+11
+],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-templates.yaml": [
-16
+15
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiple-documents.yaml": [
 7,
-23,
-40
+22,
+38
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/include/templates/include_test.yaml": [
 7
@@ -50,10 +53,10 @@
 7
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M4/templates/pod.yaml": [
-11
+10
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M5/templates/pod.yaml": [
-13
+12
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M6/templates/pod.yaml": [
 7
@@ -378,5 +381,11 @@
 ],
 "kubernetes-project:sources/kubernetes/examples/volumes/storageos/storageos-sc-pvcpod.yaml": [
 10
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [
+23
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/tests/sonarqube-test.yaml": [
+23
 ]
 }
