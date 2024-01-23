@@ -218,7 +218,7 @@ class KubernetesParserTest {
   }
 
   @Test
-  void shouldRemoveLineNumberCommentForNewDocumentAfterEvaluation() throws IOException, URISyntaxException {
+  void shouldNotCrashOnNewDocumentAfterEvaluation() throws IOException, URISyntaxException {
     var evaluated = code("--- #5",
       "apiVersion: v1 #6",
       "kind: Pod #7",
