@@ -32,9 +32,6 @@
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/install-plugins.yaml": [
 12
 ],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [
-0
-],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/config.yaml": [
 12
 ],
@@ -43,8 +40,5 @@
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/install-plugins.yaml": [
 12
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/tests/sonarqube-test.yaml": [
-0
 ]
 }

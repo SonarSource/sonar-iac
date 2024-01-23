@@ -247,7 +247,7 @@ class KubernetesParserTest {
       "kind: Pod #7",
       "metadata: #8",
       "spec: #9",
-      "... #12");
+      "--- #12");
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = mock(InputFile.class);
       when(valuesFile.filename()).thenReturn("values.yaml");
