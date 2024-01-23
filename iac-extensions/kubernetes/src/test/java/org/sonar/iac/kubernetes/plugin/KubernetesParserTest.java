@@ -40,6 +40,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,7 +55,7 @@ class KubernetesParserTest {
   private final SensorContext sensorContext = mock(SensorContext.class);
   private final InputFileContext inputFileContext = new InputFileContext(sensorContext, inputFile);
   private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
-  private final KubernetesParser parser = new KubernetesParser(helmProcessor);
+  private final KubernetesParser parser = new KubernetesParser(helmProcessor, new LocationShifter());
 
   @BeforeEach
   void setup() {
@@ -213,6 +214,77 @@ class KubernetesParserTest {
       assertThat(file.documents().get(0).children()).isEmpty();
       var logs = logTester.logs(Level.DEBUG);
       assertThat(logs).contains("Blank evaluated file, skipping processing of Helm file path/to/file.yaml");
+    }
+  }
+
+  @Test
+  void shouldNotCrashOnNewDocumentAfterEvaluation() throws IOException, URISyntaxException {
+    var evaluated = code("--- #5",
+      "apiVersion: v1 #6",
+      "kind: Pod #7",
+      "metadata: #8",
+      "spec: #9");
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(valuesFile.filename()).thenReturn("values.yaml");
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
+
+      FileTree file = parser.parse("dummy: {{ dummy }}", inputFileContext);
+      assertThat(file.documents().get(0).children()).hasSize(4);
+      assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
+    }
+  }
+
+  @Test
+  void shouldRemoveLineNumberCommentForNewDocumentAtEndAfterEvaluation() throws IOException, URISyntaxException {
+    var evaluated = code(
+      "apiVersion: v1 #6",
+      "kind: Pod #7",
+      "metadata: #8",
+      "spec: #9",
+      "... #12");
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(valuesFile.filename()).thenReturn("values.yaml");
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
+
+      FileTree file = parser.parse("dummy: {{ dummy }}", inputFileContext);
+      assertThat(file.documents().get(0).children()).hasSize(4);
+      assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
+    }
+  }
+
+  @Test
+  void shouldRemoveLineNumberCommentForEndDocumentAfterEvaluation() throws IOException, URISyntaxException {
+    var evaluated = code(
+      "apiVersion: v1 #6",
+      "kind: Pod #7",
+      "metadata: #8",
+      "spec: #9",
+      "... #10");
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(valuesFile.filename()).thenReturn("values.yaml");
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
+
+      FileTree file = parser.parse("dummy: {{ dummy }}", inputFileContext);
+      assertThat(file.documents().get(0).children()).hasSize(4);
+      assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
     }
   }
 }

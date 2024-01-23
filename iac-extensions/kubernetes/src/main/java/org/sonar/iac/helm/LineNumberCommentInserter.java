@@ -51,6 +51,7 @@ public final class LineNumberCommentInserter {
       // - Line contains regular text and is inside a go template: do not add line number comment
       // - Line contains {{ but no corresponding }} on the same line: do not add line number comment, store line number
       // - Line contains }} but no corresponding {{ on the same line: add line number comment, reset line number
+      // - Line contains only --- (separate document) or ... (end of document): do not add line number comment
 
       lineCounter++;
       var lineContent = matcher.group("lineContent");

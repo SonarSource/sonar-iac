@@ -55,6 +55,7 @@ public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
   private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
   private final HelmProcessor helmProcessor;
+  private final LocationShifter locationShifter = new LocationShifter();
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmProcessor helmProcessor) {
@@ -81,7 +82,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new KubernetesParser(helmProcessor);
+    return new KubernetesParser(helmProcessor, locationShifter);
   }
 
   @Override
@@ -91,7 +92,6 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
-    var locationShifter = new LocationShifter();
     visitors.add(new CommentLocationVisitor(locationShifter));
     visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter));
     return visitors;
