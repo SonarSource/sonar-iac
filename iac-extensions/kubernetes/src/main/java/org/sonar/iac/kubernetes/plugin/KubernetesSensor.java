@@ -121,7 +121,7 @@ public class KubernetesSensor extends YamlSensor {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
     var helmTemplatePredicate = predicates.and(
       predicates.matchesPathPattern("**/templates/**"),
-      new HelmProjectMemberPredicate());
+      new HelmProjectMemberPredicate(sensorContext));
     return predicates.or(
       new KubernetesFilePredicate(),
       helmTemplatePredicate);
@@ -178,9 +178,15 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   static class HelmProjectMemberPredicate implements FilePredicate {
+    private final SensorContext sensorContext;
+
+    HelmProjectMemberPredicate(SensorContext sensorContext) {
+      this.sensorContext = sensorContext;
+    }
+
     @Override
     public boolean apply(InputFile inputFile) {
-      return HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(inputFile.uri())) != null;
+      return HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem().baseDir()) != null;
     }
   }
 }

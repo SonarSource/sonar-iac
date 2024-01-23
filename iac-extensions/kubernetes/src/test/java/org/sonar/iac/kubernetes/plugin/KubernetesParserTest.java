@@ -114,7 +114,7 @@ class KubernetesParserTest {
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
       when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(Path.of("/"));
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
 
       FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
 
@@ -130,7 +130,7 @@ class KubernetesParserTest {
   void shouldNotEvaluateHelmWithoutValuesFile() throws URISyntaxException {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(Map.of());
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(Path.of("/"));
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
@@ -148,7 +148,7 @@ class KubernetesParserTest {
   @Test
   void shouldFallbackToFilenameInCaseOfUnresolvedChartDirectory() throws URISyntaxException {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(null);
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(null);
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));

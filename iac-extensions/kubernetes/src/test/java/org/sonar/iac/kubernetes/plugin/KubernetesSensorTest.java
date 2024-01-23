@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
@@ -401,6 +403,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldDetectHelmFiles() {
+    var context = SensorContextTester.create(Path.of("src/test/resources").toAbsolutePath());
+
     InputFile pod1 = IacTestUtils.inputFile("helm/templates/pod.yaml", "yaml");
     InputFile pod2 = IacTestUtils.inputFile("helm/templates/nested/pod.yaml", "yaml");
     InputFile pod3 = IacTestUtils.inputFile("helm/templates/nested/double-nested/pod.yaml", "yaml");

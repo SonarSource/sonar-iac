@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.nio.file.Path;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -29,7 +30,7 @@ import org.sonar.iac.common.testing.IacTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class HelmProjectMemberPredicateTest {
-  protected SensorContextTester context;
+  protected SensorContextTester context = SensorContextTester.create(Path.of("src/test/resources/").toAbsolutePath());
 
   @ParameterizedTest
   @CsvSource({
@@ -41,7 +42,7 @@ class HelmProjectMemberPredicateTest {
   void shouldDetectFilesInHelmProject(String filePath, boolean shouldMatch) {
     InputFile templateFile = IacTestUtils.inputFile(filePath, "yaml");
 
-    FilePredicate filePredicate = new KubernetesSensor.HelmProjectMemberPredicate();
+    FilePredicate filePredicate = new KubernetesSensor.HelmProjectMemberPredicate(context);
     assertThat(filePredicate.apply(templateFile)).isEqualTo(shouldMatch);
   }
 }

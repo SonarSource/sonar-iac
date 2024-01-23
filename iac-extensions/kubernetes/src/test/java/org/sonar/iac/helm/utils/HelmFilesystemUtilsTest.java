@@ -49,15 +49,19 @@ import static org.mockito.Mockito.when;
 class HelmFilesystemUtilsTest {
 
   @TempDir
-  protected File baseDir;
+  protected File tmpDir;
+
+  private File baseDir;
 
   private static final String helmProjectPathPrefix = "charts/project/";
   private SensorContextTester context;
 
   @BeforeEach
   void init() throws IOException {
+    baseDir = tmpDir.toPath().resolve("test-project").toFile();
+    FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
-    FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates"));
+    FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("templates").toFile());
   }
 
   @AfterEach
@@ -117,14 +121,34 @@ class HelmFilesystemUtilsTest {
   }
 
   @Test
-  void retrievingParentPathShouldReturnNull() {
+  void shouldReturnNullWhenInputIsNull() {
+    Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(null, context.fileSystem().baseDir());
+    assertThat(parentPath).isNull();
+  }
+
+  @Test
+  void shouldReturnNullIfParentIsNull() {
     try (var ignored = Mockito.mockStatic(Files.class)) {
       when(Files.exists(any())).thenReturn(false);
 
       Path inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(null);
 
-      Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath);
+      Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
+      assertThat(parentPath).isNull();
+    }
+  }
+
+  @Test
+  void shouldReturnNullIfParentIsNotNullAndDirectoryIsIncorrect() {
+    try (var ignored = Mockito.mockStatic(Files.class)) {
+      when(Files.exists(any())).thenReturn(false);
+
+      Path inputFilePath = mock(Path.class);
+      when(inputFilePath.getParent()).thenReturn(mock(Path.class));
+      when(inputFilePath.startsWith(any(Path.class))).thenReturn(false);
+
+      Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
       assertThat(parentPath).isNull();
     }
   }
@@ -133,7 +157,7 @@ class HelmFilesystemUtilsTest {
   void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenCallRealMethod();
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any())).thenReturn(null);
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(null);
 
       InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
       InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
@@ -144,12 +168,12 @@ class HelmFilesystemUtilsTest {
 
   @Test
   void shouldReturnEmptyMapWhenOnlyChartYamlIsVeryHighAbove() throws IOException {
-    createInputFile(helmProjectPathPrefix + "Chart.yaml");
+    Files.createFile(tmpDir.toPath().resolve("Chart.yaml"));
     FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4"));
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
 
-    var result = HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()));
+    var result = HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
 
     assertThat(result).isNull();
   }
