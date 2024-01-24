@@ -18,8 +18,8 @@ spec:
     # ^^^^
       image: nginx
       resources:
-        limits:
-          cpu: 64m
+        requests:
+          ephemeral-storage: 100Mi
       volumeMounts:
         - name: ephemeral
           mountPath: "/tmp"
