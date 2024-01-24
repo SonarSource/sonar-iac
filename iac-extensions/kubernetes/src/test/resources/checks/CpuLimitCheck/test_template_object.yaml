@@ -25,7 +25,7 @@ spec:
         # ^^^^
           resources:
             requests:
-              cpu: 64Mi
+              cpu: 2
 
         - name: noncompliant_without_resources # Noncompliant
         # ^^^^
@@ -51,7 +51,7 @@ spec:
         - name: compliant_cpu_limit # Compliant
           resources:
             limits:
-              cpu: 100m
+              cpu: 2
 
         - name: compliant_cpu_limit_2 # Compliant
           resources:

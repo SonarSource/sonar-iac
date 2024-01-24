@@ -47,14 +47,14 @@ public class CommandExecutionCheck extends AbstractKubernetesObjectCheck {
   }
 
   private static boolean ruleContainsSensitiveVerb(BlockObject rule) {
-    return containsSensitiveItem(rule, "verbs", "create");
+    return containsSensitiveItemOrWildCard(rule, "verbs", "create");
   }
 
   private static boolean ruleContainsSensitiveResource(BlockObject rule) {
-    return containsSensitiveItem(rule, "resources", "pods/exec");
+    return containsSensitiveItemOrWildCard(rule, "resources", "pods/exec");
   }
 
-  private static boolean containsSensitiveItem(BlockObject rule, String listKey, String sensitiveItem) {
+  private static boolean containsSensitiveItemOrWildCard(BlockObject rule, String listKey, String sensitiveItem) {
     Predicate<YamlTree> verbsPredicate = TreePredicates.isEqualTo(sensitiveItem).or(TreePredicates.isEqualTo("*"));
     return rule.list(listKey).getItemIf(verbsPredicate).findAny().isPresent();
   }
