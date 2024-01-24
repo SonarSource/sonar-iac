@@ -66,15 +66,24 @@ public final class ExecutableHelper {
     return destination.getAbsolutePath();
   }
 
+  public static void readProcessErrorOutput(Process process) {
+    try (var errorOutput = process.getErrorStream()) {
+      var bufferedReader = new BufferedReader(new InputStreamReader(errorOutput, StandardCharsets.UTF_8));
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        LOG.debug("[{}] {}", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, line);
+      }
+    } catch (IOException e) {
+      LOG.debug("Error reading process error output for {}", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, e);
+    }
+  }
+
   @CheckForNull
   public static byte[] readProcessOutput(Process process) {
-    try (var output = process.getInputStream(); var errorOutput = process.getErrorStream()) {
-      var rawEvaluationResult = output.readAllBytes();
-      new BufferedReader(new InputStreamReader(errorOutput, StandardCharsets.UTF_8)).lines()
-        .forEach(line -> LOG.debug("[{}] {}", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, line));
-      return rawEvaluationResult;
+    try (var output = process.getInputStream()) {
+      return output.readAllBytes();
     } catch (IOException e) {
-      LOG.debug("Error reading process output", e);
+      LOG.debug("Error reading process output for {}", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, e);
       return null;
     }
   }

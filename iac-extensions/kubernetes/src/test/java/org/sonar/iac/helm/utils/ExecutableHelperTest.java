@@ -26,7 +26,10 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,6 +39,9 @@ import static org.mockito.Mockito.when;
 class ExecutableHelperTest {
   @TempDir
   static File tempDir;
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @AfterAll
   static void cleanup() throws IOException {
@@ -69,7 +75,7 @@ class ExecutableHelperTest {
   }
 
   @Test
-  void shouldReturnNullOnIoError() throws IOException {
+  void shouldReturnNullOnIoErrorProcessOutput() throws IOException {
     var process = mock(Process.class);
     var is = mock(InputStream.class);
     when(process.getInputStream()).thenReturn(is);
@@ -78,5 +84,16 @@ class ExecutableHelperTest {
     var bytes = ExecutableHelper.readProcessOutput(process);
 
     Assertions.assertThat(bytes).isNull();
+  }
+
+  @Test
+  void shouldReturnNullOnIoErrorForProcessErrorOutput() throws IOException {
+    var process = mock(Process.class);
+    var is = mock(InputStream.class);
+    when(process.getErrorStream()).thenReturn(is);
+
+    ExecutableHelper.readProcessErrorOutput(process);
+
+    assertThat(logTester.logs()).contains("Error reading process error output for sonar-helm-for-iac");
   }
 }
