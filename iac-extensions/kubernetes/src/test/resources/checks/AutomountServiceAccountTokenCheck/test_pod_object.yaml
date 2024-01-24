@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tokenSetToTrue
+spec:
+  containers:
+    - name: nginx-compliant
+      image: nginx:1.25.3
+  automountServiceAccountToken: true # Noncompliant {{Set automountServiceAccountToken to false for this container.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tokenSetToFalse
+spec:
+  containers:
+    - name: nginx-compliant
+      image: nginx:1.25.3
+  automountServiceAccountToken: false # Compliant
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tokenNotPresent
+spec:
+  containers: # Noncompliant
+# ^^^^^^^^^^
+    - name: nginx-compliant
+      image: nginx:1.25.3
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tokenSetToNull
+spec:
+  containers:
+    - name: nginx-compliant
+      image: nginx:1.25.3
+  automountServiceAccountToken: null # Noncompliant
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
