@@ -49,7 +49,7 @@ public class HelmProcessor {
   }
 
   public static boolean isHelmEvaluatorExecutableAvailable() {
-    return OperatingSystemUtils.getCurrentPlatform().isPresent();
+    return OperatingSystemUtils.getCurrentPlatformIfSupported().isPresent();
   }
 
   public void initialize() {

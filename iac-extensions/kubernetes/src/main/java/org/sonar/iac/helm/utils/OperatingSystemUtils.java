@@ -32,7 +32,7 @@ public final class OperatingSystemUtils {
   private OperatingSystemUtils() {
   }
 
-  public static Optional<String> getCurrentPlatform() {
+  public static Optional<String> getCurrentPlatformIfSupported() {
     String platform = getNormalizedOsName(System.getProperty("os.name")) + "-" + getNormalizedArchName(System.getProperty("os.arch"));
     return Optional.of(platform).filter(SUPPORTED_PLATFORMS::contains);
   }

@@ -151,7 +151,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseYamlFileWithHelmChartTemplateWhenRunOnUnsupportedPlatform() {
     try (var ignored = Mockito.mockStatic(OperatingSystemUtils.class)) {
-      when(OperatingSystemUtils.getCurrentPlatform()).thenReturn(Optional.empty());
+      when(OperatingSystemUtils.getCurrentPlatformIfSupported()).thenReturn(Optional.empty());
       var sensor = sensor();
       analyse(sensor,
         inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
@@ -515,7 +515,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Checking conditions for enabling Helm analysis: isSonarLintContext=true, isHelmActivationFlagTrue=true, isHelmEvaluatorExecutableAvailable=true");
+      .isEqualTo("Checking conditions for enabling Helm analysis: isNotSonarLintContext=true, isHelmActivationFlagTrue=true, isHelmEvaluatorExecutableAvailable=true");
     assertThat(logTester.logs(Level.DEBUG).get(1))
       .isEqualTo("Initializing Helm processor");
     assertThat(logTester.logs(Level.DEBUG).get(2))

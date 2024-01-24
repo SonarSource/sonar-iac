@@ -128,12 +128,15 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
-    var isSonarLintContext = isNotSonarLintContext(sensorContext);
-    var isHelmActivationFlagTrue = sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
+    var isNotSonarLintContext = isNotSonarLintContext(sensorContext);
+    boolean isHelmAnalysisEnabled = sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
     var isHelmEvaluatorExecutableAvailable = HelmProcessor.isHelmEvaluatorExecutableAvailable();
-    LOG.debug("Checking conditions for enabling Helm analysis: isSonarLintContext={}, isHelmActivationFlagTrue={}, isHelmEvaluatorExecutableAvailable={}",
-      isSonarLintContext, isHelmActivationFlagTrue, isHelmEvaluatorExecutableAvailable);
-    return isSonarLintContext && isHelmActivationFlagTrue && isHelmEvaluatorExecutableAvailable;
+    LOG.debug("Checking conditions for enabling Helm analysis: isNotSonarLintContext={}, isHelmActivationFlagTrue={}, isHelmEvaluatorExecutableAvailable={}",
+      isNotSonarLintContext, isHelmAnalysisEnabled, isHelmEvaluatorExecutableAvailable);
+    if (isNotSonarLintContext && isHelmAnalysisEnabled && !isHelmEvaluatorExecutableAvailable) {
+      LOG.info("Helm analysis is not supported for the current platform");
+    }
+    return isNotSonarLintContext && isHelmAnalysisEnabled && isHelmEvaluatorExecutableAvailable;
   }
 
   static class KubernetesFilePredicate implements FilePredicate {
