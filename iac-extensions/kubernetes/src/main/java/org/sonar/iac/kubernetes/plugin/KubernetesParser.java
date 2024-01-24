@@ -96,7 +96,7 @@ public class KubernetesParser extends YamlParser {
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {
     var filePath = Path.of(inputFileContext.inputFile.uri());
-    var chartRootDirectory = HelmFilesystemUtils.retrieveHelmProjectFolder(filePath);
+    var chartRootDirectory = HelmFilesystemUtils.retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
     String fileRelativePath;
     if (chartRootDirectory == null) {
       fileRelativePath = inputFileContext.inputFile.filename();

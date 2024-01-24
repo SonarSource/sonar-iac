@@ -38,7 +38,6 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 public final class HelmFilesystemUtils {
   private static final Logger LOG = LoggerFactory.getLogger(HelmFilesystemUtils.class);
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
-  private static final int HELM_PROJECT_DIRECTORY_MAX_DEPTH = 5;
 
   private HelmFilesystemUtils() {
   }
@@ -47,7 +46,7 @@ public final class HelmFilesystemUtils {
   public static Map<String, InputFile> additionalFilesOfHelmProjectDirectory(InputFileContext inputFileContext) {
     Map<String, InputFile> result = new HashMap<>();
 
-    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()));
+    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()), inputFileContext.sensorContext.fileSystem().baseDir());
     if (helmDirectoryPath == null) {
       LOG.debug("Failed to resolve Helm project directory for {}", inputFileContext.inputFile.uri());
       return result;
@@ -94,18 +93,17 @@ public final class HelmFilesystemUtils {
   }
 
   @CheckForNull
-  public static Path retrieveHelmProjectFolder(Path inputFilePath) {
+  public static Path retrieveHelmProjectFolder(Path inputFilePath, File baseDir) {
+    var baseDirPath = baseDir.toPath();
     var helmProjectDirectoryPath = inputFilePath;
-    var currentDepth = 0;
 
-    while (helmProjectDirectoryPath != null && currentDepth < HELM_PROJECT_DIRECTORY_MAX_DEPTH) {
+    while (helmProjectDirectoryPath != null && helmProjectDirectoryPath.startsWith(baseDirPath)) {
       if (Files.exists(helmProjectDirectoryPath.resolve("Chart.yaml"))) {
         break;
       }
       helmProjectDirectoryPath = helmProjectDirectoryPath.getParent();
-      currentDepth++;
     }
-    if (currentDepth == HELM_PROJECT_DIRECTORY_MAX_DEPTH) {
+    if (helmProjectDirectoryPath != null && !helmProjectDirectoryPath.startsWith(baseDirPath)) {
       return null;
     }
     return helmProjectDirectoryPath;
