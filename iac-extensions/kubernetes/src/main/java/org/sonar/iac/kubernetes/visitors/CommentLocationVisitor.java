@@ -53,7 +53,7 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   }
 
   private void initialize() {
-     register(YamlTree.class, this::visitComment);
+    register(YamlTree.class, this::visitComment);
   }
 
   @Override

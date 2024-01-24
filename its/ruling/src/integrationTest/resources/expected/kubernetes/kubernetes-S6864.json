@@ -23,6 +23,9 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-line-end.yaml": [
 7
 ],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-string.yaml": [
+11
+],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-templates.yaml": [
 16
 ],
@@ -378,5 +381,11 @@
 ],
 "kubernetes-project:sources/kubernetes/examples/volumes/storageos/storageos-sc-pvcpod.yaml": [
 10
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [
+24
+],
+"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/tests/sonarqube-test.yaml": [
+24
 ]
 }
