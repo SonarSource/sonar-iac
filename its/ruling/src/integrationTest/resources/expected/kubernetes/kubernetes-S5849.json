@@ -11,6 +11,9 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/empty-line-end.yaml": [
 12
 ],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-string.yaml": [
+15
+],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiple-documents.yaml": [
 11,
 27,

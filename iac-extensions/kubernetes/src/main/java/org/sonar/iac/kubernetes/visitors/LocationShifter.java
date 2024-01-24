@@ -44,11 +44,7 @@ public class LocationShifter {
   private final Map<URI, LinesShifting> linesShiftingPerContext = new HashMap<>();
 
   public void addShiftedLine(InputFileContext ctx, int transformedLine, int targetLine) {
-    var shifting = getOrCreateLinesShifting(ctx);
-    var linesData = shifting.getOrCreateLinesData(transformedLine);
-    linesData.targetStartLine = targetLine;
-    linesData.targetEndLine = targetLine;
-    linesData.originalLineSize = shifting.originalLinesSizes.getOrDefault(targetLine, 0);
+    addShiftedLine(ctx, transformedLine, targetLine, targetLine);
   }
 
   public void addShiftedLine(InputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
@@ -56,7 +52,6 @@ public class LocationShifter {
     var linesData = shifting.getOrCreateLinesData(transformedLine);
     linesData.targetStartLine = targetStartLine;
     linesData.targetEndLine = targetEndLine;
-    linesData.originalLineSize = shifting.originalLinesSizes.getOrDefault(targetEndLine, 0);
   }
 
   public void addLineSize(InputFileContext ctx, int originalLine, int size) {
@@ -107,9 +102,8 @@ public class LocationShifter {
     var rangeEnd = endLineData
       .map(p -> p.targetEndLine)
       .orElse(shifting.getLastOriginalLine());
-    var end = new TextPointer(rangeEnd,
-      endLineData.map(p -> p.originalLineSize)
-        .orElse(shifting.originalLinesSizes.getOrDefault(shifting.getLastOriginalLine(), 0)));
+    var rangeEndLineLength = getOrCreateLinesShifting(ctx).originalLinesSizes.getOrDefault(rangeEnd, 0);
+    var end = new TextPointer(rangeEnd, rangeEndLineLength);
 
     return new TextRange(start, end);
   }
@@ -124,7 +118,15 @@ public class LocationShifter {
    * The original line length and target line number are stored in the value, as a {@link LineData} object.
    */
   static class LinesShifting {
+
+    /**
+     * The key is line number 1-based - first line number is 1.
+     */
     private final Map<Integer, LineData> linesData = new TreeMap<>();
+
+    /**
+     * The key is line number 1-based - first line number is 1.
+     */
     private final Map<Integer, Integer> originalLinesSizes = new HashMap<>();
 
     private LineData getOrCreateLinesData(Integer lineNumber) {
@@ -150,6 +152,5 @@ public class LocationShifter {
   static class LineData {
     private Integer targetStartLine;
     private Integer targetEndLine;
-    private int originalLineSize;
   }
 }

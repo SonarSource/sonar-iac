@@ -315,11 +315,13 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.primaryLocation().message()).isEqualTo("Primary message");
     TextRange textRange = issue.primaryLocation().textRange();
+    assertTextRange(textRange, originalSourceCode, "{{ some helm code }}");
     assertTextRange(textRange, 4, 0, 4, 20);
 
     assertThat(issue.flows()).hasSize(1);
     Issue.Flow flow1 = issue.flows().get(0);
     assertSecondaryLocation(flow1, 5, 0, 5, 26, "Secondary message");
+    assertTextRange(flow1.locations().get(0).textRange(), originalSourceCode, "{{ some other helm code }}");
   }
 
   @Test
@@ -357,6 +359,27 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(textRange.start().lineOffset()).isEqualTo(startLineOffset);
     assertThat(textRange.end().line()).isEqualTo(endLine);
     assertThat(textRange.end().lineOffset()).isEqualTo(endLineOffset);
+  }
+
+  private void assertTextRange(@Nullable TextRange textRange, String input, String expectedText) {
+    var lines = input.split("\n");
+    assertThat(textRange).isNotNull();
+    var startLine = textRange.start().line();
+    var endLine = textRange.end().line();
+    if (startLine == endLine) {
+      var actual = lines[startLine - 1].substring(textRange.start().lineOffset(), textRange.end().lineOffset());
+      assertThat(actual).isEqualTo(expectedText);
+    } else {
+      var sb = new StringBuilder();
+      var first = lines[startLine - 1].substring(textRange.start().lineOffset(), textRange.end().lineOffset());
+      sb.append(first);
+      for (int i = startLine + 1; i < endLine; i++) {
+        sb.append(lines[i - 1]);
+      }
+      var last = lines[endLine - 1].substring(0, textRange.end().lineOffset());
+      sb.append(last);
+      assertThat(sb).hasToString(expectedText);
+    }
   }
 
   private void assertSecondaryLocation(Issue.Flow flow, int startLine, int startLineOffset, int endLine, int endLineOffset, String message) {
