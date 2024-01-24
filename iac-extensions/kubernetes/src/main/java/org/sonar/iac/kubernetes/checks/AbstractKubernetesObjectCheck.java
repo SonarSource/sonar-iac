@@ -54,7 +54,7 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
         if (shouldVisitWholeDocument()) {
           visitMappingTreeForKind(documentTree, ctx, kind);
         } else {
-          visitSpecTree(documentTree, ctx, kind);
+          visitSpecTreeForKind(documentTree, ctx, kind);
         }
       });
   }
@@ -65,18 +65,18 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     return false;
   }
 
-  private void visitMappingTreeForKind(MappingTree mappingTree, CheckContext ctx, String kind) {
-    var blockObject = BlockObject.fromPresent(ctx, mappingTree, kind);
-    objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(blockObject));
-  }
-
-  private void visitSpecTree(MappingTree documentTree, CheckContext ctx, String kind) {
+  private void visitSpecTreeForKind(MappingTree documentTree, CheckContext ctx, String kind) {
     PropertyUtils.get(documentTree, "spec")
       .filter(TupleTree.class::isInstance)
       .map(TupleTree.class::cast)
       .filter(spec -> spec.value() instanceof MappingTree)
       .map(spec -> (MappingTree) spec.value())
       .ifPresent(specValue -> visitMappingTreeForKind(specValue, ctx, kind));
+  }
+
+  private void visitMappingTreeForKind(MappingTree mappingTree, CheckContext ctx, String kind) {
+    var blockObject = BlockObject.fromPresent(ctx, mappingTree, kind);
+    objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(blockObject));
   }
 
   abstract void registerObjectCheck();
@@ -88,4 +88,5 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
   protected void register(Iterable<String> kinds, Consumer<BlockObject> consumer) {
     kinds.forEach(kind -> register(kind, consumer));
   }
+
 }
