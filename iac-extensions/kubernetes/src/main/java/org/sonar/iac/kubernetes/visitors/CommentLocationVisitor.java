@@ -53,7 +53,7 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
   }
 
   private void initialize() {
-    register(YamlTree.class, this::visitComment);
+//    register(YamlTree.class, this::visitComment);
   }
 
   @Override
@@ -85,19 +85,19 @@ public class CommentLocationVisitor extends TreeVisitor<InputFileContext> {
     }
   }
 
-  public void visitComment(InputFileContext ctx, YamlTree tree) {
-    tree.metadata().comments().forEach(comment -> processComment(ctx, comment));
-  }
+//  public void visitComment(InputFileContext ctx, YamlTree tree) {
+//    tree.metadata().comments().forEach(comment -> processComment(ctx, comment));
+//  }
 
-  private void processComment(InputFileContext ctx, Comment comment) {
-    var matcher = CONTAINS_LINE_NUMBER_OR_RANGE.matcher(comment.value());
-    if (matcher.find()) {
-      int lineCommentLocation = comment.textRange().start().line();
-      var lineCommentRangeStart = Integer.parseInt(matcher.group("rangeStart"));
-      var lineCommentRangeEnd = Optional.ofNullable(matcher.group("rangeEnd")).map(Integer::parseInt).orElse(lineCommentRangeStart);
-      shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentRangeStart, lineCommentRangeEnd);
-    } else {
-      LOG.debug("Line number comment not detected, comment: {}", comment.value());
-    }
-  }
+//  private void processComment(InputFileContext ctx, Comment comment) {
+//    var matcher = CONTAINS_LINE_NUMBER_OR_RANGE.matcher(comment.value());
+//    if (matcher.find()) {
+//      int lineCommentLocation = comment.textRange().start().line();
+//      var lineCommentRangeStart = Integer.parseInt(matcher.group("rangeStart"));
+//      var lineCommentRangeEnd = Optional.ofNullable(matcher.group("rangeEnd")).map(Integer::parseInt).orElse(lineCommentRangeStart);
+//      shifter.addShiftedLine(ctx, lineCommentLocation, lineCommentRangeStart, lineCommentRangeEnd);
+//    } else {
+//      LOG.debug("Line number comment not detected, comment: {}", comment.value());
+//    }
+//  }
 }

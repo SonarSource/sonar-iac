@@ -119,34 +119,24 @@ public class KubernetesParser extends YamlParser {
     var matcher = LINE_PATTERN.matcher(source);
 
     var lastIndex = 0;
-    var lineCounter = 0;
+    var lineCounter = 1;
     while (matcher.find()) {
       var lineContent = matcher.group("lineContent");
       var lineAndComment = toLineAndComment(lineContent);
       if (!lineAndComment.contentWithoutComment.isBlank()) {
-        if (LINES_IGNORE_LINE_COUNTER.contains(lineAndComment.contentWithoutComment)) {
-          sb.append(lineAndComment.contentWithoutComment);
-          lineAndComment.addToLocationShifter(locationShifter, inputFileContext, lineCounter);
-        } else {
-          sb.append(lineContent);
-        }
+        lineAndComment.addToLocationShifter(locationShifter, inputFileContext, lineCounter);
+        sb.append(lineAndComment.contentWithoutComment);
         sb.append(matcher.group("newLine"));
         lastIndex = matcher.end();
-      } else {
-        lineAndComment.addToLocationShifter(locationShifter, inputFileContext, lineCounter);
+        lineCounter++;
       }
-      lineCounter++;
     }
     lineCounter++;
     var lastLine = source.substring(lastIndex);
     var lineAndComment = toLineAndComment(lastLine);
     if (!lineAndComment.contentWithoutComment.isBlank()) {
-      if (LINES_IGNORE_LINE_COUNTER.contains(lineAndComment.contentWithoutComment)) {
-        sb.append(lineAndComment.contentWithoutComment);
-        lineAndComment.addToLocationShifter(locationShifter, inputFileContext, lineCounter);
-      } else {
-        sb.append(lastLine);
-      }
+      sb.append(lineAndComment.contentWithoutComment);
+      lineAndComment.addToLocationShifter(locationShifter, inputFileContext, lineCounter);
     }
     return sb.toString();
   }

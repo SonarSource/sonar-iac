@@ -48,7 +48,6 @@ public class LocationShifter {
     var linesData = shifting.getOrCreateLinesData(transformedLine);
     linesData.targetStartLine = targetLine;
     linesData.targetEndLine = targetLine;
-    linesData.originalLineSize = shifting.originalLinesSizes.getOrDefault(targetLine, 0);
   }
 
   public void addShiftedLine(InputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
@@ -56,7 +55,6 @@ public class LocationShifter {
     var linesData = shifting.getOrCreateLinesData(transformedLine);
     linesData.targetStartLine = targetStartLine;
     linesData.targetEndLine = targetEndLine;
-    linesData.originalLineSize = shifting.originalLinesSizes.getOrDefault(targetEndLine, 0);
   }
 
   public void addLineSize(InputFileContext ctx, int originalLine, int size) {
@@ -107,9 +105,8 @@ public class LocationShifter {
     var rangeEnd = endLineData
       .map(p -> p.targetEndLine)
       .orElse(shifting.getLastOriginalLine());
-    var end = new TextPointer(rangeEnd,
-      endLineData.map(p -> p.originalLineSize)
-        .orElse(shifting.originalLinesSizes.getOrDefault(shifting.getLastOriginalLine(), 0)));
+    var rangeEndLineLength = getOrCreateLinesShifting(ctx).originalLinesSizes.get(rangeEnd);
+    var end = new TextPointer(rangeEnd, Math.min(textRange.end().lineOffset(), rangeEndLineLength));
 
     return new TextRange(start, end);
   }
@@ -150,6 +147,5 @@ public class LocationShifter {
   static class LineData {
     private Integer targetStartLine;
     private Integer targetEndLine;
-    private int originalLineSize;
   }
 }
