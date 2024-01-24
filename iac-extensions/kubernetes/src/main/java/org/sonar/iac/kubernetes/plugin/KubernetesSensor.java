@@ -128,7 +128,12 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
-    return isNotSonarLintContext(sensorContext) && sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
+    var isSonarLintContext = isNotSonarLintContext(sensorContext);
+    var isHelmActivationFlagTrue = sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
+    var isHelmEvaluatorExecutableAvailable = HelmProcessor.isHelmEvaluatorExecutableAvailable();
+    LOG.debug("Checking conditions for enabling Helm analysis: isSonarLintContext={}, isHelmActivationFlagTrue={}, isHelmEvaluatorExecutableAvailable={}",
+      isSonarLintContext, isHelmActivationFlagTrue, isHelmEvaluatorExecutableAvailable);
+    return isSonarLintContext && isHelmActivationFlagTrue && isHelmEvaluatorExecutableAvailable;
   }
 
   static class KubernetesFilePredicate implements FilePredicate {

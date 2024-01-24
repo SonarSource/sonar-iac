@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -147,6 +149,23 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldNotParseYamlFileWithHelmChartTemplateWhenRunOnUnsupportedPlatform() {
+    try (var ignored = Mockito.mockStatic(OperatingSystemUtils.class)) {
+      when(OperatingSystemUtils.getCurrentPlatform()).thenReturn(Optional.empty());
+      var sensor = sensor();
+      analyse(sensor,
+        inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+        inputFile("values.yaml", "bar: var-value"));
+      assertOneSourceFileIsParsed();
+
+      var logs = logTester.logs();
+      assertThat(logs)
+        .contains("Skipping initialization of Helm processor")
+        .doesNotContain("Initializing Helm processor");
+    }
+  }
+
+  @Test
   void shouldNotParseYamlFileWithoutIdentifiers() {
     analyse(sensor(), inputFile(""));
     assertNotSourceFileIsParsed();
@@ -158,9 +177,9 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNotSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).isEqualTo("Initializing Helm processor");
-    assertThat(logs.get(1))
+    assertThat(logs).hasSize(3);
+    assertThat(logs.get(1)).isEqualTo("Initializing Helm processor");
+    assertThat(logs.get(2))
       .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
   }
 
@@ -496,12 +515,14 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Initializing Helm processor");
+      .isEqualTo("Checking conditions for enabling Helm analysis: isSonarLintContext=true, isHelmActivationFlagTrue=true, isHelmEvaluatorExecutableAvailable=true");
     assertThat(logTester.logs(Level.DEBUG).get(1))
-      .isEqualTo(message1);
+      .isEqualTo("Initializing Helm processor");
     assertThat(logTester.logs(Level.DEBUG).get(2))
+      .isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(3))
       .startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(3);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(4);
   }
 
   private KubernetesSensor sonarLintSensor(String... rules) {

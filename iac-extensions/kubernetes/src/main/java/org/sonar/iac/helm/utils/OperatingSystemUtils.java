@@ -20,6 +20,7 @@
 package org.sonar.iac.helm.utils;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 public final class OperatingSystemUtils {
@@ -31,12 +32,9 @@ public final class OperatingSystemUtils {
   private OperatingSystemUtils() {
   }
 
-  public static String getCurrentPlatform() {
+  public static Optional<String> getCurrentPlatform() {
     String platform = getNormalizedOsName(System.getProperty("os.name")) + "-" + getNormalizedArchName(System.getProperty("os.arch"));
-    if (!SUPPORTED_PLATFORMS.contains(platform)) {
-      throw new IllegalStateException("Unsupported platform: " + platform);
-    }
-    return platform;
+    return Optional.of(platform).filter(SUPPORTED_PLATFORMS::contains);
   }
 
   /**

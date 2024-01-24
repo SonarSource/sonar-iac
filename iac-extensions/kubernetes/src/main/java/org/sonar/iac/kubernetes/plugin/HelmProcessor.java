@@ -31,6 +31,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
@@ -45,6 +46,10 @@ public class HelmProcessor {
 
   public HelmProcessor(HelmEvaluator helmEvaluator) {
     this.helmEvaluator = helmEvaluator;
+  }
+
+  public static boolean isHelmEvaluatorExecutableAvailable() {
+    return OperatingSystemUtils.getCurrentPlatform().isPresent();
   }
 
   public void initialize() {
