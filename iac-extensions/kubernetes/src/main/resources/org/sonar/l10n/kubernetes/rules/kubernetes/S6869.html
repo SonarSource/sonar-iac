@@ -20,8 +20,8 @@ kind: Pod
 metadata:
   name: example
 spec:
-  containers: # Noncompliant
-    - name: web
+  containers:
+    - name: web # Noncompliant
       image: nginx
 </pre>
 <h4>Compliant solution</h4>
@@ -37,18 +37,6 @@ spec:
       resources:
         limits:
           cpu: 0.5
-</pre>
-<pre>
-apiVersion: v1
-kind: LimitRange
-metadata:
-  name: cpu-limit-range
-  namespace: default-cpu-example
-spec:
-  limits:
-  - default:
-      cpu: 0.5
-    type: Container
 </pre>
 <h3>How does this work?</h3>
 <p>A limit can be set through the property <code>resources.limits.cpu</code> of a container. Alternatively, a default limit for a namespace can be set

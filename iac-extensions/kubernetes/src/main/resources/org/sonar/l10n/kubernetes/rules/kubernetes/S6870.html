@@ -20,9 +20,12 @@ kind: Pod
 metadata:
   name: example
 spec:
-  containers: # Noncompliant
-    - name: web
+  containers:
+    - name: web # Noncompliant
       image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 </pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
@@ -37,18 +40,9 @@ spec:
       resources:
         limits:
           ephemeral-storage: "2Gi"
-</pre>
-<pre>
-apiVersion: v1
-kind: LimitRange
-metadata:
-  name: storage-limit-range
-  namespace: default-storage-example
-spec:
-  limits:
-  - default:
-      ephemeral-storage: "2Gi"
-    type: Container
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 </pre>
 <h3>How does this work?</h3>
 <p>A limit can be set through the property <code>resources.limits.ephemeral-storage</code> of a container. Alternatively, a default limit for a
