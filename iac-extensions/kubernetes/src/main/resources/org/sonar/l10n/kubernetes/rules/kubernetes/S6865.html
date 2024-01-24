@@ -1,0 +1,78 @@
+<h2>Why is this an issue?</h2>
+<p>Service account tokens are Kubernetes secrets created automatically to authenticate applications running inside pods to the API server. If a pod is
+compromised, an attacker could use this token to gain access to other resources in the cluster.</p>
+<p>For example, they could create new pods, modify existing ones, or even delete critical system pods, depending on the permissions associated with
+the service account.</p>
+<p>Therefore, it’s recommended to disable the automounting of service account tokens when it’s not necessary for the application running in the
+pod.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unauthorized Access</h4>
+<p>If a pod with a mounted service account gets compromised, an attacker could potentially use the token to interact with the Kubernetes API, possibly
+leading to unauthorized access to other resources in the cluster.</p>
+<h4>Privilege Escalation</h4>
+<p>Service account tokens are often bound with roles that have extensive permissions. If these tokens are exposed, it could lead to privilege
+escalation where an attacker gains higher-level permissions than intended.</p>
+<h4>Data Breach</h4>
+<p>Service account tokens can be used to access sensitive data stored in the Kubernetes cluster. If these tokens are compromised, it could lead to a
+data breach.</p>
+<h4>Denial of Service</h4>
+<p>An attacker with access to a service account token could potentially overload the Kubernetes API server by sending a large number of requests,
+leading to a Denial of Service (DoS) attack.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers: # Noncompliant
+  - name: example-pod
+    image: nginx:1.25.3
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers:
+  - name: example-pod
+    image: nginx:1.25.3
+  automountServiceAccountToken: false
+</pre>
+<p>The same can be achieved by setting <code>automountServiceAccountToken: false</code> in the service account’s configuration:</p>
+<pre>
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: example-service-account
+  namespace: default
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers:
+  - name: example-pod
+    image: nginx:1.25.3
+  serviceAccountName: example-service-account
+</pre>
+<h3>How does this work?</h3>
+<p>The automounting of service account tokens can be disabled by setting <code>automountServiceAccountToken: false</code> in the pod’s specification
+or in the service account’s configuration.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Kubernetes Documentation - <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/">Configure Service
+  Accounts for Pods</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/306">CWE-306 - Missing Authentication for Critical Function</a> </li>
+</ul>
+
