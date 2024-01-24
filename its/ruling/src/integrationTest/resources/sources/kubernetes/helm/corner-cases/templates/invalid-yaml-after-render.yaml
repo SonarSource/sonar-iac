@@ -1,0 +1,2 @@
+key: | {{ .Values.multiline | nindent 2 }}
+{{ .Values.foo }}

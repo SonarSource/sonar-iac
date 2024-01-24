@@ -20,15 +20,21 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 
 /**
  * This class is used to store all lines that has to be shifted.<p/>
@@ -106,6 +112,21 @@ public class LocationShifter {
     var end = new TextPointer(rangeEnd, rangeEndLineLength);
 
     return new TextRange(start, end);
+  }
+
+  public MarkedYamlEngineException shiftMarkedYamlException(InputFileContext inputFileContext, MarkedYamlEngineException exception) {
+    var problemMark = exception.getProblemMark();
+    if (problemMark.isPresent()) {
+      var markInTransformedCode = problemMark.get();
+      var snippet = Arrays.stream(markInTransformedCode.getBuffer()).mapToObj(i -> new String(Character.toChars(i))).collect(Collectors.joining());
+      var shiftedRange = computeShiftedLocation(inputFileContext,
+        TextRanges.range(markInTransformedCode.getLine(), markInTransformedCode.getColumn(), snippet));
+      var shiftedMark = new Mark(
+        markInTransformedCode.getName(), markInTransformedCode.getIndex(), shiftedRange.start().line(), shiftedRange.start().lineOffset(), markInTransformedCode.getBuffer(),
+        markInTransformedCode.getPointer());
+      return new ShiftedMarkedYamlEngineException(exception, shiftedMark);
+    }
+    return exception;
   }
 
   private LinesShifting getOrCreateLinesShifting(InputFileContext ctx) {

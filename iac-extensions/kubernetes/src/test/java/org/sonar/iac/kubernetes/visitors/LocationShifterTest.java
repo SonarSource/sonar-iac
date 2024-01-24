@@ -21,11 +21,17 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -166,6 +172,34 @@ final class LocationShifterTest {
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 3));
 
     assertThat(shiftedRange).hasRange(1, 0, 3, 4);
+  }
+
+  @Test
+  void shouldShiftYamlExceptions() {
+    setLinesSizes(ctx, 2);
+    shifter.addShiftedLine(ctx, 2, 1, 1);
+    var exception = new ParserException(null, Optional.of(Mockito.mock(Mark.class)), null,
+      Optional.of(new Mark("test", 1, 2, 1, new int[] {1, 1, 1, 1, 1}, 1)));
+
+    var shiftedException = shifter.shiftMarkedYamlException(ctx, exception);
+
+    Assertions.assertThat(shiftedException).isInstanceOf(ShiftedMarkedYamlEngineException.class);
+    Assertions.assertThat(shiftedException.getProblemMark()).isPresent()
+      .hasValueSatisfying(mark -> {
+        Assertions.assertThat(mark.getLine()).isEqualTo(1);
+        Assertions.assertThat(mark.getColumn()).isZero();
+      });
+  }
+
+  @Test
+  void shouldKeepYamlExceptionsWithoutMark() {
+    setLinesSizes(ctx, 2);
+    shifter.addShiftedLine(ctx, 2, 1, 1);
+    var exception = new ParserException(null, Optional.of(Mockito.mock(Mark.class)), null, Optional.empty());
+
+    var shiftedException = shifter.shiftMarkedYamlException(ctx, exception);
+
+    Assertions.assertThat(shiftedException).isSameAs(exception);
   }
 
   void setLinesSizes(InputFileContext ctx, int... linesSizes) {
