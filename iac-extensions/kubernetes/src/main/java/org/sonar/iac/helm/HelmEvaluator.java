@@ -83,7 +83,8 @@ public class HelmEvaluator {
   }
 
   ProcessBuilder prepareProcessBuilder() throws IOException {
-    var suffix = OperatingSystemUtils.getCurrentPlatform();
+    var suffix = OperatingSystemUtils.getCurrentPlatformIfSupported()
+      .orElseThrow(() -> new IllegalStateException("HelmEvaluator is being initialized on an unsupported platform"));
     var executable = ExecutableHelper.extractFromClasspath(workingDir, HELM_FOR_IAC_EXECUTABLE + "-" + suffix);
     return new ProcessBuilder(executable);
   }
