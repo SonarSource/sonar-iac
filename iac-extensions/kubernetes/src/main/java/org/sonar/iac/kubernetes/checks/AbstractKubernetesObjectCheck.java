@@ -29,10 +29,10 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.common.yaml.object.BlockObject;
 
 public abstract class AbstractKubernetesObjectCheck implements IacCheck {
 
@@ -46,18 +46,37 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     registerObjectCheck();
   }
 
-  private void visitDocument(MappingTree documentTree, CheckContext ctx) {
+  void visitDocument(MappingTree documentTree, CheckContext ctx) {
     PropertyUtils.get(documentTree, "kind")
       .flatMap(kind -> TextUtils.getValue(kind.value()))
       .filter(objectConsumersByKind::containsKey)
-      .ifPresent(kind -> PropertyUtils.get(documentTree, "spec")
-        .filter(TupleTree.class::isInstance)
-        .map(TupleTree.class::cast)
-        .filter(t -> t.value() instanceof MappingTree)
-        .ifPresent(spec -> {
-          BlockObject obj = BlockObject.fromPresent(ctx, spec.value(), kind);
-          objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(obj));
-        }));
+      .ifPresent((String kind) -> {
+        if (shouldVisitWholeDocument()) {
+          visitMappingTreeForKind(documentTree, ctx, kind);
+        } else {
+          visitSpecTreeForKind(documentTree, ctx, kind);
+        }
+      });
+  }
+
+  boolean shouldVisitWholeDocument() {
+    // the default is "false" as we normally visit only the "spec" tree of the file.
+    // Overriding this to "true" will enable visitation of the whole document.
+    return false;
+  }
+
+  private void visitSpecTreeForKind(MappingTree documentTree, CheckContext ctx, String kind) {
+    PropertyUtils.get(documentTree, "spec")
+      .filter(TupleTree.class::isInstance)
+      .map(TupleTree.class::cast)
+      .filter(spec -> spec.value() instanceof MappingTree)
+      .map(spec -> (MappingTree) spec.value())
+      .ifPresent(specValue -> visitMappingTreeForKind(specValue, ctx, kind));
+  }
+
+  private void visitMappingTreeForKind(MappingTree mappingTree, CheckContext ctx, String kind) {
+    var blockObject = BlockObject.fromPresent(ctx, mappingTree, kind);
+    objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(blockObject));
   }
 
   abstract void registerObjectCheck();

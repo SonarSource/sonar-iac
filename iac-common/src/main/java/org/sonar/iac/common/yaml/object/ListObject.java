@@ -57,7 +57,7 @@ public class ListObject extends YamlObject<ListObject, SequenceTree> {
     return new ListObject(ctx, null, key, Status.ABSENT, null, Collections.emptyList());
   }
 
-  private Stream<YamlTree> getItemIf(Predicate<YamlTree> predicate) {
+  public Stream<YamlTree> getItemIf(Predicate<YamlTree> predicate) {
     return items.stream().filter(predicate);
   }
 

@@ -27,8 +27,8 @@ spec:
         - name: noncompliant_without_limits # Noncompliant
         # ^^^^
           resources:
-            limits:
-              memory: 64Mi
+            requests:
+              ephemeral-storage: 100Mi
           volumeMounts:
             - name: ephemeral
               mountPath: "/tmp"

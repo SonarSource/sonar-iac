@@ -36,6 +36,10 @@ public class KubernetesVerifier {
     Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
   }
 
+  public static void verifyContent(String content, IacCheck check) {
+    Verifier.verify(PARSER, content, check);
+  }
+
   public static void verifyNoIssue(String fileName, IacCheck check) {
     Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
   }
