@@ -19,28 +19,25 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.testing.Verifier;
-import org.sonar.iac.common.yaml.YamlParser;
 
-import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
+import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
-public class KubernetesVerifier {
+class CommandExecutionCheckTest {
 
-  private KubernetesVerifier() {
+  IacCheck check = new CommandExecutionCheck();
+
+  static Stream<String> sensitiveKinds() {
+    return Stream.of("Role", "ClusterRole");
   }
 
-  private static final YamlParser PARSER = new YamlParser();
-
-  public static void verify(String fileName, IacCheck check) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
-  }
-
-  public static void verifyContent(String content, IacCheck check) {
-    Verifier.verify(PARSER, content, check);
-  }
-
-  public static void verifyNoIssue(String fileName, IacCheck check) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+  @MethodSource("sensitiveKinds")
+  @ParameterizedTest(name = "[{index}] should check command execution for kind: \"{0}\"")
+  void shouldCheckCommandExecutionInKind(String kind) {
+    String content = readTemplateAndReplace("CommandExecutionCheck/commandExecutionTestTemplate.yaml", kind);
+    KubernetesVerifier.verifyContent(content, check);
   }
 }

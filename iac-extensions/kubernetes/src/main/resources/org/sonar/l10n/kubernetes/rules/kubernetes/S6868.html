@@ -1,0 +1,64 @@
+<h2>Why is this an issue?</h2>
+<p>Allowing command execution (exec) for roles in a Kubernetes cluster can pose a significant security risk. This is because it provides the user with
+the ability to execute arbitrary commands within a container, potentially leading to unauthorized access or data breaches.</p>
+<p>In a production Kubernetes cluster, exec permissions are typically unnecessary due to the principle of least privilege, which suggests that a user
+or process should only have the minimum permissions necessary to perform its function. Additionally, containers in production are often treated as
+immutable infrastructure, meaning they should not be changed once deployed. Any changes should be made to the container image, which is then used to
+deploy a new container.</p>
+<h3>What is the potential impact?</h3>
+<h4>Exploiting Vulnerabilities Within the Container</h4>
+<p>If a user or service has the ability to execute commands within a container, they could potentially identify and exploit vulnerabilities within the
+container’s software. This could include exploiting known vulnerabilities in outdated software versions, or finding and exploiting new
+vulnerabilities. This could lead to unauthorized access to the container, allowing the attacker to manipulate its operations or access its data.</p>
+<h4>Installing Malicious Software</h4>
+<p>Command execution permissions could also be used to install malicious software within a container. This could include malware, spyware, ransomware,
+or other types of harmful software. Once installed, this software could cause a wide range of issues, from data corruption or loss, to providing a
+backdoor for further attacks. It could also be used to create a botnet, using the compromised container to launch attacks on other systems.</p>
+<h4>Extracting Sensitive Data</h4>
+<p>If an attacker has the ability to execute commands within a container, they could potentially access and extract sensitive data. This could include
+user data, confidential business information, or other types of sensitive data. The extracted data could then be used for a wide range of malicious
+purposes, from identity theft to corporate espionage. This could lead to significant financial loss, damage to reputation, and potential legal
+consequences.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: example-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["pods/exec"] # Noncompliant
+    verbs: ["create"]
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: example-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+</pre>
+<h3>How does this work?</h3>
+<p>The <code>exec</code> permissions are set by allowing the <code>create</code> verb for the <code>pods/exec</code> resource. Removing this
+permission will prevent users and services from executing arbitrary commands within containers.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Kubernetes Documentation - <a href="https://kubernetes.io/docs/tasks/debug/debug-application/get-shell-running-container/">Get a Shell to a
+  Running Container</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a> </li>
+</ul>
+

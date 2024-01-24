@@ -1,0 +1,27 @@
+{
+  "title": "Allowing command execution is security sensitive",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6868",
+  "sqKey": "S6868",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      284
+    ]
+  },
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "SECURITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  }
+}
