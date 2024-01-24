@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
 
-class LocationShifterTest {
+final class LocationShifterTest {
 
   private final LocationShifter shifter = new LocationShifter();
   private final InputFileContext ctx = mockInputFileContext("my_uri");
