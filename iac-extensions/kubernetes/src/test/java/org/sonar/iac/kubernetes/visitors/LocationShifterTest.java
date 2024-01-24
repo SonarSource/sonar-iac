@@ -122,7 +122,7 @@ class LocationShifterTest {
 
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx2, TextRanges.range(1, 1, 1, 3));
 
-    assertThat(shiftedRange).hasRange(1, 0, 1, 3);
+    assertThat(shiftedRange).hasRange(1, 1, 1, 3);
   }
 
   @Test

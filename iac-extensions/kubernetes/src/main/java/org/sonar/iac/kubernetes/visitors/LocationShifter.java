@@ -91,8 +91,7 @@ public class LocationShifter {
   public TextRange computeShiftedLocation(InputFileContext ctx, TextRange textRange) {
     if (!linesShiftingPerContext.containsKey(ctx.inputFile.uri())) {
       // No location shifting is recorded for this file, we are in a regular Kubernetes context.
-      // However, we still need to adjust the offset, because it's 1-based in snakeyaml.
-      return new TextRange(new TextPointer(textRange.start().line(), textRange.start().lineOffset() - 1), textRange.end());
+      return textRange;
     }
 
     var shifting = getOrCreateLinesShifting(ctx);
