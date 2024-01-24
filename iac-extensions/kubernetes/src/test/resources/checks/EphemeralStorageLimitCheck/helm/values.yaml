@@ -1,0 +1,3 @@
+container:
+  cpu:
+    ephemeral-storage: "10Mi"

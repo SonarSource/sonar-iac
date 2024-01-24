@@ -1,0 +1,66 @@
+<h2>Why is this an issue?</h2>
+<p>Ephemeral storage is a type of storage that is temporary and non-persistent, meaning it does not retain data once the process is terminated. In the
+context of Kubernetes, ephemeral storage is used for storing temporary files that a running container can write and read.</p>
+<p>The issue at hand pertains to the creation of a container without any defined limits for this ephemeral storage. This means that the container can
+potentially consume as much ephemeral storage as is available on the node where it is running.</p>
+<h3>What is the potential impact?</h3>
+<h4>Resource exhaustion</h4>
+<p>Without a defined limit, a container can consume all available ephemeral storage on a node. This can lead to resource exhaustion, where no more
+storage is available for other containers or processes running on the same node. This could cause these other containers or processes to fail or
+perform poorly.</p>
+<h4>Unpredictable application behavior</h4>
+<p>If a container exhausts the available ephemeral storage, it can lead to unpredictable application behavior. For instance, if an application
+attempts to write to the ephemeral storage and there is no space left, it may crash or exhibit other unexpected behaviors.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers: # Noncompliant
+    - name: web
+      image: nginx
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      resources:
+        limits:
+          ephemeral-storage: "2Gi"
+</pre>
+<pre>
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: storage-limit-range
+  namespace: default-storage-example
+spec:
+  limits:
+  - default:
+      ephemeral-storage: "2Gi"
+    type: Container
+</pre>
+<h3>How does this work?</h3>
+<p>A limit can be set through the property <code>resources.limits.ephemeral-storage</code> of a container. Alternatively, a default limit for a
+namespace can be set with <code>LimitRange</code>.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Kubernetes Documentation - <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Resource Management for
+  Pods and Containers</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/770">CWE-770 - Allocation of Resources Without Limits or Throttling</a> </li>
+</ul>
+

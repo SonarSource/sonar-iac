@@ -4,8 +4,11 @@ metadata:
   name: example
 spec:
   containers:
-    - name: memory_limit_helm # Compliant
+    - name: cpu_limit_helm
       image: nginx
       resources:
         limits: #KubernetesVerifier (of the testing framework) does not support helm files at the moment.
-          memory: {{ .Values.container.memory.limit }} # Noncompliant
+          ephemeral-storage: {{ .Values.container.ephemeral-storage.limit }} # Noncompliant
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"

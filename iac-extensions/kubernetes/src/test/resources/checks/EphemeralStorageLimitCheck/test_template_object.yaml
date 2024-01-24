@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: noncompliant_without_ephemeral-storage_limit # Noncompliant {{Specify a storage limit for this container.}}
+        # ^^^^
+          resources:
+            limits:
+              cpu: 200m
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: noncompliant_without_limits # Noncompliant
+        # ^^^^
+          resources:
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: noncompliant_without_resources # Noncompliant
+        # ^^^^
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: noncompliant_ephemeral-storage_limit_tilde
+          resources:
+            limits:
+              ephemeral-storage: "~" # Noncompliant
+            # ^^^^^^^^^^^^^^^^^^^^^^
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: noncompliant_ephemeral-storage_limit_empty_brackets
+          resources:
+            limits:
+              ephemeral-storage: "[]" # Noncompliant
+            # ^^^^^^^^^^^^^^^^^^^^^^^
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - resources:
+            limits:
+              ephemeral-storage: "null" # Noncompliant
+            # ^^^^^^^^^^^^^^^^^^^^^^^^^
+          name: noncompliant_ephemeral-storage_limit_null
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant_ephemeral-storage_limit # Compliant
+          resources:
+            limits:
+              ephemeral-storage: 100Mi
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant_without_volumeMounts # Compliant
+          image: nginx
+          resources:
+            limits:
+              memory: 64Mi

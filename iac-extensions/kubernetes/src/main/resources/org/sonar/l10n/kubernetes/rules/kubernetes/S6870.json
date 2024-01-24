@@ -1,0 +1,27 @@
+{
+  "title": "Storage limits should be enforced",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6870",
+  "sqKey": "S6870",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      770
+    ]
+  },
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  }
+}
