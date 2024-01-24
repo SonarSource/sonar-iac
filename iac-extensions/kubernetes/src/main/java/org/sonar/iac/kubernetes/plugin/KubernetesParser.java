@@ -45,8 +45,6 @@ public class KubernetesParser extends YamlParser {
   private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("(" +
     String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
 
-  private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
-
   private final HelmProcessor helmProcessor;
   private final LocationShifter locationShifter;
 

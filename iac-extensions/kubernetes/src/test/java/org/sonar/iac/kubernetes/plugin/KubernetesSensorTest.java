@@ -378,7 +378,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       }
       var last = lines[endLine - 1].substring(0, textRange.end().lineOffset());
       sb.append(last);
-      assertThat(sb.toString()).isEqualTo(expectedText);
+      assertThat(sb).hasToString(expectedText);
     }
   }
 

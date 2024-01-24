@@ -31,6 +31,9 @@ public class LineNumberCommentRemover {
 
   private static final Pattern CONTAINS_LINE_NUMBER_OR_RANGE = Pattern.compile("#(?<rangeStart>\\d++)(:(?<rangeEnd>\\d++))?( #\\d++:?\\d*+)*+$");
 
+  private LineNumberCommentRemover() {
+  }
+
   /**
    * This method removes all comments that contains line numbers and store them in {@link LocationShifter}.
    * Also blank lines that contains only trailing line comment number are removed.
