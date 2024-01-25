@@ -41,14 +41,14 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, (BlockObject doc) -> doc.block("spec").attribute(KEY)
-      .reportIfAbsent(retrieveTextRangeToRaiseIssue(doc), String.format(MESSAGE, KIND_POD))
+    register(KIND_POD, (BlockObject document) -> document.block("spec").attribute(KEY)
+      .reportIfAbsent(retrieveTextRangeToRaiseIssue(document), String.format(MESSAGE, KIND_POD))
       .reportIfValue(isSet().negate(), String.format(MESSAGE, KIND_POD))
       .reportIfValue(isTrue(), String.format(MESSAGE, KIND_POD)));
 
     for (String kind : KIND_WITH_TEMPLATE) {
-      register(kind, (BlockObject doc) -> doc.block("spec").block("template").block("spec").attribute(KEY)
-        .reportIfAbsent(retrieveTextRangeToRaiseIssue(doc.block("spec").block("template")), String.format(MESSAGE, kind))
+      register(kind, (BlockObject document) -> document.block("spec").block("template").block("spec").attribute(KEY)
+        .reportIfAbsent(retrieveTextRangeToRaiseIssue(document.block("spec").block("template")), String.format(MESSAGE, kind))
         .reportIfValue(isSet().negate(), String.format(MESSAGE, kind))
         .reportIfValue(isTrue(), String.format(MESSAGE, kind)));
     }
