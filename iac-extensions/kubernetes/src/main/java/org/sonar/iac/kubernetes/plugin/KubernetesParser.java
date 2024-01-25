@@ -29,6 +29,7 @@ import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -90,7 +91,9 @@ public class KubernetesParser extends YamlParser {
       return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
     } catch (MarkedYamlEngineException e) {
       var shifted = locationShifter.shiftMarkedYamlException(inputFileContext, e);
-      LOG.debug("Shifting YAML exception from [{}] to [{}]", e.getProblemMark(), shifted.getProblemMark());
+      if (shifted instanceof ShiftedMarkedYamlEngineException) {
+        LOG.debug("Shifting YAML exception {}", ((ShiftedMarkedYamlEngineException) shifted).describeShifting());
+      }
       throw shifted;
     }
   }

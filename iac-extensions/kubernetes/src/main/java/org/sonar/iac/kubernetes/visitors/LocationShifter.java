@@ -20,13 +20,11 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
@@ -118,11 +116,21 @@ public class LocationShifter {
     var problemMark = exception.getProblemMark();
     if (problemMark.isPresent()) {
       var markInTransformedCode = problemMark.get();
-      var snippet = Arrays.stream(markInTransformedCode.getBuffer()).mapToObj(i -> new String(Character.toChars(i))).collect(Collectors.joining());
-      var shiftedRange = computeShiftedLocation(inputFileContext,
-        TextRanges.range(markInTransformedCode.getLine(), markInTransformedCode.getColumn(), snippet));
+      // snakeyaml has a single point in problem mark, which it expands into a small piece of surrounding text for readability.
+      // There is no actual range to highlight exception at. Note: snakeyaml uses 0-based indexing, but we don't need to adjust, as
+      // we will handle this exception later as if it came from snakeyaml.
+      var rangeInException = TextRanges.range(
+        markInTransformedCode.getLine(),
+        markInTransformedCode.getColumn(),
+        markInTransformedCode.getLine(),
+        markInTransformedCode.getColumn());
+      var shiftedRange = computeShiftedLocation(inputFileContext, rangeInException);
       var shiftedMark = new Mark(
-        markInTransformedCode.getName(), markInTransformedCode.getIndex(), shiftedRange.start().line(), shiftedRange.start().lineOffset(), markInTransformedCode.getBuffer(),
+        markInTransformedCode.getName(),
+        markInTransformedCode.getIndex(),
+        shiftedRange.start().line(),
+        shiftedRange.start().lineOffset(),
+        markInTransformedCode.getBuffer(),
         markInTransformedCode.getPointer());
       return new ShiftedMarkedYamlEngineException(exception, shiftedMark);
     }
