@@ -23,7 +23,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
-import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
@@ -40,19 +39,14 @@ public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck 
   void reportMissingLimit(BlockObject container) {
     container.block("resources").block("limits")
       .attribute(getLimitAttributeKey())
-      .reportIfAbsent(retrieveTextRangeToRaiseIssue(container), getMessage())
+      .reportIfAbsent(getFirstChildElement(container), getMessage())
       .reportIfValue(isSet().negate(), getMessage());
   }
 
   @Nullable
-  static HasTextRange retrieveTextRangeToRaiseIssue(BlockObject blockObject) {
+  static HasTextRange getFirstChildElement(BlockObject blockObject) {
     if (blockObject.tree != null) {
-      return blockObject.tree.elements().stream()
-        .filter(element -> element.key() instanceof ScalarTreeImpl)
-        .filter(element -> "spec".equals(((ScalarTreeImpl) element.key()).value()))
-        .map(element -> element.key().metadata())
-        .findFirst()
-        .orElseGet(() -> blockObject.tree.elements().get(0).key().metadata());
+      return blockObject.tree.elements().get(0).key().metadata();
     }
     return null;
   }

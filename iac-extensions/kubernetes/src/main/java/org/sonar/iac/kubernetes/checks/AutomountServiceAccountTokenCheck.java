@@ -20,16 +20,17 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
+import java.util.Objects;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
-import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.retrieveTextRangeToRaiseIssue;
 
 @Rule(key = "S6865")
 public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectCheck {
-  private static final String MESSAGE = "Set automountServiceAccountToken to false for the specification of kind %s.";
+  private static final String MESSAGE = "Set automountServiceAccountToken to false for this specification of kind %s.";
   private static final String KEY = "automountServiceAccountToken";
   private static final String KIND_POD = "Pod";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
@@ -52,7 +53,7 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
     var spec = blockObject.block("spec");
     var attributeObject = spec.attribute(KEY);
     if (isContainersKeyPresent(spec)) {
-      attributeObject.reportIfAbsent(retrieveTextRangeToRaiseIssue(blockObject), message);
+      attributeObject.reportIfAbsent(checkIfTokenIsPresentAndRaiseOnSpecIfNot(blockObject), message);
       attributeObject.reportIfValue(isSet().negate(), message);
       attributeObject.reportIfValue(isTrue(), message);
     }
@@ -60,5 +61,12 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
 
   private static boolean isContainersKeyPresent(BlockObject blockObject) {
     return blockObject.blocks("containers").findAny().isPresent();
+  }
+
+  private static HasTextRange checkIfTokenIsPresentAndRaiseOnSpecIfNot(BlockObject blockObject) {
+    if (blockObject.block("spec").attribute(KEY).tree == null) {
+      return Objects.requireNonNull(blockObject.attribute("spec").tree).key();
+    }
+    return null;
   }
 }
