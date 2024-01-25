@@ -20,19 +20,10 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.yaml.object.BlockObject;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
 class RBACWildcardCheckTest {
@@ -49,15 +40,4 @@ class RBACWildcardCheckTest {
     String content = readTemplateAndReplace("RBACWildcardCheck/wildcardCheckTestTemplate.yaml", kind);
     KubernetesVerifier.verifyContent(content, check);
   }
-
-  @Test
-  void shouldNotReportOnMissingTree() {
-    CheckContext checkContext = mock(CheckContext.class);
-    BlockObject rule = BlockObject.fromAbsent(checkContext, "rule");
-    new RBACWildcardCheck().reportOnKey(rule, "resources");
-
-    verify(checkContext, never()).reportIssue(any(TextRange.class), any());
-    verify(checkContext, never()).reportIssue(any(HasTextRange.class), any());
-  }
-
 }

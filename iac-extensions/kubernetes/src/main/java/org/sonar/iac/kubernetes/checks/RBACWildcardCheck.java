@@ -24,7 +24,6 @@ import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6867")
@@ -32,6 +31,7 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Do not use wildcards when defining RBAC permissions.";
   private static final List<String> SENSITIVE_KINDS = List.of("Role", "ClusterRole");
+  private static final List<String> SENSITIVE_RULE_ATTRIBUTES = List.of("resources", "verbs");
 
   @Override
   boolean shouldVisitWholeDocument() {
@@ -41,25 +41,15 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
   @Override
   void registerObjectCheck() {
     register(SENSITIVE_KINDS, document -> document.blocks("rules")
-      .forEach((BlockObject rule) -> {
-        if (containsWildCardItem(rule, "resources")) {
-          reportOnKey(rule, "resources");
+      .forEach((BlockObject rule) -> SENSITIVE_RULE_ATTRIBUTES.forEach((String attributeKey) -> {
+        if (containsWildCardItem(rule, attributeKey)) {
+          rule.attribute(attributeKey).reportOnKey(MESSAGE);
         }
-        if (containsWildCardItem(rule, "verbs")) {
-          reportOnKey(rule, "verbs");
-        }
-      }));
+      })));
   }
 
   private static boolean containsWildCardItem(BlockObject rule, String listKey) {
     Predicate<YamlTree> wildcardPredicate = TreePredicates.isEqualTo("*");
     return rule.list(listKey).getItemIf(wildcardPredicate).findAny().isPresent();
-  }
-
-  void reportOnKey(BlockObject rule, String key) {
-    TupleTree resourcesTree = rule.attribute(key).tree;
-    if (resourcesTree != null) {
-      rule.ctx.reportIssue(resourcesTree.key().metadata().textRange(), MESSAGE);
-    }
   }
 }

@@ -24,7 +24,6 @@ import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6868")
@@ -43,7 +42,7 @@ public class CommandExecutionCheck extends AbstractKubernetesObjectCheck {
     register(SENSITIVE_KINDS, document -> document.blocks("rules")
       .filter(CommandExecutionCheck::ruleContainsSensitiveVerb)
       .filter(CommandExecutionCheck::ruleContainsSensitiveResource)
-      .forEach(this::reportOnResourcesKey));
+      .forEach(rule -> rule.attribute("resources").reportOnKey(MESSAGE)));
   }
 
   private static boolean ruleContainsSensitiveVerb(BlockObject rule) {
@@ -57,12 +56,5 @@ public class CommandExecutionCheck extends AbstractKubernetesObjectCheck {
   private static boolean containsSensitiveItemOrWildCard(BlockObject rule, String listKey, String sensitiveItem) {
     Predicate<YamlTree> verbsPredicate = TreePredicates.isEqualTo(sensitiveItem).or(TreePredicates.isEqualTo("*"));
     return rule.list(listKey).getItemIf(verbsPredicate).findAny().isPresent();
-  }
-
-  void reportOnResourcesKey(BlockObject rule) {
-    TupleTree resourcesTree = rule.attribute("resources").tree;
-    if (resourcesTree != null) {
-      rule.ctx.reportIssue(resourcesTree.key().metadata().textRange(), MESSAGE);
-    }
   }
 }

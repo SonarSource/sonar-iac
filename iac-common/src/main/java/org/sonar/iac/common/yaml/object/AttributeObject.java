@@ -64,6 +64,13 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
     return this;
   }
 
+  public AttributeObject reportOnKey(String message) {
+    if (tree != null) {
+      report(tree.key().metadata(), message);
+    }
+    return this;
+  }
+
   @Nullable
   @Override
   protected HasTextRange toHighlight() {
