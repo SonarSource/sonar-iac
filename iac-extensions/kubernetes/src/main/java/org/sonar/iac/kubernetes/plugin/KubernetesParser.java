@@ -89,7 +89,7 @@ public class KubernetesParser extends YamlParser {
     return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
   }
 
-  private void readLinesSizes(String source, InputFileContext ctx, LocationShifter locationShifter) {
+  private static void readLinesSizes(String source, InputFileContext ctx, LocationShifter locationShifter) {
     var lines = splitLines(source);
     for (var lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
       locationShifter.addLineSize(ctx, lineNumber, lines[lineNumber - 1].length());
