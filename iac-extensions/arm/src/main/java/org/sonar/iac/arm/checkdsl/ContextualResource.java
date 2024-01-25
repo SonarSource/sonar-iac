@@ -52,6 +52,10 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
     return new ContextualResource(ctx, null, resourceType, parent);
   }
 
+  public boolean isReferencingResource() {
+    return tree != null && tree.existing() != null;
+  }
+
   @CheckForNull
   @Override
   protected HasTextRange toHighlight() {

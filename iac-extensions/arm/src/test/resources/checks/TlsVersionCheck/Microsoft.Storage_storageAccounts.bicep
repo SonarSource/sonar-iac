@@ -19,3 +19,14 @@ resource compliant 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     minimumTlsVersion: 'TLS1_2'
   }
 }
+
+resource referencingWithoutWrongProperty 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: 'Referencing to existing resource'
+}
+
+resource referencingWithWrongProperty 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: 'Referencing to existing resource'
+  properties: {
+    minimumTlsVersion: 'TLS1_0' // Noncompliant
+  }
+}

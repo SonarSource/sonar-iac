@@ -74,6 +74,7 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
    */
   List<Property> properties();
 
+  @CheckForNull
   SyntaxToken existing();
 
   /**

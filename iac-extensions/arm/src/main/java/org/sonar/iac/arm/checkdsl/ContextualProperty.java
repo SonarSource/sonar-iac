@@ -24,9 +24,14 @@ import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checkdsl.ContextualPropertyTree;
+import org.sonar.iac.common.checkdsl.ContextualTree;
+import org.sonar.iac.common.checks.Trilean;
+
+import java.util.List;
 
 public class ContextualProperty extends ContextualPropertyTree<ContextualProperty, Property, Expression> {
 
@@ -50,6 +55,25 @@ public class ContextualProperty extends ContextualPropertyTree<ContextualPropert
     String name,
     ContextualMap<S, T> parent) {
     return new ContextualProperty(ctx, null, name, parent);
+  }
+
+  @Override
+  public ContextualProperty reportIfAbsent(String message, List<SecondaryLocation> secondaries) {
+    if (isResourceReferencing().isTrue()) {
+      return this;
+    }
+    return super.reportIfAbsent(message, secondaries);
+  }
+
+  private Trilean isResourceReferencing() {
+    ContextualTree<?, ?> parentTree = this.parent;
+    while (parentTree != null) {
+      if (parentTree instanceof ContextualResource) {
+        return ((ContextualResource) parentTree).isReferencingResource() ? Trilean.TRUE : Trilean.FALSE;
+      }
+      parentTree = parentTree.parent;
+    }
+    return Trilean.UNKNOWN;
   }
 
   @CheckForNull

@@ -33,7 +33,7 @@ public abstract class ContextualTree<S extends ContextualTree<S, T>, T extends T
   public final CheckContext ctx;
   public final @Nullable T tree;
   public final @Nullable String name;
-  private final @Nullable ContextualTree<? extends ContextualTree<?, ?>, ? extends Tree> parent;
+  public final @Nullable ContextualTree<? extends ContextualTree<?, ?>, ? extends Tree> parent;
 
   protected ContextualTree(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable ContextualTree<? extends ContextualTree<?, ?>, ? extends Tree> parent) {
     this.ctx = ctx;

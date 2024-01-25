@@ -48,9 +48,6 @@
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-rbac/scope.bicep": [
 7
 ],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-secrets/function-app.bicep": [
-8
-],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/fullnamedeclaration.bicep": [
 1
 ],
