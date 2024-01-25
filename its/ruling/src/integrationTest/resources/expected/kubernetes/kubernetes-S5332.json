@@ -1,0 +1,15 @@
+{
+"kubernetes-project:sources/kubernetes/examples/staging/cluster-dns/dns-frontend-pod.yaml": [
+14
+],
+"kubernetes-project:sources/kubernetes/examples/staging/openshift-origin/etcd-controller.yaml": [
+43,
+45
+],
+"kubernetes-project:sources/kubernetes/examples/staging/storage/minio/minio-distributed-statefulset.yaml": [
+28,
+29,
+30,
+31
+]
+}

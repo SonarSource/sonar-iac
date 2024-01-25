@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: curl
+spec:
+  template:
+    spec:
+      containers:
+        - name: curl
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["http://example.com/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+#                ^^^^^^^^^^^^^^^^^^^^^
+        - name: curlFtp
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["ftp://example.com/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+#                ^^^^^^^^^^^^^^^^^^^^
+        - name: curlLocalhost
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["http://127.0.0.1/"] # Compliant
+        - name: curlIpV6
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["http://0:0:0:0:0:0:0:1"] # Compliant
+        - name: curlIpV6-2
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["http://::1"] # Compliant
+        - name: curl-secure-https
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["https://example.com/"] # Compliant
+        - name: curl-secure-ftps
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["ftps://example.com/"] # Compliant
