@@ -38,3 +38,17 @@ spec:
       image: nginx:1.25.3
   automountServiceAccountToken: null # Noncompliant
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tokenSetToTrueButContainersNotPresent
+spec:
+  automountServiceAccountToken: true # Compliant
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tokenAndContainersNotPresent
+spec: # Compliant
+  restartPolicy: Never

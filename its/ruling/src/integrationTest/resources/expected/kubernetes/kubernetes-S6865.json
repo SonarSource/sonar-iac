@@ -64,9 +64,6 @@
   "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L3M1/templates/pod.yaml": [
     5
   ],
-  "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/objects/templates/pod.yaml": [
-    1
-  ],
   "kubernetes-project:sources/kubernetes/examples/cassandra/cassandra-statefulset.yaml": [
     17
   ],

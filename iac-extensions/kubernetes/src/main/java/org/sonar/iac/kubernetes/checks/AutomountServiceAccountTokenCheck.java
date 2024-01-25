@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
@@ -41,16 +42,30 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, (BlockObject document) -> document.block("spec").attribute(KEY)
-      .reportIfAbsent(retrieveTextRangeToRaiseIssue(document), String.format(MESSAGE, KIND_POD))
-      .reportIfValue(isSet().negate(), String.format(MESSAGE, KIND_POD))
-      .reportIfValue(isTrue(), String.format(MESSAGE, KIND_POD)));
+    register(KIND_POD, (BlockObject document) -> {
+      BlockObject spec = document.block("spec");
+      AttributeObject attributeObject = spec.attribute(KEY);
+      if (isContainersKeyPresent(spec)) {
+        attributeObject.reportIfAbsent(retrieveTextRangeToRaiseIssue(document), String.format(MESSAGE, KIND_POD));
+        attributeObject.reportIfValue(isSet().negate(), String.format(MESSAGE, KIND_POD));
+        attributeObject.reportIfValue(isTrue(), String.format(MESSAGE, KIND_POD));
+      }
+    });
 
     for (String kind : KIND_WITH_TEMPLATE) {
-      register(kind, (BlockObject document) -> document.block("spec").block("template").block("spec").attribute(KEY)
-        .reportIfAbsent(retrieveTextRangeToRaiseIssue(document.block("spec").block("template")), String.format(MESSAGE, kind))
-        .reportIfValue(isSet().negate(), String.format(MESSAGE, kind))
-        .reportIfValue(isTrue(), String.format(MESSAGE, kind)));
+      register(kind, (BlockObject document) -> {
+        BlockObject spec = document.block("spec").block("template").block("spec");
+        if (isContainersKeyPresent(spec)) {
+          AttributeObject attributeObject = spec.attribute(KEY);
+          attributeObject.reportIfAbsent(retrieveTextRangeToRaiseIssue(document.block("spec").block("template")), String.format(MESSAGE, kind));
+          attributeObject.reportIfValue(isSet().negate(), String.format(MESSAGE, kind));
+          attributeObject.reportIfValue(isTrue(), String.format(MESSAGE, kind));
+        }
+      });
     }
+  }
+
+  private static boolean isContainersKeyPresent(BlockObject blockObject) {
+    return blockObject.blocks("containers").findAny().isPresent();
   }
 }
