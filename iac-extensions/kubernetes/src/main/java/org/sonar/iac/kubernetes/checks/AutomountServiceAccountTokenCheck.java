@@ -21,7 +21,6 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
@@ -42,26 +41,20 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, (BlockObject document) -> {
-      BlockObject spec = document.block("spec");
-      AttributeObject attributeObject = spec.attribute(KEY);
-      if (isContainersKeyPresent(spec)) {
-        attributeObject.reportIfAbsent(retrieveTextRangeToRaiseIssue(document), String.format(MESSAGE, KIND_POD));
-        attributeObject.reportIfValue(isSet().negate(), String.format(MESSAGE, KIND_POD));
-        attributeObject.reportIfValue(isTrue(), String.format(MESSAGE, KIND_POD));
-      }
-    });
+    register(KIND_POD, document -> checkAndReport(document, String.format(MESSAGE, KIND_POD)));
 
     for (String kind : KIND_WITH_TEMPLATE) {
-      register(kind, (BlockObject document) -> {
-        BlockObject spec = document.block("spec").block("template").block("spec");
-        if (isContainersKeyPresent(spec)) {
-          AttributeObject attributeObject = spec.attribute(KEY);
-          attributeObject.reportIfAbsent(retrieveTextRangeToRaiseIssue(document.block("spec").block("template")), String.format(MESSAGE, kind));
-          attributeObject.reportIfValue(isSet().negate(), String.format(MESSAGE, kind));
-          attributeObject.reportIfValue(isTrue(), String.format(MESSAGE, kind));
-        }
-      });
+      register(kind, (BlockObject document) -> checkAndReport(document.block("spec").block("template"), String.format(MESSAGE, kind)));
+    }
+  }
+
+  private static void checkAndReport(BlockObject blockObject, String message) {
+    var spec = blockObject.block("spec");
+    var attributeObject = spec.attribute(KEY);
+    if (isContainersKeyPresent(spec)) {
+      attributeObject.reportIfAbsent(retrieveTextRangeToRaiseIssue(blockObject), message);
+      attributeObject.reportIfValue(isSet().negate(), message);
+      attributeObject.reportIfValue(isTrue(), message);
     }
   }
 
