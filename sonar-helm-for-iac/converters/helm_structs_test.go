@@ -46,3 +46,14 @@ func Test_Files_AsSecrets(t *testing.T) {
 	assert.Equal(t, "a.yaml: Zm9vOiBiYXI=", files.Glob("a.yaml").AsSecrets())
 	assert.Equal(t, "", files.Glob("not-existent").AsSecrets())
 }
+
+func Test_KubeVersion_GitVersion(t *testing.T) {
+	kv := DefaultCapabilities["KubeVersion"].(KubeVersion)
+	assert.Equal(t, "v1.20.0", kv.GitVersion)
+}
+
+func Test_Versions_Has(t *testing.T) {
+	vs := DefaultCapabilities["APIVersions"].(VersionSet)
+	assert.True(t, vs.Has("apps/v1"))
+	assert.False(t, vs.Has("not/a/k8s/version"))
+}
