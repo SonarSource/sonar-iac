@@ -78,6 +78,7 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
+    readLinesSizes(source, inputFileContext, locationShifter);
     var fileRelativePath = getFileRelativePath(inputFileContext);
     var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
     var evaluatedAndCleanedSource = cleanSource(evaluatedSource, inputFileContext, locationShifter);
@@ -86,6 +87,13 @@ public class KubernetesParser extends YamlParser {
       return super.parse("{}", null, FileTree.Template.HELM);
     }
     return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
+  }
+
+  private void readLinesSizes(String source, InputFileContext ctx, LocationShifter locationShifter) {
+    var lines = splitLines(source);
+    for (var lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
+      locationShifter.addLineSize(ctx, lineNumber, lines[lineNumber - 1].length());
+    }
   }
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {
