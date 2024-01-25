@@ -26,14 +26,14 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.getFirstChildElement;
+import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.retrieveTextRangeToRaiseIssue;
 
 class AbstractLimitsCheckTest {
   @Test
   void testGetFirstChildElement() {
     CheckContext checkContext = mock(CheckContext.class);
     BlockObject block = BlockObject.fromAbsent(checkContext, "a");
-    HasTextRange firstChildElement = getFirstChildElement(block);
-    assertThat(firstChildElement).isNull();
+    HasTextRange locationToRaiseIssueAt = retrieveTextRangeToRaiseIssue(block);
+    assertThat(locationToRaiseIssueAt).isNull();
   }
 }

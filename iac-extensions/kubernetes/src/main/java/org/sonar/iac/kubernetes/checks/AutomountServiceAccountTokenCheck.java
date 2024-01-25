@@ -25,25 +25,32 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
-import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.getFirstChildElement;
+import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.retrieveTextRangeToRaiseIssue;
 
 @Rule(key = "S6865")
 public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectCheck {
-  private static final String MESSAGE = "Set automountServiceAccountToken to false for this container.";
+  private static final String MESSAGE = "Set automountServiceAccountToken to false for the specification of kind %s.";
   private static final String KEY = "automountServiceAccountToken";
   private static final String KIND_POD = "Pod";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
 
   @Override
-  void registerObjectCheck() {
-    register(KIND_POD, (BlockObject pod) -> pod.attribute(KEY)
-      .reportIfAbsent(getFirstChildElement(pod), MESSAGE)
-      .reportIfValue(isSet().negate(), MESSAGE)
-      .reportIfValue(isTrue(), MESSAGE));
+  boolean shouldVisitWholeDocument() {
+    return true;
+  }
 
-    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> obj.block("template").block("spec").attribute(KEY)
-      .reportIfAbsent(getFirstChildElement(obj.block("template").block("spec")), MESSAGE)
-      .reportIfValue(isSet().negate(), MESSAGE)
-      .reportIfValue(isTrue(), MESSAGE));
+  @Override
+  void registerObjectCheck() {
+    register(KIND_POD, (BlockObject doc) -> doc.block("spec").attribute(KEY)
+      .reportIfAbsent(retrieveTextRangeToRaiseIssue(doc), String.format(MESSAGE, KIND_POD))
+      .reportIfValue(isSet().negate(), String.format(MESSAGE, KIND_POD))
+      .reportIfValue(isTrue(), String.format(MESSAGE, KIND_POD)));
+
+    for (String kind : KIND_WITH_TEMPLATE) {
+      register(kind, (BlockObject doc) -> doc.block("spec").block("template").block("spec").attribute(KEY)
+        .reportIfAbsent(retrieveTextRangeToRaiseIssue(doc.block("spec").block("template")), String.format(MESSAGE, kind))
+        .reportIfValue(isSet().negate(), String.format(MESSAGE, kind))
+        .reportIfValue(isTrue(), String.format(MESSAGE, kind)));
+    }
   }
 }
