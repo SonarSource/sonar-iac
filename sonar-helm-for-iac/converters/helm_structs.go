@@ -31,18 +31,80 @@ var DefaultReleaseMetadata = map[string]interface{}{
 const k8sVersionMajor = "1"
 const k8sVersionMinor = "20"
 
+var k8sVersion = fmt.Sprintf("v%s.%s.0", k8sVersionMajor, k8sVersionMinor)
+
+type KubeVersion struct {
+	Version string
+	Major   string
+	Minor   string
+	// GitVersion is deprecated and simply returns the Version field.
+	GitVersion string
+}
+
 var DefaultCapabilities = map[string]interface{}{
-	"KubeVersion": struct {
-		Version string
-		Major   string
-		Minor   string
-	}{
-		fmt.Sprintf("v%s.%s.0", k8sVersionMajor, k8sVersionMinor),
+	"KubeVersion": KubeVersion{
+		k8sVersion,
 		k8sVersionMajor,
 		k8sVersionMinor,
+		k8sVersion,
 	},
-	// It is possible to directly use `k8s.io/apimachinery/pkg/runtime/scheme.go`, as does Helm. Not sure if we need it.
-	"APIVersions": []string{"v1"},
+	// It is possible to directly use `k8s.io/apimachinery/pkg/runtime/scheme.go`, as does Helm.
+	// For `Has` to make sense, we need a reasonable set of versions here.
+	"APIVersions": VersionSet{
+		"v1",
+		"admissionregistration.k8s.io/v1",
+		"admissionregistration.k8s.io/v1alpha1",
+		"admissionregistration.k8s.io/v1beta1",
+		"internal.apiserver.k8s.io/v1alpha1",
+		"apps/v1",
+		"apps/v1beta1",
+		"apps/v1beta2",
+		"authentication.k8s.io/v1",
+		"authentication.k8s.io/v1alpha1",
+		"authentication.k8s.io/v1beta1",
+		"authorization.k8s.io/v1",
+		"authorization.k8s.io/v1beta1",
+		"autoscaling/v1",
+		"autoscaling/v2",
+		"autoscaling/v2beta1",
+		"autoscaling/v2beta2",
+		"batch/v1",
+		"batch/v1beta1",
+		"certificates.k8s.io/v1",
+		"certificates.k8s.io/v1beta1",
+		"certificates.k8s.io/v1alpha1",
+		"coordination.k8s.io/v1beta1",
+		"coordination.k8s.io/v1",
+		"discovery.k8s.io/v1",
+		"discovery.k8s.io/v1beta1",
+		"events.k8s.io/v1",
+		"events.k8s.io/v1beta1",
+		"extensions/v1beta1",
+		"flowcontrol.apiserver.k8s.io/v1",
+		"flowcontrol.apiserver.k8s.io/v1beta1",
+		"flowcontrol.apiserver.k8s.io/v1beta2",
+		"flowcontrol.apiserver.k8s.io/v1beta3",
+		"networking.k8s.io/v1",
+		"networking.k8s.io/v1alpha1",
+		"networking.k8s.io/v1beta1",
+		"node.k8s.io/v1",
+		"node.k8s.io/v1alpha1",
+		"node.k8s.io/v1beta1",
+		"policy/v1",
+		"policy/v1beta1",
+		"rbac.authorization.k8s.io/v1",
+		"rbac.authorization.k8s.io/v1beta1",
+		"rbac.authorization.k8s.io/v1alpha1",
+		"resource.k8s.io/v1alpha2",
+		"scheduling.k8s.io/v1alpha1",
+		"scheduling.k8s.io/v1beta1",
+		"scheduling.k8s.io/v1",
+		"storage.k8s.io/v1beta1",
+		"storage.k8s.io/v1",
+		"storage.k8s.io/v1alpha1",
+		"apiextensions.k8s.io/v1beta1",
+		"apiextensions.k8s.io/v1",
+	},
 	"HelmVersion": struct {
 		Version      string
 		GitCommit    string
@@ -54,6 +116,17 @@ var DefaultCapabilities = map[string]interface{}{
 		"clean",
 		"go1.21",
 	},
+}
+
+type VersionSet []string
+
+func (versions VersionSet) Has(targetVersion string) bool {
+	for _, version := range versions {
+		if version == targetVersion {
+			return true
+		}
+	}
+	return false
 }
 
 type Template = struct {
