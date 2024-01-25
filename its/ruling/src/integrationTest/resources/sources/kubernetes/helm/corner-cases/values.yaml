@@ -8,3 +8,8 @@ annotations:
   second: barfoo
 livenessProbe: true
 initialDelaySeconds: 5
+multiline: |
+  .
+  .
+  .
+  .

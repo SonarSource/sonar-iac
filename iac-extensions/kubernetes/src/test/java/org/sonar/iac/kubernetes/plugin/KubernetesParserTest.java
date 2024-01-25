@@ -39,10 +39,12 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -285,6 +287,32 @@ class KubernetesParserTest {
       FileTree file = parser.parse("dummy: {{ dummy }}", inputFileContext);
       assertThat(file.documents().get(0).children()).hasSize(4);
       assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
+    }
+  }
+
+  @Test
+  void shouldShiftMarkedYamlExceptions() throws URISyntaxException {
+    var evaluated = code(
+      "key: | #1",
+      "  .",
+      "  .",
+      "  .",
+      "  . #2",
+      "invalid-key #3");
+
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
+
+      assertThatThrownBy(() -> parser.parse("dummy: {{ dummy }}", inputFileContext))
+        .isInstanceOf(ShiftedMarkedYamlEngineException.class);
+
+      assertThat(logTester.logs(Level.DEBUG))
+        .contains("Shifting YAML exception from [6:12] to [3:1]");
     }
   }
 }

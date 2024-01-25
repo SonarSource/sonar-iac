@@ -25,10 +25,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 
 /**
  * This class is used to store all lines that has to be shifted.<p/>
@@ -106,6 +110,31 @@ public class LocationShifter {
     var end = new TextPointer(rangeEnd, rangeEndLineLength);
 
     return new TextRange(start, end);
+  }
+
+  public MarkedYamlEngineException shiftMarkedYamlException(InputFileContext inputFileContext, MarkedYamlEngineException exception) {
+    var problemMark = exception.getProblemMark();
+    if (problemMark.isPresent()) {
+      var markInTransformedCode = problemMark.get();
+      // snakeyaml has a single point in problem mark, which it expands into a small piece of surrounding text for readability.
+      // There is no actual range to highlight exception at. Note: snakeyaml uses 0-based indexing, but we don't need to adjust, as
+      // we will handle this exception later as if it came from snakeyaml.
+      var rangeInException = TextRanges.range(
+        markInTransformedCode.getLine(),
+        markInTransformedCode.getColumn(),
+        markInTransformedCode.getLine(),
+        markInTransformedCode.getColumn());
+      var shiftedRange = computeShiftedLocation(inputFileContext, rangeInException);
+      var shiftedMark = new Mark(
+        markInTransformedCode.getName(),
+        markInTransformedCode.getIndex(),
+        shiftedRange.start().line(),
+        shiftedRange.start().lineOffset(),
+        markInTransformedCode.getBuffer(),
+        markInTransformedCode.getPointer());
+      return new ShiftedMarkedYamlEngineException(exception, shiftedMark);
+    }
+    return exception;
   }
 
   private LinesShifting getOrCreateLinesShifting(InputFileContext ctx) {

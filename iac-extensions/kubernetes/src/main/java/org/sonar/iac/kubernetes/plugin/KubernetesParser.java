@@ -25,9 +25,11 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -85,7 +87,15 @@ public class KubernetesParser extends YamlParser {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
       return super.parse("{}", null, FileTree.Template.HELM);
     }
-    return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
+    try {
+      return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
+    } catch (MarkedYamlEngineException e) {
+      var shifted = locationShifter.shiftMarkedYamlException(inputFileContext, e);
+      if (shifted instanceof ShiftedMarkedYamlEngineException) {
+        LOG.debug("Shifting YAML exception {}", ((ShiftedMarkedYamlEngineException) shifted).describeShifting());
+      }
+      throw shifted;
+    }
   }
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {
