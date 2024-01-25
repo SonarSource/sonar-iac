@@ -26,18 +26,18 @@ import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
-class CommandExecutionCheckTest {
+class RBACWildcardCheckTest {
 
-  IacCheck check = new CommandExecutionCheck();
+  IacCheck check = new RBACWildcardCheck();
 
   static Stream<String> sensitiveKinds() {
     return Stream.of("Role", "ClusterRole");
   }
 
   @MethodSource("sensitiveKinds")
-  @ParameterizedTest(name = "[{index}] should check command execution for kind: \"{0}\"")
+  @ParameterizedTest(name = "[{index}] should check wildcard rbac for kind: \"{0}\"")
   void shouldCheckCommandExecutionInKind(String kind) {
-    String content = readTemplateAndReplace("CommandExecutionCheck/commandExecutionTestTemplate.yaml", kind);
+    String content = readTemplateAndReplace("RBACWildcardCheck/wildcardCheckTestTemplate.yaml", kind);
     KubernetesVerifier.verifyContent(content, check);
   }
 }

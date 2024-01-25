@@ -26,11 +26,12 @@ import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-@Rule(key = "S6868")
-public class CommandExecutionCheck extends AbstractKubernetesObjectCheck {
+@Rule(key = "S6867")
+public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
 
-  private static final String MESSAGE = "Remove the command execution permission for this role.";
+  private static final String MESSAGE = "Do not use wildcards when defining RBAC permissions.";
   private static final List<String> SENSITIVE_KINDS = List.of("Role", "ClusterRole");
+  private static final List<String> SENSITIVE_RULE_ATTRIBUTES = List.of("resources", "verbs");
 
   @Override
   boolean shouldVisitWholeDocument() {
@@ -40,21 +41,15 @@ public class CommandExecutionCheck extends AbstractKubernetesObjectCheck {
   @Override
   void registerObjectCheck() {
     register(SENSITIVE_KINDS, document -> document.blocks("rules")
-      .filter(CommandExecutionCheck::ruleContainsSensitiveVerb)
-      .filter(CommandExecutionCheck::ruleContainsSensitiveResource)
-      .forEach(rule -> rule.attribute("resources").reportOnKey(MESSAGE)));
+      .forEach((BlockObject rule) -> SENSITIVE_RULE_ATTRIBUTES.forEach((String attributeKey) -> {
+        if (containsWildCardItem(rule, attributeKey)) {
+          rule.attribute(attributeKey).reportOnKey(MESSAGE);
+        }
+      })));
   }
 
-  private static boolean ruleContainsSensitiveVerb(BlockObject rule) {
-    return containsSensitiveItemOrWildCard(rule, "verbs", "create");
-  }
-
-  private static boolean ruleContainsSensitiveResource(BlockObject rule) {
-    return containsSensitiveItemOrWildCard(rule, "resources", "pods/exec");
-  }
-
-  private static boolean containsSensitiveItemOrWildCard(BlockObject rule, String listKey, String sensitiveItem) {
-    Predicate<YamlTree> verbsPredicate = TreePredicates.isEqualTo(sensitiveItem).or(TreePredicates.isEqualTo("*"));
-    return rule.list(listKey).getItemIf(verbsPredicate).findAny().isPresent();
+  private static boolean containsWildCardItem(BlockObject rule, String listKey) {
+    Predicate<YamlTree> wildcardPredicate = TreePredicates.isEqualTo("*");
+    return rule.list(listKey).getItemIf(wildcardPredicate).findAny().isPresent();
   }
 }

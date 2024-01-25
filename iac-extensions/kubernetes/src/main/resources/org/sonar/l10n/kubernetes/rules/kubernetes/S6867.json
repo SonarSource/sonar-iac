@@ -1,0 +1,27 @@
+{
+  "title": "Wildcards should not be used to define RBAC permissions",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6867",
+  "sqKey": "S6864",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      284
+    ]
+  },
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  }
+}

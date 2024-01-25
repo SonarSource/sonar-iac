@@ -113,6 +113,27 @@ class AttributeObjectTest extends YamlTreeTest {
     assertThat(raisedIssues).isEmpty();
   }
 
+  @Test
+  void shouldReportOnKey() {
+    TupleTree tree = parseTuple("a: b");
+    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
+    attributeObject.reportOnKey("message");
+
+    assertThat(raisedIssues).hasSize(1);
+    TestIssue issue = raisedIssues.get(0);
+    assertThat(issue.message).isEqualTo("message");
+    assertThat(issue.secondaryLocations).isEmpty();
+    assertThat(issue.textRange).isEqualTo(tree.key().textRange());
+  }
+
+  @Test
+  void shouldNotReportOnKeyForMissingTree() {
+    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
+    attributeObject.reportOnKey("message");
+
+    assertThat(raisedIssues).isEmpty();
+  }
+
   private static class TestContext implements CheckContext {
 
     @Override

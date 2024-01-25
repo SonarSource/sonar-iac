@@ -1,0 +1,50 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ${type}
+metadata:
+  namespace: default
+  name: noncompliant-role
+rules:
+  - apiGroups: [""]
+    resources: ["*"] # Noncompliant {{Do not use wildcards when defining RBAC permissions.}}
+#   ^^^^^^^^^
+    verbs: ["*"] # Noncompliant {{Do not use wildcards when defining RBAC permissions.}}
+#   ^^^^^
+
+  - apiGroups: [""]
+    resources: ["*"] # Noncompliant
+#   ^^^^^^^^^
+    verbs: ["create"]
+
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["*"] # Noncompliant
+#   ^^^^^
+
+  - apiGroups: [""]
+    resources: ["services", "*", "endpointslices", "pods"] # Noncompliant
+    verbs: ["get", "list", "watch", "*", "update", "patch", "delete"] # Noncompliant
+
+  - apiGroups: [""]
+    resources: # Noncompliant
+#   ^^^^^^^^^
+      - "*"
+    verbs:
+      - "create"
+
+  - apiGroups: [""]
+    "resources":
+      - "pods/exec"
+    "verbs": # Noncompliant
+#   ^^^^^^^
+      - "*"
+
+  - apiGroups: [""]
+    resources: ["pods/exec"] # Compliant
+    verbs: ["get"]
+
+  - apiGroups: [""]
+    resources: ["services"] # Compliant
+    verbs: ["create"]
+
+  - apiGroups: [""]
+    verbs: ["create"] # Compliant
