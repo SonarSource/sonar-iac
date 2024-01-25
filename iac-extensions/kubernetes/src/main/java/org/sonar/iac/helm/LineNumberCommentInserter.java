@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.helm;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 public final class LineNumberCommentInserter {
@@ -27,7 +26,6 @@ public final class LineNumberCommentInserter {
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
 
-  private static final List<String> LINES_IGNORE_LINE_COUNTER = List.of("---", "...");
   private static final int DOUBLE_BRACE_SIZE = 2;
 
   private LineNumberCommentInserter() {
@@ -51,33 +49,28 @@ public final class LineNumberCommentInserter {
       // - Line contains regular text and is inside a go template: do not add line number comment
       // - Line contains {{ but no corresponding }} on the same line: do not add line number comment, store line number
       // - Line contains }} but no corresponding {{ on the same line: add line number comment, reset line number
-      // - Line contains only --- (separate document) or ... (end of document): do not add line number comment
 
       lineCounter++;
       var lineContent = matcher.group("lineContent");
       sb.append(lineContent);
 
-      if (!LINES_IGNORE_LINE_COUNTER.contains(lineContent)) {
-        if (goTemplateStartLine == -1 && getNumberOfUnmatchedDoubleOpeningBraces(lineContent) == 0) {
-          sb.append(commentLineNumber(lineCounter));
-        } else if (goTemplateStartLine == -1 && getNumberOfUnmatchedDoubleOpeningBraces(lineContent) > 0) {
-          goTemplateStartLine = lineCounter;
-        } else if (getNumberOfUnmatchedDoubleOpeningBraces(lineContent) < 0) {
-          sb.append(commentMultilineNumber(goTemplateStartLine, lineCounter));
-          goTemplateStartLine = -1;
-        }
+      if (goTemplateStartLine == -1 && getNumberOfUnmatchedDoubleOpeningBraces(lineContent) == 0) {
+        sb.append(commentLineNumber(lineCounter));
+      } else if (goTemplateStartLine == -1 && getNumberOfUnmatchedDoubleOpeningBraces(lineContent) > 0) {
+        goTemplateStartLine = lineCounter;
+      } else if (getNumberOfUnmatchedDoubleOpeningBraces(lineContent) < 0) {
+        sb.append(commentMultilineNumber(goTemplateStartLine, lineCounter));
+        goTemplateStartLine = -1;
       }
       sb.append(matcher.group("newLine"));
       lastIndex = matcher.end();
     }
     var lastLine = content.substring(lastIndex);
     sb.append(lastLine);
-    if (!LINES_IGNORE_LINE_COUNTER.contains(lastLine)) {
-      if (goTemplateStartLine != -1) {
-        sb.append(commentMultilineNumber(goTemplateStartLine, lineCounter + 1));
-      } else {
-        sb.append(commentLineNumber(lineCounter + 1));
-      }
+    if (goTemplateStartLine != -1) {
+      sb.append(commentMultilineNumber(goTemplateStartLine, lineCounter + 1));
+    } else {
+      sb.append(commentLineNumber(lineCounter + 1));
     }
 
     return sb.toString();

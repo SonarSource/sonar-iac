@@ -36,8 +36,11 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
@@ -57,7 +60,8 @@ class KubernetesParserTest {
   private final SensorContext sensorContext = mock(SensorContext.class);
   private final InputFileContext inputFileContext = new InputFileContext(sensorContext, inputFile);
   private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
-  private final KubernetesParser parser = new KubernetesParser(helmProcessor, new LocationShifter());
+  private final LocationShifter locationShifter = new LocationShifter();
+  private final KubernetesParser parser = new KubernetesParser(helmProcessor, locationShifter);
 
   @BeforeEach
   void setup() {
@@ -108,6 +112,7 @@ class KubernetesParserTest {
   @Test
   void shouldLoadValuesFile() throws IOException, URISyntaxException {
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
       var valuesFile = mock(InputFile.class);
       when(valuesFile.filename()).thenReturn("values.yaml");
       when(valuesFile.contents()).thenReturn("foo: bar");
@@ -116,7 +121,6 @@ class KubernetesParserTest {
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
       when(inputFileContext.inputFile.toString()).thenReturn("chart/templates/foo.yaml");
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
 
       FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
 
@@ -166,35 +170,26 @@ class KubernetesParserTest {
 
   @Test
   void shouldRemoveEmptyLinesAfterEvaluation() throws IOException, URISyntaxException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = mock(InputFile.class);
-      when(valuesFile.filename()).thenReturn("values.yaml");
-      when(valuesFile.contents()).thenReturn("foo: bar");
-      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-      String evaluatedSource = code("apiVersion: apps/v1 #1",
-        "kind: StatefulSet #2",
-        "metadata: #3",
-        "  name: helm-chart-sonarqube-dce-search #4",
-        "spec: #5",
-        "  livenessProbe: #6",
-        "    exec: #7",
-        "      command: #8",
-        "        - sh #9",
-        "        - -c #10",
-        "        #14",
-        "        - | #15",
-        "          bar #16 #17",
-        "    initialDelaySeconds: 60 #18",
-        "  #19");
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluatedSource);
-      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+    String evaluated = code("apiVersion: apps/v1 #1",
+      "kind: StatefulSet #2",
+      "metadata: #3",
+      "  name: helm-chart-sonarqube-dce-search #4",
+      "spec: #5",
+      "  livenessProbe: #6",
+      "    exec: #7",
+      "      command: #8",
+      "        - sh #9",
+      "        - -c #10",
+      "        #14",
+      "        - | #15",
+      "          bar #16 #17",
+      "    initialDelaySeconds: 60 #18",
+      "  #19");
 
-      FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+    FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
 
-      assertThat(file.documents()).hasSize(1);
-      assertThat(file.documents().get(0).children()).hasSize(4);
-    }
+    assertThat(file.documents()).hasSize(1);
+    assertThat(file.documents().get(0).children()).hasSize(4);
   }
 
   @Test
@@ -221,25 +216,17 @@ class KubernetesParserTest {
 
   @Test
   void shouldNotCrashOnNewDocumentAfterEvaluation() throws IOException, URISyntaxException {
-    var evaluated = code("--- #5",
+    var evaluated = code(
+      "--- #5",
       "apiVersion: v1 #6",
       "kind: Pod #7",
       "metadata: #8",
       "spec: #9");
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = mock(InputFile.class);
-      when(valuesFile.filename()).thenReturn("values.yaml");
-      when(valuesFile.contents()).thenReturn("foo: bar");
-      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
-      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
-      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
 
-      FileTree file = parser.parse("dummy: {{ dummy }}", inputFileContext);
-      assertThat(file.documents().get(0).children()).hasSize(4);
-      assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
-    }
+    FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
+
+    assertThat(file.documents().get(0).children()).hasSize(4);
+    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
   }
 
   @Test
@@ -250,20 +237,11 @@ class KubernetesParserTest {
       "metadata: #8",
       "spec: #9",
       "--- #12");
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = mock(InputFile.class);
-      when(valuesFile.filename()).thenReturn("values.yaml");
-      when(valuesFile.contents()).thenReturn("foo: bar");
-      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
-      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
-      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
 
-      FileTree file = parser.parse("dummy: {{ dummy }}", inputFileContext);
-      assertThat(file.documents().get(0).children()).hasSize(4);
-      assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
-    }
+    FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
+
+    assertThat(file.documents().get(0).children()).hasSize(4);
+    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
   }
 
   @Test
@@ -274,6 +252,175 @@ class KubernetesParserTest {
       "metadata: #8",
       "spec: #9",
       "... #10");
+
+    FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
+
+    assertThat(file.documents().get(0).children()).hasSize(4);
+    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
+  }
+
+  @Test
+  void shouldFindShiftedLocation() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ helm code }}");
+    String evaluated = code("test: #1",
+      "- key1:value1 #2",
+      "- key2:value2 #2");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 15);
+    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 15);
+  }
+
+  @Test
+  void shouldFindShiftedLocationWithExistingComment() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ helm code }} # some comment");
+    String evaluated = code("test: #1",
+      "- key1:value1 #2",
+      "- key2:value2 # some comment #2");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
+    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 30);
+  }
+
+  @Test
+  void shouldFindShiftedLocationWhenMultipleLineNumbers() throws IOException, URISyntaxException {
+    String originalCode = code(
+      "foo:",
+      "{{- range .Values.capabilities }}",
+      "  - {{ . | quote }}",
+      "{{- end }}");
+    String evaluated = code(
+      "foo: #1 #2",
+      "  - \"SYS_ADMIN\" #3 #2",
+      "  - \"NET_ADMIN\" #3 #4");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 16));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(3, 0, 3, 19);
+    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 16));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(3, 0, 3, 19);
+  }
+
+  @Test
+  void shouldFindShiftedLocationWhenCommentContainsHashNumber() throws IOException, URISyntaxException {
+    String originalCode = code(
+      "foo: {{ .Values.foo }} # fix in #123 issue",
+      "bar: {{ .Values.bar }} # fix in # 123 issue");
+    String evaluated = code(
+      "foo: foo # fix in #123 issue #1",
+      "bar: bar # fix in # 123 issue #2");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(1, 1, 1, 8));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(1, 0, 1, 42);
+    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 8));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 43);
+  }
+
+  @Test
+  void shouldHandleInvalidLineNumberComment() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ helm code }} # some comment");
+    String evaluated = code("test: #1",
+      "- key1:value1 #a",
+      "- key1:value1 #some comment #b");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
+  }
+
+  @Test
+  void shouldHandleWhenLineCommentIsMissingOrNotDetectedProperly() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ helm code }}");
+    String evaluated = code("test: #1",
+      "- key1:value1",
+      "- key2:value2 #2",
+      "- key3:value3");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange textRange1 = TextRanges.range(2, 1, 2, 5);
+    TextRange shiftedTextRange1 = locationShifter.computeShiftedLocation(inputFileContext, textRange1);
+    TextRangeAssert.assertThat(shiftedTextRange1)
+      .describedAs("Line comment is missing, should use the next available comment")
+      .hasRange(2, 0, 2, 15);
+
+    TextRange textRange2 = TextRanges.range(2, 1, 3, 5);
+    TextRange shiftedTextRange2 = locationShifter.computeShiftedLocation(inputFileContext, textRange2);
+    TextRangeAssert.assertThat(shiftedTextRange2).hasRange(2, 0, 2, 15);
+
+    TextRange textRange3 = TextRanges.range(3, 1, 4, 5);
+    TextRange shiftedTextRange3 = locationShifter.computeShiftedLocation(inputFileContext, textRange3);
+    TextRangeAssert.assertThat(shiftedTextRange3)
+      .describedAs("No more line comments on following lines, should fall back to the last line of the original file")
+      .hasRange(2, 0, 2, 15);
+  }
+
+  @Test
+  void shouldFindShiftedLocationFromRange() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ ",
+      "  helm code",
+      "}}");
+    String evaluated = code("test: #1",
+      "  value #2:4");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 4, 2);
+  }
+
+  @Test
+  void shouldFindShiftedLocationFromRangeWithMultipleLines() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ ",
+      "  helm code",
+      "}}");
+    String evaluated = code("test: #1",
+      "  - value1 #2:4",
+      "  - value2 #2:4");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 4, 2);
+    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 4, 2);
+  }
+
+  @Test
+  void shouldAddLastEmptyLine() throws IOException, URISyntaxException {
+    String originalCode = code("foo:",
+      "{{ print \"# a\\n# b\" }}",
+      "");
+    String evaluated = code("foo: #1",
+      "# a",
+      "# b #2",
+      "#3");
+
+    parseTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 3, 6));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 22);
+  }
+
+  private FileTree parseTemplate(String originalCode, String evaluated) throws IOException, URISyntaxException {
+    FileTree file;
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = mock(InputFile.class);
       when(valuesFile.filename()).thenReturn("values.yaml");
@@ -284,10 +431,9 @@ class KubernetesParserTest {
       when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
       when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
 
-      FileTree file = parser.parse("dummy: {{ dummy }}", inputFileContext);
-      assertThat(file.documents().get(0).children()).hasSize(4);
-      assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
+      file = parser.parse(originalCode, inputFileContext);
     }
+    return file;
   }
 
   @Test

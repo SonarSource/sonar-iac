@@ -80,6 +80,7 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
+    locationShifter.readLinesSizes(source, inputFileContext);
     var fileRelativePath = getFileRelativePath(inputFileContext);
     var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
     var evaluatedAndCleanedSource = cleanSource(evaluatedSource, inputFileContext, locationShifter);

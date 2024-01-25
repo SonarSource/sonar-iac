@@ -34,6 +34,8 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 
+import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
+
 /**
  * This class is used to store all lines that has to be shifted.<p/>
  * The data are stored into this class through methods {@link #addLineSize(InputFileContext, int, int)} and {@link #addShiftedLine(InputFileContext, int, int)}.
@@ -58,7 +60,15 @@ public class LocationShifter {
     linesData.targetEndLine = targetEndLine;
   }
 
-  public void addLineSize(InputFileContext ctx, int originalLine, int size) {
+  public void readLinesSizes(String source, InputFileContext ctx) {
+    var lines = splitLines(source);
+    for (var lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
+      addLineSize(ctx, lineNumber, lines[lineNumber - 1].length());
+    }
+  }
+
+  // default scope for testing
+  void addLineSize(InputFileContext ctx, int originalLine, int size) {
     getOrCreateLinesShifting(ctx).originalLinesSizes.put(originalLine, size);
   }
 
