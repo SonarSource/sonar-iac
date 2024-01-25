@@ -1,0 +1,48 @@
+<h2>Why is this an issue?</h2>
+<p>Using wildcards when defining Role-Based Access Control (RBAC) permissions in Kubernetes can lead to significant security issues. This is because
+it grants overly broad permissions, potentially allowing access to sensitive resources.</p>
+<p>RBAC is designed to limit the access rights of users within the system by assigning roles to them. These roles define what actions a user can
+perform and on which resources. When a wildcard is used, it means that the role has access to all resources/verbs, bypassing the principle of least
+privilege. This principle states that users should have only the minimal permissions they need to perform their job function.</p>
+<h3>What is the potential impact?</h3>
+<p>If an attacker gains access to a role with wildcard permissions, they could potentially read, modify, or delete any resource in the Kubernetes
+cluster, leading to data breaches, service disruptions, or other malicious activities.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: example-role
+rules:
+  - apiGroups: [""]
+    resources: ["*"] # Noncompliant
+    verbs: ["get", "list"]
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: example-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+</pre>
+<h3>How does this work?</h3>
+<p>When defining RBAC permissions, it is important to follow the principle of least privilege. By explicitly specifying the verbs and resources a user
+should have access to instead of using wildcards, it can be ensured that users have only the permissions they need to perform their job function.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Kubernetes Documentation - <a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">Using RBAC Authorization</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a> </li>
+</ul>
+
