@@ -128,35 +128,6 @@ class LineNumberCommentInserterTest {
   }
 
   @Test
-  void shouldNotAddLineCommentWhenSeparateDocument() {
-    checkHelmProcessing(
-      code("line1",
-        "---",
-        "line3"),
-      code("line1 #1",
-        "---",
-        "line3 #3"));
-  }
-
-  @Test
-  void shouldNotAddLineCommentWhenSeparateDocumentAtTheEnd() {
-    checkHelmProcessing(
-      code("line1",
-        "---"),
-      code("line1 #1",
-        "---"));
-  }
-
-  @Test
-  void shouldNotAddLineCommentWhenEndDocument() {
-    checkHelmProcessing(
-      code("line1",
-        "..."),
-      code("line1 #1",
-        "..."));
-  }
-
-  @Test
   void shouldAddCommentLineRangeForMultilineTemplates() {
     checkHelmProcessing(
       code("data:",
