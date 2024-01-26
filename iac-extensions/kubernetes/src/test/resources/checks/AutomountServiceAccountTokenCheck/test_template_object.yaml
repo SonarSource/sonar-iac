@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokenSetToTrue
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx-compliant
+          image: nginx:1.25.3
+      automountServiceAccountToken: true # Noncompliant {{Set automountServiceAccountToken to false for this specification of kind Deployment.}}
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokenNotPresent
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec: # Noncompliant
+  # ^^^^
+      containers:
+        - name: nginx-compliant
+          image: nginx:1.25.3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokenSetToNull
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx-compliant
+          image: nginx:1.25.3
+      automountServiceAccountToken: null # Noncompliant
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokenSetToFalse
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx-compliant
+          image: nginx:1.25.3
+      automountServiceAccountToken: false #  Compliant
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokenSetToTrueButContainersNotPresent
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      automountServiceAccountToken: true # Compliant
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokenAndContainersNotPresent
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec: # Compliant
+      restartPolicy: Never
+---
+apiVersion: apps/v1 # Compliant
+kind: Deployment
+metadata:
+  name: tokenAndContainersNotPresent
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web

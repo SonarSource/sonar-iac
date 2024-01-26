@@ -1,0 +1,27 @@
+{
+  "title": "Service account tokens should not be mounted in pods",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6865",
+  "sqKey": "S6865",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      306
+    ]
+  },
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  }
+}
