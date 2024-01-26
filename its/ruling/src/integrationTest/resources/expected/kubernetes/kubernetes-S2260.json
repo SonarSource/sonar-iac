@@ -3,7 +3,7 @@
 6
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/invalid-yaml-after-render.yaml": [
-3
+2
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/required/templates/required_missing.yaml": [
 0
@@ -31,17 +31,5 @@
 ],
 "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/config.yaml": [
 13
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/install-plugins.yaml": [
-12
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/config.yaml": [
-12
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/init-fs.yaml": [
-12
-],
-"kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/install-plugins.yaml": [
-12
 ]
 }

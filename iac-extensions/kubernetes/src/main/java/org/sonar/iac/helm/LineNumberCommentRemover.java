@@ -20,12 +20,14 @@
 package org.sonar.iac.helm;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 public final class LineNumberCommentRemover {
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
+  private static final Set<Character> NEW_LINES_CHARACTERS = Set.of('\n', '\r', '\u2028', '\u2029');
 
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
 
@@ -64,7 +66,17 @@ public final class LineNumberCommentRemover {
       sb.append(lineAndComment.contentWithoutComment);
       lineAndComment.addToLocationShifter(locationShifter, inputFileContext, lineCounter);
     }
-    return sb.toString();
+    return removeNewLinesAtTheEnd(sb.toString());
+  }
+
+  private static String removeNewLinesAtTheEnd(String input) {
+    int index = input.length() - 1;
+    for (; index >= 0; index--) {
+      if (!NEW_LINES_CHARACTERS.contains(input.charAt(index))) {
+        break;
+      }
+    }
+    return input.substring(0, index + 1);
   }
 
   private static LineAndComment toLineAndComment(String lineContent) {
