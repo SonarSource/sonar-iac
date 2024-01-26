@@ -82,7 +82,7 @@ class HelmFilesystemUtilsTest {
     addToFilesystem(context, helmTemplate, additionalFile);
 
     Map<String, InputFile> helmDependentFiles = HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(templateInputFileContext);
-    InputFile resultingInputFile = helmDependentFiles.get(relativePath.replace("/", File.separator));
+    InputFile resultingInputFile = helmDependentFiles.get(relativePath);
 
     if (shouldBeIncluded) {
       assertThat(helmDependentFiles).hasSize(2);
@@ -121,6 +121,20 @@ class HelmFilesystemUtilsTest {
   }
 
   @Test
+  void faultyPathNormalizationShouldReturnNonePredicate() throws IOException {
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      when(HelmFilesystemUtils.normalizePathForWindows(any())).thenReturn(null);
+      when(HelmFilesystemUtils.additionalHelmDependenciesPredicate(any(), any())).thenCallRealMethod();
+
+      InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+      InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
+
+      FilePredicate filePredicate = HelmFilesystemUtils.additionalHelmDependenciesPredicate(templateInputFileContext, baseDir.toPath());
+      assertThat(filePredicate).isEqualTo(context.fileSystem().predicates().none());
+    }
+  }
+
+  @Test
   void shouldReturnNullWhenInputIsNull() {
     Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(null, context.fileSystem().baseDir());
     assertThat(parentPath).isNull();
@@ -137,6 +151,18 @@ class HelmFilesystemUtilsTest {
       Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
       assertThat(parentPath).isNull();
     }
+  }
+
+  @Test
+  void shouldReturnNullIfRealPathOfBaseDirCantBeResolved() throws IOException {
+    Path inputFilePath = mock(Path.class);
+    Path basePath = mock(Path.class);
+    when(basePath.toRealPath()).thenThrow(IOException.class);
+    File baseDir = mock(File.class);
+    when(baseDir.toPath()).thenReturn(basePath);
+    Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath, baseDir);
+
+    assertThat(parentPath).isNull();
   }
 
   @Test

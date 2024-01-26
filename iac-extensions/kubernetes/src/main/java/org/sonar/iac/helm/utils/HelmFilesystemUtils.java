@@ -56,7 +56,8 @@ public final class HelmFilesystemUtils {
     Iterable<InputFile> inputFiles = inputFileContext.sensorContext.fileSystem().inputFiles(filePredicate);
 
     for (InputFile additionalFile : inputFiles) {
-      result.put(resolveToInputFile(helmDirectoryPath, additionalFile), additionalFile);
+      String fileName = resolveToInputFile(helmDirectoryPath, additionalFile);
+      result.put(normalizeToUnixPathSeparator(fileName), additionalFile);
     }
     return result;
   }
@@ -67,12 +68,12 @@ public final class HelmFilesystemUtils {
 
     String pathPattern = null;
 
-    try {
-      var basePath = inputFileContext.sensorContext.fileSystem().baseDir().toPath().toRealPath();
-      var relativizedPath = basePath.relativize(helmProjectDirectoryPath.toRealPath());
+    var basePath = normalizePathForWindows(inputFileContext.sensorContext.fileSystem().baseDir().toPath());
+    helmProjectDirectoryPath = normalizePathForWindows(helmProjectDirectoryPath);
+
+    if (basePath != null && helmProjectDirectoryPath != null) {
+      var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
       pathPattern = relativizedPath + File.separator + "**";
-    } catch (IOException e) {
-      LOG.debug("Failed to resolve Helm project file predicate for {}", inputFileContext.inputFile);
     }
 
     if (pathPattern == null) {
@@ -94,7 +95,12 @@ public final class HelmFilesystemUtils {
 
   @CheckForNull
   public static Path retrieveHelmProjectFolder(Path inputFilePath, File baseDir) {
-    var baseDirPath = baseDir.toPath();
+    var baseDirPath = normalizePathForWindows(baseDir.toPath());
+
+    if (baseDirPath == null) {
+      return null;
+    }
+
     var helmProjectDirectoryPath = inputFilePath;
 
     while (helmProjectDirectoryPath != null && helmProjectDirectoryPath.startsWith(baseDirPath)) {
@@ -111,5 +117,19 @@ public final class HelmFilesystemUtils {
 
   private static String resolveToInputFile(Path helmDirectoryPath, InputFile additionalFile) {
     return helmDirectoryPath.relativize(Path.of(additionalFile.uri())).toString();
+  }
+
+  public static String normalizeToUnixPathSeparator(String filename) {
+    return filename.replace(File.separatorChar, '/');
+  }
+
+  @CheckForNull
+  public static Path normalizePathForWindows(Path path) {
+    try {
+      return path.toRealPath();
+    } catch (IOException e) {
+      LOG.debug("Failed to normalize path for windows: {}", path);
+    }
+    return null;
   }
 }
