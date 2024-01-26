@@ -26,15 +26,8 @@ class ClearTextProtocolsCheckTest {
 
   IacCheck check = new ClearTextProtocolsCheck();
 
-  // static Stream<String> insecureProtocols() {
-  // return Stream.of("http", "ftp");
-  // }
-
-  // @MethodSource("insecureProtocols")
-  // @ParameterizedTest(name = "[{index}] should detect insecure protocol: \"{0}\"")
   @Test
-  void shouldCheckInsecureProtocol(/* String scheme */) {
-    // String content = readTemplateAndReplace("ClearTextProtocolsCheck/clearTextProtocolsTestTemplate.yaml", scheme);
+  void shouldCheckInsecureProtocol() {
     KubernetesVerifier.verify("ClearTextProtocolsCheck/clearTextProtocolsTestTemplate.yaml", check);
   }
 }

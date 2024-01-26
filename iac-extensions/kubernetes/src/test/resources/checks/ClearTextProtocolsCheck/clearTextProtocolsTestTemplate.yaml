@@ -16,10 +16,20 @@ spec:
           command: ["curl"]
           args: ["ftp://example.com/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
 #                ^^^^^^^^^^^^^^^^^^^^
+        - name: curl
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["-fsL", "http://example.com/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+#                        ^^^^^^^^^^^^^^^^^^^^^
         - name: curlLocalhost
           image: curlimages/curl
           command: ["curl"]
           args: ["http://127.0.0.1/"] # Compliant
+          env:
+            - name: ETCD_DISCOVERY_URL
+              value: "http://etcd-discovery:2379" # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+            - name: ETCDCTL_PEERS
+              value: "http://etcd:2379" # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
         - name: curlIpV6
           image: curlimages/curl
           command: ["curl"]
@@ -36,3 +46,13 @@ spec:
           image: curlimages/curl
           command: ["curl"]
           args: ["ftps://example.com/"] # Compliant
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: example
+  annotations:
+    description: Redirects to http://example.com
+spec:
+  externalIPs:
+    - http://example.com/ # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
