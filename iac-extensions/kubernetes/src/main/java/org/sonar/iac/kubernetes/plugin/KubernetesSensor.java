@@ -55,6 +55,7 @@ public class KubernetesSensor extends YamlSensor {
   private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
   private final HelmProcessor helmProcessor;
   private final LocationShifter locationShifter = new LocationShifter();
+  private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmProcessor helmProcessor) {
@@ -81,7 +82,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new KubernetesParser(helmProcessor, locationShifter);
+    return new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
   }
 
   @Override
@@ -123,6 +124,11 @@ public class KubernetesSensor extends YamlSensor {
     return predicates.or(
       new KubernetesFilePredicate(),
       helmTemplatePredicate);
+  }
+
+  @Override
+  protected void afterExecute() {
+    kubernetesParserStatistics.logStatistics();
   }
 
   private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
