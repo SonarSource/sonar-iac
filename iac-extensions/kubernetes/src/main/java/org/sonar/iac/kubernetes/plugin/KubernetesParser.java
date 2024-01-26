@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -108,7 +107,7 @@ public class KubernetesParser extends YamlParser {
     } else {
       fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
       // transform windows to unix path
-      fileRelativePath = fileRelativePath.replace(File.separatorChar, '/');
+      fileRelativePath = HelmFilesystemUtils.normalizeToUnixPathSeparator(fileRelativePath);
     }
     return fileRelativePath;
   }
