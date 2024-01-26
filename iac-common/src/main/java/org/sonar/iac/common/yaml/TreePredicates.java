@@ -24,7 +24,7 @@ import java.util.function.Predicate;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class TreePredicates {
+public final class TreePredicates {
 
   private static final List<String> STRINGS_CONSIDERED_AS_EMPTY = List.of("", "~", "[]", "null");
 
