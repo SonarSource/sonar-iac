@@ -20,24 +20,36 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
-class RBACWildcardCheckTest {
+class ExposedAdministrationServicesCheckTest {
 
-  IacCheck check = new RBACWildcardCheck();
+  IacCheck check = new ExposedAdministrationServicesCheck();
 
   static Stream<String> sensitiveKinds() {
-    return Stream.of("Role", "ClusterRole");
+    return Stream.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
   }
 
   @MethodSource("sensitiveKinds")
-  @ParameterizedTest(name = "[{index}] should check wildcard rbac for kind: \"{0}\"")
-  void shouldCheckWildcardPermissionsInKind(String kind) {
-    String content = readTemplateAndReplace("RBACWildcardCheck/wildcardCheckTestTemplate.yaml", kind);
+  @ParameterizedTest(name = "[{index}] should exposed administration services for kind: \"{0}\"")
+  void shouldCheckPortsInKind(String kind) {
+    String content = readTemplateAndReplace("ExposedAdministrationServicesCheck/template_object_templateFile.yaml", kind);
     KubernetesVerifier.verifyContent(content, check);
   }
+
+  @Test
+  void shouldCheckPortsInPod() {
+    KubernetesVerifier.verify("ExposedAdministrationServicesCheck/pod_object.yaml", check);
+  }
+
+  @Test
+  void shouldCheckPortsInService() {
+    KubernetesVerifier.verify("ExposedAdministrationServicesCheck/service_object.yaml", check);
+  }
+
 }

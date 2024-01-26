@@ -31,21 +31,29 @@ import static org.sonar.iac.common.yaml.YamlTreeUtils.scalar;
 class TreePredicatesTest {
 
   @Test
-  void isTrue() {
+  void testIsTrue() {
     assertThat(TreePredicates.isTrue().test(scalar("true"))).isTrue();
     assertThat(TreePredicates.isTrue().test(scalar("false"))).isFalse();
     assertThat(TreePredicates.isTrue().test(notTextTree())).isFalse();
   }
 
   @Test
-  void isEqualTo() {
+  void testIsEqualTo() {
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(scalar("VALUE_TEST"))).isTrue();
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(scalar("NOT_VALUE_TEST"))).isFalse();
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(notTextTree())).isFalse();
   }
 
   @Test
-  void isSet() {
+  void testIsEqualToAnyOf() {
+    assertThat(TreePredicates.isEqualToAnyOf(List.of("a", "b")).test(scalar("a"))).isTrue();
+    assertThat(TreePredicates.isEqualToAnyOf(List.of("a", "b")).test(scalar("b"))).isTrue();
+    assertThat(TreePredicates.isEqualToAnyOf(List.of("a", "b")).test(scalar("c"))).isFalse();
+    assertThat(TreePredicates.isEqualToAnyOf(List.of("a", "b")).test(notTextTree())).isFalse();
+  }
+
+  @Test
+  void testIsSet() {
     assertThat(TreePredicates.isSet().test(scalar(""))).isFalse();
     assertThat(TreePredicates.isSet().test(scalar("~"))).isFalse();
     assertThat(TreePredicates.isSet().test(scalar("null"))).isFalse();
@@ -55,7 +63,7 @@ class TreePredicatesTest {
   }
 
   @Test
-  void startsWith() {
+  void testStartsWith() {
     assertThat(TreePredicates.startsWith(List.of("/etc")).test(text("/etc/init.d"))).isTrue();
     assertThat(TreePredicates.startsWith(List.of("/etc")).test(text("/var/init.d"))).isFalse();
     assertThat(TreePredicates.startsWith(List.of("/etc")).test(text("/var/etc/init.d"))).isFalse();

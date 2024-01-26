@@ -1,0 +1,57 @@
+<p>Exposing administrative services can lead to unauthorized access to pods or escalation of privileges inside pods.</p>
+<p>A port that is commonly used for administration services is open or marked as being open. Administration services like SSH might contain
+vulnerabilities, hard-coded credentials, or other security issues that increase the attack surface of a Kubernetes deployment. Even if the ports of
+the services do not get forwarded to the host system, by default they are reachable from other containers in the same network. A malicious actor that
+gets access to one container could use such services to escalate access and privileges.</p>
+<p>If the administrative port is forwarded through a load balancer, then in most cases this port should be removed from the configuration to make sure
+it is not reachable externally. Setting the <code>containerPort</code> on a pod is purely informative. Therefore, removing the property is not
+sufficient to be secure. The port is still open and the service is still accessible.</p>
+<p>In both cases, it is most secure to not start any administrative services in deployments. Instead, try to access the required information using
+Kubernetes’s own administrative tools. For example, to execute code inside a container, <code>kubectl exec</code> can be used. If the administration
+service is included to access logs, Kubernetes suggests using a sidecar container with a logging agent.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The pod starts an administrative service. </li>
+</ul>
+<p>There is a risk if you answered yes to the question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Do not start SSH, VNC, RDP or similar administrative services in pods. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+    labels:
+        app: example_app
+spec:
+  containers:
+    - name: applications
+      image: my_image_with_ssh
+      ports:
+      - containerPort: 22  # NonCompliant: Merely informative, removing this property does not
+                           # close port 22.
+</pre>
+<pre>
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: example_lb
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8022
+      targetPort: 22  # Compliant
+  selector:
+    app: example_app
+</pre>
+<h2>See</h2>
+<ul>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a> </li>
+  <li> <a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent">Kubernetes</a> - Logging
+  Architecture: Using a sidecar container with the logging agent </li>
+  <li> <a href="https://kubernetes.io/docs/tasks/debug/debug-application/get-shell-running-container/">Kubernetes</a> - Get a Shell to a Running
+  Container </li>
+</ul>
+
