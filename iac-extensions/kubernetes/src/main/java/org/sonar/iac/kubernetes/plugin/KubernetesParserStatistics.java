@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,20 +31,18 @@ public class KubernetesParserStatistics {
   private int helmFileCount;
   private int helmParsedFileCount;
 
-  public void incrementPureKubernetesFileCount() {
+  public <T> T recordPureKubernetesFile(Supplier<T> o) {
     pureKubernetesFileCount++;
-  }
-
-  public void incrementPureKubernetesParsedFileCount() {
+    var v = o.get();
     pureKubernetesParsedFileCount++;
+    return v;
   }
 
-  public void incrementHelmFileCount() {
+  public <T> T recordHelmFile(Supplier<T> o) {
     helmFileCount++;
-  }
-
-  public void incrementHelmParsedFileCount() {
+    var v = o.get();
     helmParsedFileCount++;
+    return v;
   }
 
   public void logStatistics() {

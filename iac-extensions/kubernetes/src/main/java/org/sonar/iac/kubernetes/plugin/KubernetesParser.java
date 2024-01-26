@@ -60,15 +60,9 @@ public class KubernetesParser extends YamlParser {
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
     if (!hasHelmContent(source)) {
-      kubernetesParserStatistics.incrementPureKubernetesFileCount();
-      var result = super.parse(source, inputFileContext);
-      kubernetesParserStatistics.incrementPureKubernetesParsedFileCount();
-      return result;
+      return kubernetesParserStatistics.recordPureKubernetesFile(() -> super.parse(source, inputFileContext));
     } else {
-      kubernetesParserStatistics.incrementHelmFileCount();
-      var result = parseHelmFile(source, inputFileContext);
-      kubernetesParserStatistics.incrementHelmParsedFileCount();
-      return result;
+      return kubernetesParserStatistics.recordHelmFile(() -> parseHelmFile(source, inputFileContext));
     }
   }
 
