@@ -76,8 +76,17 @@ public class KubernetesParser extends YamlParser {
       return super.parse("{}", null, FileTree.Template.HELM);
     }
 
+    FileTree result;
     try {
-      return evaluateAndParseHelmFile(source, inputFileContext);
+      result = evaluateAndParseHelmFile(source, inputFileContext);
+    } catch (ParseException pe) {
+      var details = pe.getDetails();
+      if (details != null && details.contains("\" associated with template \"aggregatingTemplate\"")) {
+        LOG.debug("Helm file {} requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file", inputFileContext.inputFile);
+        result = super.parse("{}", null, FileTree.Template.HELM);
+      } else {
+        throw pe;
+      }
     } catch (MarkedYamlEngineException e) {
       var shifted = locationShifter.shiftMarkedYamlException(inputFileContext, e);
       if (shifted instanceof ShiftedMarkedYamlEngineException) {
@@ -85,6 +94,7 @@ public class KubernetesParser extends YamlParser {
       }
       throw shifted;
     }
+    return result;
   }
 
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
@@ -96,16 +106,8 @@ public class KubernetesParser extends YamlParser {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
       return super.parse("{}", null, FileTree.Template.HELM);
     }
-    try {
-      return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
-    } catch (ParseException pe) {
-      var details = pe.getDetails();
-      if (details != null && details.contains("\" associated with template \"aggregatingTemplate\"")) {
-        LOG.debug("Helm file {} requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file", inputFileContext.inputFile);
-        return super.parse("{}", null, FileTree.Template.HELM);
-      }
-      throw pe;
-    }
+
+    return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
   }
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {

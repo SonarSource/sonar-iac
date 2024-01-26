@@ -24,10 +24,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
@@ -484,6 +487,28 @@ class KubernetesParserTest {
 
       assertThat(logTester.logs(Level.DEBUG))
         .contains("Helm file dummy.yaml requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file");
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    ",",
+    "Unknown error"
+  })
+  void shouldRethrowParseExceptionsWithDifferentDetails(@Nullable String details) throws URISyntaxException {
+    var code = "{{ include \"a-template-from-dependency\" . }}";
+
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(
+        new ParseException("Failed to evaluate Helm file dummy.yaml: Template evaluation failed", new BasicTextPointer(1, 1), details));
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/dummy.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("dummy.yaml");
+
+      assertThatThrownBy(() -> parser.parse(code, inputFileContext))
+        .isInstanceOf(ParseException.class);
     }
   }
 }
