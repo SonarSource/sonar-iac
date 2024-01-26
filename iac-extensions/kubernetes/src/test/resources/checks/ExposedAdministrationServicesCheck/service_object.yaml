@@ -13,8 +13,32 @@ spec:
       port: 23
     - targetPort: 5900 # NonCompliant
     - targetPort: 5800 # NonCompliant
-    - targetPort: 338
+    - targetPort: 338 # Compliant
     - targetPort: "5900" # NonCompliant
     - port: 3389
   selector:
     app: example_app
+---
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: compliantServiceAsTypeIsNotLoadBalancer
+spec:
+  type: NodePort
+  ports:
+    - port: 8022
+      targetPort: 22
+  selector:
+    app: example_app
+---
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: compliantServiceAsTypeIsMissing
+spec:
+  ports:
+    - port: 8022
+      targetPort: 22
+  selector:
+    app: example_app
+

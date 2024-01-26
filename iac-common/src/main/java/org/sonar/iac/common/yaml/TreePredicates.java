@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.common.yaml;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.iac.common.checks.TextUtils;
@@ -38,10 +37,6 @@ public final class TreePredicates {
 
   public static Predicate<YamlTree> isEqualTo(String parameter) {
     return t -> TextUtils.isValue(t, parameter).isTrue();
-  }
-
-  public static Predicate<YamlTree> isEqualToAnyOf(Collection<String> parameters) {
-    return t -> TextUtils.matchesValue(t, parameters::contains).isTrue();
   }
 
   public static Predicate<YamlTree> isSet() {

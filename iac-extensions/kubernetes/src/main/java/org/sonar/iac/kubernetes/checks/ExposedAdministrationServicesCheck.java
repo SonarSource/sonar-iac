@@ -22,8 +22,10 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6473")
@@ -41,7 +43,11 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
 
     register(KIND_WITH_TEMPLATE, obj -> obj.block("template").block("spec").blocks("containers").forEach(container -> reportOnSensitivePorts(container, "containerPort")));
 
-    register(KIND_SERVICE, service -> reportOnSensitivePorts(service, "targetPort"));
+    register(KIND_SERVICE, (BlockObject service) -> {
+      if (isLoadBalancerService(service)) {
+        reportOnSensitivePorts(service, "targetPort");
+      }
+    });
   }
 
   private static void reportOnSensitivePorts(BlockObject container, String sensitiveKey) {
@@ -49,6 +55,14 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
   }
 
   private static Predicate<YamlTree> isSensitivePort() {
-    return TreePredicates.isEqualToAnyOf(SENSITIVE_PORTS);
+    return t -> TextUtils.matchesValue(t, SENSITIVE_PORTS::contains).isTrue();
+  }
+
+  private static boolean isLoadBalancerService(BlockObject service) {
+    TupleTree typeTree = service.attribute("type").tree;
+    if (typeTree != null) {
+      return TreePredicates.isEqualTo("LoadBalancer").test(typeTree.value());
+    }
+    return false;
   }
 }

@@ -45,14 +45,6 @@ class TreePredicatesTest {
   }
 
   @Test
-  void testIsEqualToAnyOf() {
-    assertThat(TreePredicates.isEqualToAnyOf(List.of("a", "b")).test(scalar("a"))).isTrue();
-    assertThat(TreePredicates.isEqualToAnyOf(List.of("a", "b")).test(scalar("b"))).isTrue();
-    assertThat(TreePredicates.isEqualToAnyOf(List.of("a", "b")).test(scalar("c"))).isFalse();
-    assertThat(TreePredicates.isEqualToAnyOf(List.of("a", "b")).test(notTextTree())).isFalse();
-  }
-
-  @Test
   void testIsSet() {
     assertThat(TreePredicates.isSet().test(scalar(""))).isFalse();
     assertThat(TreePredicates.isSet().test(scalar("~"))).isFalse();

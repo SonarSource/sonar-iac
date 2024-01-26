@@ -51,5 +51,4 @@ class ExposedAdministrationServicesCheckTest {
   void shouldCheckPortsInService() {
     KubernetesVerifier.verify("ExposedAdministrationServicesCheck/service_object.yaml", check);
   }
-
 }
