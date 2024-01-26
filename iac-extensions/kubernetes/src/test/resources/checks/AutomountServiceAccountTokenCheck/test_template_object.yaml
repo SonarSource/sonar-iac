@@ -119,3 +119,19 @@ spec:
         app: web
     spec: # Compliant
       restartPolicy: Never
+---
+apiVersion: apps/v1 # Compliant
+kind: Deployment
+metadata:
+  name: tokenAndContainersNotPresent
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web

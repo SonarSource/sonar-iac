@@ -52,3 +52,8 @@ metadata:
   name: tokenAndContainersNotPresent
 spec: # Compliant
   restartPolicy: Never
+---
+apiVersion: v1 # Compliant
+kind: Pod
+metadata:
+  name: tokenSetToTrue

@@ -20,9 +20,7 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
-import java.util.Objects;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
@@ -50,23 +48,17 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
   }
 
   private static void checkAndReport(BlockObject blockObject, String message) {
-    var spec = blockObject.block("spec");
-    var attributeObject = spec.attribute(KEY);
-    if (isContainersKeyPresent(spec)) {
-      attributeObject.reportIfAbsent(checkIfTokenIsPresentAndRaiseOnSpecIfNot(blockObject), message);
-      attributeObject.reportIfValue(isSet().negate(), message);
-      attributeObject.reportIfValue(isTrue(), message);
+    var specAsBlockObject = blockObject.block("spec");
+    var specAsAttributeObject = blockObject.attribute("spec");
+    if (specAsAttributeObject.tree != null && isContainersPresentInSpecBlock(specAsBlockObject)) {
+      var tokenAttribute = specAsBlockObject.attribute(KEY);
+      tokenAttribute.reportIfAbsent(specAsAttributeObject.tree.key(), message);
+      tokenAttribute.reportIfValue(isSet().negate(), message);
+      tokenAttribute.reportIfValue(isTrue(), message);
     }
   }
 
-  private static boolean isContainersKeyPresent(BlockObject blockObject) {
-    return blockObject.blocks("containers").findAny().isPresent();
-  }
-
-  private static HasTextRange checkIfTokenIsPresentAndRaiseOnSpecIfNot(BlockObject blockObject) {
-    if (blockObject.block("spec").attribute(KEY).tree == null) {
-      return Objects.requireNonNull(blockObject.attribute("spec").tree).key();
-    }
-    return null;
+  private static boolean isContainersPresentInSpecBlock(BlockObject blockObject) {
+    return blockObject.attribute("containers").tree != null;
   }
 }
