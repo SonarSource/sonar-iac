@@ -61,7 +61,8 @@ class KubernetesParserTest {
   private final InputFileContext inputFileContext = new InputFileContext(sensorContext, inputFile);
   private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
   private final LocationShifter locationShifter = new LocationShifter();
-  private final KubernetesParser parser = new KubernetesParser(helmProcessor, locationShifter);
+  private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
+  private final KubernetesParser parser = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
 
   @BeforeEach
   void setup() {

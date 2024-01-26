@@ -48,18 +48,20 @@ public class KubernetesParser extends YamlParser {
 
   private final HelmProcessor helmProcessor;
   private final LocationShifter locationShifter;
+  private final KubernetesParserStatistics kubernetesParserStatistics;
 
-  public KubernetesParser(HelmProcessor helmProcessor, LocationShifter locationShifter) {
+  public KubernetesParser(HelmProcessor helmProcessor, LocationShifter locationShifter, KubernetesParserStatistics kubernetesParserStatistics) {
     this.helmProcessor = helmProcessor;
     this.locationShifter = locationShifter;
+    this.kubernetesParserStatistics = kubernetesParserStatistics;
   }
 
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
     if (!hasHelmContent(source)) {
-      return super.parse(source, inputFileContext);
+      return kubernetesParserStatistics.recordPureKubernetesFile(() -> super.parse(source, inputFileContext));
     } else {
-      return parseHelmFile(source, inputFileContext);
+      return kubernetesParserStatistics.recordHelmFile(() -> parseHelmFile(source, inputFileContext));
     }
   }
 

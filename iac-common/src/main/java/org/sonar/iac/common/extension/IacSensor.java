@@ -117,6 +117,7 @@ public abstract class IacSensor implements Sensor {
       }
     }
     statistics.log();
+    afterExecute();
   }
 
   protected void initContext(SensorContext sensorContext) {
@@ -155,6 +156,10 @@ public abstract class IacSensor implements Sensor {
 
   private boolean isActive(SensorContext sensorContext) {
     return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
+  }
+
+  protected void afterExecute() {
+    // do nothing by default
   }
 
   private class Analyzer {
