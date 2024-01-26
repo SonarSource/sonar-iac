@@ -24,6 +24,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
@@ -88,8 +90,7 @@ class LineNumberCommentRemoverTest {
       "        - -c",
       "        - |",
       "          bar",
-      "    initialDelaySeconds: 60",
-      "");
+      "    initialDelaySeconds: 60");
     var actual = cleanSource(evaluated);
 
     assertThat(actual).isEqualTo(expected);
@@ -178,6 +179,27 @@ class LineNumberCommentRemoverTest {
       3, 8,
       4, 9,
       5, 10);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "foo: bar",
+    "foo: bar\n",
+    "foo: bar\n\n",
+    "foo: bar\r\n",
+    "foo: bar\r\n\r\n",
+    "foo: bar\r\n\n",
+    "foo: bar\r",
+    "foo: bar\u2028",
+    "foo: bar\u2029",
+    "foo: bar\u2028\u2029",
+    "foo: bar\r\u2028\u2029\r\n\n",
+  })
+  void shouldRemoveLastNewLines(String evaluated) {
+    var expected = "foo: bar";
+    var actual = cleanSource(evaluated);
+
+    assertThat(actual).isEqualTo(expected);
   }
 
   private String cleanSource(String evaluated) {
