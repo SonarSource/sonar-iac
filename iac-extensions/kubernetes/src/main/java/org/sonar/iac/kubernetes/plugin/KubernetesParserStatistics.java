@@ -25,10 +25,10 @@ import org.slf4j.LoggerFactory;
 public class KubernetesParserStatistics {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesParserStatistics.class);
 
-  private int pureKubernetesFileCount = 0;
-  private int pureKubernetesParsedFileCount = 0;
-  private int helmFileCount = 0;
-  private int helmParsedFileCount = 0;
+  private int pureKubernetesFileCount;
+  private int pureKubernetesParsedFileCount ;
+  private int helmFileCount ;
+  private int helmParsedFileCount ;
 
   public void incrementPureKubernetesFileCount() {
     pureKubernetesFileCount++;
@@ -47,7 +47,7 @@ public class KubernetesParserStatistics {
   }
 
   public void logStatistics() {
-    if (pureKubernetesFileCount != 0 || helmFileCount != 0)
+    if (pureKubernetesFileCount != 0 || helmFileCount != 0) {
       LOG.debug("Kubernetes Parsing Statistics: Pure Kubernetes files count: {}, parsed: {}, not parsed: {}; Helm files count: {}, parsed: {}, not parsed: {}",
         pureKubernetesFileCount,
         pureKubernetesParsedFileCount,
@@ -55,5 +55,6 @@ public class KubernetesParserStatistics {
         helmFileCount,
         helmParsedFileCount,
         (helmFileCount - helmParsedFileCount));
+    }
   }
 }
