@@ -19,31 +19,15 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public final class KubernetesCheckList {
+class ClearTextProtocolsCheckTest {
 
-  private KubernetesCheckList() {
-  }
+  IacCheck check = new ClearTextProtocolsCheck();
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      AutomountServiceAccountTokenCheck.class,
-      CapabilitiesCheck.class,
-      ClearTextProtocolsCheck.class,
-      CommandExecutionCheck.class,
-      ContainerPrivilegedModeCheck.class,
-      CpuLimitCheck.class,
-      DockerSocketCheck.class,
-      EphemeralStorageLimitCheck.class,
-      HostNamespacesCheck.class,
-      MemoryLimitCheck.class,
-      MountingFileSystemPathsCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegeEscalationCheck.class,
-      RBACWildcardCheck.class,
-      ToDoCommentCheck.class);
+  @Test
+  void shouldCheckInsecureProtocol() {
+    KubernetesVerifier.verify("ClearTextProtocolsCheck/clearTextProtocolsTestTemplate.yaml", check);
   }
 }
