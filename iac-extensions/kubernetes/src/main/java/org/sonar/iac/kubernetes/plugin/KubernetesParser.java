@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
@@ -75,7 +76,15 @@ public class KubernetesParser extends YamlParser {
       return super.parse("{}", null, FileTree.Template.HELM);
     }
 
-    return evaluateAndParseHelmFile(source, inputFileContext);
+    try {
+      return evaluateAndParseHelmFile(source, inputFileContext);
+    } catch (MarkedYamlEngineException e) {
+      var shifted = locationShifter.shiftMarkedYamlException(inputFileContext, e);
+      if (shifted instanceof ShiftedMarkedYamlEngineException) {
+        LOG.debug("Shifting YAML exception {}", ((ShiftedMarkedYamlEngineException) shifted).describeShifting());
+      }
+      throw shifted;
+    }
   }
 
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
@@ -89,12 +98,13 @@ public class KubernetesParser extends YamlParser {
     }
     try {
       return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
-    } catch (MarkedYamlEngineException e) {
-      var shifted = locationShifter.shiftMarkedYamlException(inputFileContext, e);
-      if (shifted instanceof ShiftedMarkedYamlEngineException) {
-        LOG.debug("Shifting YAML exception {}", ((ShiftedMarkedYamlEngineException) shifted).describeShifting());
+    } catch (ParseException pe) {
+      var details = pe.getDetails();
+      if (details != null && details.contains("\" associated with template \"aggregatingTemplate\"")) {
+        LOG.debug("Helm file {} requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file", inputFileContext.inputFile);
+        return super.parse("{}", null, FileTree.Template.HELM);
       }
-      throw shifted;
+      throw pe;
     }
   }
 

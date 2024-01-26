@@ -38,6 +38,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.TextRangeAssert;
@@ -47,6 +48,7 @@ import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -459,6 +461,29 @@ class KubernetesParserTest {
 
       assertThat(logTester.logs(Level.DEBUG))
         .contains("Shifting YAML exception from [6:12] to [3:1]");
+    }
+  }
+
+  @Test
+  void shouldSilentlyLogParseExceptionsForIncludedTemplates() throws URISyntaxException {
+    var code = "{{ include \"a-template-from-dependency\" . }}";
+
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
+      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(
+        new ParseException("Failed to evaluate Helm file dummy.yaml: Template evaluation failed", new BasicTextPointer(1, 1),
+          "Evaluation error in Go library: template: dummy.yaml:10:11: executing \"dummy.yaml\" at <include \"a-template-from-dependency\" .>: error calling include: template: " +
+            "error calling include: template: no template \"a-template-from-dependency\" associated with template \"aggregatingTemplate\""));
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/dummy.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("dummy.yaml");
+
+      assertThatCode(() -> parser.parse(code, inputFileContext))
+        .doesNotThrowAnyException();
+
+      assertThat(logTester.logs(Level.DEBUG))
+        .contains("Helm file dummy.yaml requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file");
     }
   }
 }
