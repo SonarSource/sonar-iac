@@ -26,9 +26,9 @@ public class KubernetesParserStatistics {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesParserStatistics.class);
 
   private int pureKubernetesFileCount;
-  private int pureKubernetesParsedFileCount ;
-  private int helmFileCount ;
-  private int helmParsedFileCount ;
+  private int pureKubernetesParsedFileCount;
+  private int helmFileCount;
+  private int helmParsedFileCount;
 
   public void incrementPureKubernetesFileCount() {
     pureKubernetesFileCount++;
