@@ -2,6 +2,13 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: curl
+  annotations:
+    description: Redirects to http://example.com # Compliant
+    compliantNoSlash: ftp:example.com # Compliant
+    compliantOneSlash: http:/example.com # Compliant
+    compliantDifferentProtocol: file:///opt/sdks/bin/sdk # Compliant
+    nonCompliantUpperCase: HTTP://example.com # Noncompliant
+    nonCompliantMixedCase: HttP://example.com # Noncompliant
 spec:
   template:
     spec:
@@ -53,6 +60,7 @@ metadata:
   name: example
   annotations:
     description: Redirects to http://example.com
+    group: "http:cluster:" # Compliant
 spec:
   externalIPs:
     - http://example.com/ # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
