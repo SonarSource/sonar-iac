@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.checks;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -32,7 +33,7 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck implements IacCheck {
   private static final String MESSAGE = "Make sure that using clear-text protocols is safe here.";
-  private static final List<String> INSECURE_PROTOCOLS = List.of("http", "ftp");
+  private static final List<String> INSECURE_PROTOCOLS = List.of("http://", "ftp://");
   private static final Pattern LOOPBACK_PATTERN = Pattern.compile("localhost|127(?:\\.\\d+){0,2}\\.\\d+$|^(?:0*:)*+:?0*1", Pattern.CASE_INSENSITIVE);
 
   @Override
@@ -42,14 +43,14 @@ public class ClearTextProtocolsCheck implements IacCheck {
 
   private static void checkUrlsInScalar(CheckContext ctx, ScalarTree scalarTree) {
     var scalar = scalarTree.value();
+    if (INSECURE_PROTOCOLS.stream().noneMatch(scalar.toLowerCase(Locale.ROOT)::startsWith)) {
+      return;
+    }
     try {
       var url = new URL(scalar);
-      var scheme = INSECURE_PROTOCOLS.stream().filter(url.getProtocol()::equals).findFirst();
-      if (scheme.isPresent()) {
-        var domain = url.getHost();
-        if (!LOOPBACK_PATTERN.matcher(domain).find()) {
-          ctx.reportIssue(scalarTree, MESSAGE);
-        }
+      var domain = url.getHost();
+      if (!LOOPBACK_PATTERN.matcher(domain).find()) {
+        ctx.reportIssue(scalarTree, MESSAGE);
       }
     } catch (IOException e) {
       // not a valid URL, ignore
