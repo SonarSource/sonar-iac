@@ -26,8 +26,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: example-pod
-spec:
-  containers: # Noncompliant
+spec: # Noncompliant
+  containers:
   - name: example-pod
     image: nginx:1.25.3
 </pre>
@@ -43,28 +43,9 @@ spec:
     image: nginx:1.25.3
   automountServiceAccountToken: false
 </pre>
-<p>The same can be achieved by setting <code>automountServiceAccountToken: false</code> in the service account’s configuration:</p>
-<pre>
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: example-service-account
-  namespace: default
-automountServiceAccountToken: false
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: example-pod
-spec:
-  containers:
-  - name: example-pod
-    image: nginx:1.25.3
-  serviceAccountName: example-service-account
-</pre>
 <h3>How does this work?</h3>
-<p>The automounting of service account tokens can be disabled by setting <code>automountServiceAccountToken: false</code> in the pod’s specification
-or in the service account’s configuration.</p>
+<p>The automounting of service account tokens can be disabled by setting <code>automountServiceAccountToken: false</code> in the pod’s specification.
+Additionally, it can be disabled in the configuration of an accompanied service account.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
