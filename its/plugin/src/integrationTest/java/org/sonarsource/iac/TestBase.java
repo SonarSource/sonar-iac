@@ -139,6 +139,7 @@ public abstract class TestBase {
       "INFO: ",
       "WARN: SonarQube scanners will require Java 11+ starting on next version",
       "WARN: The sonar.modules is a deprecated property and should not be used anymore",
+      "WARN: sonar.plugins.downloadOnlyRequired is false",
       "WARNING: An illegal reflective access operation has occurred",
       "WARNING: Illegal reflective access",
       "WARNING: Please consider reporting this to the maintainers",
