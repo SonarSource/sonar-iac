@@ -24,12 +24,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 	"testing"
+	"text/template"
 )
 
 func Test_ProtobufSerializer_Serialize(t *testing.T) {
 	serializer := ProtobufSerializer{}
 	content := "content"
-	bytes, err := serializer.Serialize(content, nil)
+	bytes, err := serializer.Serialize(content, nil, nil)
 
 	result := org_sonarsource_iac_helm.TemplateEvaluationResult{}
 	err = proto.Unmarshal(bytes, &result)
@@ -42,11 +43,25 @@ func Test_ProtobufSerializer_Serialize_With_Error_Text(t *testing.T) {
 	serializer := ProtobufSerializer{}
 	content := "content"
 	err := fmt.Errorf("error text")
-	bytes, err := serializer.Serialize(content, err)
+	bytes, err := serializer.Serialize(content, nil, err)
 
 	result := org_sonarsource_iac_helm.TemplateEvaluationResult{}
 	err = proto.Unmarshal(bytes, &result)
 	assert.Nil(t, err)
 	assert.Equal(t, content, result.Template)
 	assert.Equal(t, "error text", result.Error)
+}
+
+func Test_ProtobufSerializer_Serialize_With_Ast(t *testing.T) {
+	serializer := ProtobufSerializer{}
+	content := "content"
+	tpl, _ := template.New("test").Parse("{{ . }}")
+	ast := tpl.Tree
+	bytes, err := serializer.Serialize(content, ast, nil)
+
+	result := org_sonarsource_iac_helm.TemplateEvaluationResult{}
+	err = proto.Unmarshal(bytes, &result)
+	assert.NoError(t, err)
+	assert.Equal(t, content, result.Template)
+	assert.NotNil(t, result.Ast)
 }

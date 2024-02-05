@@ -569,7 +569,6 @@ type CommandNode struct {
 	NodeType NodeType `protobuf:"varint,1,opt,name=nodeType,proto3,enum=org.sonarsource.iac.helm.NodeType" json:"nodeType,omitempty"`
 	Pos      int64    `protobuf:"varint,2,opt,name=pos,proto3" json:"pos,omitempty"`
 	// Arguments in lexical order: Identifier, field, or constant. Will be one of the node types declared here.
-	// TODO: why is this Any and not Node?
 	Args []*anypb.Any `protobuf:"bytes,3,rep,name=args,proto3" json:"args,omitempty"`
 }
 

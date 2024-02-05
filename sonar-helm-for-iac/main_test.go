@@ -27,6 +27,7 @@ import (
 	"os"
 	"os/exec"
 	"testing"
+	"text/template/parse"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -42,7 +43,7 @@ func (i *InputReaderMock) ReadInput(*bufio.Scanner) (string, converters.Files, e
 
 type FailingProtobufSerializer struct{}
 
-func (s FailingProtobufSerializer) Serialize(content string, err error) ([]byte, error) {
+func (s FailingProtobufSerializer) Serialize(content string, ast *parse.Tree, err error) ([]byte, error) {
 	return nil, errors.New("serialization error")
 }
 
@@ -140,12 +141,12 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_evaluate_template_missing_value(t *testing.T) {
@@ -168,16 +169,16 @@ spec:
 container: foo
 `)
 
-	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, "", result)
+	assert.Equal(t, "", result.Template)
 	assert.Equal(t,
 		"template: test-project/templates/a.yaml:12:35: executing \"test-project/templates/a.yaml\" at <.Values.container.port>: "+
 			"can't evaluate field port in type interface {}",
-		err.Error())
+		result.Error.Error())
 }
 
 func Test_evaluate_empty_values(t *testing.T) {
@@ -195,12 +196,12 @@ metadata:
 spec: foo
 `
 
-	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_evaluate_empty_additional_file(t *testing.T) {
@@ -222,13 +223,13 @@ metadata:
 spec: foo
 `
 
-	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml":     template,
 		"templates/empty.yaml": make([]byte, 0),
 		"values.yaml":          values,
 		"Chart.yaml":           DefaultChartYaml}))
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_evaluate_template_containing_sprig_functions(t *testing.T) {
@@ -262,12 +263,12 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_evaluate_template_extra_functions(t *testing.T) {
@@ -301,12 +302,12 @@ spec:
           protocol: TCP
 `
 
-	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_evaluate_template_custom_functions(t *testing.T) {
@@ -357,14 +358,14 @@ spec:
   sentence: Hello,World
 `
 
-	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml":           template,
 		"values.yaml":                values,
 		"Chart.yaml":                 DefaultChartYaml,
 		"templates/init-sysctl.yaml": []byte("init-sysctl")}))
 
-	assert.Nil(t, err)
-	assert.Equal(t, expected, result)
+	assert.NoError(t, result.Error)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_evaluate_template_conversion_functions(t *testing.T) {
@@ -432,26 +433,26 @@ fromJsonArrayError: [unexpected end of JSON input]
 toTomlExample: "age = 25.0\nname = \"Bob\"\n"
 `
 
-	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, expected, result)
-	assert.Equal(t, nil, err)
+	assert.Equal(t, expected, result.Template)
+	assert.NoError(t, result.Error)
 }
 
 func Test_evaluate_invalid_template(t *testing.T) {
 	template := []byte(`
 apiVersion: {{ hello
 `)
-	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, "", result)
-	assert.Equal(t, "template: test-project/templates/a.yaml:3: unclosed action started at test-project/templates/a.yaml:2", err.Error())
+	assert.Equal(t, "", result.Template)
+	assert.Equal(t, "template: test-project/templates/a.yaml:3: unclosed action started at test-project/templates/a.yaml:2", result.Error.Error())
 }
 
 func Test_evaluate_invalid_values(t *testing.T) {
@@ -462,27 +463,27 @@ apiVersion: v1
 foo: bar: baz
 `)
 
-	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, "", result)
-	assert.NotNil(t, err)
+	assert.Equal(t, "", result.Template)
+	assert.Error(t, result.Error)
 	assert.Equal(t,
 		"error parsing values file: error converting YAML to JSON: yaml: line 2: mapping values are not allowed in this context",
-		err.Error())
+		result.Error.Error())
 }
 
 func Test_to_protobuf_valid(t *testing.T) {
 	template := []byte("apiVersion: {{ .Values.api }}")
 	values := []byte("api: v1")
 
-	evaluatedTemplate, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	evaluatedTemplate := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
-	result, err := serializer.Serialize(evaluatedTemplate, err)
+	result, _ := serializer.Serialize(evaluatedTemplate.Template, evaluatedTemplate.Ast, evaluatedTemplate.Error)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
 	proto.Unmarshal(result, templateFromProto)
@@ -494,11 +495,11 @@ func Test_to_protobuf_valid(t *testing.T) {
 func Test_to_protobuf_invalid(t *testing.T) {
 	template := []byte("apiVersion: {{ .Values.api")
 
-	evaluatedTemplate, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	evaluatedTemplate := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
-	result, err := serializer.Serialize(evaluatedTemplate, err)
+	result, _ := serializer.Serialize(evaluatedTemplate.Template, evaluatedTemplate.Ast, evaluatedTemplate.Error)
 
 	templateFromProto := &iac_helm.TemplateEvaluationResult{}
 	proto.Unmarshal(result, templateFromProto)
@@ -542,12 +543,12 @@ protocol: UDP
             protocol: "UDP"
   `
 
-	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_template_struct_from_2_sources(t *testing.T) {
@@ -597,13 +598,13 @@ data:
   org.example.prop=true
 `
 
-	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml":  template,
 		"values.yaml":       values,
 		"Chart.yaml":        DefaultChartYaml,
 		"config.properties": config}))
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_evaluate_template_include_function(t *testing.T) {
@@ -623,9 +624,9 @@ func Test_evaluate_template_include_function(t *testing.T) {
 		"values.yaml":            values,
 		"templates/_helpers.tpl": helpers,
 		"Chart.yaml":             DefaultChartYaml}
-	result, _ := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", fileNameToFileContent))
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", fileNameToFileContent))
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_tpl_with_errors(t *testing.T) {
@@ -637,15 +638,15 @@ apiVersion: {{ tpl .Values.api . | quote }}
 api: v1-{{ }}
 `)
 
-	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml": template,
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, "", result)
-	assert.NotNil(t, err)
+	assert.Equal(t, "", result.Template)
+	assert.Error(t, result.Error)
 	assert.Equal(t, "template: test-project/templates/a.yaml:2:15: executing \"test-project/templates/a.yaml\" at <tpl .Values.api .>: error calling tpl: "+
-		"template: test-project/templates/a.yaml:1: missing value for command", err.Error())
+		"template: test-project/templates/a.yaml:1: missing value for command", result.Error.Error())
 }
 
 func Test_tpl_cross_file(t *testing.T) {
@@ -663,12 +664,37 @@ api: v1
 {{- end -}}
 `)
 
-	result, err := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
 		"templates/a.yaml":       template,
 		"values.yaml":            values,
 		"Chart.yaml":             DefaultChartYaml,
 		"templates/_helpers.tpl": helpers}))
 
-	assert.Equal(t, "\napiVersion: \"v1\"\n", result)
-	assert.Nil(t, err)
+	assert.Equal(t, "\napiVersion: \"v1\"\n", result.Template)
+	assert.Nil(t, result.Error)
+}
+
+func Test_tpl_cross_file_invalid_included_template(t *testing.T) {
+	template := []byte(`
+apiVersion: {{ template "my-tpl" . }}
+`)
+
+	values := []byte(`
+api: v1
+`)
+
+	helpers := []byte(`
+{{- define "my-tpl" -}}
+{{ .Values.api
+{{- end -}}
+`)
+
+	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", converters.Files{
+		"templates/a.yaml":       template,
+		"values.yaml":            values,
+		"Chart.yaml":             DefaultChartYaml,
+		"templates/_helpers.tpl": helpers}))
+
+	assert.Error(t, result.Error)
+	assert.Equal(t, "template: test-project/templates/_helpers.tpl:4: unexpected \"{\" in operand", result.Error.Error())
 }

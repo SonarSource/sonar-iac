@@ -21,23 +21,29 @@ package converters
 import (
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
+	"text/template/parse"
 )
 
 type Serializer interface {
-	Serialize(string, error) ([]byte, error)
+	Serialize(string, *parse.Tree, error) ([]byte, error)
 }
 
 type ProtobufSerializer struct {
 }
 
-func (s ProtobufSerializer) Serialize(content string, err error) ([]byte, error) {
+func (s ProtobufSerializer) Serialize(content string, ast *parse.Tree, err error) ([]byte, error) {
 	errorText := ""
 	if err != nil {
 		errorText = err.Error()
 	}
+	var tree *org_sonarsource_iac_helm.Tree
+	if ast != nil {
+		tree = ConvertTree(ast)
+	}
 	message := org_sonarsource_iac_helm.TemplateEvaluationResult{
 		Template: content,
 		Error:    errorText,
+		Ast:      tree,
 	}
 	return proto.Marshal(&message)
 }
