@@ -22,12 +22,12 @@ if (isCi) {
         description = "Compile the Go protobuf."
         group = "build"
 
-        inputs.files("template-evaluation.proto")
-        outputs.files("org.sonarsource.iac.helm/template-evaluation.pb.go")
+        inputs.files("template-evaluation.proto", "ast.proto")
+        outputs.files("org.sonarsource.iac.helm/template_evaluation.pb.go", "org.sonarsource.iac.helm/ast.pb.go")
         outputs.cacheIf { true }
 
         commandLine("protoc", "-I=${project.projectDir}", "-I=${System.getProperty("user.home")}/go/protobuf/include",
-            "--go_out=${project.projectDir}", "${project.projectDir}/template-evaluation.proto")
+            "--go_out=${project.projectDir}", "${project.projectDir}/template-evaluation.proto", "${project.projectDir}/ast.proto")
     }
 
     // Define and trigger tasks in this order: clean, compile and test go code

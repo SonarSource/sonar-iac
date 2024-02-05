@@ -17,13 +17,14 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 syntax = "proto3";
+import "ast.proto";
 package org.sonarsource.iac.helm;
 option go_package = "org.sonarsource.iac.helm";
 option java_multiple_files = true;
 option java_package = "org.sonarsource.iac.helm";
-option java_outer_classname = "GoTemplateAst";
 
 message TemplateEvaluationResult {
   string template = 1;
   string error = 2;
+  Tree ast = 3;
 }

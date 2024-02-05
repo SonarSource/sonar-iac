@@ -1,0 +1,271 @@
+// SonarQube IaC Plugin
+// Copyright (C) 2021-2024 SonarSource SA
+// mailto:info AT sonarsource DOT com
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto3";
+package org.sonarsource.iac.helm;
+option go_package = "org.sonarsource.iac.helm";
+option java_multiple_files = true;
+option java_package = "org.sonarsource.iac.helm";
+
+import "google/protobuf/any.proto";
+
+enum NodeType {
+  NodeUnknown = 0;
+  NodeText = 1;
+  NodeAction = 2;
+  NodeBool = 3;
+  NodeChain = 4;
+  NodeCommand = 5;
+  NodeDot = 6;
+  nodeElse = 7;
+  nodeEnd = 8;
+  NodeField = 9;
+  NodeIdentifier = 10;
+  NodeIf = 11;
+  NodeList = 12;
+  NodeNil = 13;
+  NodeNumber = 14;
+  NodePipe = 15;
+  NodeRange = 16;
+  NodeString = 17;
+  NodeTemplate = 18;
+  NodeVariable = 19;
+  NodeWith = 20;
+  NodeComment = 21;
+  NodeBreak = 22;
+  NodeContinue = 23;
+}
+
+// A Node is an element in the parse tree.
+message Node {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+}
+
+// ActionNode holds an action (something bounded by delimiters).
+// Control actions have their own nodes; ActionNode represents simple
+// ones such as field evaluations and parenthesized pipelines.
+message ActionNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // The pipeline in the action.
+  optional PipeNode pipe = 3;
+}
+
+// BoolNode holds a boolean constant.
+message BoolNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  bool true = 3;
+}
+
+// BranchNode is the common representation of if, range, and with.
+message BranchNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // The pipeline to be evaluated.
+  optional PipeNode pipe = 3;
+  // What to execute if the value is non-empty.
+  optional ListNode list = 4;
+  // What to execute if the value is empty (nil if absent).
+  optional ListNode elseList = 5;
+}
+
+// BreakNode represents a {{break}} action.
+message BreakNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  optional int64 line = 3;
+}
+
+// ChainNode holds a term followed by a chain of field accesses (identifier starting with '.').
+// The names may be chained ('.x.y').
+// The periods are dropped from each ident.
+message ChainNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  optional Node node = 3;
+  // The identifiers in lexical order.
+  repeated string field = 4;
+}
+
+// CommandNode holds a command (a pipeline inside an evaluating action).
+message CommandNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // Arguments in lexical order: Identifier, field, or constant. Will be one of the node types declared here.
+  // TODO: why is this Any and not Node?
+  repeated google.protobuf.Any args = 3;
+}
+
+// CommentNode holds a comment.
+message CommentNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  optional string text = 3;
+}
+
+// ContinueNode represents a {{continue}} action.
+message ContinueNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  optional int64 line = 3;
+}
+
+// DotNode holds the special identifier '.'.
+message DotNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+}
+
+// FieldNode holds a field (identifier starting with '.').
+// The names may be chained ('.x.y').
+// The period is dropped from each ident.
+message FieldNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // The identifiers in lexical order.
+  repeated string ident = 3;
+}
+
+// IdentifierNode holds an identifier.
+message IdentifierNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // The identifier's name.
+  optional string ident = 3;
+}
+
+// IfNode represents an {{if}} action and its commands.
+message IfNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  optional BranchNode branchNode = 3;
+}
+
+// ListNode holds a sequence of nodes.
+message ListNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  repeated google.protobuf.Any nodes = 3;
+}
+
+// NilNode holds the special identifier 'nil' representing an untyped nil constant.
+message NilNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+}
+
+// NumberNode holds a number: signed or unsigned integer, float, or complex.
+// The value is parsed and stored under all the types that can represent the value.
+// This simulates in a small amount of code the behavior of Go's ideal constants.
+message NumberNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // Number has an integral value.
+  optional bool isInt = 3;
+  // Number has an unsigned integral value.
+  optional bool isUint = 4;
+  // Number has a floating-point value.
+  optional bool isFloat = 5;
+  // Number is complex.
+  optional bool isComplex = 6;
+  // The signed integer value.
+  optional int64 int64 = 7;
+  // The unsigned integer value.
+  optional uint64 uint64 = 8;
+  // The floating-point value.
+  optional double float64 = 9;
+  // The complex value. There are no complex numbers in protobuf, so this is a string; should be converted if needed.
+  optional string complex128 = 10;
+  // The original textual representation from the input.
+  optional string text = 11;
+}
+
+// PipeNode holds a pipeline with optional declaration
+message PipeNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // The variables are being assigned, not declared.
+  optional bool isAssign = 3;
+  // Variables in lexical order.
+  repeated VariableNode decl = 4;
+  // The commands in lexical order.
+  repeated CommandNode cmds = 5;
+}
+
+// RangeNode represents a {{range}} action and its commands.
+message RangeNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  optional BranchNode branchNode = 3;
+}
+
+// StringNode holds a string constant. The value has been "unquoted".
+message StringNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // The original text of the string, with quotes.
+  optional string quoted = 3;
+  // The string, after quote processing.
+  optional string text = 4;
+}
+
+// TemplateNode represents a {{template}} action.
+message TemplateNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // The name of the template (unquoted).
+  optional string name = 3;
+  // The command to evaluate as dot for the template.
+  optional PipeNode pipe = 4;
+}
+
+// TextNode holds plain text.
+message TextNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  optional bytes text = 3;
+}
+
+// Tree is the representation of a single parsed template.
+message Tree {
+  // name of the template represented by the tree.
+  optional string name = 1;
+  // name of the top-level template during parsing, for error messages.
+  optional string parseName = 2;
+  // top-level root of the tree.
+  optional ListNode root = 3;
+  optional uint64 mode = 4;
+}
+
+// VariableNode holds a list of variable names, possibly with chained field
+// accesses. The dollar sign is part of the (first) name.
+message VariableNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  // Variable name and fields in lexical order.
+  repeated string ident = 3;
+}
+
+// WithNode represents a {{with}} action and its commands.
+message WithNode {
+  NodeType nodeType = 1;
+  int64 pos = 2;
+  optional BranchNode branchNode = 3;
+}
