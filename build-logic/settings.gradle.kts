@@ -1,10 +1,10 @@
 dependencyResolutionManagement {
     repositories {
+        mavenCentral()
+        gradlePluginPortal()
         maven {
             url = uri("https://repox.jfrog.io/repox/sonarsource")
         }
-        mavenCentral()
-        gradlePluginPortal()
     }
     versionCatalogs {
         create("libs") {
@@ -15,10 +15,10 @@ dependencyResolutionManagement {
 
 pluginManagement {
     repositories {
+        mavenCentral()
+        gradlePluginPortal()
         maven {
             url = uri("https://repox.jfrog.io/repox/sonarsource")
         }
-        mavenCentral()
-        gradlePluginPortal()
     }
 }

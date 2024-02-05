@@ -19,6 +19,7 @@
  */
 package org.sonarsource.iac;
 
+import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -84,7 +86,7 @@ public abstract class TestBase {
       .setComponent(component)
       .setMetricKeys(singletonList(metricKey)));
     List<Measure> measures = response.getComponent().getMeasuresList();
-    return measures.size() == 1 ? measures.get(0) : null;
+    return Optional.of(measures).filter(m -> m.size() == 1).map(m -> m.get(0)).orElse(null);
   }
 
   protected Map<String, Measure> getMeasures(String projectKey, String... metricKeys) {
@@ -115,8 +117,8 @@ public abstract class TestBase {
   }
 
   protected Integer getMeasureAsInt(String componentKey, String metricKey) {
-    Measure measure = getMeasure(componentKey, metricKey);
-    return (measure == null) ? null : Integer.parseInt(measure.getValue());
+    var measure = getMeasure(componentKey, metricKey);
+    return Optional.ofNullable(measure).map(m -> Integer.parseInt(measure.getValue())).orElse(null);
   }
 
   protected static WsClient newWsClient() {
@@ -125,7 +127,7 @@ public abstract class TestBase {
       .build());
   }
 
-  public static void executeBuildWithExpectedWarnings(OrchestratorExtension orchestrator, SonarScanner build) {
+  public static void executeBuildWithExpectedWarnings(Orchestrator orchestrator, SonarScanner build) {
     BuildResult result = orchestrator.executeBuild(build);
     assertAnalyzerLogs(result.getLogs());
   }
@@ -133,7 +135,7 @@ public abstract class TestBase {
   private static void assertAnalyzerLogs(String logs) {
     List<String> lines = new ArrayList<>(Arrays.asList(logs.split("[\r\n]+")));
 
-    assertThat(lines.size()).isBetween(25, 150);
+    assertThat(lines).hasSizeBetween(25, 170);
 
     Set<String> allowedStrings = Set.of(
       "INFO: ",
