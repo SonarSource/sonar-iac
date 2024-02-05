@@ -21,7 +21,10 @@ tasks.register<Exec>("compileProtobufJava") {
     description = "Compile the protobuf for Java."
     group = "build"
 
-    inputs.files("${project.projectDir}/../../sonar-helm-for-iac/template-evaluation.proto")
+    inputs.files(
+        "${project.projectDir}/../../sonar-helm-for-iac/template-evaluation.proto",
+        "${project.projectDir}/../../sonar-helm-for-iac/ast.proto"
+    )
     outputs.dir("build/generated-sources")
     outputs.cacheIf { true }
 
@@ -30,7 +33,8 @@ tasks.register<Exec>("compileProtobufJava") {
         "-I=${project.projectDir}/../../sonar-helm-for-iac/",
         "-I=${System.getProperty("user.home")}/go/protobuf/include",
         "--java_out=${project.projectDir}/build/generated-sources",
-        "${project.projectDir}/../../sonar-helm-for-iac/template-evaluation.proto"
+        "${project.projectDir}/../../sonar-helm-for-iac/template-evaluation.proto",
+        "${project.projectDir}/../../sonar-helm-for-iac/ast.proto"
     )
 }
 
