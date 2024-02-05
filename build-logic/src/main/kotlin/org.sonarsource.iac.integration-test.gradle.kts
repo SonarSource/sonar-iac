@@ -19,6 +19,8 @@ val integrationTestTask =
         testClassesDirs = integrationTest.output.classesDirs
         classpath = configurations[integrationTest.runtimeClasspathConfigurationName] + integrationTest.output
 
+        systemProperty("sonar.runtimeVersion", System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+
         testLogging {
             exceptionFormat =
                 org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL // log the full stack trace (default is the 1st line of the stack trace)

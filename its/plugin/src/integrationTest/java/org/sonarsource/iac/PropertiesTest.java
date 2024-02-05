@@ -23,6 +23,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.opentest4j.TestAbortedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,7 +91,7 @@ class PropertiesTest extends TestBase {
     "yamlExtendedSuffix; yaml; .yml,.yaml,.rml; 15"
   })
   void testYamlSuffix(String projectKey, String language, String suffixes, int expectedNcloc) {
-    // Since yaml lanuage itself wouldn't publish files, we analyze yaml files that get picked up by cloudformation sensor
+    // Since yaml language itself wouldn't publish files, we analyze yaml files that get picked up by cloudformation sensor
     executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
   }
 
@@ -131,6 +132,10 @@ class PropertiesTest extends TestBase {
     String metricKey, int expectedResultOfMetric) {
     SonarScanner sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + propertySuffix + "/", language);
     if (propertyValue != null) {
+      if (propertyValue.isEmpty()) {
+        // TODO: https://sonarsource.atlassian.net/browse/SONARIAC-1322
+        throw new TestAbortedException("Empty property value is not working with 10.4");
+      }
       sonarScanner.setProperty("sonar." + language + ".file." + propertySuffix, propertyValue);
     }
     ORCHESTRATOR.executeBuild(sonarScanner);
