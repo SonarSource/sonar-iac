@@ -30,6 +30,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -58,7 +60,7 @@ class HelmFilesystemUtilsTest {
 
   @BeforeEach
   void init() throws IOException {
-    baseDir = tmpDir.toPath().resolve("test-project").toFile();
+    baseDir = tmpDir.toPath().toRealPath().resolve("test-project").toFile();
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
     FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("templates").toFile());
@@ -107,31 +109,6 @@ class HelmFilesystemUtilsTest {
       Arguments.of("templates/file.txt", true),
       Arguments.of("file.jpg", false),
       Arguments.of("file.java", false));
-  }
-
-  @Test
-  void faultyRealPathResolvingShouldReturnNonePredicate() throws IOException {
-    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
-    Path helmProjectPath = mock(Path.class);
-    when(helmProjectPath.toRealPath()).thenThrow(IOException.class);
-
-    FilePredicate filePredicate = HelmFilesystemUtils.additionalHelmDependenciesPredicate(templateInputFileContext, helmProjectPath);
-    assertThat(filePredicate).isEqualTo(context.fileSystem().predicates().none());
-  }
-
-  @Test
-  void faultyPathNormalizationShouldReturnNonePredicate() throws IOException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.normalizePathForWindows(any())).thenReturn(null);
-      when(HelmFilesystemUtils.additionalHelmDependenciesPredicate(any(), any())).thenCallRealMethod();
-
-      InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-      InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
-
-      FilePredicate filePredicate = HelmFilesystemUtils.additionalHelmDependenciesPredicate(templateInputFileContext, baseDir.toPath());
-      assertThat(filePredicate).isEqualTo(context.fileSystem().predicates().none());
-    }
   }
 
   @Test
@@ -194,7 +171,7 @@ class HelmFilesystemUtilsTest {
 
   @Test
   void shouldReturnEmptyMapWhenOnlyChartYamlIsVeryHighAbove() throws IOException {
-    Files.createFile(tmpDir.toPath().resolve("Chart.yaml"));
+    Files.createFile(tmpDir.toPath().toRealPath().resolve("Chart.yaml"));
     FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4"));
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);

@@ -20,7 +20,6 @@
 package org.sonar.iac.helm.utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -68,17 +67,11 @@ public final class HelmFilesystemUtils {
 
     String pathPattern = null;
 
-    var basePath = normalizePathForWindows(inputFileContext.sensorContext.fileSystem().baseDir().toPath());
-    helmProjectDirectoryPath = normalizePathForWindows(helmProjectDirectoryPath);
+    var basePath = inputFileContext.sensorContext.fileSystem().baseDir().toPath();
 
-    if (basePath != null && helmProjectDirectoryPath != null) {
-      var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
-      pathPattern = relativizedPath + File.separator + "**";
-    }
+    var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
+    pathPattern = relativizedPath + File.separator + "**";
 
-    if (pathPattern == null) {
-      return predicates.none();
-    }
     return predicates.and(
       predicates.matchesPathPattern(pathPattern),
       extensionPredicate(predicates),
@@ -95,11 +88,7 @@ public final class HelmFilesystemUtils {
 
   @CheckForNull
   public static Path retrieveHelmProjectFolder(Path inputFilePath, File baseDir) {
-    var baseDirPath = normalizePathForWindows(baseDir.toPath());
-
-    if (baseDirPath == null) {
-      return null;
-    }
+    var baseDirPath = baseDir.toPath();
 
     var helmProjectDirectoryPath = inputFilePath;
 
@@ -120,16 +109,6 @@ public final class HelmFilesystemUtils {
   }
 
   public static String normalizeToUnixPathSeparator(String filename) {
-    return filename.replace(File.separatorChar, '/');
-  }
-
-  @CheckForNull
-  public static Path normalizePathForWindows(Path path) {
-    try {
-      return path.toRealPath();
-    } catch (IOException e) {
-      LOG.debug("Failed to normalize path for windows: {}", path);
-    }
-    return null;
+    return filename.replace('\\', '/');
   }
 }
