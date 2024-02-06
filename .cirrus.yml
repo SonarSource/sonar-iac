@@ -75,7 +75,7 @@ linux_1_cpu_2G_template: &LINUX_1_CPU_2G
 linux_8_cpu_16G_java_17_template: &LINUX_8_CPU_16G_JAVA_17
   eks_container:
     <<: *LINUX_IMAGE
-    cpu: 16
+    cpu: 8
     memory: 16G
 
 linux_8_cpu_16G_java_17_with_gcc_template: &LINUX_8_CPU_16G_JAVA_17_WITH_GCC
