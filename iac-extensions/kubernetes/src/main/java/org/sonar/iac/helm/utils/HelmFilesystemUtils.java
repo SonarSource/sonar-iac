@@ -125,20 +125,12 @@ public final class HelmFilesystemUtils {
   }
 
   /**
-   * The purpose of this method is to expand ~ on Windows.
+   * The purpose of this method is to expand '~' on Windows.
    * The Path.toRealPath() on Mac resolve temp directories so unit test failing, e.g.:
    * /var/folders/.../test will be resolved to /private/var/folders/.../test
    * It should be used carefully.
    */
   public static Path normalizePathForWindows(Path path) {
-    try {
-      if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
-        return path.toRealPath();
-      }
-      return path;
-    } catch (IOException e) {
-      LOG.debug("Failed to normalize path for windows: {}", path);
-    }
-    return null;
+    return path.normalize();
   }
 }
