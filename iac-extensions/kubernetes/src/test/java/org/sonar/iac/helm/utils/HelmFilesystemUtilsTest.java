@@ -112,20 +112,6 @@ class HelmFilesystemUtilsTest {
   }
 
   @Test
-  void faultyPathNormalizationShouldReturnNonePredicate() throws IOException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.normalizePathForWindows(any())).thenReturn(null);
-      when(HelmFilesystemUtils.additionalHelmDependenciesPredicate(any(), any())).thenCallRealMethod();
-
-      InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-      InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
-
-      FilePredicate filePredicate = HelmFilesystemUtils.additionalHelmDependenciesPredicate(templateInputFileContext, baseDir.toPath());
-      assertThat(filePredicate).isEqualTo(context.fileSystem().predicates().none());
-    }
-  }
-
-  @Test
   void shouldReturnNullWhenInputIsNull() {
     Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(null, context.fileSystem().baseDir());
     assertThat(parentPath).isNull();
@@ -193,13 +179,6 @@ class HelmFilesystemUtilsTest {
     var result = HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
 
     assertThat(result).isNull();
-  }
-
-  @Test
-  @EnabledOnOs(OS.WINDOWS)
-  void shouldNormalizePathForWindows() {
-    var actual = HelmFilesystemUtils.normalizePathForWindows(Path.of("~/path/file.txt"));
-    assertThat(actual.toString()).doesNotStartWith("~");
   }
 
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {

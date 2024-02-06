@@ -67,17 +67,11 @@ public final class HelmFilesystemUtils {
 
     String pathPattern = null;
 
-    var basePath = normalizePathForWindows(inputFileContext.sensorContext.fileSystem().baseDir().toPath());
-    helmProjectDirectoryPath = normalizePathForWindows(helmProjectDirectoryPath);
+    var basePath = inputFileContext.sensorContext.fileSystem().baseDir().toPath();
 
-    if (basePath != null && helmProjectDirectoryPath != null) {
-      var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
-      pathPattern = relativizedPath + File.separator + "**";
-    }
+    var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
+    pathPattern = relativizedPath + File.separator + "**";
 
-    if (pathPattern == null) {
-      return predicates.none();
-    }
     return predicates.and(
       predicates.matchesPathPattern(pathPattern),
       extensionPredicate(predicates),
@@ -94,11 +88,7 @@ public final class HelmFilesystemUtils {
 
   @CheckForNull
   public static Path retrieveHelmProjectFolder(Path inputFilePath, File baseDir) {
-    var baseDirPath = normalizePathForWindows(baseDir.toPath());
-
-    if (baseDirPath == null) {
-      return null;
-    }
+    var baseDirPath = baseDir.toPath();
 
     var helmProjectDirectoryPath = inputFilePath;
 
