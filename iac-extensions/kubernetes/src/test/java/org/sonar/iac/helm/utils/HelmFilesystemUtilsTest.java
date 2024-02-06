@@ -60,7 +60,7 @@ class HelmFilesystemUtilsTest {
 
   @BeforeEach
   void init() throws IOException {
-    baseDir = tmpDir.toPath().resolve("test-project").toFile();
+    baseDir = tmpDir.toPath().toRealPath().resolve("test-project").toFile();
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
     FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("templates").toFile());
@@ -185,7 +185,7 @@ class HelmFilesystemUtilsTest {
 
   @Test
   void shouldReturnEmptyMapWhenOnlyChartYamlIsVeryHighAbove() throws IOException {
-    Files.createFile(tmpDir.toPath().resolve("Chart.yaml"));
+    Files.createFile(tmpDir.toPath().toRealPath().resolve("Chart.yaml"));
     FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4"));
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);

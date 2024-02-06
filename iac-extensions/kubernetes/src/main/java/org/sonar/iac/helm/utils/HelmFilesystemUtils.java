@@ -20,11 +20,9 @@
 package org.sonar.iac.helm.utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -131,6 +129,6 @@ public final class HelmFilesystemUtils {
    * It should be used carefully.
    */
   public static Path normalizePathForWindows(Path path) {
-    return path.normalize();
+    return path;
   }
 }
