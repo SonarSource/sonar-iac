@@ -173,7 +173,7 @@ build_test_analyze_task:
     <<: *BUILD_SECRETS
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: false
-    GO_CROSS_COMPILE: '0'
+    GO_CROSS_COMPILE: '1'
   build_script:
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
