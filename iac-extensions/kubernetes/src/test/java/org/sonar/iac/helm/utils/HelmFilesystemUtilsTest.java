@@ -30,10 +30,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -194,12 +195,11 @@ class HelmFilesystemUtilsTest {
     assertThat(result).isNull();
   }
 
-  @ParameterizedTest
-  @CsvSource(value = {"/path/file.txt,/path/file.txt",
-    "C:\\path\\file.txt,C:/path/file.txt"})
-  void shouldNormalizePathForWindows(String input, String expected) {
-    var actual = HelmFilesystemUtils.normalizePathForWindows(Path.of(input));
-    assertThat(actual).isEqualTo(Path.of(expected));
+  @Test
+  @EnabledOnOs(OS.WINDOWS)
+  void shouldNormalizePathForWindows() {
+    var actual = HelmFilesystemUtils.normalizePathForWindows(Path.of("~/path/file.txt"));
+    assertThat(actual.toString()).doesNotStartWith("~");
   }
 
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {

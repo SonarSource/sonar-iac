@@ -20,9 +20,11 @@
 package org.sonar.iac.helm.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -122,7 +124,21 @@ public final class HelmFilesystemUtils {
     return filename.replace('\\', '/');
   }
 
+  /**
+   * The purpose of this method is to expand ~ on Windows.
+   * The Path.toRealPath() on Mac resolve temp directories so unit test failing, e.g.:
+   * /var/folders/.../test will be resolved to /private/var/folders/.../test
+   * It should be used carefully.
+   */
   public static Path normalizePathForWindows(Path path) {
-    return Path.of(normalizeToUnixPathSeparator(path.toString()));
+    try {
+      if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+        return path.toRealPath();
+      }
+      return path;
+    } catch (IOException e) {
+      LOG.debug("Failed to normalize path for windows: {}", path);
+    }
+    return null;
   }
 }
