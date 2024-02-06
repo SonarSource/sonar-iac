@@ -126,6 +126,8 @@ store_profile_report_template: &STORE_PROFILE_REPORT
 
 gradle_its_template: &GRADLE_ITS_TEMPLATE
   <<: *SETUP_GRADLE_CACHE
+  env:
+    GO_CROSS_COMPILE: '1' # to be able to reuse cached results of previous tasks
   run_its_script:
     - git submodule update --init --depth 1
     - source cirrus-env QA
