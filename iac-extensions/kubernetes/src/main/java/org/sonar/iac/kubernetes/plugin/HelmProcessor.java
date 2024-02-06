@@ -19,10 +19,15 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 import javax.annotation.Nullable;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ExtensionPoint;
@@ -31,11 +36,13 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory;
+import static org.sonar.iac.helm.utils.HelmFilesystemUtils.normalizeToRuntimePathSeparator;
 
 @ScannerSide
 @SonarLintSide
@@ -74,7 +81,6 @@ public class HelmProcessor {
       return source;
     }
 
-    // TODO: better support of Helm project structure
     var sourceWithComments = addLineComments(source);
     Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
     var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
@@ -90,17 +96,56 @@ public class HelmProcessor {
     Map<String, String> fileContents = new HashMap<>(files.size());
 
     for (Map.Entry<String, InputFile> filenameToInputFile : files.entrySet()) {
-      var additionalInputFile = filenameToInputFile.getValue();
-      String fileContent;
-      try {
-        fileContent = additionalInputFile.contents();
-      } catch (IOException e) {
-        throw parseExceptionFor(inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
+      if (filenameToInputFile.getKey().endsWith("tgz") || filenameToInputFile.getKey().endsWith("gz")) {
+        fileContents.putAll(readCompressedFile(filenameToInputFile.getKey(), filenameToInputFile.getValue()));
+      } else {
+        var fileContent = readTextFile(inputFile, filenameToInputFile);
+        fileContents.put(filenameToInputFile.getKey(), fileContent);
       }
-
-      fileContents.put(filenameToInputFile.getKey(), fileContent);
     }
     return fileContents;
+  }
+
+  // exposed for tests
+  static Map<String, String> readCompressedFile(String name, InputFile inputFile) {
+    LOG.debug("Read dependency chart {}", name);
+    var pathPrefix = pathPrefix(name);
+    Map<String, String> result = new HashMap<>();
+    try (var source = inputFile.inputStream();
+      var gzip = new GZIPInputStream(source);
+      var tar = new TarArchiveInputStream(gzip)) {
+      TarArchiveEntry entry;
+      while ((entry = tar.getNextEntry()) != null) {
+        var normalizedName = normalizeToRuntimePathSeparator(entry.getName());
+        if (entry.isFile() && HelmFilesystemUtils.includeFile(normalizedName)) {
+          var bytes = tar.readAllBytes();
+          var s = new String(bytes, StandardCharsets.UTF_8);
+          result.put(pathPrefix + File.separator + normalizedName, s);
+        }
+      }
+    } catch (IOException e) {
+      throw parseExceptionFor(inputFile, "Failed to read compressed file", e.getMessage());
+    }
+    return result;
+  }
+
+  private static String pathPrefix(String name) {
+    var index = name.lastIndexOf("/");
+    if (index == -1) {
+      return name;
+    }
+    return name.substring(0, index);
+  }
+
+  private static String readTextFile(InputFile inputFile, Map.Entry<String, InputFile> filenameToInputFile) {
+    var additionalInputFile = filenameToInputFile.getValue();
+    String fileContent;
+    try {
+      fileContent = additionalInputFile.contents();
+    } catch (IOException e) {
+      throw parseExceptionFor(inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
+    }
+    return fileContent;
   }
 
   private String evaluateHelmTemplate(String path, InputFile inputFile, String content, Map<String, String> templateDependencies) {

@@ -1,0 +1,9 @@
+{{- template "common.service" (list . "chart-template-arch-dep.service") -}}
+{{- define "chart-template-arch-dep.service" -}}
+# metadata:
+#   labels:
+#     foo: bar
+# spec:
+#   ports:
+#   - port: 8080
+{{- end -}}

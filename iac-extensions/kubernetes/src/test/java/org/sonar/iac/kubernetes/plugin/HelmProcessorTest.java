@@ -19,12 +19,18 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
@@ -40,11 +46,13 @@ import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -227,10 +235,91 @@ class HelmProcessorTest {
     }
   }
 
+  @Test
+  void shouldReadCompressedFile() throws IOException {
+    var inputFile = inputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
+    var fileContents = HelmProcessor.readCompressedFile("charts/common-0.0.1.tgz", inputFile);
+    var expectedKey = "charts/common/values.yaml".replace('/', File.separatorChar);
+    assertThat(fileContents)
+      .containsEntry(expectedKey,
+        "# Default values\ncommonName: commonValue\n");
+  }
+
+  @Test
+  void shouldThrowExceptionWhenNotCompressedFile() throws IOException {
+    var inputFile = inputFile("src/test/resources/helm/Chart.yaml");
+
+    assertThrowsExactly(ParseException.class,
+      () -> HelmProcessor.readCompressedFile("charts/common-0.0.1.tgz", inputFile),
+      "Failed to evaluate Helm file src/test/resources/helm/Chart.yaml: Failed to read compressed file");
+  }
+
+  public static List<String> zipSlipArchives() {
+    List<String> names = new ArrayList<>();
+    for (int i = 1; i < 2; i++) {
+      names.add("evil" + i + "-unix.tar.gz");
+      names.add("evil" + i + "-win.tar.gz");
+    }
+    return names;
+  }
+
+  @ParameterizedTest
+  @MethodSource("zipSlipArchives")
+  void shouldReadCompressedFileThtContainsZipSlip(String filename) throws IOException {
+    var inputFile = inputFile("src/test/resources/helm/charts/" + filename);
+    var fileContents = HelmProcessor.readCompressedFile("charts/" + filename, inputFile);
+    assertThat(fileContents).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("Read dependency chart charts/" + filename);
+    assertThat(logTester.logs(Level.DEBUG).get(1))
+      .startsWith("The path")
+      .endsWith("in compressed file looks suspicious, ignoring the file");
+  }
+
+  @Test
+  void shouldReadCompressedFileFilenameWithoutDirectory() throws IOException {
+    var inputFile = inputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
+    var fileContents = HelmProcessor.readCompressedFile("common-0.0.1.tgz", inputFile);
+    var expectedKey = "common-0.0.1.tgz/common/values.yaml".replace('/', File.separatorChar);
+    assertThat(fileContents)
+      .containsEntry(expectedKey,
+        "# Default values\ncommonName: commonValue\n");
+  }
+
+  @Test
+  void shouldEvaluateTemplateWithDependencyAndReturnTemplate() throws IOException {
+    var helmProcessor = new HelmProcessor(helmEvaluator);
+    helmProcessor.initialize();
+
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = Mockito.mock(InputFile.class);
+      when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
+      var dependencyChart = inputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
+      var files = Map.of("values.yaml", valuesFile,
+        "charts/common-0.0.1.tgz", dependencyChart);
+      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
+      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
+        .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("containerPort: 8080 #1").build());
+      var inputFileContext = Mockito.mock(InputFileContext.class);
+
+      var result = helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext);
+
+      assertEquals("containerPort: 8080 #1", result);
+    }
+  }
+
   private static InputFileContext mockInputFileContext(String filename) {
     var inputFile = Mockito.mock(InputFile.class);
     when(inputFile.newPointer(anyInt(), anyInt())).thenReturn(new BasicTextPointer(0, 0));
     when(inputFile.toString()).thenReturn(filename);
     return new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
+  }
+
+  private InputFile inputFile(String relativePath) throws IOException {
+    var in = new FileInputStream(relativePath);
+    var inputFile = mock(InputFile.class);
+    when(inputFile.inputStream()).thenReturn(in);
+    when(inputFile.toString()).thenReturn(relativePath);
+    return inputFile;
   }
 }

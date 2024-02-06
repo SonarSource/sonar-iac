@@ -30,17 +30,18 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
-import org.sonar.api.batch.fs.FilePredicate;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +50,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class HelmFilesystemUtilsTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @TempDir
   protected File tmpDir;
@@ -64,6 +68,7 @@ class HelmFilesystemUtilsTest {
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
     FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("templates").toFile());
+    FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("charts/sub/templates").toFile());
   }
 
   @AfterEach
@@ -107,8 +112,15 @@ class HelmFilesystemUtilsTest {
       Arguments.of("file.toml", true),
       Arguments.of("foo/bar/file.txt", true),
       Arguments.of("templates/file.txt", true),
+      Arguments.of("charts/file.tgz", true),
+      Arguments.of("charts/subchart.tar.gz", true),
+      Arguments.of("charts/sub/Chart.yaml", true),
+      Arguments.of("charts/sub/values.yaml", true),
+      Arguments.of("charts/sub/templates/service.yaml", true),
+      Arguments.of("charts/sub/templates/_helpers.yaml", true),
       Arguments.of("file.jpg", false),
-      Arguments.of("file.java", false));
+      Arguments.of("file.java", false),
+      Arguments.of("~", false));
   }
 
   @Test
@@ -179,6 +191,42 @@ class HelmFilesystemUtilsTest {
     var result = HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
 
     assertThat(result).isNull();
+  }
+
+  @ParameterizedTest
+  @MethodSource("inputFiles")
+  void shouldNotIncludeSuspiciousFiles(String relativePath, boolean shouldBeIncluded) {
+    var actual = HelmFilesystemUtils.includeFile(relativePath);
+    assertThat(actual).isEqualTo(shouldBeIncluded);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "~/file.txt",
+    "../file.txt",
+    "../../file.txt",
+    "../../../../../file.txt",
+    "a/../../../../file.txt",
+    "a/b/c/../../../../../file.txt"})
+  void shouldNotIncludeSuspiciousFiles(String relativePath) {
+    var actual = HelmFilesystemUtils.includeFile(relativePath);
+    assertThat(actual).isFalse();
+    assertThat(logTester.logs(Level.DEBUG).get(0))
+      .contains("The path " + relativePath + " in compressed file looks suspicious, ignoring the file");
+  }
+
+  @Test
+  void shouldReturnFalseWhenIOException() {
+    // Workaround for https://stackoverflow.com/a/76997456
+    var helmFilesystemUtilsClass = HelmFilesystemUtils.class;
+    try (var ignored = Mockito.mockConstruction(File.class, (mock, context) -> {
+      when(mock.getCanonicalPath()).thenThrow(new IOException("msg"));
+    })) {
+      var actual = HelmFilesystemUtils.includeFile("dummy.txt");
+      assertThat(actual).isFalse();
+      assertThat(logTester.logs(Level.DEBUG).get(0))
+        .contains("The path dummy.txt in compressed file looks suspicious, ignoring the file");
+    }
   }
 
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {

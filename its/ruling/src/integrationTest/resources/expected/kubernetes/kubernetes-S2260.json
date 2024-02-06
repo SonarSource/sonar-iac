@@ -2,6 +2,9 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/S2260/parsing-error.yaml": [
 6
 ],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/chart-template-arch-dep/templates/service.yaml": [
+0
+],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/invalid-yaml-after-render.yaml": [
 2
 ],
