@@ -129,8 +129,9 @@ gradle_its_template: &GRADLE_ITS_TEMPLATE
   env:
     # to be able to reuse cached results of previous tasks
     GO_CROSS_COMPILE: '1'
-  run_its_script:
+  download_submodules_script:
     - git submodule update --init --depth 1
+  run_its_script:
     - source cirrus-env QA
     - source .cirrus/use-gradle-wrapper.sh
     - source set_gradle_build_version $BUILD_NUMBER
@@ -176,7 +177,7 @@ build_test_analyze_task:
     <<: *BUILD_SECRETS
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: false
-    GO_CROSS_COMPILE: '1'
+    GO_CROSS_COMPILE: '0'
   build_script:
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
