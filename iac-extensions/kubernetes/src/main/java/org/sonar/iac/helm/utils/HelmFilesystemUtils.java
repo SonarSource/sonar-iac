@@ -111,14 +111,4 @@ public final class HelmFilesystemUtils {
   public static String normalizeToUnixPathSeparator(String filename) {
     return filename.replace('\\', '/');
   }
-
-  /**
-   * The purpose of this method is to expand '~' on Windows.
-   * The Path.toRealPath() on Mac resolve temp directories so unit test failing, e.g.:
-   * /var/folders/.../test will be resolved to /private/var/folders/.../test
-   * It should be used carefully.
-   */
-  public static Path normalizePathForWindows(Path path) {
-    return path;
-  }
 }
