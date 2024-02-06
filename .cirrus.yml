@@ -72,12 +72,18 @@ linux_1_cpu_2G_template: &LINUX_1_CPU_2G
     cpu: 1
     memory: 2G
 
-linux_4_cpu_8G_java_17_template: &LINUX_4_CPU_8G_JAVA_17
+linux_16_cpu_32G_java_17_template: &LINUX_16_CPU_32G_JAVA_17
   eks_container:
     <<: *LINUX_IMAGE
     image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
-    cpu: 4
-    memory: 8G
+    cpu: 16
+    memory: 32G
+
+linux_8_cpu_16G_java_17_with_gcc_template: &LINUX_8_CPU_16G_JAVA_17_WITH_GCC
+  eks_container:
+    <<: *LINUX_IMAGE_WITH_GCC
+    cpu: 8
+    memory: 16G
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
@@ -144,10 +150,7 @@ gradle_its_template: &GRADLE_ITS_TEMPLATE
 # ----------------------------------------------
 
 build_task:
-  eks_container:
-    <<: *LINUX_IMAGE_WITH_GCC
-    cpu: 3.5
-    memory: 7G
+  <<: *LINUX_8_CPU_16G_JAVA_17_WITH_GCC
   <<: *SETUP_GRADLE_CACHE
   env:
     <<: *BUILD_SECRETS
@@ -163,11 +166,8 @@ build_task:
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 build_test_analyze_task:
+  <<: *LINUX_8_CPU_16G_JAVA_17_WITH_GCC
   <<: *QA_TASK_FILTER
-  eks_container:
-    <<: *LINUX_IMAGE_WITH_GCC
-    cpu: 3.5
-    memory: 7G
   <<: *SETUP_GRADLE_CACHE
   env:
     <<: *BUILD_SECRETS
@@ -221,7 +221,7 @@ sca_scan_task:
 
 qa_plugin_task:
   <<: *QA_TASK_FILTER
-  <<: *LINUX_4_CPU_8G_JAVA_17
+  <<: *LINUX_16_CPU_32G_JAVA_17
   env:
     GRADLE_TASK: ":its:plugin:integrationTest"
     matrix:
@@ -231,7 +231,7 @@ qa_plugin_task:
 
 qa_ruling_task:
   <<: *QA_TASK_FILTER
-  <<: *LINUX_4_CPU_8G_JAVA_17
+  <<: *LINUX_16_CPU_32G_JAVA_17
   <<: *SETUP_GRADLE_CACHE
   env:
     GRADLE_TASK: ":its:ruling:integrationTest"
