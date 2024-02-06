@@ -28,6 +28,8 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import org.sonar.api.batch.sensor.Sensor;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -51,4 +53,11 @@ public class ArchUnitTest {
         events.add(new SimpleConditionEvent(javaClass, satisfied, message));
       }
     });
+
+  /**
+   * The Path.toRealPath() on Mac resolve temp directories so unit test failing, e.g.:
+   * /var/folders/.../test will be resolved to /private/var/folders/.../test
+   */
+  @ArchTest
+  static final ArchRule shouldNotCallPathToRealPath = noClasses().should().callMethod(Path.class, "toRealPath", LinkOption[].class);
 }

@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -107,17 +108,6 @@ class HelmFilesystemUtilsTest {
       Arguments.of("templates/file.txt", true),
       Arguments.of("file.jpg", false),
       Arguments.of("file.java", false));
-  }
-
-  @Test
-  void faultyRealPathResolvingShouldReturnNonePredicate() throws IOException {
-    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
-    Path helmProjectPath = mock(Path.class);
-    when(helmProjectPath.toRealPath()).thenThrow(IOException.class);
-
-    FilePredicate filePredicate = HelmFilesystemUtils.additionalHelmDependenciesPredicate(templateInputFileContext, helmProjectPath);
-    assertThat(filePredicate).isEqualTo(context.fileSystem().predicates().none());
   }
 
   @Test
@@ -202,6 +192,14 @@ class HelmFilesystemUtilsTest {
     var result = HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
 
     assertThat(result).isNull();
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {"/path/file.txt,/path/file.txt",
+    "C:\\path\\file.txt,C:/path/file.txt"})
+  void shouldNormalizePathForWindows(String input, String expected) {
+    var actual = HelmFilesystemUtils.normalizePathForWindows(Path.of(input));
+    assertThat(actual).isEqualTo(Path.of(expected));
   }
 
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {
