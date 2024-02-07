@@ -72,11 +72,11 @@ linux_1_cpu_2G_template: &LINUX_1_CPU_2G
     cpu: 1
     memory: 2G
 
-linux_4_cpu_8G_java_17_template: &LINUX_4_CPU_8G_JAVA_17
+linux_6_cpu_10G_java_17_template: &LINUX_4_CPU_8G_JAVA_17
   eks_container:
     <<: *LINUX_IMAGE
-    cpu: 8
-    memory: 16G
+    cpu: 6
+    memory: 10G
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
