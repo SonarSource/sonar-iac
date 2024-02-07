@@ -19,7 +19,7 @@ project(":sonar-helm-for-iac") {
         properties {
             property("sonar.sources", ".")
             property("sonar.inclusions", "**/*.go")
-            property("sonar.exclusions", "**/build/**,**/org.sonarsource.iac.helm/**")
+            property("sonar.exclusions", "**/build/**,**/org.sonar.iac.helm/**")
             property("sonar.tests", ".")
             property("sonar.test.inclusions", "**/*_test.go")
             property("sonar.go.tests.reportPaths", "build/test-report.out")

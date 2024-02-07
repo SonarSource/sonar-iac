@@ -35,7 +35,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.iac.helm.utils.ExecutableHelper;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.INSTANCE)
