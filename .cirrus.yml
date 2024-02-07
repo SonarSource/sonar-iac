@@ -161,7 +161,6 @@ build_task:
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
     - go version
-    - go env
     - regular_gradle_build_deploy_analyze --parallel --profile -x test -x sonar
   <<: *STORE_PROFILE_REPORT
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
