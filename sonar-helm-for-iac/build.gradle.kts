@@ -23,7 +23,7 @@ if (isCi) {
         group = "build"
 
         inputs.files("template-evaluation.proto", "ast.proto")
-        outputs.files("org.sonarsource.iac.helm/template_evaluation.pb.go", "org.sonarsource.iac.helm/ast.pb.go")
+        outputs.files("org.sonar.iac.helm/template_evaluation.pb.go", "org.sonar.iac.helm/ast.pb.go")
         outputs.cacheIf { true }
 
         commandLine("protoc", "-I=${project.projectDir}", "-I=${System.getProperty("user.home")}/go/protobuf/include",
@@ -49,8 +49,7 @@ if (isCi) {
             "go.mod",
             "go.sum",
             "make.bat",
-            "make.sh",
-            "template-evaluation.proto")
+            "make.sh")
             exclude("build/**")
         })
         outputs.dir("build/executable")
@@ -129,6 +128,7 @@ if (!isCi) {
     tasks.register<Exec>("compileGoCode") {
         description = "Build the go code from the docker image."
         group = "build"
+        dependsOn("buildDockerImage")
         setErrorOutput(System.out)
 
         inputs.files(fileTree(projectDir).matching {
@@ -141,10 +141,50 @@ if (!isCi) {
         commandLine("docker", "run", "--rm", "--platform", "linux/amd64", "--mount", "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac",
             "--env", "GO_CROSS_COMPILE=${System.getenv("GO_CROSS_COMPILE") ?: "1"}",
             "sonar-iac-helm-builder")
-        dependsOn("buildDockerImage")
     }
 
     tasks.named("assemble") {
         dependsOn("compileGoCode")
     }
+}
+
+tasks.register<Exec>("compileProtobufJava") {
+    description = "Compile the protobuf for Java."
+    group = "build"
+
+    inputs.files(
+        "${project.projectDir}/template-evaluation.proto",
+        "${project.projectDir}/ast.proto"
+    )
+    outputs.dir("build/generated-sources")
+    outputs.cacheIf { true }
+
+    commandLine(
+        "protoc",
+        "-I=${project.projectDir}",
+        "-I=${System.getProperty("user.home")}/go/protobuf/include",
+        "--java_out=${project.projectDir}/build/generated-sources",
+        "${project.projectDir}/template-evaluation.proto",
+        "${project.projectDir}/ast.proto"
+    )
+}
+
+dependencies {
+    implementation(libs.google.protobuf)
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("build/generated-sources")
+        }
+    }
+}
+
+tasks.named("compileJava") {
+    dependsOn("compileProtobufJava")
+}
+
+tasks.named("sourcesJar") {
+    dependsOn("compileProtobufJava")
 }

@@ -22,7 +22,7 @@ import (
 	"bufio"
 	"errors"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
-	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
+	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonar.iac.helm"
 	"google.golang.org/protobuf/proto"
 	"os"
 	"os/exec"

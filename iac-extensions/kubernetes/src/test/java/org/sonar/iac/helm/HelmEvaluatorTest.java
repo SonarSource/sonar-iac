@@ -38,7 +38,6 @@ import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.helm.utils.ExecutableHelper;
-import org.sonarsource.iac.helm.TemplateEvaluationResult;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -46,6 +45,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class HelmEvaluatorTest {
   @TempDir
