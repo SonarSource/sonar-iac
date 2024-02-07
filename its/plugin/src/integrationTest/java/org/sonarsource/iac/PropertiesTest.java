@@ -122,7 +122,7 @@ class PropertiesTest extends TestBase {
     if (azureresourcemanagerPropertyValue != null) {
       sonarScanner.setProperty("sonar.azureresourcemanager.activate", azureresourcemanagerPropertyValue.toString());
     }
-    ORCHESTRATOR.executeBuild(sonarScanner);
+    orchestrator().executeBuild(sonarScanner);
     assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNcloc);
   }
 
@@ -138,12 +138,12 @@ class PropertiesTest extends TestBase {
       }
       sonarScanner.setProperty("sonar." + language + ".file." + propertySuffix, propertyValue);
     }
-    ORCHESTRATOR.executeBuild(sonarScanner);
+    orchestrator().executeBuild(sonarScanner);
     assertThat(getMeasureAsInt(projectKey, metricKey)).isEqualTo(expectedResultOfMetric);
   }
 
   private void checkTerraformAwsProviderVersion(String projectKey, String version, int expectedHotspots) {
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "provider/", "terraform", "aws-provider")
+    orchestrator().executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "provider/", "terraform", "aws-provider")
       .setProperty("sonar.terraform.provider.aws.version", version));
     assertThat(getHotspotsForProject(projectKey)).hasSize(expectedHotspots);
   }

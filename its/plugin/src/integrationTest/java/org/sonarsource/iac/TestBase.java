@@ -33,7 +33,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.sonar.orchestrator.locator.FileLocation;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Issues;
@@ -45,12 +48,33 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
+import static java.util.Collections.reverseOrder;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarsource.iac.TestsSetup.*;
 
 public abstract class TestBase {
-  @RegisterExtension
-  public static final OrchestratorExtension ORCHESTRATOR = TestsSetup.ORCHESTRATOR;
+
+  private static Orchestrator ORCHESTRATOR;
+
+  public static Orchestrator orchestrator() {
+    if (ORCHESTRATOR == null) {
+      ORCHESTRATOR = OrchestratorExtension.builderEnv()
+        .useDefaultAdminCredentialsForBuilds(true)
+        .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
+        .addPlugin(IAC_PLUGIN_LOCATION)
+        .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/nosonar-terraform.xml"))
+        .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/aws-provider-terraform.xml"))
+        .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-docker.xml"))
+        .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-json.xml"))
+        .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-yaml.xml"))
+        .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-cloudformation.xml"))
+        .build();
+      ORCHESTRATOR.start();
+    }
+
+    return ORCHESTRATOR;
+  }
   private static final String SCANNER_VERSION = "5.0.1.3006";
 
   protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey) {
@@ -58,9 +82,9 @@ public abstract class TestBase {
   }
 
   protected static SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey, @Nullable String profileName) {
-    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
+    orchestrator().getServer().provisionProject(projectKey, projectKey);
     if (profileName != null) {
-      ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, languageKey, profileName);
+      orchestrator().getServer().associateProjectToQualityProfile(projectKey, languageKey, profileName);
     }
     return SonarScanner.create()
       .setScannerVersion(SCANNER_VERSION)
@@ -123,7 +147,7 @@ public abstract class TestBase {
 
   protected static WsClient newWsClient() {
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(ORCHESTRATOR.getServer().getUrl())
+      .url(orchestrator().getServer().getUrl())
       .build());
   }
 

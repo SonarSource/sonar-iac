@@ -38,7 +38,7 @@ class HadolintReportTest extends TestBase {
   void import_report() {
     SonarScanner sonarScanner = getSonarScanner(PROJECT, BASE_DIRECTORY, "docker", "no_rules");
     // start analysis of the project
-    executeBuildWithExpectedWarnings(ORCHESTRATOR, sonarScanner);
+    executeBuildWithExpectedWarnings(orchestrator(), sonarScanner);
 
     List<Issues.Issue> issues = issuesForComponent(PROJECT);
     assertThat(issues).hasSize(19);

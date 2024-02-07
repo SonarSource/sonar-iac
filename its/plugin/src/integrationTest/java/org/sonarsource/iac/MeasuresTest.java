@@ -38,7 +38,7 @@ class MeasuresTest extends TestBase {
     "dockerMeasures, docker, Dockerfile, 1, 7, 1, 2=1;3=1;4=1;5=1;6=1;7=1;8=1",
   })
   void testMeasures(String projectKey, String languageKey, String file, int expectedFiles, int expectedNcloc, int expectedCommentLines, String expectedNclocData) {
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, languageKey));
+    orchestrator().executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, languageKey));
 
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
 
@@ -53,7 +53,7 @@ class MeasuresTest extends TestBase {
   @Test
   void testTerraformMeasures() {
     final String projectKey = "terraformMeasures";
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "terraform"));
+    orchestrator().executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "terraform"));
 
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(2);
 
@@ -77,7 +77,7 @@ class MeasuresTest extends TestBase {
   @Test
   void testYamlMeasures() {
     final String projectKey = "yamlMeasures";
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "yaml"));
+    orchestrator().executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "yaml"));
 
     // should be null, since YAML language doesn't publish files by default, only if they are analyzed by a sensor
     assertThat(getMeasureAsInt(projectKey, "files")).isNull();
@@ -86,7 +86,7 @@ class MeasuresTest extends TestBase {
   @Test
   void testJsonMeasures() {
     final String projectKey = "jsonMeasures";
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "json"));
+    orchestrator().executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "json"));
 
     // should be null, since JSON language doesn't publish files by default, only if they are analyzed by a sensor
     assertThat(getMeasureAsInt(projectKey, "files")).isNull();

@@ -35,7 +35,7 @@ class NoSonarTest extends TestBase {
   }
 
   private void checkForLanguage(String projectKey, String language) {
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, language, NO_SONAR_PROFILE_NAME));
+    orchestrator().executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, language, NO_SONAR_PROFILE_NAME));
 
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(1);
     assertThat(getIssuesForRule(projectKey, language + ":" + RULE_KEY)).hasSize(1);
