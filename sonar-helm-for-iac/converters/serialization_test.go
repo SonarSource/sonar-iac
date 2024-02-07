@@ -20,7 +20,7 @@ package converters
 
 import (
 	"fmt"
-	org_sonarsource_iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
+	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 	"testing"
@@ -32,7 +32,7 @@ func Test_ProtobufSerializer_Serialize(t *testing.T) {
 	content := "content"
 	bytes, err := serializer.Serialize(content, nil, nil)
 
-	result := org_sonarsource_iac_helm.TemplateEvaluationResult{}
+	result := pbstructs.TemplateEvaluationResult{}
 	err = proto.Unmarshal(bytes, &result)
 	assert.Nil(t, err)
 	assert.Equal(t, content, result.Template)
@@ -45,7 +45,7 @@ func Test_ProtobufSerializer_Serialize_With_Error_Text(t *testing.T) {
 	err := fmt.Errorf("error text")
 	bytes, err := serializer.Serialize(content, nil, err)
 
-	result := org_sonarsource_iac_helm.TemplateEvaluationResult{}
+	result := pbstructs.TemplateEvaluationResult{}
 	err = proto.Unmarshal(bytes, &result)
 	assert.Nil(t, err)
 	assert.Equal(t, content, result.Template)
@@ -59,7 +59,7 @@ func Test_ProtobufSerializer_Serialize_With_Ast(t *testing.T) {
 	ast := tpl.Tree
 	bytes, err := serializer.Serialize(content, ast, nil)
 
-	result := org_sonarsource_iac_helm.TemplateEvaluationResult{}
+	result := pbstructs.TemplateEvaluationResult{}
 	err = proto.Unmarshal(bytes, &result)
 	assert.NoError(t, err)
 	assert.Equal(t, content, result.Template)

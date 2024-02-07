@@ -19,7 +19,7 @@
 package converters
 
 import (
-	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
+	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
 	"text/template/parse"
 )
@@ -36,11 +36,11 @@ func (s ProtobufSerializer) Serialize(content string, ast *parse.Tree, err error
 	if err != nil {
 		errorText = err.Error()
 	}
-	var tree *org_sonarsource_iac_helm.Tree
+	var tree *pbstructs.Tree
 	if ast != nil {
 		tree = ConvertTree(ast)
 	}
-	message := org_sonarsource_iac_helm.TemplateEvaluationResult{
+	message := pbstructs.TemplateEvaluationResult{
 		Template: content,
 		Error:    errorText,
 		Ast:      tree,

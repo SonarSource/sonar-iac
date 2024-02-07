@@ -22,7 +22,7 @@ import (
 	"bufio"
 	"errors"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
-	iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
+	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
 	"os"
 	"os/exec"
@@ -146,6 +146,7 @@ spec:
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
+	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
 }
 
@@ -201,6 +202,7 @@ spec: foo
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
 
+	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
 }
 
@@ -229,6 +231,7 @@ spec: foo
 		"values.yaml":          values,
 		"Chart.yaml":           DefaultChartYaml}))
 
+	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
 }
 
@@ -268,6 +271,7 @@ spec:
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
 
+	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
 }
 
@@ -307,6 +311,7 @@ spec:
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
 
+	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
 }
 
@@ -438,8 +443,8 @@ toTomlExample: "age = 25.0\nname = \"Bob\"\n"
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
-	assert.Equal(t, expected, result.Template)
 	assert.NoError(t, result.Error)
+	assert.Equal(t, expected, result.Template)
 }
 
 func Test_evaluate_invalid_template(t *testing.T) {
@@ -485,7 +490,7 @@ func Test_to_protobuf_valid(t *testing.T) {
 		"Chart.yaml":       DefaultChartYaml}))
 	result, _ := serializer.Serialize(evaluatedTemplate.Template, evaluatedTemplate.Ast, evaluatedTemplate.Error)
 
-	templateFromProto := &iac_helm.TemplateEvaluationResult{}
+	templateFromProto := &pbstructs.TemplateEvaluationResult{}
 	proto.Unmarshal(result, templateFromProto)
 
 	assert.Equal(t, "apiVersion: v1", templateFromProto.Template)
@@ -501,7 +506,7 @@ func Test_to_protobuf_invalid(t *testing.T) {
 		"Chart.yaml":       DefaultChartYaml}))
 	result, _ := serializer.Serialize(evaluatedTemplate.Template, evaluatedTemplate.Ast, evaluatedTemplate.Error)
 
-	templateFromProto := &iac_helm.TemplateEvaluationResult{}
+	templateFromProto := &pbstructs.TemplateEvaluationResult{}
 	proto.Unmarshal(result, templateFromProto)
 
 	assert.Equal(t, "", templateFromProto.Template)
@@ -548,6 +553,7 @@ protocol: UDP
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
 
+	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
 }
 
@@ -604,6 +610,7 @@ data:
 		"Chart.yaml":        DefaultChartYaml,
 		"config.properties": config}))
 
+	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
 }
 
@@ -626,6 +633,7 @@ func Test_evaluate_template_include_function(t *testing.T) {
 		"Chart.yaml":             DefaultChartYaml}
 	result := evaluateTemplate(converters.NewTemplateSources("templates/a.yaml", fileNameToFileContent))
 
+	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
 }
 

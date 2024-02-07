@@ -108,7 +108,47 @@ func evaluateTemplateWithReferences(templateName string, templateContent string,
 	tmpl.Option("missingkey=zero")
 
 	funcMap := *addCustomFunctions(tmpl)
-	funcMap["tpl"] = func(templateContent string, values converters.Values) (string, error) {
+	funcMap["tpl"] = buildTplFunction(templateName, referenceFiles)
+	tmpl.Funcs(funcMap)
+
+	_, err := tmpl.New(templateName).Parse(templateContent)
+	if err != nil {
+		return resultWithError(err)
+	}
+
+	err = addTemplatesIfMissing(tmpl, referenceFiles)
+	if err != nil {
+		return resultWithError(err)
+	}
+
+	return executePreparedTemplate(tmpl, templateName, values)
+}
+
+func addTemplatesIfMissing(tmpl *template.Template, referenceFiles *converters.Files) error {
+	for name, content := range *referenceFiles {
+		if tmpl.Lookup(name) == nil {
+			_, err := tmpl.New(name).Parse(string(content))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func executePreparedTemplate(tmpl *template.Template, templateName string, values map[string]any) EvaluationResult {
+	var buf strings.Builder
+	err := tmpl.ExecuteTemplate(&buf, templateName, values)
+	if err != nil {
+		return resultWithError(err)
+	}
+	// Helm allows some unresolvable (i.e. not provided) values, but Go replaces them with token `<no value>`, which Helm then removes.
+	result := strings.ReplaceAll(buf.String(), "<no value>", "")
+	return EvaluationResult{result, tmpl.Tree, nil}
+}
+
+func buildTplFunction(templateName string, referenceFiles *converters.Files) func(templateContent string, values converters.Values) (string, error) {
+	return func(templateContent string, values converters.Values) (string, error) {
 		evaluationResult := evaluateTemplateWithReferences(templateName, templateContent, values, referenceFiles)
 		err := evaluationResult.Error
 
@@ -117,28 +157,4 @@ func evaluateTemplateWithReferences(templateName string, templateContent string,
 		}
 		return evaluationResult.Template, nil
 	}
-	tmpl.Funcs(funcMap)
-
-	_, err := tmpl.New(templateName).Parse(templateContent)
-	if err != nil {
-		return resultWithError(err)
-	}
-
-	for name, content := range *referenceFiles {
-		if tmpl.Lookup(name) == nil {
-			_, err = tmpl.New(name).Parse(string(content))
-			if err != nil {
-				return resultWithError(err)
-			}
-		}
-	}
-
-	var buf strings.Builder
-	err = tmpl.ExecuteTemplate(&buf, templateName, values)
-	if err != nil {
-		return resultWithError(err)
-	}
-	// Helm allows some unresolvable (i.e. not provided) values, but Go replaces them with token `<no value>`, which Helm then removes.
-	result := strings.ReplaceAll(buf.String(), "<no value>", "")
-	return EvaluationResult{result, tmpl.Tree, nil}
 }

@@ -1,16 +1,18 @@
 package converters
 
 import (
-	org_sonarsource_iac_helm "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
+	"fmt"
+	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonarsource.iac.helm"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/anypb"
+	"os"
 	"text/template/parse"
 )
 
-func ConvertTree(ast *parse.Tree) *org_sonarsource_iac_helm.Tree {
+func ConvertTree(ast *parse.Tree) *pbstructs.Tree {
 	mode := uint64(ast.Mode)
-	tree := &org_sonarsource_iac_helm.Tree{
+	tree := &pbstructs.Tree{
 		Name:      &ast.Name,
 		ParseName: &ast.ParseName,
 		Mode:      &mode,
@@ -70,9 +72,10 @@ func convert(node parse.Node) proto.Message {
 	case *parse.WithNode:
 		nodeAsMessage = convertWithNode(*node.(*parse.WithNode))
 	default:
-		nodeAsMessage = &org_sonarsource_iac_helm.Node{
+		fmt.Fprintf(os.Stderr, "Unknown node type: %T\n", node)
+		nodeAsMessage = &pbstructs.Node{
 			// NodeType duplicates declarations in parse.node, but with Unknown as 0
-			NodeType: (org_sonarsource_iac_helm.NodeType)(int(node.Type()) + 1),
+			NodeType: (pbstructs.NodeType)(int(node.Type()) + 1),
 			Pos:      int64(node.Position()),
 		}
 	}
@@ -80,29 +83,29 @@ func convert(node parse.Node) proto.Message {
 }
 
 func convertActionNode(node parse.ActionNode) proto.Message {
-	return &org_sonarsource_iac_helm.ActionNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeAction,
+	return &pbstructs.ActionNode{
+		NodeType: pbstructs.NodeType_NodeAction,
 		Pos:      int64(node.Pos),
 		Pipe:     convertPipeNode(*node.Pipe),
 	}
 }
 
 func convertBoolNode(node parse.BoolNode) proto.Message {
-	return &org_sonarsource_iac_helm.BoolNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeBool,
+	return &pbstructs.BoolNode{
+		NodeType: pbstructs.NodeType_NodeBool,
 		Pos:      int64(node.Pos),
 		True:     node.True,
 	}
 }
 
 func convertBranchNode(node parse.BranchNode) proto.Message {
-	var elseList *org_sonarsource_iac_helm.ListNode
+	var elseList *pbstructs.ListNode
 	if node.ElseList == nil {
 		elseList = nil
 	} else {
 		elseList = convertListNode(*node.ElseList)
 	}
-	return &org_sonarsource_iac_helm.BranchNode{
+	return &pbstructs.BranchNode{
 		Pos:      int64(node.Pos),
 		Pipe:     convertPipeNode(*node.Pipe),
 		List:     convertListNode(*node.List),
@@ -111,113 +114,113 @@ func convertBranchNode(node parse.BranchNode) proto.Message {
 }
 
 func convertBreakNode(node parse.BreakNode) proto.Message {
-	return &org_sonarsource_iac_helm.BreakNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeBreak,
+	return &pbstructs.BreakNode{
+		NodeType: pbstructs.NodeType_NodeBreak,
 		Pos:      int64(node.Pos),
 	}
 }
 
 func convertChainNode(node parse.ChainNode) proto.Message {
-	return &org_sonarsource_iac_helm.ChainNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeChain,
+	return &pbstructs.ChainNode{
+		NodeType: pbstructs.NodeType_NodeChain,
 		Pos:      int64(node.Pos),
 		Field:    node.Field,
 	}
 }
 
-func convertCommandNode(node parse.CommandNode) *org_sonarsource_iac_helm.CommandNode {
+func convertCommandNode(node parse.CommandNode) *pbstructs.CommandNode {
 	args := make([]*anypb.Any, len(node.Args))
 	for i, arg := range node.Args {
 		argAsAny, _ := anypb.New(convert(arg))
 		args[i] = argAsAny
 	}
-	return &org_sonarsource_iac_helm.CommandNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeCommand,
+	return &pbstructs.CommandNode{
+		NodeType: pbstructs.NodeType_NodeCommand,
 		Pos:      int64(node.Pos),
 		Args:     args,
 	}
 }
 
 func convertCommentNode(node parse.CommentNode) proto.Message {
-	return &org_sonarsource_iac_helm.CommentNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeComment,
+	return &pbstructs.CommentNode{
+		NodeType: pbstructs.NodeType_NodeComment,
 		Pos:      int64(node.Pos),
 		Text:     &node.Text,
 	}
 }
 
 func convertContinueNode(node parse.ContinueNode) proto.Message {
-	return &org_sonarsource_iac_helm.ContinueNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeContinue,
+	return &pbstructs.ContinueNode{
+		NodeType: pbstructs.NodeType_NodeContinue,
 		Pos:      int64(node.Pos),
 	}
 }
 
 func convertDotNode(node parse.DotNode) proto.Message {
-	return &org_sonarsource_iac_helm.DotNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeDot,
+	return &pbstructs.DotNode{
+		NodeType: pbstructs.NodeType_NodeDot,
 		Pos:      int64(node.Pos),
 	}
 }
 
 func convertFieldNode(node parse.FieldNode) proto.Message {
-	return &org_sonarsource_iac_helm.FieldNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeField,
+	return &pbstructs.FieldNode{
+		NodeType: pbstructs.NodeType_NodeField,
 		Pos:      int64(node.Pos),
 		Ident:    node.Ident,
 	}
 }
 
 func convertIdentifierNode(node parse.IdentifierNode) proto.Message {
-	return &org_sonarsource_iac_helm.IdentifierNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeIdentifier,
+	return &pbstructs.IdentifierNode{
+		NodeType: pbstructs.NodeType_NodeIdentifier,
 		Pos:      int64(node.Pos),
 		Ident:    &node.Ident,
 	}
 }
 
 func convertIfNode(node parse.IfNode) proto.Message {
-	return &org_sonarsource_iac_helm.IfNode{
-		NodeType:   org_sonarsource_iac_helm.NodeType_NodeIf,
+	return &pbstructs.IfNode{
+		NodeType:   pbstructs.NodeType_NodeIf,
 		Pos:        int64(node.Pos),
-		BranchNode: convertBranchNode(node.BranchNode).(*org_sonarsource_iac_helm.BranchNode),
+		BranchNode: convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 	}
 }
 
-func convertListNode(node parse.ListNode) *org_sonarsource_iac_helm.ListNode {
-	return &org_sonarsource_iac_helm.ListNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeList,
+func convertListNode(node parse.ListNode) *pbstructs.ListNode {
+	return &pbstructs.ListNode{
+		NodeType: pbstructs.NodeType_NodeList,
 		Pos:      int64(node.Pos),
 		Nodes:    convertAnyNodeList[parse.Node](node.Nodes),
 	}
 }
 
 func convertNilNode(node parse.NilNode) proto.Message {
-	return &org_sonarsource_iac_helm.NilNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeNil,
+	return &pbstructs.NilNode{
+		NodeType: pbstructs.NodeType_NodeNil,
 		Pos:      int64(node.Pos),
 	}
 }
 
 func convertNumberNode(node parse.NumberNode) proto.Message {
-	return &org_sonarsource_iac_helm.NumberNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeNumber,
+	return &pbstructs.NumberNode{
+		NodeType: pbstructs.NodeType_NodeNumber,
 		Pos:      int64(node.Pos),
 		Text:     &node.Text,
 	}
 }
 
-func convertPipeNode(node parse.PipeNode) *org_sonarsource_iac_helm.PipeNode {
-	var decls = make([]*org_sonarsource_iac_helm.VariableNode, len(node.Decl))
+func convertPipeNode(node parse.PipeNode) *pbstructs.PipeNode {
+	var decls = make([]*pbstructs.VariableNode, len(node.Decl))
 	for i, decl := range node.Decl {
 		decls[i] = convertVariableNode(*decl)
 	}
-	var cmds = make([]*org_sonarsource_iac_helm.CommandNode, len(node.Cmds))
+	var cmds = make([]*pbstructs.CommandNode, len(node.Cmds))
 	for i, cmd := range node.Cmds {
 		cmds[i] = convertCommandNode(*cmd)
 	}
-	return &org_sonarsource_iac_helm.PipeNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodePipe,
+	return &pbstructs.PipeNode{
+		NodeType: pbstructs.NodeType_NodePipe,
 		Pos:      int64(node.Pos),
 		Decl:     decls,
 		Cmds:     cmds,
@@ -225,16 +228,16 @@ func convertPipeNode(node parse.PipeNode) *org_sonarsource_iac_helm.PipeNode {
 }
 
 func convertRangeNode(node parse.RangeNode) proto.Message {
-	return &org_sonarsource_iac_helm.RangeNode{
-		NodeType:   org_sonarsource_iac_helm.NodeType_NodeRange,
+	return &pbstructs.RangeNode{
+		NodeType:   pbstructs.NodeType_NodeRange,
 		Pos:        int64(node.Pos),
-		BranchNode: convertBranchNode(node.BranchNode).(*org_sonarsource_iac_helm.BranchNode),
+		BranchNode: convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 	}
 }
 
 func convertStringNode(node parse.StringNode) proto.Message {
-	return &org_sonarsource_iac_helm.StringNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeString,
+	return &pbstructs.StringNode{
+		NodeType: pbstructs.NodeType_NodeString,
 		Pos:      int64(node.Pos),
 		Quoted:   &node.Quoted,
 		Text:     &node.Text,
@@ -242,34 +245,34 @@ func convertStringNode(node parse.StringNode) proto.Message {
 }
 
 func convertTemplateNode(node parse.TemplateNode) proto.Message {
-	return &org_sonarsource_iac_helm.TemplateNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeTemplate,
+	return &pbstructs.TemplateNode{
+		NodeType: pbstructs.NodeType_NodeTemplate,
 		Pos:      int64(node.Pos),
 		Name:     &node.Name,
 	}
 }
 
 func convertTextNode(node parse.TextNode) proto.Message {
-	return &org_sonarsource_iac_helm.TextNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeText,
+	return &pbstructs.TextNode{
+		NodeType: pbstructs.NodeType_NodeText,
 		Pos:      int64(node.Pos),
 		Text:     node.Text,
 	}
 }
 
-func convertVariableNode(node parse.VariableNode) *org_sonarsource_iac_helm.VariableNode {
-	return &org_sonarsource_iac_helm.VariableNode{
-		NodeType: org_sonarsource_iac_helm.NodeType_NodeVariable,
+func convertVariableNode(node parse.VariableNode) *pbstructs.VariableNode {
+	return &pbstructs.VariableNode{
+		NodeType: pbstructs.NodeType_NodeVariable,
 		Pos:      int64(node.Pos),
 		Ident:    node.Ident,
 	}
 }
 
 func convertWithNode(node parse.WithNode) proto.Message {
-	return &org_sonarsource_iac_helm.WithNode{
-		NodeType:   org_sonarsource_iac_helm.NodeType_NodeWith,
+	return &pbstructs.WithNode{
+		NodeType:   pbstructs.NodeType_NodeWith,
 		Pos:        int64(node.Pos),
-		BranchNode: convertBranchNode(node.BranchNode).(*org_sonarsource_iac_helm.BranchNode),
+		BranchNode: convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 	}
 }
 
