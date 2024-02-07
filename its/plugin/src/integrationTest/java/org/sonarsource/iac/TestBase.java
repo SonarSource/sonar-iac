@@ -75,6 +75,7 @@ public abstract class TestBase {
 
     return ORCHESTRATOR;
   }
+
   private static final String SCANNER_VERSION = "5.0.1.3006";
 
   protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey) {
