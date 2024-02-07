@@ -94,8 +94,8 @@ message BreakNode {
 }
 
 // ChainNode holds a term followed by a chain of field accesses (identifier starting with '.').
-// The names may be chained ('.x.y').
-// The periods are dropped from each ident.
+// The names may be chained ('.x.y'). The periods are dropped from each ident.
+// In newer versions of Go (at least 1.21), doesn't appear in the AST in common cases.
 message ChainNode {
   NodeType nodeType = 1;
   int64 pos = 2;
@@ -109,11 +109,11 @@ message CommandNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   // Arguments in lexical order: Identifier, field, or constant. Will be one of the node types declared here.
-  // TODO: why is this Any and not Node?
   repeated google.protobuf.Any args = 3;
 }
 
 // CommentNode holds a comment.
+// By default, comments are not added into the AST. To change this, a field `Mode` which can be set on a parser.
 message CommentNode {
   NodeType nodeType = 1;
   int64 pos = 2;
