@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.kubernetes.tree.KubernetesFileTree;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
@@ -102,14 +104,18 @@ public class KubernetesParser extends YamlParser {
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
     locationShifter.readLinesSizes(source, inputFileContext);
     var fileRelativePath = getFileRelativePath(inputFileContext);
-    var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
-    var evaluatedAndCleanedSource = cleanSource(evaluatedSource, inputFileContext, locationShifter);
+    var templateEvaluationResult = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
+    var evaluatedAndCleanedSource = Optional.ofNullable(templateEvaluationResult)
+      .map(template -> cleanSource(template, inputFileContext, locationShifter))
+      .orElse("");
     if (evaluatedAndCleanedSource.isBlank()) {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
       return super.parse("{}", null, FileTree.Template.HELM);
     }
 
-    return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
+    return KubernetesFileTree.fromFileTree(
+      super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM),
+      helmProcessor.inputFileToGoAst.get(inputFileContext.inputFile.uri().toString()));
   }
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {

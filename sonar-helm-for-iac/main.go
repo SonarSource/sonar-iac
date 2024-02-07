@@ -144,7 +144,7 @@ func executePreparedTemplate(tmpl *template.Template, templateName string, value
 	}
 	// Helm allows some unresolvable (i.e. not provided) values, but Go replaces them with token `<no value>`, which Helm then removes.
 	result := strings.ReplaceAll(buf.String(), "<no value>", "")
-	return EvaluationResult{result, tmpl.Tree, nil}
+	return EvaluationResult{result, tmpl.Lookup(templateName).Tree, nil}
 }
 
 func buildTplFunction(templateName string, referenceFiles *converters.Files) func(templateContent string, values converters.Values) (string, error) {
