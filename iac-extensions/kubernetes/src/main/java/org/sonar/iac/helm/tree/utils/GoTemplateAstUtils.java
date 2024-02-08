@@ -20,110 +20,64 @@
 package org.sonar.iac.helm.tree.utils;
 
 import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.AnyOrBuilder;
+import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
+import com.google.protobuf.MessageOrBuilder;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.iac.helm.ListNode;
-import org.sonar.iac.helm.NumberNode;
-import org.sonar.iac.helm.StringNode;
+import javax.annotation.CheckForNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.iac.helm.tree.Node;
 
-public class GoTemplateAstUtils {
+public final class GoTemplateAstUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(GoTemplateAstUtils.class);
+  private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
   private GoTemplateAstUtils() {
     // utility class
   }
 
-  public static Node unpackNode(Any nodePb) throws InvalidProtocolBufferException {
-    var className = nodePb.getTypeUrl().substring(nodePb.getTypeUrl().lastIndexOf('/') + 1);
-    AnyToNodeConverter converter;
-    switch (className) {
-//      case "org.sonar.iac.helm.ActionNode":
-//        converter = any -> org.sonar.iac.helm.tree.ActionNode.fromPb(toTypedNode(org.sonar.iac.helm.ActionNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.BoolNode":
-//        converter = any -> org.sonar.iac.helm.tree.BoolNode.fromPb(toTypedNode(org.sonar.iac.helm.BoolNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.BreakNode":
-//        converter = any -> org.sonar.iac.helm.tree.BreakNode.fromPb(toTypedNode(org.sonar.iac.helm.BreakNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.ChainNode":
-//        converter = any -> org.sonar.iac.helm.tree.ChainNode.fromPb(toTypedNode(org.sonar.iac.helm.ChainNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.CommandNode":
-//        converter = any -> org.sonar.iac.helm.tree.CommandNode.fromPb(toTypedNode(org.sonar.iac.helm.CommandNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.CommentNode":
-//        converter = any -> org.sonar.iac.helm.tree.CommentNode.fromPb(toTypedNode(org.sonar.iac.helm.CommentNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.ContinueNode":
-//        converter = any -> org.sonar.iac.helm.tree.ContinueNode.fromPb(toTypedNode(org.sonar.iac.helm.ContinueNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.DotNode":
-//        converter = any -> org.sonar.iac.helm.tree.DotNode.fromPb(toTypedNode(org.sonar.iac.helm.DotNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.FieldNode":
-//        converter = any -> org.sonar.iac.helm.tree.FieldNode.fromPb(toTypedNode(org.sonar.iac.helm.FieldNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.IdentifierNode":
-//        converter = any -> org.sonar.iac.helm.tree.IdentifierNode.fromPb(toTypedNode(org.sonar.iac.helm.IdentifierNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.IfNode":
-//        converter = any -> org.sonar.iac.helm.tree.IfNode.fromPb(toTypedNode(org.sonar.iac.helm.IfNode.class, any));
-//        break;
-      case "org.sonar.iac.helm.ListNode":
-        converter = any -> org.sonar.iac.helm.tree.ListNode.fromPb(toTypedNode(ListNode.class, any));
-        break;
-//      case "org.sonar.iac.helm.NilNode":
-//        converter = any -> org.sonar.iac.helm.tree.NilNode.fromPb(toTypedNode(org.sonar.iac.helm.NilNode.class, any));
-//        break;
-      case "org.sonar.iac.helm.NumberNode":
-        converter = any -> org.sonar.iac.helm.tree.NumberNode.fromPb(toTypedNode(NumberNode.class, nodePb));
-        break;
-//      case "org.sonar.iac.helm.PipeNode":
-//        converter = any -> org.sonar.iac.helm.tree.PipeNode.fromPb(toTypedNode(org.sonar.iac.helm.PipeNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.RangeNode":
-//        converter = any -> org.sonar.iac.helm.tree.RangeNode.fromPb(toTypedNode(org.sonar.iac.helm.RangeNode.class, any));
-//        break;
-      case "org.sonar.iac.helm.StringNode":
-        converter = any -> org.sonar.iac.helm.tree.StringNode.fromPb(toTypedNode(StringNode.class, nodePb));
-        break;
-//      case "org.sonar.iac.helm.TemplateNode":
-//        converter = any -> org.sonar.iac.helm.tree.TemplateNode.fromPb(toTypedNode(org.sonar.iac.helm.TemplateNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.TextNode":
-//        converter = any -> org.sonar.iac.helm.tree.TextNode.fromPb(toTypedNode(org.sonar.iac.helm.TextNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.VariableNode":
-//        converter = any -> org.sonar.iac.helm.tree.VariableNode.fromPb(toTypedNode(org.sonar.iac.helm.VariableNode.class, any));
-//        break;
-//      case "org.sonar.iac.helm.WithNode":
-//        converter = any -> org.sonar.iac.helm.tree.WithNode.fromPb(toTypedNode(org.sonar.iac.helm.WithNode.class, any));
-//        break;
-      default:
-        return null;
+  @CheckForNull
+  public static Node unpackNode(Any nodePb) {
+    try {
+      Class<GeneratedMessageV3> messageClass = messageType(nodePb);
+      Class<MessageOrBuilder> messageClassOrBuilder = messageTypeOrBuilder(nodePb);
+      Class<Node> targetClass = treeTypeToMessageType(nodePb);
+      var handle = lookup.findStatic(targetClass, "fromPb", MethodType.methodType(Node.class, messageClassOrBuilder));
+      return (Node) handle.invoke(nodePb.unpack(messageClass));
+    } catch (Throwable t) {
+      LOG.debug("Failed to unpack node", t);
+      return null;
     }
-    return converter.convert(nodePb);
   }
 
   public static List<Node> unpack(Collection<Any> nodesPb) {
     return nodesPb.stream()
-      .map((Any nodePb) -> {
-        try {
-          return unpackNode(nodePb);
-        } catch (InvalidProtocolBufferException e) {
-          throw new IllegalStateException("Failed to unpack node", e);
-        }
-      })
+      .map(GoTemplateAstUtils::unpackNode)
       .collect(Collectors.toList());
   }
 
-  private static <T extends Message> T toTypedNode(Class<T> nodeType, Any nodePb) throws InvalidProtocolBufferException {
-    if (nodePb.is(nodeType)) {
-      return nodePb.unpack(nodeType);
-    }
-    throw new IllegalArgumentException("Expected " + nodeType + " but got " + nodePb.getTypeUrl());
+  private static <T extends Message> Class<T> messageType(Any nodePb) throws ClassNotFoundException {
+    return (Class<T>) Class.forName(typeName(nodePb));
+  }
+
+  private static <T extends MessageOrBuilder> Class<T> messageTypeOrBuilder(Any nodePb) throws ClassNotFoundException {
+    return (Class<T>) Class.forName(typeName(nodePb) + "OrBuilder");
+  }
+
+  private static <T extends Node> Class<T> treeTypeToMessageType(AnyOrBuilder anyPb) throws ClassNotFoundException {
+    var typeName = typeName(anyPb);
+    var packageName = typeName.substring(0, typeName.lastIndexOf("."));
+    var className = typeName.substring(typeName.lastIndexOf(".") + 1);
+    return (Class<T>) Class.forName(packageName + ".tree." + className);
+  }
+
+  private static String typeName(AnyOrBuilder nodePb) {
+    return nodePb.getTypeUrl().substring(nodePb.getTypeUrl().lastIndexOf('/') + 1);
   }
 }

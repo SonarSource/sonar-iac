@@ -36,7 +36,7 @@ public class Tree {
   }
 
   public static Tree fromPbTree(TreeOrBuilder treePb) throws InvalidProtocolBufferException {
-    return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), ListNode.fromPb(treePb.getRoot()));
+    return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNode) ListNode.fromPb(treePb.getRoot()));
   }
 
   public String getName() {

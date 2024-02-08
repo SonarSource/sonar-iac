@@ -28,7 +28,7 @@ public class StringNode implements Node {
     this.text = text;
   }
 
-  public static StringNode fromPb(org.sonar.iac.helm.StringNode nodePb) {
+  public static Node fromPb(org.sonar.iac.helm.StringNode nodePb) {
     return new StringNode(nodePb.getPos(), nodePb.getText());
   }
 

@@ -19,28 +19,30 @@
  */
 package org.sonar.iac.helm.tree;
 
-import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.helm.ListNodeOrBuilder;
+import java.util.stream.Collectors;
+import org.sonar.iac.helm.PipeNodeOrBuilder;
 
-import static org.sonar.iac.helm.tree.utils.GoTemplateAstUtils.unpack;
-
-public class ListNode implements Node {
+public class PipeNode implements Node {
   private final long position;
-  private final List<Node> nodes;
+  private final List<VariableNode> declarations;
+  private final List<CommandNode> commands;
 
-  public ListNode(long position, List<Node> nodes) {
+  public PipeNode(long position, List<VariableNode> declarations, List<CommandNode> commands) {
     this.position = position;
-    this.nodes = Collections.unmodifiableList(nodes);
+    this.declarations = declarations;
+    this.commands = commands;
   }
 
-  public static Node fromPb(ListNodeOrBuilder nodePb) {
-    return new ListNode(nodePb.getPos(), unpack(nodePb.getNodesList()));
+  public static Node fromPb(PipeNodeOrBuilder nodePb) {
+    return new PipeNode(nodePb.getPos(),
+      nodePb.getDeclList().stream().map(node -> (VariableNode) VariableNode.fromPb(node)).collect(Collectors.toList()),
+      nodePb.getCmdsList().stream().map(node -> (CommandNode) CommandNode.fromPb(node)).collect(Collectors.toList()));
   }
 
   @Override
   public NodeType getType() {
-    return NodeType.NODE_LIST;
+    return NodeType.NODE_PIPE;
   }
 
   @Override
@@ -48,7 +50,11 @@ public class ListNode implements Node {
     return position;
   }
 
-  public List<Node> getNodes() {
-    return nodes;
+  public List<VariableNode> getDeclarations() {
+    return declarations;
+  }
+
+  public List<CommandNode> getCommands() {
+    return commands;
   }
 }

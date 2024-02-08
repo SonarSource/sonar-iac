@@ -30,7 +30,7 @@ public class NumberNode implements Node {
     this.text = text;
   }
 
-  public static NumberNode fromPb(NumberNodeOrBuilder nodePb) {
+  public static Node fromPb(NumberNodeOrBuilder nodePb) {
     return new NumberNode(nodePb.getPos(), nodePb.getText());
   }
 

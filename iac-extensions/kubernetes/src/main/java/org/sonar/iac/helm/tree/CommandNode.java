@@ -21,26 +21,25 @@ package org.sonar.iac.helm.tree;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.helm.ListNodeOrBuilder;
+import org.sonar.iac.helm.CommandNodeOrBuilder;
+import org.sonar.iac.helm.tree.utils.GoTemplateAstUtils;
 
-import static org.sonar.iac.helm.tree.utils.GoTemplateAstUtils.unpack;
-
-public class ListNode implements Node {
+public class CommandNode implements Node {
   private final long position;
-  private final List<Node> nodes;
+  private final List<Node> arguments;
 
-  public ListNode(long position, List<Node> nodes) {
+  public CommandNode(long position, List<Node> arguments) {
     this.position = position;
-    this.nodes = Collections.unmodifiableList(nodes);
+    this.arguments = Collections.unmodifiableList(arguments);
   }
 
-  public static Node fromPb(ListNodeOrBuilder nodePb) {
-    return new ListNode(nodePb.getPos(), unpack(nodePb.getNodesList()));
+  public static Node fromPb(CommandNodeOrBuilder nodePb) {
+    return new CommandNode(nodePb.getPos(), GoTemplateAstUtils.unpack(nodePb.getArgsList()));
   }
 
   @Override
   public NodeType getType() {
-    return NodeType.NODE_LIST;
+    return NodeType.NODE_COMMAND;
   }
 
   @Override
@@ -48,7 +47,7 @@ public class ListNode implements Node {
     return position;
   }
 
-  public List<Node> getNodes() {
-    return nodes;
+  public List<Node> getArguments() {
+    return arguments;
   }
 }

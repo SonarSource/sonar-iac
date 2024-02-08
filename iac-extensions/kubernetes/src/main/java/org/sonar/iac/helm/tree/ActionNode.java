@@ -19,36 +19,28 @@
  */
 package org.sonar.iac.helm.tree;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.iac.helm.ListNodeOrBuilder;
+import org.sonar.iac.helm.ActionNodeOrBuilder;
 
-import static org.sonar.iac.helm.tree.utils.GoTemplateAstUtils.unpack;
-
-public class ListNode implements Node {
+public class ActionNode implements Node {
   private final long position;
-  private final List<Node> nodes;
+  private final PipeNode pipe;
 
-  public ListNode(long position, List<Node> nodes) {
+  public ActionNode(long position, PipeNode pipe) {
     this.position = position;
-    this.nodes = Collections.unmodifiableList(nodes);
+    this.pipe = pipe;
   }
 
-  public static Node fromPb(ListNodeOrBuilder nodePb) {
-    return new ListNode(nodePb.getPos(), unpack(nodePb.getNodesList()));
+  public static Node fromPb(ActionNodeOrBuilder nodePb) {
+    return new ActionNode(nodePb.getPos(), (PipeNode) PipeNode.fromPb(nodePb.getPipe()));
   }
 
   @Override
   public NodeType getType() {
-    return NodeType.NODE_LIST;
+    return NodeType.NODE_ACTION;
   }
 
   @Override
   public long getPosition() {
     return position;
-  }
-
-  public List<Node> getNodes() {
-    return nodes;
   }
 }

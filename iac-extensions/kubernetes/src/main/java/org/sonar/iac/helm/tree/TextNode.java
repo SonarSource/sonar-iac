@@ -19,28 +19,24 @@
  */
 package org.sonar.iac.helm.tree;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.iac.helm.ListNodeOrBuilder;
+import org.sonar.iac.helm.TextNodeOrBuilder;
 
-import static org.sonar.iac.helm.tree.utils.GoTemplateAstUtils.unpack;
-
-public class ListNode implements Node {
+public class TextNode implements Node {
   private final long position;
-  private final List<Node> nodes;
+  private final String text;
 
-  public ListNode(long position, List<Node> nodes) {
+  public TextNode(long position, String text) {
     this.position = position;
-    this.nodes = Collections.unmodifiableList(nodes);
+    this.text = text;
   }
 
-  public static Node fromPb(ListNodeOrBuilder nodePb) {
-    return new ListNode(nodePb.getPos(), unpack(nodePb.getNodesList()));
+  public static Node fromPb(TextNodeOrBuilder nodePb) {
+    return new TextNode(nodePb.getPos(), nodePb.getText().toString());
   }
 
   @Override
   public NodeType getType() {
-    return NodeType.NODE_LIST;
+    return NodeType.NODE_TEXT;
   }
 
   @Override
@@ -48,7 +44,7 @@ public class ListNode implements Node {
     return position;
   }
 
-  public List<Node> getNodes() {
-    return nodes;
+  public String getText() {
+    return text;
   }
 }
