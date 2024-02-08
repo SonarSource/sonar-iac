@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.arm.parser.ArmParser;
@@ -236,7 +236,7 @@ class ParameterDeclarationImplTest {
 
   @Test
   void shouldParseParametersOfAllTypes() throws IOException {
-    DefaultInputFile file = IacTestUtils.inputFile("parameters_all_types.json", "json");
+    InputFile file = IacTestUtils.inputFile("parameters_all_types.json", "json");
     File tree = (File) parser.parse(file.contents(), mockFile);
     List<String> names = tree.statements().stream()
       .map(statement -> ((ParameterDeclarationImpl) statement).declaratedName().value())

@@ -19,28 +19,138 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.Verifier;
-import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.kubernetes.plugin.HelmProcessor;
+import org.sonar.iac.kubernetes.plugin.KubernetesParser;
+import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
+import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
-import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
+import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
+import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
-public class KubernetesVerifier {
+public class KubernetesVerifier extends Verifier {
+
+  private static final Logger LOG = LoggerFactory.getLogger(KubernetesVerifier.class);
+  public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  private static final SensorContextTester sensorContext = SensorContextTester.create(BASE_DIR.toAbsolutePath());
+  private static final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
+  private static final LocationShifter locationShifter = new LocationShifter();
+  private static final KubernetesParser PARSER;
 
   private KubernetesVerifier() {
+    super();
   }
 
-  private static final YamlParser PARSER = new YamlParser();
+  static {
+    File temporaryDirectory;
+    try {
+      temporaryDirectory = Files.createTempDirectory("kubernetesVerifierExecutable").toFile();
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not create temporary directory", e);
+    }
+    HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
+    HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator);
+    helmProcessor.initialize();
+    PARSER = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
+    temporaryDirectory.deleteOnExit();
+  }
 
-  public static void verify(String fileName, IacCheck check) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
+  public static void verify(String templateFileName, IacCheck check) {
+    InputFile inputFile = inputFile(templateFileName, BASE_DIR);
+    String content;
+    try {
+      content = inputFile.contents();
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Unable to read content of %s", inputFile), e);
+    }
+    if (KubernetesParser.hasHelmContent(content)) {
+      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
+      verifyHelmFile(check, inputFileContext, content);
+    } else {
+      verify(PARSER, BASE_DIR.resolve(templateFileName), check);
+    }
   }
 
   public static void verifyContent(String content, IacCheck check) {
-    Verifier.verify(PARSER, content, check);
+    verify(PARSER, content, check);
   }
 
   public static void verifyNoIssue(String fileName, IacCheck check) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+    verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+  }
+
+  public static void verifyHelmFile(IacCheck check, InputFileContext inputFileContext, String content) {
+    Tree root = parse(PARSER, content, inputFileContext);
+    SingleFileVerifier verifier = createVerifier(Path.of(inputFileContext.inputFile.uri()), root);
+    LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
+    runAnalysis(testContext, check, root);
+    verifier.assertOneOrMoreIssues();
+  }
+
+  public static InputFileContext prepareHelmContext(String templateFileName) {
+    var sourceInputFile = inputFile(templateFileName, BASE_DIR);
+    sensorContext.fileSystem().add(sourceInputFile);
+    var filePath = Path.of(sourceInputFile.uri());
+    var helmProjectPath = HelmFilesystemUtils.retrieveHelmProjectFolder(filePath, BASE_DIR.toAbsolutePath().toFile());
+    if (helmProjectPath == null) {
+      throw new IllegalStateException(String.format("Could not resolve helmProjectPath for file %s, possible missing Chart.yaml", filePath));
+    }
+    addDependentFilesToSensorContext(helmProjectPath);
+
+    return new InputFileContext(sensorContext, sourceInputFile);
+  }
+
+  public static void addDependentFilesToSensorContext(Path helmProjectPath) {
+    try (Stream<Path> pathStream = Files.list(helmProjectPath)) {
+      pathStream
+        .filter(path -> path.toFile().isFile())
+        .forEach(path -> addFileToSensorContext(sensorContext, BASE_DIR, path.toString()));
+    } catch (IOException e) {
+      LOG.error("Error while trying to add dependent files to sensor context", e);
+    }
+  }
+
+  public static class LocationShiftedTestContext extends TestContext {
+    private final InputFileContext currentCtx;
+    private final LocationShifter locationShifter;
+
+    public LocationShiftedTestContext(SingleFileVerifier verifier, InputFileContext currentCtx, LocationShifter locationShifter) {
+      super(verifier);
+      this.currentCtx = currentCtx;
+      this.locationShifter = locationShifter;
+    }
+
+    @Override
+    protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+      var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
+      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream().map(this::adaptSecondaryLocation).collect(Collectors.toList());
+      super.reportIssue(shiftedTextRange, message, shiftedSecondaryLocations);
+    }
+
+    private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
+      var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
+      return new SecondaryLocation(shiftedTextRange, secondaryLocation.message);
+    }
   }
 }

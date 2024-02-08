@@ -44,7 +44,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.addFileToContext;
+import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class TFLintImporterTest {
 
@@ -56,12 +56,12 @@ class TFLintImporterTest {
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
 
   @BeforeEach
-  void setUp() throws IOException {
+  void setUp() {
     File baseDir = new File(PATH_PREFIX);
     context = SensorContextTester.create(baseDir);
 
-    addFileToContext(context, baseDir, PATH_PREFIX + "/exampleIssues.tf");
-    addFileToContext(context, baseDir, PATH_PREFIX + "/exampleError.tf");
+    addFileToSensorContext(context, baseDir.toPath(), "exampleIssues.tf");
+    addFileToSensorContext(context, baseDir.toPath(), "exampleError.tf");
   }
 
   @Test
@@ -167,7 +167,7 @@ class TFLintImporterTest {
     PATH_PREFIX + "/invalidPathMoreThanTwo.json; TFLint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
       "doesNotExist.yaml, a/b/doesNotExistToo.yaml, ..."
   }, delimiter = ';')
-  void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
+  void testUnresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
     String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
     TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 

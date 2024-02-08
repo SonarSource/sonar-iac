@@ -47,7 +47,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.sonar.iac.common.testing.IacTestUtils.addFileToContext;
+import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class AbstractJsonReportImporterTest {
 
@@ -61,7 +61,7 @@ class AbstractJsonReportImporterTest {
     File baseDir = new File("src/test/resources/ext-json-report");
     context = SensorContextTester.create(baseDir);
 
-    addFileToContext(context, baseDir, "src/test/resources/ext-json-report/noArray.json");
+    addFileToSensorContext(context, baseDir.toPath(), "noArray.json");
   }
 
   @ParameterizedTest
@@ -126,14 +126,14 @@ class AbstractJsonReportImporterTest {
   }
 
   @Test
-  void asIntSucceedsOnLong() {
+  void asIntShouldSucceedOnLong() {
     long numberAsLong = 5;
     int numberAsInt = TestImporter.asInt(numberAsLong);
     assertThat(numberAsLong).isEqualTo(numberAsInt);
   }
 
   @Test
-  void asIntSucceedsOnParsedJsonObject() throws ParseException {
+  void asIntShouldSucceedOnParsedJsonObject() throws ParseException {
     JSONParser jsonParser = new JSONParser();
     Object parsedJson = jsonParser.parse("5");
     int numberAsInt = TestImporter.asInt(parsedJson);
@@ -141,7 +141,7 @@ class AbstractJsonReportImporterTest {
   }
 
   @Test
-  void asIntFailsOnAnythingOtherThanLongAndJsonWithLong() throws ParseException {
+  void asIntShouldFailOnAnythingOtherThanLongAndJsonWithLong() throws ParseException {
     SoftAssertions softly = new SoftAssertions();
 
     JSONParser jsonParser = new JSONParser();

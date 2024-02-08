@@ -50,15 +50,16 @@ import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public final class Verifier {
+public class Verifier {
 
-  private Verifier() {
+  protected Verifier() {
     // utility class
   }
 
@@ -132,19 +133,24 @@ public final class Verifier {
     compare(actualIssues, Collections.emptyList());
   }
 
-  private static List<Issue> runAnalysis(TestContext ctx, IacCheck check, Tree root) {
+  protected static List<Issue> runAnalysis(TestContext ctx, IacCheck check, Tree root) {
     check.initialize(ctx);
     ctx.scan(root);
     return ctx.raisedIssues;
   }
 
   public static Tree parse(TreeParser<Tree> parser, Path path) {
-    String testFileContent = readFile(path);
-    return parser.parse(testFileContent, null);
+    var testFileContent = readFile(path);
+    return parse(parser, testFileContent, null);
+
   }
 
-  private static SingleFileVerifier createVerifier(Path path, Tree root) {
-    SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
+  public static Tree parse(TreeParser<Tree> parser, String content, @Nullable InputFileContext inputFileContext) {
+    return parser.parse(content, inputFileContext);
+  }
+
+  protected static SingleFileVerifier createVerifier(Path path, Tree root) {
+    var verifier = SingleFileVerifier.create(path, UTF_8);
     Map<Integer, Set<Comment>> commentsByLine = new HashMap<>();
     final Set<TextRange> alreadyAdded = new HashSet<>();
     (new TreeVisitor<>())
@@ -169,7 +175,7 @@ public final class Verifier {
 
   private static String readFile(Path path) {
     try {
-      return new String(Files.readAllBytes(path), UTF_8);
+      return Files.readString(path);
     } catch (IOException e) {
       throw new IllegalStateException("Cannot read " + path, e);
     }
