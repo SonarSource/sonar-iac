@@ -34,7 +34,6 @@ import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
-import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
 
 public class KubernetesParser extends YamlParser {
 
@@ -102,8 +101,7 @@ public class KubernetesParser extends YamlParser {
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
     locationShifter.readLinesSizes(source, inputFileContext);
     var fileRelativePath = getFileRelativePath(inputFileContext);
-    var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
-    var evaluatedAndCleanedSource = cleanSource(evaluatedSource, inputFileContext, locationShifter);
+    var evaluatedAndCleanedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext, locationShifter);
     if (evaluatedAndCleanedSource.isBlank()) {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
       return super.parse("{}", null, FileTree.Template.HELM);
