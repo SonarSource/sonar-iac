@@ -75,7 +75,6 @@ linux_1_cpu_2G_template: &LINUX_1_CPU_2G
 linux_4_cpu_8G_java_17_template: &LINUX_4_CPU_8G_JAVA_17
   eks_container:
     <<: *LINUX_IMAGE
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
     cpu: 4
     memory: 8G
 
@@ -149,8 +148,8 @@ gradle_its_template: &GRADLE_ITS_TEMPLATE
 build_task:
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
-    cpu: 3.5
-    memory: 7G
+    cpu: 10
+    memory: 6G
   <<: *SETUP_GRADLE_CACHE
   env:
     <<: *BUILD_SECRETS
@@ -167,11 +166,11 @@ build_task:
 
 build_test_analyze_task:
   <<: *QA_TASK_FILTER
+  <<: *SETUP_GRADLE_CACHE
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
-    cpu: 3.5
-    memory: 7G
-  <<: *SETUP_GRADLE_CACHE
+    cpu: 6
+    memory: 6G
   env:
     <<: *BUILD_SECRETS
     #allow deployment of pull request artifacts to repox
