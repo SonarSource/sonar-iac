@@ -19,27 +19,23 @@
  */
 package org.sonar.iac.helm.tree;
 
-public class StringNode implements Node {
-  private final long position;
+import org.sonar.iac.helm.StringNodeOrBuilder;
+
+public class StringNode extends AbstractNode {
   private final String text;
 
   public StringNode(long position, String text) {
-    this.position = position;
+    super(position);
     this.text = text;
   }
 
-  public static Node fromPb(org.sonar.iac.helm.StringNode nodePb) {
+  public static Node fromPb(StringNodeOrBuilder nodePb) {
     return new StringNode(nodePb.getPos(), nodePb.getText());
   }
 
   @Override
   public NodeType type() {
     return NodeType.NODE_STRING;
-  }
-
-  @Override
-  public long getPosition() {
-    return position;
   }
 
   public String getText() {

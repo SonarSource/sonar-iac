@@ -19,44 +19,37 @@
  */
 package org.sonar.iac.helm.tree;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.helm.TreeOrBuilder;
+import org.sonar.iac.helm.TemplateNodeOrBuilder;
 
-public class Tree {
+public class TemplateNode extends AbstractNode {
+  @Nullable
   private final String name;
-  private final String parseName;
-  private final int mode;
-  private final ListNode root;
+  @Nullable
+  private final PipeNode pipe;
 
-  public Tree(String name, String parseName, int mode, ListNode root) {
+  public TemplateNode(long position, @Nullable String name, @Nullable PipeNode pipe) {
+    super(position);
     this.name = name;
-    this.parseName = parseName;
-    this.mode = mode;
-    this.root = root;
+    this.pipe = pipe;
   }
 
-  @CheckForNull
-  public static Tree fromPbTree(@Nullable TreeOrBuilder treePb) {
-    if (treePb == null) {
-      return null;
-    }
-    return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNode) ListNode.fromPb(treePb.getRoot()));
+  public static Node fromPb(TemplateNodeOrBuilder templateNodePb) {
+    return new TemplateNode(templateNodePb.getPos(), templateNodePb.getName(), (PipeNode) PipeNode.fromPb(templateNodePb.getPipe()));
   }
 
+  @Override
+  public NodeType type() {
+    return NodeType.NODE_TEMPLATE;
+  }
+
+  @Nullable
   public String getName() {
     return name;
   }
 
-  public String getParseName() {
-    return parseName;
-  }
-
-  public int getMode() {
-    return mode;
-  }
-
-  public ListNode getRoot() {
-    return root;
+  @Nullable
+  public PipeNode getPipe() {
+    return pipe;
   }
 }

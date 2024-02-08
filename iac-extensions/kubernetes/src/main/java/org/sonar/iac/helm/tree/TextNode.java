@@ -21,12 +21,11 @@ package org.sonar.iac.helm.tree;
 
 import org.sonar.iac.helm.TextNodeOrBuilder;
 
-public class TextNode implements Node {
-  private final long position;
+public class TextNode extends AbstractNode {
   private final String text;
 
   public TextNode(long position, String text) {
-    this.position = position;
+    super(position);
     this.text = text;
   }
 
@@ -37,11 +36,6 @@ public class TextNode implements Node {
   @Override
   public NodeType type() {
     return NodeType.NODE_TEXT;
-  }
-
-  @Override
-  public long getPosition() {
-    return position;
   }
 
   public String getText() {

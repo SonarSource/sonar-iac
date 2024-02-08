@@ -24,12 +24,11 @@ import java.util.List;
 import org.sonar.iac.helm.CommandNodeOrBuilder;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 
-public class CommandNode implements Node {
-  private final long position;
+public class CommandNode extends AbstractNode {
   private final List<Node> arguments;
 
   public CommandNode(long position, List<Node> arguments) {
-    this.position = position;
+    super(position);
     this.arguments = Collections.unmodifiableList(arguments);
   }
 
@@ -40,11 +39,6 @@ public class CommandNode implements Node {
   @Override
   public NodeType type() {
     return NodeType.NODE_COMMAND;
-  }
-
-  @Override
-  public long getPosition() {
-    return position;
   }
 
   public List<Node> getArguments() {

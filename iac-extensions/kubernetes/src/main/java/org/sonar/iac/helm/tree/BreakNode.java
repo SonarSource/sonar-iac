@@ -19,44 +19,24 @@
  */
 package org.sonar.iac.helm.tree;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.iac.helm.TreeOrBuilder;
+public class BreakNode extends AbstractNode {
+  private final long line;
 
-public class Tree {
-  private final String name;
-  private final String parseName;
-  private final int mode;
-  private final ListNode root;
-
-  public Tree(String name, String parseName, int mode, ListNode root) {
-    this.name = name;
-    this.parseName = parseName;
-    this.mode = mode;
-    this.root = root;
+  public BreakNode(long position, long line) {
+    super(position);
+    this.line = line;
   }
 
-  @CheckForNull
-  public static Tree fromPbTree(@Nullable TreeOrBuilder treePb) {
-    if (treePb == null) {
-      return null;
-    }
-    return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNode) ListNode.fromPb(treePb.getRoot()));
+  public static Node fromPb(org.sonar.iac.helm.BreakNodeOrBuilder breakNodePb) {
+    return new BreakNode(breakNodePb.getPos(), breakNodePb.getLine());
   }
 
-  public String getName() {
-    return name;
+  @Override
+  public NodeType type() {
+    return NodeType.NODE_BREAK;
   }
 
-  public String getParseName() {
-    return parseName;
-  }
-
-  public int getMode() {
-    return mode;
-  }
-
-  public ListNode getRoot() {
-    return root;
+  public long getLine() {
+    return line;
   }
 }

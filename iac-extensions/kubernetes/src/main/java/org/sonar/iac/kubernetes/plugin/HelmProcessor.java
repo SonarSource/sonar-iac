@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -45,8 +46,7 @@ import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelm
 public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private HelmEvaluator helmEvaluator;
-  // TODO: remove this map and return the AST from the HelmEvaluator; maybe after refactoring in KubernetesParser
-  public final Map<String, Tree> inputFileToGoAst = new HashMap<>();
+  private final Map<String, Tree> inputFileToGoAst = new HashMap<>();
 
   public HelmProcessor(HelmEvaluator helmEvaluator) {
     this.helmEvaluator = helmEvaluator;
@@ -84,6 +84,11 @@ public class HelmProcessor {
     Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
     var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
     return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
+  }
+
+  @CheckForNull
+  public Tree getGoAstForInputFile(InputPath inputPath) {
+    return inputFileToGoAst.remove(inputPath.uri().toString());
   }
 
   private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {

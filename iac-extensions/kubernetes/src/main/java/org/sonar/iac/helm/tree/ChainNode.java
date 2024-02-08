@@ -21,35 +21,35 @@ package org.sonar.iac.helm.tree;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.iac.helm.PipeNodeOrBuilder;
+import java.util.Optional;
+import javax.annotation.Nullable;
+import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 
-public class PipeNode extends AbstractNode {
-  private final List<VariableNode> declarations;
-  private final List<CommandNode> commands;
+public class ChainNode extends AbstractNode {
+  @Nullable
+  private final Node node;
+  private final List<String> field;
 
-  public PipeNode(long position, List<VariableNode> declarations, List<CommandNode> commands) {
+  public ChainNode(long position, @Nullable Node node, List<String> field) {
     super(position);
-    this.declarations = Collections.unmodifiableList(declarations);
-    this.commands = Collections.unmodifiableList(commands);
+    this.node = node;
+    this.field = Collections.unmodifiableList(field);
   }
 
-  public static Node fromPb(PipeNodeOrBuilder nodePb) {
-    return new PipeNode(nodePb.getPos(),
-      nodePb.getDeclList().stream().map(node -> (VariableNode) VariableNode.fromPb(node)).collect(Collectors.toList()),
-      nodePb.getCmdsList().stream().map(node -> (CommandNode) CommandNode.fromPb(node)).collect(Collectors.toList()));
+  public static Node fromPb(org.sonar.iac.helm.ChainNodeOrBuilder chainNodePb) {
+    return new ChainNode(chainNodePb.getPos(), Optional.ofNullable(chainNodePb.getNode()).map(GoTemplateAstConverter::unpackNode).orElse(null), chainNodePb.getFieldList());
   }
 
   @Override
   public NodeType type() {
-    return NodeType.NODE_PIPE;
+    return NodeType.NODE_CHAIN;
   }
 
-  public List<VariableNode> getDeclarations() {
-    return declarations;
+  public Optional<Node> getNode() {
+    return Optional.ofNullable(node);
   }
 
-  public List<CommandNode> getCommands() {
-    return commands;
+  public List<String> getField() {
+    return field;
   }
 }

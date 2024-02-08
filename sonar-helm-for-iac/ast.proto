@@ -99,7 +99,7 @@ message BreakNode {
 message ChainNode {
   NodeType nodeType = 1;
   int64 pos = 2;
-  optional Node node = 3;
+  optional google.protobuf.Any node = 3;
   // The identifiers in lexical order.
   repeated string field = 4;
 }

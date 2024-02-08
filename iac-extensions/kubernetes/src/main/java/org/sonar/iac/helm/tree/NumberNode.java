@@ -21,12 +21,11 @@ package org.sonar.iac.helm.tree;
 
 import org.sonar.iac.helm.NumberNodeOrBuilder;
 
-public class NumberNode implements Node {
-  private final long position;
+public class NumberNode extends AbstractNode {
   private final String text;
 
   public NumberNode(long position, String text) {
-    this.position = position;
+    super(position);
     this.text = text;
   }
 
@@ -37,11 +36,6 @@ public class NumberNode implements Node {
   @Override
   public NodeType type() {
     return NodeType.NODE_NUMBER;
-  }
-
-  @Override
-  public long getPosition() {
-    return position;
   }
 
   public String getText() {

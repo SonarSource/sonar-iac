@@ -21,35 +21,26 @@ package org.sonar.iac.helm.tree;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.iac.helm.PipeNodeOrBuilder;
+import org.sonar.iac.helm.FieldNodeOrBuilder;
 
-public class PipeNode extends AbstractNode {
-  private final List<VariableNode> declarations;
-  private final List<CommandNode> commands;
+public class FieldNode extends AbstractNode {
+  private final List<String> identifiers;
 
-  public PipeNode(long position, List<VariableNode> declarations, List<CommandNode> commands) {
+  public FieldNode(long position, List<String> identifiers) {
     super(position);
-    this.declarations = Collections.unmodifiableList(declarations);
-    this.commands = Collections.unmodifiableList(commands);
+    this.identifiers = Collections.unmodifiableList(identifiers);
   }
 
-  public static Node fromPb(PipeNodeOrBuilder nodePb) {
-    return new PipeNode(nodePb.getPos(),
-      nodePb.getDeclList().stream().map(node -> (VariableNode) VariableNode.fromPb(node)).collect(Collectors.toList()),
-      nodePb.getCmdsList().stream().map(node -> (CommandNode) CommandNode.fromPb(node)).collect(Collectors.toList()));
+  public static Node fromPb(FieldNodeOrBuilder nodePb) {
+    return new FieldNode(nodePb.getPos(), nodePb.getIdentList());
   }
 
   @Override
   public NodeType type() {
-    return NodeType.NODE_PIPE;
+    return NodeType.NODE_FIELD;
   }
 
-  public List<VariableNode> getDeclarations() {
-    return declarations;
-  }
-
-  public List<CommandNode> getCommands() {
-    return commands;
+  public List<String> getIdentifiers() {
+    return identifiers;
   }
 }

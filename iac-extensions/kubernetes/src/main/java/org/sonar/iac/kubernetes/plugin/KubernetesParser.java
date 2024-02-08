@@ -104,8 +104,8 @@ public class KubernetesParser extends YamlParser {
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
     locationShifter.readLinesSizes(source, inputFileContext);
     var fileRelativePath = getFileRelativePath(inputFileContext);
-    var templateEvaluationResult = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
-    var evaluatedAndCleanedSource = Optional.ofNullable(templateEvaluationResult)
+    var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
+    var evaluatedAndCleanedSource = Optional.ofNullable(evaluatedSource)
       .map(template -> cleanSource(template, inputFileContext, locationShifter))
       .orElse("");
     if (evaluatedAndCleanedSource.isBlank()) {
@@ -115,7 +115,7 @@ public class KubernetesParser extends YamlParser {
 
     return KubernetesFileTreeImpl.fromFileTree(
       super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM),
-      helmProcessor.inputFileToGoAst.get(inputFileContext.inputFile.uri().toString()));
+      helmProcessor.getGoAstForInputFile(inputFileContext.inputFile));
   }
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {

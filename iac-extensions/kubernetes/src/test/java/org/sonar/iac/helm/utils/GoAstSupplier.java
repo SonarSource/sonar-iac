@@ -17,5 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
 package org.sonar.iac.helm.utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import org.sonar.api.impl.utils.DefaultTempFolder;
+import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.tree.Tree;
+
+public class GoAstSupplier {
+  private final HelmEvaluator helmEvaluator;
+
+  public GoAstSupplier(File workingDir) throws IOException {
+    this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(workingDir, false));
+    this.helmEvaluator.initialize();
+  }
+
+  public Tree goAstFromSource(String source, String valuesFileContent, String chartFileContent) throws IOException {
+    var templateDependencies = Map.of("values.yaml", valuesFileContent, "Chart.yaml", chartFileContent);
+    var evaluationResult = helmEvaluator.evaluateTemplate("templates/test.yaml", source, templateDependencies);
+
+    return Tree.fromPbTree(evaluationResult.getAst());
+  }
+}

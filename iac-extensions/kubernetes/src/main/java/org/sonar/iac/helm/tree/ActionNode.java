@@ -21,12 +21,11 @@ package org.sonar.iac.helm.tree;
 
 import org.sonar.iac.helm.ActionNodeOrBuilder;
 
-public class ActionNode implements Node {
-  private final long position;
+public class ActionNode extends AbstractNode {
   private final PipeNode pipe;
 
   public ActionNode(long position, PipeNode pipe) {
-    this.position = position;
+    super(position);
     this.pipe = pipe;
   }
 
@@ -39,8 +38,7 @@ public class ActionNode implements Node {
     return NodeType.NODE_ACTION;
   }
 
-  @Override
-  public long getPosition() {
-    return position;
+  public PipeNode getPipe() {
+    return pipe;
   }
 }

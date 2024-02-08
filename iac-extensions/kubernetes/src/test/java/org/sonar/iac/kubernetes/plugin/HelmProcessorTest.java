@@ -180,7 +180,9 @@ class HelmProcessorTest {
       when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
       when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
         .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("containerPort: 8080 #1").build());
-      var inputFileContext = Mockito.mock(InputFileContext.class);
+      var inputFile = Mockito.mock(InputFile.class);
+      when(inputFile.uri()).thenReturn(URI.create("file:///projects/chart/templates/foo.yaml"));
+      var inputFileContext = new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
 
       var result = helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext);
 
@@ -230,6 +232,7 @@ class HelmProcessorTest {
   private static InputFileContext mockInputFileContext(String filename) {
     var inputFile = Mockito.mock(InputFile.class);
     when(inputFile.newPointer(anyInt(), anyInt())).thenReturn(new BasicTextPointer(0, 0));
+    when(inputFile.uri()).thenReturn(URI.create("file://" + filename));
     when(inputFile.toString()).thenReturn(filename);
     return new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
   }

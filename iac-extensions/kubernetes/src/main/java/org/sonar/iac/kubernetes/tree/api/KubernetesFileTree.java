@@ -23,6 +23,10 @@ import javax.annotation.CheckForNull;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.tree.Tree;
 
+/**
+ * A custom YAML file tree representing a Kubernetes file.
+ * If the file is a Helm file, the AST of Go template is also available.
+ */
 public interface KubernetesFileTree extends FileTree {
   @CheckForNull
   Tree getGoTemplateAst();

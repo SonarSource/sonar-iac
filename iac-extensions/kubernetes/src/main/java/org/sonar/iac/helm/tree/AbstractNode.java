@@ -19,44 +19,15 @@
  */
 package org.sonar.iac.helm.tree;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.iac.helm.TreeOrBuilder;
+public abstract class AbstractNode implements Node {
+  private final long position;
 
-public class Tree {
-  private final String name;
-  private final String parseName;
-  private final int mode;
-  private final ListNode root;
-
-  public Tree(String name, String parseName, int mode, ListNode root) {
-    this.name = name;
-    this.parseName = parseName;
-    this.mode = mode;
-    this.root = root;
+  protected AbstractNode(long position) {
+    this.position = position;
   }
 
-  @CheckForNull
-  public static Tree fromPbTree(@Nullable TreeOrBuilder treePb) {
-    if (treePb == null) {
-      return null;
-    }
-    return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNode) ListNode.fromPb(treePb.getRoot()));
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getParseName() {
-    return parseName;
-  }
-
-  public int getMode() {
-    return mode;
-  }
-
-  public ListNode getRoot() {
-    return root;
+  @Override
+  public long getPosition() {
+    return this.position;
   }
 }

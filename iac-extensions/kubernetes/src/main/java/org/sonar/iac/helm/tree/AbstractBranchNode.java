@@ -19,44 +19,35 @@
  */
 package org.sonar.iac.helm.tree;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.helm.TreeOrBuilder;
 
-public class Tree {
-  private final String name;
-  private final String parseName;
-  private final int mode;
-  private final ListNode root;
+public abstract class AbstractBranchNode extends AbstractNode {
+  @Nullable
+  private final PipeNode pipe;
+  @Nullable
+  private final ListNode list;
+  @Nullable
+  private final ListNode elseList;
 
-  public Tree(String name, String parseName, int mode, ListNode root) {
-    this.name = name;
-    this.parseName = parseName;
-    this.mode = mode;
-    this.root = root;
+  protected AbstractBranchNode(long position, @Nullable PipeNode pipe, @Nullable ListNode list, @Nullable ListNode elseList) {
+    super(position);
+    this.pipe = pipe;
+    this.list = list;
+    this.elseList = elseList;
   }
 
-  @CheckForNull
-  public static Tree fromPbTree(@Nullable TreeOrBuilder treePb) {
-    if (treePb == null) {
-      return null;
-    }
-    return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNode) ListNode.fromPb(treePb.getRoot()));
+  @Nullable
+  public PipeNode getPipe() {
+    return pipe;
   }
 
-  public String getName() {
-    return name;
+  @Nullable
+  public ListNode getList() {
+    return list;
   }
 
-  public String getParseName() {
-    return parseName;
-  }
-
-  public int getMode() {
-    return mode;
-  }
-
-  public ListNode getRoot() {
-    return root;
+  @Nullable
+  public ListNode getElseList() {
+    return elseList;
   }
 }

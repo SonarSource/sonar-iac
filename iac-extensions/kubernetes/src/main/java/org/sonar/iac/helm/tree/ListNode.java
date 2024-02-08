@@ -25,12 +25,11 @@ import org.sonar.iac.helm.ListNodeOrBuilder;
 
 import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.unpack;
 
-public class ListNode implements Node {
-  private final long position;
+public class ListNode extends AbstractNode {
   private final List<Node> nodes;
 
   public ListNode(long position, List<Node> nodes) {
-    this.position = position;
+    super(position);
     this.nodes = Collections.unmodifiableList(nodes);
   }
 
@@ -41,11 +40,6 @@ public class ListNode implements Node {
   @Override
   public NodeType type() {
     return NodeType.NODE_LIST;
-  }
-
-  @Override
-  public long getPosition() {
-    return position;
   }
 
   public List<Node> getNodes() {

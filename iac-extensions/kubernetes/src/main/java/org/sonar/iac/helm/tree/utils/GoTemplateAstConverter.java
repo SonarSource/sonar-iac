@@ -22,7 +22,6 @@ package org.sonar.iac.helm.tree.utils;
 import com.google.protobuf.Any;
 import com.google.protobuf.AnyOrBuilder;
 import com.google.protobuf.GeneratedMessageV3;
-import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -45,9 +44,10 @@ public final class GoTemplateAstConverter {
   @CheckForNull
   public static Node unpackNode(Any nodePb) {
     try {
-      Class<GeneratedMessageV3> messageClass = messageType(nodePb);
-      Class<MessageOrBuilder> messageClassOrBuilder = messageTypeOrBuilder(nodePb);
-      Class<Node> targetClass = treeTypeToMessageType(nodePb);
+      var types = typesForMessage(nodePb);
+      Class<? extends GeneratedMessageV3> messageClass = types.messageType;
+      Class<? extends MessageOrBuilder> messageClassOrBuilder = types.messageOrBuilderType;
+      Class<? extends Node> targetClass = types.nodeType;
       var handle = lookup.findStatic(targetClass, "fromPb", MethodType.methodType(Node.class, messageClassOrBuilder));
       return (Node) handle.invoke(nodePb.unpack(messageClass));
     } catch (Throwable t) {
@@ -62,22 +62,88 @@ public final class GoTemplateAstConverter {
       .collect(Collectors.toList());
   }
 
-  private static <T extends Message> Class<T> messageType(Any nodePb) throws ClassNotFoundException {
-    return (Class<T>) Class.forName(typeName(nodePb));
-  }
-
-  private static <T extends MessageOrBuilder> Class<T> messageTypeOrBuilder(Any nodePb) throws ClassNotFoundException {
-    return (Class<T>) Class.forName(typeName(nodePb) + "OrBuilder");
-  }
-
-  private static <T extends Node> Class<T> treeTypeToMessageType(AnyOrBuilder anyPb) throws ClassNotFoundException {
-    var typeName = typeName(anyPb);
-    var packageName = typeName.substring(0, typeName.lastIndexOf("."));
-    var className = typeName.substring(typeName.lastIndexOf(".") + 1);
-    return (Class<T>) Class.forName(packageName + ".tree." + className);
-  }
-
   private static String typeName(AnyOrBuilder nodePb) {
     return nodePb.getTypeUrl().substring(nodePb.getTypeUrl().lastIndexOf('/') + 1);
+  }
+
+  private static Types typesForMessage(AnyOrBuilder nodePb) {
+    Types types;
+    switch (typeName(nodePb)) {
+      case "org.sonar.iac.helm.ActionNode":
+        types = new Types(org.sonar.iac.helm.ActionNode.class, org.sonar.iac.helm.ActionNodeOrBuilder.class, org.sonar.iac.helm.tree.ActionNode.class);
+        break;
+      case "org.sonar.iac.helm.BoolNode":
+        types = new Types(org.sonar.iac.helm.BoolNode.class, org.sonar.iac.helm.BoolNodeOrBuilder.class, org.sonar.iac.helm.tree.BoolNode.class);
+        break;
+      case "org.sonar.iac.helm.BreakNode":
+        types = new Types(org.sonar.iac.helm.BreakNode.class, org.sonar.iac.helm.BreakNodeOrBuilder.class, org.sonar.iac.helm.tree.BreakNode.class);
+        break;
+      case "org.sonar.iac.helm.ChainNode":
+        types = new Types(org.sonar.iac.helm.ChainNode.class, org.sonar.iac.helm.ChainNodeOrBuilder.class, org.sonar.iac.helm.tree.ChainNode.class);
+        break;
+      case "org.sonar.iac.helm.CommandNode":
+        types = new Types(org.sonar.iac.helm.CommandNode.class, org.sonar.iac.helm.CommandNodeOrBuilder.class, org.sonar.iac.helm.tree.CommandNode.class);
+        break;
+      case "org.sonar.iac.helm.ContinueNode":
+        types = new Types(org.sonar.iac.helm.ContinueNode.class, org.sonar.iac.helm.ContinueNodeOrBuilder.class, org.sonar.iac.helm.tree.ContinueNode.class);
+        break;
+      case "org.sonar.iac.helm.DotNode":
+        types = new Types(org.sonar.iac.helm.DotNode.class, org.sonar.iac.helm.DotNodeOrBuilder.class, org.sonar.iac.helm.tree.DotNode.class);
+        break;
+      case "org.sonar.iac.helm.FieldNode":
+        types = new Types(org.sonar.iac.helm.FieldNode.class, org.sonar.iac.helm.FieldNodeOrBuilder.class, org.sonar.iac.helm.tree.FieldNode.class);
+        break;
+      case "org.sonar.iac.helm.IdentifierNode":
+        types = new Types(org.sonar.iac.helm.IdentifierNode.class, org.sonar.iac.helm.IdentifierNodeOrBuilder.class, org.sonar.iac.helm.tree.IdentifierNode.class);
+        break;
+      case "org.sonar.iac.helm.IfNode":
+        types = new Types(org.sonar.iac.helm.IfNode.class, org.sonar.iac.helm.IfNodeOrBuilder.class, org.sonar.iac.helm.tree.IfNode.class);
+        break;
+      case "org.sonar.iac.helm.ListNode":
+        types = new Types(org.sonar.iac.helm.ListNode.class, org.sonar.iac.helm.ListNodeOrBuilder.class, org.sonar.iac.helm.tree.ListNode.class);
+        break;
+      case "org.sonar.iac.helm.NilNode":
+        types = new Types(org.sonar.iac.helm.NilNode.class, org.sonar.iac.helm.NilNodeOrBuilder.class, org.sonar.iac.helm.tree.NilNode.class);
+        break;
+      case "org.sonar.iac.helm.NumberNode":
+        types = new Types(org.sonar.iac.helm.NumberNode.class, org.sonar.iac.helm.NumberNodeOrBuilder.class, org.sonar.iac.helm.tree.NumberNode.class);
+        break;
+      case "org.sonar.iac.helm.PipeNode":
+        types = new Types(org.sonar.iac.helm.PipeNode.class, org.sonar.iac.helm.PipeNodeOrBuilder.class, org.sonar.iac.helm.tree.PipeNode.class);
+        break;
+      case "org.sonar.iac.helm.RangeNode":
+        types = new Types(org.sonar.iac.helm.RangeNode.class, org.sonar.iac.helm.RangeNodeOrBuilder.class, org.sonar.iac.helm.tree.RangeNode.class);
+        break;
+      case "org.sonar.iac.helm.StringNode":
+        types = new Types(org.sonar.iac.helm.StringNode.class, org.sonar.iac.helm.StringNodeOrBuilder.class, org.sonar.iac.helm.tree.StringNode.class);
+        break;
+      case "org.sonar.iac.helm.TemplateNode":
+        types = new Types(org.sonar.iac.helm.TemplateNode.class, org.sonar.iac.helm.TemplateNodeOrBuilder.class, org.sonar.iac.helm.tree.TemplateNode.class);
+        break;
+      case "org.sonar.iac.helm.TextNode":
+        types = new Types(org.sonar.iac.helm.TextNode.class, org.sonar.iac.helm.TextNodeOrBuilder.class, org.sonar.iac.helm.tree.TextNode.class);
+        break;
+      case "org.sonar.iac.helm.VariableNode":
+        types = new Types(org.sonar.iac.helm.VariableNode.class, org.sonar.iac.helm.VariableNodeOrBuilder.class, org.sonar.iac.helm.tree.VariableNode.class);
+        break;
+      case "org.sonar.iac.helm.WithNode":
+        types = new Types(org.sonar.iac.helm.WithNode.class, org.sonar.iac.helm.WithNodeOrBuilder.class, org.sonar.iac.helm.tree.WithNode.class);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown message type: " + typeName(nodePb));
+    }
+    return types;
+  }
+
+  private static class Types {
+    private final Class<? extends GeneratedMessageV3> messageType;
+    private final Class<? extends MessageOrBuilder> messageOrBuilderType;
+    private final Class<? extends Node> nodeType;
+
+    public Types(Class<? extends GeneratedMessageV3> messageType, Class<? extends MessageOrBuilder> messageOrBuilderType, Class<? extends Node> nodeType) {
+      this.messageType = messageType;
+      this.messageOrBuilderType = messageOrBuilderType;
+      this.nodeType = nodeType;
+    }
   }
 }

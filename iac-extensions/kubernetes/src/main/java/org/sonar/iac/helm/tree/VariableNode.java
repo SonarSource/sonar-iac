@@ -23,12 +23,11 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.helm.VariableNodeOrBuilder;
 
-public class VariableNode implements Node {
-  private final long position;
+public class VariableNode extends AbstractNode {
   private final List<String> ident;
 
   public VariableNode(long position, List<String> ident) {
-    this.position = position;
+    super(position);
     this.ident = Collections.unmodifiableList(ident);
   }
 
@@ -39,11 +38,6 @@ public class VariableNode implements Node {
   @Override
   public NodeType type() {
     return NodeType.NODE_VARIABLE;
-  }
-
-  @Override
-  public long getPosition() {
-    return position;
   }
 
   public List<String> getIdent() {
