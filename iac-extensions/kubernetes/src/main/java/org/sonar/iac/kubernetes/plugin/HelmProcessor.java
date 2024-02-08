@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -30,11 +31,14 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
+import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
+import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory;
 
 @ScannerSide
 @SonarLintSide
@@ -42,12 +46,12 @@ import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private HelmEvaluator helmEvaluator;
-  private final HelmPostprocessor helmPostprocessor = new HelmPostprocessor();
 
-  private final HelmPreprocessor helmPreprocessor = new HelmPreprocessor();
+  private LocationShifter locationShifter;
 
-  public HelmProcessor(HelmEvaluator helmEvaluator) {
+  public HelmProcessor(HelmEvaluator helmEvaluator, LocationShifter locationShifter) {
     this.helmEvaluator = helmEvaluator;
+    this.locationShifter = locationShifter;
   }
 
   public static boolean isHelmEvaluatorExecutableAvailable() {
@@ -67,7 +71,8 @@ public class HelmProcessor {
     return helmEvaluator != null;
   }
 
-  String processHelmTemplate(String path, String source, InputFileContext inputFileContext, LocationShifter locationShifter) {
+  String processHelmTemplate(String fileRelativePath, String source, InputFileContext inputFileContext) {
+    locationShifter.readLinesSizes(source, inputFileContext);
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
@@ -77,15 +82,15 @@ public class HelmProcessor {
     }
 
     // TODO: better support of Helm project structure
-    // Preprocess the file
-    var fileContents = helmPreprocessor.preProcess(inputFileContext);
+    var sourceWithComments = addLineComments(source);
+    Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
+    var fileContents = HelmPreprocessor.preProcess(inputFileContext, additionalFiles);
 
     // Evaluate the template
-    var sourceWithComments = addLineComments(source);
-    var evaluatedSource = evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
+    var evaluatedSource = evaluateHelmTemplate(fileRelativePath, inputFileContext.inputFile, sourceWithComments, fileContents);
 
     // Postprocess the file
-    return helmPostprocessor.postProcess(evaluatedSource, inputFileContext, locationShifter);
+    return HelmPostprocessor.postProcess(evaluatedSource, inputFileContext, locationShifter);
   }
 
   private String evaluateHelmTemplate(String path, InputFile inputFile, String content, Map<String, String> templateDependencies) {
@@ -99,5 +104,11 @@ public class HelmProcessor {
 
   private static ParseException parseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
     return new ParseException("Failed to evaluate Helm file " + inputFile + ": " + cause, null, details);
+  }
+
+  static class HelmPostprocessor {
+    static String postProcess(String evaluatedSource, InputFileContext inputFileContext, LocationShifter locationShifter) {
+      return cleanSource(evaluatedSource, inputFileContext, locationShifter);
+    }
   }
 }

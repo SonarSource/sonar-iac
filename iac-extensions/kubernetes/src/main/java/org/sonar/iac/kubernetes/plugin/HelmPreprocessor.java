@@ -20,18 +20,17 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-
-import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory;
+import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 
 public class HelmPreprocessor {
-  Map<String, String> preProcess(InputFileContext inputFileContext) {
-    Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
+  public static Map<String, String> preProcess(InputFileContext inputFileContext, Map<String, InputFile> additionalFiles) {
     return validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
   }
 
@@ -59,5 +58,19 @@ public class HelmPreprocessor {
 
   private static ParseException parseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
     return new ParseException("Failed pre-processing of Helm file " + inputFile + ": " + cause, null, details);
+  }
+
+  public static String getFileRelativePath(InputFileContext inputFileContext) {
+    var filePath = Path.of(inputFileContext.inputFile.uri());
+    var chartRootDirectory = HelmFilesystemUtils.retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
+    String fileRelativePath;
+    if (chartRootDirectory == null) {
+      fileRelativePath = inputFileContext.inputFile.filename();
+    } else {
+      fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
+      // transform windows to unix path
+      fileRelativePath = HelmFilesystemUtils.normalizeToUnixPathSeparator(fileRelativePath);
+    }
+    return fileRelativePath;
   }
 }

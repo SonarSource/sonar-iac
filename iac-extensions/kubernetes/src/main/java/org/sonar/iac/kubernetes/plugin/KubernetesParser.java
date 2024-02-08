@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.nio.file.Path;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -30,7 +29,6 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
-import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
@@ -99,29 +97,13 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
-    locationShifter.readLinesSizes(source, inputFileContext);
-    var fileRelativePath = getFileRelativePath(inputFileContext);
-    var evaluatedAndCleanedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext, locationShifter);
+    var evaluatedAndCleanedSource = helmProcessor.processHelmTemplate(HelmPreprocessor.getFileRelativePath(inputFileContext), source, inputFileContext);
     if (evaluatedAndCleanedSource.isBlank()) {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
       return super.parse("{}", null, FileTree.Template.HELM);
     }
 
     return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
-  }
-
-  private static String getFileRelativePath(InputFileContext inputFileContext) {
-    var filePath = Path.of(inputFileContext.inputFile.uri());
-    var chartRootDirectory = HelmFilesystemUtils.retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
-    String fileRelativePath;
-    if (chartRootDirectory == null) {
-      fileRelativePath = inputFileContext.inputFile.filename();
-    } else {
-      fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
-      // transform windows to unix path
-      fileRelativePath = HelmFilesystemUtils.normalizeToUnixPathSeparator(fileRelativePath);
-    }
-    return fileRelativePath;
   }
 
   public static boolean hasHelmContent(String text) {
