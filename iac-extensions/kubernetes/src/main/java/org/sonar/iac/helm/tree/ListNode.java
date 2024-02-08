@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.helm.ListNodeOrBuilder;
 
-import static org.sonar.iac.helm.tree.utils.GoTemplateAstUtils.unpack;
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.unpack;
 
 public class ListNode implements Node {
   private final long position;
@@ -39,7 +39,7 @@ public class ListNode implements Node {
   }
 
   @Override
-  public NodeType getType() {
+  public NodeType type() {
     return NodeType.NODE_LIST;
   }
 

@@ -34,11 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.helm.tree.Node;
 
-public final class GoTemplateAstUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(GoTemplateAstUtils.class);
+public final class GoTemplateAstConverter {
+  private static final Logger LOG = LoggerFactory.getLogger(GoTemplateAstConverter.class);
   private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-  private GoTemplateAstUtils() {
+  private GoTemplateAstConverter() {
     // utility class
   }
 
@@ -58,7 +58,7 @@ public final class GoTemplateAstUtils {
 
   public static List<Node> unpack(Collection<Any> nodesPb) {
     return nodesPb.stream()
-      .map(GoTemplateAstUtils::unpackNode)
+      .map(GoTemplateAstConverter::unpackNode)
       .collect(Collectors.toList());
   }
 

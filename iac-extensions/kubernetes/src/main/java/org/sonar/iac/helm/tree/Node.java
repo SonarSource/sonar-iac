@@ -20,7 +20,7 @@
 package org.sonar.iac.helm.tree;
 
 public interface Node {
-  NodeType getType();
+  NodeType type();
 
   long getPosition();
 }

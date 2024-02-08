@@ -22,7 +22,7 @@ package org.sonar.iac.helm.tree;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.helm.CommandNodeOrBuilder;
-import org.sonar.iac.helm.tree.utils.GoTemplateAstUtils;
+import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 
 public class CommandNode implements Node {
   private final long position;
@@ -34,11 +34,11 @@ public class CommandNode implements Node {
   }
 
   public static Node fromPb(CommandNodeOrBuilder nodePb) {
-    return new CommandNode(nodePb.getPos(), GoTemplateAstUtils.unpack(nodePb.getArgsList()));
+    return new CommandNode(nodePb.getPos(), GoTemplateAstConverter.unpack(nodePb.getArgsList()));
   }
 
   @Override
-  public NodeType getType() {
+  public NodeType type() {
     return NodeType.NODE_COMMAND;
   }
 

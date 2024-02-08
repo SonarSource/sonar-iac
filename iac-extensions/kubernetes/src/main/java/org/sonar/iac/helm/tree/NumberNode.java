@@ -35,7 +35,7 @@ public class NumberNode implements Node {
   }
 
   @Override
-  public NodeType getType() {
+  public NodeType type() {
     return NodeType.NODE_NUMBER;
   }
 

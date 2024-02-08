@@ -33,7 +33,7 @@ public class StringNode implements Node {
   }
 
   @Override
-  public NodeType getType() {
+  public NodeType type() {
     return NodeType.NODE_STRING;
   }
 
