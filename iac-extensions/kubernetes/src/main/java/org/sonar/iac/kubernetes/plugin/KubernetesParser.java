@@ -87,7 +87,7 @@ public class KubernetesParser extends YamlParser {
         throw pe;
       }
     } catch (MarkedYamlEngineException e) {
-      var shifted = locationShifter.shiftMarkedYamlException(inputFileContext, e);
+      var shifted = locationShifter.shiftMarkedYamlException(inputFileContext, e); // move this to HelmProcessor
       if (shifted instanceof ShiftedMarkedYamlEngineException) {
         LOG.debug("Shifting YAML exception {}", ((ShiftedMarkedYamlEngineException) shifted).describeShifting());
       }

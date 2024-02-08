@@ -19,45 +19,17 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
+
+import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 
 public class HelmPreprocessor {
-  public static Map<String, String> preProcess(InputFileContext inputFileContext, Map<String, InputFile> additionalFiles) {
-    return validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
-  }
-
-  private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
-    // Currently we are only looking for the default location of the values file
-    if (!files.containsKey("values.yaml") && !files.containsKey("values.yml")) {
-      throw parseExceptionFor(inputFile, "Failed to find values file", null);
-    }
-
-    Map<String, String> fileContents = new HashMap<>(files.size());
-
-    for (Map.Entry<String, InputFile> filenameToInputFile : files.entrySet()) {
-      var additionalInputFile = filenameToInputFile.getValue();
-      String fileContent;
-      try {
-        fileContent = additionalInputFile.contents();
-      } catch (IOException e) {
-        throw parseExceptionFor(inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
-      }
-
-      fileContents.put(filenameToInputFile.getKey(), fileContent);
-    }
-    return fileContents;
-  }
-
-  private static ParseException parseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
-    return new ParseException("Failed pre-processing of Helm file " + inputFile + ": " + cause, null, details);
+  public static String preProcess(String source, InputFileContext inputFileContext, LocationShifter locationShifter) {
+    locationShifter.readLinesSizes(source, inputFileContext);
+    return addLineComments(source);
   }
 
   public static String getFileRelativePath(InputFileContext inputFileContext) {

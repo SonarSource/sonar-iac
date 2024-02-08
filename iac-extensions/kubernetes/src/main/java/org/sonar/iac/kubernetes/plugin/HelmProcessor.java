@@ -20,7 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -31,12 +31,10 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
 import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory;
 
@@ -47,7 +45,7 @@ public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private HelmEvaluator helmEvaluator;
 
-  private LocationShifter locationShifter;
+  private final LocationShifter locationShifter;
 
   public HelmProcessor(HelmEvaluator helmEvaluator, LocationShifter locationShifter) {
     this.helmEvaluator = helmEvaluator;
@@ -72,24 +70,20 @@ public class HelmProcessor {
   }
 
   String processHelmTemplate(String fileRelativePath, String source, InputFileContext inputFileContext) {
-    locationShifter.readLinesSizes(source, inputFileContext);
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
+
     if (source.isBlank()) {
       LOG.debug("The file {} is blank, skipping evaluation", inputFileContext.inputFile);
       return source;
     }
+    var sourceWithComments = HelmPreprocessor.preProcess(source, inputFileContext, locationShifter);
 
     // TODO: better support of Helm project structure
-    var sourceWithComments = addLineComments(source);
     Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
-    var fileContents = HelmPreprocessor.preProcess(inputFileContext, additionalFiles);
-
-    // Evaluate the template
+    var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
     var evaluatedSource = evaluateHelmTemplate(fileRelativePath, inputFileContext.inputFile, sourceWithComments, fileContents);
-
-    // Postprocess the file
     return HelmPostprocessor.postProcess(evaluatedSource, inputFileContext, locationShifter);
   }
 
@@ -104,6 +98,28 @@ public class HelmProcessor {
 
   private static ParseException parseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
     return new ParseException("Failed to evaluate Helm file " + inputFile + ": " + cause, null, details);
+  }
+
+  private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
+    // Currently we are only looking for the default location of the values file
+    if (!files.containsKey("values.yaml") && !files.containsKey("values.yml")) {
+      throw parseExceptionFor(inputFile, "Failed to find values file", null);
+    }
+
+    Map<String, String> fileContents = new HashMap<>(files.size());
+
+    for (Map.Entry<String, InputFile> filenameToInputFile : files.entrySet()) {
+      var additionalInputFile = filenameToInputFile.getValue();
+      String fileContent;
+      try {
+        fileContent = additionalInputFile.contents();
+      } catch (IOException e) {
+        throw parseExceptionFor(inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
+      }
+
+      fileContents.put(filenameToInputFile.getKey(), fileContent);
+    }
+    return fileContents;
   }
 
   static class HelmPostprocessor {

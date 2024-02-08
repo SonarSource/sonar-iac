@@ -128,7 +128,7 @@ class HelmProcessorTest {
 
       assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
         .isInstanceOf(ParseException.class)
-        .hasMessage("Failed pre-processing of Helm file chart/templates/foo.yaml: Failed to read file at chart/values.yaml");
+        .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Failed to read file at chart/values.yaml");
     }
   }
 
