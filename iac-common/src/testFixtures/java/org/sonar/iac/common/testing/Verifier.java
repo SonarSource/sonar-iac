@@ -149,20 +149,14 @@ public class Verifier {
     return parser.parse(content, inputFileContext);
   }
 
-  protected static SingleFileVerifier createVerifier(Path path, Tree root) {
+  private static SingleFileVerifier createVerifier(Path path, Tree root) {
+    return createVerifier(path, root, commentsVisitor());
+  }
+
+  protected static SingleFileVerifier createVerifier(Path path, Tree root, BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
     var verifier = SingleFileVerifier.create(path, UTF_8);
     Map<Integer, Set<Comment>> commentsByLine = new HashMap<>();
-    final Set<TextRange> alreadyAdded = new HashSet<>();
-    (new TreeVisitor<>())
-      .register(Tree.class, (ctx, tree) -> {
-        if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
-          for (Comment comment : ((HasComments) tree).comments()) {
-            commentsByLine.computeIfAbsent(comment.textRange().start().line(), i -> new HashSet<>()).add(comment);
-          }
-          alreadyAdded.add(tree.textRange());
-        }
-
-      }).scan(new TreeContext(), root);
+    commentsVisitor.accept(root, commentsByLine);
 
     commentsByLine.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue)
       .forEach(comments -> comments.forEach(comment -> {
@@ -171,6 +165,19 @@ public class Verifier {
       }));
 
     return verifier;
+  }
+
+  private static BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor() {
+    Set<TextRange> alreadyAdded = new HashSet<>();
+    return (root, commentsByLine) -> (new TreeVisitor<>()).register(Tree.class,
+      (ctx, tree) -> {
+        if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
+          for (Comment comment : ((HasComments) tree).comments()) {
+            commentsByLine.computeIfAbsent(comment.textRange().start().line(), i -> new HashSet<>()).add(comment);
+          }
+          alreadyAdded.add(tree.textRange());
+        }
+      }).scan(new TreeContext(), root);
   }
 
   private static String readFile(Path path) {

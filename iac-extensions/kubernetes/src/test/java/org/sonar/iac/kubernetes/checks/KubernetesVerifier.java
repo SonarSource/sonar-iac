@@ -24,7 +24,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -34,9 +38,14 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.TreeContext;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
@@ -102,7 +111,7 @@ public class KubernetesVerifier extends Verifier {
 
   public static void verifyHelmFile(IacCheck check, InputFileContext inputFileContext, String content) {
     Tree root = parse(PARSER, content, inputFileContext);
-    SingleFileVerifier verifier = createVerifier(Path.of(inputFileContext.inputFile.uri()), root);
+    SingleFileVerifier verifier = createVerifier(Path.of(inputFileContext.inputFile.uri()), root, commentsWithShiftedTextRangeVisitor(inputFileContext));
     LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
     runAnalysis(testContext, check, root);
     verifier.assertOneOrMoreIssues();
@@ -129,6 +138,23 @@ public class KubernetesVerifier extends Verifier {
     } catch (IOException e) {
       LOG.error("Error while trying to add dependent files to sensor context", e);
     }
+  }
+
+  private static BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsWithShiftedTextRangeVisitor(InputFileContext inputFileContext) {
+    Set<TextRange> alreadyAdded = new HashSet<>();
+    return (root, commentsByLine) -> (new TreeVisitor<>()).register(Tree.class,
+      (ctx, tree) -> {
+        // The shifted location is not precise enough and always returns the whole line, so it is not suitable for detecting already added tree's
+        // The unshifted location is more granular and therefore can be used for detecting duplicates, even if it's not the real location in the
+        // source file
+        if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
+          for (Comment comment : ((HasComments) tree).comments()) {
+            Comment shiftedComment = new CommentImpl(comment.value(), comment.contentText(), locationShifter.computeShiftedLocation(inputFileContext, comment.textRange()));
+            commentsByLine.computeIfAbsent(shiftedComment.textRange().start().line(), i -> new HashSet<>()).add(shiftedComment);
+          }
+          alreadyAdded.add(tree.textRange());
+        }
+      }).scan(new TreeContext(), root);
   }
 
   public static class LocationShiftedTestContext extends TestContext {
