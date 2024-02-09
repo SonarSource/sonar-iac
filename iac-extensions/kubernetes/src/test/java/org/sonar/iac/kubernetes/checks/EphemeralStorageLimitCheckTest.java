@@ -37,7 +37,7 @@ class EphemeralStorageLimitCheckTest {
 
   @Test
   void testPodKindForHelm() {
-    KubernetesVerifier.verify("EphemeralStorageLimitCheck/helm/test_pod_object_helm.yaml", check);
+    KubernetesVerifier.verify("EphemeralStorageLimitCheck/helm/templates/test_pod_object_helm.yaml", check);
   }
 
 }

@@ -42,7 +42,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.addFileToContext;
+import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class CfnLintImporterTest {
 
@@ -54,11 +54,11 @@ class CfnLintImporterTest {
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
 
   @BeforeEach
-  void setUp() throws IOException {
+  void setUp() {
     File baseDir = new File(PATH_PREFIX);
     context = SensorContextTester.create(baseDir);
 
-    addFileToContext(context, baseDir, PATH_PREFIX + "/template.yaml");
+    addFileToSensorContext(context, baseDir.toPath(), "template.yaml");
   }
 
   @ParameterizedTest
@@ -66,7 +66,7 @@ class CfnLintImporterTest {
     "/doesNotExist.json, Cfn-lint report importing: path does not seem to point to a file %s",
     "/parseError.json, Cfn-lint report importing: could not parse file as JSON %s",
     "/noArray.json, Cfn-lint report importing: file is expected to contain a JSON array but didn't %s"})
-  void problem_when_reading_or_parsing_file(String reportPath, String expectedLog) {
+  void testProblemWhenReadingOrParsingFile(String reportPath, String expectedLog) {
     reportPath = PATH_PREFIX + reportPath;
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
@@ -78,7 +78,7 @@ class CfnLintImporterTest {
   }
 
   @Test
-  void reading_issue() {
+  void testReadingIssue() {
     String path = "src\\test\\resources\\cfn-lint\\throwsIOException.json";
     File reportFile = Mockito.mock(File.class);
     String logMessage = String.format("Cfn-lint report importing: could not read report file %s", path);
@@ -94,7 +94,7 @@ class CfnLintImporterTest {
   }
 
   @Test
-  void no_issues() {
+  void testNoIssues() {
     File reportFile = new File(PATH_PREFIX + "/emptyArray.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
@@ -102,7 +102,7 @@ class CfnLintImporterTest {
   }
 
   @Test
-  void invalid_issue() {
+  void testInvalidIssue() {
     File reportFile = new File(PATH_PREFIX + "/invalidIssue.json");
     String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 1 issues from %s.", reportFile.getPath());
     importReport(reportFile);
@@ -112,7 +112,7 @@ class CfnLintImporterTest {
   }
 
   @Test
-  void valid_issue() {
+  void testValidIssue() {
     File reportFile = new File(PATH_PREFIX + "/validIssue.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -125,7 +125,7 @@ class CfnLintImporterTest {
   }
 
   @Test
-  void one_invalid_and_one_valid_issue() {
+  void testOneInvalidAndOneValidIssue() {
     File reportFile = new File(PATH_PREFIX + "/validAndInvalid.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -136,7 +136,7 @@ class CfnLintImporterTest {
   }
 
   @Test
-  void unknown_rule() {
+  void testUnknownRule() {
     File reportFile = new File(PATH_PREFIX + "/unknownRule.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -153,7 +153,7 @@ class CfnLintImporterTest {
     PATH_PREFIX + "/invalidPathMoreThanTwo.json; Cfn-lint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
       "doesNotExist.yaml, a/b/doesNotExistToo.yaml, ..."
   }, delimiter = ';')
-  void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
+  void unresolvedPathsShouldBeAddedToWarning(File reportFile, String expectedLogFormat) {
     String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
 
     importReport(reportFile);

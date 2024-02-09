@@ -19,12 +19,12 @@
  */
 package org.sonar.iac.common.testing;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -34,7 +34,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IacTestUtils {
+public final class IacTestUtils {
 
   private IacTestUtils() {
     // utils class
@@ -44,21 +44,32 @@ public class IacTestUtils {
     return StringUtils.join(lines, "\n");
   }
 
-  public static DefaultInputFile inputFile(String fileName, String language) {
+  public static InputFile inputFile(String fileName, String language) {
+    return inputFile(fileName, Path.of("src/test/resources"), language);
+  }
+
+  public static InputFile inputFile(String fileName, Path baseDir) {
+    return inputFile(fileName, baseDir, null);
+  }
+
+  public static InputFile inputFile(String fileName, Path baseDir, @Nullable String language) {
     try {
-      return TestInputFileBuilder.create("moduleKey", fileName)
-        .setModuleBaseDir(new File("src/test/resources").toPath())
-        .setCharset(Charset.defaultCharset())
+      var content = Files.readString(baseDir.resolve(fileName));
+      return new TestInputFileBuilder("moduleKey", fileName)
+        .setModuleBaseDir(baseDir)
+        .setType(InputFile.Type.MAIN)
+        .setCharset(StandardCharsets.UTF_8)
         .setLanguage(language)
-        .initMetadata(java.nio.file.Files.readString(new File("src/test/resources/" + fileName).toPath())).build();
+        .setContents(content)
+        .build();
     } catch (IOException e) {
       throw new IllegalStateException("File not found", e);
     }
   }
 
-  public static void addFileToContext(SensorContextTester context, File baseDir, String path) throws IOException {
-    File someFile = new File(path);
-    context.fileSystem().add(new TestInputFileBuilder("project", baseDir, someFile).setContents(new String(Files.readAllBytes(someFile.toPath()))).build());
+  public static void addFileToSensorContext(SensorContextTester context, Path baseDir, String fileName) {
+    var inputFile = inputFile(fileName, baseDir);
+    context.fileSystem().add(inputFile);
   }
 
   public static InputFileContext createInputFileContextMock(String filename) {
@@ -66,8 +77,8 @@ public class IacTestUtils {
   }
 
   public static InputFileContext createInputFileContextMock(String filename, String languageKey) {
-    InputFile inputFile = mock(InputFile.class);
-    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    var inputFile = mock(InputFile.class);
+    var inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
     when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.language()).thenReturn(languageKey);

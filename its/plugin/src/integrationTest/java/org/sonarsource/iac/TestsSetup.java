@@ -26,7 +26,7 @@ import java.io.File;
 public class TestsSetup {
 
   static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
-  static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
+  static final String DEFAULT_SQ_VERSION = "DEV";
 
   public static final FileLocation IAC_PLUGIN_LOCATION = FileLocation.byWildcardFilename(new File("../../sonar-iac-plugin/build/libs"), "sonar-iac-plugin-*-all.jar");
 

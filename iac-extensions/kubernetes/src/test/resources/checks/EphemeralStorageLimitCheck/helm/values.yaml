@@ -1,3 +1,2 @@
 container:
-  cpu:
-    ephemeral-storage: "10Mi"
+  name: my-container
