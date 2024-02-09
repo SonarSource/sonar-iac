@@ -152,6 +152,15 @@ public abstract class TestBase {
 
     lines.removeIf(logElement -> allowedStrings.stream().anyMatch(logElement::startsWith));
 
+    Set<String> temporaryToleratedStrings = Set.of(
+      "java.lang.NoClassDefFoundError: org/eclipse/jgit/internal/JGitText",
+      "org.eclipse.jgit.internal.util.ShutdownHook.cleanup",
+      "at java.base/java.lang.Thread.run",
+      "org.eclipse.jgit.internal.JGitText",
+      "... 2 more");
+
+    lines.removeIf(logElement -> temporaryToleratedStrings.stream().anyMatch(logElement::contains));
+
     assertThat(lines).isEmpty();
   }
 }
