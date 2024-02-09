@@ -17,6 +17,7 @@ jfrog-gradle = "4.28.2"
 spotless-gradle = "6.22.0"
 blowdryer-gradle = "1.7.0"
 google-protobuf = "3.25.0"
+commons-compress = "1.25.0"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
@@ -44,3 +45,4 @@ sonar-scanner-gradle = { module = "org.sonarsource.scanner.gradle:sonarqube-grad
 diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless-gradle" }
 diffplug-blowdryer = { module = "com.diffplug:blowdryer", version.ref = "blowdryer-gradle" }
 google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "google-protobuf" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }

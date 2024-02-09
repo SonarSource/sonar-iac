@@ -20,6 +20,7 @@
 package org.sonar.iac.helm.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -36,12 +37,11 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public final class HelmFilesystemUtils {
   private static final Logger LOG = LoggerFactory.getLogger(HelmFilesystemUtils.class);
-  private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
+  private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties", "tgz", "gz");
 
   private HelmFilesystemUtils() {
   }
 
-  // TODO: SONARIAC-1239 Ignore additional file pattern mentioned in .helmignore
   public static Map<String, InputFile> additionalFilesOfHelmProjectDirectory(InputFileContext inputFileContext) {
     Map<String, InputFile> result = new HashMap<>();
 
@@ -63,14 +63,11 @@ public final class HelmFilesystemUtils {
 
   static FilePredicate additionalHelmDependenciesPredicate(InputFileContext inputFileContext, Path helmProjectDirectoryPath) {
     FilePredicates predicates = inputFileContext.sensorContext.fileSystem().predicates();
-    // Can be null or throw error?
-
-    String pathPattern = null;
 
     var basePath = inputFileContext.sensorContext.fileSystem().baseDir().toPath();
 
     var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
-    pathPattern = relativizedPath + File.separator + "**";
+    String pathPattern = relativizedPath + File.separator + "**";
 
     return predicates.and(
       predicates.matchesPathPattern(pathPattern),
@@ -110,5 +107,32 @@ public final class HelmFilesystemUtils {
 
   public static String normalizeToUnixPathSeparator(String filename) {
     return filename.replace('\\', '/');
+  }
+
+  public static String normalizeToRuntimePathSeparator(String filename) {
+    return filename.replace('\\', File.separatorChar)
+      .replace('/', File.separatorChar);
+  }
+
+  public static boolean includeFile(String name) {
+    if (INCLUDED_EXTENSIONS.stream().anyMatch(name::endsWith)) {
+      var parent = new File(".");
+      var child = new File(parent, name);
+
+      boolean isPathSecure;
+      try {
+        isPathSecure = child.getCanonicalPath().startsWith(parent.getCanonicalPath() + File.separator) &&
+          !name.contains("~");
+        if (!isPathSecure) {
+          LOG.debug("The path {} in compressed file looks suspicious, ignoring the file", name);
+        }
+      } catch (IOException e) {
+        var message = String.format("The path %s in compressed file looks suspicious, ignoring the file.", name);
+        LOG.debug(message, e);
+        return false;
+      }
+      return isPathSecure;
+    }
+    return false;
   }
 }

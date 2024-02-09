@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":sonar-helm-for-iac", "goBinaries"))
     implementation(project(":sonar-helm-for-iac"))
     implementation(libs.google.protobuf)
+    implementation(libs.commons.compress)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
