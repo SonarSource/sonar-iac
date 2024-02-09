@@ -25,7 +25,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
@@ -51,14 +51,14 @@ public class TerraformProviders {
 
   private final EnumSet<Provider.Identifier> raisedWarnings = EnumSet.noneOf(Provider.Identifier.class);
 
-  public TerraformProviders(SensorContext sensorContext) {
-    this(sensorContext, NOOP_ANALYSIS_WARNINGS);
+  public TerraformProviders(Configuration config) {
+    this(config, NOOP_ANALYSIS_WARNINGS);
   }
 
-  public TerraformProviders(SensorContext sensorContext, AnalysisWarningsWrapper analysisWarnings) {
+  public TerraformProviders(Configuration config, AnalysisWarningsWrapper analysisWarnings) {
     this.analysisWarnings = analysisWarnings;
     for (Provider.Identifier identifier : Provider.Identifier.values()) {
-      sensorContext.config().get(identifier.key)
+      config.get(identifier.key)
         .flatMap(version -> parseProviderVersion(identifier, version))
         .map(Provider::new)
         .ifPresent(provider -> providers.put(identifier, provider));

@@ -15,5 +15,6 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.inline)
     testImplementation(libs.sonar.plugin.api.test.fixtures)
+    testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
 }

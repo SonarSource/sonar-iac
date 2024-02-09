@@ -44,7 +44,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.addFileToContext;
+import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class HadolintImporterTest {
 
@@ -55,11 +55,11 @@ class HadolintImporterTest {
   private SensorContextTester context;
 
   @BeforeEach
-  void setUp() throws IOException {
+  void setUp() {
     File baseDir = new File(PATH_PREFIX);
     context = SensorContextTester.create(baseDir);
 
-    addFileToContext(context, baseDir, PATH_PREFIX + "/docker-file.docker");
+    addFileToSensorContext(context, baseDir.toPath(), "docker-file.docker");
   }
 
   @ParameterizedTest
@@ -67,7 +67,7 @@ class HadolintImporterTest {
     "/doesNotExist.json, Hadolint report importing: path does not seem to point to a file %s",
     "/parseError.json, Hadolint report importing: could not parse file as JSON %s",
     "/noArray.json, Hadolint report importing: file is expected to contain a JSON array but didn't %s"})
-  void problemWhenReadingOrParsingFile(String reportPath, String expectedLog) {
+  void testProblemWhenReadingOrParsingFile(String reportPath, String expectedLog) {
     reportPath = PATH_PREFIX + reportPath;
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
@@ -79,7 +79,7 @@ class HadolintImporterTest {
   }
 
   @Test
-  void readingIssue() {
+  void testReadingIssue() {
     String path = "src\\test\\resources\\hadolint\\throwsIOException.json";
     File reportFile = Mockito.mock(File.class);
     String logMessage = String.format("Hadolint report importing: could not read report file %s", path);
@@ -95,7 +95,7 @@ class HadolintImporterTest {
   }
 
   @Test
-  void noIssues() {
+  void testNoIssues() {
     File reportFile = new File(PATH_PREFIX + "/emptyArray.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
@@ -103,7 +103,7 @@ class HadolintImporterTest {
   }
 
   @Test
-  void invalidIssue() {
+  void testInvalidIssue() {
     File reportFile = new File(PATH_PREFIX + "/invalidIssue.json");
     String logMessage = String.format("Hadolint report importing: could not save 1 out of 1 issues from %s.", reportFile.getPath());
     importReport(reportFile);
@@ -116,7 +116,7 @@ class HadolintImporterTest {
   @CsvSource({
     "/jsonFormat/validIssue.json",
     "/sonarqubeFormat/validIssue.json"})
-  void validIssue(String reportPath) {
+  void testValidIssue(String reportPath) {
     File reportFile = new File(PATH_PREFIX + reportPath);
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -129,7 +129,7 @@ class HadolintImporterTest {
   }
 
   @Test
-  void validIssueWithInvalidColumns() {
+  void testValidIssueWithInvalidColumns() {
     File reportFile = new File(PATH_PREFIX + "/sonarqubeFormat/validIssueWithInvalidColumns.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -145,7 +145,7 @@ class HadolintImporterTest {
   @CsvSource({
     "/jsonFormat/validAndInvalid.json",
     "/sonarqubeFormat/validAndInvalid.json"})
-  void oneInvalidAndOneValidIssue(String reportPath) {
+  void testOneInvalidAndOneValidIssue(String reportPath) {
     File reportFile = new File(PATH_PREFIX + reportPath);
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -159,7 +159,7 @@ class HadolintImporterTest {
   @CsvSource({
     "/jsonFormat/unknownRule.json",
     "/sonarqubeFormat/unknownRule.json"})
-  void unknownRule(String reportPath) {
+  void testUnknownRule(String reportPath) {
     File reportFile = new File(PATH_PREFIX + reportPath);
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -173,7 +173,7 @@ class HadolintImporterTest {
   @CsvSource({
     "/jsonFormat/unknownWarningRuleWithValidHadolintName.json, SC9999",
     "/sonarqubeFormat/unknownWarningRuleWithValidHadolintName.json, DL9999"})
-  void unknownWarningRuleWithValidHadolintFormat(String reportPath, String ruleId) {
+  void testUnknownWarningRuleWithValidHadolintFormat(String reportPath, String ruleId) {
     File reportFile = new File(PATH_PREFIX + reportPath);
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -189,7 +189,7 @@ class HadolintImporterTest {
   @CsvSource({
     "/jsonFormat/unknownErrorRuleWithValidHadolintName.json, SC9999",
     "/sonarqubeFormat/unknownErrorRuleWithValidHadolintName.json, DL9999"})
-  void unknownErrorRuleWithValidHadolintFormat(String reportPath, String ruleId) {
+  void testUnknownErrorRuleWithValidHadolintFormat(String reportPath, String ruleId) {
     File reportFile = new File(PATH_PREFIX + reportPath);
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -207,7 +207,7 @@ class HadolintImporterTest {
     PATH_PREFIX + "/invalidPathMoreThanTwo.json; Hadolint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
       "doesNotExist.docker, a/b/doesNotExistToo.docker, ..."
   }, delimiter = ';')
-  void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
+  void testUnresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
     String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
 
     importReport(reportFile);

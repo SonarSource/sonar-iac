@@ -1,3 +1,2 @@
 container:
-  cpu:
-    limit: 1
+  name: my-container

@@ -117,7 +117,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
   }
 
   private TerraformProviders providerVersions() {
-    return new TerraformProviders(context);
+    return new TerraformProviders(new MapSettings().asConfig());
   }
 
   @Override
