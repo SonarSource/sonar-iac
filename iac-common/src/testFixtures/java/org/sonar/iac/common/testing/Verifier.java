@@ -142,7 +142,6 @@ public class Verifier {
   public static Tree parse(TreeParser<Tree> parser, Path path) {
     var testFileContent = readFile(path);
     return parse(parser, testFileContent, null);
-
   }
 
   public static Tree parse(TreeParser<Tree> parser, String content, @Nullable InputFileContext inputFileContext) {

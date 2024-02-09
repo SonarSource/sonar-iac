@@ -87,12 +87,7 @@ public class KubernetesVerifier extends Verifier {
 
   public static void verify(String templateFileName, IacCheck check) {
     InputFile inputFile = inputFile(templateFileName, BASE_DIR);
-    String content;
-    try {
-      content = inputFile.contents();
-    } catch (IOException e) {
-      throw new IllegalStateException(String.format("Unable to read content of %s", inputFile), e);
-    }
+    String content = retrieveContent(inputFile);
     if (KubernetesParser.hasHelmContent(content)) {
       InputFileContext inputFileContext = prepareHelmContext(templateFileName);
       verifyHelmFile(check, inputFileContext, content);
@@ -111,7 +106,10 @@ public class KubernetesVerifier extends Verifier {
 
   public static void verifyHelmFile(IacCheck check, InputFileContext inputFileContext, String content) {
     Tree root = parse(PARSER, content, inputFileContext);
-    SingleFileVerifier verifier = createVerifier(Path.of(inputFileContext.inputFile.uri()), root, commentsWithShiftedTextRangeVisitor(inputFileContext));
+    SingleFileVerifier verifier = createVerifier(
+      Path.of(inputFileContext.inputFile.uri()),
+      root,
+      commentsWithShiftedTextRangeVisitor(inputFileContext));
     LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
     runAnalysis(testContext, check, root);
     verifier.assertOneOrMoreIssues();
@@ -128,6 +126,14 @@ public class KubernetesVerifier extends Verifier {
     addDependentFilesToSensorContext(helmProjectPath);
 
     return new InputFileContext(sensorContext, sourceInputFile);
+  }
+
+  private static String retrieveContent(InputFile inputFile) {
+    try {
+      return inputFile.contents();
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Unable to read content of %s", inputFile), e);
+    }
   }
 
   public static void addDependentFilesToSensorContext(Path helmProjectPath) {
