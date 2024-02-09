@@ -148,7 +148,9 @@ public abstract class TestBase {
       "WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations",
       "WARNING: All illegal access operations will be denied in a future release",
       "WARN: The property 'sonar.login' is deprecated and will be removed in the future. Please use the 'sonar.token' property instead when passing a token.",
-      "Picked up JAVA_TOOL_OPTIONS:");
+      "Picked up JAVA_TOOL_OPTIONS:",
+      "Caused by: java.lang.ClassNotFoundException: org.eclipse.jgit.internal.JGitText",
+      "Exception in thread \"Thread-0\" java.lang.NoClassDefFoundError: org/eclipse/jgit/internal/JGitText");
 
     lines.removeIf(logElement -> allowedStrings.stream().anyMatch(logElement::startsWith));
 
