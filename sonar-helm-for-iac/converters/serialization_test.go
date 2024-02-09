@@ -54,9 +54,10 @@ func Test_ProtobufSerializer_Serialize_With_Error_Text(t *testing.T) {
 
 func Test_ProtobufSerializer_Serialize_With_Ast(t *testing.T) {
 	serializer := ProtobufSerializer{}
-	content := "content"
-	tpl, _ := template.New("test").Parse("{{ . }}")
-	ast := tpl.Tree
+	content := "{{ . }}"
+	converter := TestConverter{}
+	tpl, _ := template.New("test").Parse(content)
+	ast := converter.ConvertTree(content, tpl.Tree)
 	bytes, err := serializer.Serialize(content, ast, nil)
 
 	result := pbstructs.TemplateEvaluationResult{}

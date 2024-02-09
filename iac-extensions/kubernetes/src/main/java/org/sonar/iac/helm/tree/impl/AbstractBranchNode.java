@@ -33,8 +33,8 @@ public abstract class AbstractBranchNode extends AbstractNode implements BranchN
   @Nullable
   private final ListNode elseList;
 
-  protected AbstractBranchNode(long position, @Nullable PipeNode pipe, @Nullable ListNode list, @Nullable ListNode elseList) {
-    super(position);
+  protected AbstractBranchNode(long position, long length, @Nullable PipeNode pipe, @Nullable ListNode list, @Nullable ListNode elseList) {
+    super(position, length);
     this.pipe = pipe;
     this.list = list;
     this.elseList = elseList;

@@ -26,13 +26,13 @@ import org.sonar.iac.helm.tree.api.StringNode;
 public class StringNodeImpl extends AbstractNode implements StringNode {
   private final String text;
 
-  public StringNodeImpl(long position, String text) {
-    super(position);
+  public StringNodeImpl(long position, long length, String text) {
+    super(position, length);
     this.text = text;
   }
 
   public static Node fromPb(StringNodeOrBuilder nodePb) {
-    return new StringNodeImpl(nodePb.getPos(), nodePb.getText());
+    return new StringNodeImpl(nodePb.getPos(), nodePb.getLength(), nodePb.getText());
   }
 
   public String text() {

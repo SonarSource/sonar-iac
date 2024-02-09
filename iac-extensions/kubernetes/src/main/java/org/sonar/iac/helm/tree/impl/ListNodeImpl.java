@@ -30,13 +30,13 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.unpack;
 public class ListNodeImpl extends AbstractNode implements ListNode {
   private final List<Node> nodes;
 
-  public ListNodeImpl(long position, List<Node> nodes) {
-    super(position);
+  public ListNodeImpl(long position, long length, List<Node> nodes) {
+    super(position, length);
     this.nodes = Collections.unmodifiableList(nodes);
   }
 
   public static Node fromPb(ListNodeOrBuilder nodePb) {
-    return new ListNodeImpl(nodePb.getPos(), unpack(nodePb.getNodesList()));
+    return new ListNodeImpl(nodePb.getPos(), nodePb.getLength(), unpack(nodePb.getNodesList()));
   }
 
   public List<Node> nodes() {

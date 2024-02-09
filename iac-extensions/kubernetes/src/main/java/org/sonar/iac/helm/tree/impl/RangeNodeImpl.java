@@ -26,13 +26,14 @@ import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.RangeNode;
 
 public class RangeNodeImpl extends AbstractBranchNode implements RangeNode {
-  public RangeNodeImpl(long position, PipeNode pipe, ListNode list, ListNode elseList) {
-    super(position, pipe, list, elseList);
+  public RangeNodeImpl(long position, long length, PipeNode pipe, ListNode list, ListNode elseList) {
+    super(position, length, pipe, list, elseList);
   }
 
   public static Node fromPb(RangeNodeOrBuilder nodePb) {
     return new RangeNodeImpl(
       nodePb.getPos(),
+      nodePb.getLength(),
       (PipeNode) PipeNodeImpl.fromPb(nodePb.getBranchNode().getPipe()),
       (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getList()),
       (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getElseList()));

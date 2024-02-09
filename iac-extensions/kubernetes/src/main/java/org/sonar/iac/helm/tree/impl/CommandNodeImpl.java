@@ -29,13 +29,13 @@ import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 public class CommandNodeImpl extends AbstractNode implements CommandNode {
   private final List<Node> arguments;
 
-  public CommandNodeImpl(long position, List<Node> arguments) {
-    super(position);
+  public CommandNodeImpl(long position, long length, List<Node> arguments) {
+    super(position, length);
     this.arguments = Collections.unmodifiableList(arguments);
   }
 
   public static Node fromPb(CommandNodeOrBuilder nodePb) {
-    return new CommandNodeImpl(nodePb.getPos(), GoTemplateAstConverter.unpack(nodePb.getArgsList()));
+    return new CommandNodeImpl(nodePb.getPos(), nodePb.getLength(), GoTemplateAstConverter.unpack(nodePb.getArgsList()));
   }
 
   public List<Node> arguments() {

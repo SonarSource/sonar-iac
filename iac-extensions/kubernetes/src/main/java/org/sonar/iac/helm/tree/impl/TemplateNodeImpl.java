@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.helm.protobuf.TemplateNodeOrBuilder;
@@ -32,14 +33,18 @@ public class TemplateNodeImpl extends AbstractNode implements TemplateNode {
   @Nullable
   private final PipeNode pipe;
 
-  public TemplateNodeImpl(long position, @Nullable String name, @Nullable PipeNode pipe) {
-    super(position);
+  public TemplateNodeImpl(long position, long length, @Nullable String name, @Nullable PipeNode pipe) {
+    super(position, length);
     this.name = name;
     this.pipe = pipe;
   }
 
   public static Node fromPb(TemplateNodeOrBuilder templateNodePb) {
-    return new TemplateNodeImpl(templateNodePb.getPos(), templateNodePb.getName(), (PipeNode) PipeNodeImpl.fromPb(templateNodePb.getPipe()));
+    return new TemplateNodeImpl(
+      templateNodePb.getPos(),
+      templateNodePb.getLength(),
+      templateNodePb.getName(),
+      (PipeNode) Optional.of(templateNodePb.getPipe()).filter(t -> templateNodePb.hasPipe()).map(PipeNodeImpl::fromPb).orElse(null));
   }
 
   @CheckForNull

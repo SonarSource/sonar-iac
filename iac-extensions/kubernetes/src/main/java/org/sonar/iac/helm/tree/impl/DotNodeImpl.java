@@ -25,11 +25,11 @@ import org.sonar.iac.helm.tree.api.Node;
 
 public class DotNodeImpl extends AbstractNode implements DotNode {
 
-  public DotNodeImpl(long position) {
-    super(position);
+  public DotNodeImpl(long position, long length) {
+    super(position, length);
   }
 
   public static Node fromPb(DotNodeOrBuilder dotNodePb) {
-    return new DotNodeImpl(dotNodePb.getPos());
+    return new DotNodeImpl(dotNodePb.getPos(), dotNodePb.getLength());
   }
 }

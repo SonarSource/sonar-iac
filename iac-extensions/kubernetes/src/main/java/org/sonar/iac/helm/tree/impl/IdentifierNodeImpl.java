@@ -28,13 +28,13 @@ public class IdentifierNodeImpl extends AbstractNode implements IdentifierNode {
   @Nullable
   private final String identifier;
 
-  public IdentifierNodeImpl(long position, String identifier) {
-    super(position);
+  public IdentifierNodeImpl(long position, long length, String identifier) {
+    super(position, length);
     this.identifier = identifier;
   }
 
   public static Node fromPb(IdentifierNodeOrBuilder identifierNodePb) {
-    return new IdentifierNodeImpl(identifierNodePb.getPos(), identifierNodePb.getIdent());
+    return new IdentifierNodeImpl(identifierNodePb.getPos(), identifierNodePb.getLength(), identifierNodePb.getIdent());
   }
 
   public String identifier() {

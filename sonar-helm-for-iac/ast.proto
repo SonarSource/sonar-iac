@@ -55,6 +55,7 @@ enum NodeType {
 message Node {
   NodeType nodeType = 1;
   int64 pos = 2;
+  int64 length = 3;
 }
 
 // ActionNode holds an action (something bounded by delimiters).
@@ -65,6 +66,7 @@ message ActionNode {
   int64 pos = 2;
   // The pipeline in the action.
   optional PipeNode pipe = 3;
+  int64 length = 4;
 }
 
 // BoolNode holds a boolean constant.
@@ -72,6 +74,7 @@ message BoolNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   bool true = 3;
+  int64 length = 4;
 }
 
 // BranchNode is the common representation of if, range, and with.
@@ -84,6 +87,8 @@ message BranchNode {
   optional ListNode list = 4;
   // What to execute if the value is empty (nil if absent).
   optional ListNode elseList = 5;
+
+  int64 length = 6;
 }
 
 // BreakNode represents a {{break}} action.
@@ -91,6 +96,7 @@ message BreakNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   optional int64 line = 3;
+  int64 length = 4;
 }
 
 // ChainNode holds a term followed by a chain of field accesses (identifier starting with '.').
@@ -102,6 +108,7 @@ message ChainNode {
   optional google.protobuf.Any node = 3;
   // The identifiers in lexical order.
   repeated string field = 4;
+  int64 length = 5;
 }
 
 // CommandNode holds a command (a pipeline inside an evaluating action).
@@ -110,6 +117,7 @@ message CommandNode {
   int64 pos = 2;
   // Arguments in lexical order: Identifier, field, or constant. Will be one of the node types declared here.
   repeated google.protobuf.Any args = 3;
+  int64 length = 4;
 }
 
 // CommentNode holds a comment.
@@ -118,6 +126,7 @@ message CommentNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   optional string text = 3;
+  int64 length = 4;
 }
 
 // ContinueNode represents a {{continue}} action.
@@ -125,12 +134,14 @@ message ContinueNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   optional int64 line = 3;
+  int64 length = 4;
 }
 
 // DotNode holds the special identifier '.'.
 message DotNode {
   NodeType nodeType = 1;
   int64 pos = 2;
+  int64 length = 3;
 }
 
 // FieldNode holds a field (identifier starting with '.').
@@ -141,6 +152,7 @@ message FieldNode {
   int64 pos = 2;
   // The identifiers in lexical order.
   repeated string ident = 3;
+  int64 length = 4;
 }
 
 // IdentifierNode holds an identifier.
@@ -149,6 +161,7 @@ message IdentifierNode {
   int64 pos = 2;
   // The identifier's name.
   optional string ident = 3;
+  int64 length = 4;
 }
 
 // IfNode represents an {{if}} action and its commands.
@@ -156,6 +169,7 @@ message IfNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   optional BranchNode branchNode = 3;
+  int64 length = 4;
 }
 
 // ListNode holds a sequence of nodes.
@@ -163,12 +177,14 @@ message ListNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   repeated google.protobuf.Any nodes = 3;
+  int64 length = 4;
 }
 
 // NilNode holds the special identifier 'nil' representing an untyped nil constant.
 message NilNode {
   NodeType nodeType = 1;
   int64 pos = 2;
+  int64 length = 3;
 }
 
 // NumberNode holds a number: signed or unsigned integer, float, or complex.
@@ -195,6 +211,7 @@ message NumberNode {
   optional string complex128 = 10;
   // The original textual representation from the input.
   optional string text = 11;
+  int64 length = 12;
 }
 
 // PipeNode holds a pipeline with optional declaration
@@ -207,6 +224,7 @@ message PipeNode {
   repeated VariableNode decl = 4;
   // The commands in lexical order.
   repeated CommandNode cmds = 5;
+  int64 length = 6;
 }
 
 // RangeNode represents a {{range}} action and its commands.
@@ -214,6 +232,7 @@ message RangeNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   optional BranchNode branchNode = 3;
+  int64 length = 4;
 }
 
 // StringNode holds a string constant. The value has been "unquoted".
@@ -224,6 +243,7 @@ message StringNode {
   optional string quoted = 3;
   // The string, after quote processing.
   optional string text = 4;
+  int64 length = 5;
 }
 
 // TemplateNode represents a {{template}} action.
@@ -234,6 +254,7 @@ message TemplateNode {
   optional string name = 3;
   // The command to evaluate as dot for the template.
   optional PipeNode pipe = 4;
+  int64 length = 5;
 }
 
 // TextNode holds plain text.
@@ -241,6 +262,7 @@ message TextNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   optional bytes text = 3;
+  int64 length = 4;
 }
 
 // Tree is the representation of a single parsed template.
@@ -252,6 +274,7 @@ message Tree {
   // top-level root of the tree.
   optional ListNode root = 3;
   optional uint64 mode = 4;
+  int64 length = 5;
 }
 
 // VariableNode holds a list of variable names, possibly with chained field
@@ -261,6 +284,7 @@ message VariableNode {
   int64 pos = 2;
   // Variable name and fields in lexical order.
   repeated string ident = 3;
+  int64 length = 4;
 }
 
 // WithNode represents a {{with}} action and its commands.
@@ -268,4 +292,5 @@ message WithNode {
   NodeType nodeType = 1;
   int64 pos = 2;
   optional BranchNode branchNode = 3;
+  int64 length = 4;
 }

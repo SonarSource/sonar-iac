@@ -27,13 +27,13 @@ import org.sonar.iac.helm.tree.api.PipeNode;
 public class ActionNodeImpl extends AbstractNode implements ActionNode {
   private final PipeNode pipe;
 
-  public ActionNodeImpl(long position, PipeNode pipe) {
-    super(position);
+  public ActionNodeImpl(long position, long length, PipeNode pipe) {
+    super(position, length);
     this.pipe = pipe;
   }
 
   public static Node fromPb(ActionNodeOrBuilder nodePb) {
-    return new ActionNodeImpl(nodePb.getPos(), (PipeNode) PipeNodeImpl.fromPb(nodePb.getPipe()));
+    return new ActionNodeImpl(nodePb.getPos(), nodePb.getLength(), (PipeNode) PipeNodeImpl.fromPb(nodePb.getPipe()));
   }
 
   public PipeNode pipe() {

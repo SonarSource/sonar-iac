@@ -36,4 +36,11 @@ public interface Node {
    * @return the offset of the node in the input file
    */
   long position();
+
+  /**
+   * The length of the piece of code in the input file that the node represents.
+   *
+   * @return the length of the code fragment in the input file
+   */
+  long length();
 }
