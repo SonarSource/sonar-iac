@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
+import com.google.protobuf.Any;
 import java.io.File;
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -32,6 +33,7 @@ import org.sonar.iac.helm.tree.api.ActionNode;
 import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.ListNode;
+import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 import org.sonar.iac.helm.utils.GoAstSupplier;
 
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -49,6 +51,12 @@ class GoAstTest {
   @Test
   void shouldIgnoreNullInput() {
     Assertions.assertThat(Tree.fromPbTree(null)).isNull();
+  }
+
+  @Test
+  void shouldIgnoreUnknownNode() {
+    var any = Any.newBuilder().setTypeUrl("unknown").build();
+    Assertions.assertThat(GoTemplateAstConverter.unpackNode(any)).isNull();
   }
 
   @Test
