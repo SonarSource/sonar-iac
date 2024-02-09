@@ -19,13 +19,11 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-import java.io.File;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
@@ -43,15 +41,13 @@ class TerraformProvidersTest {
   private final AnalysisWarningsWrapper analysisWarnings = mock(AnalysisWarningsWrapper.class);
 
   private static final String AWS_KEY = "sonar.terraform.provider.aws.version";
-  @TempDir
-  protected File baseDir;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void provider_with_valid_version() {
-    TerraformProviders providers = providers(context(AWS_KEY, "1.3.4"));
+    TerraformProviders providers = providers(mockConfig(AWS_KEY, "1.3.4"));
     Provider provider = providers.provider(Provider.Identifier.AWS);
     assertThat(provider.providerVersion).isEqualTo(Version.parse("1.3.4"));
     verifyNoInteractions(analysisWarnings);
@@ -59,7 +55,7 @@ class TerraformProvidersTest {
 
   @Test
   void provider_with_invalid_version() {
-    TerraformProviders providers = providers(context(AWS_KEY, "v1.3.4"));
+    TerraformProviders providers = providers(mockConfig(AWS_KEY, "v1.3.4"));
     Provider provider = providers.provider(Provider.Identifier.AWS);
 
     assertThat(provider.providerVersion).isNull();
@@ -72,7 +68,7 @@ class TerraformProvidersTest {
 
   @Test
   void provider_with_empty_version() {
-    TerraformProviders providers = providers(context(AWS_KEY, ""));
+    TerraformProviders providers = providers(mockConfig(AWS_KEY, ""));
     Provider provider = providers.provider(Provider.Identifier.AWS);
     assertThat(provider.providerVersion).isNull();
     verify(analysisWarnings, times(1))
@@ -82,7 +78,7 @@ class TerraformProvidersTest {
 
   @Test
   void provider_without_provided_version() {
-    TerraformProviders providers = providers(SensorContextTester.create(baseDir));
+    TerraformProviders providers = providers(new ConfigurationBridge(new MapSettings()));
     providers.provider(Provider.Identifier.AWS);
     verify(analysisWarnings, times(1))
       .addWarning("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +
@@ -91,7 +87,7 @@ class TerraformProvidersTest {
 
   @Test
   void single_warning_for_missing_provided_version() {
-    TerraformProviders providers = providers(SensorContextTester.create(baseDir));
+    TerraformProviders providers = providers(new ConfigurationBridge(new MapSettings()));
     providers.provider(Provider.Identifier.AWS);
     providers.provider(Provider.Identifier.AWS);
     verify(analysisWarnings, times(1))
@@ -144,15 +140,13 @@ class TerraformProvidersTest {
     assertThat(countPrefix).isEqualTo(TerraformSettings.getExternalReportProperties().size());
   }
 
-  private TerraformProviders providers(SensorContext context) {
-    return new TerraformProviders(context, analysisWarnings);
+  private TerraformProviders providers(Configuration config) {
+    return new TerraformProviders(config, analysisWarnings);
   }
 
-  private SensorContext context(String key, String value) {
+  private Configuration mockConfig(String key, String value) {
     MapSettings settings = new MapSettings();
     settings.setProperty(key, value);
-    SensorContextTester context = SensorContextTester.create(baseDir);
-    context.setSettings(settings);
-    return context;
+    return settings.asConfig();
   }
 }
