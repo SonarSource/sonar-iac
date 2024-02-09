@@ -17,13 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.impl;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
 import org.sonar.iac.helm.tree.api.Node;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+public abstract class AbstractNode implements Node {
+  private final long position;
+
+  protected AbstractNode(long position) {
+    this.position = position;
+  }
+
+  @Override
+  public long position() {
+    return this.position;
+  }
 }

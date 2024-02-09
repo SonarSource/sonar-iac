@@ -28,6 +28,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.helm.tree.api.ActionNode;
+import org.sonar.iac.helm.tree.api.CommandNode;
+import org.sonar.iac.helm.tree.api.FieldNode;
+import org.sonar.iac.helm.tree.api.ListNode;
 import org.sonar.iac.helm.utils.GoAstSupplier;
 
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -64,7 +68,7 @@ class GoAstTest {
     });
     var node = tree.root().nodes().get(0);
     Assertions.assertThat(node).isInstanceOf(ActionNode.class);
-    var commandNode = (CommandNode) ((org.sonar.iac.helm.tree.ActionNode) node).pipe().commands().get(0);
+    var commandNode = (CommandNode) ((ActionNode) node).pipe().commands().get(0);
     Assertions.assertThat(commandNode.arguments().get(0))
       .isInstanceOf(FieldNode.class)
       .satisfies(fieldNode -> {

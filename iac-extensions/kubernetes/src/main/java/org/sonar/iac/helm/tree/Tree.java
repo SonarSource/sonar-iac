@@ -22,14 +22,15 @@ package org.sonar.iac.helm.tree;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.helm.protobuf.TreeOrBuilder;
+import org.sonar.iac.helm.tree.impl.ListNodeImpl;
 
 public class Tree {
   private final String name;
   private final String parseName;
   private final int mode;
-  private final ListNode root;
+  private final ListNodeImpl root;
 
-  public Tree(String name, String parseName, int mode, ListNode root) {
+  public Tree(String name, String parseName, int mode, ListNodeImpl root) {
     this.name = name;
     this.parseName = parseName;
     this.mode = mode;
@@ -41,7 +42,7 @@ public class Tree {
     if (treePb == null) {
       return null;
     }
-    return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNode) ListNode.fromPb(treePb.getRoot()));
+    return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNodeImpl) ListNodeImpl.fromPb(treePb.getRoot()));
   }
 
   public String name() {
@@ -56,7 +57,7 @@ public class Tree {
     return mode;
   }
 
-  public ListNode root() {
+  public ListNodeImpl root() {
     return root;
   }
 }

@@ -17,13 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.impl;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
+import javax.annotation.Nullable;
+import org.sonar.iac.helm.protobuf.IdentifierNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.IdentifierNode;
 import org.sonar.iac.helm.tree.api.Node;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+public class IdentifierNodeImpl extends AbstractNode implements IdentifierNode {
+  @Nullable
+  private final String identifier;
+
+  public IdentifierNodeImpl(long position, String identifier) {
+    super(position);
+    this.identifier = identifier;
+  }
+
+  public static Node fromPb(IdentifierNodeOrBuilder identifierNodePb) {
+    return new IdentifierNodeImpl(identifierNodePb.getPos(), identifierNodePb.getIdent());
+  }
+
+  public String identifier() {
+    return identifier;
+  }
+
 }

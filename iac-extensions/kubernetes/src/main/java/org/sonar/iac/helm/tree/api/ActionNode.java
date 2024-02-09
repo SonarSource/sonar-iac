@@ -17,13 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.api;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+/**
+ * ActionNode holds an action (something bounded by delimiters).
+ * Control actions have their own nodes; ActionNode represents simple
+ * ones such as field evaluations and parenthesized pipelines.
+ */
+public interface ActionNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_ACTION;
+  }
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+  /**
+   * The pipeline in the action.
+   *
+   * @return the pipeline
+   */
+  PipeNode pipe();
 }

@@ -17,13 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.api;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+import java.util.List;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+/**
+ * FieldNode holds a field (identifier starting with '.').
+ * The names may be chained ('.x.y').
+ * The period is dropped from each ident.
+ */
+public interface FieldNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_FIELD;
+  }
+
+  /**
+   * The identifiers in lexical order.
+   *
+   * @return the identifiers in lexical order
+   */
+  List<String> identifiers();
 }

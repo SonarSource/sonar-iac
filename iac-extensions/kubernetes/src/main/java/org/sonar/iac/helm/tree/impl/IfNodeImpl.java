@@ -17,13 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.impl;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
+import org.sonar.iac.helm.protobuf.IfNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.IfNode;
+import org.sonar.iac.helm.tree.api.ListNode;
 import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.api.PipeNode;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+public class IfNodeImpl extends AbstractBranchNode implements IfNode {
+  public IfNodeImpl(long position, PipeNode pipe, ListNode list, ListNode elseList) {
+    super(position, pipe, list, elseList);
+  }
+
+  public static Node fromPb(IfNodeOrBuilder ifNodePb) {
+    var pipe = (PipeNode) PipeNodeImpl.fromPb(ifNodePb.getBranchNode().getPipe());
+    var list = (ListNode) ListNodeImpl.fromPb(ifNodePb.getBranchNode().getList());
+    var elseList = (ListNode) ListNodeImpl.fromPb(ifNodePb.getBranchNode().getElseList());
+    return new IfNodeImpl(ifNodePb.getPos(), pipe, list, elseList);
+  }
 }

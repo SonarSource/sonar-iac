@@ -17,13 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.api;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+/**
+ * Node represents a node in the Go template AST.
+ */
+public interface Node {
+  /**
+   * The type of the node.
+   *
+   * @return the type of the node
+   */
+  NodeType type();
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+  /**
+   * The offset of the node in the input file.
+   *
+   * @return the offset of the node in the input file
+   */
+  long position();
 }

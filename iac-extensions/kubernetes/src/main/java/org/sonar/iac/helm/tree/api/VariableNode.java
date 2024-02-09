@@ -17,13 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.api;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+import java.util.List;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+/**
+ * VariableNode holds a list of variable names, possibly with chained field
+ * accesses. The dollar sign is part of the (first) name.
+ */
+public interface VariableNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_VARIABLE;
+  }
+
+  /**
+   * Variable name and fields in lexical order.
+   *
+   * @return the variable name and fields in lexical order
+   */
+  List<String> ident();
 }

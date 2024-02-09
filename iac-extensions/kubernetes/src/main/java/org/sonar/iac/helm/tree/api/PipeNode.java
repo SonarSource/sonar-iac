@@ -17,13 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.api;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+import java.util.List;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+/**
+ * PipeNode holds a pipeline with optional declaration
+ */
+public interface PipeNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_PIPE;
+  }
+
+  /**
+   * Variables in lexical order.
+   *
+   * @return the variables in lexical order
+   */
+  List<VariableNode> declarations();
+
+  /**
+   * The commands in lexical order.
+   *
+   * @return the commands in lexical order
+   */
+  List<CommandNode> commands();
 }

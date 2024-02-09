@@ -17,13 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.impl;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.Collections;
+import java.util.List;
+import org.sonar.iac.helm.protobuf.CommandNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+public class CommandNodeImpl extends AbstractNode implements CommandNode {
+  private final List<Node> arguments;
+
+  public CommandNodeImpl(long position, List<Node> arguments) {
+    super(position);
+    this.arguments = Collections.unmodifiableList(arguments);
+  }
+
+  public static Node fromPb(CommandNodeOrBuilder nodePb) {
+    return new CommandNodeImpl(nodePb.getPos(), GoTemplateAstConverter.unpack(nodePb.getArgsList()));
+  }
+
+  public List<Node> arguments() {
+    return arguments;
+  }
 }

@@ -17,13 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.api;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+import javax.annotation.Nullable;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+/**
+ * BranchNode is the common representation of if, range, and with.
+ */
+public interface BranchNode extends Node {
+  /**
+   * The pipeline to be evaluated.
+   *
+   * @return the pipeline to be evaluated
+   */
+  @Nullable
+  PipeNode pipe();
+
+  /**
+   * What to execute if the value is non-empty.
+   *
+   * @return the list of nodes to execute if the value is non-empty
+   */
+  @Nullable
+  ListNode list();
+
+  /**
+   * What to execute if the value is empty (nil if absent).
+   *
+   * @return the list of nodes to execute if the value is empty
+   */
+  @Nullable
+  ListNode elseList();
 }

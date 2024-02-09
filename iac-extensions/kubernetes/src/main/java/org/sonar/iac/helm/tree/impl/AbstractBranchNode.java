@@ -17,13 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.impl;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+import javax.annotation.Nullable;
+import org.sonar.iac.helm.tree.api.BranchNode;
+import org.sonar.iac.helm.tree.api.ListNode;
+import org.sonar.iac.helm.tree.api.PipeNode;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+public abstract class AbstractBranchNode extends AbstractNode implements BranchNode {
+  @Nullable
+  private final PipeNode pipe;
+  @Nullable
+  private final ListNode list;
+  @Nullable
+  private final ListNode elseList;
+
+  protected AbstractBranchNode(long position, @Nullable PipeNode pipe, @Nullable ListNode list, @Nullable ListNode elseList) {
+    super(position);
+    this.pipe = pipe;
+    this.list = list;
+    this.elseList = elseList;
+  }
+
+  @Nullable
+  public PipeNode pipe() {
+    return pipe;
+  }
+
+  @Nullable
+  public ListNode list() {
+    return list;
+  }
+
+  @Nullable
+  public ListNode elseList() {
+    return elseList;
+  }
 }

@@ -17,13 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.api;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+import javax.annotation.Nullable;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+/**
+ * TemplateNode represents a {{template}} action.
+ */
+public interface TemplateNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_TEMPLATE;
+  }
+
+  /**
+   * The name of the template (unquoted).
+   *
+   * @return the name of the template (unquoted)
+   */
+  @Nullable
+  String name();
+
+  /**
+   * The command to evaluate as dot for the template.
+   *
+   * @return the command to evaluate as dot for the template
+   */
+  @Nullable
+  PipeNode pipe();
 }

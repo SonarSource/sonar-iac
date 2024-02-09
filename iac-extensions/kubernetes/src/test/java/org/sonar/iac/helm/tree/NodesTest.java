@@ -23,12 +23,38 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.sonar.iac.helm.tree.api.CommandNode;
+import org.sonar.iac.helm.tree.api.ListNode;
+import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.api.NodeType;
+import org.sonar.iac.helm.tree.api.PipeNode;
+import org.sonar.iac.helm.tree.api.VariableNode;
+import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
+import org.sonar.iac.helm.tree.impl.BoolNodeImpl;
+import org.sonar.iac.helm.tree.impl.BreakNodeImpl;
+import org.sonar.iac.helm.tree.impl.ChainNodeImpl;
+import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
+import org.sonar.iac.helm.tree.impl.ContinueNodeImpl;
+import org.sonar.iac.helm.tree.impl.DotNodeImpl;
+import org.sonar.iac.helm.tree.impl.FieldNodeImpl;
+import org.sonar.iac.helm.tree.impl.IdentifierNodeImpl;
+import org.sonar.iac.helm.tree.impl.IfNodeImpl;
+import org.sonar.iac.helm.tree.impl.ListNodeImpl;
+import org.sonar.iac.helm.tree.impl.NilNodeImpl;
+import org.sonar.iac.helm.tree.impl.NumberNodeImpl;
+import org.sonar.iac.helm.tree.impl.PipeNodeImpl;
+import org.sonar.iac.helm.tree.impl.RangeNodeImpl;
+import org.sonar.iac.helm.tree.impl.StringNodeImpl;
+import org.sonar.iac.helm.tree.impl.TemplateNodeImpl;
+import org.sonar.iac.helm.tree.impl.TextNodeImpl;
+import org.sonar.iac.helm.tree.impl.VariableNodeImpl;
+import org.sonar.iac.helm.tree.impl.WithNodeImpl;
 
 class NodesTest {
   @Test
   void shouldBuildActionNode() {
     var pipeNode = Mockito.mock(PipeNode.class);
-    var actionNode = new ActionNode(1, pipeNode);
+    var actionNode = new ActionNodeImpl(1, pipeNode);
 
     Assertions.assertThat(actionNode.position()).isEqualTo(1);
     Assertions.assertThat(actionNode.type()).isEqualTo(NodeType.NODE_ACTION);
@@ -37,7 +63,7 @@ class NodesTest {
 
   @Test
   void shouldBuildBoolNode() {
-    var boolNode = new BoolNode(1, true);
+    var boolNode = new BoolNodeImpl(1, true);
 
     Assertions.assertThat(boolNode.position()).isEqualTo(1);
     Assertions.assertThat(boolNode.type()).isEqualTo(NodeType.NODE_BOOL);
@@ -46,7 +72,7 @@ class NodesTest {
 
   @Test
   void shouldBuildBreakNode() {
-    var breakNode = new BreakNode(1, 5);
+    var breakNode = new BreakNodeImpl(1, 5);
 
     Assertions.assertThat(breakNode.position()).isEqualTo(1);
     Assertions.assertThat(breakNode.type()).isEqualTo(NodeType.NODE_BREAK);
@@ -57,7 +83,7 @@ class NodesTest {
   void shouldBuildChainNode() {
     var field = (List<String>) Mockito.mock(List.class);
     var node = Mockito.mock(Node.class);
-    var chainNode = new ChainNode(1, node, field);
+    var chainNode = new ChainNodeImpl(1, node, field);
 
     Assertions.assertThat(chainNode.position()).isEqualTo(1);
     Assertions.assertThat(chainNode.type()).isEqualTo(NodeType.NODE_CHAIN);
@@ -68,7 +94,7 @@ class NodesTest {
   @Test
   void shouldBuildCommandNode() {
     var arguments = (List<Node>) Mockito.mock(List.class);
-    var commandNode = new CommandNode(1, arguments);
+    var commandNode = new CommandNodeImpl(1, arguments);
 
     Assertions.assertThat(commandNode.position()).isEqualTo(1);
     Assertions.assertThat(commandNode.type()).isEqualTo(NodeType.NODE_COMMAND);
@@ -77,7 +103,7 @@ class NodesTest {
 
   @Test
   void shouldBuildContinueNode() {
-    var continueNode = new ContinueNode(1, 5);
+    var continueNode = new ContinueNodeImpl(1, 5);
 
     Assertions.assertThat(continueNode.position()).isEqualTo(1);
     Assertions.assertThat(continueNode.type()).isEqualTo(NodeType.NODE_CONTINUE);
@@ -86,7 +112,7 @@ class NodesTest {
 
   @Test
   void shouldBuildDotNode() {
-    var dotNode = new DotNode(1);
+    var dotNode = new DotNodeImpl(1);
 
     Assertions.assertThat(dotNode.position()).isEqualTo(1);
     Assertions.assertThat(dotNode.type()).isEqualTo(NodeType.NODE_DOT);
@@ -95,7 +121,7 @@ class NodesTest {
   @Test
   void shouldBuildFieldNode() {
     var identifiers = (List<String>) Mockito.mock(List.class);
-    var fieldNode = new FieldNode(1, identifiers);
+    var fieldNode = new FieldNodeImpl(1, identifiers);
 
     Assertions.assertThat(fieldNode.position()).isEqualTo(1);
     Assertions.assertThat(fieldNode.type()).isEqualTo(NodeType.NODE_FIELD);
@@ -104,7 +130,7 @@ class NodesTest {
 
   @Test
   void shouldBuildIdentifierNode() {
-    var identifierNode = new IdentifierNode(1, "name");
+    var identifierNode = new IdentifierNodeImpl(1, "name");
 
     Assertions.assertThat(identifierNode.position()).isEqualTo(1);
     Assertions.assertThat(identifierNode.type()).isEqualTo(NodeType.NODE_IDENTIFIER);
@@ -116,7 +142,7 @@ class NodesTest {
     var pipeNode = Mockito.mock(PipeNode.class);
     var list = Mockito.mock(ListNode.class);
     var elseList = Mockito.mock(ListNode.class);
-    var ifNode = new IfNode(1, pipeNode, list, elseList);
+    var ifNode = new IfNodeImpl(1, pipeNode, list, elseList);
 
     Assertions.assertThat(ifNode.position()).isEqualTo(1);
     Assertions.assertThat(ifNode.type()).isEqualTo(NodeType.NODE_IF);
@@ -128,7 +154,7 @@ class NodesTest {
   @Test
   void shouldBuildListNode() {
     var nodes = (List<Node>) Mockito.mock(List.class);
-    var listNode = new ListNode(1, nodes);
+    var listNode = new ListNodeImpl(1, nodes);
 
     Assertions.assertThat(listNode.position()).isEqualTo(1);
     Assertions.assertThat(listNode.type()).isEqualTo(NodeType.NODE_LIST);
@@ -137,7 +163,7 @@ class NodesTest {
 
   @Test
   void shouldBuildNilNode() {
-    var nilNode = new NilNode(1);
+    var nilNode = new NilNodeImpl(1);
 
     Assertions.assertThat(nilNode.position()).isEqualTo(1);
     Assertions.assertThat(nilNode.type()).isEqualTo(NodeType.NODE_NIL);
@@ -145,7 +171,7 @@ class NodesTest {
 
   @Test
   void shouldBuildNumberNode() {
-    var numberNode = new NumberNode(1, "5");
+    var numberNode = new NumberNodeImpl(1, "5");
 
     Assertions.assertThat(numberNode.position()).isEqualTo(1);
     Assertions.assertThat(numberNode.type()).isEqualTo(NodeType.NODE_NUMBER);
@@ -156,7 +182,7 @@ class NodesTest {
   void shouldBuildPipeNode() {
     var commands = (List<CommandNode>) Mockito.mock(List.class);
     var declarations = (List<VariableNode>) Mockito.mock(List.class);
-    var pipeNode = new PipeNode(1, declarations, commands);
+    var pipeNode = new PipeNodeImpl(1, declarations, commands);
 
     Assertions.assertThat(pipeNode.position()).isEqualTo(1);
     Assertions.assertThat(pipeNode.type()).isEqualTo(NodeType.NODE_PIPE);
@@ -169,7 +195,7 @@ class NodesTest {
     var pipeNode = Mockito.mock(PipeNode.class);
     var list = Mockito.mock(ListNode.class);
     var elseList = Mockito.mock(ListNode.class);
-    var rangeNode = new RangeNode(1, pipeNode, list, elseList);
+    var rangeNode = new RangeNodeImpl(1, pipeNode, list, elseList);
 
     Assertions.assertThat(rangeNode.position()).isEqualTo(1);
     Assertions.assertThat(rangeNode.type()).isEqualTo(NodeType.NODE_RANGE);
@@ -180,7 +206,7 @@ class NodesTest {
 
   @Test
   void shouldBuildStringNode() {
-    var stringNode = new StringNode(1, "name");
+    var stringNode = new StringNodeImpl(1, "name");
 
     Assertions.assertThat(stringNode.position()).isEqualTo(1);
     Assertions.assertThat(stringNode.type()).isEqualTo(NodeType.NODE_STRING);
@@ -190,7 +216,7 @@ class NodesTest {
   @Test
   void shouldBuildTemplateNode() {
     var pipe = Mockito.mock(PipeNode.class);
-    var templateNode = new TemplateNode(1, "name", pipe);
+    var templateNode = new TemplateNodeImpl(1, "name", pipe);
 
     Assertions.assertThat(templateNode.position()).isEqualTo(1);
     Assertions.assertThat(templateNode.type()).isEqualTo(NodeType.NODE_TEMPLATE);
@@ -200,7 +226,7 @@ class NodesTest {
 
   @Test
   void shouldBuildTextNode() {
-    var textNode = new TextNode(1, "name");
+    var textNode = new TextNodeImpl(1, "name");
 
     Assertions.assertThat(textNode.position()).isEqualTo(1);
     Assertions.assertThat(textNode.type()).isEqualTo(NodeType.NODE_TEXT);
@@ -209,7 +235,7 @@ class NodesTest {
 
   @Test
   void shouldBuildVariableNode() {
-    var variableNode = new VariableNode(1, List.of("name"));
+    var variableNode = new VariableNodeImpl(1, List.of("name"));
 
     Assertions.assertThat(variableNode.position()).isEqualTo(1);
     Assertions.assertThat(variableNode.type()).isEqualTo(NodeType.NODE_VARIABLE);
@@ -221,7 +247,7 @@ class NodesTest {
     var pipeNode = Mockito.mock(PipeNode.class);
     var list = Mockito.mock(ListNode.class);
     var elseList = Mockito.mock(ListNode.class);
-    var withNode = new WithNode(1, pipeNode, list, elseList);
+    var withNode = new WithNodeImpl(1, pipeNode, list, elseList);
 
     Assertions.assertThat(withNode.position()).isEqualTo(1);
     Assertions.assertThat(withNode.type()).isEqualTo(NodeType.NODE_WITH);

@@ -17,13 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.api;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.sonar.iac.helm.tree.api.Node;
+/**
+ * ContinueNode represents a {{continue}} action.
+ */
+public interface ContinueNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_CONTINUE;
+  }
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+  /**
+   * The line number of the continue action.
+   *
+   * @return the line number of the continue action
+   */
+  long line();
 }

@@ -17,13 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.utils;
+package org.sonar.iac.helm.tree.impl;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
+import org.sonar.iac.helm.protobuf.ActionNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.ActionNode;
 import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.api.PipeNode;
 
-@FunctionalInterface
-public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+public class ActionNodeImpl extends AbstractNode implements ActionNode {
+  private final PipeNode pipe;
+
+  public ActionNodeImpl(long position, PipeNode pipe) {
+    super(position);
+    this.pipe = pipe;
+  }
+
+  public static Node fromPb(ActionNodeOrBuilder nodePb) {
+    return new ActionNodeImpl(nodePb.getPos(), (PipeNode) PipeNodeImpl.fromPb(nodePb.getPipe()));
+  }
+
+  public PipeNode pipe() {
+    return pipe;
+  }
 }
