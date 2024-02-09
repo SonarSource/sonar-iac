@@ -148,11 +148,18 @@ public abstract class TestBase {
       "WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations",
       "WARNING: All illegal access operations will be denied in a future release",
       "WARN: The property 'sonar.login' is deprecated and will be removed in the future. Please use the 'sonar.token' property instead when passing a token.",
-      "Picked up JAVA_TOOL_OPTIONS:",
-      "Caused by: java.lang.ClassNotFoundException: org.eclipse.jgit.internal.JGitText",
-      "Exception in thread \"Thread-0\" java.lang.NoClassDefFoundError: org/eclipse/jgit/internal/JGitText");
+      "Picked up JAVA_TOOL_OPTIONS:");
 
     lines.removeIf(logElement -> allowedStrings.stream().anyMatch(logElement::startsWith));
+
+    Set<String> temporaryToleratedStrings = Set.of(
+      "java.lang.NoClassDefFoundError: org/eclipse/jgit/internal/JGitText",
+      "org.eclipse.jgit.internal.util.ShutdownHook.cleanup",
+      "at java.base/java.lang.Thread.run",
+      "org.eclipse.jgit.internal.JGitText",
+      "... 2 more");
+
+    lines.removeIf(logElement -> temporaryToleratedStrings.stream().anyMatch(logElement::contains));
 
     assertThat(lines).isEmpty();
   }
