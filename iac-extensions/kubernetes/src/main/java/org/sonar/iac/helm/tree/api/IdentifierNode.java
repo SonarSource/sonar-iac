@@ -17,5 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.api;
+
+/**
+ * IdentifierNode holds an identifier.
+ */
+public interface IdentifierNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_IDENTIFIER;
+  }
+
+  /**
+   * The identifier's name.
+   *
+   * @return the identifier's name
+   */
+  String identifier();
+}

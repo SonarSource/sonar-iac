@@ -17,5 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.impl;
+
+import org.sonar.iac.helm.protobuf.DotNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.DotNode;
+import org.sonar.iac.helm.tree.api.Node;
+
+public class DotNodeImpl extends AbstractNode implements DotNode {
+
+  public DotNodeImpl(long position) {
+    super(position);
+  }
+
+  public static Node fromPb(DotNodeOrBuilder dotNodePb) {
+    return new DotNodeImpl(dotNodePb.getPos());
+  }
+}

@@ -17,5 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.impl;
+
+import org.sonar.iac.helm.protobuf.TextNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.api.TextNode;
+
+public class TextNodeImpl extends AbstractNode implements TextNode {
+  private final String text;
+
+  public TextNodeImpl(long position, String text) {
+    super(position);
+    this.text = text;
+  }
+
+  public static Node fromPb(TextNodeOrBuilder nodePb) {
+    return new TextNodeImpl(nodePb.getPos(), nodePb.getText().toString());
+  }
+
+  public String text() {
+    return text;
+  }
+}

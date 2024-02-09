@@ -17,5 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.impl;
+
+import java.util.Collections;
+import java.util.List;
+import org.sonar.iac.helm.protobuf.VariableNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.api.VariableNode;
+
+public class VariableNodeImpl extends AbstractNode implements VariableNode {
+  private final List<String> ident;
+
+  public VariableNodeImpl(long position, List<String> ident) {
+    super(position);
+    this.ident = Collections.unmodifiableList(ident);
+  }
+
+  public static Node fromPb(VariableNodeOrBuilder nodePb) {
+    return new VariableNodeImpl(nodePb.getPos(), nodePb.getIdentList());
+  }
+
+  public List<String> idents() {
+    return ident;
+  }
+}

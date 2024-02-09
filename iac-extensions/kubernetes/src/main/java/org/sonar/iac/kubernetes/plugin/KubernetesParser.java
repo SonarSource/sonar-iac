@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
@@ -103,13 +105,17 @@ public class KubernetesParser extends YamlParser {
     locationShifter.readLinesSizes(source, inputFileContext);
     var fileRelativePath = getFileRelativePath(inputFileContext);
     var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
-    var evaluatedAndCleanedSource = cleanSource(evaluatedSource, inputFileContext, locationShifter);
+    var evaluatedAndCleanedSource = Optional.ofNullable(evaluatedSource)
+      .map(template -> cleanSource(template, inputFileContext, locationShifter))
+      .orElse("");
     if (evaluatedAndCleanedSource.isBlank()) {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
       return super.parse("{}", null, FileTree.Template.HELM);
     }
 
-    return super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM);
+    return KubernetesFileTreeImpl.fromFileTree(
+      super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM),
+      helmProcessor.getGoAstForInputFile(inputFileContext.inputFile));
   }
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {

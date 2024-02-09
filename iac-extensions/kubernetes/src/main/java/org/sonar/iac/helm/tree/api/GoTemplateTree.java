@@ -17,5 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.api;
+
+/**
+ * An AST built from Go template.
+ */
+public interface GoTemplateTree {
+  /**
+   * Name of the template.
+   *
+   * @return the name of the template
+   */
+  String name();
+
+  /**
+   * Name of the template as set during parsing.
+   *
+   * @return the parse name of the template
+   */
+  String parseName();
+
+  /**
+   * Parsing mode. See `text/template/parse` package for more details.
+   *
+   * @return the parsing mode
+   */
+  int mode();
+
+  /**
+   * Root of the AST.
+   *
+   * @return the root of the AST
+   */
+  ListNode root();
+}

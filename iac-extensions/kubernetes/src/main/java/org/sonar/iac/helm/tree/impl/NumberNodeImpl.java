@@ -17,5 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.impl;
+
+import org.sonar.iac.helm.protobuf.NumberNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.api.NumberNode;
+
+public class NumberNodeImpl extends AbstractNode implements NumberNode {
+  private final String text;
+
+  public NumberNodeImpl(long position, String text) {
+    super(position);
+    this.text = text;
+  }
+
+  public static Node fromPb(NumberNodeOrBuilder nodePb) {
+    return new NumberNodeImpl(nodePb.getPos(), nodePb.getText());
+  }
+
+  public String text() {
+    return text;
+  }
+}

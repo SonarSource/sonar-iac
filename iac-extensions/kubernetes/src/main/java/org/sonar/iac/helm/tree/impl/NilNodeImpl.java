@@ -17,5 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.impl;
+
+import org.sonar.iac.helm.protobuf.NilNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.NilNode;
+import org.sonar.iac.helm.tree.api.Node;
+
+public class NilNodeImpl extends AbstractNode implements NilNode {
+  public NilNodeImpl(long position) {
+    super(position);
+  }
+
+  public static Node fromPb(NilNodeOrBuilder nilNodePb) {
+    return new NilNodeImpl(nilNodePb.getPos());
+  }
+}

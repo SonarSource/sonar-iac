@@ -48,6 +48,7 @@ import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,6 +131,7 @@ class KubernetesParserTest {
 
       FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
 
+      assertThat(file).isInstanceOf(KubernetesFileTree.class);
       assertThat(file.documents()).hasSize(1);
       assertThat(file.documents().get(0).children()).hasSize(1);
 

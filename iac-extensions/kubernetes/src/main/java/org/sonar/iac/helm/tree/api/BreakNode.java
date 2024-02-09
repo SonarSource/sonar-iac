@@ -17,5 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.api;
+
+/**
+ * BreakNode represents a {{break}} action.
+ */
+public interface BreakNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_BREAK;
+  }
+
+  /**
+   * The line number of the break action.
+   *
+   * @return the line number of the break action
+   */
+  long line();
+}

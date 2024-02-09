@@ -22,15 +22,19 @@ package org.sonar.iac.kubernetes.plugin;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.tree.api.GoTemplateTree;
+import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -43,6 +47,7 @@ import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelm
 public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private HelmEvaluator helmEvaluator;
+  private final Map<String, GoTemplateTree> inputFileToGoAst = new HashMap<>();
 
   public HelmProcessor(HelmEvaluator helmEvaluator) {
     this.helmEvaluator = helmEvaluator;
@@ -65,13 +70,14 @@ public class HelmProcessor {
     return helmEvaluator != null;
   }
 
+  @CheckForNull
   String processHelmTemplate(String path, String source, InputFileContext inputFileContext) {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
     if (source.isBlank()) {
       LOG.debug("The file {} is blank, skipping evaluation", inputFileContext.inputFile);
-      return source;
+      return null;
     }
 
     // TODO: better support of Helm project structure
@@ -79,6 +85,12 @@ public class HelmProcessor {
     Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
     var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
     return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
+  }
+
+  @CheckForNull
+  public GoTemplateTree getGoAstForInputFile(InputPath inputPath) {
+    // We are not caching the result of the evaluation, that's why its `remove` instead of `get`.
+    return inputFileToGoAst.remove(inputPath.uri().toString());
   }
 
   private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
@@ -105,8 +117,9 @@ public class HelmProcessor {
 
   private String evaluateHelmTemplate(String path, InputFile inputFile, String content, Map<String, String> templateDependencies) {
     try {
-      var evaluationResult = helmEvaluator.evaluateTemplate(path, content, templateDependencies);
-      return evaluationResult.getTemplate();
+      var templateEvaluationResult = helmEvaluator.evaluateTemplate(path, content, templateDependencies);
+      inputFileToGoAst.put(inputFile.uri().toString(), GoTemplateTreeImpl.fromPbTree(templateEvaluationResult.getAst()));
+      return templateEvaluationResult.getTemplate();
     } catch (IllegalStateException | IOException e) {
       throw parseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());
     }

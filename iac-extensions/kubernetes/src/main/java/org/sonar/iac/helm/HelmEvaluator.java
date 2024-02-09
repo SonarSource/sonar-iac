@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.TempFolder;
+import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.helm.utils.ExecutableHelper;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.api.sonarlint.SonarLintSide;

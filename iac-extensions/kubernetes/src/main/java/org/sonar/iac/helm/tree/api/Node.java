@@ -17,5 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.api;
+
+/**
+ * Node represents a node in the Go template AST.
+ */
+public interface Node {
+  /**
+   * The type of the node.
+   *
+   * @return the type of the node
+   */
+  NodeType type();
+
+  /**
+   * The offset of the node in the input file.
+   *
+   * @return the offset of the node in the input file
+   */
+  long position();
+}

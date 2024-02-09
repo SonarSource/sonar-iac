@@ -17,5 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.impl;
+
+import org.sonar.iac.helm.tree.api.Node;
+
+public abstract class AbstractNode implements Node {
+  private final long position;
+
+  protected AbstractNode(long position) {
+    this.position = position;
+  }
+
+  @Override
+  public long position() {
+    return this.position;
+  }
+}

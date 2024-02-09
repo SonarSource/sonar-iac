@@ -17,5 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.utils;
+
+import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
+import org.sonar.iac.helm.tree.api.Node;
+
+@FunctionalInterface
+public interface AnyToNodeConverter {
+  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+}

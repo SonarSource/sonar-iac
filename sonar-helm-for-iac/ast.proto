@@ -17,10 +17,10 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 syntax = "proto3";
-package org.sonar.iac.helm;
+package org.sonar.iac.helm.protobuf;
 option go_package = "org.sonar.iac.helm";
 option java_multiple_files = true;
-option java_package = "org.sonar.iac.helm";
+option java_package = "org.sonar.iac.helm.protobuf";
 
 import "google/protobuf/any.proto";
 
@@ -99,7 +99,7 @@ message BreakNode {
 message ChainNode {
   NodeType nodeType = 1;
   int64 pos = 2;
-  optional Node node = 3;
+  optional google.protobuf.Any node = 3;
   // The identifiers in lexical order.
   repeated string field = 4;
 }

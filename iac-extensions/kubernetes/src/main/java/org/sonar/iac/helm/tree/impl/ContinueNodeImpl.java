@@ -17,5 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.impl;
+
+import org.sonar.iac.helm.protobuf.ContinueNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.ContinueNode;
+import org.sonar.iac.helm.tree.api.Node;
+
+public class ContinueNodeImpl extends AbstractNode implements ContinueNode {
+  private final long line;
+
+  public ContinueNodeImpl(long position, long line) {
+    super(position);
+    this.line = line;
+  }
+
+  public static Node fromPb(ContinueNodeOrBuilder continueNodePb) {
+    return new ContinueNodeImpl(continueNodePb.getPos(), continueNodePb.getLine());
+  }
+
+  public long line() {
+    return line;
+  }
+}

@@ -17,5 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.api;
+
+import javax.annotation.CheckForNull;
+
+/**
+ * TemplateNode represents a {{template}} action.
+ */
+public interface TemplateNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_TEMPLATE;
+  }
+
+  /**
+   * The name of the template (unquoted).
+   *
+   * @return the name of the template (unquoted)
+   */
+  @CheckForNull
+  String name();
+
+  /**
+   * The command to evaluate as dot for the template.
+   *
+   * @return the command to evaluate as dot for the template
+   */
+  @CheckForNull
+  PipeNode pipe();
+}

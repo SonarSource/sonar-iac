@@ -17,5 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.impl;
+
+import org.sonar.iac.helm.protobuf.WithNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.ListNode;
+import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.api.PipeNode;
+import org.sonar.iac.helm.tree.api.WithNode;
+
+public class WithNodeImpl extends AbstractBranchNode implements WithNode {
+  public WithNodeImpl(long position, PipeNode pipe, ListNode list, ListNode elseList) {
+    super(position, pipe, list, elseList);
+  }
+
+  public static Node fromPb(WithNodeOrBuilder nodePb) {
+    return new WithNodeImpl(
+      nodePb.getPos(),
+      (PipeNode) PipeNodeImpl.fromPb(nodePb.getBranchNode().getPipe()),
+      (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getList()),
+      (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getElseList()));
+  }
+}

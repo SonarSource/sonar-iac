@@ -17,5 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm.tree.api;
+
+/**
+ * ActionNode holds an action (something bounded by delimiters).
+ * Control actions have their own nodes; ActionNode represents simple
+ * ones such as field evaluations and parenthesized pipelines.
+ */
+public interface ActionNode extends Node {
+  @Override
+  default NodeType type() {
+    return NodeType.NODE_ACTION;
+  }
+
+  /**
+   * The pipeline in the action.
+   *
+   * @return the pipeline
+   */
+  PipeNode pipe();
+}
