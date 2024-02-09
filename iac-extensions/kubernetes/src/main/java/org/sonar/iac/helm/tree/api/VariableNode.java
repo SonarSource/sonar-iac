@@ -36,5 +36,5 @@ public interface VariableNode extends Node {
    *
    * @return the variable name and fields in lexical order
    */
-  List<String> ident();
+  List<String> idents();
 }

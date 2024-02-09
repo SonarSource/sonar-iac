@@ -21,7 +21,7 @@ package org.sonar.iac.kubernetes.tree.api;
 
 import javax.annotation.CheckForNull;
 import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.helm.tree.Tree;
+import org.sonar.iac.helm.tree.api.GoTemplateTree;
 
 /**
  * A custom YAML file tree representing a Kubernetes file.
@@ -29,5 +29,5 @@ import org.sonar.iac.helm.tree.Tree;
  */
 public interface KubernetesFileTree extends FileTree {
   @CheckForNull
-  Tree getGoTemplateAst();
+  GoTemplateTree getGoTemplateAst();
 }

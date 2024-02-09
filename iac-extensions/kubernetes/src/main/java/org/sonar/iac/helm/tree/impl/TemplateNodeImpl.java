@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.helm.protobuf.TemplateNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.Node;
@@ -41,12 +42,12 @@ public class TemplateNodeImpl extends AbstractNode implements TemplateNode {
     return new TemplateNodeImpl(templateNodePb.getPos(), templateNodePb.getName(), (PipeNode) PipeNodeImpl.fromPb(templateNodePb.getPipe()));
   }
 
-  @Nullable
+  @CheckForNull
   public String name() {
     return name;
   }
 
-  @Nullable
+  @CheckForNull
   public PipeNode pipe() {
     return pipe;
   }

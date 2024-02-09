@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.helm.tree.api.BranchNode;
 import org.sonar.iac.helm.tree.api.ListNode;
@@ -39,17 +40,17 @@ public abstract class AbstractBranchNode extends AbstractNode implements BranchN
     this.elseList = elseList;
   }
 
-  @Nullable
+  @CheckForNull
   public PipeNode pipe() {
     return pipe;
   }
 
-  @Nullable
+  @CheckForNull
   public ListNode list() {
     return list;
   }
 
-  @Nullable
+  @CheckForNull
   public ListNode elseList() {
     return elseList;
   }

@@ -128,8 +128,7 @@ public final class GoTemplateAstConverter {
 
     @Override
     public Node convert(Any any) throws InvalidProtocolBufferException {
-      return fromPb.apply(
-        (T) any.unpack(messageType));
+      return fromPb.apply((T) any.unpack(messageType));
     }
   }
 }

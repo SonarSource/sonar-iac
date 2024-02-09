@@ -33,7 +33,8 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.tree.Tree;
+import org.sonar.iac.helm.tree.api.GoTemplateTree;
+import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -46,7 +47,7 @@ import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelm
 public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private HelmEvaluator helmEvaluator;
-  private final Map<String, Tree> inputFileToGoAst = new HashMap<>();
+  private final Map<String, GoTemplateTree> inputFileToGoAst = new HashMap<>();
 
   public HelmProcessor(HelmEvaluator helmEvaluator) {
     this.helmEvaluator = helmEvaluator;
@@ -87,7 +88,8 @@ public class HelmProcessor {
   }
 
   @CheckForNull
-  public Tree getGoAstForInputFile(InputPath inputPath) {
+  public GoTemplateTree getGoAstForInputFile(InputPath inputPath) {
+    // We are not caching the result of the evaluation, that's why its `remove` instead of `get`.
     return inputFileToGoAst.remove(inputPath.uri().toString());
   }
 
@@ -116,7 +118,7 @@ public class HelmProcessor {
   private String evaluateHelmTemplate(String path, InputFile inputFile, String content, Map<String, String> templateDependencies) {
     try {
       var templateEvaluationResult = helmEvaluator.evaluateTemplate(path, content, templateDependencies);
-      inputFileToGoAst.put(inputFile.uri().toString(), Tree.fromPbTree(templateEvaluationResult.getAst()));
+      inputFileToGoAst.put(inputFile.uri().toString(), GoTemplateTreeImpl.fromPbTree(templateEvaluationResult.getAst()));
       return templateEvaluationResult.getTemplate();
     } catch (IllegalStateException | IOException e) {
       throw parseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());

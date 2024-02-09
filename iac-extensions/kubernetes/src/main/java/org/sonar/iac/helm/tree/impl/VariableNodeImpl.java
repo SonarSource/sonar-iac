@@ -37,7 +37,7 @@ public class VariableNodeImpl extends AbstractNode implements VariableNode {
     return new VariableNodeImpl(nodePb.getPos(), nodePb.getIdentList());
   }
 
-  public List<String> ident() {
+  public List<String> idents() {
     return ident;
   }
 }

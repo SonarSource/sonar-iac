@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree;
+package org.sonar.iac.helm.utils;
 
 import com.google.protobuf.Any;
 import java.io.File;
 import java.io.IOException;
 import java.util.stream.Stream;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,30 +32,31 @@ import org.sonar.iac.helm.tree.api.ActionNode;
 import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.ListNode;
+import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
-import org.sonar.iac.helm.utils.GoAstSupplier;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class GoAstTest {
-  private GoAstSupplier goAstSupplier;
+class GoTemplateAstConverterTest {
+  private GoAstCreator goAstCreator;
   @TempDir
   static File tempDir;
 
   @BeforeEach
   void setUp() throws IOException {
-    goAstSupplier = new GoAstSupplier(tempDir);
+    goAstCreator = new GoAstCreator(tempDir);
   }
 
   @Test
   void shouldIgnoreNullInput() {
-    Assertions.assertThat(Tree.fromPbTree(null)).isNull();
+    assertThat(GoTemplateTreeImpl.fromPbTree(null)).isNull();
   }
 
   @Test
   void shouldIgnoreUnknownNode() {
     var any = Any.newBuilder().setTypeUrl("unknown").build();
-    Assertions.assertThat(GoTemplateAstConverter.unpackNode(any)).isNull();
+    assertThat(GoTemplateAstConverter.unpackNode(any)).isNull();
   }
 
   @Test
@@ -65,22 +65,22 @@ class GoAstTest {
     var values = "header: 'apiVersion: v1'\n";
     var chart = "apiVersion: v2\nname: my-chart\n";
 
-    var tree = goAstSupplier.goAstFromSource(source, values, chart);
+    var tree = goAstCreator.goAstFromSource(source, values, chart);
 
-    Assertions.assertThat(tree).satisfies(t -> {
-      Assertions.assertThat(t).isNotNull();
-      Assertions.assertThat(t.name()).isEqualTo("my-chart/templates/test.yaml");
-      Assertions.assertThat(t.parseName()).isEqualTo("my-chart/templates/test.yaml");
-      Assertions.assertThat(t.mode()).isZero();
-      Assertions.assertThat(t.root()).isInstanceOf(ListNode.class);
+    assertThat(tree).satisfies(t -> {
+      assertThat(t).isNotNull();
+      assertThat(t.name()).isEqualTo("my-chart/templates/test.yaml");
+      assertThat(t.parseName()).isEqualTo("my-chart/templates/test.yaml");
+      assertThat(t.mode()).isZero();
+      assertThat(t.root()).isInstanceOf(ListNode.class);
     });
     var node = tree.root().nodes().get(0);
-    Assertions.assertThat(node).isInstanceOf(ActionNode.class);
+    assertThat(node).isInstanceOf(ActionNode.class);
     var commandNode = (CommandNode) ((ActionNode) node).pipe().commands().get(0);
-    Assertions.assertThat(commandNode.arguments().get(0))
+    assertThat(commandNode.arguments().get(0))
       .isInstanceOf(FieldNode.class)
       .satisfies(fieldNode -> {
-        Assertions.assertThat(((FieldNode) fieldNode).identifiers()).containsExactly("Values", "header");
+        assertThat(((FieldNode) fieldNode).identifiers()).containsExactly("Values", "header");
       });
   }
 
@@ -90,10 +90,10 @@ class GoAstTest {
     var values = "header: 'apiVersion: v1'\nfallbacks:\n  foo: 'bar'\n";
     var chart = "apiVersion: v2\nname: my-chart\n";
 
-    var tree = goAstSupplier.goAstFromSource(source, values, chart);
+    var tree = goAstCreator.goAstFromSource(source, values, chart);
 
-    Assertions.assertThat(tree).isNotNull();
-    Assertions.assertThat(tree.root().nodes()).isNotEmpty();
+    assertThat(tree).isNotNull();
+    assertThat(tree.root().nodes()).isNotEmpty();
   }
 
   static Stream<String> shouldBuildTreeFromTemplate() {

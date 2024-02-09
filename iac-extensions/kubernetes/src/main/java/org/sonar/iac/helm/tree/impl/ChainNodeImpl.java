@@ -40,14 +40,17 @@ public class ChainNodeImpl extends AbstractNode implements ChainNode {
   }
 
   public static Node fromPb(ChainNodeOrBuilder chainNodePb) {
-    return new ChainNodeImpl(chainNodePb.getPos(), Optional.ofNullable(chainNodePb.getNode()).map(GoTemplateAstConverter::unpackNode).orElse(null), chainNodePb.getFieldList());
+    return new ChainNodeImpl(
+      chainNodePb.getPos(),
+      Optional.ofNullable(chainNodePb.getNode()).map(GoTemplateAstConverter::unpackNode).orElse(null),
+      chainNodePb.getFieldList());
   }
 
   public Optional<Node> node() {
     return Optional.ofNullable(node);
   }
 
-  public List<String> field() {
+  public List<String> fields() {
     return field;
   }
 }

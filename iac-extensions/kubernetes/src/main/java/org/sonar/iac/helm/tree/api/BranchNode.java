@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree.api;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 /**
  * BranchNode is the common representation of if, range, and with.
@@ -30,7 +30,7 @@ public interface BranchNode extends Node {
    *
    * @return the pipeline to be evaluated
    */
-  @Nullable
+  @CheckForNull
   PipeNode pipe();
 
   /**
@@ -38,7 +38,7 @@ public interface BranchNode extends Node {
    *
    * @return the list of nodes to execute if the value is non-empty
    */
-  @Nullable
+  @CheckForNull
   ListNode list();
 
   /**
@@ -46,6 +46,6 @@ public interface BranchNode extends Node {
    *
    * @return the list of nodes to execute if the value is empty
    */
-  @Nullable
+  @CheckForNull
   ListNode elseList();
 }

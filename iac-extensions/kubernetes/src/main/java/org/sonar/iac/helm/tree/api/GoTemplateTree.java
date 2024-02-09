@@ -19,31 +19,35 @@
  */
 package org.sonar.iac.helm.tree.api;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
- * ChainNode holds a term followed by a chain of field accesses (identifier starting with '.').
- * The names may be chained ('.x.y'). The periods are dropped from each ident.
- * In newer versions of Go (at least 1.21), doesn't appear in the AST in common cases.
+ * An AST built from Go template.
  */
-public interface ChainNode extends Node {
-  @Override
-  default NodeType type() {
-    return NodeType.NODE_CHAIN;
-  }
+public interface GoTemplateTree {
+  /**
+   * Name of the template.
+   *
+   * @return the name of the template
+   */
+  String name();
 
   /**
-   * The term of the chain, or null if there is no term.
+   * Name of the template as set during parsing.
    *
-   * @return the term of the chain, or null if there is no term
+   * @return the parse name of the template
    */
-  Optional<Node> node();
+  String parseName();
 
   /**
-   * The identifiers in lexical order.
+   * Parsing mode. See `text/template/parse` package for more details.
    *
-   * @return the identifiers in lexical order
+   * @return the parsing mode
    */
-  List<String> fields();
+  int mode();
+
+  /**
+   * Root of the AST.
+   *
+   * @return the root of the AST
+   */
+  ListNode root();
 }

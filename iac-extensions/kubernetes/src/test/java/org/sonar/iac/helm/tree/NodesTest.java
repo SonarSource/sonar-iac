@@ -87,7 +87,7 @@ class NodesTest {
 
     Assertions.assertThat(chainNode.position()).isEqualTo(1);
     Assertions.assertThat(chainNode.type()).isEqualTo(NodeType.NODE_CHAIN);
-    Assertions.assertThat(chainNode.field()).isEqualTo(field);
+    Assertions.assertThat(chainNode.fields()).isEqualTo(field);
     Assertions.assertThat(chainNode.node()).hasValue(node);
   }
 
@@ -239,7 +239,7 @@ class NodesTest {
 
     Assertions.assertThat(variableNode.position()).isEqualTo(1);
     Assertions.assertThat(variableNode.type()).isEqualTo(NodeType.NODE_VARIABLE);
-    Assertions.assertThat(variableNode.ident()).containsExactly("name");
+    Assertions.assertThat(variableNode.idents()).containsExactly("name");
   }
 
   @Test

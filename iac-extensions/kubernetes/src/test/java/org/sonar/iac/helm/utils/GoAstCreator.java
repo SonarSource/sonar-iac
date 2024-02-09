@@ -24,20 +24,21 @@ import java.io.IOException;
 import java.util.Map;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.tree.Tree;
+import org.sonar.iac.helm.tree.api.GoTemplateTree;
+import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 
-public class GoAstSupplier {
+public class GoAstCreator {
   private final HelmEvaluator helmEvaluator;
 
-  public GoAstSupplier(File workingDir) throws IOException {
+  public GoAstCreator(File workingDir) throws IOException {
     this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(workingDir, false));
     this.helmEvaluator.initialize();
   }
 
-  public Tree goAstFromSource(String source, String valuesFileContent, String chartFileContent) throws IOException {
+  public GoTemplateTree goAstFromSource(String source, String valuesFileContent, String chartFileContent) throws IOException {
     var templateDependencies = Map.of("values.yaml", valuesFileContent, "Chart.yaml", chartFileContent);
     var evaluationResult = helmEvaluator.evaluateTemplate("templates/test.yaml", source, templateDependencies);
 
-    return Tree.fromPbTree(evaluationResult.getAst());
+    return GoTemplateTreeImpl.fromPbTree(evaluationResult.getAst());
   }
 }
