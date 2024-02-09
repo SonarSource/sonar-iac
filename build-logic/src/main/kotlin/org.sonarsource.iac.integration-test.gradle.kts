@@ -19,7 +19,9 @@ val integrationTestTask =
         testClassesDirs = integrationTest.output.classesDirs
         classpath = configurations[integrationTest.runtimeClasspathConfigurationName] + integrationTest.output
 
-        systemProperty("sonar.runtimeVersion", System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+        if (System.getProperty("sonar.runtimeVersion") != null) {
+            systemProperty("sonar.runtimeVersion", System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+        }
 
         testLogging {
             exceptionFormat =
