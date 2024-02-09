@@ -34,7 +34,7 @@ import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.TemplateEvaluationResult;
+import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

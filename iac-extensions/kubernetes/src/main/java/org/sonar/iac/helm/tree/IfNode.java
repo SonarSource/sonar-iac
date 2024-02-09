@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.IfNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.IfNodeOrBuilder;
 
 public class IfNode extends AbstractBranchNode {
   public IfNode(long position, PipeNode pipe, ListNode list, ListNode elseList) {

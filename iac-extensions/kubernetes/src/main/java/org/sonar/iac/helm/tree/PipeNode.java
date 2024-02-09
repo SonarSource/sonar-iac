@@ -22,7 +22,7 @@ package org.sonar.iac.helm.tree;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.iac.helm.PipeNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.PipeNodeOrBuilder;
 
 public class PipeNode extends AbstractNode {
   private final List<VariableNode> declarations;

@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.RangeNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.RangeNodeOrBuilder;
 
 public class RangeNode extends AbstractBranchNode {
   public RangeNode(long position, PipeNode pipe, ListNode list, ListNode elseList) {

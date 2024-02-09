@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.StringNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.StringNodeOrBuilder;
 
 public class StringNode extends AbstractNode {
   private final String text;

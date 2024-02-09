@@ -21,7 +21,7 @@ package org.sonar.iac.helm.tree;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.helm.VariableNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.VariableNodeOrBuilder;
 
 public class VariableNode extends AbstractNode {
   private final List<String> ident;

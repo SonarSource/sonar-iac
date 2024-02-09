@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.ActionNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.ActionNodeOrBuilder;
 
 public class ActionNode extends AbstractNode {
   private final PipeNode pipe;

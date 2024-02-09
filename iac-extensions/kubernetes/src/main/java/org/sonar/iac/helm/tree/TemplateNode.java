@@ -20,7 +20,7 @@
 package org.sonar.iac.helm.tree;
 
 import javax.annotation.Nullable;
-import org.sonar.iac.helm.TemplateNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.TemplateNodeOrBuilder;
 
 public class TemplateNode extends AbstractNode {
   @Nullable

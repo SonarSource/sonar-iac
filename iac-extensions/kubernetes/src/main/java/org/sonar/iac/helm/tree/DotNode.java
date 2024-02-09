@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.DotNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.DotNodeOrBuilder;
 
 public class DotNode extends AbstractNode {
 

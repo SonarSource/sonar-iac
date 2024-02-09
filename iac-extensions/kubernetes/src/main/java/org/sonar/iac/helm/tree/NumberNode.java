@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.NumberNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.NumberNodeOrBuilder;
 
 public class NumberNode extends AbstractNode {
   private final String text;

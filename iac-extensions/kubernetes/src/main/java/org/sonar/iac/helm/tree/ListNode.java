@@ -21,7 +21,7 @@ package org.sonar.iac.helm.tree;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.helm.ListNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.ListNodeOrBuilder;
 
 import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.unpack;
 

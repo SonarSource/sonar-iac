@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.helm.tree;
 
+import org.sonar.iac.helm.protobuf.BreakNodeOrBuilder;
+
 public class BreakNode extends AbstractNode {
   private final long line;
 
@@ -27,7 +29,7 @@ public class BreakNode extends AbstractNode {
     this.line = line;
   }
 
-  public static Node fromPb(org.sonar.iac.helm.BreakNodeOrBuilder breakNodePb) {
+  public static Node fromPb(BreakNodeOrBuilder breakNodePb) {
     return new BreakNode(breakNodePb.getPos(), breakNodePb.getLine());
   }
 

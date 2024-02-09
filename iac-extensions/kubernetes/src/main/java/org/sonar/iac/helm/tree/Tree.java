@@ -21,7 +21,7 @@ package org.sonar.iac.helm.tree;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.helm.TreeOrBuilder;
+import org.sonar.iac.helm.protobuf.TreeOrBuilder;
 
 public class Tree {
   private final String name;

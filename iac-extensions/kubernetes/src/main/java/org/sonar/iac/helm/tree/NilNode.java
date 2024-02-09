@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.NilNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.NilNodeOrBuilder;
 
 public class NilNode extends AbstractNode {
   public NilNode(long position) {

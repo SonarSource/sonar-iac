@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.ContinueNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.ContinueNodeOrBuilder;
 
 public class ContinueNode extends AbstractNode {
   private final long line;

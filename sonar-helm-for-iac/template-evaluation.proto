@@ -18,10 +18,10 @@
 
 syntax = "proto3";
 import "ast.proto";
-package org.sonar.iac.helm;
+package org.sonar.iac.helm.protobuf;
 option go_package = "org.sonar.iac.helm";
 option java_multiple_files = true;
-option java_package = "org.sonar.iac.helm";
+option java_package = "org.sonar.iac.helm.protobuf";
 
 message TemplateEvaluationResult {
   string template = 1;

@@ -21,7 +21,7 @@ package org.sonar.iac.helm.tree;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.helm.FieldNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.FieldNodeOrBuilder;
 
 public class FieldNode extends AbstractNode {
   private final List<String> identifiers;

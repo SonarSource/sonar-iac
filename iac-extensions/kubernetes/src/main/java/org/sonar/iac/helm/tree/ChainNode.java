@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.iac.helm.protobuf.ChainNodeOrBuilder;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 
 public class ChainNode extends AbstractNode {
@@ -36,7 +37,7 @@ public class ChainNode extends AbstractNode {
     this.field = Collections.unmodifiableList(field);
   }
 
-  public static Node fromPb(org.sonar.iac.helm.ChainNodeOrBuilder chainNodePb) {
+  public static Node fromPb(ChainNodeOrBuilder chainNodePb) {
     return new ChainNode(chainNodePb.getPos(), Optional.ofNullable(chainNodePb.getNode()).map(GoTemplateAstConverter::unpackNode).orElse(null), chainNodePb.getFieldList());
   }
 

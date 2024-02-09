@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.helm.tree;
 
-import org.sonar.iac.helm.WithNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.WithNodeOrBuilder;
 
 public class WithNode extends AbstractBranchNode {
   public WithNode(long position, PipeNode pipe, ListNode list, ListNode elseList) {

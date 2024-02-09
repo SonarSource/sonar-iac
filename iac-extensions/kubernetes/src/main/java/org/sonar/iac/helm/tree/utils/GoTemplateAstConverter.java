@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.iac.helm.tree.Node;
+import org.sonar.iac.helm.tree.api.Node;
 
 public final class GoTemplateAstConverter {
   private static final Logger LOG = LoggerFactory.getLogger(GoTemplateAstConverter.class);
@@ -41,26 +41,30 @@ public final class GoTemplateAstConverter {
   private static final Map<String, Converter<? extends Message, ? extends MessageOrBuilder>> typeNameToConverter = new HashMap<>();
 
   static {
-    typeNameToConverter.put("org.sonar.iac.helm.ActionNode", new Converter<>(org.sonar.iac.helm.ActionNode.class, org.sonar.iac.helm.tree.ActionNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.BoolNode", new Converter<>(org.sonar.iac.helm.BoolNode.class, org.sonar.iac.helm.tree.BoolNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.BreakNode", new Converter<>(org.sonar.iac.helm.BreakNode.class, org.sonar.iac.helm.tree.BreakNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.ChainNode", new Converter<>(org.sonar.iac.helm.ChainNode.class, org.sonar.iac.helm.tree.ChainNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.CommandNode", new Converter<>(org.sonar.iac.helm.CommandNode.class, org.sonar.iac.helm.tree.CommandNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.ContinueNode", new Converter<>(org.sonar.iac.helm.ContinueNode.class, org.sonar.iac.helm.tree.ContinueNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.DotNode", new Converter<>(org.sonar.iac.helm.DotNode.class, org.sonar.iac.helm.tree.DotNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.FieldNode", new Converter<>(org.sonar.iac.helm.FieldNode.class, org.sonar.iac.helm.tree.FieldNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.IdentifierNode", new Converter<>(org.sonar.iac.helm.IdentifierNode.class, org.sonar.iac.helm.tree.IdentifierNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.IfNode", new Converter<>(org.sonar.iac.helm.IfNode.class, org.sonar.iac.helm.tree.IfNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.ListNode", new Converter<>(org.sonar.iac.helm.ListNode.class, org.sonar.iac.helm.tree.ListNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.NilNode", new Converter<>(org.sonar.iac.helm.NilNode.class, org.sonar.iac.helm.tree.NilNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.NumberNode", new Converter<>(org.sonar.iac.helm.NumberNode.class, org.sonar.iac.helm.tree.NumberNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.PipeNode", new Converter<>(org.sonar.iac.helm.PipeNode.class, org.sonar.iac.helm.tree.PipeNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.RangeNode", new Converter<>(org.sonar.iac.helm.RangeNode.class, org.sonar.iac.helm.tree.RangeNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.StringNode", new Converter<>(org.sonar.iac.helm.StringNode.class, org.sonar.iac.helm.tree.StringNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.TemplateNode", new Converter<>(org.sonar.iac.helm.TemplateNode.class, org.sonar.iac.helm.tree.TemplateNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.TextNode", new Converter<>(org.sonar.iac.helm.TextNode.class, org.sonar.iac.helm.tree.TextNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.VariableNode", new Converter<>(org.sonar.iac.helm.VariableNode.class, org.sonar.iac.helm.tree.VariableNode::fromPb));
-    typeNameToConverter.put("org.sonar.iac.helm.WithNode", new Converter<>(org.sonar.iac.helm.WithNode.class, org.sonar.iac.helm.tree.WithNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.ActionNode", new Converter<>(org.sonar.iac.helm.protobuf.ActionNode.class, org.sonar.iac.helm.tree.ActionNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.BoolNode", new Converter<>(org.sonar.iac.helm.protobuf.BoolNode.class, org.sonar.iac.helm.tree.BoolNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.BreakNode", new Converter<>(org.sonar.iac.helm.protobuf.BreakNode.class, org.sonar.iac.helm.tree.BreakNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.ChainNode", new Converter<>(org.sonar.iac.helm.protobuf.ChainNode.class, org.sonar.iac.helm.tree.ChainNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.CommandNode", new Converter<>(org.sonar.iac.helm.protobuf.CommandNode.class, org.sonar.iac.helm.tree.CommandNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.ContinueNode",
+      new Converter<>(org.sonar.iac.helm.protobuf.ContinueNode.class, org.sonar.iac.helm.tree.ContinueNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.DotNode", new Converter<>(org.sonar.iac.helm.protobuf.DotNode.class, org.sonar.iac.helm.tree.DotNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.FieldNode", new Converter<>(org.sonar.iac.helm.protobuf.FieldNode.class, org.sonar.iac.helm.tree.FieldNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.IdentifierNode",
+      new Converter<>(org.sonar.iac.helm.protobuf.IdentifierNode.class, org.sonar.iac.helm.tree.IdentifierNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.IfNode", new Converter<>(org.sonar.iac.helm.protobuf.IfNode.class, org.sonar.iac.helm.tree.IfNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.ListNode", new Converter<>(org.sonar.iac.helm.protobuf.ListNode.class, org.sonar.iac.helm.tree.ListNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.NilNode", new Converter<>(org.sonar.iac.helm.protobuf.NilNode.class, org.sonar.iac.helm.tree.NilNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.NumberNode", new Converter<>(org.sonar.iac.helm.protobuf.NumberNode.class, org.sonar.iac.helm.tree.NumberNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.PipeNode", new Converter<>(org.sonar.iac.helm.protobuf.PipeNode.class, org.sonar.iac.helm.tree.PipeNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.RangeNode", new Converter<>(org.sonar.iac.helm.protobuf.RangeNode.class, org.sonar.iac.helm.tree.RangeNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.StringNode", new Converter<>(org.sonar.iac.helm.protobuf.StringNode.class, org.sonar.iac.helm.tree.StringNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.TemplateNode",
+      new Converter<>(org.sonar.iac.helm.protobuf.TemplateNode.class, org.sonar.iac.helm.tree.TemplateNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.TextNode", new Converter<>(org.sonar.iac.helm.protobuf.TextNode.class, org.sonar.iac.helm.tree.TextNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.VariableNode",
+      new Converter<>(org.sonar.iac.helm.protobuf.VariableNode.class, org.sonar.iac.helm.tree.VariableNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.WithNode", new Converter<>(org.sonar.iac.helm.protobuf.WithNode.class, org.sonar.iac.helm.tree.WithNode::fromPb));
   }
 
   private GoTemplateAstConverter() {

@@ -20,7 +20,7 @@
 package org.sonar.iac.helm.tree;
 
 import javax.annotation.Nullable;
-import org.sonar.iac.helm.IdentifierNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.IdentifierNodeOrBuilder;
 
 public class IdentifierNode extends AbstractNode {
   @Nullable

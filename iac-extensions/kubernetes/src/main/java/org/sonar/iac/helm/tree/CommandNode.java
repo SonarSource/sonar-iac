@@ -21,7 +21,7 @@ package org.sonar.iac.helm.tree;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.helm.CommandNodeOrBuilder;
+import org.sonar.iac.helm.protobuf.CommandNodeOrBuilder;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 
 public class CommandNode extends AbstractNode {

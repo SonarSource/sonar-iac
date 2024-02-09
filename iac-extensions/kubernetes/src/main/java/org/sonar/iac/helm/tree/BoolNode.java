@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.helm.tree;
 
+import org.sonar.iac.helm.protobuf.BoolNodeOrBuilder;
+
 public class BoolNode extends AbstractNode {
   private final boolean value;
 
@@ -27,7 +29,7 @@ public class BoolNode extends AbstractNode {
     this.value = value;
   }
 
-  public static Node fromPb(org.sonar.iac.helm.BoolNodeOrBuilder boolNodePb) {
+  public static Node fromPb(BoolNodeOrBuilder boolNodePb) {
     return new BoolNode(boolNodePb.getPos(), boolNodePb.getTrue());
   }
 
