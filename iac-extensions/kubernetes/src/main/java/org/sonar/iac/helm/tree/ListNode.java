@@ -42,7 +42,7 @@ public class ListNode extends AbstractNode {
     return NodeType.NODE_LIST;
   }
 
-  public List<Node> getNodes() {
+  public List<Node> nodes() {
     return nodes;
   }
 }

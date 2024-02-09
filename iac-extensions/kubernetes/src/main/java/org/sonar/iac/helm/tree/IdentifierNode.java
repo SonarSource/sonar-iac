@@ -40,7 +40,7 @@ public class IdentifierNode extends AbstractNode {
     return NodeType.NODE_IDENTIFIER;
   }
 
-  public String getIdentifier() {
+  public String identifier() {
     return identifier;
   }
 

@@ -44,19 +44,19 @@ public class Tree {
     return new Tree(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNode) ListNode.fromPb(treePb.getRoot()));
   }
 
-  public String getName() {
+  public String name() {
     return name;
   }
 
-  public String getParseName() {
+  public String parseName() {
     return parseName;
   }
 
-  public int getMode() {
+  public int mode() {
     return mode;
   }
 
-  public ListNode getRoot() {
+  public ListNode root() {
     return root;
   }
 }

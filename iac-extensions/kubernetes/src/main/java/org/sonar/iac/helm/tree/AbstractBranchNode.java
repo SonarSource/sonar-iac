@@ -37,17 +37,17 @@ public abstract class AbstractBranchNode extends AbstractNode {
   }
 
   @Nullable
-  public PipeNode getPipe() {
+  public PipeNode pipe() {
     return pipe;
   }
 
   @Nullable
-  public ListNode getList() {
+  public ListNode list() {
     return list;
   }
 
   @Nullable
-  public ListNode getElseList() {
+  public ListNode elseList() {
     return elseList;
   }
 }

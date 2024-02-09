@@ -36,7 +36,7 @@ public class BoolNode extends AbstractNode {
     return NodeType.NODE_BOOL;
   }
 
-  public boolean isTrue() {
+  public boolean value() {
     return value;
   }
 }

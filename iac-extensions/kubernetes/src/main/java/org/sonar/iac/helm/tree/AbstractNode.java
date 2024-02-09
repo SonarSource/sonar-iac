@@ -27,7 +27,7 @@ public abstract class AbstractNode implements Node {
   }
 
   @Override
-  public long getPosition() {
+  public long position() {
     return this.position;
   }
 }

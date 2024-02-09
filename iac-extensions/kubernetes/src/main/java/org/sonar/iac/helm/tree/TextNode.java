@@ -38,7 +38,7 @@ public class TextNode extends AbstractNode {
     return NodeType.NODE_TEXT;
   }
 
-  public String getText() {
+  public String text() {
     return text;
   }
 }

@@ -45,11 +45,11 @@ public class PipeNode extends AbstractNode {
     return NodeType.NODE_PIPE;
   }
 
-  public List<VariableNode> getDeclarations() {
+  public List<VariableNode> declarations() {
     return declarations;
   }
 
-  public List<CommandNode> getCommands() {
+  public List<CommandNode> commands() {
     return commands;
   }
 }

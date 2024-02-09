@@ -45,11 +45,11 @@ public class ChainNode extends AbstractNode {
     return NodeType.NODE_CHAIN;
   }
 
-  public Optional<Node> getNode() {
+  public Optional<Node> node() {
     return Optional.ofNullable(node);
   }
 
-  public List<String> getField() {
+  public List<String> field() {
     return field;
   }
 }

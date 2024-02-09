@@ -44,12 +44,12 @@ public class TemplateNode extends AbstractNode {
   }
 
   @Nullable
-  public String getName() {
+  public String name() {
     return name;
   }
 
   @Nullable
-  public PipeNode getPipe() {
+  public PipeNode pipe() {
     return pipe;
   }
 }

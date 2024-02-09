@@ -17,28 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree;
+package org.sonar.iac.helm.tree.utils;
 
-import org.sonar.iac.helm.ContinueNodeOrBuilder;
+import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
+import org.sonar.iac.helm.tree.Node;
 
-public class ContinueNode extends AbstractNode {
-  private final long line;
-
-  public ContinueNode(long position, long line) {
-    super(position);
-    this.line = line;
-  }
-
-  public static Node fromPb(ContinueNodeOrBuilder continueNodePb) {
-    return new ContinueNode(continueNodePb.getPos(), continueNodePb.getLine());
-  }
-
-  @Override
-  public NodeType type() {
-    return NodeType.NODE_CONTINUE;
-  }
-
-  public long line() {
-    return line;
-  }
+@FunctionalInterface
+public interface AnyToNodeConverter {
+  Node convert(Any nodePb) throws InvalidProtocolBufferException;
 }

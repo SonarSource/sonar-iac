@@ -36,7 +36,7 @@ public class BreakNode extends AbstractNode {
     return NodeType.NODE_BREAK;
   }
 
-  public long getLine() {
+  public long line() {
     return line;
   }
 }

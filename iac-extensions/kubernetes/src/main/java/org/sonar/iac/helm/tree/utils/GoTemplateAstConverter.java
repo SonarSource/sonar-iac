@@ -21,12 +21,14 @@ package org.sonar.iac.helm.tree.utils;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.AnyOrBuilder;
-import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
@@ -35,7 +37,31 @@ import org.sonar.iac.helm.tree.Node;
 
 public final class GoTemplateAstConverter {
   private static final Logger LOG = LoggerFactory.getLogger(GoTemplateAstConverter.class);
-  private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
+  private static final Map<String, Converter<? extends Message, ? extends MessageOrBuilder>> typeNameToConverter = new HashMap<>();
+
+  static {
+    typeNameToConverter.put("org.sonar.iac.helm.ActionNode", new Converter<>(org.sonar.iac.helm.ActionNode.class, org.sonar.iac.helm.tree.ActionNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.BoolNode", new Converter<>(org.sonar.iac.helm.BoolNode.class, org.sonar.iac.helm.tree.BoolNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.BreakNode", new Converter<>(org.sonar.iac.helm.BreakNode.class, org.sonar.iac.helm.tree.BreakNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.ChainNode", new Converter<>(org.sonar.iac.helm.ChainNode.class, org.sonar.iac.helm.tree.ChainNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.CommandNode", new Converter<>(org.sonar.iac.helm.CommandNode.class, org.sonar.iac.helm.tree.CommandNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.ContinueNode", new Converter<>(org.sonar.iac.helm.ContinueNode.class, org.sonar.iac.helm.tree.ContinueNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.DotNode", new Converter<>(org.sonar.iac.helm.DotNode.class, org.sonar.iac.helm.tree.DotNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.FieldNode", new Converter<>(org.sonar.iac.helm.FieldNode.class, org.sonar.iac.helm.tree.FieldNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.IdentifierNode", new Converter<>(org.sonar.iac.helm.IdentifierNode.class, org.sonar.iac.helm.tree.IdentifierNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.IfNode", new Converter<>(org.sonar.iac.helm.IfNode.class, org.sonar.iac.helm.tree.IfNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.ListNode", new Converter<>(org.sonar.iac.helm.ListNode.class, org.sonar.iac.helm.tree.ListNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.NilNode", new Converter<>(org.sonar.iac.helm.NilNode.class, org.sonar.iac.helm.tree.NilNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.NumberNode", new Converter<>(org.sonar.iac.helm.NumberNode.class, org.sonar.iac.helm.tree.NumberNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.PipeNode", new Converter<>(org.sonar.iac.helm.PipeNode.class, org.sonar.iac.helm.tree.PipeNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.RangeNode", new Converter<>(org.sonar.iac.helm.RangeNode.class, org.sonar.iac.helm.tree.RangeNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.StringNode", new Converter<>(org.sonar.iac.helm.StringNode.class, org.sonar.iac.helm.tree.StringNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.TemplateNode", new Converter<>(org.sonar.iac.helm.TemplateNode.class, org.sonar.iac.helm.tree.TemplateNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.TextNode", new Converter<>(org.sonar.iac.helm.TextNode.class, org.sonar.iac.helm.tree.TextNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.VariableNode", new Converter<>(org.sonar.iac.helm.VariableNode.class, org.sonar.iac.helm.tree.VariableNode::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.WithNode", new Converter<>(org.sonar.iac.helm.WithNode.class, org.sonar.iac.helm.tree.WithNode::fromPb));
+  }
 
   private GoTemplateAstConverter() {
     // utility class
@@ -44,14 +70,15 @@ public final class GoTemplateAstConverter {
   @CheckForNull
   public static Node unpackNode(Any nodePb) {
     try {
-      var types = typesForMessage(nodePb);
-      Class<? extends GeneratedMessageV3> messageClass = types.messageType;
-      Class<? extends MessageOrBuilder> messageClassOrBuilder = types.messageOrBuilderType;
-      Class<? extends Node> targetClass = types.nodeType;
-      var handle = lookup.findStatic(targetClass, "fromPb", MethodType.methodType(Node.class, messageClassOrBuilder));
-      return (Node) handle.invoke(nodePb.unpack(messageClass));
-    } catch (Throwable t) {
-      LOG.debug("Failed to unpack node", t);
+      var typeName = typeName(nodePb);
+      var converter = typeNameToConverter.get(typeName);
+      if (converter == null) {
+        LOG.debug("Unknown node type: {}", typeName);
+        return null;
+      }
+      return converter.convert(nodePb);
+    } catch (InvalidProtocolBufferException e) {
+      LOG.debug("Failed to unpack node", e);
       return null;
     }
   }
@@ -66,84 +93,19 @@ public final class GoTemplateAstConverter {
     return nodePb.getTypeUrl().substring(nodePb.getTypeUrl().lastIndexOf('/') + 1);
   }
 
-  private static Types typesForMessage(AnyOrBuilder nodePb) {
-    Types types;
-    switch (typeName(nodePb)) {
-      case "org.sonar.iac.helm.ActionNode":
-        types = new Types(org.sonar.iac.helm.ActionNode.class, org.sonar.iac.helm.ActionNodeOrBuilder.class, org.sonar.iac.helm.tree.ActionNode.class);
-        break;
-      case "org.sonar.iac.helm.BoolNode":
-        types = new Types(org.sonar.iac.helm.BoolNode.class, org.sonar.iac.helm.BoolNodeOrBuilder.class, org.sonar.iac.helm.tree.BoolNode.class);
-        break;
-      case "org.sonar.iac.helm.BreakNode":
-        types = new Types(org.sonar.iac.helm.BreakNode.class, org.sonar.iac.helm.BreakNodeOrBuilder.class, org.sonar.iac.helm.tree.BreakNode.class);
-        break;
-      case "org.sonar.iac.helm.ChainNode":
-        types = new Types(org.sonar.iac.helm.ChainNode.class, org.sonar.iac.helm.ChainNodeOrBuilder.class, org.sonar.iac.helm.tree.ChainNode.class);
-        break;
-      case "org.sonar.iac.helm.CommandNode":
-        types = new Types(org.sonar.iac.helm.CommandNode.class, org.sonar.iac.helm.CommandNodeOrBuilder.class, org.sonar.iac.helm.tree.CommandNode.class);
-        break;
-      case "org.sonar.iac.helm.ContinueNode":
-        types = new Types(org.sonar.iac.helm.ContinueNode.class, org.sonar.iac.helm.ContinueNodeOrBuilder.class, org.sonar.iac.helm.tree.ContinueNode.class);
-        break;
-      case "org.sonar.iac.helm.DotNode":
-        types = new Types(org.sonar.iac.helm.DotNode.class, org.sonar.iac.helm.DotNodeOrBuilder.class, org.sonar.iac.helm.tree.DotNode.class);
-        break;
-      case "org.sonar.iac.helm.FieldNode":
-        types = new Types(org.sonar.iac.helm.FieldNode.class, org.sonar.iac.helm.FieldNodeOrBuilder.class, org.sonar.iac.helm.tree.FieldNode.class);
-        break;
-      case "org.sonar.iac.helm.IdentifierNode":
-        types = new Types(org.sonar.iac.helm.IdentifierNode.class, org.sonar.iac.helm.IdentifierNodeOrBuilder.class, org.sonar.iac.helm.tree.IdentifierNode.class);
-        break;
-      case "org.sonar.iac.helm.IfNode":
-        types = new Types(org.sonar.iac.helm.IfNode.class, org.sonar.iac.helm.IfNodeOrBuilder.class, org.sonar.iac.helm.tree.IfNode.class);
-        break;
-      case "org.sonar.iac.helm.ListNode":
-        types = new Types(org.sonar.iac.helm.ListNode.class, org.sonar.iac.helm.ListNodeOrBuilder.class, org.sonar.iac.helm.tree.ListNode.class);
-        break;
-      case "org.sonar.iac.helm.NilNode":
-        types = new Types(org.sonar.iac.helm.NilNode.class, org.sonar.iac.helm.NilNodeOrBuilder.class, org.sonar.iac.helm.tree.NilNode.class);
-        break;
-      case "org.sonar.iac.helm.NumberNode":
-        types = new Types(org.sonar.iac.helm.NumberNode.class, org.sonar.iac.helm.NumberNodeOrBuilder.class, org.sonar.iac.helm.tree.NumberNode.class);
-        break;
-      case "org.sonar.iac.helm.PipeNode":
-        types = new Types(org.sonar.iac.helm.PipeNode.class, org.sonar.iac.helm.PipeNodeOrBuilder.class, org.sonar.iac.helm.tree.PipeNode.class);
-        break;
-      case "org.sonar.iac.helm.RangeNode":
-        types = new Types(org.sonar.iac.helm.RangeNode.class, org.sonar.iac.helm.RangeNodeOrBuilder.class, org.sonar.iac.helm.tree.RangeNode.class);
-        break;
-      case "org.sonar.iac.helm.StringNode":
-        types = new Types(org.sonar.iac.helm.StringNode.class, org.sonar.iac.helm.StringNodeOrBuilder.class, org.sonar.iac.helm.tree.StringNode.class);
-        break;
-      case "org.sonar.iac.helm.TemplateNode":
-        types = new Types(org.sonar.iac.helm.TemplateNode.class, org.sonar.iac.helm.TemplateNodeOrBuilder.class, org.sonar.iac.helm.tree.TemplateNode.class);
-        break;
-      case "org.sonar.iac.helm.TextNode":
-        types = new Types(org.sonar.iac.helm.TextNode.class, org.sonar.iac.helm.TextNodeOrBuilder.class, org.sonar.iac.helm.tree.TextNode.class);
-        break;
-      case "org.sonar.iac.helm.VariableNode":
-        types = new Types(org.sonar.iac.helm.VariableNode.class, org.sonar.iac.helm.VariableNodeOrBuilder.class, org.sonar.iac.helm.tree.VariableNode.class);
-        break;
-      case "org.sonar.iac.helm.WithNode":
-        types = new Types(org.sonar.iac.helm.WithNode.class, org.sonar.iac.helm.WithNodeOrBuilder.class, org.sonar.iac.helm.tree.WithNode.class);
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown message type: " + typeName(nodePb));
-    }
-    return types;
-  }
+  private static class Converter<M extends Message, T extends MessageOrBuilder> implements AnyToNodeConverter {
+    private final Class<M> messageType;
+    private final Function<T, Node> fromPb;
 
-  private static class Types {
-    private final Class<? extends GeneratedMessageV3> messageType;
-    private final Class<? extends MessageOrBuilder> messageOrBuilderType;
-    private final Class<? extends Node> nodeType;
-
-    public Types(Class<? extends GeneratedMessageV3> messageType, Class<? extends MessageOrBuilder> messageOrBuilderType, Class<? extends Node> nodeType) {
+    public Converter(Class<M> messageType, Function<T, Node> fromPb) {
       this.messageType = messageType;
-      this.messageOrBuilderType = messageOrBuilderType;
-      this.nodeType = nodeType;
+      this.fromPb = fromPb;
+    }
+
+    @Override
+    public Node convert(Any any) throws InvalidProtocolBufferException {
+      return fromPb.apply(
+        (T) any.unpack(messageType));
     }
   }
 }

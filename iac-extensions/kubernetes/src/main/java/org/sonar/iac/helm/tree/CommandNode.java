@@ -41,7 +41,7 @@ public class CommandNode extends AbstractNode {
     return NodeType.NODE_COMMAND;
   }
 
-  public List<Node> getArguments() {
+  public List<Node> arguments() {
     return arguments;
   }
 }

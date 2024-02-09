@@ -38,7 +38,7 @@ public class StringNode extends AbstractNode {
     return NodeType.NODE_STRING;
   }
 
-  public String getText() {
+  public String text() {
     return text;
   }
 }

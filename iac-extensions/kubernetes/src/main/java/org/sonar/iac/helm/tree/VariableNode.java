@@ -40,7 +40,7 @@ public class VariableNode extends AbstractNode {
     return NodeType.NODE_VARIABLE;
   }
 
-  public List<String> getIdent() {
+  public List<String> ident() {
     return ident;
   }
 }

@@ -40,7 +40,7 @@ public class FieldNode extends AbstractNode {
     return NodeType.NODE_FIELD;
   }
 
-  public List<String> getIdentifiers() {
+  public List<String> identifiers() {
     return identifiers;
   }
 }

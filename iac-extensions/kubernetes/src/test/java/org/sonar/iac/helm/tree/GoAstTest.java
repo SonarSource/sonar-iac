@@ -57,18 +57,18 @@ class GoAstTest {
 
     Assertions.assertThat(tree).satisfies(t -> {
       Assertions.assertThat(t).isNotNull();
-      Assertions.assertThat(t.getName()).isEqualTo("my-chart/templates/test.yaml");
-      Assertions.assertThat(t.getParseName()).isEqualTo("my-chart/templates/test.yaml");
-      Assertions.assertThat(t.getMode()).isZero();
-      Assertions.assertThat(t.getRoot()).isInstanceOf(ListNode.class);
+      Assertions.assertThat(t.name()).isEqualTo("my-chart/templates/test.yaml");
+      Assertions.assertThat(t.parseName()).isEqualTo("my-chart/templates/test.yaml");
+      Assertions.assertThat(t.mode()).isZero();
+      Assertions.assertThat(t.root()).isInstanceOf(ListNode.class);
     });
-    var node = tree.getRoot().getNodes().get(0);
+    var node = tree.root().nodes().get(0);
     Assertions.assertThat(node).isInstanceOf(ActionNode.class);
-    var commandNode = (CommandNode) ((org.sonar.iac.helm.tree.ActionNode) node).getPipe().getCommands().get(0);
-    Assertions.assertThat(commandNode.getArguments().get(0))
+    var commandNode = (CommandNode) ((org.sonar.iac.helm.tree.ActionNode) node).pipe().commands().get(0);
+    Assertions.assertThat(commandNode.arguments().get(0))
       .isInstanceOf(FieldNode.class)
       .satisfies(fieldNode -> {
-        Assertions.assertThat(((FieldNode) fieldNode).getIdentifiers()).containsExactly("Values", "header");
+        Assertions.assertThat(((FieldNode) fieldNode).identifiers()).containsExactly("Values", "header");
       });
   }
 
@@ -81,7 +81,7 @@ class GoAstTest {
     var tree = goAstSupplier.goAstFromSource(source, values, chart);
 
     Assertions.assertThat(tree).isNotNull();
-    Assertions.assertThat(tree.getRoot().getNodes()).isNotEmpty();
+    Assertions.assertThat(tree.root().nodes()).isNotEmpty();
   }
 
   static Stream<String> shouldBuildTreeFromTemplate() {

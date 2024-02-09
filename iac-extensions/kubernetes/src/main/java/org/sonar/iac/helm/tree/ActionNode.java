@@ -38,7 +38,7 @@ public class ActionNode extends AbstractNode {
     return NodeType.NODE_ACTION;
   }
 
-  public PipeNode getPipe() {
+  public PipeNode pipe() {
     return pipe;
   }
 }

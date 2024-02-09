@@ -22,5 +22,5 @@ package org.sonar.iac.helm.tree;
 public interface Node {
   NodeType type();
 
-  long getPosition();
+  long position();
 }
