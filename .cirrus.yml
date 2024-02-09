@@ -106,7 +106,11 @@ qa_task_filter_template: &QA_TASK_FILTER
     - build
   <<: *ONLY_IF_SONARSOURCE_QA
 
-setup_gradle_cache_template: &SETUP_GRADLE_CACHE
+# ----------------------------------------------
+# ------------------CACHING---------------------
+# ----------------------------------------------
+
+setup_gradle_cache: &SETUP_GRADLE_CACHE
   set_fingerprint_script:
     - export TODAY=$(date '+%Y-%m-%d')
   create_gradle_directory_script:
@@ -117,29 +121,14 @@ setup_gradle_cache_template: &SETUP_GRADLE_CACHE
     reupload_on_changes: "true"
 
 
-cleanup_gradle_cache_script_template: &CLEANUP_GRADLE_CACHE_SCRIPT
+cleanup_gradle_cache: &CLEANUP_GRADLE_CACHE_SCRIPT
   cleanup_gradle_script:
     - /usr/bin/find "${CIRRUS_WORKING_DIR}/.gradle/caches" -type d -name "8.*" -prune -maxdepth 1 -exec rm -rf {} \;
     - rm -rf "${CIRRUS_WORKING_DIR}/.gradle/caches/journal-1/"
 
-store_profile_report_template: &STORE_PROFILE_REPORT
-  on_success:
-    profile_report_artifacts:
-      path: "build/reports/profile/profile-*.html"
-
-orchestrator_cache_elements: &ORCHESTRATOR_CACHE_ELEMENTS
-  set_orchestrator_home_script: |
-    export TODAY=$(date '+%Y-%m-%d')
-    echo "TODAY=${TODAY}" >> $CIRRUS_ENV
-    echo "ORCHESTRATOR_HOME=${CIRRUS_WORKING_DIR}/orchestrator/${TODAY}" >> $CIRRUS_ENV
-  mkdir_orchestrator_home_script: |
-    echo "Create dir ${ORCHESTRATOR_HOME} if needed"
-    mkdir -p ${ORCHESTRATOR_HOME}
-  orchestrator_cache:
-    folder: ${ORCHESTRATOR_HOME}
-    fingerprint_script: echo ${TODAY}
-    reupload_on_changes: "true"
-
+# ----------------------------------------------
+# -----------------TEMPLATES--------------------
+# ----------------------------------------------
 
 gradle_its_template: &GRADLE_ITS_TEMPLATE
   <<: *SETUP_GRADLE_CACHE
@@ -158,6 +147,12 @@ gradle_its_template: &GRADLE_ITS_TEMPLATE
       "-DbuildNumber=$BUILD_NUMBER"
       --info --build-cache --console plain --no-daemon
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+
+
+store_profile_report_template: &STORE_PROFILE_REPORT
+  on_success:
+    profile_report_artifacts:
+      path: "build/reports/profile/profile-*.html"
 
 # ----------------------------------------------
 # -------------------TASKS----------------------
