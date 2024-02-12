@@ -35,6 +35,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
@@ -49,6 +51,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestBase {
+  private static final Logger LOG = LoggerFactory.getLogger(TestBase.class);
   @RegisterExtension
   public static final OrchestratorExtension ORCHESTRATOR = TestsSetup.ORCHESTRATOR;
   private static final String SCANNER_VERSION = "5.0.1.3006";
@@ -152,14 +155,22 @@ public abstract class TestBase {
 
     lines.removeIf(logElement -> allowedStrings.stream().anyMatch(logElement::startsWith));
 
-    Set<String> temporaryToleratedStrings = Set.of(
-      "java.lang.NoClassDefFoundError: org/eclipse/jgit/internal/JGitText",
-      "org.eclipse.jgit.internal.util.ShutdownHook.cleanup",
-      "at java.base/java.lang.Thread.run",
-      "org.eclipse.jgit.internal.JGitText",
-      "... 2 more");
+    for (String unexpectedLog : lines) {
+      LOG.warn("Unexpected log: " + unexpectedLog);
+    }
 
-    lines.removeIf(logElement -> temporaryToleratedStrings.stream().anyMatch(logElement::contains));
+    boolean failingTest = true;
+
+    if (!failingTest) {
+      Set<String> temporaryToleratedStrings = Set.of(
+        "java.lang.NoClassDefFoundError: org/eclipse/jgit/internal/JGitText",
+        "org.eclipse.jgit.internal.util.ShutdownHook.cleanup",
+        "at java.base/java.lang.Thread.run",
+        "org.eclipse.jgit.internal.JGitText",
+        "... 2 more");
+
+      lines.removeIf(logElement -> temporaryToleratedStrings.stream().anyMatch(logElement::contains));
+    }
 
     assertThat(lines).isEmpty();
   }
