@@ -237,17 +237,18 @@ class HelmProcessorTest {
 
   @Test
   void shouldReadCompressedFile() throws IOException {
-    var inputFile = inputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
+    var inputFile = mockInputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
     var fileContents = HelmProcessor.readCompressedFile("charts/common-0.0.1.tgz", inputFile);
     var expectedKey = "charts/common/values.yaml".replace('/', File.separatorChar);
     assertThat(fileContents)
       .containsEntry(expectedKey,
-        "# Default values\ncommonName: commonValue\n");
+        "# Default values\ncommonName: commonValue\n")
+      .hasSize(4);
   }
 
   @Test
   void shouldThrowExceptionWhenNotCompressedFile() throws IOException {
-    var inputFile = inputFile("src/test/resources/helm/Chart.yaml");
+    var inputFile = mockInputFile("src/test/resources/helm/Chart.yaml");
 
     assertThrowsExactly(ParseException.class,
       () -> HelmProcessor.readCompressedFile("charts/common-0.0.1.tgz", inputFile),
@@ -256,7 +257,7 @@ class HelmProcessorTest {
 
   public static List<String> zipSlipArchives() {
     List<String> names = new ArrayList<>();
-    for (int i = 1; i < 2; i++) {
+    for (int i = 1; i <= 2; i++) {
       names.add("evil" + i + "-unix.tar.gz");
       names.add("evil" + i + "-win.tar.gz");
     }
@@ -265,8 +266,8 @@ class HelmProcessorTest {
 
   @ParameterizedTest
   @MethodSource("zipSlipArchives")
-  void shouldReadCompressedFileThtContainsZipSlip(String filename) throws IOException {
-    var inputFile = inputFile("src/test/resources/helm/charts/" + filename);
+  void shouldReadCompressedFileThatContainsZipSlip(String filename) throws IOException {
+    var inputFile = mockInputFile("src/test/resources/helm/charts/" + filename);
     var fileContents = HelmProcessor.readCompressedFile("charts/" + filename, inputFile);
     assertThat(fileContents).isEmpty();
     assertThat(logTester.logs(Level.DEBUG))
@@ -278,7 +279,7 @@ class HelmProcessorTest {
 
   @Test
   void shouldReadCompressedFileFilenameWithoutDirectory() throws IOException {
-    var inputFile = inputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
+    var inputFile = mockInputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
     var fileContents = HelmProcessor.readCompressedFile("common-0.0.1.tgz", inputFile);
     var expectedKey = "common-0.0.1.tgz/common/values.yaml".replace('/', File.separatorChar);
     assertThat(fileContents)
@@ -287,25 +288,26 @@ class HelmProcessorTest {
   }
 
   @Test
-  void shouldEvaluateTemplateWithDependencyAndReturnTemplate() throws IOException {
+  void shouldValidateAndReadDependencyFile() throws IOException {
     var helmProcessor = new HelmProcessor(helmEvaluator);
     helmProcessor.initialize();
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = Mockito.mock(InputFile.class);
-      when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
-      var dependencyChart = inputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
-      var files = Map.of("values.yaml", valuesFile,
-        "charts/common-0.0.1.tgz", dependencyChart);
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
-        .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("containerPort: 8080 #1").build());
-      var inputFileContext = Mockito.mock(InputFileContext.class);
+    var valuesFile = Mockito.mock(InputFile.class);
+    when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
+    var dependencyChart = mockInputFile("src/test/resources/helm/charts/common-0.0.1.tgz");
+    var files = Map.of("values.yaml", valuesFile,
+      "charts/common-0.0.1.tgz", dependencyChart);
+    when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
+      .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("containerPort: 8080 #1").build());
+    var inputFile = Mockito.mock(InputFile.class);
 
-      var result = helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext);
+    var result = HelmProcessor.validateAndReadFiles(inputFile, files);
 
-      assertEquals("containerPort: 8080 #1", result);
-    }
+    assertThat(result).containsOnlyKeys("values.yaml",
+      "charts/common/templates/_service.yaml",
+      "charts/common/templates/_utils.tpl",
+      "charts/common/values.yaml",
+      "charts/common/Chart.yaml");
   }
 
   private static InputFileContext mockInputFileContext(String filename) {
@@ -315,7 +317,7 @@ class HelmProcessorTest {
     return new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
   }
 
-  private InputFile inputFile(String relativePath) throws IOException {
+  private InputFile mockInputFile(String relativePath) throws IOException {
     var in = new FileInputStream(relativePath);
     var inputFile = mock(InputFile.class);
     when(inputFile.inputStream()).thenReturn(in);

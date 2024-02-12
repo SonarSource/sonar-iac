@@ -87,7 +87,7 @@ public class HelmProcessor {
     return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
   }
 
-  private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
+  static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
     // Currently we are only looking for the default location of the values file
     if (!files.containsKey("values.yaml") && !files.containsKey("values.yml")) {
       throw parseExceptionFor(inputFile, "Failed to find values file", null);
@@ -96,14 +96,19 @@ public class HelmProcessor {
     Map<String, String> fileContents = new HashMap<>(files.size());
 
     for (Map.Entry<String, InputFile> filenameToInputFile : files.entrySet()) {
-      if (filenameToInputFile.getKey().endsWith("tgz") || filenameToInputFile.getKey().endsWith("gz")) {
+      if (isArchiveFile(filenameToInputFile)) {
         fileContents.putAll(readCompressedFile(filenameToInputFile.getKey(), filenameToInputFile.getValue()));
       } else {
-        var fileContent = readTextFile(inputFile, filenameToInputFile);
+        var fileContent = readTextFile(inputFile, filenameToInputFile.getValue());
         fileContents.put(filenameToInputFile.getKey(), fileContent);
       }
     }
     return fileContents;
+  }
+
+  private static boolean isArchiveFile(Map.Entry<String, InputFile> filenameToInputFile) {
+    // The files are filter-out before, so it is enough to check only gz suffix, it will match *.tgz and *.gz files
+    return filenameToInputFile.getKey().endsWith("gz");
   }
 
   // exposed for tests
@@ -119,8 +124,8 @@ public class HelmProcessor {
         var normalizedName = normalizeToRuntimePathSeparator(entry.getName());
         if (entry.isFile() && HelmFilesystemUtils.includeFile(normalizedName)) {
           var bytes = tar.readAllBytes();
-          var s = new String(bytes, StandardCharsets.UTF_8);
-          result.put(pathPrefix + File.separator + normalizedName, s);
+          var content = new String(bytes, StandardCharsets.UTF_8);
+          result.put(pathPrefix + File.separator + normalizedName, content);
         }
       }
     } catch (IOException e) {
@@ -137,8 +142,7 @@ public class HelmProcessor {
     return name.substring(0, index);
   }
 
-  private static String readTextFile(InputFile inputFile, Map.Entry<String, InputFile> filenameToInputFile) {
-    var additionalInputFile = filenameToInputFile.getValue();
+  private static String readTextFile(InputFile inputFile, InputFile additionalInputFile) {
     String fileContent;
     try {
       fileContent = additionalInputFile.contents();

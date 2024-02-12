@@ -115,19 +115,20 @@ public final class HelmFilesystemUtils {
   }
 
   public static boolean includeFile(String name) {
-    if (INCLUDED_EXTENSIONS.stream().anyMatch(name::endsWith)) {
+    var normalized = normalizeToRuntimePathSeparator(name);
+    if (INCLUDED_EXTENSIONS.stream().anyMatch(normalized::endsWith)) {
       var parent = new File(".");
-      var child = new File(parent, name);
+      var child = new File(parent, normalized);
 
       boolean isPathSecure;
       try {
         isPathSecure = child.getCanonicalPath().startsWith(parent.getCanonicalPath() + File.separator) &&
-          !name.contains("~");
+          !normalized.contains("~");
         if (!isPathSecure) {
-          LOG.debug("The path {} in compressed file looks suspicious, ignoring the file", name);
+          LOG.debug("The path {} in compressed file looks suspicious, ignoring the file", normalized);
         }
       } catch (IOException e) {
-        var message = String.format("The path %s in compressed file looks suspicious, ignoring the file.", name);
+        var message = String.format("The path %s in compressed file looks suspicious, ignoring the file.", normalized);
         LOG.debug(message, e);
         return false;
       }
