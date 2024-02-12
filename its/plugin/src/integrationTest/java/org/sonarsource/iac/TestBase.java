@@ -31,10 +31,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.sonar.orchestrator.locator.FileLocation;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
@@ -49,8 +53,43 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestBase {
-  @RegisterExtension
-  public static final OrchestratorExtension ORCHESTRATOR = TestsSetup.ORCHESTRATOR;
+
+  static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
+  static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
+  static final String KEEP_ORCHESTRATOR_RUNNING_ENV = "KEEP_ORCHESTRATOR_RUNNING";
+
+  static final AtomicInteger REQUESTED_ORCHESTRATORS_KEY = new AtomicInteger();
+  public static final FileLocation IAC_PLUGIN_LOCATION = FileLocation.byWildcardFilename(new File("../../sonar-iac-plugin/build/libs"), "sonar-iac-plugin-*-all.jar");
+  public static boolean KEEP_ORCHESTRATOR_RUNNING = "true".equals(System.getenv(KEEP_ORCHESTRATOR_RUNNING_ENV));
+
+  public static Orchestrator ORCHESTRATOR = OrchestratorExtension.builderEnv()
+    .useDefaultAdminCredentialsForBuilds(true)
+    .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
+    .addPlugin(IAC_PLUGIN_LOCATION)
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/nosonar-terraform.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/aws-provider-terraform.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-docker.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-json.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-yaml.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-cloudformation.xml"))
+    .build();
+
+  @BeforeAll
+  public static void startOrchestrator() {
+    // This is to avoid multiple starts when using nested tests
+    // See https://github.com/junit-team/junit5/issues/2421
+    if (REQUESTED_ORCHESTRATORS_KEY.getAndIncrement() == 0) {
+      ORCHESTRATOR.start();
+    }
+  }
+
+  @AfterAll
+  public static void stopOrchestrator() {
+    if (!KEEP_ORCHESTRATOR_RUNNING && REQUESTED_ORCHESTRATORS_KEY.decrementAndGet() == 0) {
+      ORCHESTRATOR.stop();
+    }
+  }
+
   private static final String SCANNER_VERSION = "5.0.1.3006";
 
   protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey) {

@@ -134,6 +134,7 @@ gradle_its_template: &GRADLE_ITS_TEMPLATE
   env:
     # to be able to reuse cached results of previous tasks
     GO_CROSS_COMPILE: '1'
+    KEEP_ORCHESTRATOR_RUNNING: 'true'
   run_its_script:
     - git submodule update --init --depth 1
     - source cirrus-env QA

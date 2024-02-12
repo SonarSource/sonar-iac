@@ -64,7 +64,7 @@ public class SonarLintTest {
   @BeforeAll
   public static void prepare() {
     StandaloneGlobalConfiguration config = StandaloneGlobalConfiguration.builder()
-      .addPlugin(TestsSetup.IAC_PLUGIN_LOCATION.getFile().toPath())
+      .addPlugin(TestBase.IAC_PLUGIN_LOCATION.getFile().toPath())
       .addEnabledLanguages(ENABLED_LANGUAGES)
       .setSonarLintUserHome(sonarLintUserHome)
       .setLogOutput((formattedMessage, level) -> {
