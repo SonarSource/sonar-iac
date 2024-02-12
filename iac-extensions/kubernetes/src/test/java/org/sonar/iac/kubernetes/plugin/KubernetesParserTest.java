@@ -39,6 +39,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -282,6 +284,9 @@ class KubernetesParserTest {
 
   @Test
   void shouldShiftMarkedYamlExceptions() throws URISyntaxException {
+    LocationShifter locationShifterMock = Mockito.mock(LocationShifter.class);
+    KubernetesParser kubernetesParserWithMockedLocationShifter = new KubernetesParser(helmProcessor, locationShifterMock, kubernetesParserStatistics);
+
     var evaluated = code(
       "key: |",
       "  .",
@@ -291,18 +296,22 @@ class KubernetesParserTest {
       "invalid-key");
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      TextRange range = TextRanges.range(3, 1, 3, 1);
       var valuesFile = mock(InputFile.class);
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
       when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
       when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
+      when(locationShifterMock.computeShiftedLocation(any(), any())).thenReturn(range);
+      when(locationShifterMock.shiftMarkedYamlException(any(), any())).thenCallRealMethod();
 
-      assertThatThrownBy(() -> parser.parse("dummy: {{ dummy }}", inputFileContext))
+      assertThatThrownBy(() -> kubernetesParserWithMockedLocationShifter.parse("dummy: {{ dummy }}", inputFileContext))
         .isInstanceOf(ShiftedMarkedYamlEngineException.class);
 
       assertThat(logTester.logs(Level.DEBUG))
-        .contains("Shifting YAML exception from [6:12] to [3:1]");
+        .contains("Shifting YAML exception from [6:12] to [4:2]"); // due to ShiftedMarkedYamlEngineException.describeShifting(), expected to have line and column numbers
+                                                                   // incremented by 1
     }
   }
 

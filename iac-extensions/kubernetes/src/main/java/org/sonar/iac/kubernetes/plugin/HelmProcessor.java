@@ -45,11 +45,16 @@ public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private HelmEvaluator helmEvaluator;
 
-  private final LocationShifter locationShifter;
+  public final LocationShifter locationShifter;
 
   public HelmProcessor(HelmEvaluator helmEvaluator, LocationShifter locationShifter) {
     this.helmEvaluator = helmEvaluator;
     this.locationShifter = locationShifter;
+  }
+
+  public LocationShifter getLocationShifter() {
+    // created getter for KubernetesSensor
+    return locationShifter;
   }
 
   public static boolean isHelmEvaluatorExecutableAvailable() {

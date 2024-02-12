@@ -22,18 +22,24 @@ package org.sonar.iac.kubernetes.plugin;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
@@ -47,23 +53,37 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class HelmProcessorTest {
   private final HelmEvaluator helmEvaluator = Mockito.mock(HelmEvaluator.class);
 
-  private LocationShifter locationShifter;
-  private HelmProcessor helmProcessor;
+  private LocationShifter locationShifter, locationShifterNotAMock;
+  private HelmProcessor helmProcessor, helmProcessorWithoutMockedLocationShifter;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+
+  private final InputFile inputFile = mock(InputFile.class);
+  private final SensorContext sensorContext = mock(SensorContext.class);
+  private final InputFileContext inputFileContext = new InputFileContext(sensorContext, inputFile);
 
   @BeforeEach
   void setupTests() {
     locationShifter = Mockito.mock(LocationShifter.class);
     helmProcessor = new HelmProcessor(helmEvaluator, locationShifter);
+
+    locationShifterNotAMock = new LocationShifter();
+    helmProcessorWithoutMockedLocationShifter = new HelmProcessor(helmEvaluator, locationShifterNotAMock);
+
+    var fs = mock(FileSystem.class);
+    when(sensorContext.fileSystem()).thenReturn(fs);
+    when(fs.predicates()).thenReturn(new DefaultFilePredicates(Path.of(".")));
+    when(inputFile.filename()).thenReturn("foo.yaml");
   }
 
   @Test
@@ -236,5 +256,186 @@ class HelmProcessorTest {
     when(inputFile.newPointer(anyInt(), anyInt())).thenReturn(new BasicTextPointer(0, 0));
     when(inputFile.toString()).thenReturn(filename);
     return new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
+  }
+
+  @Test
+  void shouldFindShiftedLocation() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ helm code }}");
+    String evaluated = code("test: #1",
+      "- key1:value1 #2",
+      "- key2:value2 #2");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 15);
+    TextRange shiftedLocation2 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 15);
+  }
+
+  @Test
+  void shouldFindShiftedLocationWithExistingComment() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ helm code }} # some comment");
+    String evaluated = code("test: #1",
+      "- key1:value1 #2",
+      "- key2:value2 # some comment #2");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
+    TextRange shiftedLocation2 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 30);
+  }
+
+  @Test
+  void shouldFindShiftedLocationWhenMultipleLineNumbers() throws IOException, URISyntaxException {
+    String originalCode = code(
+      "foo:",
+      "{{- range .Values.capabilities }}",
+      "  - {{ . | quote }}",
+      "{{- end }}");
+    String evaluated = code(
+      "foo: #1 #2",
+      "  - \"SYS_ADMIN\" #3 #2",
+      "  - \"NET_ADMIN\" #3 #4");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 16));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(3, 0, 3, 19);
+    TextRange shiftedLocation2 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 16));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(3, 0, 3, 19);
+  }
+
+  @Test
+  void shouldFindShiftedLocationWhenCommentContainsHashNumber() throws IOException, URISyntaxException {
+    String originalCode = code(
+      "foo: {{ .Values.foo }} # fix in #123 issue",
+      "bar: {{ .Values.bar }} # fix in # 123 issue");
+    String evaluated = code(
+      "foo: foo # fix in #123 issue #1",
+      "bar: bar # fix in # 123 issue #2");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(1, 1, 1, 8));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(1, 0, 1, 42);
+    TextRange shiftedLocation2 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 8));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 43);
+  }
+
+  @Test
+  void shouldHandleInvalidLineNumberComment() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ helm code }} # some comment");
+    String evaluated = code("test: #1",
+      "- key1:value1 #a",
+      "- key1:value1 #some comment #b");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
+  }
+
+  @Test
+  void shouldHandleWhenLineCommentIsMissingOrNotDetectedProperly() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ helm code }}");
+    String evaluated = code("test: #1",
+      "- key1:value1",
+      "- key2:value2 #2",
+      "- key3:value3");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange textRange1 = TextRanges.range(2, 1, 2, 5);
+    TextRange shiftedTextRange1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, textRange1);
+    TextRangeAssert.assertThat(shiftedTextRange1)
+      .describedAs("Line comment is missing, should use the next available comment")
+      .hasRange(2, 0, 2, 15);
+
+    TextRange textRange2 = TextRanges.range(2, 1, 3, 5);
+    TextRange shiftedTextRange2 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, textRange2);
+    TextRangeAssert.assertThat(shiftedTextRange2).hasRange(2, 0, 2, 15);
+
+    TextRange textRange3 = TextRanges.range(3, 1, 4, 5);
+    TextRange shiftedTextRange3 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, textRange3);
+    TextRangeAssert.assertThat(shiftedTextRange3)
+      .describedAs("No more line comments on following lines, should fall back to the last line of the original file")
+      .hasRange(2, 0, 2, 15);
+  }
+
+  @Test
+  void shouldFindShiftedLocationFromRange() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ ",
+      "  helm code",
+      "}}");
+    String evaluated = code("test: #1",
+      "  value #2:4");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 4, 2);
+  }
+
+  @Test
+  void shouldFindShiftedLocationFromRangeWithMultipleLines() throws IOException, URISyntaxException {
+    String originalCode = code("test:",
+      "{{ ",
+      "  helm code",
+      "}}");
+    String evaluated = code("test: #1",
+      "  - value1 #2:4",
+      "  - value2 #2:4");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 4, 2);
+    TextRange shiftedLocation2 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 4, 2);
+  }
+
+  @Test
+  void shouldAddLastEmptyLine() throws IOException, URISyntaxException {
+    String originalCode = code("foo:",
+      "{{ print \"# a\\n# b\" }}",
+      "");
+    String evaluated = code("foo: #1",
+      "# a",
+      "# b #2",
+      "#3");
+
+    prepareAndCallProcessHelmTemplate(originalCode, evaluated);
+
+    TextRange shiftedLocation1 = locationShifterNotAMock.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 3, 6));
+    TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 22);
+  }
+
+  private void prepareAndCallProcessHelmTemplate(String source, String evaluated) throws IOException, URISyntaxException {
+    helmEvaluator.initialize();
+    when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
+      .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate(evaluated).build());
+
+    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+      var valuesFile = mock(InputFile.class);
+      var someFile = Mockito.mock(InputFile.class);
+      var files = Map.of("values.yaml", valuesFile, "templates/some.yaml", someFile);
+      when(valuesFile.filename()).thenReturn("values.yaml");
+      when(valuesFile.contents()).thenReturn("foo: bar");
+      when(someFile.contents()).thenReturn("kind: Pod");
+      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+      when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(inputFileContext.inputFile.toString()).thenReturn("path/to/file.yaml");
+
+      helmProcessorWithoutMockedLocationShifter.processHelmTemplate("foo.yaml", source, inputFileContext);
+    }
   }
 }
