@@ -14,7 +14,9 @@ env:
   CIRRUS_CLONE_DEPTH: 1
   GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
   GRADLE_COMMON_FLAGS: --console plain --no-daemon --profile
+  
   GO_VERSION: 1.21.1
+  GO_CROSS_COMPILE: '1'
   PROTOC_VERSION: 25.0
 
   ORG_GRADLE_PROJECT_signingKey: VAULT[development/kv/data/sign data.key]
@@ -75,7 +77,6 @@ linux_1_cpu_2G_template: &LINUX_1_CPU_2G
 linux_4_cpu_8G_java_17_template: &LINUX_4_CPU_8G_JAVA_17
   eks_container:
     <<: *LINUX_IMAGE
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
     cpu: 4
     memory: 8G
 
@@ -94,41 +95,46 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
 # ------------------FILTERS---------------------
 # ----------------------------------------------
 
-only_sonarsource_qa: &ONLY_IF_SONARSOURCE_QA
+only_sonarsource_qa_filter: &ONLY_IF_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" &&
     ($CIRRUS_PR != "" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
-only_main_branches: &ONLY_MAIN_BRANCHES
+only_main_branches_filter: &ONLY_MAIN_BRANCHES
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" &&
     ($CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*")
 
-qa_task_filter_template: &QA_TASK_FILTER
+qa_task_filter: &QA_TASK_FILTER
   depends_on:
     - build
   <<: *ONLY_IF_SONARSOURCE_QA
 
-setup_gradle_cache_template: &SETUP_GRADLE_CACHE
+# ----------------------------------------------
+# ------------------CACHING---------------------
+# ----------------------------------------------
+
+setup_gradle_cache: &SETUP_GRADLE_CACHE
+  create_gradle_directory_script:
+    - mkdir -p ${GRADLE_USER_HOME}
   gradle_cache:
     folder: .gradle/caches
-    fingerprint_script: git rev-parse HEAD
-  create_gradle_directory_script:
-    - mkdir -p "${CIRRUS_WORKING_DIR}/.gradle"
+    fingerprint_script: echo $(date '+%Y-%m-%d')
+    reupload_on_changes: "true"
 
-cleanup_gradle_cache_script_template: &CLEANUP_GRADLE_CACHE_SCRIPT
+cleanup_gradle_cache: &CLEANUP_GRADLE_CACHE
   cleanup_gradle_script:
     - /usr/bin/find "${CIRRUS_WORKING_DIR}/.gradle/caches" -type d -name "8.*" -prune -maxdepth 1 -exec rm -rf {} \;
     - rm -rf "${CIRRUS_WORKING_DIR}/.gradle/caches/journal-1/"
 
-store_profile_report_template: &STORE_PROFILE_REPORT
-  on_success:
-    profile_report_artifacts:
-      path: "build/reports/profile/profile-*.html"
+# ----------------------------------------------
+# -----------------TEMPLATES--------------------
+# ----------------------------------------------
 
 gradle_its_template: &GRADLE_ITS_TEMPLATE
   <<: *SETUP_GRADLE_CACHE
   env:
     # to be able to reuse cached results of previous tasks
     GO_CROSS_COMPILE: '1'
+    KEEP_ORCHESTRATOR_RUNNING: 'true'
   run_its_script:
     - git submodule update --init --depth 1
     - source cirrus-env QA
@@ -140,7 +146,25 @@ gradle_its_template: &GRADLE_ITS_TEMPLATE
       "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}"
       "-DbuildNumber=$BUILD_NUMBER"
       --info --build-cache --console plain --no-daemon
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *CLEANUP_GRADLE_CACHE
+
+build_template: &BUILD_TEMPLATE
+  <<: *SETUP_GRADLE_CACHE
+  eks_container:
+    <<: *LINUX_IMAGE_WITH_GCC
+    memory: 6G
+  env:
+    <<: *BUILD_SECRETS
+  build_script:
+    - source cirrus-env BUILD
+    - source .cirrus/use-gradle-wrapper.sh
+    - regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}
+  <<: *CLEANUP_GRADLE_CACHE
+
+store_profile_report_template: &STORE_PROFILE_REPORT
+  on_success:
+    profile_report_artifacts:
+      path: "build/reports/profile/profile-*.html"
 
 # ----------------------------------------------
 # -------------------TASKS----------------------
@@ -148,40 +172,21 @@ gradle_its_template: &GRADLE_ITS_TEMPLATE
 
 build_task:
   eks_container:
-    <<: *LINUX_IMAGE_WITH_GCC
-    cpu: 3.5
-    memory: 7G
-  <<: *SETUP_GRADLE_CACHE
+    cpu: 10
   env:
-    <<: *BUILD_SECRETS
-    #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
-    GO_CROSS_COMPILE: '1'
-  build_script:
-    - source cirrus-env BUILD
-    - source .cirrus/use-gradle-wrapper.sh
-    - go version
-    - regular_gradle_build_deploy_analyze --parallel --profile -x test -x sonar
+    BUILD_ARGUMENTS: "--parallel --profile -x test -x sonar"
+  <<: *BUILD_TEMPLATE
   <<: *STORE_PROFILE_REPORT
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
 
 build_test_analyze_task:
   <<: *QA_TASK_FILTER
   eks_container:
-    <<: *LINUX_IMAGE_WITH_GCC
-    cpu: 3.5
-    memory: 7G
-  <<: *SETUP_GRADLE_CACHE
+    cpu: 6
   env:
-    <<: *BUILD_SECRETS
-    #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: false
-    GO_CROSS_COMPILE: '1'
-  build_script:
-    - source cirrus-env BUILD
-    - source .cirrus/use-gradle-wrapper.sh
-    - regular_gradle_build_deploy_analyze -x artifactoryPublish
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+    BUILD_ARGUMENTS: "-x artifactoryPublish"
+  <<: *BUILD_TEMPLATE
 
 qa_os_win_task:
   <<: *QA_TASK_FILTER
@@ -220,7 +225,7 @@ sca_scan_task:
     ws_artifacts:
       path: "whitesource/**/*"
   <<: *STORE_PROFILE_REPORT
-  <<: *CLEANUP_GRADLE_CACHE_SCRIPT
+  <<: *CLEANUP_GRADLE_CACHE
 
 qa_plugin_task:
   <<: *QA_TASK_FILTER
