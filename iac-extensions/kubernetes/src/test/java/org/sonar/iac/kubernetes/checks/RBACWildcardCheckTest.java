@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -39,5 +40,10 @@ class RBACWildcardCheckTest {
   void shouldCheckWildcardPermissionsInKind(String kind) {
     String content = readTemplateAndReplace("RBACWildcardCheck/wildcardCheckTestTemplate.yaml", kind);
     KubernetesVerifier.verifyContent(content, check);
+  }
+
+  @Test
+  void testClusterRoleKindForHelm() {
+    KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check);
   }
 }

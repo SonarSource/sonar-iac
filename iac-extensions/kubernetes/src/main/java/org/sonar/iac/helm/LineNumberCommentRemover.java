@@ -31,7 +31,7 @@ public final class LineNumberCommentRemover {
 
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
 
-  private static final Pattern CONTAINS_LINE_NUMBER_OR_RANGE = Pattern.compile("#(?<rangeStart>\\d++)(:(?<rangeEnd>\\d++))?( #\\d++:?\\d*+)*+$");
+  private static final Pattern CONTAINS_LINE_NUMBER_OR_RANGE = Pattern.compile("#(?<rangeStart>\\d++)(:(?<rangeEnd>\\d++))?( ?#\\d++:?\\d*+)*+$");
 
   private LineNumberCommentRemover() {
   }
