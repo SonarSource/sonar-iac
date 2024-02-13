@@ -93,7 +93,7 @@ public class HelmProcessor {
     return inputFileToGoAst.remove(inputPath.uri().toString());
   }
 
-  private static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
+  static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
     // Currently we are only looking for the default location of the values file
     if (!files.containsKey("values.yaml") && !files.containsKey("values.yml")) {
       throw parseExceptionFor(inputFile, "Failed to find values file", null);
@@ -115,7 +115,7 @@ public class HelmProcessor {
     return fileContents;
   }
 
-  private String evaluateHelmTemplate(String path, InputFile inputFile, String content, Map<String, String> templateDependencies) {
+  String evaluateHelmTemplate(String path, InputFile inputFile, String content, Map<String, String> templateDependencies) {
     try {
       var templateEvaluationResult = helmEvaluator.evaluateTemplate(path, content, templateDependencies);
       inputFileToGoAst.put(inputFile.uri().toString(), GoTemplateTreeImpl.fromPbTree(templateEvaluationResult.getAst()));
