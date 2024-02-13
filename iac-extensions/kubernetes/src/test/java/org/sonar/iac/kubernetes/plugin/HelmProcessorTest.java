@@ -75,10 +75,10 @@ class HelmProcessorTest {
   @BeforeEach
   void setupTests() {
     locationShifter = Mockito.mock(LocationShifter.class);
-    helmProcessor = new HelmProcessor(helmEvaluator, locationShifter);
+    helmProcessor = new HelmProcessor(helmEvaluator);
 
     locationShifterNotAMock = new LocationShifter();
-    helmProcessorWithoutMockedLocationShifter = new HelmProcessor(helmEvaluator, locationShifterNotAMock);
+    helmProcessorWithoutMockedLocationShifter = new HelmProcessor(helmEvaluator);
 
     var fs = mock(FileSystem.class);
     when(sensorContext.fileSystem()).thenReturn(fs);
@@ -102,7 +102,7 @@ class HelmProcessorTest {
 
   @Test
   void shouldNotBeCalledIfHelmEvaluatorNotInitialized() throws IOException {
-    var helmProcessorWithNullEvaluator = new HelmProcessor(null, locationShifter);
+    var helmProcessorWithNullEvaluator = new HelmProcessor(null);
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
       var valuesFile = Mockito.mock(InputFile.class);
@@ -216,7 +216,7 @@ class HelmProcessorTest {
   @Test
   void shouldSkipHelmEvaluationIfHelmEvaluatorThrows() throws IOException {
     when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any())).thenThrow(new IllegalStateException("Failed to evaluate template"));
-    var helmProcessor = new HelmProcessor(helmEvaluator, locationShifter);
+    var helmProcessor = new HelmProcessor(helmEvaluator);
     helmProcessor.initialize();
 
     try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {

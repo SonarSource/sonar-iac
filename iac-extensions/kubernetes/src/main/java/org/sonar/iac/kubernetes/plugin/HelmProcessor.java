@@ -45,11 +45,10 @@ public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private HelmEvaluator helmEvaluator;
 
-  public final LocationShifter locationShifter;
+  public final LocationShifter locationShifter = new LocationShifter();
 
-  public HelmProcessor(HelmEvaluator helmEvaluator, LocationShifter locationShifter) {
+  public HelmProcessor(HelmEvaluator helmEvaluator) {
     this.helmEvaluator = helmEvaluator;
-    this.locationShifter = locationShifter;
   }
 
   public LocationShifter getLocationShifter() {
@@ -127,7 +126,11 @@ public class HelmProcessor {
     return fileContents;
   }
 
-  static class HelmPostprocessor {
+  static final class HelmPostprocessor {
+    private HelmPostprocessor() {
+      // utility class
+    }
+
     static String postProcess(String evaluatedSource, InputFileContext inputFileContext, LocationShifter locationShifter) {
       return cleanSource(evaluatedSource, inputFileContext, locationShifter);
     }
