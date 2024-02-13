@@ -1,0 +1,12 @@
+{{- if .Values.create -}}
+apiVersion: v1
+kind: ClusterRole
+metadata:
+  name: my-clusterRole
+rules:
+  - apiGroups:
+      - custom.metrics.k8s.io
+    resources: # Noncompliant
+      - '*'
+    verbs: ["*"] # Noncompliant
+{{- end -}}

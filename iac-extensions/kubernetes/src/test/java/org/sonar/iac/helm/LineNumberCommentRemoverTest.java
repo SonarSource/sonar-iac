@@ -181,6 +181,33 @@ class LineNumberCommentRemoverTest {
       5, 10);
   }
 
+  @Test
+  void shouldRemoveLineNumberCommentForMissingWhitespaceBetweenLineNumberComments() {
+    var evaluated = code(
+      "#1",
+      "apiVersion: v1 #2",
+      "rules: #3",
+      "  - resources: # Comment #4",
+      "      - '*' #5",
+      "    verbs: [\"*\"] # Comment #6#7",
+      "#8");
+    var expected = code(
+      "apiVersion: v1",
+      "rules:",
+      "  - resources: # Comment",
+      "      - '*'",
+      "    verbs: [\"*\"] # Comment");
+    var actual = cleanSource(evaluated);
+
+    assertThat(actual).isEqualTo(expected);
+
+    assertLineMapping(
+      1, 2,
+      3, 4,
+      4, 5,
+      5, 6);
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {
     "foo: bar",
