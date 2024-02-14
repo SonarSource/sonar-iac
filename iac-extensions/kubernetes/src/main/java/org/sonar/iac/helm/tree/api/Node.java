@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.helm.tree.api;
 
+import java.util.List;
+
 /**
  * Node represents a node in the Go template AST.
  */
@@ -36,4 +38,11 @@ public interface Node {
    * @return the location of the node in the file
    */
   Location location();
+
+  /**
+   * All children of given AST Node.
+   *
+   * @return the list of all children elements
+   */
+  List<Node> children();
 }

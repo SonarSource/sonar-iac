@@ -19,11 +19,16 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.helm.tree.api.BranchNode;
 import org.sonar.iac.helm.tree.api.ListNode;
+import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
+
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstHelper.addChildrenIfPresent;
 
 public abstract class AbstractBranchNode extends AbstractNode implements BranchNode {
   @Nullable
@@ -53,5 +58,14 @@ public abstract class AbstractBranchNode extends AbstractNode implements BranchN
   @CheckForNull
   public ListNode elseList() {
     return elseList;
+  }
+
+  @Override
+  public List<Node> children() {
+    List<Node> children = new ArrayList<>();
+    addChildrenIfPresent(children, pipe);
+    addChildrenIfPresent(children, list);
+    addChildrenIfPresent(children, elseList);
+    return children;
   }
 }

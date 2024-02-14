@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.List;
 import org.sonar.iac.helm.protobuf.ActionNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.ActionNode;
 import org.sonar.iac.helm.tree.api.Node;
@@ -38,5 +39,10 @@ public class ActionNodeImpl extends AbstractNode implements ActionNode {
 
   public PipeNode pipe() {
     return pipe;
+  }
+
+  @Override
+  public List<Node> children() {
+    return List.of(pipe);
   }
 }

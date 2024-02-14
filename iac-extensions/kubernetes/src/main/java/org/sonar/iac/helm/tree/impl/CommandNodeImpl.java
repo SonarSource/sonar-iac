@@ -41,4 +41,9 @@ public class CommandNodeImpl extends AbstractNode implements CommandNode {
   public List<Node> arguments() {
     return arguments;
   }
+
+  @Override
+  public List<Node> children() {
+    return List.of((Node) arguments);
+  }
 }

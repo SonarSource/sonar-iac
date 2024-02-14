@@ -27,8 +27,13 @@ import org.sonar.iac.common.api.tree.HasTextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.toPositionAndLength;
 
 class TextRangesTest {
+
+  private static String TEXT = "line1\n" +
+    "line 2 some text\n" +
+    "line 3 extra text";
 
   @Test
   void test_range() {
@@ -93,6 +98,41 @@ class TextRangesTest {
     assertThat(TextRanges.isValidAndNotEmpty(range(1, 1, 1, 1))).isFalse();
     assertThat(TextRanges.isValidAndNotEmpty(range(2, 1, 1, 1))).isFalse();
     assertThat(TextRanges.isValidAndNotEmpty(range(1, 2, 3, 4))).isTrue();
+  }
+
+  @Test
+  void shouldConvertToPositionAndLengthFirstLine() {
+    var range = range(1, 0, 1, 5);
+    var positionAndLength = toPositionAndLength(range, TEXT);
+    assertThat(positionAndLength).isEqualTo(new Tuple<>(0, 5));
+  }
+
+  @Test
+  void shouldConvertToPositionAndLengthSecondLine() {
+    var range = range(2, 0, 2, 11);
+    var positionAndLength = toPositionAndLength(range, TEXT);
+    assertThat(positionAndLength).isEqualTo(new Tuple<>(6, 11));
+  }
+
+  @Test
+  void shouldConvertToPositionAndLengthLastLine() {
+    var range = range(3, 1, 3, 17);
+    var positionAndLength = toPositionAndLength(range, TEXT);
+    assertThat(positionAndLength).isEqualTo(new Tuple<>(24, 17));
+  }
+
+  @Test
+  void shouldConvertToPositionAndLengthFirstAndSecondLine() {
+    var range = range(1, 0, 2, 7);
+    var positionAndLength = toPositionAndLength(range, TEXT);
+    assertThat(positionAndLength).isEqualTo(new Tuple<>(0, 13));
+  }
+
+  @Test
+  void shouldConvertToPositionAndLengthFirstToThirdLine() {
+    var range = range(1, 0, 3, 10);
+    var positionAndLength = toPositionAndLength(range, TEXT);
+    assertThat(positionAndLength).isEqualTo(new Tuple<>(0, 33));
   }
 
   public static TextRange range(int startLine, int startLineColumn, int endLine, int endLineColumn) {

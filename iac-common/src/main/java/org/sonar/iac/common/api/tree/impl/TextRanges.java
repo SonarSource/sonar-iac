@@ -22,6 +22,7 @@ package org.sonar.iac.common.api.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
@@ -29,6 +30,8 @@ import static java.util.Comparator.naturalOrder;
 
 public class TextRanges {
 
+  private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
+  private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\r\\n|[" + NEW_LINE + "])");
   private static final Supplier<IllegalArgumentException> MERGE_EXCEPTION_SUPPLIER = () -> new IllegalArgumentException("Can't merge 0 ranges");
 
   private TextRanges() {
@@ -63,4 +66,33 @@ public class TextRanges {
     return range.end().compareTo(range.start()) > 0;
   }
 
+  public static Tuple<Integer, Integer> toPositionAndLength(TextRange textRange, String text) {
+    var matcher = LINE_PATTERN.matcher(text);
+    var positionCounter = 0;
+
+    for (int i = 1; i < textRange.start().line(); i++) {
+      if (matcher.find()) {
+        var lineContent = matcher.group("lineContent");
+        var newLine = matcher.group("newLine");
+        positionCounter = positionCounter + lineContent.length() + newLine.length();
+      } else {
+        throw new IllegalArgumentException("Unable to calculate position from TextRange");
+      }
+    }
+    positionCounter = positionCounter + textRange.start().lineOffset();
+
+    int length = 0;
+    for (int i = textRange.start().line(); i < textRange.end().line(); i++) {
+      if (matcher.find()) {
+        var lineContent = matcher.group("lineContent");
+        var newLine = matcher.group("newLine");
+        length = length + lineContent.length() + newLine.length();
+      } else {
+        throw new IllegalArgumentException("Unable to calculate length from TextRange");
+      }
+    }
+    length = length + textRange.end().lineOffset();
+
+    return new Tuple<>(positionCounter, length);
+  }
 }

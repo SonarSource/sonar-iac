@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,5 +53,13 @@ public class PipeNodeImpl extends AbstractNode implements PipeNode {
 
   public List<CommandNode> commands() {
     return commands;
+  }
+
+  @Override
+  public List<Node> children() {
+    List<Node> children = new ArrayList<>();
+    children.addAll(declarations);
+    children.addAll(commands);
+    return children;
   }
 }
