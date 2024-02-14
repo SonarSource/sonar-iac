@@ -117,7 +117,7 @@ setup_gradle_cache: &SETUP_GRADLE_CACHE
     - mkdir -p ${GRADLE_USER_HOME}
   gradle_cache:
     folder: .gradle/caches
-    fingerprint_script: echo $(date '+%Y-%m-%d')
+    fingerprint_script: git rev-parse HEAD
     reupload_on_changes: "true"
 
 cleanup_gradle_cache: &CLEANUP_GRADLE_CACHE

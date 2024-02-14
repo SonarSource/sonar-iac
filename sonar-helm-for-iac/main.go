@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
+	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonar.iac.helm"
 	"os"
 	"strings"
 	"text/template"
@@ -30,6 +31,7 @@ import (
 )
 
 var stdinReader converters.InputReader = converters.StdinReader{}
+var converter converters.Converter = &converters.DefaultConverter{}
 var serializer converters.Serializer = converters.ProtobufSerializer{}
 
 func NewTemplateSourcesFromRawSources(templateName string, rawSources converters.Files) *converters.TemplateSources {
@@ -40,11 +42,12 @@ func main() {
 	templateSources, processingError := readAndValidateSources()
 
 	evaluatedTemplate := ""
-	var ast *parse.Tree
+	var ast *pbstructs.Tree
 	if processingError == nil {
 		fmt.Fprintf(os.Stderr, "Read in total %d files from stdin; evaluating template <%s>\n", templateSources.NumSources(), templateSources.Name)
 		evaluationResult := evaluateTemplate(templateSources)
-		evaluatedTemplate, ast, processingError = evaluationResult.Template, evaluationResult.Ast, evaluationResult.Error
+		ast = converter.ConvertTree(templateSources.TemplateFile(), evaluationResult.Ast)
+		evaluatedTemplate, processingError = evaluationResult.Template, evaluationResult.Error
 	} else {
 		fmt.Fprintf(os.Stderr, "Failed to read input: %s\n", processingError.Error())
 	}

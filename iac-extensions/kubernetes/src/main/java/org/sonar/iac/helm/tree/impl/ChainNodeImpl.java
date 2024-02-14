@@ -33,8 +33,8 @@ public class ChainNodeImpl extends AbstractNode implements ChainNode {
   private final Node node;
   private final List<String> field;
 
-  public ChainNodeImpl(long position, @Nullable Node node, List<String> field) {
-    super(position);
+  public ChainNodeImpl(long position, long length, @Nullable Node node, List<String> field) {
+    super(position, length);
     this.node = node;
     this.field = Collections.unmodifiableList(field);
   }
@@ -42,6 +42,7 @@ public class ChainNodeImpl extends AbstractNode implements ChainNode {
   public static Node fromPb(ChainNodeOrBuilder chainNodePb) {
     return new ChainNodeImpl(
       chainNodePb.getPos(),
+      chainNodePb.getLength(),
       Optional.ofNullable(chainNodePb.getNode()).map(GoTemplateAstConverter::unpackNode).orElse(null),
       chainNodePb.getFieldList());
   }

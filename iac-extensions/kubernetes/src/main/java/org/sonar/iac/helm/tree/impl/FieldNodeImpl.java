@@ -28,13 +28,13 @@ import org.sonar.iac.helm.tree.api.Node;
 public class FieldNodeImpl extends AbstractNode implements FieldNode {
   private final List<String> identifiers;
 
-  public FieldNodeImpl(long position, List<String> identifiers) {
-    super(position);
+  public FieldNodeImpl(long position, long length, List<String> identifiers) {
+    super(position, length);
     this.identifiers = Collections.unmodifiableList(identifiers);
   }
 
   public static Node fromPb(FieldNodeOrBuilder nodePb) {
-    return new FieldNodeImpl(nodePb.getPos(), nodePb.getIdentList());
+    return new FieldNodeImpl(nodePb.getPos(), nodePb.getLength(), nodePb.getIdentList());
   }
 
   public List<String> identifiers() {

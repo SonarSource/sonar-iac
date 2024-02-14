@@ -26,14 +26,14 @@ import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
 
 public class IfNodeImpl extends AbstractBranchNode implements IfNode {
-  public IfNodeImpl(long position, PipeNode pipe, ListNode list, ListNode elseList) {
-    super(position, pipe, list, elseList);
+  public IfNodeImpl(long position, long length, PipeNode pipe, ListNode list, ListNode elseList) {
+    super(position, length, pipe, list, elseList);
   }
 
   public static Node fromPb(IfNodeOrBuilder ifNodePb) {
     var pipe = (PipeNode) PipeNodeImpl.fromPb(ifNodePb.getBranchNode().getPipe());
     var list = (ListNode) ListNodeImpl.fromPb(ifNodePb.getBranchNode().getList());
     var elseList = (ListNode) ListNodeImpl.fromPb(ifNodePb.getBranchNode().getElseList());
-    return new IfNodeImpl(ifNodePb.getPos(), pipe, list, elseList);
+    return new IfNodeImpl(ifNodePb.getPos(), ifNodePb.getLength(), pipe, list, elseList);
   }
 }

@@ -26,13 +26,13 @@ import org.sonar.iac.helm.tree.api.Node;
 public class BreakNodeImpl extends AbstractNode implements BreakNode {
   private final long line;
 
-  public BreakNodeImpl(long position, long line) {
-    super(position);
+  public BreakNodeImpl(long position, long length, long line) {
+    super(position, length);
     this.line = line;
   }
 
   public static Node fromPb(BreakNodeOrBuilder breakNodePb) {
-    return new BreakNodeImpl(breakNodePb.getPos(), breakNodePb.getLine());
+    return new BreakNodeImpl(breakNodePb.getPos(), breakNodePb.getLength(), breakNodePb.getLine());
   }
 
   public long line() {

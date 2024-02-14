@@ -24,11 +24,11 @@ import org.sonar.iac.helm.tree.api.NilNode;
 import org.sonar.iac.helm.tree.api.Node;
 
 public class NilNodeImpl extends AbstractNode implements NilNode {
-  public NilNodeImpl(long position) {
-    super(position);
+  public NilNodeImpl(long position, long length) {
+    super(position, length);
   }
 
   public static Node fromPb(NilNodeOrBuilder nilNodePb) {
-    return new NilNodeImpl(nilNodePb.getPos());
+    return new NilNodeImpl(nilNodePb.getPos(), nilNodePb.getLength());
   }
 }

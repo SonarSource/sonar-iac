@@ -28,13 +28,13 @@ import org.sonar.iac.helm.tree.api.VariableNode;
 public class VariableNodeImpl extends AbstractNode implements VariableNode {
   private final List<String> ident;
 
-  public VariableNodeImpl(long position, List<String> ident) {
-    super(position);
+  public VariableNodeImpl(long position, long length, List<String> ident) {
+    super(position, length);
     this.ident = Collections.unmodifiableList(ident);
   }
 
   public static Node fromPb(VariableNodeOrBuilder nodePb) {
-    return new VariableNodeImpl(nodePb.getPos(), nodePb.getIdentList());
+    return new VariableNodeImpl(nodePb.getPos(), nodePb.getLength(), nodePb.getIdentList());
   }
 
   public List<String> idents() {

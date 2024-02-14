@@ -26,13 +26,13 @@ import org.sonar.iac.helm.tree.api.NumberNode;
 public class NumberNodeImpl extends AbstractNode implements NumberNode {
   private final String text;
 
-  public NumberNodeImpl(long position, String text) {
-    super(position);
+  public NumberNodeImpl(long position, long length, String text) {
+    super(position, length);
     this.text = text;
   }
 
   public static Node fromPb(NumberNodeOrBuilder nodePb) {
-    return new NumberNodeImpl(nodePb.getPos(), nodePb.getText());
+    return new NumberNodeImpl(nodePb.getPos(), nodePb.getLength(), nodePb.getText());
   }
 
   public String text() {

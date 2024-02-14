@@ -20,20 +20,41 @@
 package org.sonar.iac.helm.tree.api;
 
 /**
- * Node represents a node in the Go template AST.
+ * Location represents the location of a node in the input file.
  */
-public interface Node {
+public class Location {
   /**
-   * The type of the node.
-   *
-   * @return the type of the node
+   * The offset of the node in the input file.
    */
-  NodeType type();
+  private final long position;
 
   /**
-   * The location of the node in the file.
-   *
-   * @return the location of the node in the file
+   * The length of the piece of code in the input file that the node represents.
    */
-  Location location();
+  private final long length;
+
+  /**
+   * Constructs a location with the given position and length.
+   *
+   * @param position the offset of the node in the input file
+   * @param length the length of the code fragment in the input file
+   */
+  public Location(long position, long length) {
+    this.position = position;
+    this.length = length;
+  }
+
+  /**
+   * @return the offset of the node in the input file
+   */
+  public long position() {
+    return position;
+  }
+
+  /**
+   * @return the length of the code fragment in the input file
+   */
+  public long length() {
+    return length;
+  }
 }

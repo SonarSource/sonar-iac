@@ -23,13 +23,11 @@ import (
 	"errors"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonar.iac.helm"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 	"os"
 	"os/exec"
 	"testing"
-	"text/template/parse"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type InputReaderMock struct {
@@ -43,7 +41,7 @@ func (i *InputReaderMock) ReadInput(*bufio.Scanner) (string, converters.Files, e
 
 type FailingProtobufSerializer struct{}
 
-func (s FailingProtobufSerializer) Serialize(content string, ast *parse.Tree, err error) ([]byte, error) {
+func (s FailingProtobufSerializer) Serialize(content string, ast *pbstructs.Tree, err error) ([]byte, error) {
 	return nil, errors.New("serialization error")
 }
 
@@ -488,10 +486,11 @@ func Test_to_protobuf_valid(t *testing.T) {
 		"templates/a.yaml": template,
 		"values.yaml":      values,
 		"Chart.yaml":       DefaultChartYaml}))
-	result, _ := serializer.Serialize(evaluatedTemplate.Template, evaluatedTemplate.Ast, evaluatedTemplate.Error)
+	ast := converter.ConvertTree(string(template), evaluatedTemplate.Ast)
+	result, _ := serializer.Serialize(evaluatedTemplate.Template, ast, evaluatedTemplate.Error)
 
 	templateFromProto := &pbstructs.TemplateEvaluationResult{}
-	proto.Unmarshal(result, templateFromProto)
+	_ = proto.Unmarshal(result, templateFromProto)
 
 	assert.Equal(t, "apiVersion: v1", templateFromProto.Template)
 	assert.Equal(t, "", templateFromProto.Error)
@@ -504,10 +503,11 @@ func Test_to_protobuf_invalid(t *testing.T) {
 		"templates/a.yaml": template,
 		"values.yaml":      make([]byte, 0),
 		"Chart.yaml":       DefaultChartYaml}))
-	result, _ := serializer.Serialize(evaluatedTemplate.Template, evaluatedTemplate.Ast, evaluatedTemplate.Error)
+	ast := converter.ConvertTree(string(template), evaluatedTemplate.Ast)
+	result, _ := serializer.Serialize(evaluatedTemplate.Template, ast, evaluatedTemplate.Error)
 
 	templateFromProto := &pbstructs.TemplateEvaluationResult{}
-	proto.Unmarshal(result, templateFromProto)
+	_ = proto.Unmarshal(result, templateFromProto)
 
 	assert.Equal(t, "", templateFromProto.Template)
 	assert.Equal(t, "template: test-project/templates/a.yaml:1: unclosed action", templateFromProto.Error)

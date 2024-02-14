@@ -26,13 +26,13 @@ import org.sonar.iac.helm.tree.api.Node;
 public class BoolNodeImpl extends AbstractNode implements BoolNode {
   private final boolean value;
 
-  public BoolNodeImpl(long position, boolean value) {
-    super(position);
+  public BoolNodeImpl(long position, long length, boolean value) {
+    super(position, length);
     this.value = value;
   }
 
   public static Node fromPb(BoolNodeOrBuilder boolNodePb) {
-    return new BoolNodeImpl(boolNodePb.getPos(), boolNodePb.getTrue());
+    return new BoolNodeImpl(boolNodePb.getPos(), boolNodePb.getLength(), boolNodePb.getTrue());
   }
 
   public boolean value() {

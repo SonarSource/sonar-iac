@@ -32,14 +32,16 @@ public class PipeNodeImpl extends AbstractNode implements PipeNode {
   private final List<VariableNode> declarations;
   private final List<CommandNode> commands;
 
-  public PipeNodeImpl(long position, List<VariableNode> declarations, List<CommandNode> commands) {
-    super(position);
+  public PipeNodeImpl(long position, long length, List<VariableNode> declarations, List<CommandNode> commands) {
+    super(position, length);
     this.declarations = Collections.unmodifiableList(declarations);
     this.commands = Collections.unmodifiableList(commands);
   }
 
   public static Node fromPb(PipeNodeOrBuilder nodePb) {
-    return new PipeNodeImpl(nodePb.getPos(),
+    return new PipeNodeImpl(
+      nodePb.getPos(),
+      nodePb.getLength(),
       nodePb.getDeclList().stream().map(node -> (VariableNode) VariableNodeImpl.fromPb(node)).collect(Collectors.toList()),
       nodePb.getCmdsList().stream().map(node -> (CommandNode) CommandNodeImpl.fromPb(node)).collect(Collectors.toList()));
   }

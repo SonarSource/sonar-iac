@@ -26,13 +26,14 @@ import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.WithNode;
 
 public class WithNodeImpl extends AbstractBranchNode implements WithNode {
-  public WithNodeImpl(long position, PipeNode pipe, ListNode list, ListNode elseList) {
-    super(position, pipe, list, elseList);
+  public WithNodeImpl(long position, long length, PipeNode pipe, ListNode list, ListNode elseList) {
+    super(position, length, pipe, list, elseList);
   }
 
   public static Node fromPb(WithNodeOrBuilder nodePb) {
     return new WithNodeImpl(
       nodePb.getPos(),
+      nodePb.getLength(),
       (PipeNode) PipeNodeImpl.fromPb(nodePb.getBranchNode().getPipe()),
       (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getList()),
       (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getElseList()));
