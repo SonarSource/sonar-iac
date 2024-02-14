@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,14 +30,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -48,7 +45,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class HelmFilesystemUtilsTest {
+class HelmFilesystemTest {
 
   @TempDir
   protected File tmpDir;
@@ -56,7 +53,10 @@ class HelmFilesystemUtilsTest {
   private File baseDir;
 
   private static final String helmProjectPathPrefix = "charts/project/";
+
   private SensorContextTester context;
+
+  private HelmFilesystem helmFilesystem;
 
   @BeforeEach
   void init() throws IOException {
@@ -64,6 +64,7 @@ class HelmFilesystemUtilsTest {
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
     FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("templates").toFile());
+    helmFilesystem = new HelmFilesystem(context.fileSystem());
   }
 
   @AfterEach
@@ -76,14 +77,13 @@ class HelmFilesystemUtilsTest {
   void inputFilesShouldBeCorrectlyRetrieved(String relativePath, boolean shouldBeIncluded) throws IOException {
     FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "foo/bar"));
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
 
     InputFile chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
     addToFilesystem(context, helmTemplate, chartYamlFile);
     InputFile additionalFile = createInputFile(helmProjectPathPrefix + relativePath);
     addToFilesystem(context, helmTemplate, additionalFile);
 
-    Map<String, InputFile> helmDependentFiles = HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(templateInputFileContext);
+    Map<String, InputFile> helmDependentFiles = helmFilesystem.getRelatedHelmFiles(helmTemplate);
     InputFile resultingInputFile = helmDependentFiles.get(relativePath);
 
     if (shouldBeIncluded) {
@@ -113,7 +113,7 @@ class HelmFilesystemUtilsTest {
 
   @Test
   void shouldReturnNullWhenInputIsNull() {
-    Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(null, context.fileSystem().baseDir());
+    Path parentPath = HelmFilesystem.retrieveHelmProjectFolder(null, context.fileSystem().baseDir());
     assertThat(parentPath).isNull();
   }
 
@@ -125,7 +125,7 @@ class HelmFilesystemUtilsTest {
       Path inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(null);
 
-      Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
+      Path parentPath = HelmFilesystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
       assertThat(parentPath).isNull();
     }
   }
@@ -137,7 +137,7 @@ class HelmFilesystemUtilsTest {
     when(basePath.toRealPath()).thenThrow(IOException.class);
     File baseDir = mock(File.class);
     when(baseDir.toPath()).thenReturn(basePath);
-    Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath, baseDir);
+    Path parentPath = HelmFilesystem.retrieveHelmProjectFolder(inputFilePath, baseDir);
 
     assertThat(parentPath).isNull();
   }
@@ -151,22 +151,16 @@ class HelmFilesystemUtilsTest {
       when(inputFilePath.getParent()).thenReturn(mock(Path.class));
       when(inputFilePath.startsWith(any(Path.class))).thenReturn(false);
 
-      Path parentPath = HelmFilesystemUtils.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
+      Path parentPath = HelmFilesystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
       assertThat(parentPath).isNull();
     }
   }
 
   @Test
   void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenCallRealMethod();
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(null);
-
-      InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-      InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
-      Map<String, InputFile> result = HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(templateInputFileContext);
-      assertThat(result).isEmpty();
-    }
+    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+    Map<String, InputFile> result = helmFilesystem.getRelatedHelmFiles(helmTemplate);
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -176,7 +170,7 @@ class HelmFilesystemUtilsTest {
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
 
-    var result = HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
+    var result = HelmFilesystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
 
     assertThat(result).isNull();
   }

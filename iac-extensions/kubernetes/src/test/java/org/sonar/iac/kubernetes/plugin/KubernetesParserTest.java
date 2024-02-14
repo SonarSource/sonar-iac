@@ -47,7 +47,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
-import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.helm.HelmFilesystem;
 import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -118,8 +118,8 @@ class KubernetesParserTest {
 
   @Test
   void shouldLoadValuesFile() throws IOException, URISyntaxException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
+    try (var ignored = Mockito.mockStatic(HelmFilesystem.class)) {
+      when(HelmFilesystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
       var valuesFile = mock(InputFile.class);
       when(valuesFile.filename()).thenReturn("values.yaml");
       when(valuesFile.contents()).thenReturn("foo: bar");
@@ -142,9 +142,7 @@ class KubernetesParserTest {
 
   @Test
   void shouldNotEvaluateHelmWithoutValuesFile() throws URISyntaxException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(Map.of());
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
+    try (var ignored = Mockito.mockStatic(HelmFilesystem.class)) {
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
@@ -161,8 +159,8 @@ class KubernetesParserTest {
 
   @Test
   void shouldFallbackToFilenameInCaseOfUnresolvedChartDirectory() throws URISyntaxException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(null);
+    try (var ignored = Mockito.mockStatic(HelmFilesystem.class)) {
+      when(HelmFilesystem.retrieveHelmProjectFolder(any(), any())).thenReturn(null);
       when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
       when(inputFileContext.inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
@@ -202,7 +200,7 @@ class KubernetesParserTest {
 
   @Test
   void shouldNotFailIfEmptyFileAfterEvaluation() throws IOException, URISyntaxException {
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+    try (var ignored = Mockito.mockStatic(HelmFilesystem.class)) {
       var valuesFile = mock(InputFile.class);
       when(valuesFile.filename()).thenReturn("values.yaml");
       when(valuesFile.contents()).thenReturn("foo: bar");
@@ -429,7 +427,7 @@ class KubernetesParserTest {
 
   private FileTree parseTemplate(String originalCode, String evaluated) throws IOException, URISyntaxException {
     FileTree file;
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+    try (var ignored = Mockito.mockStatic(HelmFilesystem.class)) {
       var valuesFile = mock(InputFile.class);
       when(valuesFile.filename()).thenReturn("values.yaml");
       when(valuesFile.contents()).thenReturn("foo: bar");
@@ -454,7 +452,7 @@ class KubernetesParserTest {
       "  . #2",
       "invalid-key #3");
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+    try (var ignored = Mockito.mockStatic(HelmFilesystem.class)) {
       var valuesFile = mock(InputFile.class);
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
@@ -474,7 +472,7 @@ class KubernetesParserTest {
   void shouldSilentlyLogParseExceptionsForIncludedTemplates() throws URISyntaxException {
     var code = "{{ include \"a-template-from-dependency\" . }}";
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+    try (var ignored = Mockito.mockStatic(HelmFilesystem.class)) {
       var valuesFile = mock(InputFile.class);
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
@@ -501,7 +499,7 @@ class KubernetesParserTest {
   void shouldRethrowParseExceptionsWithDifferentDetails(@Nullable String details) throws URISyntaxException {
     var code = "{{ include \"a-template-from-dependency\" . }}";
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
+    try (var ignored = Mockito.mockStatic(HelmFilesystem.class)) {
       var valuesFile = mock(InputFile.class);
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);

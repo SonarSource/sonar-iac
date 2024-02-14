@@ -31,7 +31,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
-import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.helm.HelmFilesystem;
 import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -120,14 +120,14 @@ public class KubernetesParser extends YamlParser {
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {
     var filePath = Path.of(inputFileContext.inputFile.uri());
-    var chartRootDirectory = HelmFilesystemUtils.retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
+    var chartRootDirectory = HelmFilesystem.retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
     String fileRelativePath;
     if (chartRootDirectory == null) {
       fileRelativePath = inputFileContext.inputFile.filename();
     } else {
       fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
       // transform windows to unix path
-      fileRelativePath = HelmFilesystemUtils.normalizeToUnixPathSeparator(fileRelativePath);
+      fileRelativePath = HelmFilesystem.normalizeToUnixPathSeparator(fileRelativePath);
     }
     return fileRelativePath;
   }

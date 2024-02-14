@@ -33,13 +33,13 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.HelmFilesystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
-import static org.sonar.iac.helm.utils.HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory;
 
 @ScannerSide
 @SonarLintSide
@@ -82,7 +82,7 @@ public class HelmProcessor {
 
     // TODO: better support of Helm project structure
     var sourceWithComments = addLineComments(source);
-    Map<String, InputFile> additionalFiles = additionalFilesOfHelmProjectDirectory(inputFileContext);
+    Map<String, InputFile> additionalFiles = HelmFilesystem.getRelatedHelmFiles(inputFileContext);
     var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
     return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
   }

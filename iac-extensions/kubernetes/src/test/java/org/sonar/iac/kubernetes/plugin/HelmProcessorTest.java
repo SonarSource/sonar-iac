@@ -53,14 +53,14 @@ class HelmProcessorTest {
 
   @TempDir
   static Path tempDir;
-  private final InputFile DEFAULT_INPUT_FILE= IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
+  private final InputFile DEFAULT_INPUT_FILE = IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
-  //-------------------------------------------------
-  //----Test HelmProcessor.processHelmTemplate-------
-  //-------------------------------------------------
+  // -------------------------------------------------
+  // ----Test HelmProcessor.processHelmTemplate-------
+  // -------------------------------------------------
 
   @Test
   void shouldHandleInitializationError() throws IOException {
@@ -86,7 +86,7 @@ class HelmProcessorTest {
   @Test
   void shouldNotEvaluateIfSourceIsEmpty() throws IOException {
     var helmProcessor = getInitializedHelmProcessor();
-    var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
+    var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
 
     String evaluatedSource = helmProcessor.processHelmTemplate("foo.yaml", "", inputFileContext);
 
@@ -94,9 +94,9 @@ class HelmProcessorTest {
     assertThat(logTester.logs(Level.DEBUG)).contains("The file chart/templates/foo.yaml is blank, skipping evaluation");
   }
 
-  //-------------------------------------------------
-  //----Test HelmProcessor.validateAndReadFiles------
-  //-------------------------------------------------
+  // -------------------------------------------------
+  // ----Test HelmProcessor.validateAndReadFiles------
+  // -------------------------------------------------
 
   @Test
   void validateAndReadFilesShouldThrowExceptionIfValuesFileNotFound() {
@@ -144,9 +144,9 @@ class HelmProcessorTest {
       .containsEntry("templates/some.yaml", "kind: Pod");
   }
 
-  //-------------------------------------------------
-  //-------Test HelmProcessor.evaluateTemplate-------
-  //-------------------------------------------------
+  // -------------------------------------------------
+  // -------Test HelmProcessor.evaluateTemplate-------
+  // -------------------------------------------------
 
   @Test
   void evaluateHelmTemplateShouldNotThrowParseException() throws IOException {
@@ -178,15 +178,14 @@ class HelmProcessorTest {
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Template evaluation failed");
   }
 
-  //-------------------------------------------------
-  //---------------Test Helper methods---------------
-  //-------------------------------------------------
+  // -------------------------------------------------
+  // ---------------Test Helper methods---------------
+  // -------------------------------------------------
 
   private static Stream<Exception> exceptionProvider() {
     return Stream.of(
       new IllegalStateException("Failed to evaluate template"),
-      new IOException("Failed to evaluate template")
-    );
+      new IOException("Failed to evaluate template"));
   }
 
   private HelmProcessor getInitializedHelmProcessor() {
@@ -195,8 +194,8 @@ class HelmProcessorTest {
     return helmProcessor;
   }
 
-  private static InputFileContext mockInputFileContext(String filename) throws IOException {
-    var inputFile = mockInputFile(filename, "");
+  private static InputFileContext mockInputFileContext(String filename, String content) throws IOException {
+    var inputFile = mockInputFile(filename, content);
     return new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
   }
 
