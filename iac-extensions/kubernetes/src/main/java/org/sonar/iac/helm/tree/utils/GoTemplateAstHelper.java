@@ -38,7 +38,7 @@ public class GoTemplateAstHelper {
   }
 
   public static List<ValuePath> findNodes(GoTemplateTree tree, TextRange range, String text) {
-    var location = LocationImpl.toPositionAndLength(range, text);
+    var location = LocationImpl.toLocation(range, text);
     var nodes = tree.root().children().stream()
       .filter(hasOverlayingLocation(location))
       .collect(Collectors.toList());

@@ -81,7 +81,7 @@ public class LocationImpl implements Location {
       '}';
   }
 
-  public static Location toPositionAndLength(TextRange textRange, String text) {
+  public static Location toLocation(TextRange textRange, String text) {
     var positionCounter = toPosition(textRange.start(), text);
     var endPosition = toPosition(textRange.end(), text);
 

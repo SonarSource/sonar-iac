@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
-import static org.sonar.iac.helm.tree.impl.LocationImpl.toPositionAndLength;
+import static org.sonar.iac.helm.tree.impl.LocationImpl.toLocation;
 
 class LocationImplTest {
 
@@ -35,70 +35,70 @@ class LocationImplTest {
   @Test
   void shouldConvertToPositionAndLengthFirstLine() {
     var range = range(1, 0, 1, 5);
-    var positionAndLength = toPositionAndLength(range, TEXT);
+    var positionAndLength = toLocation(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 5));
   }
 
   @Test
   void shouldConvertToPositionAndLengthSecondLine() {
     var range = range(2, 0, 2, 11);
-    var positionAndLength = toPositionAndLength(range, TEXT);
+    var positionAndLength = toLocation(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(6, 11));
   }
 
   @Test
   void shouldConvertToPositionAndLengthSecondLineStartColumn3() {
     var range = range(2, 3, 2, 11);
-    var positionAndLength = toPositionAndLength(range, TEXT);
+    var positionAndLength = toLocation(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(9, 8));
   }
 
   @Test
   void shouldConvertToPositionAndLengthLastLine() {
     var range = range(3, 1, 3, 17);
-    var positionAndLength = toPositionAndLength(range, TEXT);
+    var positionAndLength = toLocation(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(24, 16));
   }
 
   @Test
   void shouldConvertToPositionAndLengthFirstAndSecondLine() {
     var range = range(1, 0, 2, 7);
-    var positionAndLength = toPositionAndLength(range, TEXT);
+    var positionAndLength = toLocation(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 13));
   }
 
   @Test
   void shouldConvertToPositionAndLengthFirstToThirdLine() {
     var range = range(1, 0, 3, 10);
-    var positionAndLength = toPositionAndLength(range, TEXT);
+    var positionAndLength = toLocation(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 33));
   }
 
   @Test
   void shouldThrowExceptionWhenStartLineNumberDoesntExist() {
     var range = range(4, 0, 4, 1);
-    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
+    assertThatThrownBy(() -> toLocation(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void shouldThrowExceptionWhenStartLineColumnIsTooBig() {
     var range = range(3, 18, 3, 20);
-    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
+    assertThatThrownBy(() -> toLocation(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void shouldThrowExceptionWhenEndLineNumberDoesntExist() {
     var range = range(2, 0, 4, 0);
-    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
+    assertThatThrownBy(() -> toLocation(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void shouldThrowExceptionWhenEndLineColumnIsTooBig() {
     var range = range(3, 0, 3, 18);
-    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
+    assertThatThrownBy(() -> toLocation(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 }
