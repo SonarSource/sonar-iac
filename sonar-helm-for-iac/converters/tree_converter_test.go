@@ -15,10 +15,10 @@ type TestConverter struct {
 	DefaultConverter
 }
 
-var defaultTestConverter = &TestConverter{}
+var converter = &TestConverter{}
 
 func Test_ignore_nil(t *testing.T) {
-	tree := defaultTestConverter.ConvertTree("", nil)
+	tree := converter.ConvertTree("", nil)
 	assert.Nil(t, tree)
 }
 
@@ -27,7 +27,7 @@ func Test_convert_simple(t *testing.T) {
 	tpl, _ := template.New("test").Parse(code)
 	ctx := ConversionContext{
 		Content:   code,
-		Converter: defaultTestConverter,
+		Converter: converter,
 	}
 	node := ctx.Convert(tpl.Root).(*pbstructs.ListNode)
 
@@ -54,7 +54,7 @@ func Test_comments_are_ignored(t *testing.T) {
 	tpl, _ := template.New("test").Parse(code)
 	ctx := ConversionContext{
 		Content:   code,
-		Converter: defaultTestConverter,
+		Converter: converter,
 	}
 	node := ctx.Convert(tpl.Root).(*pbstructs.ListNode)
 	assert.Equal(t, 0, len(node.Nodes))
@@ -68,7 +68,7 @@ func Test_convert_comments(t *testing.T) {
 	tree, _ = tree.Parse(code, "", "", make(map[string]*parse.Tree))
 	ctx := ConversionContext{
 		Content:   code,
-		Converter: defaultTestConverter,
+		Converter: converter,
 	}
 
 	node := ctx.Convert(tree.Root).(*pbstructs.ListNode)
@@ -84,7 +84,7 @@ func Test_TreeConvert_simple_dot(t *testing.T) {
 	code := "{{ . }}"
 	tpl, _ := template.New("test-simple-dot").Parse(code)
 
-	tree := defaultTestConverter.ConvertTree(code, tpl.Tree)
+	tree := converter.ConvertTree(code, tpl.Tree)
 
 	basicTreeAsserts(t, tree, "test-simple-dot", 5, 0, 1)
 	n, _ := anypb.UnmarshalNew(tree.Root.Nodes[0], proto.UnmarshalOptions{})
@@ -114,7 +114,7 @@ func Test_TreeConvert_define_and_template(t *testing.T) {
 `
 	tpl, _ := template.New("test-define-and-template").Parse(code)
 
-	tree := defaultTestConverter.ConvertTree(code, tpl.Tree)
+	tree := converter.ConvertTree(code, tpl.Tree)
 
 	basicTreeAsserts(t, tree, "test-define-and-template", 21, 29, 3)
 
@@ -141,7 +141,7 @@ func Test_TreeConvert_range(t *testing.T) {
 {{- end }}`
 	tpl, _ := template.New("test-range").Parse(code)
 
-	tree := defaultTestConverter.ConvertTree(code, tpl.Tree)
+	tree := converter.ConvertTree(code, tpl.Tree)
 
 	basicTreeAsserts(t, tree, "test-range", 75, 1, 1)
 	n, _ := anypb.UnmarshalNew(tree.Root.Nodes[0], proto.UnmarshalOptions{})
@@ -232,7 +232,7 @@ metadata:
 			tpl, err := template.New(tt.name).Parse(tt.tmpl)
 			assert.NoError(t, err)
 
-			tree := defaultTestConverter.ConvertTree(tt.tmpl, tpl.Tree)
+			tree := converter.ConvertTree(tt.tmpl, tpl.Tree)
 
 			basicTreeAsserts(t, tree, tt.name, tt.rootLength, tt.rootPos, tt.numNodes)
 		})

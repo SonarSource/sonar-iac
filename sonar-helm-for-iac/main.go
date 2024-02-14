@@ -124,8 +124,7 @@ func evaluateTemplateWithReferences(templateName string, templateContent string,
 		return resultWithError(err)
 	}
 
-	result := executePreparedTemplate(tmpl, templateName, values)
-	return result
+	return executePreparedTemplate(tmpl, templateName, values)
 }
 
 func addTemplatesIfMissing(tmpl *template.Template, referenceFiles *converters.Files) error {

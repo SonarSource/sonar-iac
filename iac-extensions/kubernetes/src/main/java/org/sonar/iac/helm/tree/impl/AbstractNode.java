@@ -19,24 +19,18 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.sonar.iac.helm.tree.api.Location;
 import org.sonar.iac.helm.tree.api.Node;
 
 public abstract class AbstractNode implements Node {
-  private final long position;
-  private final long length;
+  private final Location location;
 
   protected AbstractNode(long position, long length) {
-    this.position = position;
-    this.length = length;
+    this.location = new Location(position, length);
   }
 
   @Override
-  public long position() {
-    return this.position;
-  }
-
-  @Override
-  public long length() {
-    return this.length;
+  public Location location() {
+    return location;
   }
 }

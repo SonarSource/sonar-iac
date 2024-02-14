@@ -111,8 +111,8 @@ func (c ConversionContext) convertActionNode(node parse.ActionNode) proto.Messag
 	return &pbstructs.ActionNode{
 		NodeType: pbstructs.NodeType_NodeAction,
 		Pos:      int64(node.Position()),
-		Pipe:     c.convertPipeNode(*node.Pipe),
 		Length:   nodeSourceLength(&node),
+		Pipe:     c.convertPipeNode(*node.Pipe),
 	}
 }
 
@@ -126,8 +126,8 @@ func (c ConversionContext) convertBoolNode(node parse.BoolNode) proto.Message {
 	return &pbstructs.BoolNode{
 		NodeType: pbstructs.NodeType_NodeBool,
 		Pos:      int64(node.Position()),
-		True:     node.True,
 		Length:   int64(length),
+		True:     node.True,
 	}
 }
 
@@ -140,10 +140,10 @@ func (c ConversionContext) convertBranchNode(node parse.BranchNode) proto.Messag
 	}
 	return &pbstructs.BranchNode{
 		Pos:      int64(node.Position()),
+		Length:   nodeSourceLength(&node),
 		Pipe:     c.convertPipeNode(*node.Pipe),
 		List:     c.convertListNode(*node.List),
 		ElseList: elseList,
-		Length:   nodeSourceLength(&node),
 	}
 }
 
@@ -164,8 +164,8 @@ func (c ConversionContext) convertCommandNode(node parse.CommandNode) *pbstructs
 	return &pbstructs.CommandNode{
 		NodeType: pbstructs.NodeType_NodeCommand,
 		Pos:      int64(node.Position()),
-		Args:     args,
 		Length:   nodeSourceLength(&node),
+		Args:     args,
 	}
 }
 
@@ -173,8 +173,8 @@ func (c ConversionContext) convertCommentNode(node parse.CommentNode) proto.Mess
 	return &pbstructs.CommentNode{
 		NodeType: pbstructs.NodeType_NodeComment,
 		Pos:      int64(node.Position()),
-		Text:     &node.Text,
 		Length:   int64(len(node.Text)),
+		Text:     &node.Text,
 	}
 }
 
@@ -198,8 +198,8 @@ func (c ConversionContext) convertFieldNode(node parse.FieldNode) proto.Message 
 	return &pbstructs.FieldNode{
 		NodeType: pbstructs.NodeType_NodeField,
 		Pos:      int64(node.Position()),
-		Ident:    node.Ident,
 		Length:   int64(len(node.Ident)),
+		Ident:    node.Ident,
 	}
 }
 
@@ -207,8 +207,8 @@ func (c ConversionContext) convertIdentifierNode(node parse.IdentifierNode) prot
 	return &pbstructs.IdentifierNode{
 		NodeType: pbstructs.NodeType_NodeIdentifier,
 		Pos:      int64(node.Position()),
-		Ident:    &node.Ident,
 		Length:   nodeSourceLength(&node),
+		Ident:    &node.Ident,
 	}
 }
 
@@ -216,8 +216,8 @@ func (c ConversionContext) convertIfNode(node parse.IfNode) proto.Message {
 	return &pbstructs.IfNode{
 		NodeType:   pbstructs.NodeType_NodeIf,
 		Pos:        int64(node.Pos),
-		BranchNode: c.convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 		Length:     nodeSourceLength(&node),
+		BranchNode: c.convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 	}
 }
 
@@ -225,8 +225,8 @@ func (c ConversionContext) convertListNode(node parse.ListNode) *pbstructs.ListN
 	return &pbstructs.ListNode{
 		NodeType: pbstructs.NodeType_NodeList,
 		Pos:      int64(node.Position()),
-		Nodes:    c.convertAnyNodeList(node.Nodes),
 		Length:   nodeSourceLength(&node),
+		Nodes:    c.convertAnyNodeList(node.Nodes),
 	}
 }
 
@@ -242,8 +242,8 @@ func (c ConversionContext) convertNumberNode(node parse.NumberNode) proto.Messag
 	return &pbstructs.NumberNode{
 		NodeType: pbstructs.NodeType_NodeNumber,
 		Pos:      int64(node.Position()),
-		Text:     &node.Text,
 		Length:   int64(len(node.Text)),
+		Text:     &node.Text,
 	}
 }
 
@@ -259,9 +259,9 @@ func (c ConversionContext) convertPipeNode(node parse.PipeNode) *pbstructs.PipeN
 	return &pbstructs.PipeNode{
 		NodeType: pbstructs.NodeType_NodePipe,
 		Pos:      int64(node.Position()),
+		Length:   nodeSourceLength(&node),
 		Decl:     decls,
 		Cmds:     cmds,
-		Length:   nodeSourceLength(&node),
 	}
 }
 
@@ -278,9 +278,9 @@ func (c ConversionContext) convertStringNode(node parse.StringNode) proto.Messag
 	return &pbstructs.StringNode{
 		NodeType: pbstructs.NodeType_NodeString,
 		Pos:      int64(node.Position()),
+		Length:   int64(len(node.Quoted)),
 		Quoted:   &node.Quoted,
 		Text:     &node.Text,
-		Length:   int64(len(node.Quoted)),
 	}
 }
 
@@ -288,8 +288,8 @@ func (c ConversionContext) convertTemplateNode(node parse.TemplateNode) proto.Me
 	return &pbstructs.TemplateNode{
 		NodeType: pbstructs.NodeType_NodeTemplate,
 		Pos:      int64(node.Position()),
-		Name:     &node.Name,
 		Length:   nodeSourceLength(&node),
+		Name:     &node.Name,
 	}
 }
 
@@ -297,8 +297,8 @@ func (c ConversionContext) convertTextNode(node parse.TextNode) proto.Message {
 	return &pbstructs.TextNode{
 		NodeType: pbstructs.NodeType_NodeText,
 		Pos:      int64(node.Position()),
-		Text:     node.Text,
 		Length:   int64(len(node.Text)),
+		Text:     node.Text,
 	}
 }
 
@@ -306,8 +306,8 @@ func (c ConversionContext) convertVariableNode(node parse.VariableNode) *pbstruc
 	return &pbstructs.VariableNode{
 		NodeType: pbstructs.NodeType_NodeVariable,
 		Pos:      int64(node.Position()),
-		Ident:    node.Ident,
 		Length:   nodeSourceLength(&node),
+		Ident:    node.Ident,
 	}
 }
 
@@ -315,8 +315,8 @@ func (c ConversionContext) convertWithNode(node parse.WithNode) proto.Message {
 	return &pbstructs.WithNode{
 		NodeType:   pbstructs.NodeType_NodeWith,
 		Pos:        int64(node.Pos),
-		BranchNode: c.convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 		Length:     nodeSourceLength(&node),
+		BranchNode: c.convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 	}
 }
 
