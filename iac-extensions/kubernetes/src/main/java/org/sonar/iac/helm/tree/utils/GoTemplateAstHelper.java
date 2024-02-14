@@ -25,10 +25,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
+import org.sonar.iac.helm.tree.api.Location;
 import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.impl.LocationImpl;
 
 public class GoTemplateAstHelper {
 
@@ -37,11 +38,9 @@ public class GoTemplateAstHelper {
   }
 
   public static List<ValuePath> findNodes(GoTemplateTree tree, TextRange range, String text) {
-    var positionAndLength = TextRanges.toPositionAndLength(range, text);
-    var position = positionAndLength.first();
-    var length = positionAndLength.second();
+    var location = LocationImpl.toPositionAndLength(range, text);
     var nodes = tree.root().children().stream()
-      .filter(hasOverlayingLocation(position, length))
+      .filter(hasOverlayingLocation(location))
       .collect(Collectors.toList());
 
     return allChildren(nodes).stream()
@@ -52,10 +51,16 @@ public class GoTemplateAstHelper {
       .collect(Collectors.toList());
   }
 
-  private static Predicate<Node> hasOverlayingLocation(Integer position, Integer length) {
-    return node -> (node.position() >= position && node.position() <= position + length) ||
-      (node.position() + 15 >= position && node.position() + 15 <= position + length) ||
-      (node.position() < position && node.position() + 15 > position + length);
+  private static Predicate<Node> hasOverlayingLocation(Location location) {
+    return node -> {
+      var position = location.position();
+      var length = location.length();
+      var nodePosition = node.location().position();
+      var nodeLength = node.location().length();
+      return (nodePosition >= position && nodePosition <= position + length) ||
+        (nodePosition + nodeLength >= position && nodePosition + nodeLength <= position + length) ||
+        (nodePosition < position && nodePosition + nodeLength > position + length);
+    };
   }
 
   private static List<Node> allChildren(List<Node> nodes) {

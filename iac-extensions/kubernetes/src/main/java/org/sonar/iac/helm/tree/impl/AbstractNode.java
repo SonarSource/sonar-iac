@@ -27,7 +27,7 @@ public abstract class AbstractNode implements Node {
   private final Location location;
 
   protected AbstractNode(long position, long length) {
-    this.location = new Location(position, length);
+    this.location = new LocationImpl(position, length);
   }
 
   @Override

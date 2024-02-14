@@ -26,15 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.HasTextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.sonar.iac.common.api.tree.impl.TextRanges.toPositionAndLength;
 
 class TextRangesTest {
-
-  private final static String TEXT = "line1\n" +
-    "line 2 some text\n" +
-    "line 3 extra text";
 
   @Test
   void shouldCreateRangeUsingString() {
@@ -99,76 +93,6 @@ class TextRangesTest {
     assertThat(TextRanges.isValidAndNotEmpty(range(1, 1, 1, 1))).isFalse();
     assertThat(TextRanges.isValidAndNotEmpty(range(2, 1, 1, 1))).isFalse();
     assertThat(TextRanges.isValidAndNotEmpty(range(1, 2, 3, 4))).isTrue();
-  }
-
-  @Test
-  void shouldConvertToPositionAndLengthFirstLine() {
-    var range = range(1, 0, 1, 5);
-    var positionAndLength = toPositionAndLength(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new Tuple<>(0, 5));
-  }
-
-  @Test
-  void shouldConvertToPositionAndLengthSecondLine() {
-    var range = range(2, 0, 2, 11);
-    var positionAndLength = toPositionAndLength(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new Tuple<>(6, 11));
-  }
-
-  @Test
-  void shouldConvertToPositionAndLengthSecondLineStartColumn3() {
-    var range = range(2, 3, 2, 11);
-    var positionAndLength = toPositionAndLength(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new Tuple<>(9, 8));
-  }
-
-  @Test
-  void shouldConvertToPositionAndLengthLastLine() {
-    var range = range(3, 1, 3, 17);
-    var positionAndLength = toPositionAndLength(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new Tuple<>(24, 16));
-  }
-
-  @Test
-  void shouldConvertToPositionAndLengthFirstAndSecondLine() {
-    var range = range(1, 0, 2, 7);
-    var positionAndLength = toPositionAndLength(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new Tuple<>(0, 13));
-  }
-
-  @Test
-  void shouldConvertToPositionAndLengthFirstToThirdLine() {
-    var range = range(1, 0, 3, 10);
-    var positionAndLength = toPositionAndLength(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new Tuple<>(0, 33));
-  }
-
-  @Test
-  void shouldThrowExceptionWhenStartLineNumberDoesntExist() {
-    var range = range(4, 0, 4, 1);
-    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
-      .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void shouldThrowExceptionWhenStartLineColumnIsTooBig() {
-    var range = range(3, 18, 3, 20);
-    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
-      .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void shouldThrowExceptionWhenEndLineNumberDoesntExist() {
-    var range = range(2, 0, 4, 0);
-    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
-      .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void shouldThrowExceptionWhenEndLineColumnIsTooBig() {
-    var range = range(3, 0, 3, 18);
-    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
-      .isInstanceOf(IllegalArgumentException.class);
   }
 
   public static TextRange range(int startLine, int startLineColumn, int endLine, int endLineColumn) {

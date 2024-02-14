@@ -52,13 +52,13 @@ class GoTemplateAstHelperTest {
   void shouldFindValuesByTextRange(TextRange textRange, String name) {
     String text = code("apiVersion: apps/v1 #1",
       "hostIPC: {{ .Values.hostIPC }} #2 #3");
-    var textNode1 = new TextNodeImpl(0, "apiVersion: apps/v1 #1\nhostIPC: ");
-    var textNode2 = new TextNodeImpl(53, " #2\n #3");
-    var fieldNode = new FieldNodeImpl(42, List.of("Values", "hostIPC"));
-    var command = new CommandNodeImpl(35, List.of(fieldNode));
-    var pipeNode = new PipeNodeImpl(35, List.of(), List.of(command));
-    var actionNode = new ActionNodeImpl(35, pipeNode);
-    ListNodeImpl root = new ListNodeImpl(0, List.of(textNode1, actionNode, textNode2));
+    var textNode1 = new TextNodeImpl(0, 32, "apiVersion: apps/v1 #1\nhostIPC: ");
+    var textNode2 = new TextNodeImpl(53, 7, " #2\n #3");
+    var fieldNode = new FieldNodeImpl(42, 14, List.of("Values", "hostIPC"));
+    var command = new CommandNodeImpl(35, 14, List.of(fieldNode));
+    var pipeNode = new PipeNodeImpl(35, 14, List.of(), List.of(command));
+    var actionNode = new ActionNodeImpl(35, 14, pipeNode);
+    ListNodeImpl root = new ListNodeImpl(0, 14, List.of(textNode1, actionNode, textNode2));
     var goTemplateTree = new GoTemplateTreeImpl("name", "name", 0, root);
 
     var actual = GoTemplateAstHelper.findNodes(

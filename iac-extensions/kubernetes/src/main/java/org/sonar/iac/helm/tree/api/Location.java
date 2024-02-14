@@ -22,39 +22,15 @@ package org.sonar.iac.helm.tree.api;
 /**
  * Location represents the location of a node in the input file.
  */
-public class Location {
-  /**
-   * The offset of the node in the input file.
-   */
-  private final long position;
-
-  /**
-   * The length of the piece of code in the input file that the node represents.
-   */
-  private final long length;
-
-  /**
-   * Constructs a location with the given position and length.
-   *
-   * @param position the offset of the node in the input file
-   * @param length the length of the code fragment in the input file
-   */
-  public Location(long position, long length) {
-    this.position = position;
-    this.length = length;
-  }
+public interface Location {
 
   /**
    * @return the offset of the node in the input file
    */
-  public long position() {
-    return position;
-  }
+  long position();
 
   /**
    * @return the length of the code fragment in the input file
    */
-  public long length() {
-    return length;
-  }
+  long length();
 }
