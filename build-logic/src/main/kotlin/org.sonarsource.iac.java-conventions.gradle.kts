@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
 plugins {
     `java-library`
     jacoco
@@ -25,8 +27,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 
     testLogging {
-        exceptionFormat =
-            org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL // log the full stack trace (default is the 1st line of the stack trace)
+        exceptionFormat = TestExceptionFormat.FULL // log the full stack trace (default is the 1st line of the stack trace)
         events("skipped", "failed")
     }
 }
