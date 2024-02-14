@@ -36,6 +36,7 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 
@@ -82,9 +83,12 @@ public class HelmProcessor {
     }
 
     var sourceWithComments = addLineComments(source);
-    Map<String, InputFile> additionalFiles = helmFilesystem.getRelatedHelmFiles(inputFile);
-    var fileContents = validateAndReadFiles(inputFile, additionalFiles);
-    return evaluateHelmTemplate(path, inputFile, sourceWithComments, fileContents);
+    Map<String, InputFile> additionalFiles = helmFilesystem.getRelatedHelmFiles(inputFileContext);
+    if (inputFileContext instanceof HelmInputFileContext) {
+      ((HelmInputFileContext) inputFileContext).setAdditionalFiles(additionalFiles);
+    }
+    var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
+    return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
   }
 
   @CheckForNull
