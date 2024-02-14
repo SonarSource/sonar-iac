@@ -36,9 +36,11 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.common.testing.Verifier;
+
+import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class SecureValuesExposureCheckTest {
   @ParameterizedTest
@@ -56,14 +58,14 @@ class SecureValuesExposureCheckTest {
   void testJsonNonCompliant() {
     ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant.json", new SecureValuesExposureCheck(),
       Verifier.issue(12, 14, 12, 47, "Change this code to not use an outer expression evaluation scope in nested templates.",
-        SecondaryLocation.secondary(29, 35, 29, 66, "This secure parameter is leaked through the deployment history.")));
+        secondary(range(29, 35, 29, 66), "This secure parameter is leaked through the deployment history.")));
   }
 
   @Test
   void testJsonNestedNonCompliant() {
     ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant_nested.json", new SecureValuesExposureCheck(),
       Verifier.issue(12, 14, 12, 47, "Change this code to not use an outer expression evaluation scope in nested templates.",
-        SecondaryLocation.secondary(39, 43, 39, 74, "This secure parameter is leaked through the deployment history.")));
+        secondary(range(39, 43, 39, 74), "This secure parameter is leaked through the deployment history.")));
   }
 
   @ParameterizedTest

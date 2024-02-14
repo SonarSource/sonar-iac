@@ -73,7 +73,7 @@ class IpAddressValidatorTest {
     verify(ctx).reportIssue(
       same(startIpAddress),
       same(MESSAGE),
-      eq(List.of(secondary(2, 2, 2, 5, SECONDARY_MESSAGE))));
+      eq(List.of(secondary(range(2, 2, 2, 5), SECONDARY_MESSAGE))));
   }
 
   @Test
@@ -114,7 +114,7 @@ class IpAddressValidatorTest {
     verify(ctx).reportIssue(
       same(startIpAddress),
       same(MESSAGE),
-      eq(List.of(secondary(2, 2, 2, 5, SECONDARY_MESSAGE))));
+      eq(List.of(secondary(range(2, 2, 2, 5), SECONDARY_MESSAGE))));
   }
 
   @Test
@@ -129,7 +129,7 @@ class IpAddressValidatorTest {
     verify(ctx).reportIssue(
       same(startIpAddress),
       same(MESSAGE),
-      eq(List.of(secondary(1, 1, 1, 1, SECONDARY_MESSAGE))));
+      eq(List.of(secondary(range(1, 1, 1, 1), SECONDARY_MESSAGE))));
   }
 
   @Test

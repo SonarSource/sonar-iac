@@ -20,8 +20,9 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 
+import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class ShortBackupRetentionCheckTest {
@@ -96,7 +97,7 @@ class ShortBackupRetentionCheckTest {
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.RecoveryServices_vaults.json",
       check,
       issue(14, 12, 14, 22, "Make sure that defining a short backup retention duration is safe here.",
-        SecondaryLocation.secondary(15, 12, 15, 34, "Duration type")),
+        secondary(range(15, 12, 15, 34), "Duration type")),
       issue(29, 12, 29, 22),
       issue(44, 12, 44, 22),
       issue(59, 12, 59, 22),
@@ -119,7 +120,7 @@ class ShortBackupRetentionCheckTest {
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.RecoveryServices_vaults_custom_400.json",
       check,
       issue(15, 14, 15, 25, "Make sure that defining a short backup retention duration is safe here.",
-        SecondaryLocation.secondary(16, 14, 16, 36, "Duration type")),
+        secondary(range(16, 14, 16, 36), "Duration type")),
       issue(32, 14, 32, 25),
       issue(49, 14, 49, 24),
       issue(66, 14, 66, 24));

@@ -46,7 +46,7 @@ class AbstractArmResourceCheckTest {
   final BiConsumer<CheckContext, ResourceDeclaration> treeConsumer = mock(BiConsumer.class);
 
   @Test
-  void provideResourceSymbolWhenTypeExists() {
+  void shouldProvideResourceSymbolWhenTypeExists() {
     AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
@@ -62,7 +62,7 @@ class AbstractArmResourceCheckTest {
   }
 
   @Test
-  void provideMultipleResourceSymbolsOfSameType() {
+  void shouldProvideMultipleResourceSymbolsOfSameType() {
     AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
@@ -78,7 +78,7 @@ class AbstractArmResourceCheckTest {
   }
 
   @Test
-  void provideMultipleResourceSymbolsOfDifferentTypes() {
+  void shouldProvideMultipleResourceSymbolsOfDifferentTypes() {
     AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
@@ -94,7 +94,7 @@ class AbstractArmResourceCheckTest {
   }
 
   @Test
-  void provideNoSymbolWhenTypeDoesNotExits() {
+  void shouldProvideNoSymbolWhenTypeDoesNotExits() {
     AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
@@ -110,7 +110,7 @@ class AbstractArmResourceCheckTest {
   }
 
   @Test
-  void provideCorrectChildResource() {
+  void shouldProvideCorrectChildResource() {
     AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {

@@ -20,6 +20,7 @@
 package org.sonar.iac.common.api.checks;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -30,21 +31,37 @@ public class SecondaryLocation {
 
   public final String message;
 
+  @Nullable
+  public final String filePath;
+
+  public SecondaryLocation(int startLine, int startOffset, int endLine, int endOffset, String message) {
+    this(TextRanges.range(startLine, startOffset, endLine, endOffset), message);
+  }
+
   public SecondaryLocation(HasTextRange tree, String message) {
-    this(tree.textRange(), message);
+    this(tree, message, null);
+  }
+
+  public SecondaryLocation(HasTextRange tree, String message, @Nullable String filePath) {
+    this(tree.textRange(), message, filePath);
   }
 
   public SecondaryLocation(TextRange textRange, String message) {
+    this(textRange, message, null);
+  }
+
+  public SecondaryLocation(TextRange textRange, String message, @Nullable String filePath) {
     this.textRange = textRange;
     this.message = message;
+    this.filePath = filePath;
   }
 
-  public static SecondaryLocation of(HasTextRange tree, String message) {
+  public static SecondaryLocation secondary(TextRange textRange, String message) {
+    return new SecondaryLocation(textRange, message);
+  }
+
+  public static SecondaryLocation secondary(HasTextRange tree, String message) {
     return new SecondaryLocation(tree, message);
-  }
-
-  public static SecondaryLocation secondary(int startLine, int startOffset, int endLine, int endOffset, String message) {
-    return new SecondaryLocation(TextRanges.range(startLine, startOffset, endLine, endOffset), message);
   }
 
   @Override
@@ -56,11 +73,11 @@ public class SecondaryLocation {
       return false;
     }
     SecondaryLocation other = (SecondaryLocation) o;
-    return this.textRange.equals(other.textRange) && Objects.equals(this.message, other.message);
+    return this.textRange.equals(other.textRange) && Objects.equals(message, other.message) && Objects.equals(filePath, other.filePath);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(textRange, message);
+    return Objects.hash(textRange, message, filePath);
   }
 }

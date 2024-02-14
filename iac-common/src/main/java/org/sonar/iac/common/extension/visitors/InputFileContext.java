@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -27,13 +28,13 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 public class InputFileContext extends TreeContext {
@@ -41,6 +42,7 @@ public class InputFileContext extends TreeContext {
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
   public final SensorContext sensorContext;
   public final InputFile inputFile;
+
   private final Set<Integer> raisedIssues = new HashSet<>();
 
   public InputFileContext(SensorContext sensorContext, InputFile inputFile) {
@@ -56,18 +58,19 @@ public class InputFileContext extends TreeContext {
       NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
       if (textRange != null && TextRanges.isValidAndNotEmpty(textRange)) {
-        issueLocation.at(toInputFileRange(textRange));
+        issueLocation.at(toInputFileRange(inputFile, textRange));
       }
 
       issue.forRule(ruleKey).at(issueLocation);
 
       secondaryLocations.stream()
         .filter(location -> location != null && TextRanges.isValidAndNotEmpty(location.textRange))
-        .forEach(secondary -> issue.addLocation(
-          issue.newLocation()
-            .on(inputFile)
-            .at(toInputFileRange(secondary.textRange))
-            .message(secondary.message)));
+        .forEach(secondary -> {
+          var newIssueLocation = newLocation(issue, secondary);
+          if (newIssueLocation != null) {
+            issue.addLocation(newIssueLocation);
+          }
+        });
 
       issue.save();
     }
@@ -109,7 +112,22 @@ public class InputFileContext extends TreeContext {
     error.save();
   }
 
-  private org.sonar.api.batch.fs.TextRange toInputFileRange(TextRange textRange) {
+  private NewIssueLocation newLocation(NewIssue newIssue, SecondaryLocation secondaryLocation) {
+    var fileToRaiseOn = inputFile;
+    String filePath = secondaryLocation.filePath;
+    if (filePath != null) {
+      fileToRaiseOn = sensorContext.fileSystem().inputFile(sensorContext.fileSystem().predicates().is(new File(filePath)));
+    }
+    if (fileToRaiseOn != null) {
+      return newIssue.newLocation()
+        .on(fileToRaiseOn)
+        .at(toInputFileRange(fileToRaiseOn, secondaryLocation.textRange))
+        .message(secondaryLocation.message);
+    }
+    return null;
+  }
+
+  private static org.sonar.api.batch.fs.TextRange toInputFileRange(InputFile inputFile, TextRange textRange) {
     return inputFile.newRange(textRange.start().line(), textRange.start().lineOffset(), textRange.end().line(), textRange.end().lineOffset());
   }
 

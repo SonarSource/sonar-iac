@@ -20,7 +20,9 @@
 package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +33,7 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -79,7 +82,7 @@ class IacSensorTest extends AbstractSensorTest {
   };
 
   @Test
-  void test_descriptor_sonarqube_8_9() {
+  void testDescriptorSonarqube8_9() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     IacSensor sensor = sensor();
     sensor.describe(sensorDescriptor);
@@ -89,7 +92,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_descriptor_sonarqube_9_3() {
+  void testDescriptorSonarqube9_3() {
     final boolean[] called = {false};
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor() {
       public SensorDescriptor processesFilesIndependently() {
@@ -103,7 +106,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_empty_file() {
+  void testEmptyFile() {
     analyse(sensor("S2260"), inputFile("emptyFile.iac", ""));
 
     Collection<Issue> issues = context.allIssues();
@@ -111,7 +114,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_parsing_error_should_raise_an_issue_if_check_rule_is_activated() {
+  void testParsingErrorShouldRaiseAnIssueIfCheckRuleIsActivated() {
     InputFile inputFile = inputFile("file1.iac", "\n{}");
     analyse(sensor("S2260"), inputFile);
 
@@ -144,7 +147,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_parsing_error_should_raise_no_issue_if_check_rule_is_deactivated() {
+  void testParsingErrorShouldRaiseNoIssueIfCheckRuleIsDeactivated() {
     analyse(inputFile("file1.iac", "\n{}"));
 
     Collection<Issue> issues = context.allIssues();
@@ -155,7 +158,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_parsing_error_should_raise_on_corrupted_file() throws IOException {
+  void testParsingErrorShouldRaiseOnCorruptedFile() throws IOException {
     InputFile inputFile = inputFile("fakeFile.iac", "\n{}");
     InputFile spyInputFile = spy(inputFile);
     when(spyInputFile.contents()).thenThrow(IOException.class);
@@ -172,7 +175,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_cancellation() {
+  void testCancellation() {
     context.setCancelled(true);
     analyse(inputFile("file1.iac", "{}"));
     Collection<Issue> issues = context.allIssues();
@@ -180,7 +183,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_valid_check() {
+  void testValidCheck() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
     IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue"));
@@ -189,7 +192,6 @@ class IacSensorTest extends AbstractSensorTest {
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
-    sensor(checkFactory).execute(context);
 
     InputFile inputFile = inputFile("file1.iac", "foo");
     analyse(sensor(checkFactory), inputFile);
@@ -206,16 +208,15 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_valid_check_with_secondary() {
+  void testValidCheckWithSecondary() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
-    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue", SecondaryLocation.of(tree, "testSecondary")));
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue", SecondaryLocation.secondary(tree.textRange(), "testSecondary")));
 
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
-    sensor(checkFactory).execute(context);
 
     InputFile inputFile = inputFile("file1.iac", "foo");
     analyse(sensor(checkFactory), inputFile);
@@ -234,7 +235,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_issue_not_raised_twice_on_same_range() {
+  void testIssueNotRaisedTwiceOnSameRange() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
     IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> {
@@ -246,7 +247,6 @@ class IacSensorTest extends AbstractSensorTest {
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
-    sensor(checkFactory).execute(context);
 
     InputFile inputFile = inputFile("file1.iac", "foo");
     analyse(sensor(checkFactory), inputFile);
@@ -256,7 +256,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_failure_in_check() {
+  void testFailureInCheck() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
     IacCheck failingCheck = init -> init.register(Tree.class, (ctx, tree) -> {
@@ -278,7 +278,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void failure_in_check_stops_analysis_with_fail_fast_enabled() {
+  void failureInCheckShouldStopAnalysisWithFailFastEnabled() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
     IacCheck failingCheck = init -> init.register(Tree.class, (ctx, tree) -> {
@@ -304,7 +304,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void shoud_not_raise_issue_when_sensor_is_deactivated() {
+  void shouldNotRaiseIssueWhenSensorIsDeactivated() {
     MapSettings settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), false);
     context.setSettings(settings);
@@ -359,6 +359,49 @@ class IacSensorTest extends AbstractSensorTest {
         System.lineSeparator() +
         "\tat org.sonar.iac.common");
     assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+  }
+
+  @Test
+  void testValidCheckWithSecondaryOnOtherFile() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    String secondaryFilePath = "secondary" + File.separator + "file.iac";
+    IacCheck validCheck = init -> init.register(Tree.class,
+      (ctx, tree) -> ctx.reportIssue(
+        tree,
+        "testIssue",
+        new SecondaryLocation(tree.textRange(), "testSecondary", secondaryFilePath)));
+
+    when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(validCheck));
+    testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
+
+    InputFile inputFile = inputFile("file1.iac", "foo");
+
+    // this file has no language to not be analyzed by the sensor
+    InputFile secondaryFile = new TestInputFileBuilder("moduleKey", secondaryFilePath)
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.MAIN)
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("bar")
+      .build();
+
+    analyse(sensor(checkFactory), inputFile, secondaryFile);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
+    assertThat(issue.flows()).satisfies(flows -> {
+      assertThat(flows.size()).isOne();
+      assertThat(flows.get(0).locations()).satisfies(flow -> {
+        assertThat(flow.size()).isOne();
+        assertThat(flow.get(0).message()).isEqualTo("testSecondary");
+        assertThat(flow.get(0).inputComponent()).isEqualTo(secondaryFile);
+      });
+    });
   }
 
   @Test

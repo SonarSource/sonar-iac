@@ -20,8 +20,9 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 
+import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class SubscriptionRoleAssignmentCheckTest {
@@ -32,7 +33,7 @@ class SubscriptionRoleAssignmentCheckTest {
     ArmVerifier.verify("SubscriptionRoleAssignmentCheck/subscriptionDeploymentTemplate.json",
       CHECK,
       issue(7, 14, 7, 55, "Make sure assigning this role with a Subscription scope is safe here.",
-        SecondaryLocation.secondary(2, 13, 2, 106, "Subscription scope")),
+        secondary(range(2, 13, 2, 106), "Subscription scope")),
       issue(16, 14, 16, 55));
   }
 
@@ -46,7 +47,7 @@ class SubscriptionRoleAssignmentCheckTest {
     ArmVerifier.verify("SubscriptionRoleAssignmentCheck/managementGroupDeploymentTemplate.json",
       CHECK,
       issue(7, 14, 7, 55, "Make sure assigning this role with a Management Group scope is safe here.",
-        SecondaryLocation.secondary(2, 13, 2, 109, "Management Group scope")),
+        secondary(range(2, 13, 2, 109), "Management Group scope")),
       issue(16, 14, 16, 55));
   }
 
