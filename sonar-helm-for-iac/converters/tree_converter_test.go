@@ -226,6 +226,13 @@ metadata:
 			rootPos:    1,
 			numNodes:   2,
 		},
+		{
+			name:       "Test_test",
+			tmpl:       `{{ print (.Values).escalation }}`,
+			rootLength: 30,
+			rootPos:    0,
+			numNodes:   1,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -61,6 +61,8 @@ func (c ConversionContext) Convert(node parse.Node) proto.Message {
 	// There is no `case *parse.BranchNode` as it is a base type which wouldn't be encountered directly.
 	case *parse.BreakNode:
 		nodeAsMessage = c.convertBreakNode(*node.(*parse.BreakNode))
+	case *parse.ChainNode:
+		nodeAsMessage = c.convertChainNode(*node.(*parse.ChainNode))
 	case *parse.CommandNode:
 		nodeAsMessage = c.convertCommandNode(*node.(*parse.CommandNode))
 	case *parse.CommentNode:
@@ -152,6 +154,15 @@ func (c ConversionContext) convertBreakNode(node parse.BreakNode) proto.Message 
 		NodeType: pbstructs.NodeType_NodeBreak,
 		Pos:      int64(node.Position()),
 		Length:   int64(len(KwBreak)),
+	}
+}
+
+func (c ConversionContext) convertChainNode(node parse.ChainNode) proto.Message {
+	return &pbstructs.ChainNode{
+		NodeType: pbstructs.NodeType_NodeChain,
+		Pos:      int64(node.Pos),
+		Length:   nodeSourceLength(&node),
+		Field:    node.Field,
 	}
 }
 
