@@ -67,8 +67,9 @@ for Terraform in `iac-extensions/terraform`.
 ```
 
 #### Fix code formatting issues
-During the `mvn install` the `spotless:check` is executed. 
-This phase checks is the code is correctly formatted using common Sonar rules.
+During the Gradle build a spotless formatting check is executed.
+This check can also be triggered manually with `./gradlew spotlessCheck`.
+It checks if the code is correctly formatted using common Sonar rules.
 If your build failed, you can fix the formatting just by running:
 
 ```shell
