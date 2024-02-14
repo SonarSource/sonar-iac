@@ -32,6 +32,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
@@ -40,6 +41,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.HelmFilesystem;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class HelmProcessorTest {
   private final HelmEvaluator helmEvaluator = Mockito.mock(HelmEvaluator.class);
@@ -65,7 +68,7 @@ class HelmProcessorTest {
   @Test
   void shouldHandleInitializationError() throws IOException {
     doThrow(new IOException("Failed to initialize Helm evaluator")).when(helmEvaluator).initialize();
-    var helmProcessor = getInitializedHelmProcessor();
+    var helmProcessor = getHelmProcessor();
 
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
@@ -76,16 +79,21 @@ class HelmProcessorTest {
   }
 
   @Test
-  void shouldRaiseExceptionIfEvaluatorIsNotInitialized() {
-    var helmProcessor = new HelmProcessor(null);
+  void shouldRaiseExceptionIfEvaluatorIsNotInitialized() throws IOException {
+    var helmEvaluator = mock(HelmEvaluator.class);
+    doThrow(new IOException()).when(helmEvaluator).initialize();
+    var helmProcessor = new HelmProcessor(helmEvaluator, mock(SensorContext.class));
+
     assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", null))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
+
+    assertThat(logTester.logs(Level.DEBUG)).contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
   }
 
   @Test
   void shouldNotEvaluateIfSourceIsEmpty() throws IOException {
-    var helmProcessor = getInitializedHelmProcessor();
+    var helmProcessor = getHelmProcessor();
     var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
 
     String evaluatedSource = helmProcessor.processHelmTemplate("foo.yaml", "", inputFileContext);
@@ -150,7 +158,7 @@ class HelmProcessorTest {
 
   @Test
   void evaluateHelmTemplateShouldNotThrowParseException() throws IOException {
-    var helmProcessor = getInitializedHelmProcessor();
+    var helmProcessor = getHelmProcessor();
     var templateEvaluationResult = Mockito.mock(TemplateEvaluationResult.class);
     String path = "path";
     String content = "content";
@@ -167,7 +175,7 @@ class HelmProcessorTest {
   @ParameterizedTest
   @MethodSource("exceptionProvider")
   void evaluateHelmTemplateShouldThrowParseException(Exception exception) throws IOException {
-    var helmProcessor = getInitializedHelmProcessor();
+    var helmProcessor = getHelmProcessor();
     String path = "path";
     String content = "content";
     Map<String, String> templateDependencies = new HashMap<>();
@@ -176,6 +184,22 @@ class HelmProcessorTest {
     assertThatThrownBy(() -> helmProcessor.evaluateHelmTemplate(path, DEFAULT_INPUT_FILE, content, templateDependencies))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Template evaluation failed");
+  }
+
+  // -------------------------------------------------
+  // -------Test HelmProcessor.evaluateTemplate-------
+  // -------------------------------------------------
+
+  @Test
+  void testSomething() throws IOException {
+    String source = code("foo:",
+      "{{ print \"# a\\n# b\" }}",
+      "");
+    var helmProcessor = getHelmProcessor();
+    var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "content");
+
+    //Act
+    String evaluatedSource = helmProcessor.processHelmTemplate("foo.yaml", source, inputFileContext);
   }
 
   // -------------------------------------------------
@@ -188,10 +212,26 @@ class HelmProcessorTest {
       new IOException("Failed to evaluate template"));
   }
 
-  private HelmProcessor getInitializedHelmProcessor() {
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-    helmProcessor.initialize();
-    return helmProcessor;
+  private HelmProcessor getHelmProcessor() {
+    SensorContext sensorContext = mock(SensorContext.class);
+    FileSystem fileSystem = mock(FileSystem.class);
+    when(sensorContext.fileSystem()).thenReturn(fileSystem);
+
+    return new HelmProcessor(helmEvaluator, sensorContext);
+  }
+
+  private HelmProcessor getHelmProcessorAlt() {
+    //Todo: check if helmFilesystem can be passed into the constructor
+    SensorContext sensorContext = mock(SensorContext.class);
+    FileSystem fileSystem = mock(FileSystem.class);
+    when(sensorContext.fileSystem()).thenReturn(fileSystem);
+
+    HelmFilesystem helmFilesystem = mock(HelmFilesystem.class);
+    InputFile inputFile = mock(InputFile.class);
+    Map<String, InputFile> additionalFiles = new HashMap<>();
+    when(helmFilesystem.getRelatedHelmFiles(inputFile)).thenReturn(additionalFiles);
+
+    return new HelmProcessor(helmEvaluator, sensorContext, helmFilesystem);
   }
 
   private static InputFileContext mockInputFileContext(String filename, String content) throws IOException {
@@ -202,7 +242,7 @@ class HelmProcessorTest {
   private static InputFile mockInputFile(String filename, String content) throws IOException {
     var inputFile = Mockito.mock(InputFile.class);
     when(inputFile.newPointer(anyInt(), anyInt())).thenReturn(new BasicTextPointer(0, 0));
-    when(inputFile.uri()).thenReturn(URI.create("file://" + filename));
+    when(inputFile.uri()).thenReturn(URI.create("file:/" + filename));
     when(inputFile.toString()).thenReturn(filename);
     when(inputFile.contents()).thenReturn(content);
     return inputFile;

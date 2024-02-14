@@ -26,10 +26,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
@@ -37,37 +36,37 @@ import org.sonar.iac.helm.HelmFilesystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 
-@ScannerSide
-@SonarLintSide
-@ExtensionPoint
 public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
-  private HelmEvaluator helmEvaluator;
   private final Map<String, GoTemplateTree> inputFileToGoAst = new HashMap<>();
+  private final HelmEvaluator helmEvaluator;
+  final HelmFilesystem helmFilesystem;
+  private boolean isEvaluatorInitialized = true;
 
-  public HelmProcessor(HelmEvaluator helmEvaluator) {
+  public HelmProcessor(HelmEvaluator helmEvaluator, SensorContext sensorContext) {
     this.helmEvaluator = helmEvaluator;
+    this.helmFilesystem = new HelmFilesystem(sensorContext.fileSystem());
+    initialize();
   }
 
   public static boolean isHelmEvaluatorExecutableAvailable() {
     return OperatingSystemUtils.getCurrentPlatformIfSupported().isPresent();
   }
 
-  public void initialize() {
+  private void initialize() {
     try {
       helmEvaluator.initialize();
     } catch (IOException e) {
       LOG.debug("Failed to initialize Helm evaluator, analysis of Helm files will be disabled", e);
-      this.helmEvaluator = null;
+      isEvaluatorInitialized = false;
     }
   }
 
   public boolean isHelmEvaluatorInitialized() {
-    return helmEvaluator != null;
+    return isEvaluatorInitialized;
   }
 
   @CheckForNull
@@ -75,16 +74,18 @@ public class HelmProcessor {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
+
+    var inputFile = inputFileContext.inputFile;
     if (source.isBlank()) {
-      LOG.debug("The file {} is blank, skipping evaluation", inputFileContext.inputFile);
+      LOG.debug("The file {} is blank, skipping evaluation", inputFile);
       return null;
     }
 
     // TODO: better support of Helm project structure
     var sourceWithComments = addLineComments(source);
-    Map<String, InputFile> additionalFiles = HelmFilesystem.getRelatedHelmFiles(inputFileContext);
-    var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
-    return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
+    Map<String, InputFile> additionalFiles = helmFilesystem.getRelatedHelmFiles(inputFile);
+    var fileContents = validateAndReadFiles(inputFile, additionalFiles);
+    return evaluateHelmTemplate(path, inputFile, sourceWithComments, fileContents);
   }
 
   @CheckForNull

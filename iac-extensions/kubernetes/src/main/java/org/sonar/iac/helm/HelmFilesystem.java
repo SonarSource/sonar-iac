@@ -34,24 +34,18 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public final class HelmFilesystem {
   private static final Logger LOG = LoggerFactory.getLogger(HelmFilesystem.class);
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
   private final FileSystem fs;
 
-  HelmFilesystem(FileSystem fs) {
+  public HelmFilesystem(FileSystem fs) {
     this.fs = fs;
   }
 
-  public static Map<String, InputFile> getRelatedHelmFiles(InputFileContext fileContext) {
-    var helmFilesystem = new HelmFilesystem(fileContext.sensorContext.fileSystem());
-    return helmFilesystem.getRelatedHelmFiles(fileContext.inputFile);
-  }
-
   // TODO: SONARIAC-1239 Ignore additional file pattern mentioned in .helmignore
-  Map<String, InputFile> getRelatedHelmFiles(InputFile inputFile) {
+  public Map<String, InputFile> getRelatedHelmFiles(InputFile inputFile) {
     var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()), fs.baseDir());
     if (helmDirectoryPath == null) {
       LOG.debug("Failed to resolve Helm project directory for {}", inputFile.uri());
