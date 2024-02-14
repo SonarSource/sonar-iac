@@ -20,9 +20,10 @@
 package org.sonar.iac.helm.tree.utils;
 
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
 import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
 import org.sonar.iac.helm.tree.impl.FieldNodeImpl;
@@ -32,12 +33,23 @@ import org.sonar.iac.helm.tree.impl.PipeNodeImpl;
 import org.sonar.iac.helm.tree.impl.TextNodeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.of;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class GoTemplateAstHelperTest {
-  @Disabled("TODO fix me")
-  @Test
-  void shouldFindValuesByTextRange() {
+
+  public static List<Arguments> textRanges() {
+    return List.of(
+      of(range(2, 0, 2, 36), "bigger than node"),
+      of(range(2, 5, 2, 15), "shifted left from node"),
+      of(range(2, 15, 2, 35), "shifted right from node"),
+      of(range(2, 15, 2, 16), "smaller than node"));
+  }
+
+  @ParameterizedTest(name = "should find values by TextRange {1}")
+  @MethodSource("textRanges")
+  void shouldFindValuesByTextRange(TextRange textRange, String name) {
     String text = code("apiVersion: apps/v1 #1",
       "hostIPC: {{ .Values.hostIPC }} #2 #3");
     var textNode1 = new TextNodeImpl(0, "apiVersion: apps/v1 #1\nhostIPC: ");
@@ -51,9 +63,9 @@ class GoTemplateAstHelperTest {
 
     var actual = GoTemplateAstHelper.findNodes(
       goTemplateTree,
-      TextRanges.range(2, 0, 2, 36),
+      textRange,
       text);
 
-    assertThat(actual).contains(List.of("Values", "hostIPC"));
+    assertThat(actual).contains(new ValuePath("Values", "hostIPC"));
   }
 }

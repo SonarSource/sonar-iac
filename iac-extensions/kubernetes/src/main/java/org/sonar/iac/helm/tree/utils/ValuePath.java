@@ -17,34 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.impl;
+package org.sonar.iac.helm.tree.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
-import org.sonar.iac.helm.protobuf.CommandNodeOrBuilder;
-import org.sonar.iac.helm.tree.api.CommandNode;
-import org.sonar.iac.helm.tree.api.Node;
-import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 
-public class CommandNodeImpl extends AbstractNode implements CommandNode {
-  private final List<Node> arguments;
+public class ValuePath {
+  private final List<String> path;
 
-  public CommandNodeImpl(long position, long length, List<Node> arguments) {
-    super(position, length);
-    this.arguments = Collections.unmodifiableList(arguments);
+  public ValuePath(List<String> path) {
+    this.path = path;
   }
 
-  public static Node fromPb(CommandNodeOrBuilder nodePb) {
-    return new CommandNodeImpl(nodePb.getPos(), nodePb.getLength(), GoTemplateAstConverter.unpack(nodePb.getArgsList()));
+  public ValuePath(String... path) {
+    this(Arrays.asList(path));
   }
 
-  public List<Node> arguments() {
-    return arguments;
+  public List<String> path() {
+    return path;
   }
 
   @Override
-  public List<Node> children() {
-    return new ArrayList<>(arguments);
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ValuePath valuePath = (ValuePath) o;
+
+    return path.equals(valuePath.path);
+  }
+
+  @Override
+  public int hashCode() {
+    return path.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "ValuePath{" +
+      "path=" + path +
+      '}';
   }
 }

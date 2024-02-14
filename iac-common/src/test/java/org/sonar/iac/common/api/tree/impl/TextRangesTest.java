@@ -26,23 +26,24 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.HasTextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.toPositionAndLength;
 
 class TextRangesTest {
 
-  private static String TEXT = "line1\n" +
+  private final static String TEXT = "line1\n" +
     "line 2 some text\n" +
     "line 3 extra text";
 
   @Test
-  void test_range() {
+  void shouldCreateRangeUsingString() {
     TextRange range = TextRanges.range(1, 2, "value");
     assertThat(range).isEqualTo(TextRangesTest.range(1, 2, 1, 7));
   }
 
   @Test
-  void test_merge() {
+  void shouldMerge2Ranges() {
     TextRange range1 = TextRangesTest.range(1, 2, 3, 4);
     TextRange range2 = TextRangesTest.range(5, 6, 7, 8);
     assertThat(TextRanges.merge(Arrays.asList(range1, range2)))
@@ -50,14 +51,14 @@ class TextRangesTest {
   }
 
   @Test
-  void test_merge_single() {
+  void shouldMergeSingleRange() {
     TextRange range1 = TextRangesTest.range(1, 2, 3, 4);
     assertThat(TextRanges.merge(Collections.singletonList(range1)))
       .isEqualTo(TextRangesTest.range(1, 2, 3, 4));
   }
 
   @Test
-  void test_merge_no_range() {
+  void shouldThrownExceptionWhenMergeNoRange() {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> TextRanges.merge(Collections.emptyList()))
       .withMessage("Can't merge 0 ranges");
@@ -115,10 +116,17 @@ class TextRangesTest {
   }
 
   @Test
+  void shouldConvertToPositionAndLengthSecondLineStartColumn3() {
+    var range = range(2, 3, 2, 11);
+    var positionAndLength = toPositionAndLength(range, TEXT);
+    assertThat(positionAndLength).isEqualTo(new Tuple<>(9, 8));
+  }
+
+  @Test
   void shouldConvertToPositionAndLengthLastLine() {
     var range = range(3, 1, 3, 17);
     var positionAndLength = toPositionAndLength(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new Tuple<>(24, 17));
+    assertThat(positionAndLength).isEqualTo(new Tuple<>(24, 16));
   }
 
   @Test
@@ -133,6 +141,34 @@ class TextRangesTest {
     var range = range(1, 0, 3, 10);
     var positionAndLength = toPositionAndLength(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new Tuple<>(0, 33));
+  }
+
+  @Test
+  void shouldThrowExceptionWhenStartLineNumberDoesntExist() {
+    var range = range(4, 0, 4, 1);
+    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenStartLineColumnIsTooBig() {
+    var range = range(3, 18, 3, 20);
+    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenEndLineNumberDoesntExist() {
+    var range = range(2, 0, 4, 0);
+    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenEndLineColumnIsTooBig() {
+    var range = range(3, 0, 3, 18);
+    assertThatThrownBy(() -> toPositionAndLength(range, TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   public static TextRange range(int startLine, int startLineColumn, int endLine, int endLineColumn) {
