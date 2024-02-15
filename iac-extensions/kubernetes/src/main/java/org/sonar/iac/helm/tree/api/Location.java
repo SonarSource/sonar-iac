@@ -27,10 +27,10 @@ public interface Location {
   /**
    * @return the offset of the node in the input file
    */
-  long position();
+  int position();
 
   /**
    * @return the length of the code fragment in the input file
    */
-  long length();
+  int length();
 }

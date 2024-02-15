@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
-import java.util.Objects;
-
 public class Tuple<T, U> {
   private final T first;
   private final U second;
@@ -38,37 +36,5 @@ public class Tuple<T, U> {
 
   public U second() {
     return second;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    Tuple<?, ?> tuple = (Tuple<?, ?>) o;
-
-    if (!Objects.equals(first, tuple.first)) {
-      return false;
-    }
-    return Objects.equals(second, tuple.second);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = first != null ? first.hashCode() : 0;
-    result = 31 * result + (second != null ? second.hashCode() : 0);
-    return result;
-  }
-
-  @Override
-  public String toString() {
-    return "Tuple{" +
-      "first=" + first +
-      ", second=" + second +
-      '}';
   }
 }

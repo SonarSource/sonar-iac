@@ -20,6 +20,7 @@
 package org.sonar.iac.helm.tree.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ import org.sonar.iac.helm.tree.api.Location;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.impl.LocationImpl;
 
-public class GoTemplateAstHelper {
+public final class GoTemplateAstHelper {
 
   private GoTemplateAstHelper() {
     // utility class
@@ -52,26 +53,38 @@ public class GoTemplateAstHelper {
   }
 
   private static Predicate<Node> hasOverlayingLocation(Location location) {
-    return node -> {
+    return (Node node) -> {
       var position = location.position();
       var length = location.length();
       var nodePosition = node.location().position();
       var nodeLength = node.location().length();
-      return (nodePosition >= position && nodePosition <= position + length) ||
-        (nodePosition + nodeLength >= position && nodePosition + nodeLength <= position + length) ||
-        (nodePosition < position && nodePosition + nodeLength > position + length);
+      return startNodeLocationIsBetweenLocation(nodePosition, position, length) ||
+        endNodeLocationIsBetweendLocation(nodePosition, nodeLength, position, length) ||
+        nodeContainsLocation(nodePosition, position, nodeLength, length);
     };
+  }
+
+  private static boolean startNodeLocationIsBetweenLocation(int nodePosition, int position, int length) {
+    return nodePosition >= position && nodePosition <= position + length;
+  }
+
+  private static boolean endNodeLocationIsBetweendLocation(int nodePosition, int nodeLength, int position, int length) {
+    return nodePosition + nodeLength >= position && nodePosition + nodeLength <= position + length;
+  }
+
+  private static boolean nodeContainsLocation(int nodePosition, int position, int nodeLength, int length) {
+    return nodePosition < position && nodePosition + nodeLength > position + length;
   }
 
   private static List<Node> allChildren(List<Node> nodes) {
     List<Node> allNodes = new ArrayList<>(nodes);
-    for (int i = 0; i < allNodes.size(); i++) {
+    for (var i = 0; i < allNodes.size(); i++) {
       allNodes.addAll(allNodes.get(i).children());
     }
     return allNodes;
   }
 
-  public static void addChildrenIfPresent(List<Node> children, @Nullable Node tree) {
+  public static void addChildrenIfPresent(Collection<Node> children, @Nullable Node tree) {
     if (tree != null) {
       children.add(tree);
     }

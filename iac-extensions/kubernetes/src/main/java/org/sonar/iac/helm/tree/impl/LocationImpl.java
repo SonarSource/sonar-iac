@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
@@ -30,22 +31,22 @@ public class LocationImpl implements Location {
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\Z|\\r\\n|[" + NEW_LINE + "])");
 
-  private final long position;
+  private final int position;
 
-  private final long length;
+  private final int length;
 
-  public LocationImpl(long position, long length) {
+  public LocationImpl(int position, int length) {
     this.position = position;
     this.length = length;
   }
 
   @Override
-  public long position() {
+  public int position() {
     return position;
   }
 
   @Override
-  public long length() {
+  public int length() {
     return length;
   }
 
@@ -57,20 +58,13 @@ public class LocationImpl implements Location {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    LocationImpl location = (LocationImpl) o;
-
-    if (position != location.position) {
-      return false;
-    }
-    return length == location.length;
+    var location = (LocationImpl) o;
+    return position == location.position && length == location.length;
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (position ^ (position >>> 32));
-    result = 31 * result + (int) (length ^ (length >>> 32));
-    return result;
+    return Objects.hash(position, length);
   }
 
   @Override
@@ -100,7 +94,10 @@ public class LocationImpl implements Location {
     moveToNextLine(matcher);
     var lineContent = matcher.group("lineContent");
     var newLine = matcher.group("newLine");
-    var newLineLength = newLine != null ? newLine.length() : 0;
+    var newLineLength = 0;
+    if (newLine != null) {
+      newLineLength = newLine.length();
+    }
 
     if (textPointer.lineOffset() > lineContent.length() + newLineLength) {
       var message = String.format("Unable to calculate position from TextRange, line offset %s is too big", textPointer.line());
@@ -110,12 +107,15 @@ public class LocationImpl implements Location {
   }
 
   private static int sumLineLengthsUntilLine(int lineNumber, Matcher matcher) {
-    int positionCounter = 0;
-    for (int i = 1; i < lineNumber; i++) {
+    var positionCounter = 0;
+    for (var i = 1; i < lineNumber; i++) {
       if (matcher.find()) {
         var lineContent = matcher.group("lineContent");
         var newLine = matcher.group("newLine");
-        var newLineLength = newLine != null ? newLine.length() : 0;
+        var newLineLength = 0;
+        if (newLine != null) {
+          newLineLength = newLine.length();
+        }
         positionCounter = positionCounter + lineContent.length() + newLineLength;
       } else {
         var message = String.format("Unable to calculate position from TextRange, line number %s is too big", lineNumber);

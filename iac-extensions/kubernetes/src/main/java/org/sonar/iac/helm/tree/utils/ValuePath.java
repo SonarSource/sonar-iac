@@ -21,6 +21,7 @@ package org.sonar.iac.helm.tree.utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class ValuePath {
   private final List<String> path;
@@ -45,15 +46,13 @@ public class ValuePath {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    ValuePath valuePath = (ValuePath) o;
-
-    return path.equals(valuePath.path);
+    var valuePath = (ValuePath) o;
+    return Objects.equals(path, valuePath.path);
   }
 
   @Override
   public int hashCode() {
-    return path.hashCode();
+    return Objects.hash(path);
   }
 
   @Override

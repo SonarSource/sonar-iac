@@ -20,7 +20,9 @@
 package org.sonar.iac.helm.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.helm.tree.utils.ValuePath;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
@@ -31,6 +33,40 @@ class LocationImplTest {
   private final static String TEXT = "line1\n" +
     "line 2 some text\n" +
     "line 3 extra text";
+
+  @Test
+  void shouldReturnPosition() {
+    var position = new LocationImpl(1, 2);
+    assertThat(position.position()).isEqualTo(1);
+  }
+
+  @Test
+  void shouldReturnLength() {
+    var position = new LocationImpl(1, 2);
+    assertThat(position.length()).isEqualTo(2);
+  }
+
+  @Test
+  void shouldVerifyEqualsAndHashCode() {
+    var location1 = new LocationImpl(1, 2);
+    var location2 = new LocationImpl(1, 2);
+    var location3 = new LocationImpl(3, 4);
+
+    assertThat(location1).isEqualTo(location1)
+      .hasSameHashCodeAs(location1)
+      .isEqualTo(location2)
+      .hasSameHashCodeAs(location2)
+      .isNotEqualTo(location3)
+      .doesNotHaveSameHashCodeAs(location3)
+      .isNotEqualTo("dummy")
+      .isNotEqualTo(null);
+  }
+
+  @Test
+  void shouldVerifyToString() {
+    var location = new LocationImpl(10, 20);
+    assertThat(location).hasToString("LocationImpl{position=10, length=20}");
+  }
 
   @Test
   void shouldConvertToPositionAndLengthFirstLine() {
@@ -99,6 +135,13 @@ class LocationImplTest {
   void shouldThrowExceptionWhenEndLineColumnIsTooBig() {
     var range = range(3, 0, 3, 18);
     assertThatThrownBy(() -> toLocation(range, TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenEmptyText() {
+    var range = range(2, 0, 2, 10);
+    assertThatThrownBy(() -> toLocation(range, ""))
       .isInstanceOf(IllegalArgumentException.class);
   }
 }

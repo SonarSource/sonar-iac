@@ -19,24 +19,19 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
-import java.util.List;
-import org.sonar.iac.helm.tree.api.Location;
-import org.sonar.iac.helm.tree.api.Node;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.sonar.iac.helm.tree.api.PipeNode;
 
-public abstract class AbstractNode implements Node {
-  private final Location location;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  protected AbstractNode(long position, long length) {
-    this.location = new LocationImpl((int) position, (int) length);
-  }
+class TemplateNodeImplTest {
 
-  @Override
-  public Location location() {
-    return location;
-  }
-
-  @Override
-  public List<Node> children() {
-    return List.of();
+  @Test
+  void shouldReturnAllChildren() {
+    var node = Mockito.mock(PipeNode.class);
+    var templateNode = new TemplateNodeImpl(0, 10, "dummy", node);
+    var actual = templateNode.children();
+    assertThat(actual).contains(node);
   }
 }
