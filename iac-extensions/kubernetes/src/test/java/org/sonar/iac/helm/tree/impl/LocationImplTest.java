@@ -83,7 +83,7 @@ class LocationImplTest {
   }
 
   @Test
-  void shouldConvertToPositionAndLengthSecondLineStartColumn3() {
+  void shouldConvertToPositionAndLengthSecondLineStartColumnIsThree() {
     var range = range(2, 3, 2, 11);
     var positionAndLength = fromTextRange(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(9, 8));
@@ -118,7 +118,7 @@ class LocationImplTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenStartLineNumberIs6() {
+  void shouldThrowExceptionWhenStartLineNumberIsSix() {
     var range = range(6, 0, 6, 1);
     assertThatThrownBy(() -> fromTextRange(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
