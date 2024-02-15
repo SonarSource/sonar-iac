@@ -22,11 +22,16 @@ package org.sonar.iac.kubernetes.visitors;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.tree.api.GoTemplateTree;
 
 public class HelmInputFileContext extends InputFileContext {
+  @Nullable
+  private GoTemplateTree goTemplateTree;
   private Map<String, InputFile> additionalFiles = new HashMap<>();
 
   public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile) {
@@ -41,11 +46,21 @@ public class HelmInputFileContext extends InputFileContext {
     return additionalFiles.containsKey(filePath);
   }
 
+  @CheckForNull
   public InputFile getValuesFile() {
     return additionalFiles.get("values.yaml");
   }
 
   public Map<String, InputFile> getAdditionalFiles() {
     return Collections.unmodifiableMap(additionalFiles);
+  }
+
+  @CheckForNull
+  public GoTemplateTree getGoTemplateTree() {
+    return goTemplateTree;
+  }
+
+  public void setGoTemplateTree(@Nullable GoTemplateTree goTemplateTree) {
+    this.goTemplateTree = goTemplateTree;
   }
 }

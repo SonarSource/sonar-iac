@@ -30,8 +30,8 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
@@ -116,7 +116,7 @@ public class KubernetesParser extends YamlParser {
 
     return KubernetesFileTreeImpl.fromFileTree(
       super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM),
-      helmProcessor.getGoAstForInputFile(inputFileContext.inputFile));
+      inputFileContext.getGoTemplateTree());
   }
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {

@@ -20,11 +20,16 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -41,9 +46,15 @@ import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 import org.sonar.iac.helm.tree.utils.ValuePath;
 
 public class AdjustableChecksVisitor extends ChecksVisitor {
+  private static final Logger LOG = LoggerFactory.getLogger(AdjustableChecksVisitor.class);
+  /**
+   * TODO SONARIAC-1301: Until values.yaml is published, there is no sense in enabling secondary locations in values.yaml
+   */
+  protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm.secondaryLocationsInValuesEnable";
 
   private final LocationShifter locationShifter;
   private final YamlParser yamlParser;
@@ -78,41 +89,103 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
     @Override
     protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       var shiftedTextRange = textRange;
+      List<SecondaryLocation> enhancedAndAdjustedSecondaryLocations = new ArrayList<>();
       if (textRange != null) {
         shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
+
+        enhancedAndAdjustedSecondaryLocations = maybeFindSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
       }
       List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
         .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
         .collect(Collectors.toList());
 
-      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, shiftedSecondaryLocations);
+      enhancedAndAdjustedSecondaryLocations.addAll(shiftedSecondaryLocations);
+      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, enhancedAndAdjustedSecondaryLocations);
     }
 
-    TextRange toLocationInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {
-      var valuesFile = inputFileContext.getValuesFile();
-      FileTree valuesFileTree = null;
-      if (valuesFile != null) {
-        var valuesFileContent = valuesFile.contents();
-        if (!valuesFileContent.isBlank()) {
-          valuesFileTree = yamlParser.parse(valuesFileContent, null);
-        }
+    List<SecondaryLocation> maybeFindSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
+      if (inputFileContext instanceof HelmInputFileContext && inputFileContext.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false)) {
+        return new ArrayList<>(findSecondaryLocationsInAdditionalFiles((HelmInputFileContext) inputFileContext, shiftedTextRange));
       }
+      return new ArrayList<>();
+    }
 
-      if (valuesFile == null || valuesFileTree == null || valuesFileTree.documents().isEmpty()) {
+    List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(HelmInputFileContext inputFileContext, TextRange primaryLocationTextRange) {
+      var ast = inputFileContext.getGoTemplateTree();
+      var valuesFile = inputFileContext.getValuesFile();
+      if (ast == null || valuesFile == null) {
+        return List.of();
+      }
+      var locations = new ArrayList<SecondaryLocation>();
+      try {
+        var valuePaths = GoTemplateAstHelper.findNodes(ast, primaryLocationTextRange, inputFileContext.inputFile.contents());
+        for (ValuePath valuePath : valuePaths) {
+          var secondaryTextRange = toTextRangeInValuesFile(valuePath, inputFileContext);
+          if (secondaryTextRange != null) {
+            var valuesFilePath = Path.of(valuesFile.uri());
+            locations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFilePath.toString()));
+          }
+        }
+      } catch (IOException e) {
+        LOG.debug("Failed to find secondary locations in additional files", e);
+      }
+      return locations;
+    }
+
+    private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
+      var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
+      return new SecondaryLocation(shiftedTextRange, secondaryLocation.message, secondaryLocation.filePath);
+    }
+
+    @CheckForNull
+    TextRange toTextRangeInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {
+      var valuesFile = inputFileContext.getValuesFile();
+      var valuesFileTree = buildTreeFrom(valuesFile);
+      var path = filteredPaths(valuePath);
+
+      if (valuesFileTree == null || valuesFileTree.documents().isEmpty() || path.isEmpty()) {
         return null;
       }
 
       // Hopefully, values.yaml contains only a single document
       var node = valuesFileTree.documents().get(0);
-      for (String pathPart : valuePath.path()) {
+      for (String pathPart : path) {
         for (Tree child : node.children()) {
           node = find(child, pathPart);
-          if (node == null) {
-            return null;
+          if (node != null) {
+            break;
           }
+        }
+        if (node == null) {
+          return null;
         }
       }
       return node.textRange();
+    }
+
+    @CheckForNull
+    private FileTree buildTreeFrom(@Nullable InputFile yamlFile) throws IOException {
+      if (yamlFile != null) {
+        var valuesFileContent = yamlFile.contents();
+        if (!valuesFileContent.isBlank()) {
+          return yamlParser.parse(valuesFileContent, null);
+        }
+      }
+      return null;
+    }
+
+    private List<String> filteredPaths(ValuePath valuePath) {
+      var path = valuePath.path();
+      switch (valuePath.path().get(0)) {
+        case "Values":
+          return path.subList(1, path.size());
+        case "Chart":
+        case "Release":
+          // these come not from values.yaml
+          return List.of();
+        default:
+          return valuePath.path();
+      }
     }
 
     @CheckForNull
