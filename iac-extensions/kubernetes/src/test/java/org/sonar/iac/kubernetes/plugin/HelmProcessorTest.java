@@ -21,46 +21,55 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
-import org.sonar.iac.helm.utils.HelmFilesystemUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class HelmProcessorTest {
   private final HelmEvaluator helmEvaluator = Mockito.mock(HelmEvaluator.class);
 
+  @TempDir
+  static Path tempDir;
+  private final InputFile DEFAULT_INPUT_FILE = IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
+
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+
+  // -------------------------------------------------
+  // ----Test HelmProcessor.processHelmTemplate-------
+  // -------------------------------------------------
 
   @Test
   void shouldHandleInitializationError() throws IOException {
     doThrow(new IOException("Failed to initialize Helm evaluator")).when(helmEvaluator).initialize();
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-
-    helmProcessor.initialize();
+    var helmProcessor = getHelmProcessor();
 
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
@@ -71,169 +80,166 @@ class HelmProcessorTest {
   }
 
   @Test
-  void shouldNotBeCalledIfHelmEvaluatorNotInitialized() throws IOException {
-    var helmProcessor = new HelmProcessor(null);
+  void shouldRaiseExceptionIfEvaluatorIsNotInitialized() throws IOException {
+    var helmEvaluator = mock(HelmEvaluator.class);
+    doThrow(new IOException()).when(helmEvaluator).initialize();
+    var helmProcessor = new HelmProcessor(helmEvaluator, mock(SensorContext.class));
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = Mockito.mock(InputFile.class);
-      var files = Map.of("values.yaml", valuesFile);
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      when(valuesFile.contents()).thenReturn("");
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      var inputFileContext = Mockito.mock(InputFileContext.class);
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", null))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
 
-      assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
-    }
+    assertThat(logTester.logs(Level.DEBUG)).contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
   }
 
   @Test
-  void shouldThrowIfValuesFileNotFound() {
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-    helmProcessor.initialize();
+  void shouldNotEvaluateIfSourceIsEmpty() throws IOException {
+    var helmProcessor = getHelmProcessor();
+    var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(Map.of());
-      var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
+    String evaluatedSource = helmProcessor.processHelmTemplate("foo.yaml", "", inputFileContext);
 
-      assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
-        .isInstanceOf(ParseException.class);
-    }
+    assertThat(evaluatedSource).isNull();
+    assertThat(logTester.logs(Level.DEBUG)).contains("The file chart/templates/foo.yaml is blank, skipping evaluation");
   }
 
   @Test
-  void shouldThrowIfValuesFileNotRead() throws IOException, URISyntaxException {
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-    helmProcessor.initialize();
+  void shouldReturnProcessedHelmTemplate() throws IOException {
+    var baseDir = Path.of("src/test/resources/helm").toAbsolutePath();
+    var inputFile = IacTestUtils.inputFile("templates/nested/double-nested/pod.yaml", baseDir);
+    var valuesFile = IacTestUtils.inputFile("values.yaml", baseDir);
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var badValuesFile = Mockito.mock(InputFile.class);
-      when(badValuesFile.contents()).thenThrow(new IOException("Failed to read values file"));
-      when(badValuesFile.uri()).thenReturn(new URI("file:///projects/chart/values.yaml"));
-      when(badValuesFile.toString()).thenReturn("chart/values.yaml");
-      var files = Map.of("values.yaml", badValuesFile);
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      var inputFile = Mockito.mock(InputFile.class);
-      when(inputFile.toString()).thenReturn("chart/templates/foo.yaml");
-      var inputFileContext = new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
+    var context = SensorContextTester.create(baseDir);
+    context.fileSystem().add(valuesFile);
 
-      assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext))
-        .isInstanceOf(ParseException.class)
-        .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Failed to read file at chart/values.yaml");
-    }
+    var processedFile = IacTestUtils.inputFile("templates/pod.yaml", baseDir);
+
+    var helmEvaluator = HelmEvaluatorMock.builder()
+      .setResultTemplate(processedFile.contents())
+      .build();
+
+    var fileContext = new InputFileContext(context, inputFile);
+    var processor = new HelmProcessor(helmEvaluator, context);
+
+    var result = processor.processHelmTemplate(inputFile.filename(), inputFile.contents(), fileContext);
+
+    assertEquals(result, processedFile.contents());
+  }
+
+  // -------------------------------------------------
+  // ----Test HelmProcessor.validateAndReadFiles------
+  // -------------------------------------------------
+
+  @Test
+  void validateAndReadFilesShouldThrowExceptionIfValuesFileNotFound() {
+    Map<String, InputFile> files = new HashMap<>();
+    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, files))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to find values file");
   }
 
   @Test
-  void shouldNotThrowIfValuesFileIsEmpty() throws IOException {
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-    helmProcessor.initialize();
+  void validateAndReadFilesShouldThrowExceptionIfValuesFileNotRead() throws IOException {
+    var valuesFile = mockInputFile("chart/values.yaml", "");
+    when(valuesFile.contents()).thenThrow(IOException.class);
+    Map<String, InputFile> additionalFiles = Map.of("values.yaml", valuesFile);
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var emptyValuesFile = Mockito.mock(InputFile.class);
-      var files = Map.of("values.yaml", emptyValuesFile);
-      when(emptyValuesFile.contents()).thenReturn("");
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
-      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
-        .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("result: foo #1").build());
+    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, additionalFiles))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to read file at chart/values.yaml");
+  }
 
-      var result = helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext);
+  @ParameterizedTest
+  @ValueSource(strings = {"values.yaml", "values.yml"})
+  void validateAndReadFilesShouldNotThrowIfValuesFileIsEmpty(String valuesFileName) throws IOException {
+    var emptyValuesFile = mockInputFile("chart/" + valuesFileName, "");
+    var additionalFiles = Map.of(valuesFileName, emptyValuesFile);
 
-      verify(helmEvaluator).evaluateTemplate(anyString(), anyString(), anyMap());
-      assertThat(result).isEqualTo("result: foo #1");
-    }
+    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, additionalFiles);
+
+    assertThat(additionalFilesContent).isNotEmpty();
+    assertThat(additionalFilesContent.get(valuesFileName)).isEmpty();
   }
 
   @Test
-  void shouldNotThrowIfSomeFileIsEmpty() throws IOException {
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-    helmProcessor.initialize();
+  void validateAndReadFilesShouldNotThrowIfSomeFileIsEmpty() throws IOException {
+    var emptyValuesFile = mockInputFile("chart/values.yaml", "");
+    var notEmptyFile = mockInputFile("templates/some.yaml", "kind: Pod");
+    var additionalFiles = Map.of("values.yaml", emptyValuesFile, "templates/some.yaml", notEmptyFile);
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = Mockito.mock(InputFile.class);
-      var someFile = Mockito.mock(InputFile.class);
-      var files = Map.of("values.yaml", valuesFile, "templates/some.yaml", someFile);
-      when(valuesFile.contents()).thenReturn("foo: bar");
-      when(someFile.contents()).thenReturn("kind: Pod");
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
-      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
-        .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("result: foo #1").build());
+    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, additionalFiles);
 
-      var result = helmProcessor.processHelmTemplate("foo.yaml", "foo", inputFileContext);
-
-      verify(helmEvaluator).evaluateTemplate(anyString(), anyString(), anyMap());
-      assertThat(result).isEqualTo("result: foo #1");
-    }
+    assertThat(additionalFilesContent)
+      .hasSize(2)
+      .containsKey("values.yaml")
+      .containsKey("templates/some.yaml")
+      .containsEntry("values.yaml", "")
+      .containsEntry("templates/some.yaml", "kind: Pod");
   }
+
+  // -------------------------------------------------
+  // -------Test HelmProcessor.evaluateTemplate-------
+  // -------------------------------------------------
 
   @Test
-  void shouldEvaluateTemplateAndReturnTemplate() throws IOException {
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-    helmProcessor.initialize();
+  void evaluateHelmTemplateShouldNotThrowParseException() throws IOException {
+    var helmProcessor = getHelmProcessor();
+    var templateEvaluationResult = Mockito.mock(TemplateEvaluationResult.class);
+    String path = "path";
+    String content = "content";
+    Map<String, String> templateDependencies = new HashMap<>();
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = Mockito.mock(InputFile.class);
-      when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
-      var files = Map.of("values.yaml", valuesFile);
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any()))
-        .thenReturn(TemplateEvaluationResult.newBuilder().setTemplate("containerPort: 8080 #1").build());
-      var inputFile = Mockito.mock(InputFile.class);
-      when(inputFile.uri()).thenReturn(URI.create("file:///projects/chart/templates/foo.yaml"));
-      var inputFileContext = new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
+    var inputFile = mockInputFile("chart/templates/foo.yaml", content);
+    when(helmEvaluator.evaluateTemplate(any(), any(), anyMap())).thenReturn(templateEvaluationResult);
 
-      var result = helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext);
-
-      assertEquals("containerPort: 8080 #1", result);
-    }
+    assertDoesNotThrow(() -> {
+      helmProcessor.evaluateHelmTemplate(path, inputFile, content, templateDependencies);
+    });
   }
 
-  @Test
-  void shouldSkipHelmEvaluationIfHelmEvaluatorThrows() throws IOException {
-    when(helmEvaluator.evaluateTemplate(anyString(), anyString(), any())).thenThrow(new IllegalStateException("Failed to evaluate template"));
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-    helmProcessor.initialize();
+  @ParameterizedTest
+  @MethodSource("exceptionProvider")
+  void evaluateHelmTemplateShouldThrowParseException(Exception exception) throws IOException {
+    var helmProcessor = getHelmProcessor();
+    String path = "path";
+    String content = "content";
+    Map<String, String> templateDependencies = new HashMap<>();
+    when(helmEvaluator.evaluateTemplate(any(), any(), anyMap())).thenThrow(exception);
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = Mockito.mock(InputFile.class);
-      when(valuesFile.contents()).thenReturn("container:\n  port: 8080");
-      var files = Map.of("values.yaml", valuesFile);
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
-
-      assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "containerPort: {{ .Values.container.port }}", inputFileContext))
-        .isInstanceOf(ParseException.class)
-        .hasMessage("Failed to evaluate Helm file chart/templates/foo.yaml: Template evaluation failed");
-    }
+    assertThatThrownBy(() -> helmProcessor.evaluateHelmTemplate(path, DEFAULT_INPUT_FILE, content, templateDependencies))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Template evaluation failed");
   }
 
-  @Test
-  void shouldNotEvaluateIfTemplateIsEmpty() throws IOException {
-    var helmProcessor = new HelmProcessor(helmEvaluator);
-    helmProcessor.initialize();
+  // -------------------------------------------------
+  // ---------------Test Helper methods---------------
+  // -------------------------------------------------
 
-    try (var ignored = Mockito.mockStatic(HelmFilesystemUtils.class)) {
-      var valuesFile = Mockito.mock(InputFile.class);
-      var files = Map.of("values.yaml", valuesFile);
-      when(valuesFile.contents()).thenReturn("foo: bar");
-      when(HelmFilesystemUtils.additionalFilesOfHelmProjectDirectory(any())).thenReturn(files);
-      var inputFileContext = mockInputFileContext("chart/templates/foo.yaml");
-
-      helmProcessor.processHelmTemplate("foo.yaml", "", inputFileContext);
-
-      verify(helmEvaluator).initialize();
-      verifyNoMoreInteractions(helmEvaluator);
-      assertThat(logTester.logs(Level.DEBUG)).contains("The file chart/templates/foo.yaml is blank, skipping evaluation");
-    }
+  private static Stream<Exception> exceptionProvider() {
+    return Stream.of(
+      new IllegalStateException("Failed to evaluate template"),
+      new IOException("Failed to evaluate template"));
   }
 
-  private static InputFileContext mockInputFileContext(String filename) {
+  private HelmProcessor getHelmProcessor() {
+    SensorContext sensorContext = mock(SensorContext.class);
+    FileSystem fileSystem = mock(FileSystem.class);
+    when(sensorContext.fileSystem()).thenReturn(fileSystem);
+
+    return new HelmProcessor(helmEvaluator, sensorContext);
+  }
+
+  private static InputFileContext mockInputFileContext(String filename, String content) throws IOException {
+    var inputFile = mockInputFile(filename, content);
+    return new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
+  }
+
+  private static InputFile mockInputFile(String filename, String content) throws IOException {
     var inputFile = Mockito.mock(InputFile.class);
     when(inputFile.newPointer(anyInt(), anyInt())).thenReturn(new BasicTextPointer(0, 0));
-    when(inputFile.uri()).thenReturn(URI.create("file://" + filename));
+    when(inputFile.uri()).thenReturn(URI.create("file:/" + filename));
     when(inputFile.toString()).thenReturn(filename);
-    return new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
+    when(inputFile.contents()).thenReturn(content);
+    return inputFile;
   }
 }

@@ -55,16 +55,20 @@ public final class IacTestUtils {
   public static InputFile inputFile(String fileName, Path baseDir, @Nullable String language) {
     try {
       var content = Files.readString(baseDir.resolve(fileName));
-      return new TestInputFileBuilder("moduleKey", fileName)
-        .setModuleBaseDir(baseDir)
-        .setType(InputFile.Type.MAIN)
-        .setCharset(StandardCharsets.UTF_8)
-        .setLanguage(language)
-        .setContents(content)
-        .build();
+      return inputFile(fileName, baseDir, content, language);
     } catch (IOException e) {
       throw new IllegalStateException("File not found", e);
     }
+  }
+
+  public static InputFile inputFile(String fileName, Path baseDir, String content, @Nullable String language) {
+    return new TestInputFileBuilder("moduleKey", fileName)
+      .setModuleBaseDir(baseDir)
+      .setType(InputFile.Type.MAIN)
+      .setCharset(StandardCharsets.UTF_8)
+      .setLanguage(language)
+      .setContents(content)
+      .build();
   }
 
   public static void addFileToSensorContext(SensorContextTester context, Path baseDir, String fileName) {

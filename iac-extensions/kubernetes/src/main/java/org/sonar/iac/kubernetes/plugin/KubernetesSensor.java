@@ -44,7 +44,8 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
-import org.sonar.iac.helm.utils.HelmFilesystemUtils;
+import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
@@ -53,21 +54,23 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter;
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
   private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
-  private final HelmProcessor helmProcessor;
+  private final HelmEvaluator helmEvaluator;
+
+  private HelmProcessor helmProcessor;
   private final LocationShifter locationShifter = new LocationShifter();
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmProcessor helmProcessor) {
+    NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks());
-    this.helmProcessor = helmProcessor;
+    this.helmEvaluator = helmEvaluator;
   }
 
   @Override
   protected void initContext(SensorContext sensorContext) {
-    if (shouldEnableHelmAnalysis(sensorContext)) {
+    if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
-      helmProcessor.initialize();
+      helmProcessor = new HelmProcessor(helmEvaluator, sensorContext);
     } else {
       LOG.debug("Skipping initialization of Helm processor");
     }
@@ -189,6 +192,10 @@ public class KubernetesSensor extends YamlSensor {
     }
   }
 
+  void setHelmProcessorForTesting(HelmProcessor helmProcessor) {
+    this.helmProcessor = helmProcessor;
+  }
+
   static class HelmProjectMemberPredicate implements FilePredicate {
     private final SensorContext sensorContext;
 
@@ -198,7 +205,7 @@ public class KubernetesSensor extends YamlSensor {
 
     @Override
     public boolean apply(InputFile inputFile) {
-      return HelmFilesystemUtils.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem().baseDir()) != null;
+      return HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem().baseDir()) != null;
     }
   }
 }

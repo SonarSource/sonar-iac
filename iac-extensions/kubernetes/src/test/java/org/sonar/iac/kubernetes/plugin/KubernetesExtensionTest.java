@@ -38,6 +38,6 @@ class KubernetesExtensionTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_5, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     KubernetesExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(7);
+    assertThat(context.getExtensions()).hasSize(6);
   }
 }

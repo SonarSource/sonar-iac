@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.utils;
+package org.sonar.iac.helm;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -31,51 +32,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 
-public final class HelmFilesystemUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(HelmFilesystemUtils.class);
+public final class HelmFileSystem {
+  private static final Logger LOG = LoggerFactory.getLogger(HelmFileSystem.class);
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
+  private final FileSystem fileSystem;
 
-  private HelmFilesystemUtils() {
+  public HelmFileSystem(FileSystem fileSystem) {
+    this.fileSystem = fileSystem;
   }
 
-  // TODO: SONARIAC-1239 Ignore additional file pattern mentioned in .helmignore
-  public static Map<String, InputFile> additionalFilesOfHelmProjectDirectory(InputFileContext inputFileContext) {
-    Map<String, InputFile> result = new HashMap<>();
-
-    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()), inputFileContext.sensorContext.fileSystem().baseDir());
+  // Ignore additional file pattern mentioned in .helmignore
+  public Map<String, InputFile> getRelatedHelmFiles(InputFile inputFile) {
+    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()), fileSystem.baseDir());
     if (helmDirectoryPath == null) {
-      LOG.debug("Failed to resolve Helm project directory for {}", inputFileContext.inputFile.uri());
-      return result;
+      LOG.debug("Failed to resolve Helm project directory for {}", inputFile.uri());
+      return Collections.emptyMap();
     }
 
-    var filePredicate = additionalHelmDependenciesPredicate(inputFileContext, helmDirectoryPath);
-    Iterable<InputFile> inputFiles = inputFileContext.sensorContext.fileSystem().inputFiles(filePredicate);
+    var additionalHelmFilesPredicate = additionalHelmDependenciesPredicate(inputFile, helmDirectoryPath);
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(additionalHelmFilesPredicate);
 
+    Map<String, InputFile> result = new HashMap<>();
     for (InputFile additionalFile : inputFiles) {
       String fileName = resolveToInputFile(helmDirectoryPath, additionalFile);
-      result.put(normalizeToUnixPathSeparator(fileName), additionalFile);
+      fileName = normalizeToUnixPathSeparator(fileName);
+      result.put(fileName, additionalFile);
     }
     return result;
   }
 
-  static FilePredicate additionalHelmDependenciesPredicate(InputFileContext inputFileContext, Path helmProjectDirectoryPath) {
-    FilePredicates predicates = inputFileContext.sensorContext.fileSystem().predicates();
-    // Can be null or throw error?
-
-    String pathPattern = null;
-
-    var basePath = inputFileContext.sensorContext.fileSystem().baseDir().toPath();
-
+  FilePredicate additionalHelmDependenciesPredicate(InputFile inputFile, Path helmProjectDirectoryPath) {
+    FilePredicates predicates = fileSystem.predicates();
+    var basePath = fileSystem.baseDir().toPath();
     var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
-    pathPattern = relativizedPath + File.separator + "**";
+    String pathPattern = relativizedPath + File.separator + "**";
 
     return predicates.and(
       predicates.matchesPathPattern(pathPattern),
       extensionPredicate(predicates),
-      predicates.not(predicates.hasURI(inputFileContext.inputFile.uri())));
+      predicates.not(predicates.hasURI(inputFile.uri())));
   }
 
   private static FilePredicate extensionPredicate(FilePredicates predicates) {
