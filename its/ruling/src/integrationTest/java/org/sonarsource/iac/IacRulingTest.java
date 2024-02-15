@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -163,10 +162,10 @@ class IacRulingTest {
   }
 
   @AfterAll
-  public static void after() {
+  public static void after() throws InterruptedException {
     if (keepSonarqubeRunning) {
       // keep server running, use CTRL-C to stop it
-      new Scanner(System.in).next();
+      Thread.sleep(Long.MAX_VALUE);
     }
   }
 }
