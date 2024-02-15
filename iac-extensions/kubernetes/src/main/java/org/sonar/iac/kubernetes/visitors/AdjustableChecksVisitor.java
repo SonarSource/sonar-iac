@@ -19,9 +19,11 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
@@ -34,14 +36,22 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.helm.tree.utils.ValuePath;
 
 public class AdjustableChecksVisitor extends ChecksVisitor {
 
   private final LocationShifter locationShifter;
+  private final YamlParser yamlParser;
 
-  public AdjustableChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, LocationShifter locationShifter) {
+  public AdjustableChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, LocationShifter locationShifter, YamlParser yamlParser) {
     super(checks, statistics);
     this.locationShifter = locationShifter;
+    this.yamlParser = yamlParser;
   }
 
   @Override
@@ -78,6 +88,44 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
     private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
       var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
       return new SecondaryLocation(shiftedTextRange, secondaryLocation.message, secondaryLocation.filePath);
+    }
+
+    TextRange toLocationInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {
+      var valuesFile = inputFileContext.getValuesFile();
+      FileTree valuesFileTree = null;
+      if (valuesFile != null) {
+        var valuesFileContent = valuesFile.contents();
+        if (!valuesFileContent.isBlank()) {
+          valuesFileTree = yamlParser.parse(valuesFileContent, null);
+        }
+      }
+
+      if (valuesFile == null || valuesFileTree == null || valuesFileTree.documents().isEmpty()) {
+        return null;
+      }
+
+      // Hopefully, values.yaml contains only a single document
+      var node = valuesFileTree.documents().get(0);
+      for (String pathPart : valuePath.path()) {
+        for (Tree child : node.children()) {
+          node = find(child, pathPart);
+          if (node == null) {
+            return null;
+          }
+        }
+      }
+      return node.textRange();
+    }
+
+    @CheckForNull
+    private YamlTree find(Tree node, String key) {
+      if (node instanceof TupleTree) {
+        var tuple = (TupleTree) node;
+        if (tuple.key() instanceof ScalarTree && ((ScalarTree) tuple.key()).value().equals(key)) {
+          return tuple.value();
+        }
+      }
+      return null;
     }
   }
 }

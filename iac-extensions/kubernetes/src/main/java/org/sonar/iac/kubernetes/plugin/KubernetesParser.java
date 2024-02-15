@@ -33,6 +33,7 @@ import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
@@ -64,11 +65,11 @@ public class KubernetesParser extends YamlParser {
     if (!hasHelmContent(source)) {
       return kubernetesParserStatistics.recordPureKubernetesFile(() -> super.parse(source, inputFileContext));
     } else {
-      return kubernetesParserStatistics.recordHelmFile(() -> parseHelmFile(source, inputFileContext));
+      return kubernetesParserStatistics.recordHelmFile(() -> parseHelmFile(source, (HelmInputFileContext) inputFileContext));
     }
   }
 
-  private FileTree parseHelmFile(String source, @Nullable InputFileContext inputFileContext) {
+  private FileTree parseHelmFile(String source, @Nullable HelmInputFileContext inputFileContext) {
     if (inputFileContext == null) {
       LOG.debug("No InputFileContext provided, skipping processing of Helm file");
       return super.parse("{}", null, FileTree.Template.HELM);
@@ -101,7 +102,7 @@ public class KubernetesParser extends YamlParser {
     return result;
   }
 
-  private FileTree evaluateAndParseHelmFile(String source, InputFileContext inputFileContext) {
+  private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
     locationShifter.readLinesSizes(source, inputFileContext);
     var fileRelativePath = getFileRelativePath(inputFileContext);
     var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);

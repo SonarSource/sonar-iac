@@ -162,6 +162,10 @@ public abstract class IacSensor implements Sensor {
     // do nothing by default
   }
 
+  protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
+    return new InputFileContext(sensorContext, inputFile);
+  }
+
   private class Analyzer {
 
     private final TreeParser<Tree> parser;
@@ -179,7 +183,7 @@ public abstract class IacSensor implements Sensor {
         if (sensorContext.isCancelled()) {
           return false;
         }
-        InputFileContext inputFileContext = new InputFileContext(sensorContext, inputFile);
+        var inputFileContext = createInputFileContext(sensorContext, inputFile);
         try {
           analyseFile(inputFileContext);
         } catch (ParseException e) {

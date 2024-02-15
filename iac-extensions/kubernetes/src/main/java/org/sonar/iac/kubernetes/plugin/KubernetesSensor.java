@@ -42,12 +42,14 @@ import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -95,7 +97,7 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
-    visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter));
+    visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter, new YamlParser()));
     return visitors;
   }
 
@@ -132,6 +134,11 @@ public class KubernetesSensor extends YamlSensor {
   @Override
   protected void afterExecute() {
     kubernetesParserStatistics.logStatistics();
+  }
+
+  @Override
+  protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
+    return new HelmInputFileContext(sensorContext, inputFile);
   }
 
   private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
