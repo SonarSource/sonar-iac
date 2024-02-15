@@ -20,8 +20,8 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 
-import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -78,7 +78,7 @@ class CertificateBasedAuthenticationCheckTest {
     ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_linkedservices.json",
       CHECK,
       issue(12, 10, 12, 39, "This authentication method is not certificate-based. Make sure it is safe here.",
-        secondary(range(10, 8, 10, 21), "Service type")),
+        new SecondaryLocation(range(10, 8, 10, 21), "Service type")),
       issue(23, 10, 23, 39),
       issue(39, 14, 39, 43));
   }
@@ -118,8 +118,8 @@ class CertificateBasedAuthenticationCheckTest {
     ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ServiceFabric_clusters.json", CHECK,
       issue(7, 14, 7, 48, "Omitting \"clientCertificateCommonNames/clientCertificateThumbprints\" disables certificate-based authentication. Make sure it is safe here."),
       issue(14, 14, 14, 48, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.",
-        secondary(range(17, 8, 18, 9), "Empty certificate list"),
-        secondary(range(19, 8, 20, 9), "Empty certificate list")),
+        new SecondaryLocation(range(17, 8, 18, 9), "Empty certificate list"),
+        new SecondaryLocation(range(19, 8, 20, 9), "Empty certificate list")),
       issue(25, 14, 25, 48),
       issue(34, 14, 34, 48));
   }
@@ -168,7 +168,7 @@ class CertificateBasedAuthenticationCheckTest {
   void testFactoriesPipelinesJson() {
     ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_pipelines.json", CHECK,
       issue(14, 14, 14, 43, "This authentication method is not certificate-based. Make sure it is safe here.",
-        secondary(range(12, 12, 12, 33), "Pipeline type")),
+        new SecondaryLocation(range(12, 12, 12, 33), "Pipeline type")),
       issue(34, 18, 34, 47),
       issue(51, 14, 51, 54));
   }

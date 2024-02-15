@@ -23,7 +23,6 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 public class SecondaryLocation {
 
@@ -33,10 +32,6 @@ public class SecondaryLocation {
 
   @Nullable
   public final String filePath;
-
-  public SecondaryLocation(int startLine, int startOffset, int endLine, int endOffset, String message) {
-    this(TextRanges.range(startLine, startOffset, endLine, endOffset), message);
-  }
 
   public SecondaryLocation(HasTextRange tree, String message) {
     this(tree, message, null);
@@ -54,14 +49,6 @@ public class SecondaryLocation {
     this.textRange = textRange;
     this.message = message;
     this.filePath = filePath;
-  }
-
-  public static SecondaryLocation secondary(TextRange textRange, String message) {
-    return new SecondaryLocation(textRange, message);
-  }
-
-  public static SecondaryLocation secondary(HasTextRange tree, String message) {
-    return new SecondaryLocation(tree, message);
   }
 
   @Override

@@ -21,15 +21,14 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 
-import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
 import static org.sonar.iac.common.checks.PropertyUtils.get;
 import static org.sonar.iac.common.checks.PropertyUtils.value;
 
@@ -55,20 +54,20 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
 
   private static void checkDMSReplicationInstance(CheckContext ctx, Resource resource) {
     value(resource.properties(), "PubliclyAccessible", ScalarTree.class)
-      .ifPresentOrElse(publiclyAccessible -> reportIfTrue(ctx, publiclyAccessible, secondary(resource.type(), SECONDARY_DMS_MESSAGE)),
+      .ifPresentOrElse(publiclyAccessible -> reportIfTrue(ctx, publiclyAccessible, new SecondaryLocation(resource.type(), SECONDARY_DMS_MESSAGE)),
         () -> reportIfAbsent(ctx, resource, "PubliclyAccessible"));
   }
 
   private static void checkEC2Instance(CheckContext ctx, Resource resource) {
     get(resource.properties(), "NetworkInterfaces")
-      .ifPresentOrElse(networkInterfaces -> checkNetworkInterfaces(ctx, networkInterfaces, secondary(resource.type(), SECONDARY_EC2_INSTANCE_MESSAGE)),
+      .ifPresentOrElse(networkInterfaces -> checkNetworkInterfaces(ctx, networkInterfaces, new SecondaryLocation(resource.type(), SECONDARY_EC2_INSTANCE_MESSAGE)),
         () -> reportIfAbsent(ctx, resource, "NetworkInterfaces.AssociatePublicIpAddress"));
   }
 
   private static void checkEC2LaunchTemplate(CheckContext ctx, Resource resource) {
     get(resource.properties(), "LaunchTemplateData")
       .ifPresentOrElse(launchTemplateData -> get(launchTemplateData.value(), "NetworkInterfaces")
-        .ifPresentOrElse(networkInterfaces -> checkNetworkInterfaces(ctx, networkInterfaces, secondary(resource.type(), SECONDARY_EC2_TEMPLATE_MESSAGE)),
+        .ifPresentOrElse(networkInterfaces -> checkNetworkInterfaces(ctx, networkInterfaces, new SecondaryLocation(resource.type(), SECONDARY_EC2_TEMPLATE_MESSAGE)),
           () -> reportIfAbsent(ctx, launchTemplateData, "NetworkInterfaces.AssociatePublicIpAddress", resource, SECONDARY_EC2_TEMPLATE_MESSAGE)),
         () -> reportIfAbsent(ctx, resource, "LaunchTemplateData.NetworkInterfaces.AssociatePublicIpAddress"));
   }
@@ -95,7 +94,7 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
   }
 
   private static void reportIfAbsent(CheckContext ctx, PropertyTree parent, String propertyName, Resource resource, String secondaryMessage) {
-    reportIfAbsent(ctx, parent, propertyName, secondary(resource.type(), secondaryMessage));
+    reportIfAbsent(ctx, parent, propertyName, new SecondaryLocation(resource.type(), secondaryMessage));
   }
 
   private static void reportIfAbsent(CheckContext ctx, PropertyTree parent, String propertyName, SecondaryLocation secondary) {
