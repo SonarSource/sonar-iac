@@ -19,13 +19,13 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 
-import java.util.stream.Stream;
-
-import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -215,26 +215,26 @@ class PublicNetworkAccessCheckTest {
   void shouldCheckRangePublicIPAddressJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/rangePublicIPAddress-template.json", type);
     ArmVerifier.verifyContent(content, CHECK,
-      issue(10, 26, 10, 35, MESSAGE_PUBLIC_IP_ACCESS, secondary(11, 24, 11, 41, AND_HERE)),
+      issue(10, 26, 10, 35, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(11, 24, 11, 41), AND_HERE)),
       issue(19, 24, 19, 33, MESSAGE_PUBLIC_IP_ACCESS),
       issue(27, 26, 27, 37),
       issue(35, 26, 35, 35),
-      issue(44, 26, 44, 36, MESSAGE_PUBLIC_IP_ACCESS, secondary(45, 24, 45, 40, AND_HERE)),
-      issue(53, 26, 53, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(54, 24, 54, 41, AND_HERE)),
-      issue(62, 26, 62, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(63, 24, 63, 40, AND_HERE)),
-      issue(71, 26, 71, 38, MESSAGE_PUBLIC_IP_ACCESS, secondary(72, 24, 72, 41, AND_HERE)),
-      issue(80, 26, 80, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(81, 24, 81, 37, AND_HERE)),
-      issue(89, 26, 89, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(90, 24, 90, 41, AND_HERE)),
-      issue(98, 26, 98, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(99, 24, 99, 40, AND_HERE)),
-      issue(107, 26, 107, 38, MESSAGE_PUBLIC_IP_ACCESS, secondary(108, 24, 108, 39, AND_HERE)),
-      issue(116, 26, 116, 40, MESSAGE_PUBLIC_IP_ACCESS, secondary(117, 24, 117, 39, AND_HERE)),
-      issue(125, 26, 125, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(126, 24, 126, 41, AND_HERE)),
-      issue(134, 26, 134, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(135, 24, 135, 41, AND_HERE)),
+      issue(44, 26, 44, 36, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(45, 24, 45, 40), AND_HERE)),
+      issue(53, 26, 53, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(54, 24, 54, 41), AND_HERE)),
+      issue(62, 26, 62, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(63, 24, 63, 40), AND_HERE)),
+      issue(71, 26, 71, 38, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(72, 24, 72, 41), AND_HERE)),
+      issue(80, 26, 80, 37, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(81, 24, 81, 37), AND_HERE)),
+      issue(89, 26, 89, 37, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(90, 24, 90, 41), AND_HERE)),
+      issue(98, 26, 98, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(99, 24, 99, 40), AND_HERE)),
+      issue(107, 26, 107, 38, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(108, 24, 108, 39), AND_HERE)),
+      issue(116, 26, 116, 40, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(117, 24, 117, 39), AND_HERE)),
+      issue(125, 26, 125, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(126, 24, 126, 41), AND_HERE)),
+      issue(134, 26, 134, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(135, 24, 135, 41), AND_HERE)),
       issue(143, 26, 143, 43, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(151, 26, 151, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(152, 24, 152, 37, AND_HERE)),
-      issue(160, 26, 160, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(161, 24, 161, 37, AND_HERE)),
-      issue(169, 26, 169, 35, MESSAGE_PUBLIC_IP_ACCESS, secondary(170, 24, 170, 35, AND_HERE)),
-      issue(178, 26, 178, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(179, 24, 179, 33, AND_HERE)));
+      issue(151, 26, 151, 37, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(152, 24, 152, 37), AND_HERE)),
+      issue(160, 26, 160, 37, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(161, 24, 161, 37), AND_HERE)),
+      issue(169, 26, 169, 35, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(170, 24, 170, 35), AND_HERE)),
+      issue(178, 26, 178, 37, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(179, 24, 179, 33), AND_HERE)));
   }
 
   @MethodSource("shouldCheckRangePublicIPAddress")
@@ -339,26 +339,26 @@ class PublicNetworkAccessCheckTest {
   void shouldCheckRangePublicIPAddressInFirewallRulesJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-template.json", type);
     ArmVerifier.verifyContent(content, CHECK,
-      issue(12, 30, 12, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(13, 28, 13, 45, AND_HERE)),
+      issue(12, 30, 12, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(13, 28, 13, 45), AND_HERE)),
       issue(25, 28, 25, 37, MESSAGE_PUBLIC_IP_ACCESS),
       issue(37, 30, 37, 41, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(49, 30, 49, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(50, 28, 50, 43, AND_HERE)),
-      issue(62, 30, 62, 40, MESSAGE_PUBLIC_IP_ACCESS, secondary(63, 28, 63, 44, AND_HERE)),
-      issue(75, 30, 75, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(76, 28, 76, 45, AND_HERE)),
-      issue(88, 30, 88, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(89, 28, 89, 44, AND_HERE)),
-      issue(101, 30, 101, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(102, 28, 102, 45, AND_HERE)),
-      issue(114, 30, 114, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(115, 28, 115, 41, AND_HERE)),
-      issue(127, 30, 127, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(128, 28, 128, 45, AND_HERE)),
-      issue(140, 30, 140, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(141, 28, 141, 44, AND_HERE)),
-      issue(153, 30, 153, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(154, 28, 154, 43, AND_HERE)),
-      issue(166, 30, 166, 44, MESSAGE_PUBLIC_IP_ACCESS, secondary(167, 28, 167, 43, AND_HERE)),
-      issue(179, 30, 179, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(180, 28, 180, 45, AND_HERE)),
-      issue(192, 30, 192, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(193, 28, 193, 45, AND_HERE)),
+      issue(49, 30, 49, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(50, 28, 50, 43), AND_HERE)),
+      issue(62, 30, 62, 40, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(63, 28, 63, 44), AND_HERE)),
+      issue(75, 30, 75, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(76, 28, 76, 45), AND_HERE)),
+      issue(88, 30, 88, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(89, 28, 89, 44), AND_HERE)),
+      issue(101, 30, 101, 42, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(102, 28, 102, 45), AND_HERE)),
+      issue(114, 30, 114, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(115, 28, 115, 41), AND_HERE)),
+      issue(127, 30, 127, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(128, 28, 128, 45), AND_HERE)),
+      issue(140, 30, 140, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(141, 28, 141, 44), AND_HERE)),
+      issue(153, 30, 153, 42, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(154, 28, 154, 43), AND_HERE)),
+      issue(166, 30, 166, 44, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(167, 28, 167, 43), AND_HERE)),
+      issue(179, 30, 179, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(180, 28, 180, 45), AND_HERE)),
+      issue(192, 30, 192, 47, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(193, 28, 193, 45), AND_HERE)),
       issue(205, 30, 205, 47, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(217, 30, 217, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(218, 28, 218, 41, AND_HERE)),
-      issue(230, 30, 230, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(231, 28, 231, 41, AND_HERE)),
-      issue(243, 30, 243, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(244, 28, 244, 39, AND_HERE)),
-      issue(256, 30, 256, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(257, 28, 257, 37, AND_HERE)));
+      issue(217, 30, 217, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(218, 28, 218, 41), AND_HERE)),
+      issue(230, 30, 230, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(231, 28, 231, 41), AND_HERE)),
+      issue(243, 30, 243, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(244, 28, 244, 39), AND_HERE)),
+      issue(256, 30, 256, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(257, 28, 257, 37), AND_HERE)));
   }
 
   @MethodSource("listResourceRangePublicIPAddressInFirewallRules")
@@ -383,30 +383,30 @@ class PublicNetworkAccessCheckTest {
     ArmVerifier.verify(
       "PublicNetworkAccessCheckTest/rangePublicIPAddress/transactionNodes.json",
       CHECK,
-      issue(17, 34, 17, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(18, 32, 18, 49, AND_HERE)),
+      issue(17, 34, 17, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(18, 32, 18, 49), AND_HERE)),
       issue(37, 32, 37, 41, MESSAGE_PUBLIC_IP_ACCESS),
       issue(56, 34, 56, 45, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(75, 34, 75, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(76, 32, 76, 47, AND_HERE)),
-      issue(95, 34, 95, 44, MESSAGE_PUBLIC_IP_ACCESS, secondary(96, 32, 96, 48, AND_HERE)),
-      issue(115, 34, 115, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(116, 32, 116, 49, AND_HERE)),
-      issue(135, 34, 135, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(136, 32, 136, 48, AND_HERE)),
-      issue(155, 34, 155, 46, MESSAGE_PUBLIC_IP_ACCESS, secondary(156, 32, 156, 49, AND_HERE)),
-      issue(175, 34, 175, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(176, 32, 176, 45, AND_HERE)),
-      issue(195, 34, 195, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(196, 32, 196, 49, AND_HERE)),
-      issue(215, 34, 215, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(216, 32, 216, 48, AND_HERE)),
-      issue(235, 34, 235, 46, MESSAGE_PUBLIC_IP_ACCESS, secondary(236, 32, 236, 47, AND_HERE)),
-      issue(255, 34, 255, 48, MESSAGE_PUBLIC_IP_ACCESS, secondary(256, 32, 256, 47, AND_HERE)),
-      issue(275, 34, 275, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(276, 32, 276, 49, AND_HERE)),
-      issue(295, 34, 295, 51, MESSAGE_PUBLIC_IP_ACCESS, secondary(296, 32, 296, 49, AND_HERE)),
+      issue(75, 34, 75, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(76, 32, 76, 47), AND_HERE)),
+      issue(95, 34, 95, 44, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(96, 32, 96, 48), AND_HERE)),
+      issue(115, 34, 115, 47, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(116, 32, 116, 49), AND_HERE)),
+      issue(135, 34, 135, 47, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(136, 32, 136, 48), AND_HERE)),
+      issue(155, 34, 155, 46, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(156, 32, 156, 49), AND_HERE)),
+      issue(175, 34, 175, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(176, 32, 176, 45), AND_HERE)),
+      issue(195, 34, 195, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(196, 32, 196, 49), AND_HERE)),
+      issue(215, 34, 215, 47, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(216, 32, 216, 48), AND_HERE)),
+      issue(235, 34, 235, 46, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(236, 32, 236, 47), AND_HERE)),
+      issue(255, 34, 255, 48, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(256, 32, 256, 47), AND_HERE)),
+      issue(275, 34, 275, 47, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(276, 32, 276, 49), AND_HERE)),
+      issue(295, 34, 295, 51, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(296, 32, 296, 49), AND_HERE)),
       issue(315, 34, 315, 51, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(334, 34, 334, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(335, 32, 335, 45, AND_HERE)),
-      issue(354, 34, 354, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(355, 32, 355, 45, AND_HERE)),
-      issue(374, 34, 374, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(375, 32, 375, 43, AND_HERE)),
-      issue(394, 34, 394, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(395, 32, 395, 41, AND_HERE)),
-      issue(414, 34, 414, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(415, 32, 415, 43, AND_HERE)),
-      issue(442, 34, 442, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(443, 32, 443, 43, AND_HERE)),
-      issue(462, 34, 462, 44, MESSAGE_PUBLIC_IP_ACCESS, secondary(463, 32, 463, 44, AND_HERE)),
-      issue(466, 34, 466, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(467, 32, 467, 43, AND_HERE)));
+      issue(334, 34, 334, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(335, 32, 335, 45), AND_HERE)),
+      issue(354, 34, 354, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(355, 32, 355, 45), AND_HERE)),
+      issue(374, 34, 374, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(375, 32, 375, 43), AND_HERE)),
+      issue(394, 34, 394, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(395, 32, 395, 41), AND_HERE)),
+      issue(414, 34, 414, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(415, 32, 415, 43), AND_HERE)),
+      issue(442, 34, 442, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(443, 32, 443, 43), AND_HERE)),
+      issue(462, 34, 462, 44, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(463, 32, 463, 44), AND_HERE)),
+      issue(466, 34, 466, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(467, 32, 467, 43), AND_HERE)));
   }
 
   @Test
@@ -436,26 +436,26 @@ class PublicNetworkAccessCheckTest {
   void shouldCheckRangePublicIPAddressInFirewallRulesPropertiesJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-properties-template.json", type);
     ArmVerifier.verifyContent(content, CHECK,
-      issue(15, 30, 15, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(16, 28, 16, 45, AND_HERE)),
+      issue(15, 30, 15, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(16, 28, 16, 45), AND_HERE)),
       issue(31, 28, 31, 37, MESSAGE_PUBLIC_IP_ACCESS),
       issue(46, 30, 46, 41, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(61, 30, 61, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(62, 28, 62, 43, AND_HERE)),
-      issue(77, 30, 77, 40, MESSAGE_PUBLIC_IP_ACCESS, secondary(78, 28, 78, 44, AND_HERE)),
-      issue(93, 30, 93, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(94, 28, 94, 45, AND_HERE)),
-      issue(109, 30, 109, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(110, 28, 110, 44, AND_HERE)),
-      issue(125, 30, 125, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(126, 28, 126, 45, AND_HERE)),
-      issue(173, 30, 173, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(174, 28, 174, 44, AND_HERE)),
-      issue(141, 30, 141, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(142, 28, 142, 41, AND_HERE)),
-      issue(157, 30, 157, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(158, 28, 158, 45, AND_HERE)),
-      issue(189, 30, 189, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(190, 28, 190, 43, AND_HERE)),
-      issue(205, 30, 205, 44, MESSAGE_PUBLIC_IP_ACCESS, secondary(206, 28, 206, 43, AND_HERE)),
-      issue(221, 30, 221, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(222, 28, 222, 45, AND_HERE)),
-      issue(237, 30, 237, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(238, 28, 238, 45, AND_HERE)),
+      issue(61, 30, 61, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(62, 28, 62, 43), AND_HERE)),
+      issue(77, 30, 77, 40, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(78, 28, 78, 44), AND_HERE)),
+      issue(93, 30, 93, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(94, 28, 94, 45), AND_HERE)),
+      issue(109, 30, 109, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(110, 28, 110, 44), AND_HERE)),
+      issue(125, 30, 125, 42, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(126, 28, 126, 45), AND_HERE)),
+      issue(173, 30, 173, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(174, 28, 174, 44), AND_HERE)),
+      issue(141, 30, 141, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(142, 28, 142, 41), AND_HERE)),
+      issue(157, 30, 157, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(158, 28, 158, 45), AND_HERE)),
+      issue(189, 30, 189, 42, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(190, 28, 190, 43), AND_HERE)),
+      issue(205, 30, 205, 44, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(206, 28, 206, 43), AND_HERE)),
+      issue(221, 30, 221, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(222, 28, 222, 45), AND_HERE)),
+      issue(237, 30, 237, 47, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(238, 28, 238, 45), AND_HERE)),
       issue(253, 30, 253, 47, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(268, 30, 268, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(269, 28, 269, 41, AND_HERE)),
-      issue(284, 30, 284, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(285, 28, 285, 41, AND_HERE)),
-      issue(300, 30, 300, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(301, 28, 301, 39, AND_HERE)),
-      issue(316, 30, 316, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(317, 28, 317, 37, AND_HERE)));
+      issue(268, 30, 268, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(269, 28, 269, 41), AND_HERE)),
+      issue(284, 30, 284, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(285, 28, 285, 41), AND_HERE)),
+      issue(300, 30, 300, 39, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(301, 28, 301, 39), AND_HERE)),
+      issue(316, 30, 316, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(317, 28, 317, 37), AND_HERE)));
   }
 
   @MethodSource("listTypesRangePublicIPAddressInFirewallRulesProperties")
@@ -476,30 +476,30 @@ class PublicNetworkAccessCheckTest {
   void shouldCheckRangePublicIPAddressInPropertiesFirewallRulesJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/properties-firewallRules-template.json", type);
     ArmVerifier.verifyContent(content, CHECK,
-      issue(13, 32, 13, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(14, 30, 14, 47, AND_HERE)),
+      issue(13, 32, 13, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(14, 30, 14, 47), AND_HERE)),
       issue(28, 30, 28, 39, MESSAGE_PUBLIC_IP_ACCESS),
       issue(42, 32, 42, 43, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(56, 32, 56, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(57, 30, 57, 45, AND_HERE)),
-      issue(71, 32, 71, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(72, 30, 72, 46, AND_HERE)),
-      issue(86, 32, 86, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(87, 30, 87, 47, AND_HERE)),
-      issue(101, 32, 101, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(102, 30, 102, 46, AND_HERE)),
-      issue(116, 32, 116, 44, MESSAGE_PUBLIC_IP_ACCESS, secondary(117, 30, 117, 47, AND_HERE)),
-      issue(131, 32, 131, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(132, 30, 132, 43, AND_HERE)),
-      issue(146, 32, 146, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(147, 30, 147, 47, AND_HERE)),
-      issue(161, 32, 161, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(162, 30, 162, 46, AND_HERE)),
-      issue(176, 32, 176, 44, MESSAGE_PUBLIC_IP_ACCESS, secondary(177, 30, 177, 45, AND_HERE)),
-      issue(191, 32, 191, 46, MESSAGE_PUBLIC_IP_ACCESS, secondary(192, 30, 192, 45, AND_HERE)),
-      issue(206, 32, 206, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(207, 30, 207, 47, AND_HERE)),
-      issue(221, 32, 221, 49, MESSAGE_PUBLIC_IP_ACCESS, secondary(222, 30, 222, 47, AND_HERE)),
+      issue(56, 32, 56, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(57, 30, 57, 45), AND_HERE)),
+      issue(71, 32, 71, 42, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(72, 30, 72, 46), AND_HERE)),
+      issue(86, 32, 86, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(87, 30, 87, 47), AND_HERE)),
+      issue(101, 32, 101, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(102, 30, 102, 46), AND_HERE)),
+      issue(116, 32, 116, 44, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(117, 30, 117, 47), AND_HERE)),
+      issue(131, 32, 131, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(132, 30, 132, 43), AND_HERE)),
+      issue(146, 32, 146, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(147, 30, 147, 47), AND_HERE)),
+      issue(161, 32, 161, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(162, 30, 162, 46), AND_HERE)),
+      issue(176, 32, 176, 44, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(177, 30, 177, 45), AND_HERE)),
+      issue(191, 32, 191, 46, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(192, 30, 192, 45), AND_HERE)),
+      issue(206, 32, 206, 45, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(207, 30, 207, 47), AND_HERE)),
+      issue(221, 32, 221, 49, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(222, 30, 222, 47), AND_HERE)),
       issue(236, 32, 236, 49, MESSAGE_PUBLIC_IP_ACCESS),
-      issue(250, 32, 250, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(251, 30, 251, 43, AND_HERE)),
-      issue(265, 32, 265, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(266, 30, 266, 43, AND_HERE)),
-      issue(280, 32, 280, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(281, 30, 281, 41, AND_HERE)),
-      issue(295, 32, 295, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(296, 30, 296, 39, AND_HERE)),
-      issue(310, 32, 310, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(311, 30, 311, 41, AND_HERE)),
-      issue(337, 32, 337, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(338, 30, 338, 41, AND_HERE)),
-      issue(352, 32, 352, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(353, 30, 353, 42, AND_HERE)),
-      issue(358, 32, 358, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(359, 30, 359, 41, AND_HERE)));
+      issue(250, 32, 250, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(251, 30, 251, 43), AND_HERE)),
+      issue(265, 32, 265, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(266, 30, 266, 43), AND_HERE)),
+      issue(280, 32, 280, 41, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(281, 30, 281, 41), AND_HERE)),
+      issue(295, 32, 295, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(296, 30, 296, 39), AND_HERE)),
+      issue(310, 32, 310, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(311, 30, 311, 41), AND_HERE)),
+      issue(337, 32, 337, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(338, 30, 338, 41), AND_HERE)),
+      issue(352, 32, 352, 42, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(353, 30, 353, 42), AND_HERE)),
+      issue(358, 32, 358, 43, MESSAGE_PUBLIC_IP_ACCESS, new SecondaryLocation(range(359, 30, 359, 41), AND_HERE)));
   }
 
   @MethodSource("listTypesRangePublicIPAddressInPropertiesFirewallRules")

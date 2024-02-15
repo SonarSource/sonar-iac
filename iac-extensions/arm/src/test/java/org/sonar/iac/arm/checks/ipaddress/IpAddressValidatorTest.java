@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,7 +37,6 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class IpAddressValidatorTest {
@@ -73,7 +73,7 @@ class IpAddressValidatorTest {
     verify(ctx).reportIssue(
       same(startIpAddress),
       same(MESSAGE),
-      eq(List.of(secondary(2, 2, 2, 5, SECONDARY_MESSAGE))));
+      eq(List.of(new SecondaryLocation(range(2, 2, 2, 5), SECONDARY_MESSAGE))));
   }
 
   @Test
@@ -114,7 +114,7 @@ class IpAddressValidatorTest {
     verify(ctx).reportIssue(
       same(startIpAddress),
       same(MESSAGE),
-      eq(List.of(secondary(2, 2, 2, 5, SECONDARY_MESSAGE))));
+      eq(List.of(new SecondaryLocation(range(2, 2, 2, 5), SECONDARY_MESSAGE))));
   }
 
   @Test
@@ -129,7 +129,7 @@ class IpAddressValidatorTest {
     verify(ctx).reportIssue(
       same(startIpAddress),
       same(MESSAGE),
-      eq(List.of(secondary(1, 1, 1, 1, SECONDARY_MESSAGE))));
+      eq(List.of(new SecondaryLocation(range(1, 1, 1, 1), SECONDARY_MESSAGE))));
   }
 
   @Test

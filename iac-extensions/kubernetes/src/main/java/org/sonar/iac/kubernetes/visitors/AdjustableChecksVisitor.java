@@ -77,7 +77,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
 
     private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
       var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
-      return new SecondaryLocation(shiftedTextRange, secondaryLocation.message);
+      return new SecondaryLocation(shiftedTextRange, secondaryLocation.message, secondaryLocation.filePath);
     }
   }
 }

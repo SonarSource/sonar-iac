@@ -54,12 +54,12 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractNewResourceCheck
         List<SecondaryLocation> ownerPermissions = resource.block("permissions")
           .list("actions")
           .getItemIf(equalTo("*"))
-          .map(scope -> SecondaryLocation.of(scope, PERMISSION_MESSAGE))
+          .map(scope -> new SecondaryLocation(scope, PERMISSION_MESSAGE))
           .collect(Collectors.toList());
 
         List<SecondaryLocation> sensitiveScopes = resource.list("assignable_scopes")
           .getItemIf(scope -> RoleScopeHelper.isSensitiveScope(scope, REFERENCE_SCOPE_PREDICATE, PLAIN_SCOPE_PREDICATE))
-          .map(scope -> SecondaryLocation.of(scope, SCOPE_MESSAGE))
+          .map(scope -> new SecondaryLocation(scope, SCOPE_MESSAGE))
           .collect(Collectors.toList());
 
         if (!(ownerPermissions.isEmpty() || sensitiveScopes.isEmpty())) {

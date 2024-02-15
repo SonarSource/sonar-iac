@@ -20,8 +20,8 @@
 package org.sonar.iac.common.api.checks;
 
 import java.util.List;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public interface CheckContext {
 
