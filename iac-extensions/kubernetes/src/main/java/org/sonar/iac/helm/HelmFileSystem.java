@@ -35,25 +35,25 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
-public final class HelmFilesystem {
-  private static final Logger LOG = LoggerFactory.getLogger(HelmFilesystem.class);
+public final class HelmFileSystem {
+  private static final Logger LOG = LoggerFactory.getLogger(HelmFileSystem.class);
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
-  private final FileSystem fs;
+  private final FileSystem fileSystem;
 
-  public HelmFilesystem(FileSystem fs) {
-    this.fs = fs;
+  public HelmFileSystem(FileSystem fileSystem) {
+    this.fileSystem = fileSystem;
   }
 
-  // TODO: SONARIAC-1239 Ignore additional file pattern mentioned in .helmignore
+  // Ignore additional file pattern mentioned in .helmignore
   public Map<String, InputFile> getRelatedHelmFiles(InputFile inputFile) {
-    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()), fs.baseDir());
+    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()), fileSystem.baseDir());
     if (helmDirectoryPath == null) {
       LOG.debug("Failed to resolve Helm project directory for {}", inputFile.uri());
       return Collections.emptyMap();
     }
 
-    var filePredicate = additionalHelmDependenciesPredicate(inputFile, helmDirectoryPath);
-    Iterable<InputFile> inputFiles = fs.inputFiles(filePredicate);
+    var additionalHelmFilesPredicate = additionalHelmDependenciesPredicate(inputFile, helmDirectoryPath);
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(additionalHelmFilesPredicate);
 
     Map<String, InputFile> result = new HashMap<>();
     for (InputFile additionalFile : inputFiles) {
@@ -65,8 +65,8 @@ public final class HelmFilesystem {
   }
 
   FilePredicate additionalHelmDependenciesPredicate(InputFile inputFile, Path helmProjectDirectoryPath) {
-    FilePredicates predicates = fs.predicates();
-    var basePath = fs.baseDir().toPath();
+    FilePredicates predicates = fileSystem.predicates();
+    var basePath = fileSystem.baseDir().toPath();
     var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
     String pathPattern = relativizedPath + File.separator + "**";
 

@@ -22,7 +22,6 @@ package org.sonar.iac.kubernetes.plugin;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -44,7 +43,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.HelmEvaluatorTester;
+import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 
 import static org.assertj.core.api.Assertions.*;
@@ -115,7 +114,7 @@ class HelmProcessorTest {
 
     var processedFile = IacTestUtils.inputFile("templates/pod.yaml", baseDir);
 
-    var helmEvaluator = HelmEvaluatorTester.builder()
+    var helmEvaluator = HelmEvaluatorMock.builder()
       .setResultTemplate(processedFile.contents())
       .build();
 

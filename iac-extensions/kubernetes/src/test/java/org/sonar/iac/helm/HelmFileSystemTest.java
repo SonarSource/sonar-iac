@@ -45,7 +45,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class HelmFilesystemTest {
+class HelmFileSystemTest {
 
   @TempDir
   protected File tmpDir;
@@ -56,7 +56,7 @@ class HelmFilesystemTest {
 
   private SensorContextTester context;
 
-  private HelmFilesystem helmFilesystem;
+  private HelmFileSystem helmFilesystem;
 
   @BeforeEach
   void init() throws IOException {
@@ -64,7 +64,7 @@ class HelmFilesystemTest {
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
     FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("templates").toFile());
-    helmFilesystem = new HelmFilesystem(context.fileSystem());
+    helmFilesystem = new HelmFileSystem(context.fileSystem());
   }
 
   @AfterEach
@@ -113,7 +113,7 @@ class HelmFilesystemTest {
 
   @Test
   void shouldReturnNullWhenInputIsNull() {
-    Path parentPath = HelmFilesystem.retrieveHelmProjectFolder(null, context.fileSystem().baseDir());
+    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(null, context.fileSystem().baseDir());
     assertThat(parentPath).isNull();
   }
 
@@ -125,7 +125,7 @@ class HelmFilesystemTest {
       Path inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(null);
 
-      Path parentPath = HelmFilesystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
+      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
       assertThat(parentPath).isNull();
     }
   }
@@ -137,7 +137,7 @@ class HelmFilesystemTest {
     when(basePath.toRealPath()).thenThrow(IOException.class);
     File baseDir = mock(File.class);
     when(baseDir.toPath()).thenReturn(basePath);
-    Path parentPath = HelmFilesystem.retrieveHelmProjectFolder(inputFilePath, baseDir);
+    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, baseDir);
 
     assertThat(parentPath).isNull();
   }
@@ -151,7 +151,7 @@ class HelmFilesystemTest {
       when(inputFilePath.getParent()).thenReturn(mock(Path.class));
       when(inputFilePath.startsWith(any(Path.class))).thenReturn(false);
 
-      Path parentPath = HelmFilesystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
+      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
       assertThat(parentPath).isNull();
     }
   }
@@ -170,7 +170,7 @@ class HelmFilesystemTest {
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
 
-    var result = HelmFilesystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
+    var result = HelmFileSystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
 
     assertThat(result).isNull();
   }

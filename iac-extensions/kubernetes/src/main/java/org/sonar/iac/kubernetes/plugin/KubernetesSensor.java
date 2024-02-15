@@ -45,7 +45,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.HelmFilesystem;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
@@ -205,7 +205,7 @@ public class KubernetesSensor extends YamlSensor {
 
     @Override
     public boolean apply(InputFile inputFile) {
-      return HelmFilesystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem().baseDir()) != null;
+      return HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem().baseDir()) != null;
     }
   }
 }

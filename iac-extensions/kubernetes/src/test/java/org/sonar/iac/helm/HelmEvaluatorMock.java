@@ -28,16 +28,16 @@ import java.util.Map;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class HelmEvaluatorTester extends HelmEvaluator {
+public class HelmEvaluatorMock extends HelmEvaluator {
 
   private String template;
 
-  private HelmEvaluatorTester() {
+  private HelmEvaluatorMock() {
     super(mock(TempFolder.class));
   }
 
   @Override
-  public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) throws IOException {
+  public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) {
     var result = mock(TemplateEvaluationResult.class);
     when(result.getTemplate()).thenReturn(template);
     return result;
@@ -48,11 +48,10 @@ public class HelmEvaluatorTester extends HelmEvaluator {
   }
 
   public static class Builder {
-
-    private final HelmEvaluatorTester tester;
+    private final HelmEvaluatorMock tester;
 
     private Builder() {
-      tester = new HelmEvaluatorTester();
+      tester = new HelmEvaluatorMock();
     }
 
     public Builder setResultTemplate(String template) {
@@ -60,9 +59,8 @@ public class HelmEvaluatorTester extends HelmEvaluator {
       return this;
     }
 
-    public HelmEvaluatorTester build() {
+    public HelmEvaluatorMock build() {
       return tester;
     }
-
   }
 }

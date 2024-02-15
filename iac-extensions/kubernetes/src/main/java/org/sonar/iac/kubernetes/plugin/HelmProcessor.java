@@ -32,7 +32,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.HelmFilesystem;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
@@ -43,12 +43,12 @@ public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private final Map<String, GoTemplateTree> inputFileToGoAst = new HashMap<>();
   private final HelmEvaluator helmEvaluator;
-  private final HelmFilesystem helmFilesystem;
+  private final HelmFileSystem helmFilesystem;
   private boolean isEvaluatorInitialized = true;
 
   public HelmProcessor(HelmEvaluator helmEvaluator, SensorContext sensorContext) {
     this.helmEvaluator = helmEvaluator;
-    this.helmFilesystem = new HelmFilesystem(sensorContext.fileSystem());
+    this.helmFilesystem = new HelmFileSystem(sensorContext.fileSystem());
     initialize();
   }
 
@@ -81,7 +81,6 @@ public class HelmProcessor {
       return null;
     }
 
-    // TODO: better support of Helm project structure
     var sourceWithComments = addLineComments(source);
     Map<String, InputFile> additionalFiles = helmFilesystem.getRelatedHelmFiles(inputFile);
     var fileContents = validateAndReadFiles(inputFile, additionalFiles);

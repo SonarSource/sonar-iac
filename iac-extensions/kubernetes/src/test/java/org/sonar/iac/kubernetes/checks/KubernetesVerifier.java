@@ -48,7 +48,7 @@ import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.HelmFilesystem;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
@@ -118,7 +118,7 @@ public class KubernetesVerifier extends Verifier {
     var sourceInputFile = inputFile(templateFileName, BASE_DIR);
     sensorContext.fileSystem().add(sourceInputFile);
     var filePath = Path.of(sourceInputFile.uri());
-    var helmProjectPath = HelmFilesystem.retrieveHelmProjectFolder(filePath, BASE_DIR.toAbsolutePath().toFile());
+    var helmProjectPath = HelmFileSystem.retrieveHelmProjectFolder(filePath, BASE_DIR.toAbsolutePath().toFile());
     if (helmProjectPath == null) {
       throw new IllegalStateException(String.format("Could not resolve helmProjectPath for file %s, possible missing Chart.yaml", filePath));
     }
