@@ -40,18 +40,22 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class HelmProcessorTest {
   private final HelmEvaluator helmEvaluator = Mockito.mock(HelmEvaluator.class);
@@ -59,6 +63,7 @@ class HelmProcessorTest {
   @TempDir
   static Path tempDir;
   private final InputFile DEFAULT_INPUT_FILE = IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
+  private final HelmInputFileContext DEFAULT_INPUT_FILE_CONTEXT = new HelmInputFileContext(Mockito.mock(SensorContext.class), DEFAULT_INPUT_FILE);
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -119,7 +124,7 @@ class HelmProcessorTest {
       .setResultTemplate(processedFile.contents())
       .build();
 
-    var fileContext = new InputFileContext(context, inputFile);
+    var fileContext = new HelmInputFileContext(context, inputFile);
     var processor = new HelmProcessor(helmEvaluator, context);
 
     var result = processor.processHelmTemplate(inputFile.filename(), inputFile.contents(), fileContext);
@@ -134,7 +139,8 @@ class HelmProcessorTest {
   @Test
   void validateAndReadFilesShouldThrowExceptionIfValuesFileNotFound() {
     Map<String, InputFile> files = new HashMap<>();
-    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, files))
+    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(files);
+    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to find values file");
   }
@@ -144,8 +150,9 @@ class HelmProcessorTest {
     var valuesFile = mockInputFile("chart/values.yaml", "");
     when(valuesFile.contents()).thenThrow(IOException.class);
     Map<String, InputFile> additionalFiles = Map.of("values.yaml", valuesFile);
+    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(additionalFiles);
 
-    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, additionalFiles))
+    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to read file at chart/values.yaml");
   }
@@ -155,8 +162,9 @@ class HelmProcessorTest {
   void validateAndReadFilesShouldNotThrowIfValuesFileIsEmpty(String valuesFileName) throws IOException {
     var emptyValuesFile = mockInputFile("chart/" + valuesFileName, "");
     var additionalFiles = Map.of(valuesFileName, emptyValuesFile);
+    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(additionalFiles);
 
-    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, additionalFiles);
+    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT);
 
     assertThat(additionalFilesContent).isNotEmpty();
     assertThat(additionalFilesContent.get(valuesFileName)).isEmpty();
@@ -167,8 +175,9 @@ class HelmProcessorTest {
     var emptyValuesFile = mockInputFile("chart/values.yaml", "");
     var notEmptyFile = mockInputFile("templates/some.yaml", "kind: Pod");
     var additionalFiles = Map.of("values.yaml", emptyValuesFile, "templates/some.yaml", notEmptyFile);
+    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(additionalFiles);
 
-    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, additionalFiles);
+    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT);
 
     assertThat(additionalFilesContent)
       .hasSize(2)
@@ -230,7 +239,7 @@ class HelmProcessorTest {
     return new HelmProcessor(helmEvaluator, sensorContext);
   }
 
-  private static InputFileContext mockInputFileContext(String filename, String content) throws IOException {
+  private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {
     var inputFile = mockInputFile(filename, content);
     return new HelmInputFileContext(Mockito.mock(SensorContext.class), inputFile);
   }

@@ -82,7 +82,7 @@ public class HelmProcessor {
     }
 
     var sourceWithComments = addLineComments(source);
-    inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext));
+    inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext.inputFile));
     var fileContents = validateAndReadFiles(inputFileContext);
     return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
   }
