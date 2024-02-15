@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.batch.fs.InputFile;
@@ -26,15 +27,14 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class HelmInputFileContext extends InputFileContext {
-  private final Map<String, InputFile> additionalFiles = new HashMap<>();
+  private Map<String, InputFile> additionalFiles = new HashMap<>();
 
   public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile) {
     super(sensorContext, inputFile);
   }
 
   public void setAdditionalFiles(Map<String, InputFile> additionalFiles) {
-    this.additionalFiles.clear();
-    this.additionalFiles.putAll(additionalFiles);
+    this.additionalFiles = Collections.unmodifiableMap(additionalFiles);
   }
 
   public InputFile getValuesFile() {

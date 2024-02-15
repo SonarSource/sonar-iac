@@ -28,14 +28,15 @@ import org.mockito.Mockito;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.YamlParser;
+
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class AdjustableChecksVisitorTest {
   @Test
   void shouldFindValueInValuesFile() throws IOException {
-    var textRange = getTextRangeFor(IacTestUtils.code(
+    var textRange = getTextRangeFor(code(
       "foo:",
       "  bar:",
       "    baz: qux"), List.of("foo", "bar", "baz"));
@@ -45,7 +46,7 @@ class AdjustableChecksVisitorTest {
 
   @Test
   void shouldReturnNullForMissingPath() throws IOException {
-    var textRange = getTextRangeFor(IacTestUtils.code(
+    var textRange = getTextRangeFor(code(
       "foo:",
       "  bar:",
       "    baz: qux"), List.of("foo", "baz"));
@@ -55,7 +56,7 @@ class AdjustableChecksVisitorTest {
 
   @Test
   void shouldReturnNullForListNode() throws IOException {
-    var textRange = getTextRangeFor(IacTestUtils.code(
+    var textRange = getTextRangeFor(code(
       "foo:",
       "  bar:",
       "    - baz: qux"), List.of("foo", "bar", "baz"));
