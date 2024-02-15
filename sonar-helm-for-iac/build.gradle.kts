@@ -79,7 +79,9 @@ if (isCi) {
         dependsOn("testGoCode")
     }
 
-    // spotless is enabled only for CI, because spotless relies on Go installation being available on the machine and not in a container
+    // spotless is enabled only for CI, because spotless relies on Go installation being available on the machine and not in a container.
+    // To ensure locally that the code is properly formatted, either run Gradle with `env CI=true`, or run `gofmt -w .` directly, or rely
+    // on auto-formatting in Intellij Go plugin, which also calls `gofmt`.
     spotless {
         go {
             val goVersion = providers.environmentVariable("GO_VERSION").getOrElse("1.21.1")
