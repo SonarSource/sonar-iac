@@ -37,7 +37,15 @@ public class HelmInputFileContext extends InputFileContext {
     this.additionalFiles = Collections.unmodifiableMap(additionalFiles);
   }
 
+  public boolean hasAdditionalFile(String filePath) {
+    return additionalFiles.containsKey(filePath);
+  }
+
   public InputFile getValuesFile() {
     return additionalFiles.get("values.yaml");
+  }
+
+  public Map<String, InputFile> getAdditionalFiles() {
+    return Collections.unmodifiableMap(additionalFiles);
   }
 }

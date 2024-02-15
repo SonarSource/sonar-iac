@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.Test;
@@ -30,6 +29,7 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.helm.tree.utils.ValuePath;
 
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -39,9 +39,28 @@ class AdjustableChecksVisitorTest {
     var textRange = getTextRangeFor(code(
       "foo:",
       "  bar:",
-      "    baz: qux"), List.of("foo", "bar", "baz"));
+      "    baz: qux"), new ValuePath("foo", "bar", "baz"));
 
     TextRangeAssert.assertThat(textRange).hasRange(3, 9, 3, 12);
+  }
+
+  @Test
+  void shouldReturnNullForMissingValuesFile() throws IOException {
+    var adjustableChecksVisitor = new AdjustableChecksVisitor(Mockito.mock(Checks.class), null, null, new YamlParser());
+    var adjustableCheckContext = (AdjustableChecksVisitor.AdjustableContextAdapter) adjustableChecksVisitor.context(null);
+    var inputFileContext = new HelmInputFileContext(null, null);
+    inputFileContext.setAdditionalFiles(Map.of());
+
+    var textRange = adjustableCheckContext.toLocationInValuesFile(new ValuePath("foo"), inputFileContext);
+
+    TextRangeAssert.assertThat(textRange).isNull();
+  }
+
+  @Test
+  void shouldReturnNullForEmptyValuesFile() throws IOException {
+    var textRange = getTextRangeFor("", new ValuePath("foo"));
+
+    TextRangeAssert.assertThat(textRange).isNull();
   }
 
   @Test
@@ -49,7 +68,7 @@ class AdjustableChecksVisitorTest {
     var textRange = getTextRangeFor(code(
       "foo:",
       "  bar:",
-      "    baz: qux"), List.of("foo", "baz"));
+      "    baz: qux"), new ValuePath("foo", "baz"));
 
     TextRangeAssert.assertThat(textRange).isNull();
   }
@@ -59,13 +78,13 @@ class AdjustableChecksVisitorTest {
     var textRange = getTextRangeFor(code(
       "foo:",
       "  bar:",
-      "    - baz: qux"), List.of("foo", "bar", "baz"));
+      "    - baz: qux"), new ValuePath("foo", "bar", "baz"));
 
     TextRangeAssert.assertThat(textRange).isNull();
   }
 
   @CheckForNull
-  private TextRange getTextRangeFor(String valuesFileContent, List<String> valuePath) throws IOException {
+  private TextRange getTextRangeFor(String valuesFileContent, ValuePath valuePath) throws IOException {
     var adjustableChecksVisitor = new AdjustableChecksVisitor(Mockito.mock(Checks.class), null, null, new YamlParser());
     var adjustableCheckContext = (AdjustableChecksVisitor.AdjustableContextAdapter) adjustableChecksVisitor.context(null);
 

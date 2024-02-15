@@ -45,6 +45,7 @@ import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -74,7 +75,7 @@ class HelmProcessorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
 
-    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", Mockito.mock(InputFileContext.class)))
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", Mockito.mock(HelmInputFileContext.class)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
   }
@@ -231,7 +232,7 @@ class HelmProcessorTest {
 
   private static InputFileContext mockInputFileContext(String filename, String content) throws IOException {
     var inputFile = mockInputFile(filename, content);
-    return new InputFileContext(Mockito.mock(SensorContext.class), inputFile);
+    return new HelmInputFileContext(Mockito.mock(SensorContext.class), inputFile);
   }
 
   private static InputFile mockInputFile(String filename, String content) throws IOException {

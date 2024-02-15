@@ -30,7 +30,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
@@ -71,7 +70,7 @@ public class HelmProcessor {
   }
 
   @CheckForNull
-  String processHelmTemplate(String path, String source, InputFileContext inputFileContext) {
+  String processHelmTemplate(String path, String source, HelmInputFileContext inputFileContext) {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
@@ -83,11 +82,8 @@ public class HelmProcessor {
     }
 
     var sourceWithComments = addLineComments(source);
-    Map<String, InputFile> additionalFiles = helmFilesystem.getRelatedHelmFiles(inputFileContext);
-    if (inputFileContext instanceof HelmInputFileContext) {
-      ((HelmInputFileContext) inputFileContext).setAdditionalFiles(additionalFiles);
-    }
-    var fileContents = validateAndReadFiles(inputFileContext.inputFile, additionalFiles);
+    inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext));
+    var fileContents = validateAndReadFiles(inputFileContext);
     return evaluateHelmTemplate(path, inputFileContext.inputFile, sourceWithComments, fileContents);
   }
 
@@ -97,12 +93,13 @@ public class HelmProcessor {
     return inputFileToGoAst.remove(inputPath.uri().toString());
   }
 
-  static Map<String, String> validateAndReadFiles(InputFile inputFile, Map<String, InputFile> files) {
+  static Map<String, String> validateAndReadFiles(HelmInputFileContext inputFileContext) {
     // Currently we are only looking for the default location of the values file
-    if (!files.containsKey("values.yaml") && !files.containsKey("values.yml")) {
-      throw parseExceptionFor(inputFile, "Failed to find values file", null);
+    if (!inputFileContext.hasAdditionalFile("values.yaml") && !inputFileContext.hasAdditionalFile("values.yml")) {
+      throw parseExceptionFor(inputFileContext.inputFile, "Failed to find values file", null);
     }
 
+    var files = inputFileContext.getAdditionalFiles();
     Map<String, String> fileContents = new HashMap<>(files.size());
 
     for (Map.Entry<String, InputFile> filenameToInputFile : files.entrySet()) {
@@ -111,7 +108,7 @@ public class HelmProcessor {
       try {
         fileContent = additionalInputFile.contents();
       } catch (IOException e) {
-        throw parseExceptionFor(inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
+        throw parseExceptionFor(inputFileContext.inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
       }
 
       fileContents.put(filenameToInputFile.getKey(), fileContent);

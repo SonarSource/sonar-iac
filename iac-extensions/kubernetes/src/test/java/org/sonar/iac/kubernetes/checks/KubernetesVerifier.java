@@ -52,6 +52,7 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
@@ -124,7 +125,7 @@ public class KubernetesVerifier extends Verifier {
     }
     addDependentFilesToSensorContext(helmProjectPath);
 
-    return new InputFileContext(sensorContext, sourceInputFile);
+    return new HelmInputFileContext(sensorContext, sourceInputFile);
   }
 
   private static String retrieveContent(InputFile inputFile) {

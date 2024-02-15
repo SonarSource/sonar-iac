@@ -37,9 +37,11 @@ import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.helm.tree.utils.ValuePath;
 
 public class AdjustableChecksVisitor extends ChecksVisitor {
 
@@ -88,16 +90,23 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       return new SecondaryLocation(shiftedTextRange, secondaryLocation.message, secondaryLocation.filePath);
     }
 
-    TextRange toLocationInValuesFile(List<String> valuePaths, HelmInputFileContext inputFileContext) throws IOException {
+    TextRange toLocationInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {
       var valuesFile = inputFileContext.getValuesFile();
-      if (valuesFile == null) {
+      FileTree valuesFileTree = null;
+      if (valuesFile != null) {
+        var valuesFileContent = valuesFile.contents();
+        if (!valuesFileContent.isBlank()) {
+          valuesFileTree = yamlParser.parse(valuesFileContent, null);
+        }
+      }
+
+      if (valuesFile == null || valuesFileTree == null || valuesFileTree.documents().isEmpty()) {
         return null;
       }
 
-      var valuesFileTree = yamlParser.parse(valuesFile.contents(), null);
       // Hopefully, values.yaml contains only a single document
       var node = valuesFileTree.documents().get(0);
-      for (String pathPart : valuePaths) {
+      for (String pathPart : valuePath.path()) {
         for (Tree child : node.children()) {
           node = find(child, pathPart);
           if (node == null) {

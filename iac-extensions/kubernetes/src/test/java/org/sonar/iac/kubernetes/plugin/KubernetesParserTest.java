@@ -48,6 +48,7 @@ import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,7 +64,7 @@ class KubernetesParserTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final InputFile inputFile = mock(InputFile.class);
   private final SensorContext sensorContext = mock(SensorContext.class);
-  private final InputFileContext inputFileContext = new InputFileContext(sensorContext, inputFile);
+  private final InputFileContext inputFileContext = new HelmInputFileContext(sensorContext, inputFile);
   private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
   private final LocationShifter locationShifter = new LocationShifter();
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
