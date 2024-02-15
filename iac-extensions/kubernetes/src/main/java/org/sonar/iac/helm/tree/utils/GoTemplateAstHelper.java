@@ -38,8 +38,8 @@ public final class GoTemplateAstHelper {
     // utility class
   }
 
-  public static List<ValuePath> findNodes(GoTemplateTree tree, TextRange range, String text) {
-    var location = LocationImpl.toLocation(range, text);
+  public static List<ValuePath> findNodes(GoTemplateTree tree, TextRange range, String sourceText) {
+    var location = LocationImpl.fromTextRange(range, sourceText);
     var nodes = tree.root().children().stream()
       .filter(hasOverlayingLocation(location))
       .collect(Collectors.toList());
@@ -58,22 +58,8 @@ public final class GoTemplateAstHelper {
       var length = location.length();
       var nodePosition = node.location().position();
       var nodeLength = node.location().length();
-      return startNodeLocationIsBetweenLocation(nodePosition, position, length) ||
-        endNodeLocationIsBetweendLocation(nodePosition, nodeLength, position, length) ||
-        nodeContainsLocation(nodePosition, position, nodeLength, length);
+      return !(nodePosition > position + length || nodePosition + nodeLength < position);
     };
-  }
-
-  private static boolean startNodeLocationIsBetweenLocation(int nodePosition, int position, int length) {
-    return nodePosition >= position && nodePosition <= position + length;
-  }
-
-  private static boolean endNodeLocationIsBetweendLocation(int nodePosition, int nodeLength, int position, int length) {
-    return nodePosition + nodeLength >= position && nodePosition + nodeLength <= position + length;
-  }
-
-  private static boolean nodeContainsLocation(int nodePosition, int position, int nodeLength, int length) {
-    return nodePosition < position && nodePosition + nodeLength > position + length;
   }
 
   private static List<Node> allChildren(List<Node> nodes) {

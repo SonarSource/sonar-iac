@@ -34,4 +34,11 @@ class TemplateNodeImplTest {
     var actual = templateNode.children();
     assertThat(actual).contains(node);
   }
+
+  @Test
+  void shouldReturnEmptyListIfPipeNodeIsNull() {
+    var templateNode = new TemplateNodeImpl(0, 10, "dummy", null);
+    var actual = templateNode.children();
+    assertThat(actual).isEmpty();
+  }
 }

@@ -75,11 +75,11 @@ public class LocationImpl implements Location {
       '}';
   }
 
-  public static Location toLocation(TextRange textRange, String text) {
-    var positionCounter = toPosition(textRange.start(), text);
-    var endPosition = toPosition(textRange.end(), text);
+  public static Location fromTextRange(TextRange textRange, String text) {
+    var startOffset = toPosition(textRange.start(), text);
+    var endOffset = toPosition(textRange.end(), text);
 
-    return new LocationImpl(positionCounter, endPosition - positionCounter);
+    return new LocationImpl(startOffset, endOffset - startOffset);
   }
 
   private static int toPosition(TextPointer textPointer, String text) {
@@ -94,10 +94,7 @@ public class LocationImpl implements Location {
     moveToNextLine(matcher);
     var lineContent = matcher.group("lineContent");
     var newLine = matcher.group("newLine");
-    var newLineLength = 0;
-    if (newLine != null) {
-      newLineLength = newLine.length();
-    }
+    var newLineLength = newLine.length();
 
     if (textPointer.lineOffset() > lineContent.length() + newLineLength) {
       var message = String.format("Unable to calculate position from TextRange, line offset %s is too big", textPointer.line());
@@ -112,10 +109,7 @@ public class LocationImpl implements Location {
       if (matcher.find()) {
         var lineContent = matcher.group("lineContent");
         var newLine = matcher.group("newLine");
-        var newLineLength = 0;
-        if (newLine != null) {
-          newLineLength = newLine.length();
-        }
+        var newLineLength = newLine.length();
         positionCounter = positionCounter + lineContent.length() + newLineLength;
       } else {
         var message = String.format("Unable to calculate position from TextRange, line number %s is too big", lineNumber);

@@ -20,13 +20,11 @@
 package org.sonar.iac.helm.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.helm.tree.utils.ValuePath;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
-import static org.sonar.iac.helm.tree.impl.LocationImpl.toLocation;
+import static org.sonar.iac.helm.tree.impl.LocationImpl.fromTextRange;
 
 class LocationImplTest {
 
@@ -51,12 +49,14 @@ class LocationImplTest {
     var location1 = new LocationImpl(1, 2);
     var location2 = new LocationImpl(1, 2);
     var location3 = new LocationImpl(3, 4);
+    var location4 = new LocationImpl(1, 4);
 
     assertThat(location1).isEqualTo(location1)
       .hasSameHashCodeAs(location1)
       .isEqualTo(location2)
       .hasSameHashCodeAs(location2)
       .isNotEqualTo(location3)
+      .isNotEqualTo(location4)
       .doesNotHaveSameHashCodeAs(location3)
       .isNotEqualTo("dummy")
       .isNotEqualTo(null);
@@ -71,77 +71,91 @@ class LocationImplTest {
   @Test
   void shouldConvertToPositionAndLengthFirstLine() {
     var range = range(1, 0, 1, 5);
-    var positionAndLength = toLocation(range, TEXT);
+    var positionAndLength = fromTextRange(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 5));
   }
 
   @Test
   void shouldConvertToPositionAndLengthSecondLine() {
     var range = range(2, 0, 2, 11);
-    var positionAndLength = toLocation(range, TEXT);
+    var positionAndLength = fromTextRange(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(6, 11));
   }
 
   @Test
   void shouldConvertToPositionAndLengthSecondLineStartColumn3() {
     var range = range(2, 3, 2, 11);
-    var positionAndLength = toLocation(range, TEXT);
+    var positionAndLength = fromTextRange(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(9, 8));
   }
 
   @Test
   void shouldConvertToPositionAndLengthLastLine() {
     var range = range(3, 1, 3, 17);
-    var positionAndLength = toLocation(range, TEXT);
+    var positionAndLength = fromTextRange(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(24, 16));
   }
 
   @Test
   void shouldConvertToPositionAndLengthFirstAndSecondLine() {
     var range = range(1, 0, 2, 7);
-    var positionAndLength = toLocation(range, TEXT);
+    var positionAndLength = fromTextRange(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 13));
   }
 
   @Test
   void shouldConvertToPositionAndLengthFirstToThirdLine() {
     var range = range(1, 0, 3, 10);
-    var positionAndLength = toLocation(range, TEXT);
+    var positionAndLength = fromTextRange(range, TEXT);
     assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 33));
   }
 
   @Test
   void shouldThrowExceptionWhenStartLineNumberDoesntExist() {
     var range = range(4, 0, 4, 1);
-    assertThatThrownBy(() -> toLocation(range, TEXT))
+    assertThatThrownBy(() -> fromTextRange(range, TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenStartLineNumberIs6() {
+    var range = range(6, 0, 6, 1);
+    assertThatThrownBy(() -> fromTextRange(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void shouldThrowExceptionWhenStartLineColumnIsTooBig() {
     var range = range(3, 18, 3, 20);
-    assertThatThrownBy(() -> toLocation(range, TEXT))
+    assertThatThrownBy(() -> fromTextRange(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void shouldThrowExceptionWhenEndLineNumberDoesntExist() {
     var range = range(2, 0, 4, 0);
-    assertThatThrownBy(() -> toLocation(range, TEXT))
+    assertThatThrownBy(() -> fromTextRange(range, TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenEndLineOffsetIsTooBig() {
+    var range = range(2, 0, 2, 100);
+    assertThatThrownBy(() -> fromTextRange(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void shouldThrowExceptionWhenEndLineColumnIsTooBig() {
     var range = range(3, 0, 3, 18);
-    assertThatThrownBy(() -> toLocation(range, TEXT))
+    assertThatThrownBy(() -> fromTextRange(range, TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void shouldThrowExceptionWhenEmptyText() {
     var range = range(2, 0, 2, 10);
-    assertThatThrownBy(() -> toLocation(range, ""))
+    assertThatThrownBy(() -> fromTextRange(range, ""))
       .isInstanceOf(IllegalArgumentException.class);
   }
 }
