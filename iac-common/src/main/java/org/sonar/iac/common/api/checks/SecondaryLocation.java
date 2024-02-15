@@ -30,6 +30,13 @@ public class SecondaryLocation {
 
   public final String message;
 
+  /**
+   * This <code>filePath</code> doesn't have to be strictly absolute or relative.
+   * In order for secondary location to be raised on the file the path is describing, it has to satisfy 
+   * <code>org.sonar.api.batch.fs.FilePredicate#is(new File(filePath))</code>.
+   * If the <code>filePath</code> is <code>null</code>,
+   * the secondary location will be raised on the same file as the primary location of the issue.
+   */
   @Nullable
   public final String filePath;
 

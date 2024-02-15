@@ -34,6 +34,7 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
@@ -119,10 +120,13 @@ class InputFileContextTest {
     IssueLocation secondaryIssueLocation = issues.get(0).flows().get(0).locations().get(0);
     assertThat(secondaryIssueLocation.inputComponent()).isEqualTo(secondaryFile);
     assertThat(secondaryIssueLocation.message()).isEqualTo("messageSecondary");
-    assertThat(secondaryIssueLocation.textRange().start().line()).isEqualTo(VALID_RANGE.start().line());
-    assertThat(secondaryIssueLocation.textRange().start().lineOffset()).isEqualTo(VALID_RANGE.start().lineOffset());
-    assertThat(secondaryIssueLocation.textRange().end().line()).isEqualTo(VALID_RANGE.end().line());
-    assertThat(secondaryIssueLocation.textRange().end().lineOffset()).isEqualTo(VALID_RANGE.end().lineOffset());
+
+    org.sonar.api.batch.fs.TextRange sonarApiTextRange = secondaryIssueLocation.textRange();
+    TextRangeAssert.assertThat(VALID_RANGE).hasRange(
+      sonarApiTextRange.start().line(),
+      sonarApiTextRange.start().lineOffset(),
+      sonarApiTextRange.end().line(),
+      sonarApiTextRange.end().lineOffset());
   }
 
   @Test

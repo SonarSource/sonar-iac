@@ -64,7 +64,7 @@ public class InputFileContext extends TreeContext {
       issue.forRule(ruleKey).at(issueLocation);
 
       secondaryLocations.stream()
-        .filter(location -> location != null && TextRanges.isValidAndNotEmpty(location.textRange))
+        .filter(secondary -> secondary != null && TextRanges.isValidAndNotEmpty(secondary.textRange))
         .forEach(secondary -> {
           var newIssueLocation = newLocation(issue, secondary);
           if (newIssueLocation != null) {
