@@ -31,6 +31,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
@@ -149,15 +150,16 @@ class HelmProcessorTest {
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to read file at chart/values.yaml");
   }
 
-  @Test
-  void validateAndReadFilesShouldNotThrowIfValuesFileIsEmpty() throws IOException {
-    var emptyValuesFile = mockInputFile("chart/values.yaml", "");
-    var additionalFiles = Map.of("values.yaml", emptyValuesFile);
+  @ParameterizedTest
+  @ValueSource(strings = {"values.yaml", "values.yml"})
+  void validateAndReadFilesShouldNotThrowIfValuesFileIsEmpty(String valuesFileName) throws IOException {
+    var emptyValuesFile = mockInputFile("chart/" + valuesFileName, "");
+    var additionalFiles = Map.of(valuesFileName, emptyValuesFile);
 
     Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE, additionalFiles);
 
     assertThat(additionalFilesContent).isNotEmpty();
-    assertThat(additionalFilesContent.get("values.yaml")).isEmpty();
+    assertThat(additionalFilesContent.get(valuesFileName)).isEmpty();
   }
 
   @Test

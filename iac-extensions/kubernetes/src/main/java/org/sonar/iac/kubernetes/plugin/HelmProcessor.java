@@ -43,7 +43,7 @@ public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private final Map<String, GoTemplateTree> inputFileToGoAst = new HashMap<>();
   private final HelmEvaluator helmEvaluator;
-  final HelmFilesystem helmFilesystem;
+  private final HelmFilesystem helmFilesystem;
   private boolean isEvaluatorInitialized = true;
 
   public HelmProcessor(HelmEvaluator helmEvaluator, SensorContext sensorContext) {
