@@ -2,6 +2,7 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
     id("org.sonarsource.iac.java-conventions")
+    id("com.diffplug.spotless")
 }
 
 description = "SonarSource IaC Analyzer :: Sonar Helm for IaC"
@@ -76,6 +77,21 @@ if (isCi) {
 
     tasks.named("test") {
         dependsOn("testGoCode")
+    }
+
+    // spotless is enabled only for CI, because spotless relies on Go installation being available on the machine and not in a container.
+    // To ensure locally that the code is properly formatted, either run Gradle with `env CI=true`, or run `gofmt -w .` directly, or rely
+    // on auto-formatting in Intellij Go plugin, which also calls `gofmt`.
+    spotless {
+        go {
+            val goVersion = providers.environmentVariable("GO_VERSION").getOrElse("1.21.1")
+            gofmt("go$goVersion")
+            target("**/*.go")
+            targetExclude("**/*.pb.go")
+        }
+    }
+    tasks.named("check") {
+        dependsOn("spotlessCheck")
     }
 }
 
