@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.plugin;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -35,21 +36,21 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.HelmFilesystem;
+import org.sonar.iac.helm.HelmEvaluatorTester;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class HelmProcessorTest {
   private final HelmEvaluator helmEvaluator = Mockito.mock(HelmEvaluator.class);
@@ -100,6 +101,29 @@ class HelmProcessorTest {
 
     assertThat(evaluatedSource).isNull();
     assertThat(logTester.logs(Level.DEBUG)).contains("The file chart/templates/foo.yaml is blank, skipping evaluation");
+  }
+
+  @Test
+  void shouldReturnProcessedHelmTemplate() throws IOException {
+    var baseDir = Path.of("src/test/resources/helm").toAbsolutePath();
+    var inputFile = IacTestUtils.inputFile("templates/nested/double-nested/pod.yaml", baseDir);
+    var valuesFile = IacTestUtils.inputFile("values.yaml", baseDir);
+
+    var context = SensorContextTester.create(baseDir);
+    context.fileSystem().add(valuesFile);
+
+    var processedFile = IacTestUtils.inputFile("templates/pod.yaml", baseDir);
+
+    var helmEvaluator = HelmEvaluatorTester.builder()
+      .setResultTemplate(processedFile.contents())
+      .build();
+
+    var fileContext = new InputFileContext(context, inputFile);
+    var processor = new HelmProcessor(helmEvaluator, context);
+
+    var result = processor.processHelmTemplate(inputFile.filename(), inputFile.contents(), fileContext);
+
+    assertEquals(result, processedFile.contents());
   }
 
   // -------------------------------------------------
@@ -187,22 +211,6 @@ class HelmProcessorTest {
   }
 
   // -------------------------------------------------
-  // -------Test HelmProcessor.evaluateTemplate-------
-  // -------------------------------------------------
-
-  @Test
-  void testSomething() throws IOException {
-    String source = code("foo:",
-      "{{ print \"# a\\n# b\" }}",
-      "");
-    var helmProcessor = getHelmProcessor();
-    var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "content");
-
-    //Act
-    String evaluatedSource = helmProcessor.processHelmTemplate("foo.yaml", source, inputFileContext);
-  }
-
-  // -------------------------------------------------
   // ---------------Test Helper methods---------------
   // -------------------------------------------------
 
@@ -218,20 +226,6 @@ class HelmProcessorTest {
     when(sensorContext.fileSystem()).thenReturn(fileSystem);
 
     return new HelmProcessor(helmEvaluator, sensorContext);
-  }
-
-  private HelmProcessor getHelmProcessorAlt() {
-    //Todo: check if helmFilesystem can be passed into the constructor
-    SensorContext sensorContext = mock(SensorContext.class);
-    FileSystem fileSystem = mock(FileSystem.class);
-    when(sensorContext.fileSystem()).thenReturn(fileSystem);
-
-    HelmFilesystem helmFilesystem = mock(HelmFilesystem.class);
-    InputFile inputFile = mock(InputFile.class);
-    Map<String, InputFile> additionalFiles = new HashMap<>();
-    when(helmFilesystem.getRelatedHelmFiles(inputFile)).thenReturn(additionalFiles);
-
-    return new HelmProcessor(helmEvaluator, sensorContext, helmFilesystem);
   }
 
   private static InputFileContext mockInputFileContext(String filename, String content) throws IOException {
