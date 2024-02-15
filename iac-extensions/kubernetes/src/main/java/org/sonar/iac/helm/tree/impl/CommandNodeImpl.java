@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.helm.protobuf.CommandNodeOrBuilder;
@@ -40,5 +41,10 @@ public class CommandNodeImpl extends AbstractNode implements CommandNode {
 
   public List<Node> arguments() {
     return arguments;
+  }
+
+  @Override
+  public List<Node> children() {
+    return new ArrayList<>(arguments);
   }
 }

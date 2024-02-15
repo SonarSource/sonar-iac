@@ -17,32 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.api;
+package org.sonar.iac.helm.tree.impl;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.sonar.iac.helm.tree.api.PipeNode;
 
-/**
- * Node represents a node in the Go template AST.
- */
-public interface Node {
-  /**
-   * The type of the node.
-   *
-   * @return the type of the node
-   */
-  NodeType type();
+import static org.assertj.core.api.Assertions.assertThat;
 
-  /**
-   * The location of the node in the file.
-   *
-   * @return the location of the node in the file
-   */
-  Location location();
+class TemplateNodeImplTest {
 
-  /**
-   * All children of given AST Node.
-   *
-   * @return the list of all children elements
-   */
-  List<Node> children();
+  @Test
+  void shouldReturnAllChildren() {
+    var node = Mockito.mock(PipeNode.class);
+    var templateNode = new TemplateNodeImpl(0, 10, "dummy", node);
+    var actual = templateNode.children();
+    assertThat(actual).contains(node);
+  }
+
+  @Test
+  void shouldReturnEmptyListIfPipeNodeIsNull() {
+    var templateNode = new TemplateNodeImpl(0, 10, "dummy", null);
+    var actual = templateNode.children();
+    assertThat(actual).isEmpty();
+  }
 }

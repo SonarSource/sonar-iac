@@ -17,32 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.api;
+package org.sonar.iac.helm.tree.utils;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-/**
- * Node represents a node in the Go template AST.
- */
-public interface Node {
-  /**
-   * The type of the node.
-   *
-   * @return the type of the node
-   */
-  NodeType type();
+public class ValuePath {
+  private final List<String> path;
 
-  /**
-   * The location of the node in the file.
-   *
-   * @return the location of the node in the file
-   */
-  Location location();
+  public ValuePath(List<String> path) {
+    this.path = path;
+  }
 
-  /**
-   * All children of given AST Node.
-   *
-   * @return the list of all children elements
-   */
-  List<Node> children();
+  public ValuePath(String... path) {
+    this(Arrays.asList(path));
+  }
+
+  public List<String> path() {
+    return path;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    var valuePath = (ValuePath) o;
+    return Objects.equals(path, valuePath.path);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(path);
+  }
+
+  @Override
+  public String toString() {
+    return "ValuePath{" +
+      "path=" + path +
+      '}';
+  }
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.List;
 import org.sonar.iac.helm.tree.api.Location;
 import org.sonar.iac.helm.tree.api.Node;
 
@@ -26,11 +27,16 @@ public abstract class AbstractNode implements Node {
   private final Location location;
 
   protected AbstractNode(long position, long length) {
-    this.location = new Location(position, length);
+    this.location = new LocationImpl((int) position, (int) length);
   }
 
   @Override
   public Location location() {
     return location;
+  }
+
+  @Override
+  public List<Node> children() {
+    return List.of();
   }
 }

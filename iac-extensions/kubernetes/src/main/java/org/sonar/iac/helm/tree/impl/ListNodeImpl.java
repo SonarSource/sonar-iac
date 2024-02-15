@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.helm.protobuf.ListNodeOrBuilder;
@@ -41,5 +42,10 @@ public class ListNodeImpl extends AbstractNode implements ListNode {
 
   public List<Node> nodes() {
     return nodes;
+  }
+
+  @Override
+  public List<Node> children() {
+    return new ArrayList<>(nodes);
   }
 }

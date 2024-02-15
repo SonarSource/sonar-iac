@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -55,5 +56,14 @@ public class TemplateNodeImpl extends AbstractNode implements TemplateNode {
   @CheckForNull
   public PipeNode pipe() {
     return pipe;
+  }
+
+  @Override
+  public List<Node> children() {
+    if (pipe != null) {
+      return List.of(pipe);
+    } else {
+      return List.of();
+    }
   }
 }

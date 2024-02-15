@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +28,8 @@ import org.sonar.iac.helm.protobuf.ChainNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.ChainNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
+
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstHelper.addChildrenIfPresent;
 
 public class ChainNodeImpl extends AbstractNode implements ChainNode {
   @Nullable
@@ -53,5 +56,12 @@ public class ChainNodeImpl extends AbstractNode implements ChainNode {
 
   public List<String> fields() {
     return field;
+  }
+
+  @Override
+  public List<Node> children() {
+    List<Node> children = new ArrayList<>();
+    addChildrenIfPresent(children, node);
+    return children;
   }
 }
