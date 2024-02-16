@@ -55,7 +55,6 @@ import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
-import org.sonarsource.analyzer.commons.checks.verifier.internal.InternalIssueVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -69,7 +68,7 @@ public class Verifier {
     verify(parser, path, check, TestContext::new);
   }
 
-  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<InternalIssueVerifier, TestContext> contextSupplier) {
+  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
     verify(root, path, check, contextSupplier);
   }
@@ -87,8 +86,8 @@ public class Verifier {
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
-  public static void verify(Tree root, Path path, IacCheck check, Function<InternalIssueVerifier, TestContext> contextSupplier) {
-    InternalIssueVerifier verifier = createVerifier(path, root);
+  public static void verify(Tree root, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
+    MultiFileVerifier verifier = createVerifier(path, root);
     runAnalysis(contextSupplier.apply(verifier), check, root);
     verifier.assertOneOrMoreIssues();
   }
@@ -128,13 +127,14 @@ public class Verifier {
     verifyNoIssue(parser, path, check, TestContext::new);
   }
 
-  public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check, Function<InternalIssueVerifier, TestContext> contextSupplier) {
+  public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check,
+    Function<MultiFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
     verifyNoIssue(root, path, check, contextSupplier);
   }
 
-  public static void verifyNoIssue(Tree root, Path path, IacCheck check, Function<InternalIssueVerifier, TestContext> contextSupplier) {
-    InternalIssueVerifier verifier = createVerifier(path, root);
+  public static void verifyNoIssue(Tree root, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
+    MultiFileVerifier verifier = createVerifier(path, root);
     List<Issue> actualIssues = runAnalysis(contextSupplier.apply(verifier), check, root);
     compare(actualIssues, Collections.emptyList());
   }
@@ -154,12 +154,12 @@ public class Verifier {
     return parser.parse(content, inputFileContext);
   }
 
-  private static InternalIssueVerifier createVerifier(Path path, Tree root) {
+  private static MultiFileVerifier createVerifier(Path path, Tree root) {
     return createVerifier(path, root, commentsVisitor());
   }
 
-  protected static InternalIssueVerifier createVerifier(Path path, Tree root, BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
-    var verifier = new InternalIssueVerifier(path, UTF_8);
+  protected static MultiFileVerifier createVerifier(Path path, Tree root, BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
+    var verifier = MultiFileVerifier.create(path, UTF_8);
     Map<Integer, Set<Comment>> commentsByLine = new HashMap<>();
     commentsVisitor.accept(root, commentsByLine);
 
@@ -201,7 +201,8 @@ public class Verifier {
     return new Issue(range);
   }
 
-  public static Issue issue(int startLine, int startColumn, int endLine, int endColumn, @Nullable String message, SecondaryLocation... secondaryLocations) {
+  public static Issue issue(int startLine, int startColumn, int endLine, int endColumn, @Nullable String message,
+    SecondaryLocation... secondaryLocations) {
     return new Issue(TextRanges.range(startLine, startColumn, endLine, endColumn), message, List.of(secondaryLocations));
   }
 
@@ -212,10 +213,10 @@ public class Verifier {
   public static class TestContext extends TreeContext implements InitContext, CheckContext {
 
     private final TreeVisitor<TestContext> visitor;
-    private final InternalIssueVerifier verifier;
+    private final MultiFileVerifier verifier;
     private final List<Issue> raisedIssues = new ArrayList<>();
 
-    public TestContext(InternalIssueVerifier verifier) {
+    public TestContext(MultiFileVerifier verifier) {
       this.verifier = verifier;
       visitor = new TreeVisitor<>();
     }
@@ -255,10 +256,14 @@ public class Verifier {
         TextPointer start = textRange.start();
         TextPointer end = textRange.end();
 
-        var reportedIssue = ((SingleFileVerifier) verifier)
+        // The cast allows us to not know the path of the primaryFile in this reportIssue method, as it's saved privately in the verifier
+        // The cast is possible as SingleFileVerifier and MultiFileVerifier are both InternalIssueVerifier under the hood
+        SingleFileVerifier.Issue reportedIssue = ((SingleFileVerifier) verifier)
           .reportIssue(message)
           .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
 
+        // Casting of the issue is possible because SingleFileVerifier.Issue and MultiFileVerifier.Issue are both InternalIssue under the
+        // hood
         secondaryLocations.forEach(secondary -> {
           if (secondary.filePath != null) {
             addSecondaryOnDifferentFile(((MultiFileVerifier.Issue) reportedIssue), secondary);
@@ -346,7 +351,7 @@ public class Verifier {
       map.computeIfAbsent(range, r -> new Tuple()).addExpected(issue);
     }
 
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
     map.values().stream()
       .map(Tuple::check)
       .filter(it -> !it.isBlank())
@@ -418,7 +423,7 @@ public class Verifier {
         return String.format(WRONG_MESSAGE, formatIssue(expectedIssue), formatIssue(actualIssue));
       }
 
-      StringBuilder secondaryMessages = new StringBuilder();
+      var secondaryMessages = new StringBuilder();
 
       if (!expectedIssue.secondaryLocations.isEmpty()) {
         expectedIssue.secondaryLocations.stream()

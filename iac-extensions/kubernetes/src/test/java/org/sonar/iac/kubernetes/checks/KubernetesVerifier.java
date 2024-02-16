@@ -55,7 +55,7 @@ import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
-import org.sonarsource.analyzer.commons.checks.verifier.internal.InternalIssueVerifier;
+import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
@@ -91,7 +91,7 @@ public class KubernetesVerifier extends Verifier {
     String content = retrieveContent(inputFile);
     if (KubernetesParser.hasHelmContent(content)) {
       InputFileContext inputFileContext = prepareHelmContext(templateFileName);
-      InternalIssueVerifier verifier = verifyHelm(check, inputFileContext, content);
+      MultiFileVerifier verifier = prepareAndRunHelmVerifier(check, inputFileContext, content);
       verifier.assertOneOrMoreIssues();
     } else {
       verify(PARSER, BASE_DIR.resolve(templateFileName), check);
@@ -121,16 +121,16 @@ public class KubernetesVerifier extends Verifier {
     String content = retrieveContent(inputFile);
     if (KubernetesParser.hasHelmContent(content)) {
       InputFileContext inputFileContext = prepareHelmContext(templateFileName);
-      InternalIssueVerifier verifier = verifyHelm(check, inputFileContext, content);
+      MultiFileVerifier verifier = prepareAndRunHelmVerifier(check, inputFileContext, content);
       verifier.assertNoIssues();
     } else {
       verifyNoIssue(PARSER, BASE_DIR.resolve(templateFileName), check);
     }
   }
 
-  protected static InternalIssueVerifier verifyHelm(IacCheck check, InputFileContext inputFileContext, String content) {
+  protected static MultiFileVerifier prepareAndRunHelmVerifier(IacCheck check, InputFileContext inputFileContext, String content) {
     Tree root = parse(PARSER, content, inputFileContext);
-    InternalIssueVerifier verifier = createVerifier(
+    MultiFileVerifier verifier = createVerifier(
       Path.of(inputFileContext.inputFile.uri()),
       root,
       commentsWithShiftedTextRangeVisitor(inputFileContext));
@@ -141,7 +141,7 @@ public class KubernetesVerifier extends Verifier {
 
   protected static void verifyHelm(IacCheck check, InputFileContext inputFileContext, String content, Issue... expectedIssues) {
     Tree root = parse(PARSER, content, inputFileContext);
-    InternalIssueVerifier verifier = createVerifier(
+    MultiFileVerifier verifier = createVerifier(
       Path.of(inputFileContext.inputFile.uri()),
       root,
       commentsWithShiftedTextRangeVisitor(inputFileContext));
@@ -156,7 +156,8 @@ public class KubernetesVerifier extends Verifier {
     var filePath = Path.of(sourceInputFile.uri());
     var helmProjectPath = HelmFileSystem.retrieveHelmProjectFolder(filePath, BASE_DIR.toAbsolutePath().toFile());
     if (helmProjectPath == null) {
-      throw new IllegalStateException(String.format("Could not resolve helmProjectPath for file %s, possible missing Chart.yaml", filePath));
+      throw new IllegalStateException(String.format("Could not resolve helmProjectPath for file %s, possible missing Chart.yaml",
+        filePath));
     }
     addDependentFilesToSensorContext(helmProjectPath);
 
@@ -185,12 +186,15 @@ public class KubernetesVerifier extends Verifier {
     Set<TextRange> alreadyAdded = new HashSet<>();
     return (root, commentsByLine) -> (new TreeVisitor<>()).register(Tree.class,
       (ctx, tree) -> {
-        // The shifted location is not precise enough and always returns the whole line, so it is not suitable for detecting already added tree's
-        // The unshifted location is more granular and therefore can be used for detecting duplicates, even if it's not the real location in the
+        // The shifted location is not precise enough and always returns the whole line, so it is not suitable for detecting already
+        // added tree's
+        // The unshifted location is more granular and therefore can be used for detecting duplicates, even if it's not the real location
+        // in the
         // source file
         if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
           for (Comment comment : ((HasComments) tree).comments()) {
-            Comment shiftedComment = new CommentImpl(comment.value(), comment.contentText(), locationShifter.computeShiftedLocation(inputFileContext, comment.textRange()));
+            Comment shiftedComment = new CommentImpl(comment.value(), comment.contentText(),
+              locationShifter.computeShiftedLocation(inputFileContext, comment.textRange()));
             commentsByLine.computeIfAbsent(shiftedComment.textRange().start().line(), i -> new HashSet<>()).add(shiftedComment);
           }
           alreadyAdded.add(tree.textRange());
@@ -202,7 +206,7 @@ public class KubernetesVerifier extends Verifier {
     private final InputFileContext currentCtx;
     private final LocationShifter locationShifter;
 
-    public LocationShiftedTestContext(InternalIssueVerifier verifier, InputFileContext currentCtx, LocationShifter locationShifter) {
+    public LocationShiftedTestContext(MultiFileVerifier verifier, InputFileContext currentCtx, LocationShifter locationShifter) {
       super(verifier);
       this.currentCtx = currentCtx;
       this.locationShifter = locationShifter;

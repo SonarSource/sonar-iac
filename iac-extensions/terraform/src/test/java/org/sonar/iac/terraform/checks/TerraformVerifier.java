@@ -26,7 +26,7 @@ import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
 import org.sonar.iac.terraform.visitors.TerraformProviderContext;
-import org.sonarsource.analyzer.commons.checks.verifier.internal.InternalIssueVerifier;
+import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 
 import static org.sonar.iac.common.testing.TemplateFileReader.BASE_DIR;
 
@@ -54,7 +54,7 @@ public class TerraformVerifier {
     Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check, context(providerVersion));
   }
 
-  private static Function<InternalIssueVerifier, Verifier.TestContext> context(String providerVersion) {
+  private static Function<MultiFileVerifier, Verifier.TestContext> context(String providerVersion) {
     return verifier -> new TerraformTestContext(verifier, providerVersion);
   }
 
@@ -62,12 +62,12 @@ public class TerraformVerifier {
 
     final Provider provider;
 
-    public TerraformTestContext(InternalIssueVerifier verifier) {
+    public TerraformTestContext(MultiFileVerifier verifier) {
       super(verifier);
       this.provider = new Provider(null);
     }
 
-    public TerraformTestContext(InternalIssueVerifier verifier, String providerVersion) {
+    public TerraformTestContext(MultiFileVerifier verifier, String providerVersion) {
       super(verifier);
       this.provider = new Provider(Version.parse(providerVersion));
     }
