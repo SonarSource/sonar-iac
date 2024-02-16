@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
@@ -112,12 +113,9 @@ public class InputFileContext extends TreeContext {
     error.save();
   }
 
+  @CheckForNull
   private NewIssueLocation newLocation(NewIssue newIssue, SecondaryLocation secondaryLocation) {
-    var fileToRaiseOn = inputFile;
-    String filePath = secondaryLocation.filePath;
-    if (filePath != null) {
-      fileToRaiseOn = sensorContext.fileSystem().inputFile(sensorContext.fileSystem().predicates().is(new File(filePath)));
-    }
+    var fileToRaiseOn = retrieveFileToRaiseOn(secondaryLocation);
     if (fileToRaiseOn != null) {
       return newIssue.newLocation()
         .on(fileToRaiseOn)
@@ -125,6 +123,14 @@ public class InputFileContext extends TreeContext {
         .message(secondaryLocation.message);
     }
     return null;
+  }
+
+  @CheckForNull
+  public InputFile retrieveFileToRaiseOn(SecondaryLocation secondaryLocation) {
+    if (secondaryLocation.filePath == null) {
+      return inputFile;
+    }
+    return sensorContext.fileSystem().inputFile(sensorContext.fileSystem().predicates().is(new File(secondaryLocation.filePath)));
   }
 
   private static org.sonar.api.batch.fs.TextRange toInputFileRange(InputFile inputFile, TextRange textRange) {

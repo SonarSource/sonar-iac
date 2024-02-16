@@ -19,57 +19,41 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.Verifier;
-import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 class ToDoCommentCheckTest {
 
-  private SingleFileVerifier.IssueBuilder issueBuilder;
-  private SingleFileVerifier verifier;
-  private Verifier.TestContext context;
+  private IacCheck check = new ToDoCommentCheck();
 
   @Test
   void shouldReportIssueForToDoComment() {
     TextTree tree = createTreeWithComment("TODO fix me");
-    initContext();
 
-    context.scan(tree);
-
-    verify(verifier).reportIssue("Complete the task associated to this \"TODO\" comment.");
-    verify(issueBuilder).onRange(1, 1, 1, 13);
+    Verifier.Issue issue = Verifier.issue(1, 0, 1, 13, "Complete the task associated to this \"TODO\" comment.");
+    Verifier.verify(tree, Path.of(""), check, issue);
   }
 
   @Test
   void shouldNotReportIssueForSimpleComment() {
     TextTree tree = createTreeWithComment("foo bar");
-    initContext();
 
-    context.scan(tree);
-
-    verifyNoInteractions(verifier);
-    verifyNoInteractions(issueBuilder);
+    // identical to Verifier.verify(tree, Path.of(""), check, new Verifier.Issue[0]);
+    Verifier.verify(tree, Path.of(""), check);
   }
 
   @Test
   void shouldNotReportIssueWhenNoComment() {
     TextTree tree = CommonTestUtils.TestTextTree.text("foo");
-    initContext();
 
-    context.scan(tree);
-
-    verifyNoInteractions(verifier);
-    verifyNoInteractions(issueBuilder);
+    // identical to Verifier.verify(tree, Path.of(""), check, new Verifier.Issue[0]);
+    Verifier.verify(tree, Path.of(""), check);
   }
 
   @Test
@@ -78,26 +62,12 @@ class ToDoCommentCheckTest {
     TextTree value = CommonTestUtils.TestTextTree.text("value");
     CommonTestUtils.TestAttributeTree tree = (CommonTestUtils.TestAttributeTree) CommonTestUtils.TestAttributeTree.attribute(key, value);
 
-    initContext();
-
-    context.scan(tree);
-
-    verifyNoInteractions(verifier);
-    verifyNoInteractions(issueBuilder);
+    // identical to Verifier.verify(tree, Path.of(""), check, new Verifier.Issue[0]);
+    Verifier.verify(tree, Path.of(""), check);
   }
 
   private static TextTree createTreeWithComment(String commentText) {
     Comment comment = new CommentImpl("# " + commentText, commentText, TextRanges.range(1, 0, "# " + commentText));
     return CommonTestUtils.TestTextTree.text("foo", comment);
-  }
-
-  private void initContext() {
-    ToDoCommentCheck check = new ToDoCommentCheck();
-    issueBuilder = mock(SingleFileVerifier.IssueBuilder.class);
-    verifier = mock(SingleFileVerifier.class);
-    Mockito.when(verifier.reportIssue(any()))
-      .thenReturn(issueBuilder);
-    context = new Verifier.TestContext(verifier);
-    check.initialize(context);
   }
 }

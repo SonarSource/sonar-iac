@@ -53,6 +53,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -67,7 +68,7 @@ public class Verifier {
     verify(parser, path, check, TestContext::new);
   }
 
-  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {
+  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
     verify(root, path, check, contextSupplier);
   }
@@ -77,12 +78,16 @@ public class Verifier {
    */
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Issue... expectedIssues) {
     Tree root = parse(parser, path);
+    verify(root, path, check, expectedIssues);
+  }
+
+  public static void verify(Tree root, Path path, IacCheck check, Issue... expectedIssues) {
     List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(path, root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
-  public static void verify(Tree root, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {
-    SingleFileVerifier verifier = createVerifier(path, root);
+  public static void verify(Tree root, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
+    MultiFileVerifier verifier = createVerifier(path, root);
     runAnalysis(contextSupplier.apply(verifier), check, root);
     verifier.assertOneOrMoreIssues();
   }
@@ -102,19 +107,19 @@ public class Verifier {
   }
 
   public static void verify(TreeParser<Tree> parser, String content, IacCheck check) {
-    File tempFile = contentToTmp(content);
+    var tempFile = contentToTmp(content);
     verify(parser, tempFile.toPath(), check);
   }
 
   public static void verify(TreeParser<Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
     Tree root = parser.parse(content, null);
-    File tempFile = contentToTmp(null);
+    var tempFile = contentToTmp(null);
     List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
   public static void verifyNoIssue(TreeParser<Tree> parser, String content, IacCheck check) {
-    File tempFile = contentToTmp(content);
+    var tempFile = contentToTmp(content);
     verifyNoIssue(parser, tempFile.toPath(), check, TestContext::new);
   }
 
@@ -122,13 +127,14 @@ public class Verifier {
     verifyNoIssue(parser, path, check, TestContext::new);
   }
 
-  public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {
+  public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check,
+    Function<MultiFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
     verifyNoIssue(root, path, check, contextSupplier);
   }
 
-  public static void verifyNoIssue(Tree root, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {
-    SingleFileVerifier verifier = createVerifier(path, root);
+  public static void verifyNoIssue(Tree root, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
+    MultiFileVerifier verifier = createVerifier(path, root);
     List<Issue> actualIssues = runAnalysis(contextSupplier.apply(verifier), check, root);
     compare(actualIssues, Collections.emptyList());
   }
@@ -148,19 +154,19 @@ public class Verifier {
     return parser.parse(content, inputFileContext);
   }
 
-  private static SingleFileVerifier createVerifier(Path path, Tree root) {
+  private static MultiFileVerifier createVerifier(Path path, Tree root) {
     return createVerifier(path, root, commentsVisitor());
   }
 
-  protected static SingleFileVerifier createVerifier(Path path, Tree root, BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
-    var verifier = SingleFileVerifier.create(path, UTF_8);
+  protected static MultiFileVerifier createVerifier(Path path, Tree root, BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
+    var verifier = MultiFileVerifier.create(path, UTF_8);
     Map<Integer, Set<Comment>> commentsByLine = new HashMap<>();
     commentsVisitor.accept(root, commentsByLine);
 
     commentsByLine.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue)
       .forEach(comments -> comments.forEach(comment -> {
         TextPointer start = comment.textRange().start();
-        verifier.addComment(start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
+        verifier.addComment(path, start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
       }));
 
     return verifier;
@@ -195,7 +201,8 @@ public class Verifier {
     return new Issue(range);
   }
 
-  public static Issue issue(int startLine, int startColumn, int endLine, int endColumn, @Nullable String message, SecondaryLocation... secondaryLocations) {
+  public static Issue issue(int startLine, int startColumn, int endLine, int endColumn, @Nullable String message,
+    SecondaryLocation... secondaryLocations) {
     return new Issue(TextRanges.range(startLine, startColumn, endLine, endColumn), message, List.of(secondaryLocations));
   }
 
@@ -206,10 +213,10 @@ public class Verifier {
   public static class TestContext extends TreeContext implements InitContext, CheckContext {
 
     private final TreeVisitor<TestContext> visitor;
-    private final SingleFileVerifier verifier;
+    private final MultiFileVerifier verifier;
     private final List<Issue> raisedIssues = new ArrayList<>();
 
-    public TestContext(SingleFileVerifier verifier) {
+    public TestContext(MultiFileVerifier verifier) {
       this.verifier = verifier;
       visitor = new TreeVisitor<>();
     }
@@ -244,21 +251,47 @@ public class Verifier {
     }
 
     protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      Issue issue = new Issue(textRange, message, secondaryLocations);
+      var issue = new Issue(textRange, message, secondaryLocations);
       if (!raisedIssues.contains(issue)) {
         TextPointer start = textRange.start();
         TextPointer end = textRange.end();
-        SingleFileVerifier.Issue reportedIssue = verifier
+
+        // The cast allows us to not know the path of the primaryFile in this reportIssue method, as it's saved privately in the verifier
+        // The cast is possible as SingleFileVerifier and MultiFileVerifier are both InternalIssueVerifier under the hood
+        SingleFileVerifier.Issue reportedIssue = ((SingleFileVerifier) verifier)
           .reportIssue(message)
           .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
-        secondaryLocations.forEach(secondary -> reportedIssue.addSecondary(
-          secondary.textRange.start().line(),
-          secondary.textRange.start().lineOffset() + 1,
-          secondary.textRange.end().line(),
-          secondary.textRange.end().lineOffset(),
-          secondary.message));
+
+        // Casting of the issue is possible because SingleFileVerifier.Issue and MultiFileVerifier.Issue are both InternalIssue under the
+        // hood
+        secondaryLocations.forEach(secondary -> {
+          if (secondary.filePath != null) {
+            addSecondaryOnDifferentFile(((MultiFileVerifier.Issue) reportedIssue), secondary);
+          } else {
+            addSecondaryOnMainFile(reportedIssue, secondary);
+          }
+        });
         raisedIssues.add(issue);
       }
+    }
+
+    private static void addSecondaryOnMainFile(SingleFileVerifier.Issue reportedIssue, SecondaryLocation secondary) {
+      reportedIssue.addSecondary(
+        secondary.textRange.start().line(),
+        secondary.textRange.start().lineOffset() + 1,
+        secondary.textRange.end().line(),
+        secondary.textRange.end().lineOffset(),
+        secondary.message);
+    }
+
+    private static void addSecondaryOnDifferentFile(MultiFileVerifier.Issue reportedIssue, SecondaryLocation secondary) {
+      reportedIssue.addSecondary(
+        Path.of(secondary.filePath),
+        secondary.textRange.start().line(),
+        secondary.textRange.start().lineOffset() + 1,
+        secondary.textRange.end().line(),
+        secondary.textRange.end().lineOffset(),
+        secondary.message);
     }
   }
 
@@ -287,10 +320,12 @@ public class Verifier {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o)
+      if (this == o) {
         return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (o == null || getClass() != o.getClass()) {
         return false;
+      }
       Issue other = (Issue) o;
       return this.textRange.equals(other.textRange)
         && Objects.equals(this.message, other.message)
@@ -303,12 +338,12 @@ public class Verifier {
     }
   }
 
-  private static void compare(List<Issue> actualIssues, List<Issue> expectedIssues) {
+  protected static void compare(List<Issue> actualIssues, List<Issue> expectedIssues) {
     Map<TextRange, Tuple> map = new HashMap<>();
 
     for (Issue issue : actualIssues) {
       TextRange range = issue.textRange;
-      map.computeIfAbsent(range, (r) -> new Tuple()).addActual(issue);
+      map.computeIfAbsent(range, r -> new Tuple()).addActual(issue);
     }
 
     for (Issue issue : expectedIssues) {
@@ -316,7 +351,7 @@ public class Verifier {
       map.computeIfAbsent(range, r -> new Tuple()).addExpected(issue);
     }
 
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
     map.values().stream()
       .map(Tuple::check)
       .filter(it -> !it.isBlank())
@@ -351,15 +386,15 @@ public class Verifier {
         return String.format(NO_ISSUE, formatIssue(expected.get(0)));
 
       } else if (actual.size() == 1 && expected.size() == 1) {
-        Issue expectedIssue = expected.get(0);
-        Issue actualIssue = actual.get(0);
+        var expectedIssue = expected.get(0);
+        var actualIssue = actual.get(0);
         return compareIssues(expectedIssue, actualIssue);
 
       } else if (actual.size() != expected.size()) {
         return String.format(WRONG_NUMBER, actual.get(0).textRange, expected.size(), actual.size());
 
       } else {
-        for (int i = 0; i < actual.size(); i++) {
+        for (var i = 0; i < actual.size(); i++) {
           if (!actual.get(i).message.equals(expected.get(i).message)) {
             return String.format(WRONG_MESSAGE, formatIssue(expected.get(i)), formatIssue(actual.get(i)));
           }
@@ -388,7 +423,7 @@ public class Verifier {
         return String.format(WRONG_MESSAGE, formatIssue(expectedIssue), formatIssue(actualIssue));
       }
 
-      StringBuilder secondaryMessages = new StringBuilder();
+      var secondaryMessages = new StringBuilder();
 
       if (!expectedIssue.secondaryLocations.isEmpty()) {
         expectedIssue.secondaryLocations.stream()

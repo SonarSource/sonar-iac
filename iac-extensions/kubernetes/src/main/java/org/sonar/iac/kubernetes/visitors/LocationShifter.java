@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -120,6 +121,15 @@ public class LocationShifter {
     var end = new TextPointer(rangeEnd, rangeEndLineLength);
 
     return new TextRange(start, end);
+  }
+
+  public SecondaryLocation computeShiftedSecondaryLocation(InputFileContext ctx, SecondaryLocation secondaryLocation) {
+    InputFile fileToRaiseOn = ctx.retrieveFileToRaiseOn(secondaryLocation);
+    if (fileToRaiseOn == null || !fileToRaiseOn.equals(ctx.inputFile)) {
+      return secondaryLocation;
+    }
+    var range = computeShiftedLocation(ctx, secondaryLocation.textRange);
+    return new SecondaryLocation(range, secondaryLocation.message, secondaryLocation.filePath);
   }
 
   public MarkedYamlEngineException shiftMarkedYamlException(InputFileContext inputFileContext, MarkedYamlEngineException exception) {
