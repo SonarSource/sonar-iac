@@ -104,7 +104,8 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
     }
 
     List<SecondaryLocation> maybeFindSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
-      if (inputFileContext instanceof HelmInputFileContext && inputFileContext.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false)) {
+      boolean isReportingEnabled = inputFileContext.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
+      if (inputFileContext instanceof HelmInputFileContext && isReportingEnabled) {
         return new ArrayList<>(findSecondaryLocationsInAdditionalFiles((HelmInputFileContext) inputFileContext, shiftedTextRange));
       }
       return new ArrayList<>();
@@ -116,25 +117,20 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       if (ast == null || valuesFile == null) {
         return List.of();
       }
-      var locations = new ArrayList<SecondaryLocation>();
+      var secondaryLocations = new ArrayList<SecondaryLocation>();
       try {
         var valuePaths = GoTemplateAstHelper.findNodes(ast, primaryLocationTextRange, inputFileContext.inputFile.contents());
         for (ValuePath valuePath : valuePaths) {
           var secondaryTextRange = toTextRangeInValuesFile(valuePath, inputFileContext);
           if (secondaryTextRange != null) {
             var valuesFilePath = Path.of(valuesFile.uri());
-            locations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFilePath.toString()));
+            secondaryLocations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFilePath.toString()));
           }
         }
       } catch (IOException e) {
-        LOG.debug("Failed to find secondary locations in additional files", e);
+        LOG.debug("Failed to find secondary locations in additional file {}", valuesFile, e);
       }
-      return locations;
-    }
-
-    private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
-      var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
-      return new SecondaryLocation(shiftedTextRange, secondaryLocation.message, secondaryLocation.filePath);
+      return secondaryLocations;
     }
 
     @CheckForNull
@@ -151,7 +147,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       var node = valuesFileTree.documents().get(0);
       for (String pathPart : path) {
         for (Tree child : node.children()) {
-          node = find(child, pathPart);
+          node = findByKey(child, pathPart);
           if (node != null) {
             break;
           }
@@ -189,7 +185,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
     }
 
     @CheckForNull
-    private YamlTree find(Tree node, String key) {
+    private YamlTree findByKey(Tree node, String key) {
       if (node instanceof TupleTree) {
         var tuple = (TupleTree) node;
         if (tuple.key() instanceof ScalarTree && ((ScalarTree) tuple.key()).value().equals(key)) {
