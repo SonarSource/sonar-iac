@@ -34,4 +34,4 @@ spec:
       volumes:
         - name: run
           hostPath:
-            path: /usr/run/docker.sock # TODO SONARIAC-1173 Issues should be raised in ITS on helm files
+            path: /usr/run/docker.sock
