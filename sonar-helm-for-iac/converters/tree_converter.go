@@ -209,7 +209,7 @@ func (c ConversionContext) convertFieldNode(node parse.FieldNode) proto.Message 
 	return &pbstructs.FieldNode{
 		NodeType: pbstructs.NodeType_NodeField,
 		Pos:      int64(node.Position()),
-		Length:   int64(len(node.Ident)),
+		Length:   nodeSourceLength(&node),
 		Ident:    node.Ident,
 	}
 }

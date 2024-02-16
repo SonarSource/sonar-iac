@@ -200,10 +200,11 @@ class HelmProcessorTest {
     Map<String, String> templateDependencies = new HashMap<>();
 
     var inputFile = mockInputFile("chart/templates/foo.yaml", content);
+    var inputFileContext = new HelmInputFileContext(Mockito.mock(SensorContext.class), inputFile);
     when(helmEvaluator.evaluateTemplate(any(), any(), anyMap())).thenReturn(templateEvaluationResult);
 
     assertDoesNotThrow(() -> {
-      helmProcessor.evaluateHelmTemplate(path, inputFile, content, templateDependencies);
+      helmProcessor.evaluateHelmTemplate(path, inputFileContext, content, templateDependencies);
     });
   }
 
@@ -216,7 +217,7 @@ class HelmProcessorTest {
     Map<String, String> templateDependencies = new HashMap<>();
     when(helmEvaluator.evaluateTemplate(any(), any(), anyMap())).thenThrow(exception);
 
-    assertThatThrownBy(() -> helmProcessor.evaluateHelmTemplate(path, DEFAULT_INPUT_FILE, content, templateDependencies))
+    assertThatThrownBy(() -> helmProcessor.evaluateHelmTemplate(path, DEFAULT_INPUT_FILE_CONTEXT, content, templateDependencies))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Template evaluation failed");
   }
