@@ -124,7 +124,7 @@ class IacRulingTest {
     run_ruling_test("azureresourcemanager", properties);
   }
 
-  @Disabled("This test is only a helper to diagnose failures on the local system")
+  // @Disabled("This test is only a helper to diagnose failures on the local system")
   @Test
   void test_local() throws IOException {
     Map<String, String> properties = new HashMap<>();
@@ -154,8 +154,10 @@ class IacRulingTest {
       .setProperty("sonar.scm.disabled", "true")
       .setProperty("sonar.internal.analysis.failFast", "true")
       .setProperty("sonar.project", project)
+      .setProperty("sonar.verbose", "true")
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
 
+    // build.setEnvironmentVariable("SONAR_SCANNER_DEBUG_OPTS", "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5555");
     orchestrator.executeBuild(build);
 
     String litsDifference = new String(Files.readAllBytes(LITS_DIFFERENCES_FILE.toPath()));

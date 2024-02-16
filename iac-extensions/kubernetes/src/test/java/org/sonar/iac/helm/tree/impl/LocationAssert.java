@@ -23,6 +23,17 @@ import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.SoftAssertions;
 import org.sonar.iac.helm.tree.api.Location;
 
+/**
+ * Common usage:
+ * <pre>
+ *   {@code
+ *       assertThat(new LocationImpl(0,5))
+ *       .on("abcdefgh")
+ *       .isEqualTo("abcde")
+ *       .hasLocation(0, 5);
+ *   }
+ * </pre>
+ */
 public class LocationAssert extends AbstractAssert<LocationAssert, Location> {
 
   protected LocationAssert(Location location) {
@@ -41,27 +52,27 @@ public class LocationAssert extends AbstractAssert<LocationAssert, Location> {
     return this;
   }
 
-  public LocationAssertAndText on(String sourceCode) {
-    return new LocationAssertAndText(actual, sourceCode);
+  public LocationAndCodeAssert on(String sourceCode) {
+    return new LocationAndCodeAssert(actual, sourceCode);
   }
 
-  public class LocationAssertAndText extends AbstractAssert<LocationAssertAndText, Location> {
+  public static class LocationAndCodeAssert extends AbstractAssert<LocationAndCodeAssert, Location> {
 
     private final String sourceCode;
 
-    protected LocationAssertAndText(Location location, String sourceCode) {
-      super(location, LocationAssertAndText.class);
+    protected LocationAndCodeAssert(Location location, String sourceCode) {
+      super(location, LocationAndCodeAssert.class);
       this.sourceCode = sourceCode;
     }
 
     @Override
-    public LocationAssertAndText isEqualTo(Object expected) {
+    public LocationAndCodeAssert isEqualTo(Object expected) {
       var text = sourceCode.substring(actual.position(), actual.position() + actual.length());
       org.assertj.core.api.Assertions.assertThat(text).isEqualTo(expected);
       return this;
     }
 
-    public LocationAssertAndText hasLocation(int expectedPosition, int expectedLength) {
+    public LocationAndCodeAssert hasLocation(int expectedPosition, int expectedLength) {
       SoftAssertions.assertSoftly(softly -> {
         softly.assertThat(actual.position()).isEqualTo(expectedPosition);
         softly.assertThat(actual.length()).isEqualTo(expectedLength);
