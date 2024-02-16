@@ -48,6 +48,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.Verifier;
+import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
@@ -60,52 +61,26 @@ import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
-public class KubernetesVerifier extends Verifier {
+public class KubernetesVerifier {
 
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesVerifier.class);
   public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
-  private static final SensorContextTester sensorContext = SensorContextTester.create(BASE_DIR.toAbsolutePath());
-  private static final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
   private static final LocationShifter locationShifter = new LocationShifter();
-  private static final KubernetesParser PARSER;
-
-  private KubernetesVerifier() {
-    super();
-  }
-
-  static {
-    File temporaryDirectory;
-    try {
-      temporaryDirectory = Files.createTempDirectory("kubernetesVerifierExecutable").toFile();
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not create temporary directory", e);
-    }
-    HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
-    HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, sensorContext);
-    PARSER = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
-    temporaryDirectory.deleteOnExit();
-  }
+  private static final YamlParser YAML_PARSER = new YamlParser();
 
   public static void verify(String templateFileName, IacCheck check) {
-    InputFile inputFile = inputFile(templateFileName, BASE_DIR);
-    String content = retrieveContent(inputFile);
-    if (KubernetesParser.hasHelmContent(content)) {
-      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
-      MultiFileVerifier verifier = prepareAndRunHelmVerifier(check, inputFileContext, content);
-      verifier.assertOneOrMoreIssues();
+    if (containsHelmContent(templateFileName)) {
+      HelmVerifier.verify(templateFileName, check);
     } else {
-      verify(PARSER, BASE_DIR.resolve(templateFileName), check);
+      Verifier.verify(YAML_PARSER, BASE_DIR.resolve(templateFileName), check);
     }
   }
 
-  public static void verify(String templateFileName, IacCheck check, Issue... expectedIssues) {
-    InputFile inputFile = inputFile(templateFileName, BASE_DIR);
-    String content = retrieveContent(inputFile);
-    if (KubernetesParser.hasHelmContent(content)) {
-      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
-      verifyHelm(check, inputFileContext, content, expectedIssues);
+  public static void verify(String templateFileName, IacCheck check, Verifier.Issue... expectedIssues) {
+    if (containsHelmContent(templateFileName)) {
+      HelmVerifier.verify(templateFileName, check, expectedIssues);
     } else {
-      verify(PARSER, BASE_DIR.resolve(templateFileName), check, expectedIssues);
+      Verifier.verify(YAML_PARSER, BASE_DIR.resolve(templateFileName), check, expectedIssues);
     }
   }
 
@@ -113,96 +88,148 @@ public class KubernetesVerifier extends Verifier {
    * Only usable for pure Kubernetes files
    */
   public static void verifyContent(String content, IacCheck check) {
-    verify(PARSER, content, check);
+    Verifier.verify(YAML_PARSER, content, check);
   }
 
   public static void verifyNoIssue(String templateFileName, IacCheck check) {
-    InputFile inputFile = inputFile(templateFileName, BASE_DIR);
-    String content = retrieveContent(inputFile);
-    if (KubernetesParser.hasHelmContent(content)) {
-      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
-      MultiFileVerifier verifier = prepareAndRunHelmVerifier(check, inputFileContext, content);
-      verifier.assertNoIssues();
+    if (containsHelmContent(templateFileName)) {
+      HelmVerifier.verifyNoIssue(templateFileName, check);
     } else {
-      verifyNoIssue(PARSER, BASE_DIR.resolve(templateFileName), check);
+      Verifier.verifyNoIssue(YAML_PARSER, BASE_DIR.resolve(templateFileName), check);
     }
   }
 
-  protected static MultiFileVerifier prepareAndRunHelmVerifier(IacCheck check, InputFileContext inputFileContext, String content) {
-    Tree root = parse(PARSER, content, inputFileContext);
-    MultiFileVerifier verifier = createVerifier(
-      Path.of(inputFileContext.inputFile.uri()),
-      root,
-      commentsWithShiftedTextRangeVisitor(inputFileContext));
-    LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
-    runAnalysis(testContext, check, root);
-    return verifier;
-  }
-
-  protected static void verifyHelm(IacCheck check, InputFileContext inputFileContext, String content, Issue... expectedIssues) {
-    Tree root = parse(PARSER, content, inputFileContext);
-    MultiFileVerifier verifier = createVerifier(
-      Path.of(inputFileContext.inputFile.uri()),
-      root,
-      commentsWithShiftedTextRangeVisitor(inputFileContext));
-    LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
-    List<Issue> issues = runAnalysis(testContext, check, root);
-    compare(issues, Arrays.asList(expectedIssues));
-  }
-
-  private static InputFileContext prepareHelmContext(String templateFileName) {
-    var sourceInputFile = inputFile(templateFileName, BASE_DIR);
-    sensorContext.fileSystem().add(sourceInputFile);
-    var filePath = Path.of(sourceInputFile.uri());
-    var helmProjectPath = HelmFileSystem.retrieveHelmProjectFolder(filePath, BASE_DIR.toAbsolutePath().toFile());
-    if (helmProjectPath == null) {
-      throw new IllegalStateException(String.format("Could not resolve helmProjectPath for file %s, possible missing Chart.yaml",
-        filePath));
-    }
-    addDependentFilesToSensorContext(helmProjectPath);
-
-    return new HelmInputFileContext(sensorContext, sourceInputFile);
-  }
-
-  private static String retrieveContent(InputFile inputFile) {
+  private static boolean containsHelmContent(String templateFileName) {
     try {
-      return inputFile.contents();
+      var content = Files.readString(BASE_DIR.resolve(templateFileName));
+      return KubernetesParser.hasHelmContent(content);
     } catch (IOException e) {
-      throw new IllegalStateException(String.format("Unable to read content of %s", inputFile), e);
+      throw new RuntimeException(e);
     }
   }
 
-  public static void addDependentFilesToSensorContext(Path helmProjectPath) {
-    try (Stream<Path> pathStream = Files.list(helmProjectPath)) {
-      pathStream
-        .filter(path -> path.toFile().isFile())
-        .forEach(path -> addFileToSensorContext(sensorContext, BASE_DIR, path.toString()));
-    } catch (IOException e) {
-      LOG.error("Error while trying to add dependent files to sensor context", e);
-    }
-  }
+  static class HelmVerifier extends Verifier {
 
-  private static BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsWithShiftedTextRangeVisitor(InputFileContext inputFileContext) {
-    Set<TextRange> alreadyAdded = new HashSet<>();
-    return (root, commentsByLine) -> (new TreeVisitor<>()).register(Tree.class,
-      (ctx, tree) -> {
-        // The shifted location is not precise enough and always returns the whole line, so it is not suitable for detecting already
-        // added tree's
-        // The unshifted location is more granular and therefore can be used for detecting duplicates, even if it's not the real location
-        // in the
-        // source file
-        if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
-          for (Comment comment : ((HasComments) tree).comments()) {
-            Comment shiftedComment = new CommentImpl(comment.value(), comment.contentText(),
-              locationShifter.computeShiftedLocation(inputFileContext, comment.textRange()));
-            commentsByLine.computeIfAbsent(shiftedComment.textRange().start().line(), i -> new HashSet<>()).add(shiftedComment);
+    private static final SensorContextTester sensorContext = SensorContextTester.create(BASE_DIR.toAbsolutePath());
+    private static final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
+    private static final KubernetesParser KUBERNETES_PARSER;
+
+    static {
+      File temporaryDirectory;
+      try {
+        temporaryDirectory = Files.createTempDirectory("kubernetesVerifierExecutable").toFile();
+      } catch (IOException e) {
+        throw new IllegalStateException("Could not create temporary directory", e);
+      }
+      HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
+      HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, sensorContext);
+      KUBERNETES_PARSER = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
+      temporaryDirectory.deleteOnExit();
+    }
+
+    private HelmVerifier() {
+      super();
+    }
+
+    public static void verify(String templateFileName, IacCheck check) {
+      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
+      MultiFileVerifier verifier = runAnalysis(check, inputFileContext);
+      verifier.assertOneOrMoreIssues();
+    }
+
+    public static void verifyNoIssue(String templateFileName, IacCheck check) {
+      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
+      MultiFileVerifier verifier = runAnalysis(check, inputFileContext);
+      verifier.assertNoIssues();
+    }
+
+    public static void verify(String templateFileName, IacCheck check, Issue... expectedIssues) {
+      InputFile inputFile = inputFile(templateFileName, BASE_DIR);
+      String content = retrieveContent(inputFile);
+      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
+      runAnalysisAndCompare(check, inputFileContext, content, expectedIssues);
+    }
+
+    protected static MultiFileVerifier runAnalysis(IacCheck check, InputFileContext inputFileContext) {
+      String content = retrieveContent(inputFileContext.inputFile);
+      Tree root = parse(KUBERNETES_PARSER, content, inputFileContext);
+      MultiFileVerifier verifier = createVerifier(
+        Path.of(inputFileContext.inputFile.uri()),
+        root,
+        commentsWithShiftedTextRangeVisitor(inputFileContext));
+      LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
+      runAnalysis(testContext, check, root);
+      return verifier;
+    }
+
+    protected static void runAnalysisAndCompare(
+      IacCheck check,
+      InputFileContext inputFileContext,
+      String content,
+      Issue... expectedIssues) {
+      Tree root = parse(KUBERNETES_PARSER, content, inputFileContext);
+      MultiFileVerifier verifier = createVerifier(
+        Path.of(inputFileContext.inputFile.uri()),
+        root,
+        commentsWithShiftedTextRangeVisitor(inputFileContext));
+      LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
+      List<Issue> issues = runAnalysis(testContext, check, root);
+      compare(issues, Arrays.asList(expectedIssues));
+    }
+
+    private static InputFileContext prepareHelmContext(String templateFileName) {
+      var sourceInputFile = inputFile(templateFileName, BASE_DIR);
+      sensorContext.fileSystem().add(sourceInputFile);
+      var filePath = Path.of(sourceInputFile.uri());
+      var helmProjectPath = HelmFileSystem.retrieveHelmProjectFolder(filePath, BASE_DIR.toAbsolutePath().toFile());
+      if (helmProjectPath == null) {
+        throw new IllegalStateException(String.format("Could not resolve helmProjectPath for file %s, possible missing Chart.yaml",
+          filePath));
+      }
+      addDependentFilesToSensorContext(helmProjectPath);
+
+      return new HelmInputFileContext(sensorContext, sourceInputFile);
+    }
+
+    public static void addDependentFilesToSensorContext(Path helmProjectPath) {
+      try (Stream<Path> pathStream = Files.list(helmProjectPath)) {
+        pathStream
+          .filter(path -> path.toFile().isFile())
+          .forEach(path -> addFileToSensorContext(sensorContext, BASE_DIR, path.toString()));
+      } catch (IOException e) {
+        LOG.error("Error while trying to add dependent files to sensor context", e);
+      }
+    }
+
+    private static BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsWithShiftedTextRangeVisitor(InputFileContext inputFileContext) {
+      Set<TextRange> alreadyAdded = new HashSet<>();
+      return (root, commentsByLine) -> (new TreeVisitor<>()).register(Tree.class,
+        (ctx, tree) -> {
+          // The shifted location is not precise enough and always returns the whole line, so it is not suitable for detecting already
+          // added tree's.
+          // The unshifted location is more granular and therefore can be used for detecting duplicates, even if it's not the real location
+          // in the source file.
+          if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
+            for (Comment comment : ((HasComments) tree).comments()) {
+              Comment shiftedComment = new CommentImpl(comment.value(), comment.contentText(),
+                locationShifter.computeShiftedLocation(inputFileContext, comment.textRange()));
+              commentsByLine.computeIfAbsent(shiftedComment.textRange().start().line(), i -> new HashSet<>()).add(shiftedComment);
+            }
+            alreadyAdded.add(tree.textRange());
           }
-          alreadyAdded.add(tree.textRange());
-        }
-      }).scan(new TreeContext(), root);
+        }).scan(new TreeContext(), root);
+    }
+
+    private static String retrieveContent(InputFile inputFile) {
+      try {
+        return inputFile.contents();
+      } catch (IOException e) {
+        throw new IllegalStateException(String.format("Unable to read content of %s", inputFile), e);
+      }
+    }
   }
 
-  public static class LocationShiftedTestContext extends TestContext {
+  public static class LocationShiftedTestContext extends Verifier.TestContext {
     private final InputFileContext currentCtx;
     private final LocationShifter locationShifter;
 
