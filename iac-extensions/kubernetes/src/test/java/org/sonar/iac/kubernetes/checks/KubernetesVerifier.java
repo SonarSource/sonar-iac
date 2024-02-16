@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
-import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
+import org.sonarsource.analyzer.commons.checks.verifier.internal.InternalIssueVerifier;
 
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
@@ -90,32 +91,66 @@ public class KubernetesVerifier extends Verifier {
     String content = retrieveContent(inputFile);
     if (KubernetesParser.hasHelmContent(content)) {
       InputFileContext inputFileContext = prepareHelmContext(templateFileName);
-      verifyHelmFile(check, inputFileContext, content);
+      InternalIssueVerifier verifier = verifyHelm(check, inputFileContext, content);
+      verifier.assertOneOrMoreIssues();
     } else {
       verify(PARSER, BASE_DIR.resolve(templateFileName), check);
     }
   }
 
+  public static void verify(String templateFileName, IacCheck check, Issue... expectedIssues) {
+    InputFile inputFile = inputFile(templateFileName, BASE_DIR);
+    String content = retrieveContent(inputFile);
+    if (KubernetesParser.hasHelmContent(content)) {
+      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
+      verifyHelm(check, inputFileContext, content, expectedIssues);
+    } else {
+      verify(PARSER, BASE_DIR.resolve(templateFileName), check, expectedIssues);
+    }
+  }
+
+  /**
+   * Only usable for pure Kubernetes files
+   */
   public static void verifyContent(String content, IacCheck check) {
     verify(PARSER, content, check);
   }
 
-  public static void verifyNoIssue(String fileName, IacCheck check) {
-    verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+  public static void verifyNoIssue(String templateFileName, IacCheck check) {
+    InputFile inputFile = inputFile(templateFileName, BASE_DIR);
+    String content = retrieveContent(inputFile);
+    if (KubernetesParser.hasHelmContent(content)) {
+      InputFileContext inputFileContext = prepareHelmContext(templateFileName);
+      InternalIssueVerifier verifier = verifyHelm(check, inputFileContext, content);
+      verifier.assertNoIssues();
+    } else {
+      verifyNoIssue(PARSER, BASE_DIR.resolve(templateFileName), check);
+    }
   }
 
-  public static void verifyHelmFile(IacCheck check, InputFileContext inputFileContext, String content) {
+  protected static InternalIssueVerifier verifyHelm(IacCheck check, InputFileContext inputFileContext, String content) {
     Tree root = parse(PARSER, content, inputFileContext);
-    SingleFileVerifier verifier = createVerifier(
+    InternalIssueVerifier verifier = createVerifier(
       Path.of(inputFileContext.inputFile.uri()),
       root,
       commentsWithShiftedTextRangeVisitor(inputFileContext));
     LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
     runAnalysis(testContext, check, root);
-    verifier.assertOneOrMoreIssues();
+    return verifier;
   }
 
-  public static InputFileContext prepareHelmContext(String templateFileName) {
+  protected static void verifyHelm(IacCheck check, InputFileContext inputFileContext, String content, Issue... expectedIssues) {
+    Tree root = parse(PARSER, content, inputFileContext);
+    InternalIssueVerifier verifier = createVerifier(
+      Path.of(inputFileContext.inputFile.uri()),
+      root,
+      commentsWithShiftedTextRangeVisitor(inputFileContext));
+    LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
+    List<Issue> issues = runAnalysis(testContext, check, root);
+    compare(issues, Arrays.asList(expectedIssues));
+  }
+
+  private static InputFileContext prepareHelmContext(String templateFileName) {
     var sourceInputFile = inputFile(templateFileName, BASE_DIR);
     sensorContext.fileSystem().add(sourceInputFile);
     var filePath = Path.of(sourceInputFile.uri());
@@ -167,7 +202,7 @@ public class KubernetesVerifier extends Verifier {
     private final InputFileContext currentCtx;
     private final LocationShifter locationShifter;
 
-    public LocationShiftedTestContext(SingleFileVerifier verifier, InputFileContext currentCtx, LocationShifter locationShifter) {
+    public LocationShiftedTestContext(InternalIssueVerifier verifier, InputFileContext currentCtx, LocationShifter locationShifter) {
       super(verifier);
       this.currentCtx = currentCtx;
       this.locationShifter = locationShifter;
@@ -176,13 +211,12 @@ public class KubernetesVerifier extends Verifier {
     @Override
     protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
-      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream().map(this::adaptSecondaryLocation).collect(Collectors.toList());
-      super.reportIssue(shiftedTextRange, message, shiftedSecondaryLocations);
-    }
 
-    private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
-      var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
-      return new SecondaryLocation(shiftedTextRange, secondaryLocation.message);
+      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
+        .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
+        .collect(Collectors.toList());
+
+      super.reportIssue(shiftedTextRange, message, shiftedSecondaryLocations);
     }
   }
 }

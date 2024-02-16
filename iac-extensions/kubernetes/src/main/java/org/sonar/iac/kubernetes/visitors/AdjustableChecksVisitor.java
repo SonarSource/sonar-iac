@@ -81,13 +81,11 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       if (textRange != null) {
         shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
       }
-      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream().map(this::adaptSecondaryLocation).collect(Collectors.toList());
-      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, shiftedSecondaryLocations);
-    }
+      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
+        .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
+        .collect(Collectors.toList());
 
-    private SecondaryLocation adaptSecondaryLocation(SecondaryLocation secondaryLocation) {
-      var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, secondaryLocation.textRange);
-      return new SecondaryLocation(shiftedTextRange, secondaryLocation.message, secondaryLocation.filePath);
+      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, shiftedSecondaryLocations);
     }
 
     TextRange toLocationInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {

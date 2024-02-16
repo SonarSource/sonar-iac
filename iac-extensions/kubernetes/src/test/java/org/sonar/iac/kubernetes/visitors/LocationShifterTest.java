@@ -19,41 +19,59 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
+import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
 
 final class LocationShifterTest {
 
+  @TempDir
+  private static File tmpDir;
+
+  private static File baseDir;
+  private static SensorContextTester context;
+  private static InputFileContext ctx;
   private final LocationShifter shifter = new LocationShifter();
-  private final InputFileContext ctx = mockInputFileContext("my_uri");
+
+  @BeforeAll
+  static void init() throws IOException {
+    baseDir = tmpDir.toPath().toRealPath().resolve("test-project").toFile();
+    FileUtils.forceMkdir(baseDir);
+    context = SensorContextTester.create(baseDir);
+    InputFile file = createInputFile("primaryFile");
+    ctx = new InputFileContext(context, file);
+  }
 
   @Test
   void shouldReturnShiftedRange() {
     setLinesSizes(ctx, 5, 10);
     shifter.addShiftedLine(ctx, 1, 2);
-    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 1, 3));
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRange).hasRange(2, 0, 2, 10);
   }
 
   @Test
   void shouldReturnLastLineIfNoShiftStored() {
     setLinesSizes(ctx, 5);
-    TextRange originalRange = TextRanges.range(1, 1, 1, 3);
+    TextRange originalRange = range(1, 1, 1, 3);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, originalRange);
     assertThat(shiftedRange).hasRange(1, 0, 1, 5);
   }
@@ -63,7 +81,7 @@ final class LocationShifterTest {
     setLinesSizes(ctx, 5, 10);
     shifter.addShiftedLine(ctx, 1, 5);
     shifter.addShiftedLine(ctx, 1, 2);
-    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 1, 3));
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRange).hasRange(2, 0, 2, 10);
   }
 
@@ -73,10 +91,10 @@ final class LocationShifterTest {
     shifter.addShiftedLine(ctx, 1, 3);
     shifter.addShiftedLine(ctx, 2, 4);
 
-    TextRange shiftedRange1 = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 1, 3));
+    TextRange shiftedRange1 = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRange1).hasRange(3, 0, 3, 15);
 
-    TextRange shiftedRange2 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 3));
+    TextRange shiftedRange2 = shifter.computeShiftedLocation(ctx, range(2, 1, 2, 3));
     assertThat(shiftedRange2).hasRange(4, 0, 4, 20);
   }
 
@@ -86,10 +104,10 @@ final class LocationShifterTest {
     shifter.addShiftedLine(ctx, 1, 3);
     shifter.addShiftedLine(ctx, 2, 3);
 
-    TextRange shiftedRange1 = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 1, 3));
+    TextRange shiftedRange1 = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRange1).hasRange(3, 0, 3, 15);
 
-    TextRange shiftedRange2 = shifter.computeShiftedLocation(ctx, TextRanges.range(2, 1, 2, 3));
+    TextRange shiftedRange2 = shifter.computeShiftedLocation(ctx, range(2, 1, 2, 3));
     assertThat(shiftedRange2).hasRange(3, 0, 3, 15);
   }
 
@@ -97,7 +115,7 @@ final class LocationShifterTest {
   void shouldShiftStartRangeOnlyForRegisteredLineShift() {
     setLinesSizes(ctx, 5, 10, 15);
     shifter.addShiftedLine(ctx, 1, 2);
-    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 3, 3));
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 3, 3));
     assertThat(shiftedRange).hasRange(2, 0, 3, 15);
   }
 
@@ -105,7 +123,7 @@ final class LocationShifterTest {
   void shouldShiftEndRangeOnlyForRegisteredLineShift() {
     setLinesSizes(ctx, 5, 10, 15);
     shifter.addShiftedLine(ctx, 2, 3);
-    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 2, 3));
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 2, 3));
     assertThat(shiftedRange).hasRange(3, 0, 3, 15);
   }
 
@@ -114,41 +132,39 @@ final class LocationShifterTest {
     setLinesSizes(ctx, 5, 10, 15, 20);
     shifter.addShiftedLine(ctx, 1, 3);
     shifter.addShiftedLine(ctx, 2, 4);
-    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(1, 1, 2, 3));
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 2, 3));
     assertThat(shiftedRange).hasRange(3, 0, 4, 20);
   }
 
   @Test
   void shouldSkipShiftingIfContextIsNotRecorded() {
-    InputFileContext ctx1 = mockInputFileContext("uri_1");
-    setLinesSizes(ctx1, 5, 10, 15);
-    shifter.addShiftedLine(ctx1, 3, 1);
+    setLinesSizes(ctx, 5, 10, 15);
+    shifter.addShiftedLine(ctx, 3, 1);
 
-    InputFileContext ctx2 = mockInputFileContext("uri_2");
+    InputFileContext differentCtx = new InputFileContext(context, createInputFile("file_2"));
 
-    TextRange shiftedRange = shifter.computeShiftedLocation(ctx2, TextRanges.range(1, 1, 1, 3));
+    TextRange shiftedRange = shifter.computeShiftedLocation(differentCtx, range(1, 1, 1, 3));
 
     assertThat(shiftedRange).hasRange(1, 1, 1, 3);
   }
 
   @Test
   void shouldNotAccessShiftedRangeOfDifferentContext() {
-    InputFileContext ctx1 = mockInputFileContext("uri_1");
-    InputFileContext ctx2 = mockInputFileContext("uri_2");
+    InputFileContext differentCtx = new InputFileContext(context, createInputFile("file_2"));
 
-    setLinesSizes(ctx1, 5, 10, 15);
-    setLinesSizes(ctx2, 6, 11, 16, 21);
-    shifter.addShiftedLine(ctx1, 1, 3);
-    shifter.addShiftedLine(ctx2, 2, 4);
+    setLinesSizes(ctx, 5, 10, 15);
+    setLinesSizes(differentCtx, 6, 11, 16, 21);
+    shifter.addShiftedLine(ctx, 1, 3);
+    shifter.addShiftedLine(differentCtx, 2, 4);
 
-    TextRange shiftedRangeCtx1_1 = shifter.computeShiftedLocation(ctx1, TextRanges.range(1, 1, 1, 3));
+    TextRange shiftedRangeCtx1_1 = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRangeCtx1_1).hasRange(3, 0, 3, 15);
-    TextRange shiftedRangeCtx1_2 = shifter.computeShiftedLocation(ctx1, TextRanges.range(2, 1, 2, 3));
+    TextRange shiftedRangeCtx1_2 = shifter.computeShiftedLocation(ctx, range(2, 1, 2, 3));
     assertThat(shiftedRangeCtx1_2).hasRange(3, 0, 3, 15);
 
-    TextRange shiftedRangeCtx2_1 = shifter.computeShiftedLocation(ctx2, TextRanges.range(1, 1, 1, 3));
+    TextRange shiftedRangeCtx2_1 = shifter.computeShiftedLocation(differentCtx, range(1, 1, 1, 3));
     assertThat(shiftedRangeCtx2_1).hasRange(4, 0, 4, 21);
-    TextRange shiftedRangeCtx2_2 = shifter.computeShiftedLocation(ctx2, TextRanges.range(2, 1, 2, 3));
+    TextRange shiftedRangeCtx2_2 = shifter.computeShiftedLocation(differentCtx, range(2, 1, 2, 3));
     assertThat(shiftedRangeCtx2_2).hasRange(4, 0, 4, 21);
   }
 
@@ -158,7 +174,7 @@ final class LocationShifterTest {
     shifter.addShiftedLine(ctx, 4, 1);
     shifter.addShiftedLine(ctx, 5, 2);
 
-    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 3));
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(3, 1, 3, 3));
 
     assertThat(shiftedRange).hasRange(1, 0, 1, 2);
   }
@@ -169,9 +185,60 @@ final class LocationShifterTest {
     shifter.addShiftedLine(ctx, 4, 1, 3);
     shifter.addShiftedLine(ctx, 5, 4);
 
-    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, TextRanges.range(3, 1, 3, 3));
+    TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(3, 1, 3, 3));
 
     assertThat(shiftedRange).hasRange(1, 0, 3, 4);
+  }
+
+  @Test
+  void shouldShiftSecondaryLocationOnUnsetFilePath() {
+    setLinesSizes(ctx, 5, 10);
+    shifter.addShiftedLine(ctx, 1, 2);
+
+    var secondaryLocation = new SecondaryLocation(range(1, 1, 1, 3), "message");
+    SecondaryLocation shiftedSecondaryLocation = shifter.computeShiftedSecondaryLocation(ctx, secondaryLocation);
+
+    assertThat(shiftedSecondaryLocation.textRange).hasRange(2, 0, 2, 10);
+    Assertions.assertThat(shiftedSecondaryLocation.message).isEqualTo(secondaryLocation.message);
+    Assertions.assertThat(shiftedSecondaryLocation.filePath).isEqualTo(secondaryLocation.filePath);
+  }
+
+  @Test
+  void shouldShiftSecondaryLocationOnDefinedFilePathPointingToPrimaryFile() {
+    setLinesSizes(ctx, 5, 10);
+    shifter.addShiftedLine(ctx, 1, 2);
+
+    var secondaryLocation = new SecondaryLocation(range(1, 1, 1, 3), "message", "primaryFile");
+    SecondaryLocation shiftedSecondaryLocation = shifter.computeShiftedSecondaryLocation(ctx, secondaryLocation);
+
+    assertThat(shiftedSecondaryLocation.textRange).hasRange(2, 0, 2, 10);
+    Assertions.assertThat(shiftedSecondaryLocation.message).isEqualTo(secondaryLocation.message);
+    Assertions.assertThat(shiftedSecondaryLocation.filePath).isEqualTo(secondaryLocation.filePath);
+  }
+
+  @Test
+  void shouldNotShiftSecondaryLocationOnSecondaryFile() {
+    setLinesSizes(ctx, 5, 10);
+    shifter.addShiftedLine(ctx, 1, 2);
+
+    InputFile secondaryFile = createInputFile("secondaryFile");
+    context.fileSystem().add(secondaryFile);
+
+    var secondaryLocation = new SecondaryLocation(range(1, 1, 1, 3), "message", "secondaryFile");
+    SecondaryLocation shiftedSecondaryLocation = shifter.computeShiftedSecondaryLocation(ctx, secondaryLocation);
+
+    Assertions.assertThat(secondaryLocation).isEqualTo(shiftedSecondaryLocation);
+  }
+
+  @Test
+  void shouldNotShiftSecondaryLocationOnNonExistingFile() {
+    setLinesSizes(ctx, 5, 10);
+    shifter.addShiftedLine(ctx, 1, 2);
+
+    var secondaryLocation = new SecondaryLocation(range(1, 1, 1, 3), "message", "nonExistingFile");
+    SecondaryLocation shiftedSecondaryLocation = shifter.computeShiftedSecondaryLocation(ctx, secondaryLocation);
+
+    Assertions.assertThat(secondaryLocation).isEqualTo(shiftedSecondaryLocation);
   }
 
   @Test
@@ -208,14 +275,9 @@ final class LocationShifterTest {
     }
   }
 
-  InputFileContext mockInputFileContext(String uri) {
-    InputFile inputFile = mock(InputFile.class);
-    try {
-      when(inputFile.uri()).thenReturn(new URI(uri));
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
-    InputFileContext ctx = new InputFileContext(null, inputFile);
-    return ctx;
+  private static InputFile createInputFile(String fileName) {
+    InputFile inputFile = IacTestUtils.inputFile(fileName, baseDir.toPath(), "", null);
+    context.fileSystem().add(inputFile);
+    return inputFile;
   }
 }

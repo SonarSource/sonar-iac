@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -33,6 +32,7 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.TreeParser;
 
@@ -56,17 +56,17 @@ class VerifierTest {
   }
 
   @Test
-  void comment_verifier_success() {
+  void verifierShouldSucceedOnComment() {
     assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheck));
   }
 
   @Test
-  void comment_verifier_failure() {
+  void verifierShouldFailOnComment() {
     assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, noIssueRaiseCheck));
   }
 
   @Test
-  void exception_thrown_when_file_cannot_be_read() {
+  void exceptionShouldBeThrownWhenFileCannotBeRead() {
     Path path = Paths.get("src", "test", "resources", "doesNotExist.ext");
     IllegalStateException exception = assertThrows(IllegalStateException.class,
       () -> Verifier.verify(mockParser, path, noIssueRaiseCheck));
@@ -74,17 +74,17 @@ class VerifierTest {
   }
 
   @Test
-  void issues_list_verifier_success() {
+  void verifierShouldSucceedOnIssuesList() {
     assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheck, new Verifier.Issue(DummyNonCompliantTree.range)));
   }
 
   @Test
-  void issues_list_verifier_success_correct_message() {
+  void verifierShouldSucceedOnIssuesListAndMessage() {
     assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheck, new Verifier.Issue(DummyNonCompliantTree.range, "issue message")));
   }
 
   @Test
-  void issues_list_verifier_success_correct_message_and_secondary_location() {
+  void verifierShouldSucceedOnIssuesListAndMessageSecondaryLocation() {
     SecondaryLocation secondaryLocation = new SecondaryLocation(DummyNonCompliantTree.range, "secondary message");
     IacCheck issueRaiseCheckSecondary = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "issue message", secondaryLocation));
     Verifier.Issue issue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message", secondaryLocation);
@@ -92,7 +92,7 @@ class VerifierTest {
   }
 
   @Test
-  void issues_list_verifier_failure_wrong_message() {
+  void verifierShouldFailOnWrongMessage() {
     Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "another message");
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheck, expectedIssue));
     assertThat(exception.getMessage()).contains("[WRONG_MESSAGE]",
@@ -101,20 +101,20 @@ class VerifierTest {
   }
 
   @Test
-  void issues_list_verifier_failure_expected_but_not_found() {
+  void verifierShouldFailOnIssuesListExpectedButNotFound() {
     Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range);
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, noIssueRaiseCheck, expectedIssue));
     assertThat(exception.getMessage()).contains("[NO_ISSUE]", "issue(1, 1, 1, 4, \"null\")");
   }
 
   @Test
-  void issues_list_verifier_failure_not_expected_but_found() {
+  void verifierShouldFailOnExpectedButNotFound() {
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verifyNoIssue(mockParser, path, issueRaiseCheck));
     assertThat(exception.getMessage()).contains("[UNEXPECTED_ISSUE]", "issue(1, 1, 1, 4, \"issue message\")");
   }
 
   @Test
-  void issues_list_verifier_verifyNoIssue() {
+  void verifierShouldSucceedOnVerifyingNoIssue() {
     IacCheck emptyCheck = init -> init.register(Tree.class, (ctx, tree) -> {
     });
     TreeParser<Tree> parser = mock(TreeParser.class);
@@ -129,7 +129,7 @@ class VerifierTest {
   }
 
   @Test
-  void issues_list_verifier_failure_wrong_number() {
+  void verifierShouldFailWithWrongNumber() {
     Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range);
     // we expect the issue twice
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheck, expectedIssue, expectedIssue));
@@ -137,7 +137,7 @@ class VerifierTest {
   }
 
   @Test
-  void issues_list_verifier_failure_wrong_secondary_location() {
+  void verifierShouldFailOnIssuesListWithWrongSecondaryLocation() {
     SecondaryLocation secondaryLocationRaised = new SecondaryLocation(DummyNonCompliantTree.range, "secondary message");
     IacCheck issueRaiseCheckSecondary = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "issue message", secondaryLocationRaised));
     SecondaryLocation secondaryLocationExpected = new SecondaryLocation(DummyNonCompliantTree.range, "different message");
@@ -148,7 +148,7 @@ class VerifierTest {
   }
 
   @Test
-  void issues_list_verifier_failure_multiple_issues_wrong_message() {
+  void verifierShouldFailOnIssuesListWithWrongMessage() {
     Verifier.Issue firstExpectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message");
     Verifier.Issue secondExpectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message");
     // raise two issues with one have an unexpected message
@@ -163,7 +163,7 @@ class VerifierTest {
   }
 
   @Test
-  void issues_list_verifier_success_multiple_issues_same_range_with_message() {
+  void verifierShouldSucceedOnMultipleIssuesWithSameRangeAndDifferentMessage() {
     Verifier.Issue firstExpectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message");
     Verifier.Issue secondExpectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message2");
     IacCheck check = init -> init.register(Tree.class, (ctx, tree) -> {
@@ -171,6 +171,31 @@ class VerifierTest {
       ctx.reportIssue(tree.textRange(), "issue message2");
     });
     assertDoesNotThrow(() -> Verifier.verify(mockParser, path, check, firstExpectedIssue, secondExpectedIssue));
+  }
+
+  @Test
+  void verifierShouldSucceedOnSecondaryLocation() {
+    SecondaryLocation secondaryLocationRaised = new SecondaryLocation(DummyNonCompliantTree.range, "secondary message");
+    IacCheck issueRaiseCheckSecondary = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "issue message", secondaryLocationRaised));
+    Verifier.Issue issue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message", secondaryLocationRaised);
+    assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheckSecondary, issue));
+  }
+
+  @Test
+  void verifierShouldSucceedOnSecondaryLocationOnDifferentFile() {
+    Path secondaryFilePath = Paths.get("src", "test", "resources", "secondaryFilePath.ext");
+    SecondaryLocation secondaryLocationRaised = new SecondaryLocation(DummyNonCompliantTree.range, "secondary message", secondaryFilePath.toString());
+    IacCheck issueRaiseCheckSecondary = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "issue message", secondaryLocationRaised));
+    Verifier.Issue issue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message", secondaryLocationRaised);
+    assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheckSecondary, issue));
+  }
+
+  @Test
+  void verifierShouldSucceedOnSecondaryLocationOnMainFileSpecifiedInFilePath() {
+    SecondaryLocation secondaryLocationRaised = new SecondaryLocation(DummyNonCompliantTree.range, "secondary message", path.toString());
+    IacCheck issueRaiseCheckSecondary = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "issue message", secondaryLocationRaised));
+    Verifier.Issue issue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message", secondaryLocationRaised);
+    assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheckSecondary, issue));
   }
 
   private static class DummyNonCompliantTree extends AbstractTestTree implements HasComments {
