@@ -25,12 +25,12 @@ import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -78,20 +78,20 @@ class IacRulingTest {
   }
 
   @Test
-  void test_terraform() throws IOException {
+  void testTerraform() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.inclusions", "sources/terraform/**/*.tf, ruling/src/integrationTest/resources/sources/terraform/**/*.tf");
-    run_ruling_test("terraform", properties);
+    runRulingTest("terraform", properties);
   }
 
   @Test
-  void test_cloudformation() throws IOException {
+  void testCloudformation() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.inclusions", "sources/cloudformation/**/*.json, ruling/src/integrationTest/resources/sources/cloudformation/**/*.json," +
       "sources/cloudformation/**/*.yaml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yaml," +
       "sources/cloudformation/**/*.yml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
-    run_ruling_test("cloudformation", properties);
+    runRulingTest("cloudformation", properties);
   }
 
   @Test
@@ -106,33 +106,33 @@ class IacRulingTest {
         "sources/kubernetes/**/*.txt," +
         "sources/kubernetes/**/*.properties," +
         "ruling/src/integrationTest/resources/sources/kubernetes/**");
-    run_ruling_test("kubernetes", properties);
+    runRulingTest("kubernetes", properties);
   }
 
   @Test
-  void test_docker() throws IOException {
+  void testDocker() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.inclusions", "sources/docker/**/Dockerfile*, ruling/src/integrationTest/resources/sources/docker/**/**");
-    run_ruling_test("docker", properties);
+    runRulingTest("docker", properties);
   }
 
   @Test
-  void test_arm() throws IOException {
+  void testArm() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.inclusions", "sources/azureresourcemanager/**/*.json, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.json," +
       "sources/azureresourcemanager/**/*.bicep, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.bicep");
-    run_ruling_test("azureresourcemanager", properties);
+    runRulingTest("azureresourcemanager", properties);
   }
 
   @Disabled("This test is only a helper to diagnose failures on the local system")
   @Test
-  void test_local() throws IOException {
+  void testLocal() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.sources", "sources/tmp");
-    run_ruling_test("tmp", properties);
+    runRulingTest("tmp", properties);
   }
 
-  private void run_ruling_test(String project, Map<String, String> projectProperties) throws IOException {
+  private static void runRulingTest(String project, Map<String, String> projectProperties) throws IOException {
     Map<String, String> properties = new HashMap<>(projectProperties);
     properties.put("sonar.iac.duration.statistics", "true");
 
@@ -158,15 +158,15 @@ class IacRulingTest {
 
     orchestrator.executeBuild(build);
 
-    String litsDifference = new String(Files.readAllBytes(LITS_DIFFERENCES_FILE.toPath()));
+    var litsDifference = new String(Files.readAllBytes(LITS_DIFFERENCES_FILE.toPath()), StandardCharsets.UTF_8);
     assertThat(litsDifference).isEmpty();
   }
 
   @AfterAll
-  public static void after() {
+  public static void after() throws InterruptedException {
     if (keepSonarqubeRunning) {
       // keep server running, use CTRL-C to stop it
-      new Scanner(System.in).next();
+      Thread.sleep(Long.MAX_VALUE);
     }
   }
 }
