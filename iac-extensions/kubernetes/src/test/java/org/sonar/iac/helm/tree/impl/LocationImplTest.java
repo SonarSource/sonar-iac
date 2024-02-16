@@ -19,12 +19,13 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.helm.tree.impl.LocationImpl.fromTextRange;
+import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
 
 class LocationImplTest {
 
@@ -33,15 +34,9 @@ class LocationImplTest {
     "line 3 extra text";
 
   @Test
-  void shouldReturnPosition() {
+  void shouldReturnPositionAndLength() {
     var position = new LocationImpl(1, 2);
-    assertThat(position.position()).isEqualTo(1);
-  }
-
-  @Test
-  void shouldReturnLength() {
-    var position = new LocationImpl(1, 2);
-    assertThat(position.length()).isEqualTo(2);
+    assertThat(position).hasLocation(1, 2);
   }
 
   @Test
@@ -69,45 +64,59 @@ class LocationImplTest {
   }
 
   @Test
-  void shouldConvertToPositionAndLengthFirstLine() {
+  void shouldConvertToLocationFirstLine() {
     var range = range(1, 0, 1, 5);
-    var positionAndLength = fromTextRange(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 5));
+    var location = fromTextRange(range, TEXT);
+    assertThat(location).on(TEXT)
+      .isEqualTo("line1")
+      .hasLocation(0, 5);
   }
 
   @Test
-  void shouldConvertToPositionAndLengthSecondLine() {
+  void shouldConvertToLocationSecondLine() {
     var range = range(2, 0, 2, 11);
-    var positionAndLength = fromTextRange(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new LocationImpl(6, 11));
+    var location = fromTextRange(range, TEXT);
+    assertThat(location).on(TEXT)
+      .isEqualTo("line 2 some")
+      .hasLocation(6, 11);
   }
 
   @Test
-  void shouldConvertToPositionAndLengthSecondLineStartColumnIsThree() {
+  void shouldConvertToLocationSecondLineStartColumnIsThree() {
     var range = range(2, 3, 2, 11);
-    var positionAndLength = fromTextRange(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new LocationImpl(9, 8));
+    var location = fromTextRange(range, TEXT);
+    assertThat(location).on(TEXT)
+      .isEqualTo("e 2 some")
+      .hasLocation(9, 8);
   }
 
   @Test
-  void shouldConvertToPositionAndLengthLastLine() {
+  void shouldConvertToLocationLastLine() {
     var range = range(3, 1, 3, 17);
-    var positionAndLength = fromTextRange(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new LocationImpl(24, 16));
+    var location = fromTextRange(range, TEXT);
+    assertThat(location).on(TEXT)
+      .isEqualTo("ine 3 extra text")
+      .hasLocation(24, 16);
   }
 
   @Test
-  void shouldConvertToPositionAndLengthFirstAndSecondLine() {
+  void shouldConvertToLocationFirstAndSecondLine() {
     var range = range(1, 0, 2, 7);
-    var positionAndLength = fromTextRange(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 13));
+    var location = fromTextRange(range, TEXT);
+    assertThat(location).on(TEXT)
+      .isEqualTo("line1\nline 2 ")
+      .hasLocation(0, 13);
   }
 
   @Test
-  void shouldConvertToPositionAndLengthFirstToThirdLine() {
+  void shouldConvertToLocationFirstToThirdLine() {
     var range = range(1, 0, 3, 10);
-    var positionAndLength = fromTextRange(range, TEXT);
-    assertThat(positionAndLength).isEqualTo(new LocationImpl(0, 33));
+    var location = fromTextRange(range, TEXT);
+    assertThat(location).on(TEXT)
+      .isEqualTo("line1\n" +
+        "line 2 some text\n" +
+        "line 3 ext")
+      .hasLocation(0, 33);
   }
 
   @Test

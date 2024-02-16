@@ -34,5 +34,5 @@ spec:
           securityContext:
             capabilities:
               add:
-                - IPC_LOCK # TODO SONARIAC-1173 Issues should be raised in ITS on helm files
+                - IPC_LOCK
   foo: bar
