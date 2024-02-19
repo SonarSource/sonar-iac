@@ -19,14 +19,24 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
+import org.slf4j.event.Level;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.AbstractHighlightingTest;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,6 +49,9 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
 
   private static final YamlParser mockParser = mock(YamlParser.class);
   private static final FileTree mockTree = mock(FileTree.class);
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   public KubernetesHighlightingVisitorTest() {
     super(new KubernetesHighlightingVisitor(), mockParser);
@@ -337,5 +350,19 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   void structuralElementShouldBeHighlighted(String code) {
     highlight(code);
     assertHighlighting(0, 2, KEYWORD_LIGHT);
+  }
+
+  @Test
+  void shouldLogErrorWhenIoException() throws IOException {
+    InputFile inputFile = mock(DefaultInputFile.class);
+    when(inputFile.contents()).thenThrow(new IOException("boom"));
+    when(inputFile.toString()).thenReturn("foo.yaml");
+    var inputFileContext = new InputFileContext(sensorContext, inputFile);
+    var root = mock(FileTree.class);
+    var kubernetesHighlightingVisitor = new KubernetesHighlightingVisitor();
+
+    kubernetesHighlightingVisitor.scan(inputFileContext, root);
+
+    assertThat(logTester.logs(Level.ERROR)).contains("Unable to read file: foo.yaml.");
   }
 }

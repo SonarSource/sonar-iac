@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
@@ -523,19 +524,20 @@ class KubernetesParserTest {
     assertThat(actual.template()).isEqualTo(FileTree.Template.NONE);
   }
 
-  @Test
-  void shouldParseValuesYamlFileThatContainsHelmExpressionAsEmptyKubernetesFile() throws URISyntaxException {
+  @ParameterizedTest
+  @ValueSource(strings = {"values.yaml", "values.yml"})
+  void shouldParseValuesYamlFileThatContainsHelmExpressionAsEmptyKubernetesFile(String filename) throws URISyntaxException {
     try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
-      when(inputFile.toString()).thenReturn("chart/values.yaml");
-      when(inputFile.filename()).thenReturn("values.yaml");
-      when(inputFile.uri()).thenReturn(new URI("file:///chart/values.yaml"));
+      when(inputFile.toString()).thenReturn("chart/" + filename);
+      when(inputFile.filename()).thenReturn(filename);
+      when(inputFile.uri()).thenReturn(new URI("file:///chart/" + filename));
       when(fileSystem.baseDir()).thenReturn(new File("/"));
 
       var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
 
       assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
-      assertThat(logTester.logs(Level.DEBUG)).contains("Helm values file detected, skipping parsing chart/values.yaml");
+      assertThat(logTester.logs(Level.DEBUG)).contains("Helm values file detected, skipping parsing chart/" + filename);
     }
   }
 }

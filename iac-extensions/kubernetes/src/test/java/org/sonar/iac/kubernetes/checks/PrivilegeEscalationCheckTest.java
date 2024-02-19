@@ -35,4 +35,9 @@ class PrivilegeEscalationCheckTest {
   void test_template_object() {
     KubernetesVerifier.verify("PrivilegeEscalationCheck/test_template_object.yaml", check);
   }
+
+  @Test
+  void should() {
+    KubernetesVerifier.verify("PrivilegeEscalationCheck/helm/templates/pod.yaml", check);
+  }
 }
