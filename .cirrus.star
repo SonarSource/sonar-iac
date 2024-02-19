@@ -162,7 +162,6 @@ def gradle_its_template():
         },
     }
     merge_conf_into(conf, setup_gradle_cache())
-    merge_conf_into(conf, cleanup_gradle_cache())
     conf.update({
         'run_its_script': [
             'git submodule update --init --depth 1', 'source cirrus-env QA',
@@ -171,6 +170,7 @@ def gradle_its_template():
             './gradlew "${GRADLE_TASK}" "-Dsonar.runtimeVersion=${SQ_VERSION}" "-Dorchestrator.configUrl=https://repox.jfrog.io/repox/orchestrator.properties/orch-h2.properties" "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" "-DbuildNumber=$BUILD_NUMBER" --info --build-cache --console plain --no-daemon'
         ]
     })
+    merge_conf_into(conf, cleanup_gradle_cache())
     return conf
 
 
