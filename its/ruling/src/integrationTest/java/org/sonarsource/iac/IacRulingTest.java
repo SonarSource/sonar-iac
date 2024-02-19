@@ -44,6 +44,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class IacRulingTest {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
+
+  private static final String ORCHESTRATOR_KEEP_RUNNING_PROPERTY = "orchestrator.keepRunning";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String LITS_VERSION = "0.11.0.2659";
   private static final File LITS_OUTPUT_DIRECTORY = FileLocation.of("build/reports/lits").getFile();
@@ -58,7 +60,7 @@ class IacRulingTest {
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
     .build();
 
-  private static final boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
+  private static final boolean keepSonarqubeRunning = "true".equals(System.getProperty(ORCHESTRATOR_KEEP_RUNNING_PROPERTY));
 
   private static final Set<String> LANGUAGES = Set.of(
     "terraform",

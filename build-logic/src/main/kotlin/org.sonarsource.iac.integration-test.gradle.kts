@@ -18,7 +18,7 @@ val integrationTestTask =
         group = "verification"
         inputs.dir("$rootDir/its/sources")
         inputs.property("SQ version", System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
-        inputs.property("keep SQ running", System.getProperty("keepSonarqubeRunning", "false"))
+        inputs.property("keep SQ running", System.getProperty("orchestrator.keepRunning", "false"))
         useJUnitPlatform()
 
         testClassesDirs = integrationTest.output.classesDirs
@@ -28,8 +28,8 @@ val integrationTestTask =
             systemProperty("sonar.runtimeVersion", System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
         }
 
-        if (System.getProperty("keepSonarqubeRunning") != null) {
-            systemProperty("keepSonarqubeRunning", System.getProperty("keepSonarqubeRunning"))
+        if (System.getProperty("orchestrator.keepRunning") != null) {
+            systemProperty("orchestrator.keepRunning", System.getProperty("orchestrator.keepRunning", "false"))
         }
 
         testLogging {

@@ -56,11 +56,12 @@ public abstract class TestBase {
 
   static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
-  static final String KEEP_ORCHESTRATOR_RUNNING_ENV = "KEEP_ORCHESTRATOR_RUNNING";
+
+  private static final String ORCHESTRATOR_KEEP_RUNNING_PROPERTY = "orchestrator.keepRunning";
 
   static final AtomicInteger REQUESTED_ORCHESTRATORS_KEY = new AtomicInteger();
   public static final FileLocation IAC_PLUGIN_LOCATION = FileLocation.byWildcardFilename(new File("../../sonar-iac-plugin/build/libs"), "sonar-iac-plugin-*-all.jar");
-  public static boolean KEEP_ORCHESTRATOR_RUNNING = "true".equals(System.getenv(KEEP_ORCHESTRATOR_RUNNING_ENV));
+  private static final boolean keepSonarqubeRunning = "true".equals(System.getProperty(ORCHESTRATOR_KEEP_RUNNING_PROPERTY));
 
   public static Orchestrator ORCHESTRATOR = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
@@ -85,7 +86,7 @@ public abstract class TestBase {
 
   @AfterAll
   public static void stopOrchestrator() {
-    if (!KEEP_ORCHESTRATOR_RUNNING && REQUESTED_ORCHESTRATORS_KEY.decrementAndGet() == 0) {
+    if (!keepSonarqubeRunning && REQUESTED_ORCHESTRATORS_KEY.decrementAndGet() == 0) {
       ORCHESTRATOR.stop();
     }
   }
