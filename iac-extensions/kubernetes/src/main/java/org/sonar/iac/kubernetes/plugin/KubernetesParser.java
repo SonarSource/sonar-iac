@@ -70,21 +70,9 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree parseHelmFile(String source, @Nullable HelmInputFileContext inputFileContext) {
-    if (inputFileContext == null) {
-      LOG.debug("No InputFileContext provided, skipping processing of Helm file");
-      return super.parse("{}", null, FileTree.Template.HELM);
-    }
-
-    if ((inputFileContext.inputFile.filename().equals("values.yaml") || inputFileContext.inputFile.filename().equals("values.yml")) &&
-      new KubernetesSensor.HelmProjectMemberPredicate(inputFileContext.sensorContext).apply(inputFileContext.inputFile)) {
-      LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
-      return super.parse("{}", inputFileContext, FileTree.Template.HELM);
-    }
-
-    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
-    if (!helmProcessor.isHelmEvaluatorInitialized()) {
-      LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
-      return super.parse("{}", null, FileTree.Template.HELM);
+    var fileTree = validateInputFileContext(inputFileContext);
+    if (fileTree.isPresent()) {
+      return fileTree.get();
     }
 
     FileTree result;
@@ -106,6 +94,26 @@ public class KubernetesParser extends YamlParser {
       throw shifted;
     }
     return result;
+  }
+
+  private Optional<FileTree> validateInputFileContext(@Nullable HelmInputFileContext inputFileContext) {
+    if (inputFileContext == null) {
+      LOG.debug("No InputFileContext provided, skipping processing of Helm file");
+      return Optional.ofNullable(super.parse("{}", null, FileTree.Template.HELM));
+    }
+
+    if (("values.yaml".equals(inputFileContext.inputFile.filename()) || "values.yml".equals(inputFileContext.inputFile.filename())) &&
+      new KubernetesSensor.HelmProjectMemberPredicate(inputFileContext.sensorContext).apply(inputFileContext.inputFile)) {
+      LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
+      return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+    }
+
+    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
+    if (!helmProcessor.isHelmEvaluatorInitialized()) {
+      LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
+      return Optional.ofNullable(super.parse("{}", null, FileTree.Template.HELM));
+    }
+    return Optional.empty();
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
