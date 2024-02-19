@@ -81,6 +81,12 @@ public class KubernetesParser extends YamlParser {
       return super.parse("{}", null, FileTree.Template.HELM);
     }
 
+    if ((inputFileContext.inputFile.filename().equals("values.yaml") || inputFileContext.inputFile.filename().equals("values.yml")) &&
+      new KubernetesSensor.HelmProjectMemberPredicate(inputFileContext.sensorContext).apply(inputFileContext.inputFile)) {
+      LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
+      return super.parse("{}", null, FileTree.Template.HELM);
+    }
+
     FileTree result;
     try {
       result = evaluateAndParseHelmFile(source, inputFileContext);

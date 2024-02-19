@@ -60,10 +60,10 @@ public class FileIdentificationPredicate implements FilePredicate {
         }
       }
     } catch (IOException e) {
-      LOG.error("Unable to read file: {}.", inputFile.uri());
+      LOG.error("Unable to read file: {}.", inputFile);
       LOG.error(e.getMessage());
     }
-    LOG.debug("File without identifier '{}': {}", fileIdentifier, inputFile.uri());
+    LOG.debug("File without identifier '{}': {}", fileIdentifier, inputFile);
     return false;
   }
 }

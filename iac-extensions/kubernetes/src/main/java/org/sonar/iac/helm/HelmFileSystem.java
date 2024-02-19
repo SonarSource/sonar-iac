@@ -48,7 +48,7 @@ public final class HelmFileSystem {
   public Map<String, InputFile> getRelatedHelmFiles(InputFile inputFile) {
     var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()), fileSystem.baseDir());
     if (helmDirectoryPath == null) {
-      LOG.debug("Failed to resolve Helm project directory for {}", inputFile.uri());
+      LOG.debug("Failed to resolve Helm project directory for {}", inputFile);
       return Collections.emptyMap();
     }
 

@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -123,8 +122,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
         for (ValuePath valuePath : valuePaths) {
           var secondaryTextRange = toTextRangeInValuesFile(valuePath, inputFileContext);
           if (secondaryTextRange != null) {
-            var valuesFilePath = Path.of(valuesFile.uri());
-            secondaryLocations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFilePath.toString()));
+            secondaryLocations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFile.toString()));
           }
         }
       } catch (IOException e) {
