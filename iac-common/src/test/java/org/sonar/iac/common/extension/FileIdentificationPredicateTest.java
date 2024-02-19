@@ -67,10 +67,10 @@ class FileIdentificationPredicateTest {
   }
 
   @Test
-  void shouldErrorMessageWhenFileNotFound() throws IOException, URISyntaxException {
+  void shouldErrorMessageWhenFileNotFound() throws IOException {
     InputFile noFile = mock(InputFile.class);
     when(noFile.inputStream()).thenThrow(new IOException("File not found mock"));
-    when(noFile.uri()).thenReturn(new URI("nofile.txt"));
+    when(noFile.toString()).thenReturn("nofile.txt");
 
     FileIdentificationPredicate filePredicate = new FileIdentificationPredicate(IDENTIFIER);
     assertThat(filePredicate.apply(noFile)).isFalse();
