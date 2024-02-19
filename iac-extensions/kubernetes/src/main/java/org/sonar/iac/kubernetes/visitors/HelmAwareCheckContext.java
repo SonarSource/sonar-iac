@@ -17,22 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.checks;
+package org.sonar.iac.kubernetes.visitors;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.CheckContext;
 
-class ContainerPrivilegedModeCheckTest {
+public interface HelmAwareCheckContext extends CheckContext {
+  boolean shouldReportSecondaryInValues();
 
-  IacCheck check = new ContainerPrivilegedModeCheck();
-
-  @Test
-  void testPodObject() {
-    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/test_pod_object.yaml", check);
-  }
-
-  @Test
-  void testTemplateObject() {
-    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/test_template_object.yaml", check);
-  }
+  void setShouldReportSecondaryInValues(boolean shouldReport);
 }

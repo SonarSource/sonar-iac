@@ -52,6 +52,7 @@ import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
+import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
@@ -60,6 +61,7 @@ public class KubernetesSensor extends YamlSensor {
 
   private HelmProcessor helmProcessor;
   private final LocationShifter locationShifter = new LocationShifter();
+  private final SecondaryLocationLocator secondaryLocationLocator = new SecondaryLocationLocator(new YamlParser());
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
@@ -97,7 +99,7 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
-    visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter, new YamlParser()));
+    visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter, secondaryLocationLocator));
     return visitors;
   }
 

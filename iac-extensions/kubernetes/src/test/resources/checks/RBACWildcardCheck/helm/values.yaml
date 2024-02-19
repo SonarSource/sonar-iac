@@ -1,1 +1,3 @@
 create: true
+rule:
+  verb: "*"

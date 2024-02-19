@@ -19,16 +19,11 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -40,28 +35,19 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.yaml.YamlParser;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
-import org.sonar.iac.helm.tree.utils.ValuePath;
 
 public class AdjustableChecksVisitor extends ChecksVisitor {
-  private static final Logger LOG = LoggerFactory.getLogger(AdjustableChecksVisitor.class);
   /**
    * TODO SONARIAC-1301: Until values.yaml is published, there is no sense in enabling secondary locations in values.yaml
    */
   protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm.secondaryLocationsInValuesEnable";
-
   private final LocationShifter locationShifter;
-  private final YamlParser yamlParser;
+  private final SecondaryLocationLocator secondaryLocationLocator;
 
-  public AdjustableChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, LocationShifter locationShifter, YamlParser yamlParser) {
+  public AdjustableChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, LocationShifter locationShifter, SecondaryLocationLocator secondaryLocationLocator) {
     super(checks, statistics);
     this.locationShifter = locationShifter;
-    this.yamlParser = yamlParser;
+    this.secondaryLocationLocator = secondaryLocationLocator;
   }
 
   @Override
@@ -69,9 +55,10 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
     return new AdjustableContextAdapter(ruleKey);
   }
 
-  public class AdjustableContextAdapter extends ContextAdapter {
+  public class AdjustableContextAdapter extends ContextAdapter implements HelmAwareCheckContext {
 
     private InputFileContext currentCtx;
+    private boolean shouldReportSecondaryInValues;
 
     public AdjustableContextAdapter(RuleKey ruleKey) {
       super(ruleKey);
@@ -92,7 +79,10 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       if (textRange != null) {
         shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
 
-        enhancedAndAdjustedSecondaryLocations = maybeFindSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+        boolean isReportingEnabled = currentCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
+        if (isReportingEnabled || shouldReportSecondaryInValues()) {
+          enhancedAndAdjustedSecondaryLocations = secondaryLocationLocator.maybeFindSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+        }
       }
       List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
         .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
@@ -102,95 +92,14 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       currentCtx.reportIssue(ruleKey, shiftedTextRange, message, enhancedAndAdjustedSecondaryLocations);
     }
 
-    List<SecondaryLocation> maybeFindSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
-      boolean isReportingEnabled = inputFileContext.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
-      if (inputFileContext instanceof HelmInputFileContext && isReportingEnabled) {
-        return new ArrayList<>(findSecondaryLocationsInAdditionalFiles((HelmInputFileContext) inputFileContext, shiftedTextRange));
-      }
-      return new ArrayList<>();
+    @Override
+    public boolean shouldReportSecondaryInValues() {
+      return this.shouldReportSecondaryInValues;
     }
 
-    List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(HelmInputFileContext inputFileContext, TextRange primaryLocationTextRange) {
-      var ast = inputFileContext.getGoTemplateTree();
-      var valuesFile = inputFileContext.getValuesFile();
-      if (ast == null || valuesFile == null) {
-        return List.of();
-      }
-      var secondaryLocations = new ArrayList<SecondaryLocation>();
-      try {
-        var valuePaths = GoTemplateAstHelper.findNodes(ast, primaryLocationTextRange, inputFileContext.inputFile.contents());
-        for (ValuePath valuePath : valuePaths) {
-          var secondaryTextRange = toTextRangeInValuesFile(valuePath, inputFileContext);
-          if (secondaryTextRange != null) {
-            secondaryLocations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFile.toString()));
-          }
-        }
-      } catch (IOException e) {
-        LOG.debug("Failed to find secondary locations in additional file {}", valuesFile, e);
-      }
-      return secondaryLocations;
-    }
-
-    @CheckForNull
-    TextRange toTextRangeInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {
-      var valuesFile = inputFileContext.getValuesFile();
-      var valuesFileTree = buildTreeFrom(valuesFile);
-      var path = filteredPaths(valuePath);
-
-      if (valuesFileTree == null || valuesFileTree.documents().isEmpty() || path.isEmpty()) {
-        return null;
-      }
-
-      // Hopefully, values.yaml contains only a single document
-      var node = valuesFileTree.documents().get(0);
-      for (String pathPart : path) {
-        for (Tree child : node.children()) {
-          node = findByKey(child, pathPart);
-          if (node != null) {
-            break;
-          }
-        }
-        if (node == null) {
-          return null;
-        }
-      }
-      return node.textRange();
-    }
-
-    @CheckForNull
-    private FileTree buildTreeFrom(@Nullable InputFile yamlFile) throws IOException {
-      if (yamlFile != null) {
-        var valuesFileContent = yamlFile.contents();
-        if (!valuesFileContent.isBlank()) {
-          return yamlParser.parse(valuesFileContent, null);
-        }
-      }
-      return null;
-    }
-
-    private List<String> filteredPaths(ValuePath valuePath) {
-      var path = valuePath.path();
-      switch (valuePath.path().get(0)) {
-        case "Values":
-          return path.subList(1, path.size());
-        case "Chart":
-        case "Release":
-          // these come not from values.yaml
-          return List.of();
-        default:
-          return valuePath.path();
-      }
-    }
-
-    @CheckForNull
-    private YamlTree findByKey(Tree node, String key) {
-      if (node instanceof TupleTree) {
-        var tuple = (TupleTree) node;
-        if (tuple.key() instanceof ScalarTree && ((ScalarTree) tuple.key()).value().equals(key)) {
-          return tuple.value();
-        }
-      }
-      return null;
+    @Override
+    public void setShouldReportSecondaryInValues(boolean shouldReport) {
+      this.shouldReportSecondaryInValues = shouldReport;
     }
   }
 }

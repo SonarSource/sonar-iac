@@ -1,0 +1,3 @@
+container:
+  name: my-container
+  privileged: true

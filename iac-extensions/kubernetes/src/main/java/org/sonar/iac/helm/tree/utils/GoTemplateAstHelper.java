@@ -46,6 +46,7 @@ public final class GoTemplateAstHelper {
 
     return allChildren(nodes).stream()
       .filter(FieldNode.class::isInstance)
+      .filter(hasOverlayingLocation(location))
       .map(FieldNode.class::cast)
       .map(FieldNode::identifiers)
       .map(ValuePath::new)
