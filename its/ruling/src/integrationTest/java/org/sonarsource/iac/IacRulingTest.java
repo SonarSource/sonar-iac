@@ -154,7 +154,7 @@ class IacRulingTest {
       .setProperty("sonar.scm.disabled", "true")
       .setProperty("sonar.internal.analysis.failFast", "true")
       .setProperty("sonar.project", project)
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
+      .setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx1024m");
 
     orchestrator.executeBuild(build);
 
