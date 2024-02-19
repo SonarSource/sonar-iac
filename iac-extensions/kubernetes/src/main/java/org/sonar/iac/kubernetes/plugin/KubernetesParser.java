@@ -75,6 +75,12 @@ public class KubernetesParser extends YamlParser {
       return fileTree.get();
     }
 
+    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
+    if (!helmProcessor.isHelmEvaluatorInitialized()) {
+      LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
+      return super.parse("{}", null, FileTree.Template.HELM);
+    }
+
     FileTree result;
     try {
       result = evaluateAndParseHelmFile(source, inputFileContext);
@@ -108,11 +114,6 @@ public class KubernetesParser extends YamlParser {
       return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
     }
 
-    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
-    if (!helmProcessor.isHelmEvaluatorInitialized()) {
-      LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
-      return Optional.ofNullable(super.parse("{}", null, FileTree.Template.HELM));
-    }
     return Optional.empty();
   }
 
