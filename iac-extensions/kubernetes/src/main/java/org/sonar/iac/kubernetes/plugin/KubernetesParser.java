@@ -70,9 +70,9 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree parseHelmFile(String source, @Nullable HelmInputFileContext inputFileContext) {
-    if (inputFileContext == null) {
-      LOG.debug("No InputFileContext provided, skipping processing of Helm file");
-      return super.parse("{}", null, FileTree.Template.HELM);
+    var defaultFileTree = validateInputFileContext(inputFileContext);
+    if (defaultFileTree.isPresent()) {
+      return defaultFileTree.get();
     }
 
     LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
@@ -100,6 +100,29 @@ public class KubernetesParser extends YamlParser {
       throw shifted;
     }
     return result;
+  }
+
+  private Optional<FileTree> validateInputFileContext(@Nullable HelmInputFileContext inputFileContext) {
+    if (inputFileContext == null) {
+      LOG.debug("No InputFileContext provided, skipping processing of Helm file");
+      return Optional.ofNullable(super.parse("{}", null, FileTree.Template.HELM));
+    }
+
+    var isValuesYaml = "values.yaml".equals(inputFileContext.inputFile.filename()) ||
+      "values.yml".equals(inputFileContext.inputFile.filename());
+    if (isValuesYaml && isInChartRootDirectory(inputFileContext)) {
+      LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
+      return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+    }
+
+    return Optional.empty();
+  }
+
+  private static boolean isInChartRootDirectory(HelmInputFileContext inputFileContext) {
+    var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(
+      Path.of(inputFileContext.inputFile.uri()),
+      inputFileContext.sensorContext.fileSystem().baseDir());
+    return inputFileContext.inputFile.path().getParent() != null && inputFileContext.inputFile.path().getParent().equals(rootChartDirectory);
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {

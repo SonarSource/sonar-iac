@@ -474,6 +474,17 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(pod4)).isTrue();
   }
 
+  @Test
+  void shouldDetectValuesYamlFile() {
+    var context = SensorContextTester.create(Path.of("src/test/resources").toAbsolutePath());
+    InputFile valuesFile = IacTestUtils.inputFile("helm/values.yaml", "yaml");
+    InputFile valuesFile2 = IacTestUtils.inputFile("helm/values.yml", "yaml");
+
+    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    assertThat(filePredicate.apply(valuesFile)).isTrue();
+    assertThat(filePredicate.apply(valuesFile2)).isTrue();
+  }
+
   private void assertNotSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }

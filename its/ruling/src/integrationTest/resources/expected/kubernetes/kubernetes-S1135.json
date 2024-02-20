@@ -1,4 +1,10 @@
 {
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/values.yaml": [
+9
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/milestone/L1M6/values.yaml": [
+2
+],
 "kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
 13,
 24

@@ -6,6 +6,7 @@ bar: bar-value
 annotations:
   first: foobar
   second: barfoo
+# TODO The TODOs in values.yaml should be detected if it not contains Helm expressions
 livenessProbe: true
 initialDelaySeconds: 5
 multiline: |

@@ -126,9 +126,15 @@ public class KubernetesSensor extends YamlSensor {
     var helmTemplatePredicate = predicates.and(
       predicates.matchesPathPattern("**/templates/**"),
       new HelmProjectMemberPredicate(sensorContext));
+    var valuesYamlPredicate = predicates.and(
+      predicates.or(
+        predicates.matchesPathPattern("**/values.yaml"),
+        predicates.matchesPathPattern("**/values.yml")),
+      new HelmProjectMemberPredicate(sensorContext));
     return predicates.or(
       new KubernetesFilePredicate(),
-      helmTemplatePredicate);
+      helmTemplatePredicate,
+      valuesYamlPredicate);
   }
 
   @Override
@@ -186,14 +192,14 @@ public class KubernetesSensor extends YamlSensor {
           }
         }
       } catch (IOException e) {
-        LOG.error("Unable to read file: {}.", inputFile.uri());
+        LOG.error("Unable to read file: {}.", inputFile);
         LOG.error(e.getMessage());
       }
 
       if (hasExpectedIdentifier) {
         return true;
       } else {
-        LOG.debug("File without Kubernetes identifier: {}", inputFile.uri());
+        LOG.debug("File without Kubernetes identifier: {}", inputFile);
         return false;
       }
     }

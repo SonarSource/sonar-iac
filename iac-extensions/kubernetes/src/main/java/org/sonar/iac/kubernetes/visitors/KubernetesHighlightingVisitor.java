@@ -58,7 +58,7 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
     try {
       highlightContent(context.inputFile.contents());
     } catch (IOException e) {
-      LOG.error("Unable to read file: {}.", context.inputFile.uri(), e);
+      LOG.error("Unable to read file: {}.", context.inputFile, e);
     }
   }
 
