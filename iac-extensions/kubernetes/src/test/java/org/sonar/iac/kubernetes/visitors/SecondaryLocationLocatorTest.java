@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,7 +37,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
 import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
@@ -50,8 +47,10 @@ import org.sonar.iac.helm.tree.impl.PipeNodeImpl;
 import org.sonar.iac.helm.tree.impl.TextNodeImpl;
 import org.sonar.iac.helm.tree.utils.ValuePath;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
@@ -66,9 +65,9 @@ class SecondaryLocationLocatorTest {
   void shouldFindSecondaryLocationsInValuesFile() {
     var inputFileContext = inputFileContextWithTree();
 
-    var locationsInAdditionalFiles = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, TextRanges.range(1, 6, 1, 22));
+    var locationsInAdditionalFiles = secondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22));
 
-    Assertions.assertThat(locationsInAdditionalFiles).hasSize(1);
+    assertThat(locationsInAdditionalFiles).hasSize(1);
     assertThat(locationsInAdditionalFiles.get(0).textRange).hasRange(1, 5, 1, 8);
   }
 
@@ -76,8 +75,8 @@ class SecondaryLocationLocatorTest {
   void shouldFindNothingIfRangeIsNotOverlapping() {
     var inputFileContext = inputFileContextWithTree();
 
-    var locationsInAdditionalFiles = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, TextRanges.range(1, 1, 1, 3));
-    Assertions.assertThat(locationsInAdditionalFiles).isEmpty();
+    var locationsInAdditionalFiles = secondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 1, 1, 3));
+    assertThat(locationsInAdditionalFiles).isEmpty();
   }
 
   @Test
@@ -88,8 +87,8 @@ class SecondaryLocationLocatorTest {
       .setContents("notBar: baz")
       .build();
     inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
-    var locationsInAdditionalFiles = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, TextRanges.range(1, 6, 1, 22));
-    Assertions.assertThat(locationsInAdditionalFiles).isEmpty();
+    var locationsInAdditionalFiles = secondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22));
+    assertThat(locationsInAdditionalFiles).isEmpty();
   }
 
   @ParameterizedTest
@@ -160,9 +159,9 @@ class SecondaryLocationLocatorTest {
     var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), null);
     inputFileContext.setAdditionalFiles(Map.of());
 
-    var secondaryLocations = secondaryLocationLocator.maybeFindSecondaryLocationsInAdditionalFiles(inputFileContext, null);
+    var secondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null);
 
-    Assertions.assertThat(secondaryLocations).isEmpty();
+    assertThat(secondaryLocations).isEmpty();
   }
 
   @Test
@@ -173,10 +172,10 @@ class SecondaryLocationLocatorTest {
     inputFileContext.setAdditionalFiles(Map.of("values.yaml", mock(InputFile.class)));
     inputFileContext.setGoTemplateTree(mock(GoTemplateTreeImpl.class));
 
-    var locationsInAdditionalFiles = secondaryLocationLocator.maybeFindSecondaryLocationsInAdditionalFiles(inputFileContext, TextRanges.range(1, 6, 1, 22));
+    var locationsInAdditionalFiles = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22));
 
-    Assertions.assertThat(locationsInAdditionalFiles).isEmpty();
-    Assertions.assertThat(logTester.logs()).anyMatch(line -> line.startsWith("Failed to find secondary locations in additional file"));
+    assertThat(locationsInAdditionalFiles).isEmpty();
+    assertThat(logTester.logs()).anyMatch(line -> line.startsWith("Failed to find secondary locations in additional file"));
   }
 
   private HelmInputFileContext inputFileContextWithTree() {
@@ -198,7 +197,6 @@ class SecondaryLocationLocatorTest {
     return inputFileContext;
   }
 
-  @CheckForNull
   private TextRange getTextRangeFor(String valuesFileContent, ValuePath valuePath) throws IOException {
     var valuesFile = new TestInputFileBuilder("test", ".")
       .setContents(valuesFileContent)

@@ -71,7 +71,7 @@ class AdjustableChecksVisitorTest {
     visitor.scan(inputFileContext, tree);
 
     var verificationMode = isPropertyEnabled ? Mockito.times(1) : Mockito.never();
-    Mockito.verify(secondaryLocationLocator, verificationMode).maybeFindSecondaryLocationsInAdditionalFiles(any(), any());
+    Mockito.verify(secondaryLocationLocator, verificationMode).findSecondaryLocationsInAdditionalFiles(any(), any());
   }
 
   @ParameterizedTest
@@ -83,7 +83,7 @@ class AdjustableChecksVisitorTest {
     visitor.scan(inputFileContext, tree);
 
     var verificationMode = shouldReport ? Mockito.times(1) : Mockito.never();
-    Mockito.verify(secondaryLocationLocator, verificationMode).maybeFindSecondaryLocationsInAdditionalFiles(any(), any());
+    Mockito.verify(secondaryLocationLocator, verificationMode).findSecondaryLocationsInAdditionalFiles(any(), any());
   }
 
   private InputFileContext mockInputFileContext(boolean isPropertyEnabled) {

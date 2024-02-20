@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.helm.tree.utils;
 
-import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -56,7 +55,7 @@ class GoTemplateAstHelperTest {
 
   @ParameterizedTest(name = "should find values by TextRange {1}")
   @MethodSource("textRanges")
-  void shouldFindValuesByTextRange(TextRange textRange, String name) throws IOException {
+  void shouldFindValuesByTextRange(TextRange textRange, String name) {
     String sourceCode = code("apiVersion: apps/v1 #1",
       "hostIPC: {{ .Values.hostIPC }} #2 #3");
     var textNode1 = new TextNodeImpl(0, 32, "apiVersion: apps/v1 #1\nhostIPC: ");

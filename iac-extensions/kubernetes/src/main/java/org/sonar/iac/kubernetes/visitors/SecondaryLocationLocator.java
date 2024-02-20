@@ -47,14 +47,14 @@ public class SecondaryLocationLocator {
     this.yamlParser = yamlParser;
   }
 
-  public List<SecondaryLocation> maybeFindSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
+  public List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
     if (inputFileContext instanceof HelmInputFileContext) {
-      return new ArrayList<>(findSecondaryLocationsInAdditionalFiles((HelmInputFileContext) inputFileContext, shiftedTextRange));
+      return new ArrayList<>(doFindSecondaryLocationsInAdditionalFiles((HelmInputFileContext) inputFileContext, shiftedTextRange));
     }
     return new ArrayList<>();
   }
 
-  List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(HelmInputFileContext inputFileContext, TextRange primaryLocationTextRange) {
+  List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext inputFileContext, TextRange primaryLocationTextRange) {
     var ast = inputFileContext.getGoTemplateTree();
     var valuesFile = inputFileContext.getValuesFile();
     if (ast == null || valuesFile == null) {

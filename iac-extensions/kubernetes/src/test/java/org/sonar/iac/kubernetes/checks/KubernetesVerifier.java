@@ -254,7 +254,7 @@ public class KubernetesVerifier {
         .collect(Collectors.toList());
 
       if (shouldReportSecondaryInValues) {
-        var secondaryLocationsInValues = secondaryLocationLocator.maybeFindSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+        var secondaryLocationsInValues = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
         shiftedSecondaryLocations.addAll(secondaryLocationsInValues);
       }
 

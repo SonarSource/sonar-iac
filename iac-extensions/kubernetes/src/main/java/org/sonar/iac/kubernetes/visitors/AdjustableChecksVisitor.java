@@ -81,7 +81,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
 
         boolean isReportingEnabled = currentCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
         if (isReportingEnabled || shouldReportSecondaryInValues()) {
-          enhancedAndAdjustedSecondaryLocations = secondaryLocationLocator.maybeFindSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+          enhancedAndAdjustedSecondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
         }
       }
       List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
