@@ -50,7 +50,7 @@ for Terraform in `iac-extensions/terraform`.
 ### Requirements
 * Java 11
 * Maven
-* Go 1.21.1
+* Go 1.21
 * musl on Linux (`musl-gcc` should be present on `PATH`)
 * protoc 25.0
 * protoc-gen-go 1.31.0
