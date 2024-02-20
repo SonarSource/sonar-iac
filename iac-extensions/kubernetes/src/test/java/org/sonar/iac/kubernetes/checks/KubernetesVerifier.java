@@ -54,8 +54,10 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
+import org.sonar.iac.kubernetes.visitors.HelmAwareCheckContext;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
+import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
@@ -66,6 +68,7 @@ public class KubernetesVerifier {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesVerifier.class);
   public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
   private static final LocationShifter locationShifter = new LocationShifter();
+  private static final SecondaryLocationLocator secondaryLocationLocator = new SecondaryLocationLocator(new YamlParser());
   private static final YamlParser YAML_PARSER = new YamlParser();
 
   public static void verify(String templateFileName, IacCheck check) {
@@ -157,7 +160,7 @@ public class KubernetesVerifier {
         Path.of(inputFileContext.inputFile.uri()),
         root,
         commentsWithShiftedTextRangeVisitor(inputFileContext));
-      LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
+      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext, locationShifter, secondaryLocationLocator);
       runAnalysis(testContext, check, root);
       return verifier;
     }
@@ -172,7 +175,7 @@ public class KubernetesVerifier {
         Path.of(inputFileContext.inputFile.uri()),
         root,
         commentsWithShiftedTextRangeVisitor(inputFileContext));
-      LocationShiftedTestContext testContext = new LocationShiftedTestContext(verifier, inputFileContext, locationShifter);
+      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext, locationShifter, secondaryLocationLocator);
       List<Issue> issues = runAnalysis(testContext, check, root);
       compare(issues, Arrays.asList(expectedIssues));
     }
@@ -229,14 +232,17 @@ public class KubernetesVerifier {
     }
   }
 
-  public static class LocationShiftedTestContext extends Verifier.TestContext {
+  public static class KubernetesTestContext extends Verifier.TestContext implements HelmAwareCheckContext {
     private final InputFileContext currentCtx;
     private final LocationShifter locationShifter;
+    private final SecondaryLocationLocator secondaryLocationLocator;
+    private boolean shouldReportSecondaryInValues = true;
 
-    public LocationShiftedTestContext(MultiFileVerifier verifier, InputFileContext currentCtx, LocationShifter locationShifter) {
+    public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext currentCtx, LocationShifter locationShifter, SecondaryLocationLocator secondaryLocationLocator) {
       super(verifier);
       this.currentCtx = currentCtx;
       this.locationShifter = locationShifter;
+      this.secondaryLocationLocator = secondaryLocationLocator;
     }
 
     @Override
@@ -247,7 +253,22 @@ public class KubernetesVerifier {
         .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
         .collect(Collectors.toList());
 
+      if (shouldReportSecondaryInValues) {
+        var secondaryLocationsInValues = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+        shiftedSecondaryLocations.addAll(secondaryLocationsInValues);
+      }
+
       super.reportIssue(shiftedTextRange, message, shiftedSecondaryLocations);
+    }
+
+    @Override
+    public boolean shouldReportSecondaryInValues() {
+      return shouldReportSecondaryInValues;
+    }
+
+    @Override
+    public void setShouldReportSecondaryInValues(boolean shouldReport) {
+      shouldReportSecondaryInValues = shouldReport;
     }
   }
 }

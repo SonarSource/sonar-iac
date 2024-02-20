@@ -24,11 +24,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.testing.Verifier;
 
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
 class RBACWildcardCheckTest {
-
   IacCheck check = new RBACWildcardCheck();
 
   static Stream<String> sensitiveKinds() {
@@ -45,5 +47,19 @@ class RBACWildcardCheckTest {
   @Test
   void testClusterRoleKindForHelm() {
     KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check);
+  }
+
+  @Test
+  void testSecondariesInHelmChart() {
+    var expectedSecondary = new SecondaryLocation(
+      range(3, 8, 3, 11),
+      "This value is used in a noncompliant part of a template",
+      "RBACWildcardCheck/helm/values.yaml");
+    var expectedIssues = new Verifier.Issue[] {
+      new Verifier.Issue(range(9, 0, 9, 29)),
+      new Verifier.Issue(range(11, 0, 11, 59),
+        "Do not use wildcards when defining RBAC permissions.", expectedSecondary)};
+
+    KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check, expectedIssues);
   }
 }

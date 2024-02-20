@@ -48,9 +48,9 @@ class GoTemplateAstHelperTest {
   public static List<Arguments> textRanges() {
     return List.of(
       of(range(2, 0, 2, 36), "bigger than node"),
-      of(range(2, 5, 2, 15), "shifted left from node"),
+      of(range(2, 5, 2, 22), "shifted left from node"),
       of(range(2, 15, 2, 35), "shifted right from node"),
-      of(range(2, 15, 2, 16), "smaller than node"));
+      of(range(2, 23, 2, 24), "smaller than node"));
   }
 
   @ParameterizedTest(name = "should find values by TextRange {1}")
@@ -60,11 +60,11 @@ class GoTemplateAstHelperTest {
       "hostIPC: {{ .Values.hostIPC }} #2 #3");
     var textNode1 = new TextNodeImpl(0, 32, "apiVersion: apps/v1 #1\nhostIPC: ");
     var textNode2 = new TextNodeImpl(53, 7, " #2\n #3");
-    var fieldNode = new FieldNodeImpl(42, 14, List.of("Values", "hostIPC"));
-    var command = new CommandNodeImpl(35, 14, List.of(fieldNode));
-    var pipeNode = new PipeNodeImpl(35, 14, List.of(), List.of(command));
-    var actionNode = new ActionNodeImpl(35, 14, pipeNode);
-    ListNodeImpl root = new ListNodeImpl(0, 14, List.of(textNode1, actionNode, textNode2));
+    var fieldNode = new FieldNodeImpl(42, 15, List.of("Values", "hostIPC"));
+    var command = new CommandNodeImpl(35, 15, List.of(fieldNode));
+    var pipeNode = new PipeNodeImpl(35, 15, List.of(), List.of(command));
+    var actionNode = new ActionNodeImpl(35, 19, pipeNode);
+    ListNodeImpl root = new ListNodeImpl(0, 57, List.of(textNode1, actionNode, textNode2));
     var goTemplateTree = new GoTemplateTreeImpl("name", "name", 0, root);
 
     var actual = GoTemplateAstHelper.findNodes(

@@ -21,11 +21,13 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.kubernetes.visitors.HelmAwareCheckContext;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
@@ -74,6 +76,13 @@ class KubernetesVerifierTest {
     @Override
     void registerObjectCheck() {
       register("Pod", (BlockObject pod) -> pod.blocks("containers").forEach(container -> reportIssueWithSecondaryInValuesFile(container.attribute("name"))));
+    }
+
+    @Override
+    void initializeCheck(CheckContext ctx) {
+      if (ctx instanceof HelmAwareCheckContext) {
+        ((HelmAwareCheckContext) ctx).setShouldReportSecondaryInValues(false);
+      }
     }
 
     private void reportIssueWithSecondaryInValuesFile(AttributeObject attribute) {

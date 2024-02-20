@@ -47,6 +47,7 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
   }
 
   void visitDocument(MappingTree documentTree, CheckContext ctx) {
+    initializeCheck(ctx);
     PropertyUtils.get(documentTree, "kind")
       .flatMap(kind -> TextUtils.getValue(kind.value()))
       .filter(objectConsumersByKind::containsKey)
@@ -57,6 +58,10 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
           visitSpecTreeForKind(documentTree, ctx, kind);
         }
       });
+  }
+
+  void initializeCheck(CheckContext ctx) {
+    // default implementation does nothing; the rule can interact with CheckContext here.
   }
 
   boolean shouldVisitWholeDocument() {
