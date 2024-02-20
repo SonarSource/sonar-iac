@@ -515,7 +515,7 @@ class KubernetesParserTest {
   }
 
   @Test
-  void shouldParseValuesYamlFileAsSimpleKubernetesFile() {
+  void shouldParseValuesYamlFileWithoutHelmContentAsSimpleKubernetesFile() {
     when(inputFile.toString()).thenReturn("chart/values.yaml");
     when(inputFile.filename()).thenReturn("values.yaml");
 
@@ -526,18 +526,37 @@ class KubernetesParserTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"values.yaml", "values.yml"})
-  void shouldParseValuesYamlFileThatContainsHelmExpressionAsEmptyKubernetesFile(String filename) throws URISyntaxException {
+  void shouldParseValuesYamlFileWithHelmContentAsEmptyKubernetesFile(String filename) throws URISyntaxException {
     try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/"));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
       when(inputFile.toString()).thenReturn("chart/" + filename);
       when(inputFile.filename()).thenReturn(filename);
       when(inputFile.uri()).thenReturn(new URI("file:///chart/" + filename));
+      when(inputFile.path()).thenReturn(Path.of("/chart/" + filename));
       when(fileSystem.baseDir()).thenReturn(new File("/"));
 
       var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
 
       assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
       assertThat(logTester.logs(Level.DEBUG)).contains("Helm values file detected, skipping parsing chart/" + filename);
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"values.yaml", "values.yml"})
+  void shouldNotIgnoreValuesYamlInTemplatesDirectory(String filename) throws URISyntaxException {
+    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      when(inputFile.toString()).thenReturn("chart/templates/" + filename);
+      when(inputFile.filename()).thenReturn(filename);
+      when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/" + filename));
+      when(inputFile.path()).thenReturn(Path.of("/chart/templates/" + filename));
+      when(fileSystem.baseDir()).thenReturn(new File("/"));
+
+      var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
+
+      assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
+      assertThat(logTester.logs(Level.DEBUG)).doesNotContain("Helm values file detected, skipping parsing chart/templates/" + filename);
     }
   }
 }
