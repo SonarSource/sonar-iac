@@ -24,10 +24,10 @@ import (
 	"errors"
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig/v3"
+	template "github.com/sonarsource/template"
 	"sigs.k8s.io/yaml"
 	"slices"
 	"strings"
-	"text/template"
 )
 
 // This is a list of functions that Helm imports from Sprig. It is defined in pkg/engine/funcs.go in Helm and calls sprig.TxtFuncMap(), removing
