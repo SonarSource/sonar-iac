@@ -3,11 +3,11 @@ package converters
 import (
 	"fmt"
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
+	parse "github.com/sonarsource/template/parse"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/anypb"
 	"os"
-	"text/template/parse"
 )
 
 var KwBreak = "break"

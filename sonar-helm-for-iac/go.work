@@ -2,4 +2,6 @@ go 1.21.7
 
 use (
 	./src
+	./dependencies/fmtsort
+	./dependencies/template
 )

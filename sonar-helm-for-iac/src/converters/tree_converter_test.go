@@ -2,13 +2,13 @@ package converters
 
 import (
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
+	template "github.com/sonarsource/template"
+	parse "github.com/sonarsource/template/parse"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"strings"
 	"testing"
-	"text/template"
-	"text/template/parse"
 )
 
 type TestConverter struct {
