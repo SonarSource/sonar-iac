@@ -115,6 +115,12 @@ public class KubernetesParser extends YamlParser {
       return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
     }
 
+    var isChartYaml = "Chart.yaml".equals(inputFileContext.inputFile.filename());
+    if (isChartYaml && isInChartRootDirectory(inputFileContext)) {
+      LOG.debug("Helm Chart.yaml file detected, skipping parsing {}", inputFileContext.inputFile);
+      return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+    }
+
     return Optional.empty();
   }
 

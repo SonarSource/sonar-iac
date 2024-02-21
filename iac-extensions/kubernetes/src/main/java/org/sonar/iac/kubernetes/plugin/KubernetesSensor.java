@@ -128,15 +128,16 @@ public class KubernetesSensor extends YamlSensor {
     var helmTemplatePredicate = predicates.and(
       predicates.matchesPathPattern("**/templates/**"),
       new HelmProjectMemberPredicate(sensorContext));
-    var valuesYamlPredicate = predicates.and(
+    var valuesYamlOrChartYamlPredicate = predicates.and(
       predicates.or(
         predicates.matchesPathPattern("**/values.yaml"),
-        predicates.matchesPathPattern("**/values.yml")),
+        predicates.matchesPathPattern("**/values.yml"),
+        predicates.matchesPathPattern("**/Chart.yaml")),
       new HelmProjectMemberPredicate(sensorContext));
     return predicates.or(
       new KubernetesFilePredicate(),
       helmTemplatePredicate,
-      valuesYamlPredicate);
+      valuesYamlOrChartYamlPredicate);
   }
 
   @Override

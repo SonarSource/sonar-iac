@@ -559,4 +559,38 @@ class KubernetesParserTest {
       assertThat(logTester.logs(Level.DEBUG)).doesNotContain("Helm values file detected, skipping parsing chart/templates/" + filename);
     }
   }
+
+  @Test
+  void shouldIgnoreChartYaml() throws URISyntaxException {
+    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      when(inputFile.toString()).thenReturn("chart/Chart.yaml");
+      when(inputFile.filename()).thenReturn("Chart.yaml");
+      when(inputFile.uri()).thenReturn(new URI("file:///chart/Chart.yaml"));
+      when(inputFile.path()).thenReturn(Path.of("/chart/Chart.yaml"));
+      when(fileSystem.baseDir()).thenReturn(new File("/chart"));
+
+      var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
+
+      assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
+      assertThat(logTester.logs(Level.DEBUG)).contains("Helm Chart.yaml file detected, skipping parsing chart/Chart.yaml");
+    }
+  }
+
+  @Test
+  void shouldNotIgnoreChartYamlInTemplatesDir() throws URISyntaxException {
+    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      when(inputFile.toString()).thenReturn("chart/templates/Chart.yaml");
+      when(inputFile.filename()).thenReturn("Chart.yaml");
+      when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/Chart.yaml"));
+      when(inputFile.path()).thenReturn(Path.of("/chart/templates/Chart.yaml"));
+      when(fileSystem.baseDir()).thenReturn(new File("/chart"));
+
+      var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
+
+      assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
+      assertThat(logTester.logs(Level.DEBUG)).doesNotContain("Helm Chart.yaml file detected, skipping parsing chart/Chart.yaml");
+    }
+  }
 }
