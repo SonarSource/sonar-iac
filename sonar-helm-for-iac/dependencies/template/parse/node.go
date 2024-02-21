@@ -20,6 +20,8 @@ var textFormat = "%s" // Changed to "%q" in tests for better error messages.
 type Node interface {
 	Type() NodeType
 	String() string
+	// Value returns original text of the node
+	//Value() string
 	// Copy does a deep copy of the Node and all its components.
 	// To avoid type assertions, some XxxNodes also have specialized
 	// CopyXxx methods that return *XxxNode.
@@ -291,12 +293,13 @@ func (a *ActionNode) Copy() Node {
 type CommandNode struct {
 	NodeType
 	Pos
-	tr   *Tree
-	Args []Node // Arguments in lexical order: Identifier, field, or constant.
+	Value string
+	tr    *Tree
+	Args  []Node // Arguments in lexical order: Identifier, field, or constant.
 }
 
-func (t *Tree) newCommand(pos Pos) *CommandNode {
-	return &CommandNode{tr: t, NodeType: NodeCommand, Pos: pos}
+func (t *Tree) newCommand(pos Pos, value string) *CommandNode {
+	return &CommandNode{tr: t, NodeType: NodeCommand, Pos: pos, Value: value}
 }
 
 func (c *CommandNode) append(arg Node) {
@@ -332,7 +335,7 @@ func (c *CommandNode) Copy() Node {
 	if c == nil {
 		return c
 	}
-	n := c.tr.newCommand(c.Pos)
+	n := c.tr.newCommand(c.Pos, c.Value)
 	for _, c := range c.Args {
 		n.append(c.Copy())
 	}

@@ -686,7 +686,8 @@ func (t *Tree) parseTemplateName(token item, context string) (name string) {
 // space-separated arguments up to a pipeline character or right delimiter.
 // we consume the pipe character but leave the right delim to terminate the action.
 func (t *Tree) command() *CommandNode {
-	cmd := t.newCommand(t.peekNonSpace().pos)
+	it := t.peekNonSpace()
+	cmd := t.newCommand(it.pos, it.val)
 	for {
 		t.peekNonSpace() // skip leading spaces.
 		operand := t.operand()

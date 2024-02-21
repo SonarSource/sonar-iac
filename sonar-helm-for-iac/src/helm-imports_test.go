@@ -20,7 +20,7 @@ package main
 
 import (
 	"fmt"
-	template "github.com/sonarsource/template"
+	"github.com/sonarsource/template"
 	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"

@@ -17,10 +17,10 @@ spotless {
 project(":sonar-helm-for-iac") {
     sonar {
         properties {
-            property("sonar.sources", ".")
+            property("sonar.sources", "./src")
             property("sonar.inclusions", "**/*.go")
             property("sonar.exclusions", "**/build/**,**/org.sonar.iac.helm/**,**/dependencies/**")
-            property("sonar.tests", ".")
+            property("sonar.tests", "./src")
             property("sonar.test.inclusions", "**/*_test.go")
             property("sonar.go.tests.reportPaths", "build/test-report.json")
             property("sonar.go.coverage.reportPaths", "build/test-coverage.out")

@@ -5,7 +5,7 @@
 package template
 
 import (
-	parse "github.com/sonarsource/template/parse"
+	"github.com/sonarsource/template/parse"
 	"reflect"
 	"sync"
 )

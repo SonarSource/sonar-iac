@@ -24,7 +24,7 @@ import (
 	"errors"
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig/v3"
-	template "github.com/sonarsource/template"
+	"github.com/sonarsource/template"
 	"sigs.k8s.io/yaml"
 	"slices"
 	"strings"

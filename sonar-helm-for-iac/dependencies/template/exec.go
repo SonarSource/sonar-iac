@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/sonarsource/fmtsort"
-	parse "github.com/sonarsource/template/parse"
+	"github.com/sonarsource/template/parse"
 	"io"
 	"reflect"
 	"runtime"
