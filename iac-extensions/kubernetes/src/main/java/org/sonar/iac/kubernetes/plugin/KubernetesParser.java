@@ -37,6 +37,7 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
+import static org.sonar.iac.helm.HelmFileSystem.retrieveHelmProjectFolder;
 import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
 
 public class KubernetesParser extends YamlParser {
@@ -110,14 +111,22 @@ public class KubernetesParser extends YamlParser {
 
     var isValuesYaml = "values.yaml".equals(inputFileContext.inputFile.filename()) ||
       "values.yml".equals(inputFileContext.inputFile.filename());
-    if (isValuesYaml && isInChartRootDirectory(inputFileContext)) {
+    var isInChartRootDirectory = isInChartRootDirectory(inputFileContext);
+    if (isValuesYaml && isInChartRootDirectory) {
       LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
       return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
     }
 
     var isChartYaml = "Chart.yaml".equals(inputFileContext.inputFile.filename());
-    if (isChartYaml && isInChartRootDirectory(inputFileContext)) {
+    if (isChartYaml && isInChartRootDirectory) {
       LOG.debug("Helm Chart.yaml file detected, skipping parsing {}", inputFileContext.inputFile);
+      return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+    }
+
+    var isTplFile = inputFileContext.inputFile.filename().endsWith(".tpl");
+
+    if (isTplFile && isInChartTemplatesDirectory(inputFileContext)) {
+      LOG.debug("Helm tpl file detected, skipping parsing {}", inputFileContext.inputFile);
       return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
     }
 
@@ -125,10 +134,15 @@ public class KubernetesParser extends YamlParser {
   }
 
   private static boolean isInChartRootDirectory(HelmInputFileContext inputFileContext) {
-    var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(
+    var rootChartDirectory = retrieveHelmProjectFolder(
       Path.of(inputFileContext.inputFile.uri()),
       inputFileContext.sensorContext.fileSystem().baseDir());
     return inputFileContext.inputFile.path().getParent() != null && inputFileContext.inputFile.path().getParent().equals(rootChartDirectory);
+  }
+
+  private static boolean isInChartTemplatesDirectory(HelmInputFileContext inputFileContext) {
+    var helmRootDir = retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()), inputFileContext.sensorContext.fileSystem().baseDir());
+    return helmRootDir != null && inputFileContext.inputFile.path().startsWith(helmRootDir.resolve("templates"));
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
@@ -150,7 +164,7 @@ public class KubernetesParser extends YamlParser {
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {
     var filePath = Path.of(inputFileContext.inputFile.uri());
-    var chartRootDirectory = HelmFileSystem.retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
+    var chartRootDirectory = retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
     String fileRelativePath;
     if (chartRootDirectory == null) {
       fileRelativePath = inputFileContext.inputFile.filename();

@@ -593,4 +593,21 @@ class KubernetesParserTest {
       assertThat(logTester.logs(Level.DEBUG)).doesNotContain("Helm Chart.yaml file detected, skipping parsing chart/Chart.yaml");
     }
   }
+
+  @Test
+  void shouldNotEvaluateTplFiles() throws URISyntaxException {
+    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      when(inputFile.toString()).thenReturn("chart/templates/_helpers.tpl");
+      when(inputFile.filename()).thenReturn("_helpers.tpl");
+      when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/_helpers.tpl"));
+      when(inputFile.path()).thenReturn(Path.of("/chart/templates/_helpers.tpl"));
+      when(fileSystem.baseDir()).thenReturn(new File("/chart"));
+
+      var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
+
+      assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
+      assertThat(logTester.logs(Level.DEBUG)).contains("Helm tpl file detected, skipping parsing chart/templates/_helpers.tpl");
+    }
+  }
 }

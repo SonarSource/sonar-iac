@@ -116,6 +116,13 @@ public class KubernetesSensor extends YamlSensor {
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
+    return predicates.or(
+      yamlHelmFilePredicate(sensorContext),
+      tplHelmFilePredicate(sensorContext));
+  }
+
+  private FilePredicate yamlHelmFilePredicate(SensorContext sensorContext) {
+    FilePredicates predicates = sensorContext.fileSystem().predicates();
     return predicates.and(
       predicates.hasLanguage(YAML_LANGUAGE_KEY),
       predicates.hasType(InputFile.Type.MAIN),
@@ -138,6 +145,14 @@ public class KubernetesSensor extends YamlSensor {
       new KubernetesFilePredicate(),
       helmTemplatePredicate,
       valuesYamlOrChartYamlPredicate);
+  }
+
+  private static FilePredicate tplHelmFilePredicate(SensorContext sensorContext) {
+    FilePredicates predicates = sensorContext.fileSystem().predicates();
+    return predicates.and(
+      predicates.hasType(InputFile.Type.MAIN),
+      predicates.matchesPathPattern("**/templates/*.tpl"),
+      new HelmProjectMemberPredicate(sensorContext));
   }
 
   @Override
