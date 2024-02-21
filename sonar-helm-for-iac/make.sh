@@ -116,20 +116,20 @@ compile_binaries() {
     echo "Building for all supported platforms"
     GOOS="linux"
     GOARCH="amd64"
-    CGO_ENABLED=0 CC=musl-gcc ${path_to_binary} build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 CC=musl-gcc ${path_to_binary} build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
 
     GOOS="windows"
-    CGO_ENABLED=0 GOOS=$GOOS ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 GOOS=$GOOS ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
 
     GOOS="darwin"
     for GOARCH in amd64 arm64; do
-      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}"
+      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}" ./src
     done
   else
     GOOS=$(${path_to_binary} env GOOS)
     GOARCH=$(${path_to_binary} env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    CGO_ENABLED=0 ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH"
+    CGO_ENABLED=0 ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
   fi
 
   verifyLicenseHeader
@@ -140,7 +140,7 @@ generate_test_report() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
   # Test
-  CGO_ENABLED=0 bash -c "${path_to_binary} test ./... -coverprofile=build/test-coverage.out -json > build/test-report.out"
+  CGO_ENABLED=0 bash -c "${path_to_binary} test ./src/... -coverprofile=build/test-coverage.out -json > build/test-report.json"
 }
 
 
@@ -159,7 +159,7 @@ main() {
       ;;
     clean)
       rm -f build/executable/sonar-helm-for-iac-*
-      rm -f test-report.out
+      rm -f test-report.json
       ;;
     *)
       echo "Unrecognized command ${command}" >&2

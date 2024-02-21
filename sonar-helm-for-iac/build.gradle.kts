@@ -24,11 +24,11 @@ if (isCi) {
         group = "build"
 
         inputs.files("template-evaluation.proto", "ast.proto")
-        outputs.files("org.sonar.iac.helm/template_evaluation.pb.go", "org.sonar.iac.helm/ast.pb.go")
+        outputs.files("src/org.sonar.iac.helm/template_evaluation.pb.go", "src/org.sonar.iac.helm/ast.pb.go")
         outputs.cacheIf { true }
 
         commandLine("protoc", "-I=${project.projectDir}", "-I=${System.getProperty("user.home")}/go/protobuf/include",
-            "--go_out=${project.projectDir}", "${project.projectDir}/template-evaluation.proto", "${project.projectDir}/ast.proto")
+            "--go_out=${project.projectDir}/src", "${project.projectDir}/template-evaluation.proto", "${project.projectDir}/ast.proto")
     }
 
     // Define and trigger tasks in this order: clean, compile and test go code
@@ -47,8 +47,10 @@ if (isCi) {
         inputs.files(fileTree(projectDir).matching {
             include("*.go",
             "**/*.go",
-            "go.mod",
-            "go.sum",
+            "**/go.mod",
+            "**/go.sum",
+            "go.work",
+            "go.work.sum",
             "make.bat",
             "make.sh")
             exclude("build/**")
@@ -154,7 +156,13 @@ if (!isCi) {
         setErrorOutput(System.out)
 
         inputs.files(fileTree(projectDir).matching {
-            include("*.go", "**/*.go", "go.mod", "go.sum","template-evaluation.proto")
+            include("*.go",
+                "**/*.go",
+                "**/go.mod",
+                "**/go.sum",
+                "go.work",
+                "go.work.sum",
+                "template-evaluation.proto")
             exclude("build/**")
         })
         outputs.dir("build/executable")
