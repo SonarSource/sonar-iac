@@ -15,7 +15,7 @@ env:
   GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
   GRADLE_COMMON_FLAGS: --console plain --no-daemon --profile
   
-  GO_VERSION: 1.21.1
+  GO_VERSION: 1.21.7
   GO_CROSS_COMPILE: '1'
   PROTOC_VERSION: 25.0
 
