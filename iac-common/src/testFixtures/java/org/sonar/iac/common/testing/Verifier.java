@@ -114,7 +114,7 @@ public class Verifier {
   public static void verify(TreeParser<Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
     Tree root = parser.parse(content, null);
     var tempFile = contentToTmp(null);
-    List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
+    var actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
@@ -135,7 +135,7 @@ public class Verifier {
 
   public static void verifyNoIssue(Tree root, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
     MultiFileVerifier verifier = createVerifier(path, root);
-    List<Issue> actualIssues = runAnalysis(contextSupplier.apply(verifier), check, root);
+    var actualIssues = runAnalysis(contextSupplier.apply(verifier), check, root);
     compare(actualIssues, Collections.emptyList());
   }
 
@@ -250,6 +250,8 @@ public class Verifier {
       reportIssue(toHighlight.textRange(), message, secondaryLocations);
     }
 
+    // "`contains` method might be a performance bottleneck". Order of added issues is important; moreover, this is the test code.
+    @SuppressWarnings("java:S2250")
     protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       var issue = new Issue(textRange, message, secondaryLocations);
       if (!raisedIssues.contains(issue)) {
@@ -258,7 +260,7 @@ public class Verifier {
 
         // The cast allows us to not know the path of the primaryFile in this reportIssue method, as it's saved privately in the verifier
         // The cast is possible as SingleFileVerifier and MultiFileVerifier are both InternalIssueVerifier under the hood
-        SingleFileVerifier.Issue reportedIssue = ((SingleFileVerifier) verifier)
+        var reportedIssue = ((SingleFileVerifier) verifier)
           .reportIssue(message)
           .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
 
@@ -286,7 +288,7 @@ public class Verifier {
 
     private static void addSecondaryOnDifferentFile(MultiFileVerifier.Issue reportedIssue, SecondaryLocation secondary) {
       reportedIssue.addSecondary(
-        Path.of(secondary.filePath),
+        Path.of(Objects.requireNonNull(secondary.filePath, "Attempt to add secondary on a different file without specifying the file")),
         secondary.textRange.start().line(),
         secondary.textRange.start().lineOffset() + 1,
         secondary.textRange.end().line(),
@@ -413,7 +415,11 @@ public class Verifier {
     }
 
     private static String formatSecondary(SecondaryLocation secondary) {
-      return String.format("secondary(%s, \"%s\")", formatTextRange(secondary.textRange), secondary.message);
+      if (secondary.filePath == null) {
+        return String.format("secondary(%s, \"%s\")", formatTextRange(secondary.textRange), secondary.message);
+      } else {
+        return String.format("secondary(in %s at %s, \"%s\")", secondary.filePath, formatTextRange(secondary.textRange), secondary.message);
+      }
     }
 
     private static String compareIssues(Issue expectedIssue, Issue actualIssue) {
