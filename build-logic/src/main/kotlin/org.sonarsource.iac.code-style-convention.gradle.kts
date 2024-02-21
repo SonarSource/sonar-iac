@@ -19,6 +19,10 @@ spotless {
     kotlinGradle {
         ktlint().setEditorConfigPath("$rootDir/.editorconfig")
     }
+    format("javaMisc") {
+        target("src/**/package-info.java")
+        licenseHeaderFile(rootProject.file("LICENSE_HEADER"), "@javax.annotation").updateYearWithLatest(true)
+    }
 }
 
 tasks.check { dependsOn("spotlessCheck") }
