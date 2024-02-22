@@ -22,21 +22,18 @@ package org.sonar.iac.helm;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.common.extension.ParseException;
 
 public final class HelmFileSystem {
-  private static final Logger LOG = LoggerFactory.getLogger(HelmFileSystem.class);
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
   private final FileSystem fileSystem;
 
@@ -48,8 +45,7 @@ public final class HelmFileSystem {
   public Map<String, InputFile> getRelatedHelmFiles(InputFile inputFile) {
     var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()), fileSystem.baseDir());
     if (helmDirectoryPath == null) {
-      LOG.debug("Failed to resolve Helm project directory for {}", inputFile);
-      return Collections.emptyMap();
+      throw new ParseException("Failed to evaluate Helm file " + inputFile + ": Failed to resolve Helm project directory", null, null);
     }
 
     var additionalHelmFilesPredicate = additionalHelmDependenciesPredicate(inputFile, helmDirectoryPath);
