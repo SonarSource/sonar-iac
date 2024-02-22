@@ -45,15 +45,17 @@ for Docker, in `iac-extensions/docker`,
 for Kubernetes in `iac-extensions/kubernetes` and 
 for Terraform in `iac-extensions/terraform`.
 
+Alternatively, execute Gradle task `ruleApiUpdate` to update rule metadata for all extensions.
+
 ## Build & Test
 
 ### Requirements
-* Java 11
-* Maven
-* Go 1.21
-* musl on Linux (`musl-gcc` should be present on `PATH`)
-* protoc 25.0
-* protoc-gen-go 1.31.0
+* Java 17
+* Go 1.21 and the following dependencies:
+  * musl on Linux (`musl-gcc` should be present on `PATH`)
+  * protoc 25.0
+  * protoc-gen-go 1.31.0
+* Alternatively, Docker should be installed to perform the build of the Go part inside of a container
 
 #### Build and run unit tests:
 ```shell
