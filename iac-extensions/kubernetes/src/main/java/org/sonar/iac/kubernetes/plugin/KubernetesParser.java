@@ -123,9 +123,7 @@ public class KubernetesParser extends YamlParser {
       return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
     }
 
-    var isTplFile = inputFileContext.inputFile.filename().endsWith(".tpl");
-
-    if (isTplFile && isInChartTemplatesDirectory(inputFileContext)) {
+    if (inputFileContext.inputFile.filename().endsWith(".tpl")) {
       LOG.debug("Helm tpl file detected, skipping parsing {}", inputFileContext.inputFile);
       return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
     }
@@ -138,11 +136,6 @@ public class KubernetesParser extends YamlParser {
       Path.of(inputFileContext.inputFile.uri()),
       inputFileContext.sensorContext.fileSystem().baseDir());
     return inputFileContext.inputFile.path().getParent() != null && inputFileContext.inputFile.path().getParent().equals(rootChartDirectory);
-  }
-
-  private static boolean isInChartTemplatesDirectory(HelmInputFileContext inputFileContext) {
-    var helmRootDir = retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()), inputFileContext.sensorContext.fileSystem().baseDir());
-    return helmRootDir != null && inputFileContext.inputFile.path().startsWith(helmRootDir.resolve("templates"));
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {

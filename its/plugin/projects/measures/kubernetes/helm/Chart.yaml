@@ -1,3 +1,5 @@
+# My super Helm Chart
+# for measurements test
 name: plugin-test
 apiVersion: v2
 version: 1.0.0

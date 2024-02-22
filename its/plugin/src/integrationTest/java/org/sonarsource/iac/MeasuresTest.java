@@ -35,7 +35,13 @@ class MeasuresTest extends TestBase {
     "cloudformationYamlMeasures, cloudformation, file1.yaml, 2, 5, 1, 1=1;4=1;5=1;6=1;7=1",
     "cloudformationJsonMeasures, cloudformation, file1.json, 2, 9, 0, 1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;9=1",
     "kubernetesYamlMeasures, kubernetes, file_with_indicators.yml, 6, 10, 1, 1=1;2=1;3=1;4=1;5=1;7=1;8=1;9=1;10=1;11=1",
+    "helmTemplateMeasures, kubernetes, helm/templates/helm_example.yaml, 6, 16, 11, 1=1;2=1;3=1;4=1;5=1;9=1;13=1;14=1;16=1;17=1;18=1;23=1;24=1;25=1;26=1;27=1",
+    "helmTplMeasures, kubernetes, helm/templates/_helpers.tpl, 6, 13, 0, 1=1;2=1;3=1;4=1;5=1;6=1;7=1;9=1;10=1;11=1;12=1;13=1;14=1",
+    "helmChartMeasures, kubernetes, helm/Chart.yaml, 6, 3, 2, 3=1;4=1;5=1",
+    "helmValuesMeasures, kubernetes, helm/values.yaml, 6, 2, 1, 2=1;3=1",
     "dockerMeasures, docker, Dockerfile, 1, 7, 1, 2=1;3=1;4=1;5=1;6=1;7=1;8=1",
+    "armJson, arm, mysql.json, 2, 20, 0, 1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;9=1;10=1;11=1;12=1;13=1;14=1;15=1;16=1;17=1;18=1;19=1;20=1",
+    "armBicep, arm, mysql.bicep, 2, 10, 2, 2=1;3=1;4=1;5=1;6=1;7=1;10=1;11=1;12=1;13=1",
   })
   void testMeasures(String projectKey, String languageKey, String file, int expectedFiles, int expectedNcloc, int expectedCommentLines, String expectedNclocData) {
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, languageKey));
