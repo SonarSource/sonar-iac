@@ -37,6 +37,7 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
+import static org.sonar.iac.helm.HelmFileSystem.retrieveHelmProjectFolder;
 import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
 
 public class KubernetesParser extends YamlParser {
@@ -105,21 +106,38 @@ public class KubernetesParser extends YamlParser {
   private Optional<FileTree> validateInputFileContext(@Nullable HelmInputFileContext inputFileContext) {
     if (inputFileContext == null) {
       LOG.debug("No InputFileContext provided, skipping processing of Helm file");
-      return Optional.ofNullable(super.parse("{}", null, FileTree.Template.HELM));
+      return buildEmptyTree(null);
     }
 
     var isValuesYaml = "values.yaml".equals(inputFileContext.inputFile.filename()) ||
       "values.yml".equals(inputFileContext.inputFile.filename());
-    if (isValuesYaml && isInChartRootDirectory(inputFileContext)) {
+    var isInChartRootDirectory = isInChartRootDirectory(inputFileContext);
+    if (isValuesYaml && isInChartRootDirectory) {
       LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
-      return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+      return buildEmptyTree(inputFileContext);
+    }
+
+    // only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
+    var isChartYaml = "Chart.yaml".equals(inputFileContext.inputFile.filename());
+    if (isChartYaml && isInChartRootDirectory) {
+      LOG.debug("Helm Chart.yaml file detected, skipping parsing {}", inputFileContext.inputFile);
+      return buildEmptyTree(inputFileContext);
+    }
+
+    if (inputFileContext.inputFile.filename().endsWith(".tpl")) {
+      LOG.debug("Helm tpl file detected, skipping parsing {}", inputFileContext.inputFile);
+      return buildEmptyTree(inputFileContext);
     }
 
     return Optional.empty();
   }
 
+  private Optional<FileTree> buildEmptyTree(@Nullable HelmInputFileContext inputFileContext) {
+    return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+  }
+
   private static boolean isInChartRootDirectory(HelmInputFileContext inputFileContext) {
-    var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(
+    var rootChartDirectory = retrieveHelmProjectFolder(
       Path.of(inputFileContext.inputFile.uri()),
       inputFileContext.sensorContext.fileSystem().baseDir());
     return inputFileContext.inputFile.path().getParent() != null && inputFileContext.inputFile.path().getParent().equals(rootChartDirectory);
@@ -144,7 +162,7 @@ public class KubernetesParser extends YamlParser {
 
   private static String getFileRelativePath(InputFileContext inputFileContext) {
     var filePath = Path.of(inputFileContext.inputFile.uri());
-    var chartRootDirectory = HelmFileSystem.retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
+    var chartRootDirectory = retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
     String fileRelativePath;
     if (chartRootDirectory == null) {
       fileRelativePath = inputFileContext.inputFile.filename();

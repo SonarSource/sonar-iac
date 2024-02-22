@@ -485,6 +485,27 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(valuesFile2)).isTrue();
   }
 
+  @Test
+  void shouldDetectChartYamlFile() {
+    var context = SensorContextTester.create(Path.of("src/test/resources").toAbsolutePath());
+    InputFile valuesFile = IacTestUtils.inputFile("helm/Chart.yaml", "yaml");
+    InputFile valuesFile2 = IacTestUtils.inputFile("helm/Chart.yml", "yaml");
+
+    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    assertThat(filePredicate.apply(valuesFile)).isTrue();
+    // only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
+    assertThat(filePredicate.apply(valuesFile2)).isFalse();
+  }
+
+  @Test
+  void shouldDetectTplFile() {
+    var context = SensorContextTester.create(Path.of("src/test/resources").toAbsolutePath());
+    InputFile valuesFile = IacTestUtils.inputFile("helm/templates/_helpers.tpl", (String) null);
+
+    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    assertThat(filePredicate.apply(valuesFile)).isTrue();
+  }
+
   private void assertNotSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }

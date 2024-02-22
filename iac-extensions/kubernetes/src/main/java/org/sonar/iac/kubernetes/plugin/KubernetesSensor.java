@@ -116,27 +116,37 @@ public class KubernetesSensor extends YamlSensor {
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
-    return predicates.and(
-      predicates.hasLanguage(YAML_LANGUAGE_KEY),
-      predicates.hasType(InputFile.Type.MAIN),
+    return predicates.and(predicates.hasType(InputFile.Type.MAIN),
       customFilePredicate(sensorContext));
   }
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
+    return predicates.or(yamlK8sOrHelmFilePredicate(sensorContext), tplHelmFilePredicate(sensorContext));
+  }
+
+  private static FilePredicate yamlK8sOrHelmFilePredicate(SensorContext sensorContext) {
+    FilePredicates predicates = sensorContext.fileSystem().predicates();
     var helmTemplatePredicate = predicates.and(
       predicates.matchesPathPattern("**/templates/**"),
       new HelmProjectMemberPredicate(sensorContext));
-    var valuesYamlPredicate = predicates.and(
-      predicates.or(
-        predicates.matchesPathPattern("**/values.yaml"),
-        predicates.matchesPathPattern("**/values.yml")),
+    var valuesYamlOrChartYamlPredicate = predicates.and(
+      predicates.matchesPathPatterns(new String[] {"**/values.yaml", "**/values.yml", "**/Chart.yaml"}),
       new HelmProjectMemberPredicate(sensorContext));
-    return predicates.or(
-      new KubernetesFilePredicate(),
-      helmTemplatePredicate,
-      valuesYamlPredicate);
+    return predicates.and(
+      predicates.hasLanguage(YAML_LANGUAGE_KEY),
+      predicates.or(
+        new KubernetesFilePredicate(),
+        helmTemplatePredicate,
+        valuesYamlOrChartYamlPredicate));
+  }
+
+  private static FilePredicate tplHelmFilePredicate(SensorContext sensorContext) {
+    FilePredicates predicates = sensorContext.fileSystem().predicates();
+    return predicates.and(
+      predicates.matchesPathPattern("**/templates/*.tpl"),
+      new HelmProjectMemberPredicate(sensorContext));
   }
 
   @Override
