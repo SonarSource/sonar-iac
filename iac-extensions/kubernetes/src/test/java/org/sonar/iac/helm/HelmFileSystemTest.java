@@ -38,9 +38,11 @@ import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -157,10 +159,11 @@ class HelmFileSystemTest {
   }
 
   @Test
-  void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
+  void shouldThrowExceptionWhenNoParentDirectoryCanBeFound() throws IOException {
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    Map<String, InputFile> result = helmFilesystem.getRelatedHelmFiles(helmTemplate);
-    assertThat(result).isEmpty();
+    assertThatThrownBy(() -> helmFilesystem.getRelatedHelmFiles(helmTemplate))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Failed to evaluate Helm file charts/project/templates/pod.yaml: Failed to resolve Helm project directory");
   }
 
   @Test
