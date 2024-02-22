@@ -106,7 +106,7 @@ public class KubernetesParser extends YamlParser {
   private Optional<FileTree> validateInputFileContext(@Nullable HelmInputFileContext inputFileContext) {
     if (inputFileContext == null) {
       LOG.debug("No InputFileContext provided, skipping processing of Helm file");
-      return Optional.ofNullable(super.parse("{}", null, FileTree.Template.HELM));
+      return buildEmptyTree(null);
     }
 
     var isValuesYaml = "values.yaml".equals(inputFileContext.inputFile.filename()) ||
@@ -114,21 +114,26 @@ public class KubernetesParser extends YamlParser {
     var isInChartRootDirectory = isInChartRootDirectory(inputFileContext);
     if (isValuesYaml && isInChartRootDirectory) {
       LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
-      return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+      return buildEmptyTree(inputFileContext);
     }
 
+    // only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
     var isChartYaml = "Chart.yaml".equals(inputFileContext.inputFile.filename());
     if (isChartYaml && isInChartRootDirectory) {
       LOG.debug("Helm Chart.yaml file detected, skipping parsing {}", inputFileContext.inputFile);
-      return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+      return buildEmptyTree(inputFileContext);
     }
 
     if (inputFileContext.inputFile.filename().endsWith(".tpl")) {
       LOG.debug("Helm tpl file detected, skipping parsing {}", inputFileContext.inputFile);
-      return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+      return buildEmptyTree(inputFileContext);
     }
 
     return Optional.empty();
+  }
+
+  private Optional<FileTree> buildEmptyTree(@Nullable HelmInputFileContext inputFileContext) {
+    return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
   }
 
   private static boolean isInChartRootDirectory(HelmInputFileContext inputFileContext) {
