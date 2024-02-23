@@ -131,6 +131,7 @@ func (t *Tree) peekNonSpace() item {
 func New(name string, funcs ...map[string]any) *Tree {
 	return &Tree{
 		Name:  name,
+		Mode:  ParseComments,
 		funcs: funcs,
 	}
 }

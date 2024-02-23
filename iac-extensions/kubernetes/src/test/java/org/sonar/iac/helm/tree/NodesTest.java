@@ -34,6 +34,7 @@ import org.sonar.iac.helm.tree.impl.BoolNodeImpl;
 import org.sonar.iac.helm.tree.impl.BreakNodeImpl;
 import org.sonar.iac.helm.tree.impl.ChainNodeImpl;
 import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
+import org.sonar.iac.helm.tree.impl.CommentNodeImpl;
 import org.sonar.iac.helm.tree.impl.ContinueNodeImpl;
 import org.sonar.iac.helm.tree.impl.DotNodeImpl;
 import org.sonar.iac.helm.tree.impl.FieldNodeImpl;
@@ -104,6 +105,16 @@ class NodesTest {
     Assertions.assertThat(commandNode.location().length()).isEqualTo(5);
     Assertions.assertThat(commandNode.type()).isEqualTo(NodeType.NODE_COMMAND);
     Assertions.assertThat(commandNode.arguments()).isEqualTo(arguments);
+  }
+
+  @Test
+  void shouldBuildCommentNode() {
+    var commentNode = new CommentNodeImpl(1, 5, "/* foo */");
+
+    Assertions.assertThat(commentNode.location().position()).isEqualTo(1);
+    Assertions.assertThat(commentNode.location().length()).isEqualTo(5);
+    Assertions.assertThat(commentNode.type()).isEqualTo(NodeType.NODE_COMMENT);
+    Assertions.assertThat(commentNode.text()).isEqualTo("/* foo */");
   }
 
   @Test

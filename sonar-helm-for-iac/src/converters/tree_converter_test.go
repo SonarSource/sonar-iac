@@ -3,7 +3,6 @@ package converters
 import (
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
 	"github.com/sonarsource/template"
-	"github.com/sonarsource/template/parse"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -46,10 +45,7 @@ func Test_convert_simple(t *testing.T) {
 	assert.Equal(t, pbstructs.NodeType_NodeDot, arg.NodeType)
 }
 
-// By default, `text/template` does not add comments into the AST. To change this, `text/template.Tree` has a `Mode` field
-// which can be set to `parse.ParseComments`. It can't be done from `text/template` directly, only in `text/template/parse`.
-// This test describes the existing behavior until we need to change it.
-func Test_comments_are_ignored(t *testing.T) {
+func Test_convert_comment(t *testing.T) {
 	code := "{{/* comment */}}"
 	tpl, _ := template.New("test").Parse(code)
 	ctx := ConversionContext{
@@ -57,27 +53,13 @@ func Test_comments_are_ignored(t *testing.T) {
 		Converter: converter,
 	}
 	node := ctx.Convert(tpl.Root).(*pbstructs.ListNode)
-	assert.Equal(t, 0, len(node.Nodes))
-}
-
-// This test shows how to enable comments in the AST.
-func Test_convert_comments(t *testing.T) {
-	code := "{{/* comment */}}"
-	tree := parse.New("test")
-	tree.Mode = parse.ParseComments
-	tree, _ = tree.Parse(code, "", "", make(map[string]*parse.Tree))
-	ctx := ConversionContext{
-		Content:   code,
-		Converter: converter,
-	}
-
-	node := ctx.Convert(tree.Root).(*pbstructs.ListNode)
-
 	assert.Equal(t, 1, len(node.Nodes))
 	n1, _ := anypb.UnmarshalNew(node.Nodes[0], proto.UnmarshalOptions{})
 	assert.True(t, strings.HasSuffix(node.Nodes[0].TypeUrl, "CommentNode"))
 	commentNode := n1.(*pbstructs.CommentNode)
 	assert.Equal(t, "/* comment */", *commentNode.Text)
+	assert.Equal(t, int64(2), commentNode.Pos)
+	assert.Equal(t, int64(13), commentNode.Length)
 }
 
 func Test_TreeConvert_simple_dot(t *testing.T) {
@@ -116,20 +98,25 @@ func Test_TreeConvert_define_and_template(t *testing.T) {
 
 	tree := converter.ConvertTree(code, tpl.Tree)
 
-	basicTreeAsserts(t, tree, "test-define-and-template", 21, 29, 3)
+	basicTreeAsserts(t, tree, "test-define-and-template", 44, 5, 4)
 
 	n, _ := anypb.UnmarshalNew(tree.Root.Nodes[0], proto.UnmarshalOptions{})
-	textNode := n.(*pbstructs.TextNode)
-	// Note: comment and `define` nodes are not present in the AST
-	assert.Equal(t, int64(80), textNode.Pos)
+	commentNode := n.(*pbstructs.CommentNode)
+	assert.Equal(t, int64(5), commentNode.Pos)
+
+	// Note: `define` is not present in the AST
 
 	n, _ = anypb.UnmarshalNew(tree.Root.Nodes[1], proto.UnmarshalOptions{})
+	textNode := n.(*pbstructs.TextNode)
+	assert.Equal(t, int64(80), textNode.Pos)
+
+	n, _ = anypb.UnmarshalNew(tree.Root.Nodes[2], proto.UnmarshalOptions{})
 	templateNode := n.(*pbstructs.TemplateNode)
 	assert.Equal(t, int64(94), templateNode.Pos)
 	assert.Equal(t, "foo", *templateNode.Name)
 	assert.Nil(t, templateNode.Pipe)
 
-	n, _ = anypb.UnmarshalNew(tree.Root.Nodes[2], proto.UnmarshalOptions{})
+	n, _ = anypb.UnmarshalNew(tree.Root.Nodes[3], proto.UnmarshalOptions{})
 	textNode = n.(*pbstructs.TextNode)
 	assert.Equal(t, int64(102), textNode.Pos)
 }
