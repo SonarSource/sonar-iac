@@ -19,6 +19,14 @@ type item struct {
 	line int      // The line number at the start of this item.
 }
 
+func (i item) length() int {
+	return len(i.val)
+}
+
+func (i item) getLocation() Location {
+	return Location{i.pos, i.length()}
+}
+
 func (i item) String() string {
 	switch {
 	case i.typ == itemEOF:

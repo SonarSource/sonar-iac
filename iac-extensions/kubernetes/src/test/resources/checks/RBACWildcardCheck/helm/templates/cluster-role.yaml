@@ -7,7 +7,9 @@ rules:
   - apiGroups:
       - custom.metrics.k8s.io
     resources: # Noncompliant
+#^[sc=0;ec=29]
       - '*'
 # Noncompliant@+1
     verbs: [{{ .Values.rule.verb | quote }}]
+#                     ^^^^^^^^^^
 {{- end -}}

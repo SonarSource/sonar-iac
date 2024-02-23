@@ -6,5 +6,7 @@ spec:
   containers:
     - name: {{ .Values.container.name }}
       securityContext:
+# Noncompliant@+1
         privileged: {{ .Values.container.privileged }}
+#                             ^^^^^^^^^^^^^^^^^^^^^
       image: nginx

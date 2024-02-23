@@ -11,7 +11,7 @@ spec:
         capabilities:
 # Noncompliant@+1
           add: {{ .Values.capabilities | toYaml | nindent 10 }}
-#                        ^^^^^^^^^^^^^^^^^^^^
+#                        ^^^^^^^^^^^^^
 ---
 apiVersion: v1
 kind: Pod
@@ -26,7 +26,7 @@ spec:
         capabilities:
 # Noncompliant@+1
           add: {{ .Values.capabilities | toYaml | nindent 10 }}
-#                        ^^^^^^^^^^^^^^^^^^^^
+#                        ^^^^^^^^^^^^^
 ---
 apiVersion: v1
 kind: Pod
@@ -43,7 +43,7 @@ spec:
           add:
 # Noncompliant@+1
           {{- range .Values.capabilities }}
-#                          ^^^^^^^^^^^^^^^^
+#                          ^^^^^^^^^^^^^
             - {{ . | quote }}
           {{- end }}
       {{- end }}

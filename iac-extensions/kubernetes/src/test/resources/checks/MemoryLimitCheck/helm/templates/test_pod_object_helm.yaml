@@ -5,6 +5,7 @@ metadata:
 spec:
   containers:
     - name: {{ .Values.container.name }} # Noncompliant
+#                     ^^^^^^^^^^^^^^^
       image: nginx
       resources:
         requests:

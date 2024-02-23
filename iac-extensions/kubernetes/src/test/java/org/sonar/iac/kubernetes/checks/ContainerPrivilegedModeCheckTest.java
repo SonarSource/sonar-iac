@@ -35,4 +35,9 @@ class ContainerPrivilegedModeCheckTest {
   void testTemplateObject() {
     KubernetesVerifier.verify("ContainerPrivilegedModeCheck/test_template_object.yaml", check);
   }
+
+  @Test
+  void testPodInHelm() {
+    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/helm/templates/test_pod_object_helm.yaml", check);
+  }
 }
