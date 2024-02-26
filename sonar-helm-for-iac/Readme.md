@@ -7,12 +7,22 @@ It is a small glue code for re-use the implementation of Helm Charts templates e
 
 ## Requirements
 * Docker
+* CA certificate for FortiClient traffic inspection
 
 ## The build
 
 ### Build Docker Image
+
+Building the docker image locally requires the traffic inspection certificate to be located next to the Dockerfile.
+
 ```shell
 ../gradlew :sonar-helm-for-iac:buildDockerImage
+```
+
+In case you system does not require the certificate for traffic inspection you can use the property `-DbuildEnd=ci`.
+
+```shell
+../gradlew -DbuildEnd=ci :sonar-helm-for-iac:buildDockerImage
 ```
 
 ### Execute Docker Image, generating Go code, build Go binaries, executing tests, validate license headers
