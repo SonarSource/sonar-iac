@@ -85,6 +85,9 @@ public class KubernetesSensor extends YamlSensor {
     descriptor
       .onlyOnLanguages(YAML_LANGUAGE_KEY)
       .name("IaC " + language.getName() + " Sensor");
+
+    // Note: KubernetesSensor shouldn't call `descriptor.processesFilesIndependently()` or `super.describe(descriptor)`,
+    // otherwise Helm analysis won't receive all file updates in PR analysis.
   }
 
   @Override
