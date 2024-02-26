@@ -108,7 +108,7 @@ public abstract class TestBase {
       .setProjectName(projectKey)
       .setProjectVersion("1")
       .setSourceDirs(".")
-      .setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx3G");
+      .setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx4G");
   }
 
   protected Measure getMeasure(String projectKey, String metricKey) {
