@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.tree.api.FieldNode;
@@ -38,7 +39,7 @@ public final class GoTemplateAstHelper {
     // utility class
   }
 
-  public static List<ValuePath> findNodes(GoTemplateTree tree, TextRange range, String sourceText) {
+  public static Stream<FieldNode> findValuePathNodes(GoTemplateTree tree, TextRange range, String sourceText) {
     var location = LocationImpl.fromTextRange(range, sourceText);
     var nodes = tree.root().children().stream()
       .filter(hasOverlayingLocation(location))
@@ -47,7 +48,11 @@ public final class GoTemplateAstHelper {
     return allChildren(nodes).stream()
       .filter(FieldNode.class::isInstance)
       .filter(hasOverlayingLocation(location))
-      .map(FieldNode.class::cast)
+      .map(FieldNode.class::cast);
+  }
+
+  public static List<ValuePath> findValuePaths(GoTemplateTree tree, TextRange range, String sourceText) {
+    return findValuePathNodes(tree, range, sourceText)
       .map(FieldNode::identifiers)
       .map(ValuePath::new)
       .collect(Collectors.toList());

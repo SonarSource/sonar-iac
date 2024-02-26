@@ -67,7 +67,7 @@ class GoTemplateAstHelperTest {
     ListNodeImpl root = new ListNodeImpl(0, 57, List.of(textNode1, actionNode, textNode2));
     var goTemplateTree = new GoTemplateTreeImpl("name", "name", 0, root);
 
-    var actual = GoTemplateAstHelper.findNodes(
+    var actual = GoTemplateAstHelper.findValuePaths(
       goTemplateTree,
       textRange,
       sourceCode);
@@ -94,7 +94,7 @@ class GoTemplateAstHelperTest {
     ListNodeImpl root = new ListNodeImpl(0, 113, List.of(actionNode, textNode));
     var goTemplateTree = new GoTemplateTreeImpl("name", "name", 0, root);
 
-    var actual = GoTemplateAstHelper.findNodes(
+    var actual = GoTemplateAstHelper.findValuePaths(
       goTemplateTree,
       range(1, 0, 1, 108),
       sourceCode);
@@ -122,7 +122,7 @@ class GoTemplateAstHelperTest {
     ListNodeImpl root = new ListNodeImpl(0, 14, List.of(textNode1, actionNode, actionNode2, textNode2));
     var goTemplateTree = new GoTemplateTreeImpl("name", "name", 0, root);
 
-    var actual = GoTemplateAstHelper.findNodes(
+    var actual = GoTemplateAstHelper.findValuePaths(
       goTemplateTree,
       range(2, 2, 2, 45),
       sourceCode);

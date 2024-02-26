@@ -30,6 +30,8 @@ public class LocationImpl implements Location {
 
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
   private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\Z|\\r\\n|[" + NEW_LINE + "])");
+  private static final String LINE_CONTENT_GROUP = "lineContent";
+  private static final String NEW_LINE_GROUP = "newLine";
 
   private final int position;
 
@@ -92,8 +94,8 @@ public class LocationImpl implements Location {
       throw new IllegalArgumentException(message);
     }
     moveToNextLine(matcher);
-    var lineContent = matcher.group("lineContent");
-    var newLine = matcher.group("newLine");
+    var lineContent = matcher.group(LINE_CONTENT_GROUP);
+    var newLine = matcher.group(NEW_LINE_GROUP);
     var newLineLength = newLine.length();
 
     if (textPointer.lineOffset() > lineContent.length() + newLineLength) {
@@ -107,8 +109,8 @@ public class LocationImpl implements Location {
     var positionCounter = 0;
     for (var i = 1; i < lineNumber; i++) {
       if (matcher.find()) {
-        var lineContent = matcher.group("lineContent");
-        var newLine = matcher.group("newLine");
+        var lineContent = matcher.group(LINE_CONTENT_GROUP);
+        var newLine = matcher.group(NEW_LINE_GROUP);
         var newLineLength = newLine.length();
         positionCounter = positionCounter + lineContent.length() + newLineLength;
       } else {
@@ -123,5 +125,49 @@ public class LocationImpl implements Location {
     if (!matcher.find()) {
       throw new IllegalArgumentException("Unable to calculate position from TextRange, no next line");
     }
+  }
+
+  public TextRange toTextRange(String sourceCode) {
+    var start = toTextPointer(position, sourceCode);
+    var end = toTextPointer(position + length, sourceCode);
+    return new TextRange(start, end);
+  }
+
+  private static TextPointer toTextPointer(int position, String sourceCode) {
+    var matcher = LINE_PATTERN.matcher(sourceCode);
+    var lineCounter = 1;
+    var positionCounter = 0;
+
+    var lineContent = "";
+    var newLine = "";
+    var foundLineNumber = false;
+    while (matcher.find()) {
+      lineContent = matcher.group(LINE_CONTENT_GROUP);
+      newLine = matcher.group(NEW_LINE_GROUP);
+      if (lineContent.isEmpty() && newLine.isEmpty()) {
+        break;
+      }
+      var newPositionCounter = positionCounter + lineContent.length() + newLine.length();
+      if (newPositionCounter > position) {
+        foundLineNumber = true;
+        break;
+      }
+      if (newPositionCounter == position) {
+        if (!newLine.isEmpty()) {
+          lineCounter++;
+          positionCounter = newPositionCounter;
+        }
+        foundLineNumber = true;
+        break;
+      }
+      lineCounter++;
+      positionCounter = newPositionCounter;
+    }
+    if (!foundLineNumber) {
+      var message = String.format("The position %s is too big for text length %s", position, sourceCode.length());
+      throw new IllegalArgumentException(message);
+    }
+
+    return new TextPointer(lineCounter, position - positionCounter);
   }
 }

@@ -19,11 +19,15 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -31,14 +35,24 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.tree.api.FieldNode;
+import org.sonar.iac.helm.tree.api.GoTemplateTree;
+import org.sonar.iac.helm.tree.api.Location;
+import org.sonar.iac.helm.tree.impl.LocationImpl;
+import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 
 public class AdjustableChecksVisitor extends ChecksVisitor {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AdjustableChecksVisitor.class);
+
   /**
-   * TODO SONARIAC-1301: Until values.yaml is published, there is no sense in enabling secondary locations in values.yaml
+   * TODO SONARIAC-1352 Remove property "secondaryLocationsInValuesEnable"
    */
   protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm.secondaryLocationsInValuesEnable";
   private final LocationShifter locationShifter;
@@ -79,6 +93,8 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       if (textRange != null) {
         shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
 
+        shiftedTextRange = convertToHelmValuePathTextRange(shiftedTextRange);
+
         boolean isReportingEnabled = currentCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
         if (isReportingEnabled || shouldReportSecondaryInValues()) {
           enhancedAndAdjustedSecondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
@@ -90,6 +106,25 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
 
       enhancedAndAdjustedSecondaryLocations.addAll(shiftedSecondaryLocations);
       currentCtx.reportIssue(ruleKey, shiftedTextRange, message, enhancedAndAdjustedSecondaryLocations);
+    }
+
+    private TextRange convertToHelmValuePathTextRange(TextRange shiftedTextRange) {
+      if (currentCtx instanceof HelmInputFileContext) {
+        var goTemplateTree = ((HelmInputFileContext) currentCtx).getGoTemplateTree();
+        if (goTemplateTree != null) {
+          try {
+            var contents = currentCtx.inputFile.contents();
+            var valuePathNodes = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, shiftedTextRange, contents);
+            var textRanges = valuePathNodes.map(FieldNode::location)
+              .map(location -> location.toTextRange(contents))
+              .collect(Collectors.toList());
+            return TextRanges.merge(textRanges);
+          } catch (IOException e) {
+            LOG.debug("Unable to read file {} raising issue on less precise location", currentCtx.inputFile);
+          }
+        }
+      }
+      return shiftedTextRange;
     }
 
     @Override

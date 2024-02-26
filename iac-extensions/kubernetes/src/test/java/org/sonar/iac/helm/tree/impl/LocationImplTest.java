@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -73,12 +72,26 @@ class LocationImplTest {
   }
 
   @Test
+  void shouldConvertToTextRangeFirstLine() {
+    var location = new LocationImpl(0, 5);
+    assertThat(location.toTextRange(TEXT))
+      .hasRange(1, 0, 1, 5);
+  }
+
+  @Test
   void shouldConvertToLocationSecondLine() {
     var range = range(2, 0, 2, 11);
     var location = fromTextRange(range, TEXT);
     assertThat(location).on(TEXT)
       .isEqualTo("line 2 some")
       .hasLocation(6, 11);
+  }
+
+  @Test
+  void shouldConvertToTextRangeSecondLine() {
+    var location = new LocationImpl(6, 11);
+    assertThat(location.toTextRange(TEXT))
+      .hasRange(2, 0, 2, 11);
   }
 
   @Test
@@ -91,6 +104,13 @@ class LocationImplTest {
   }
 
   @Test
+  void shouldConvertToTextRangeSecondLineStartLineOffsetIsThree() {
+    var location = new LocationImpl(9, 8);
+    assertThat(location.toTextRange(TEXT))
+      .hasRange(2, 3, 2, 11);
+  }
+
+  @Test
   void shouldConvertToLocationLastLine() {
     var range = range(3, 1, 3, 17);
     var location = fromTextRange(range, TEXT);
@@ -100,12 +120,26 @@ class LocationImplTest {
   }
 
   @Test
+  void shouldConvertToTextRangeLastLine() {
+    var location = new LocationImpl(24, 16);
+    assertThat(location.toTextRange(TEXT))
+      .hasRange(3, 1, 3, 17);
+  }
+
+  @Test
   void shouldConvertToLocationFirstAndSecondLine() {
     var range = range(1, 0, 2, 7);
     var location = fromTextRange(range, TEXT);
     assertThat(location).on(TEXT)
       .isEqualTo("line1\nline 2 ")
       .hasLocation(0, 13);
+  }
+
+  @Test
+  void shouldConvertToTextRangeAndSecondLine() {
+    var location = new LocationImpl(0, 13);
+    assertThat(location.toTextRange(TEXT))
+      .hasRange(1, 0, 2, 7);
   }
 
   @Test
@@ -120,9 +154,48 @@ class LocationImplTest {
   }
 
   @Test
+  void shouldConvertToTextRangeFirstToThirdLine() {
+    var location = new LocationImpl(0, 33);
+    assertThat(location.toTextRange(TEXT))
+      .hasRange(1, 0, 3, 10);
+  }
+
+  @Test
+  void shouldConvertToLocationWholeText() {
+    var range = range(1, 0, 3, 17);
+    var location = fromTextRange(range, TEXT);
+    assertThat(location).on(TEXT)
+      .isEqualTo("line1\n" +
+        "line 2 some text\n" +
+        "line 3 extra text")
+      .hasLocation(0, 40);
+  }
+
+  @Test
+  void shouldConvertToTextRangeWholeText() {
+    var location = new LocationImpl(0, 40);
+    assertThat(location.toTextRange(TEXT))
+      .hasRange(1, 0, 3, 17);
+  }
+
+  @Test
   void shouldThrowExceptionWhenStartLineNumberDoesntExist() {
     var range = range(4, 0, 4, 1);
     assertThatThrownBy(() -> fromTextRange(range, TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenStartPositionDoesntExist() {
+    var location = new LocationImpl(TEXT.length() + 1, 0);
+    assertThatThrownBy(() -> location.toTextRange(TEXT))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenEndPositionDoesntExist() {
+    var location = new LocationImpl(0, TEXT.length() + 1);
+    assertThatThrownBy(() -> location.toTextRange(TEXT))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -162,9 +235,16 @@ class LocationImplTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenEmptyText() {
+  void shouldThrowExceptionTextRangeWhenEmptyText() {
     var range = range(2, 0, 2, 10);
     assertThatThrownBy(() -> fromTextRange(range, ""))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionLocationWhenEmptyText() {
+    var location = new LocationImpl(0, 1);
+    assertThatThrownBy(() -> location.toTextRange(""))
       .isInstanceOf(IllegalArgumentException.class);
   }
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.helm.tree.api;
 
+import org.sonar.iac.common.api.tree.impl.TextRange;
+
 /**
  * Location represents the location of a node in the input file.
  */
@@ -33,4 +35,11 @@ public interface Location {
    * @return the length of the code fragment in the input file
    */
   int length();
+
+  /**
+   * Converts the location to {@link TextRange} for provided source code as parameter
+   * @return the {@link TextRange} representation
+   */
+  TextRange toTextRange(String sourceCode);
+
 }

@@ -62,7 +62,7 @@ public class SecondaryLocationLocator {
     }
     var secondaryLocations = new ArrayList<SecondaryLocation>();
     try {
-      var valuePaths = GoTemplateAstHelper.findNodes(ast, primaryLocationTextRange, inputFileContext.inputFile.contents());
+      var valuePaths = GoTemplateAstHelper.findValuePaths(ast, primaryLocationTextRange, inputFileContext.inputFile.contents());
       for (ValuePath valuePath : valuePaths) {
         var secondaryTextRange = toTextRangeInValuesFile(valuePath, inputFileContext);
         if (secondaryTextRange != null) {
