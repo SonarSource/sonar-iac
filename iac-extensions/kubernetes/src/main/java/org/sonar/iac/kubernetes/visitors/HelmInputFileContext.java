@@ -33,6 +33,8 @@ public class HelmInputFileContext extends InputFileContext {
   @Nullable
   private GoTemplateTree goTemplateTree;
   private Map<String, InputFile> additionalFiles = new HashMap<>();
+  @Nullable
+  private String sourceWithComments;
 
   public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile) {
     super(sensorContext, inputFile);
@@ -62,5 +64,14 @@ public class HelmInputFileContext extends InputFileContext {
 
   public void setGoTemplateTree(@Nullable GoTemplateTree goTemplateTree) {
     this.goTemplateTree = goTemplateTree;
+  }
+
+  public void setSourceWithComments(String sourceWithComments) {
+    this.sourceWithComments = sourceWithComments;
+  }
+
+  @CheckForNull
+  public String getSourceWithComments() {
+    return sourceWithComments;
   }
 }

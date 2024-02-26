@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,16 +34,12 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.tree.api.FieldNode;
-import org.sonar.iac.helm.tree.api.GoTemplateTree;
-import org.sonar.iac.helm.tree.api.Location;
-import org.sonar.iac.helm.tree.impl.LocationImpl;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 
 public class AdjustableChecksVisitor extends ChecksVisitor {
@@ -111,14 +106,20 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
     private TextRange convertToHelmValuePathTextRange(TextRange shiftedTextRange) {
       if (currentCtx instanceof HelmInputFileContext) {
         var goTemplateTree = ((HelmInputFileContext) currentCtx).getGoTemplateTree();
-        if (goTemplateTree != null) {
+        var sourceWithComments = ((HelmInputFileContext) currentCtx).getSourceWithComments();
+        if (goTemplateTree != null && sourceWithComments != null) {
           try {
             var contents = currentCtx.inputFile.contents();
-            var valuePathNodes = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, shiftedTextRange, contents);
+            // The go template tree contains locations aligned to source code with additional trailing line numbers comments
+            var valuePathNodes = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, shiftedTextRange, sourceWithComments);
             var textRanges = valuePathNodes.map(FieldNode::location)
-              .map(location -> location.toTextRange(contents))
+              .map(location -> location.toTextRange(sourceWithComments))
               .collect(Collectors.toList());
-            return TextRanges.merge(textRanges);
+            if (!textRanges.isEmpty()) {
+              // The text range may be too big, so it needs to be adjusted to the original source code
+              //TODO: When SONARIAC-1337 wil be implemented maybe this will be not needed anymore.
+              return TextRanges.merge(textRanges).trimToText(contents);
+            }
           } catch (IOException e) {
             LOG.debug("Unable to read file {} raising issue on less precise location", currentCtx.inputFile);
           }
