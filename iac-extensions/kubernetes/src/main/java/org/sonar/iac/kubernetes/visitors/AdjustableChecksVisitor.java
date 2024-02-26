@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,31 +96,31 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       }
       List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
         .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
-        .collect(Collectors.toList());
+        .toList();
 
       enhancedAndAdjustedSecondaryLocations.addAll(shiftedSecondaryLocations);
       currentCtx.reportIssue(ruleKey, shiftedTextRange, message, enhancedAndAdjustedSecondaryLocations);
     }
 
     private TextRange convertToHelmValuePathTextRange(TextRange shiftedTextRange) {
-      if (currentCtx instanceof HelmInputFileContext) {
-        var goTemplateTree = ((HelmInputFileContext) currentCtx).getGoTemplateTree();
-        var sourceWithComments = ((HelmInputFileContext) currentCtx).getSourceWithComments();
+      if (currentCtx instanceof HelmInputFileContext helmContext) {
+        var goTemplateTree = helmContext.getGoTemplateTree();
+        var sourceWithComments = helmContext.getSourceWithComments();
         if (goTemplateTree != null && sourceWithComments != null) {
           try {
-            var contents = currentCtx.inputFile.contents();
+            var contents = helmContext.inputFile.contents();
             // The go template tree contains locations aligned to source code with additional trailing line numbers comments
             var valuePathNodes = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, shiftedTextRange, sourceWithComments);
             var textRanges = valuePathNodes.map(FieldNode::location)
               .map(location -> location.toTextRange(sourceWithComments))
-              .collect(Collectors.toList());
+              .toList();
             if (!textRanges.isEmpty()) {
               // The text range may be too big, so it needs to be adjusted to the original source code
-              //TODO: When SONARIAC-1337 wil be implemented maybe this will be not needed anymore.
-              return TextRanges.merge(textRanges).trimToText(contents);
+              // TODO: When SONARIAC-1337 wil be implemented maybe this will be not needed anymore.
+              return TextRanges.merge(textRanges).trimEndToText(contents);
             }
           } catch (IOException e) {
-            LOG.debug("Unable to read file {} raising issue on less precise location", currentCtx.inputFile);
+            LOG.debug("Unable to read file {} raising issue on less precise location", helmContext.inputFile);
           }
         }
       }

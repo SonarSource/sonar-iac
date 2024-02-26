@@ -47,35 +47,35 @@ class TextRangeTest {
   @Test
   void shouldTrimToTextWhenRangeIsBigger() {
     TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
-    IacCommonAssertions.assertThat(range.trimToText("12345"))
+    IacCommonAssertions.assertThat(range.trimEndToText("12345"))
       .hasRange(1, 0, 1, 5);
   }
 
   @Test
   void shouldTrimToTextWhenRangeIsSmaller() {
     TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 3));
-    IacCommonAssertions.assertThat(range.trimToText("12345"))
+    IacCommonAssertions.assertThat(range.trimEndToText("12345"))
       .hasRange(1, 0, 1, 3);
   }
 
   @Test
   void shouldTrimToTextWhenRangeIsBiggerInLine2() {
     TextRange range = new TextRange(new TextPointer(2, 0), new TextPointer(2, 10));
-    IacCommonAssertions.assertThat(range.trimToText("a\n12345"))
+    IacCommonAssertions.assertThat(range.trimEndToText("a\n12345"))
       .hasRange(2, 0, 2, 5);
   }
 
   @Test
   void shouldThrowExceptionWhenLineNumberIsTooBig() {
     TextRange range = new TextRange(new TextPointer(2, 0), new TextPointer(2, 10));
-    assertThatThrownBy(() -> range.trimToText("123"))
+    assertThatThrownBy(() -> range.trimEndToText("123"))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void shouldTrimToTextWhenRangeIsBiggerAndTextContainsMoreLines() {
     TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
-    IacCommonAssertions.assertThat(range.trimToText("12345\n123"))
+    IacCommonAssertions.assertThat(range.trimEndToText("12345\n123"))
       .hasRange(1, 0, 1, 5);
   }
 }

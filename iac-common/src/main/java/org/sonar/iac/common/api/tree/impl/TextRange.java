@@ -65,7 +65,7 @@ public class TextRange {
     return "[" + start.line() + ":" + start.lineOffset() + "/" + end.line() + ":" + end.lineOffset() + "]";
   }
 
-  public TextRange trimToText(String content) {
+  public TextRange trimEndToText(String content) {
     var matcher = LINE_PATTERN.matcher(content);
     var lineCounter = 1;
     var foundEndLine = false;

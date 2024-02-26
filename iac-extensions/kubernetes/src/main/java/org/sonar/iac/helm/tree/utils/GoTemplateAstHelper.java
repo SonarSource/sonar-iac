@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -43,7 +42,7 @@ public final class GoTemplateAstHelper {
     var location = LocationImpl.fromTextRange(range, sourceText);
     var nodes = tree.root().children().stream()
       .filter(hasOverlayingLocation(location))
-      .collect(Collectors.toList());
+      .toList();
 
     return allChildren(nodes).stream()
       .filter(FieldNode.class::isInstance)
@@ -55,7 +54,7 @@ public final class GoTemplateAstHelper {
     return findValuePathNodes(tree, range, sourceText)
       .map(FieldNode::identifiers)
       .map(ValuePath::new)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static Predicate<Node> hasOverlayingLocation(Location location) {
