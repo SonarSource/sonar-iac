@@ -65,6 +65,12 @@ public class TextRange {
     return "[" + start.line() + ":" + start.lineOffset() + "/" + end.line() + ":" + end.lineOffset() + "]";
   }
 
+  /**
+   * If the {@link TextRange} is longer than the line length then the new {@link TextRange} is returned with the
+   * adjustment to the end line length.
+   * @param content the text on witch adjustment is calculated
+   * @return new adjusted {@link TextRange}
+   */
   public TextRange trimEndToText(String content) {
     var matcher = LINE_PATTERN.matcher(content);
     var lineCounter = 1;
@@ -87,8 +93,7 @@ public class TextRange {
       throw new IllegalArgumentException(message);
     }
     var lineContent = matcher.group("lineContent");
-    var newLine = matcher.group("newLine");
-    if (end.lineOffset() > lineContent.length() + newLine.length()) {
+    if (end.lineOffset() > lineContent.length()) {
       return new TextRange(start, new TextPointer(end().line(), lineContent.length()));
     }
     return this;

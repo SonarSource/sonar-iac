@@ -418,12 +418,12 @@
     74
   ],
   "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube-dce/templates/tests/sonarqube-test.yaml": [
-    13
+    12
   ],
   "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/sonarqube-sts.yaml": [
     50
   ],
   "kubernetes-project:sources/kubernetes/helm-chart-sonarqube/charts/sonarqube/templates/tests/sonarqube-test.yaml": [
-    13
+    12
   ]
 }

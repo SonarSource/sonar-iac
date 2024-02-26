@@ -45,21 +45,21 @@ class TextRangeTest {
   }
 
   @Test
-  void shouldTrimToTextWhenRangeIsBigger() {
+  void shouldTrimEndToTextWhenRangeIsBigger() {
     TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
     IacCommonAssertions.assertThat(range.trimEndToText("12345"))
       .hasRange(1, 0, 1, 5);
   }
 
   @Test
-  void shouldTrimToTextWhenRangeIsSmaller() {
+  void shouldTrimEndToTextWhenRangeIsSmaller() {
     TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 3));
     IacCommonAssertions.assertThat(range.trimEndToText("12345"))
       .hasRange(1, 0, 1, 3);
   }
 
   @Test
-  void shouldTrimToTextWhenRangeIsBiggerInLine2() {
+  void shouldTrimEndToTextWhenRangeIsBiggerInLineTwo() {
     TextRange range = new TextRange(new TextPointer(2, 0), new TextPointer(2, 10));
     IacCommonAssertions.assertThat(range.trimEndToText("a\n12345"))
       .hasRange(2, 0, 2, 5);
@@ -73,9 +73,16 @@ class TextRangeTest {
   }
 
   @Test
-  void shouldTrimToTextWhenRangeIsBiggerAndTextContainsMoreLines() {
+  void shouldTrimEndToTextWhenRangeIsBiggerAndTextContainsMoreLines() {
     TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
     IacCommonAssertions.assertThat(range.trimEndToText("12345\n123"))
+      .hasRange(1, 0, 1, 5);
+  }
+
+  @Test
+  void shouldTrimEndToTextTillEndOfLine() {
+    TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
+    IacCommonAssertions.assertThat(range.trimEndToText("12345\nabc"))
       .hasRange(1, 0, 1, 5);
   }
 }

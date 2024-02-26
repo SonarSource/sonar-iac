@@ -120,7 +120,8 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
               return TextRanges.merge(textRanges).trimEndToText(contents);
             }
           } catch (IOException e) {
-            LOG.debug("Unable to read file {} raising issue on less precise location", helmContext.inputFile);
+            var message = String.format("Unable to read file %s raising issue on less precise location", helmContext.inputFile);
+            LOG.debug(message, e);
           }
         }
       }

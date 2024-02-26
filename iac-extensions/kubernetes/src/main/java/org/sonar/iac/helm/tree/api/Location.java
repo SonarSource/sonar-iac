@@ -38,6 +38,7 @@ public interface Location {
 
   /**
    * Converts the location to {@link TextRange} for provided source code as parameter
+   * @param sourceCode the text on witch conversion is calculated
    * @return the {@link TextRange} representation
    */
   TextRange toTextRange(String sourceCode);
