@@ -175,7 +175,7 @@ build_task:
     cpu: 10
   env:
     DEPLOY_PULL_REQUEST: true
-    BUILD_ARGUMENTS: "--DbuildEnv=ci --parallel --profile -x test -x sonar"
+    BUILD_ARGUMENTS: "-DbuildEnv=ci --parallel --profile -x test -x sonar"
   <<: *BUILD_TEMPLATE
   <<: *STORE_PROFILE_REPORT
 
