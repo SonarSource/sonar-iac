@@ -19,11 +19,7 @@ Building the docker image locally requires the traffic inspection certificate to
 ../gradlew :sonar-helm-for-iac:buildDockerImage
 ```
 
-In case you system does not require the certificate for traffic inspection you can use the property `-DbuildEnd=ci`.
-
-```shell
-../gradlew -DbuildEnd=ci :sonar-helm-for-iac:buildDockerImage
-```
+In case you system does not require the certificate for traffic inspection you can use set an env variable `CI=true`.
 
 ### Execute Docker Image, generating Go code, build Go binaries, executing tests, validate license headers
 
