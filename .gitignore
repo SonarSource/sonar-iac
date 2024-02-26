@@ -51,3 +51,4 @@ sonar-helm-for-iac/sonar-helm-for-iac
 
 #Docker cache
 sonar-helm-for-iac/.cache/*
+*.cer

@@ -125,6 +125,10 @@ if (!isCi) {
             add("docker")
             add("buildx")
             add("build")
+            if (isCi) {
+                add("--build-arg")
+                add("BUILD_ENV=ci")
+            }
             if (uidProvider.isPresent) {
                 add("--build-arg")
                 add("UID=${uidProvider.get()}")
