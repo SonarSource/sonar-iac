@@ -113,6 +113,8 @@ if (!isCi) {
         // It is too difficult to check if image is built; Docker takes care of it anyway.
         setErrorOutput(System.out)
 
+        val isCiBuild = "ci" == System.getProperty("buildEnv")
+
         val uidProvider = objects.property<Long>()
         val os = DefaultNativePlatform.getCurrentOperatingSystem()
         if (os.isLinux || os.isMacOsX) {
@@ -125,6 +127,10 @@ if (!isCi) {
             add("docker")
             add("buildx")
             add("build")
+            if (isCiBuild) {
+                add("--build-arg")
+                add("BUILD_ENV=ci")
+            }
             if (uidProvider.isPresent) {
                 add("--build-arg")
                 add("UID=${uidProvider.get()}")
