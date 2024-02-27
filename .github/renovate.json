@@ -12,5 +12,9 @@
   },
   "dockerfile": {
     "enabled": true
-  }
+  },
+  "ignorePaths": [
+    "its/**",
+    "**/test/**"
+  ]
 }
