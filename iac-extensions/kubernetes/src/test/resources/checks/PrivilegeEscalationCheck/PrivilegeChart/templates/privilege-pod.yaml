@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+# NonCompliant@+1
+        allowPrivilegeEscalation: {{ .Values.privilege }}
+#                                           ^^^^^^^^^^^^^
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+# NonCompliant@+1
+        allowPrivilegeEscalation: {{ .Values.foo }}{{ .Values.bar }}
+#                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+# NonCompliant@+1
+        allowPrivilegeEscalation: true
+

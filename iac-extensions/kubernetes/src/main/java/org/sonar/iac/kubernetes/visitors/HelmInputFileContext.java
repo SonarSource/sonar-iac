@@ -66,7 +66,7 @@ public class HelmInputFileContext extends InputFileContext {
     this.goTemplateTree = goTemplateTree;
   }
 
-  public void setSourceWithComments(String sourceWithComments) {
+  public void setSourceWithComments(@Nullable String sourceWithComments) {
     this.sourceWithComments = sourceWithComments;
   }
 

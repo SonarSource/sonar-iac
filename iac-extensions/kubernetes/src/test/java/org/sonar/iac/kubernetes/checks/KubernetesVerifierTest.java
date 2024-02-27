@@ -49,7 +49,7 @@ class KubernetesVerifierTest {
 
   @Test
   void verifierShouldSucceedOnHelmProjectWithSecondaryLocationsRaised() {
-    TextRange expectedShiftedTextRangePrimaryIssue = range(7, 0, 7, 40);
+    TextRange expectedShiftedTextRangePrimaryIssue = range(7, 22, 8, 0);
 
     List<SecondaryLocation> expectedSecondaryLocations = expectedSecondaryLocations();
 

@@ -166,16 +166,24 @@ class SecondaryLocationLocatorTest {
 
   @Test
   void shouldNotFindSecondaryLocationsWhenIoException() throws IOException {
-    var inputFile = mock(InputFile.class);
-    when(inputFile.contents()).thenThrow(new IOException("error"));
-    var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile);
-    inputFileContext.setAdditionalFiles(Map.of("values.yaml", mock(InputFile.class)));
-    inputFileContext.setGoTemplateTree(mock(GoTemplateTreeImpl.class));
+    var inputFileContext = inputFileContextWithTree();
+    var valuesFileMock = mock(InputFile.class);
+    when(valuesFileMock.contents()).thenThrow(new IOException("error"));
+    inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFileMock));
 
     var locationsInAdditionalFiles = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22));
 
     assertThat(locationsInAdditionalFiles).isEmpty();
     assertThat(logTester.logs()).anyMatch(line -> line.startsWith("Failed to find secondary locations in additional file"));
+  }
+
+  @Test
+  void shouldNotFindSecondaryLocationWhenSouceWithCommentsIsNull() {
+    var inputFileContext = inputFileContextWithTree();
+    inputFileContext.setSourceWithComments(null);
+    var locationsInAdditionalFiles = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22));
+    assertThat(locationsInAdditionalFiles).isEmpty();
+
   }
 
   private HelmInputFileContext inputFileContextWithTree() {
@@ -193,7 +201,7 @@ class SecondaryLocationLocatorTest {
     ListNodeImpl root = new ListNodeImpl(0, 15, List.of(textNode, actionNode));
     var goTemplateTree = new GoTemplateTreeImpl("test", "test", 0, root);
     inputFileContext.setGoTemplateTree(goTemplateTree);
-
+    inputFileContext.setSourceWithComments("bar: {{ .Values.bar }} #1");
     return inputFileContext;
   }
 

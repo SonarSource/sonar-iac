@@ -99,7 +99,7 @@ public class LocationImpl implements Location {
     var newLineLength = newLine.length();
 
     if (textPointer.lineOffset() > lineContent.length() + newLineLength) {
-      var message = String.format("Unable to calculate position from TextRange, line offset %s is too big", textPointer.line());
+      var message = String.format("Unable to calculate position from TextRange, line offset %s is too big", textPointer.lineOffset());
       throw new IllegalArgumentException(message);
     }
     return positionCounter + textPointer.lineOffset();
