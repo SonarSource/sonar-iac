@@ -25,7 +25,6 @@ sonar-plugin-api = { module = "org.sonarsource.api.plugin:sonar-plugin-api", ver
 sonar-plugin-api-impl = { module = "org.sonarsource.sonarqube:sonar-plugin-api-impl", version.ref = "sonarqube" }
 sonar-plugin-api-test-fixtures = { module = "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures", version.ref = "sonar-plugin-api" }
 sonar-ws = { module = "org.sonarsource.sonarqube:sonar-ws", version.ref = "sonarqube" }
-sonar-orchestrator = { module = "org.sonarsource.orchestrator:sonar-orchestrator", version.ref = "sonar-orchestrator" }
 sonar-orchestrator-junit5 = { module = "org.sonarsource.orchestrator:sonar-orchestrator-junit5", version.ref = "sonar-orchestrator" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
