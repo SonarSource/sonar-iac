@@ -14,7 +14,7 @@ jobs:
       contents: write # write for peter-evans/create-pull-request, read for actions/checkout
       pull-requests: write # write for peter-evans/create-pull-request
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - run: |
           sed -i 's/version=.*/version=${{ github.event.inputs.version }}/' gradle.properties
       - uses: peter-evans/create-pull-request@b1ddad2c994a25fbc81a28b3ec0e368bb2021c50 # v6
