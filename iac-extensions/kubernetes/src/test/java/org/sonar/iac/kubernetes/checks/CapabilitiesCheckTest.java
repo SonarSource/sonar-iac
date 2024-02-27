@@ -26,12 +26,12 @@ class CapabilitiesCheckTest {
   IacCheck check = new CapabilitiesCheck();
 
   @Test
-  void test_pod_object() {
+  void shouldVerifyPodObject() {
     KubernetesVerifier.verify("CapabilitiesCheck/test_pod_object.yaml", check);
   }
 
   @Test
-  void test_template_object() {
+  void shouldVerifyDeployment() {
     KubernetesVerifier.verify("CapabilitiesCheck/test_template_object.yaml", check);
   }
 }

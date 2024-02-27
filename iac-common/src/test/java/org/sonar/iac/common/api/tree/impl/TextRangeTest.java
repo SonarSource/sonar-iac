@@ -19,9 +19,11 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class TextRangeTest {
 
@@ -33,12 +35,77 @@ class TextRangeTest {
     TextRange otherStartSameEnd = new TextRange(new TextPointer(5, 6), new TextPointer(3, 4));
     Object notATextRange = new Object();
 
-    assertThat(range)
+    Assertions.assertThat(range)
       .isEqualTo(range)
       .isNotEqualTo(null)
       .isNotEqualTo(notATextRange)
       .isEqualTo(sameRange)
       .isNotEqualTo(sameStartOtherEnd)
       .isNotEqualTo(otherStartSameEnd);
+  }
+
+  @Test
+  void shouldTrimEndToTextWhenRangeIsBigger() {
+    TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
+    assertThat(range.trimEndToText("12345"))
+      .hasRange(1, 0, 1, 5);
+  }
+
+  @Test
+  void shouldTrimEndToTextWhenRangeIsSmaller() {
+    TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 3));
+    assertThat(range.trimEndToText("12345"))
+      .hasRange(1, 0, 1, 3);
+  }
+
+  @Test
+  void shouldTrimEndToTextWhenRangeIsBiggerInLineTwo() {
+    TextRange range = new TextRange(new TextPointer(2, 0), new TextPointer(2, 10));
+    assertThat(range.trimEndToText("a\n12345"))
+      .hasRange(2, 0, 2, 5);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenLineNumberIsTooBig() {
+    TextRange range = new TextRange(new TextPointer(2, 0), new TextPointer(2, 10));
+    assertThatThrownBy(() -> range.trimEndToText("123"))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenEmptyContent() {
+    TextRange range = new TextRange(new TextPointer(2, 0), new TextPointer(2, 10));
+    assertThatThrownBy(() -> range.trimEndToText(""))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldTrimEndToTextWhenRangeIsBiggerAndTextContainsMoreLines() {
+    TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
+    assertThat(range.trimEndToText("12345\n123"))
+      .hasRange(1, 0, 1, 5);
+  }
+
+  @Test
+  void shouldTrimEndToTextTillEndOfLine() {
+    TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
+    assertThat(range.trimEndToText("12345\nabc"))
+      .hasRange(1, 0, 1, 5);
+  }
+
+  @Test
+  void shouldConvertToTextRangeWhenEmptyLineAtEndSingleLineTextRange() {
+    TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
+
+    assertThat(range.trimEndToText("12345\n"))
+      .hasRange(1, 0, 1, 5);
+  }
+
+  @Test
+  void shouldConvertToTextRangeWhenEmptyLineAtEndNewLineTextRange() {
+    TextRange range = TextRanges.range(1, 0, 2, 0);
+
+    assertThat(range.trimEndToText("12345\n"))
+      .hasRange(1, 0, 2, 0);
   }
 }

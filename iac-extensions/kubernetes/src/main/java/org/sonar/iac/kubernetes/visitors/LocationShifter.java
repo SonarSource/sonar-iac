@@ -19,12 +19,15 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
@@ -34,6 +37,8 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
+import org.sonar.iac.helm.tree.api.FieldNode;
+import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
@@ -47,6 +52,7 @@ import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
  * This is especially used in helm context, when the issue we are detecting on the transformed code should be raised on the original code.
  */
 public class LocationShifter {
+  private static final Logger LOG = LoggerFactory.getLogger(LocationShifter.class);
 
   private final Map<URI, LinesShifting> linesShiftingPerContext = new HashMap<>();
 
@@ -121,6 +127,52 @@ public class LocationShifter {
     var end = new TextPointer(rangeEnd, rangeEndLineLength);
 
     return new TextRange(start, end);
+  }
+
+  /**
+   * Adjust given {@link TextRange} to Helm template Value Path location.
+   * If no Value Path is found at provided {@link TextRange} the original {@link TextRange} is returned. <p/>
+   *
+   * The following example illustrates this:<br/>
+   * <code>
+   * foo: {{ .Values.privilege }}
+   * </code><br/><br/>
+   *
+   * What will be evaluated to:<br/>
+   * <code>
+   * foo: true #1
+   * </code><br/><br/>
+   *
+   * For <code>TextRange(1,0,1,28)</code> (valid for original source) the following {@link TextRange} will be returned:<br/>
+   * <pre>
+   * foo: {{ .Values.privilege }}
+   * #              ^^^^^^^^^^^^^
+   * </pre><br/>
+   *
+   * The precision of highlighting depends on the precision of the nodes of Go template AST.
+   */
+  public TextRange computeHelmValuePathTextRange(HelmInputFileContext helmContext, TextRange textRange) {
+    var goTemplateTree = helmContext.getGoTemplateTree();
+    var sourceWithComments = helmContext.getSourceWithComments();
+    if (goTemplateTree != null && sourceWithComments != null) {
+      try {
+        var contents = helmContext.inputFile.contents();
+        // The go template tree contains locations aligned to source code with additional trailing line numbers comments
+        var valuePathNodes = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, textRange, sourceWithComments);
+        var textRanges = valuePathNodes.map(FieldNode::location)
+          .map(location -> location.toTextRange(sourceWithComments))
+          .toList();
+        if (!textRanges.isEmpty()) {
+          // The text range may be too big, so it needs to be adjusted to the original source code
+          // TODO: When SONARIAC-1337 wil be implemented maybe this will be not needed anymore.
+          return TextRanges.merge(textRanges).trimEndToText(contents);
+        }
+      } catch (IOException e) {
+        var message = String.format("Unable to read file %s raising issue on less precise location", helmContext.inputFile);
+        LOG.debug(message, e);
+      }
+    }
+    return textRange;
   }
 
   public SecondaryLocation computeShiftedSecondaryLocation(InputFileContext ctx, SecondaryLocation secondaryLocation) {

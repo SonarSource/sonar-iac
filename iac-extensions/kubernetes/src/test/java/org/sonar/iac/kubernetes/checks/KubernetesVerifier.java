@@ -24,13 +24,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -248,17 +248,21 @@ public class KubernetesVerifier {
     @Override
     protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
-
-      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
-        .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
-        .collect(Collectors.toList());
-
-      if (shouldReportSecondaryInValues) {
-        var secondaryLocationsInValues = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
-        shiftedSecondaryLocations.addAll(secondaryLocationsInValues);
+      if (currentCtx instanceof HelmInputFileContext helmContext) {
+        shiftedTextRange = locationShifter.computeHelmValuePathTextRange(helmContext, shiftedTextRange);
       }
 
-      super.reportIssue(shiftedTextRange, message, shiftedSecondaryLocations);
+      List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
+      if (shouldReportSecondaryInValues) {
+        allSecondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+      }
+      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
+        .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
+        .toList();
+
+      allSecondaryLocations.addAll(shiftedSecondaryLocations);
+
+      super.reportIssue(shiftedTextRange, message, allSecondaryLocations);
     }
 
     @Override

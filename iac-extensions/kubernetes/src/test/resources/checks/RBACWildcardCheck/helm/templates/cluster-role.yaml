@@ -8,5 +8,6 @@ rules:
       - custom.metrics.k8s.io
     resources: # Noncompliant
       - '*'
-    verbs: [{{ .Values.rule.verb | quote }}] # Noncompliant
+# Noncompliant@+1
+    verbs: [{{ .Values.rule.verb | quote }}]
 {{- end -}}

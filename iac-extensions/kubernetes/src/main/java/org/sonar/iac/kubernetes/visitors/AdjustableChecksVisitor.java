@@ -22,7 +22,6 @@ package org.sonar.iac.kubernetes.visitors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
@@ -37,8 +36,9 @@ import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class AdjustableChecksVisitor extends ChecksVisitor {
+
   /**
-   * TODO SONARIAC-1301: Until values.yaml is published, there is no sense in enabling secondary locations in values.yaml
+   * TODO SONARIAC-1352 Remove property "secondaryLocationsInValuesEnable"
    */
   protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm.secondaryLocationsInValuesEnable";
   private final LocationShifter locationShifter;
@@ -75,21 +75,25 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
     @Override
     protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       var shiftedTextRange = textRange;
-      List<SecondaryLocation> enhancedAndAdjustedSecondaryLocations = new ArrayList<>();
+      List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
       if (textRange != null) {
         shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
 
+        if (currentCtx instanceof HelmInputFileContext helmContext) {
+          shiftedTextRange = locationShifter.computeHelmValuePathTextRange(helmContext, shiftedTextRange);
+        }
+
         boolean isReportingEnabled = currentCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
         if (isReportingEnabled || shouldReportSecondaryInValues()) {
-          enhancedAndAdjustedSecondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+          allSecondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
         }
       }
       List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
         .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
-        .collect(Collectors.toList());
+        .toList();
 
-      enhancedAndAdjustedSecondaryLocations.addAll(shiftedSecondaryLocations);
-      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, enhancedAndAdjustedSecondaryLocations);
+      allSecondaryLocations.addAll(shiftedSecondaryLocations);
+      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, allSecondaryLocations);
     }
 
     @Override

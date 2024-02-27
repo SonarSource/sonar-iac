@@ -20,8 +20,12 @@
 package org.sonar.iac.common.api.tree.impl;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class TextRange {
+
+  private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
+  private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\z|\\r\\n|[" + NEW_LINE + "])");
 
   private final TextPointer start;
   private final TextPointer end;
@@ -59,5 +63,45 @@ public class TextRange {
   @Override
   public String toString() {
     return "[" + start.line() + ":" + start.lineOffset() + "/" + end.line() + ":" + end.lineOffset() + "]";
+  }
+
+  /**
+   * If the {@link TextRange} is longer than the line length then the new {@link TextRange} is returned with the
+   * adjustment to the end line length.
+   * @param content the text on witch adjustment is calculated
+   * @return new adjusted {@link TextRange}
+   */
+  public TextRange trimEndToText(String content) {
+    var matcher = LINE_PATTERN.matcher(content);
+    var lineCounter = 1;
+    var foundEndLine = false;
+    var previousNewLine = "";
+
+    while (matcher.find()) {
+      var lineContent = matcher.group("lineContent");
+      var newLine = matcher.group("newLine");
+      if (lineContent.isEmpty() && newLine.isEmpty()) {
+        if (lineCounter == end.line() && !previousNewLine.isEmpty()) {
+          // the content ends with new line, so it's ok to have a position after last new line character
+          foundEndLine = true;
+        }
+        break;
+      }
+      if (lineCounter == end.line()) {
+        foundEndLine = true;
+        break;
+      }
+      lineCounter++;
+      previousNewLine = newLine;
+    }
+    if (!foundEndLine) {
+      var message = String.format("The code contains %s lines, but end text range line is %s", lineCounter, end().line());
+      throw new IllegalArgumentException(message);
+    }
+    var lineContent = matcher.group("lineContent");
+    if (end.lineOffset() >= lineContent.length()) {
+      return new TextRange(start, new TextPointer(end().line(), lineContent.length()));
+    }
+    return this;
   }
 }

@@ -48,23 +48,24 @@ public class SecondaryLocationLocator {
   }
 
   public List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
-    if (inputFileContext instanceof HelmInputFileContext) {
-      return new ArrayList<>(doFindSecondaryLocationsInAdditionalFiles((HelmInputFileContext) inputFileContext, shiftedTextRange));
+    if (inputFileContext instanceof HelmInputFileContext helmContext) {
+      return new ArrayList<>(doFindSecondaryLocationsInAdditionalFiles(helmContext, shiftedTextRange));
     }
     return new ArrayList<>();
   }
 
-  List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext inputFileContext, TextRange primaryLocationTextRange) {
-    var ast = inputFileContext.getGoTemplateTree();
-    var valuesFile = inputFileContext.getValuesFile();
-    if (ast == null || valuesFile == null) {
+  List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext helmContext, TextRange primaryLocationTextRange) {
+    var ast = helmContext.getGoTemplateTree();
+    var valuesFile = helmContext.getValuesFile();
+    var sourceWithComments = helmContext.getSourceWithComments();
+    if (ast == null || valuesFile == null || sourceWithComments == null) {
       return List.of();
     }
     var secondaryLocations = new ArrayList<SecondaryLocation>();
     try {
-      var valuePaths = GoTemplateAstHelper.findNodes(ast, primaryLocationTextRange, inputFileContext.inputFile.contents());
+      var valuePaths = GoTemplateAstHelper.findValuePaths(ast, primaryLocationTextRange, sourceWithComments);
       for (ValuePath valuePath : valuePaths) {
-        var secondaryTextRange = toTextRangeInValuesFile(valuePath, inputFileContext);
+        var secondaryTextRange = toTextRangeInValuesFile(valuePath, helmContext);
         if (secondaryTextRange != null) {
           secondaryLocations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFile.toString()));
         }
@@ -117,8 +118,7 @@ public class SecondaryLocationLocator {
     switch (valuePath.path().get(0)) {
       case "Values":
         return path.subList(1, path.size());
-      case "Chart":
-      case "Release":
+      case "Chart", "Release":
         // these come not from values.yaml
         return List.of();
       default:
@@ -128,11 +128,10 @@ public class SecondaryLocationLocator {
 
   @CheckForNull
   private static YamlTree findByKey(Tree node, String key) {
-    if (node instanceof TupleTree) {
-      var tuple = (TupleTree) node;
-      if (tuple.key() instanceof ScalarTree && ((ScalarTree) tuple.key()).value().equals(key)) {
-        return tuple.value();
-      }
+    if (node instanceof TupleTree tuple &&
+      tuple.key()instanceof ScalarTree scalarTree &&
+      scalarTree.value().equals(key)) {
+      return tuple.value();
     }
     return null;
   }
