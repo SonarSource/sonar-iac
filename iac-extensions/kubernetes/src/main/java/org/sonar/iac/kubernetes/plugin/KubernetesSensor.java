@@ -87,7 +87,7 @@ public class KubernetesSensor extends YamlSensor {
       .name("IaC " + language.getName() + " Sensor");
 
     // Note: KubernetesSensor shouldn't call `descriptor.processesFilesIndependently()` or `super.describe(descriptor)`,
-    // otherwise Helm analysis won't receive all file updates in PR analysis.
+    // otherwise Helm analysis won't receive all the files needed for template evaluation in PR analysis.
   }
 
   @Override
