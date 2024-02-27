@@ -129,7 +129,7 @@ public class SecondaryLocationLocator {
   @CheckForNull
   private static YamlTree findByKey(Tree node, String key) {
     if (node instanceof TupleTree tuple &&
-      tuple.key() instanceof ScalarTree scalarTree &&
+      tuple.key()instanceof ScalarTree scalarTree &&
       scalarTree.value().equals(key)) {
       return tuple.value();
     }

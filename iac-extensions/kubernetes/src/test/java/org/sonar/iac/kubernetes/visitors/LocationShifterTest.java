@@ -267,7 +267,7 @@ final class LocationShifterTest {
     setLinesSizes(ctx, 2);
     shifter.addShiftedLine(ctx, 2, 1, 1);
     var exception = new ParserException(null, Optional.of(Mockito.mock(Mark.class)), null,
-      Optional.of(new Mark("test", 1, 2, 1, new int[]{1, 1, 1, 1, 1}, 1)));
+      Optional.of(new Mark("test", 1, 2, 1, new int[] {1, 1, 1, 1, 1}, 1)));
 
     var shiftedException = shifter.shiftMarkedYamlException(ctx, exception);
 
