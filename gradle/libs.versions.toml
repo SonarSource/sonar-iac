@@ -1,7 +1,7 @@
 [versions]
 sonarqube = "10.1.0.73491"
 sonar-plugin-api = "10.1.0.809"
-sonar-commons = "2.7.0.1482"
+sonar-commons = "2.8.0.2699"
 sonar-orchestrator = "4.0.0.404"
 junit = "5.9.3"
 assertj = "3.23.1"
