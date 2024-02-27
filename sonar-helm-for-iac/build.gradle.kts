@@ -121,11 +121,13 @@ if (!isCi) {
             uidProvider.set(uid)
         }
 
+        val noTrafficInspection = "false" == System.getProperty("trafficInspection")
+
         val arguments = buildList {
             add("docker")
             add("buildx")
             add("build")
-            if (isCi) {
+            if (noTrafficInspection) {
                 add("--build-arg")
                 add("BUILD_ENV=ci")
             }
