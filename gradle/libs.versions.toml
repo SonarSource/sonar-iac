@@ -1,6 +1,6 @@
 [versions]
 sonarqube = "10.1.0.73491"
-sonar-plugin-api = "10.1.0.809"
+sonar-plugin-api = "10.6.0.2114"
 sonar-commons = "2.7.0.1482"
 sonar-orchestrator = "4.8.0.1898"
 junit = "5.9.3"
