@@ -37,6 +37,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
 import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
@@ -158,6 +159,15 @@ class SecondaryLocationLocatorTest {
   void shouldReturnEmptyForMissingValuesFile() {
     var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), null);
     inputFileContext.setAdditionalFiles(Map.of());
+
+    var secondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null);
+
+    assertThat(secondaryLocations).isEmpty();
+  }
+
+  @Test
+  void shouldReturnEmptyForInputFileContext() {
+    var inputFileContext = new InputFileContext(null, null);
 
     var secondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null);
 

@@ -29,7 +29,7 @@ import org.sonar.iac.helm.tree.api.Location;
 public class LocationImpl implements Location {
 
   private static final String NEW_LINE = "\\n\\r\\u2028\\u2029";
-  private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\Z|\\r\\n|[" + NEW_LINE + "])");
+  private static final Pattern LINE_PATTERN = Pattern.compile("(?<lineContent>[^" + NEW_LINE + "]*+)(?<newLine>\\z|\\r\\n|[" + NEW_LINE + "])");
   private static final String LINE_CONTENT_GROUP = "lineContent";
   private static final String NEW_LINE_GROUP = "newLine";
 

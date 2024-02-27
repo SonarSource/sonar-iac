@@ -73,6 +73,13 @@ class TextRangeTest {
   }
 
   @Test
+  void shouldThrowExceptionWhenEmptyContent() {
+    TextRange range = new TextRange(new TextPointer(2, 0), new TextPointer(2, 10));
+    assertThatThrownBy(() -> range.trimEndToText(""))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
   void shouldTrimEndToTextWhenRangeIsBiggerAndTextContainsMoreLines() {
     TextRange range = new TextRange(new TextPointer(1, 0), new TextPointer(1, 10));
     assertThat(range.trimEndToText("12345\n123"))
