@@ -1,0 +1,2 @@
+capabilities: ["SYS_ADMIN"]
+capabilities2: ["NET_ADMIN", "SYS_TIME"]
