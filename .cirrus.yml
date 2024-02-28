@@ -139,12 +139,8 @@ gradle_its_template: &GRADLE_ITS_TEMPLATE
     - git submodule update --init --depth 1
     - source cirrus-env QA
     - source .cirrus/use-gradle-wrapper.sh
-    - source set_gradle_build_version $BUILD_NUMBER
     - ./gradlew "${GRADLE_TASK}"
       "-Dsonar.runtimeVersion=${SQ_VERSION}"
-      "-Dorchestrator.configUrl=https://repox.jfrog.io/repox/orchestrator.properties/orch-h2.properties"
-      "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}"
-      "-DbuildNumber=$BUILD_NUMBER"
       --info --build-cache --console plain --no-daemon
   <<: *CLEANUP_GRADLE_CACHE
 
