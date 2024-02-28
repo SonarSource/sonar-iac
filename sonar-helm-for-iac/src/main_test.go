@@ -21,8 +21,8 @@ package main
 import (
 	"bufio"
 	"errors"
-	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/converters"
-	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/org.sonar.iac.helm"
+	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/converters"
+	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 	"os"

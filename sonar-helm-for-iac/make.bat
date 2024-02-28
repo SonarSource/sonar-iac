@@ -10,13 +10,13 @@ EXIT /B %ERRORLEVEL%
 SET GOOS=windows
 SET GOARCH=amd64
 SET CGO_ENABLED=0
-CALL go build -buildmode=exe -o build/executable/sonar-helm-for-iac-windows-amd64
+CALL go build -buildmode=exe -o build/executable/sonar-helm-for-iac-windows-amd64 ./src
 
 EXIT /B 0
 
 :generate_test_report
 SET CGO_ENABLED=0
-CALL go test ./... -json > build/test-report.out
+CALL go test ./src/... -json > build/test-report.json
 EXIT /B 0
 
 :go_install_check
@@ -41,7 +41,7 @@ IF "%~1%" == "build" (
   CALL :generate_test_report
 ) ELSE IF "%~1%"=="clean" (
   DEL "build\executable\sonar-helm-for-iac-*"
-  DEL "test-report.out"
+  DEL "test-report.json"
 ) ELSE (
   echo "Unrecognized command %~1%"
   exit "1"

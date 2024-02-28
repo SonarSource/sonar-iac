@@ -22,7 +22,7 @@ project(":sonar-helm-for-iac") {
             property("sonar.exclusions", "**/build/**,**/org.sonar.iac.helm/**")
             property("sonar.tests", ".")
             property("sonar.test.inclusions", "**/*_test.go")
-            property("sonar.go.tests.reportPaths", "build/test-report.out")
+            property("sonar.go.tests.reportPaths", "build/test-report.json")
             property("sonar.go.coverage.reportPaths", "build/test-coverage.out")
         }
     }

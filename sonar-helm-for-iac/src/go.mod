@@ -1,4 +1,4 @@
-module github.com/SonarSource/sonar-iac/sonar-helm-for-iac
+module github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src
 
 go 1.21.7
 
