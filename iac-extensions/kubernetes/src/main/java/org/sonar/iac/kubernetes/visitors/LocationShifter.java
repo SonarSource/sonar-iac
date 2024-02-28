@@ -158,7 +158,7 @@ public class LocationShifter {
         // The go template tree contains locations aligned to source code with additional trailing line numbers comments
         var textRanges = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, textRange, sourceWithComments)
           .map(FieldNode::location)
-          .map(this::fixLocation)
+          .map(LocationShifter::fixLocation)
           .map(location -> location.toTextRange(sourceWithComments))
           .toList();
         if (!textRanges.isEmpty()) {
