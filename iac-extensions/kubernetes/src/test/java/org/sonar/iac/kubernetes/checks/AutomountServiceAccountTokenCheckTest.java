@@ -27,11 +27,11 @@ class AutomountServiceAccountTokenCheckTest {
 
   @Test
   void testPodKind() {
-    KubernetesVerifier.verify("AutomountServiceAccountTokenCheck/test_pod_object.yaml", check);
+    KubernetesVerifier.verify("AutomountServiceAccountTokenCheck/automount_service_account_token_pod.yaml", check);
   }
 
   @Test
   void testKindWithTemplate() {
-    KubernetesVerifier.verify("AutomountServiceAccountTokenCheck/test_template_object.yaml", check);
+    KubernetesVerifier.verify("AutomountServiceAccountTokenCheck/automount_service_account_token_deployment.yaml", check);
   }
 }

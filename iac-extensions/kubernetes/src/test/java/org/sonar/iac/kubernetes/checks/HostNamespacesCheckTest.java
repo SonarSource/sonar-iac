@@ -27,12 +27,12 @@ class HostNamespacesCheckTest {
   IacCheck check = new HostNamespacesCheck();
 
   @Test
-  void test_pod_object() {
-    KubernetesVerifier.verify("HostNamespacesCheck/test_pod_object.yaml", check);
+  void shouldVerifyHostNamespacesInPod() {
+    KubernetesVerifier.verify("HostNamespacesCheck/host_namespaces_pod.yaml", check);
   }
 
   @Test
-  void test_template_object() {
-    KubernetesVerifier.verify("HostNamespacesCheck/test_template_object.yaml", check);
+  void shouldVerifyHostNamespacesInDeployment() {
+    KubernetesVerifier.verify("HostNamespacesCheck/host_namespaces_deployment.yaml", check);
   }
 }

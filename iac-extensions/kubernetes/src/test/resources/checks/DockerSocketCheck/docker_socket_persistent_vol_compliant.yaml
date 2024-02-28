@@ -8,8 +8,7 @@ spec:
       command: ["sleep", "6000"]
       name: test-container
       volumeMounts:
-        - mountPath: /var/run/d ocker.sock
+        - mountPath: /var/run/docker.sock
           name: test-volume
   hostPath:
-    path: /var/run/docker.sock # Noncompliant {{Make sure exposing the Docker socket is safe here.}}
-  # ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    path: /another/path/docker.sock

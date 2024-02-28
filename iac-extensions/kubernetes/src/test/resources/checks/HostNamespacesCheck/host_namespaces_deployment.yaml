@@ -20,6 +20,6 @@ spec:
               containerPort: 80
               protocol: TCP
       hostNetwork: true # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
-    # ^^^^^^^^^^^^^^^^^
+                 # ^^^^
       hostPID: false
       hostIPC: false

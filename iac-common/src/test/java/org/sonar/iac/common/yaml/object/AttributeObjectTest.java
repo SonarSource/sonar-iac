@@ -82,7 +82,7 @@ class AttributeObjectTest extends YamlTreeTest {
     TestIssue issue = raisedIssues.get(0);
     assertThat(issue.message).isEqualTo("message");
     assertThat(issue.secondaryLocations).isEmpty();
-    assertThat(issue.textRange).isEqualTo(tree.textRange());
+    assertThat(issue.textRange).isEqualTo(tree.value().textRange());
   }
 
   @Test

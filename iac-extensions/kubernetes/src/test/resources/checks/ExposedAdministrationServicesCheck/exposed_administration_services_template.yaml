@@ -19,14 +19,18 @@ spec:
           image: my_image_with_ssh
           ports:
             - containerPort: 22  # NonCompliant {{Make sure that exposing administration services is safe here.}}
-#             ^^^^^^^^^^^^^^^^^
+#                            ^^
             - containerPort: 23  # NonCompliant
+#                            ^^
             - containerPort: 3389  # NonCompliant
+#                            ^^^^
             - containerPort: 5800  # NonCompliant
+#                            ^^^^
             - hostPort: 1234
               containerPort: 5900  # NonCompliant
-#             ^^^^^^^^^^^^^^^^^^^
+#                            ^^^^
             - containerPort: "5800"  # NonCompliant
+#                            ^^^^^^
             - containerPort: 338  # Compliant
             - hostPort: 22
               containerPort: 1234 # Compliant

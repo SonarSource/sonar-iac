@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -33,6 +33,8 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 public class ListObject extends YamlObject<ListObject, SequenceTree> {
 
   protected final List<YamlTree> items;
+
+  @Nullable
   private final YamlTree parent;
 
   ListObject(CheckContext ctx, @Nullable SequenceTree tree, String key, Status status, @Nullable YamlTree parent, List<YamlTree> items) {
@@ -42,11 +44,11 @@ public class ListObject extends YamlObject<ListObject, SequenceTree> {
   }
 
   public static ListObject fromPresent(CheckContext ctx, YamlTree tree, String key, YamlTree parent) {
-    if (tree instanceof TupleTree) {
-      return fromPresent(ctx, ((TupleTree) tree).value(), key, tree);
+    if (tree instanceof TupleTree tupleTree) {
+      return fromPresent(ctx, tupleTree.value(), key, tree);
     }
-    if (tree instanceof SequenceTree) {
-      return new ListObject(ctx, ((SequenceTree) tree), key, Status.PRESENT, parent, ((SequenceTree) tree).elements());
+    if (tree instanceof SequenceTree sequenceTree) {
+      return new ListObject(ctx, sequenceTree, key, Status.PRESENT, parent, sequenceTree.elements());
     }
     // List can also be provided as reference. To avoid false positives due to a missing reference resolution
     // we create an empty ListObject
@@ -68,7 +70,10 @@ public class ListObject extends YamlObject<ListObject, SequenceTree> {
 
   @Nullable
   @Override
-  protected HasTextRange toHighlight() {
-    return parent;
+  protected TextRange toHighlight() {
+    if (parent != null) {
+      return parent.toHighlight();
+    }
+    return null;
   }
 }

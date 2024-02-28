@@ -38,17 +38,17 @@ class ExposedAdministrationServicesCheckTest {
   @MethodSource("sensitiveKinds")
   @ParameterizedTest(name = "[{index}] should exposed administration services for kind: \"{0}\"")
   void shouldCheckPortsInKind(String kind) {
-    String content = readTemplateAndReplace("ExposedAdministrationServicesCheck/template_object_templateFile.yaml", kind);
+    String content = readTemplateAndReplace("ExposedAdministrationServicesCheck/exposed_administration_services_template.yaml", kind);
     KubernetesVerifier.verifyContent(content, check);
   }
 
   @Test
   void shouldCheckPortsInPod() {
-    KubernetesVerifier.verify("ExposedAdministrationServicesCheck/pod_object.yaml", check);
+    KubernetesVerifier.verify("ExposedAdministrationServicesCheck/exposed_administration_services_pod.yaml", check);
   }
 
   @Test
   void shouldCheckPortsInService() {
-    KubernetesVerifier.verify("ExposedAdministrationServicesCheck/service_object.yaml", check);
+    KubernetesVerifier.verify("ExposedAdministrationServicesCheck/exposed_administration_services_service.yaml", check);
   }
 }

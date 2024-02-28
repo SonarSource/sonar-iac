@@ -22,6 +22,7 @@ package org.sonar.iac.common.yaml.tree;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class TupleTreeImpl extends YamlTreeImpl implements TupleTree {
   private final YamlTree key;
@@ -46,5 +47,10 @@ public class TupleTreeImpl extends YamlTreeImpl implements TupleTree {
   @Override
   public YamlTree value() {
     return value;
+  }
+
+  @Override
+  public TextRange toHighlight() {
+    return value.toHighlight();
   }
 }

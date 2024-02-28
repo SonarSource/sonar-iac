@@ -21,7 +21,10 @@ package org.sonar.iac.common.yaml.tree;
 
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public interface YamlTree extends Tree, HasComments {
   YamlTreeMetadata metadata();
+
+  TextRange toHighlight();
 }

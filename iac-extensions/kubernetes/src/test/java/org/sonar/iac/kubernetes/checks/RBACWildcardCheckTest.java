@@ -57,7 +57,7 @@ class RBACWildcardCheckTest {
       "RBACWildcardCheck/helm/values.yaml");
     var expectedIssues = new Verifier.Issue[] {
       new Verifier.Issue(range(9, 0, 9, 29)),
-      new Verifier.Issue(range(12, 22, 12, 39),
+      new Verifier.Issue(range(12, 22, 12, 38),
         "Do not use wildcards when defining RBAC permissions.", expectedSecondary)};
 
     KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check, expectedIssues);

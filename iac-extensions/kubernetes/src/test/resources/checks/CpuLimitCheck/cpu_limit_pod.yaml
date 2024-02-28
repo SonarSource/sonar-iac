@@ -27,21 +27,21 @@ spec:
       resources:
         limits:
           cpu: "~" # Noncompliant
-        # ^^^^^^^^
+             # ^^^
 
     - name: noncompliant_cpu_limit_empty_brackets
       image: nginx
       resources:
         limits:
           cpu: "[]" # Noncompliant
-        # ^^^^^^^^^
+             # ^^^^
 
     - image: nginx
       name: noncompliant_cpu_limit_null
       resources:
         limits:
           cpu: "null" # Noncompliant
-        # ^^^^^^^^^^^
+             # ^^^^^^
 
     - name: compliant_cpu_limit # Compliant
       image: nginx

@@ -22,7 +22,10 @@ package org.sonar.iac.common.yaml.tree;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 public class SequenceTreeImpl extends YamlTreeImpl implements SequenceTree {
   private final List<YamlTree> elements;
@@ -45,5 +48,12 @@ public class SequenceTreeImpl extends YamlTreeImpl implements SequenceTree {
   @Override
   public Iterator<YamlTree> iterator() {
     return elements.iterator();
+  }
+
+  @Override
+  public TextRange toHighlight() {
+    return TextRanges.merge(elements.stream()
+      .map(HasTextRange::textRange)
+      .toList());
   }
 }

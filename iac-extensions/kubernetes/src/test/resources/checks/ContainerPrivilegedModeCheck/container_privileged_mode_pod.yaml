@@ -7,7 +7,7 @@ spec:
     - name: noncompliant_privileged_pod
       securityContext:
         privileged: true # NonCompliant {{Ensure that enabling privileged mode is safe here.}}
-      # ^^^^^^^^^^^^^^^^
+                  # ^^^^
 
     - name: compliant_unprivileged_pod
       securityContext:
@@ -26,3 +26,5 @@ spec:
       command: [ 'sh', '-c', "dothings" ]
       securityContext:
         privileged: true # NonCompliant
+                  # ^^^^
+---

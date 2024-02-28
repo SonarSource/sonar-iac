@@ -27,16 +27,16 @@ class MemoryLimitCheckTest {
 
   @Test
   void testPodKind() {
-    KubernetesVerifier.verify("MemoryLimitCheck/test_pod_object.yaml", check);
+    KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_pod.yaml", check);
   }
 
   @Test
   void testKindWithTemplate() {
-    KubernetesVerifier.verify("MemoryLimitCheck/test_template_object.yaml", check);
+    KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_deployment.yaml", check);
   }
 
   @Test
   void testPodKindForHelm() {
-    KubernetesVerifier.verify("MemoryLimitCheck/helm/templates/test_pod_object_helm.yaml", check);
+    KubernetesVerifier.verify("MemoryLimitCheck/helm/templates/memory_limit_deployment_helm.yaml", check);
   }
 }

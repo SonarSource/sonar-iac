@@ -34,18 +34,18 @@ spec:
           resources:
             limits:
               memory: "~" # Noncompliant
-            # ^^^^^^^^^^^
+                    # ^^^
 
         - name: noncompliant_memory_limit_empty_brackets
           resources:
             limits:
               memory: "[]" # Noncompliant
-            # ^^^^^^^^^^^^
+                    # ^^^^
 
         - resources:
             limits:
               memory: "null" # Noncompliant
-            # ^^^^^^^^^^^^^^
+                    # ^^^^^^
           name: noncompliant_memory_limit_null
 
         - name: compliant_memory_limit # Compliant

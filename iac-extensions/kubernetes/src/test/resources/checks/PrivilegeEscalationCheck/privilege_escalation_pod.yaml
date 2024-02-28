@@ -12,7 +12,7 @@ spec:
           protocol: TCP
       securityContext:
         allowPrivilegeEscalation: true # NonCompliant {{Make sure that enabling privilege escalation is safe here.}}
-      # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                # ^^^^
 
     - name: compliant_unprivileged_pod
       image: nginx

@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
@@ -33,8 +34,8 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
   }
 
   public static AttributeObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
-    if (tree instanceof TupleTree) {
-      return new AttributeObject(ctx, (TupleTree) tree, key, Status.PRESENT);
+    if (tree instanceof TupleTree tupleTree) {
+      return new AttributeObject(ctx, tupleTree, key, Status.PRESENT);
     }
     return new AttributeObject(ctx, null, key, Status.UNKNOWN);
   }
@@ -73,8 +74,10 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
 
   @Nullable
   @Override
-  protected HasTextRange toHighlight() {
-    return tree;
+  protected TextRange toHighlight() {
+    if (tree != null) {
+      return tree.toHighlight();
+    }
+    return null;
   }
-
 }

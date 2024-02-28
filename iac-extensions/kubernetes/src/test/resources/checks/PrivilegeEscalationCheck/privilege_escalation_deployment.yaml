@@ -23,7 +23,7 @@ spec:
               protocol: TCP
           securityContext:
             allowPrivilegeEscalation: true # NonCompliant {{Make sure that enabling privilege escalation is safe here.}}
-          # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                    # ^^^^
 
         - name: web-compliant
           image: nginx

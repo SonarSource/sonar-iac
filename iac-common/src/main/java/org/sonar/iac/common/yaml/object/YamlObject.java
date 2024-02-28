@@ -22,7 +22,7 @@ package org.sonar.iac.common.yaml.object;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 // TODO: Find better naming for wrapped trees than object or symbol
@@ -47,7 +47,7 @@ abstract class YamlObject<T extends YamlObject<?, ?>, K extends YamlTree> {
   }
 
   @Nullable
-  protected abstract HasTextRange toHighlight();
+  protected abstract TextRange toHighlight();
 
   public T report(String message) {
     Optional.ofNullable(toHighlight())
