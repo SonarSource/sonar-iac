@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: test-caps1
+  name: test-capabilities-secondary-location-1
 spec:
   containers:
     - image: ubuntu
@@ -14,7 +14,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: test-caps1
+  name: test-capabilities-secondary-location-2
 spec:
   containers:
     - image: ubuntu
@@ -27,7 +27,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: test-caps1
+  name: test-capabilities-secondary-location-3
 spec:
   containers:
     - image: ubuntu
