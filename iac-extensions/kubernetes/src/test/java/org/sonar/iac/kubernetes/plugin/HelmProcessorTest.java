@@ -47,6 +47,7 @@ import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,12 +59,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class HelmProcessorTest {
-  private final HelmEvaluator helmEvaluator = Mockito.mock(HelmEvaluator.class);
+  private final HelmEvaluator helmEvaluator = mock(HelmEvaluator.class);
 
   @TempDir
   static Path tempDir;
   private final InputFile DEFAULT_INPUT_FILE = IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
-  private final HelmInputFileContext DEFAULT_INPUT_FILE_CONTEXT = new HelmInputFileContext(Mockito.mock(SensorContext.class), DEFAULT_INPUT_FILE);
+  private final HelmInputFileContext DEFAULT_INPUT_FILE_CONTEXT = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE);
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -80,7 +81,7 @@ class HelmProcessorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
 
-    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", Mockito.mock(HelmInputFileContext.class)))
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", mock(HelmInputFileContext.class)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
   }
@@ -187,6 +188,31 @@ class HelmProcessorTest {
       .containsEntry("templates/some.yaml", "kind: Pod");
   }
 
+  @Test
+  void validateAndReadFilesShouldThrowExceptionIfMainFileNameContainsLineBreak() throws IOException {
+    var additionalFiles = Map.of("values.yaml", mock(InputFile.class));
+    var inputFile = mock(InputFile.class);
+    when(inputFile.filename()).thenReturn("file\n.yaml");
+    when(inputFile.toString()).thenReturn("file\n.yaml");
+    var inputFileContext = new HelmInputFileContext(mock(SensorContext.class), inputFile);
+    inputFileContext.setAdditionalFiles(additionalFiles);
+
+    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(inputFileContext))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Failed to evaluate Helm file file\n.yaml: File name contains line break");
+  }
+
+  @Test
+  void validateAndReadFilesShouldLogIfAdditionalFileNameContainsLineBreak() {
+    var additionalFiles = Map.of("values.yaml", mock(InputFile.class), "_helpers\n.tpl", mock(InputFile.class));
+    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(additionalFiles);
+
+    assertThatCode(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT))
+      .doesNotThrowAnyException();
+
+    assertThat(logTester.logs(Level.DEBUG)).contains("Some additional files have names containing line breaks, skipping them");
+  }
+
   // -------------------------------------------------
   // -------Test HelmProcessor.evaluateTemplate-------
   // -------------------------------------------------
@@ -194,13 +220,13 @@ class HelmProcessorTest {
   @Test
   void evaluateHelmTemplateShouldNotThrowParseException() throws IOException {
     var helmProcessor = getHelmProcessor();
-    var templateEvaluationResult = Mockito.mock(TemplateEvaluationResult.class);
+    var templateEvaluationResult = mock(TemplateEvaluationResult.class);
     String path = "path";
     String content = "content";
     Map<String, String> templateDependencies = new HashMap<>();
 
     var inputFile = mockInputFile("chart/templates/foo.yaml", content);
-    var inputFileContext = new HelmInputFileContext(Mockito.mock(SensorContext.class), inputFile);
+    var inputFileContext = new HelmInputFileContext(mock(SensorContext.class), inputFile);
     when(helmEvaluator.evaluateTemplate(any(), any(), anyMap())).thenReturn(templateEvaluationResult);
 
     assertDoesNotThrow(() -> {
@@ -242,11 +268,11 @@ class HelmProcessorTest {
 
   private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {
     var inputFile = mockInputFile(filename, content);
-    return new HelmInputFileContext(Mockito.mock(SensorContext.class), inputFile);
+    return new HelmInputFileContext(mock(SensorContext.class), inputFile);
   }
 
   private static InputFile mockInputFile(String filename, String content) throws IOException {
-    var inputFile = Mockito.mock(InputFile.class);
+    var inputFile = mock(InputFile.class);
     when(inputFile.newPointer(anyInt(), anyInt())).thenReturn(new BasicTextPointer(0, 0));
     when(inputFile.uri()).thenReturn(URI.create("file:/" + filename));
     when(inputFile.toString()).thenReturn(filename);
