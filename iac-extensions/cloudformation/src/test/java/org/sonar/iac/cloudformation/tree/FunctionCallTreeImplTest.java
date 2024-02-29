@@ -77,11 +77,9 @@ class FunctionCallTreeImplTest {
     assertThat(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").toHighlight())
       .hasRange(1, 0, 1, 43);
     assertThat(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").toHighlight())
-      .hasRange(1, 13, 1, 34);
+      .hasRange(1, 0, 1, 50);
     assertThat(parseFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName").toHighlight())
-      .hasRange(2, 5, 2, 26);
-    assertThat(parseFunctionCall("Fn::GetAtt:").toHighlight())
-      .hasRange(1, 11, 1, 11);
+      .hasRange(1, 0, 3, 18);
   }
 
   @Test

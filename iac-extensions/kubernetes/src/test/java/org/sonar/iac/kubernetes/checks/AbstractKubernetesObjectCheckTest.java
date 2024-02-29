@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.common.yaml.block.BlockBlock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AbstractKubernetesObjectCheckTest {
 
-  Set<BlockObject> visitedObjects = new HashSet<>();
+  Set<BlockBlock> visitedObjects = new HashSet<>();
   IacCheck check = new AbstractKubernetesObjectCheck() {
 
     @Override

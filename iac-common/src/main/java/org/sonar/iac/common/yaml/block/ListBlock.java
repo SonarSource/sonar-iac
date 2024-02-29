@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.object;
+package org.sonar.iac.common.yaml.block;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,45 +31,45 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class ListObject extends YamlObject<SequenceTree> {
+public class ListBlock extends YamlBlock<SequenceTree> {
 
   protected final List<YamlTree> items;
 
   @Nullable
   private final YamlTree parent;
 
-  ListObject(CheckContext ctx, @Nullable SequenceTree tree, String key, Status status, @Nullable YamlTree parent, List<YamlTree> items) {
+  ListBlock(CheckContext ctx, @Nullable SequenceTree tree, String key, Status status, @Nullable YamlTree parent, List<YamlTree> items) {
     super(ctx, tree, key, status);
     this.parent = parent;
     this.items = items;
   }
 
-  public static ListObject fromPresent(CheckContext ctx, YamlTree tree, String key, YamlTree parent) {
+  public static ListBlock fromPresent(CheckContext ctx, YamlTree tree, String key, YamlTree parent) {
     if (tree instanceof TupleTree tupleTree) {
       return fromPresent(ctx, tupleTree.value(), key, tree);
     }
     if (tree instanceof SequenceTree sequenceTree) {
-      return new ListObject(ctx, sequenceTree, key, Status.PRESENT, parent, sequenceTree.elements());
+      return new ListBlock(ctx, sequenceTree, key, Status.PRESENT, parent, sequenceTree.elements());
     }
     // List can also be provided as reference. To avoid false positives due to a missing reference resolution
     // we create an empty ListObject
-    return new ListObject(ctx, null, key, Status.UNKNOWN, null, Collections.emptyList());
+    return new ListBlock(ctx, null, key, Status.UNKNOWN, null, Collections.emptyList());
   }
 
-  public static ListObject fromAbsent(CheckContext ctx, String key) {
-    return new ListObject(ctx, null, key, Status.ABSENT, null, Collections.emptyList());
+  public static ListBlock fromAbsent(CheckContext ctx, String key) {
+    return new ListBlock(ctx, null, key, Status.ABSENT, null, Collections.emptyList());
   }
 
   public Stream<YamlTree> getItemIf(Predicate<YamlTree> predicate) {
     return items.stream().filter(predicate);
   }
 
-  public ListObject reportIfAnyItem(Predicate<YamlTree> predicate, String message) {
+  public ListBlock reportIfAnyItem(Predicate<YamlTree> predicate, String message) {
     getItemIf(predicate).findFirst().ifPresent(item -> reportOnItems(message));
     return this;
   }
 
-  public ListObject reportOnItems(String message) {
+  public ListBlock reportOnItems(String message) {
     if (!items.isEmpty()) {
       var merged = TextRanges.merge(items.stream()
         .map(HasTextRange::textRange)

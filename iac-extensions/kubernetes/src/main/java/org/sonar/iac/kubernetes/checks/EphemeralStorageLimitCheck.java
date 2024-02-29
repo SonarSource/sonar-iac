@@ -20,7 +20,7 @@
 package org.sonar.iac.kubernetes.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.common.yaml.block.BlockBlock;
 
 @Rule(key = "S6870")
 public class EphemeralStorageLimitCheck extends AbstractLimitsCheck {
@@ -39,11 +39,11 @@ public class EphemeralStorageLimitCheck extends AbstractLimitsCheck {
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, (BlockObject pod) -> pod.blocks("containers")
+    register(KIND_POD, (BlockBlock pod) -> pod.blocks("containers")
       .filter(container -> container.blocks("volumeMounts").findAny().isPresent())
       .forEach(this::reportMissingLimit));
 
-    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> obj.block("template").block("spec").blocks("containers")
+    register(KIND_WITH_TEMPLATE, (BlockBlock obj) -> obj.block("template").block("spec").blocks("containers")
       .filter(container -> container.blocks("volumeMounts").findAny().isPresent())
       .forEach(this::reportMissingLimit));
   }

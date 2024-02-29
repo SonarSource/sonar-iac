@@ -17,30 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.object;
-
-import javax.annotation.Nullable;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-
-// TODO: Find better naming for wrapped trees than object or symbol YamlBlock
-abstract class YamlObject<K extends YamlTree> {
-
-  public final CheckContext ctx;
-  public final @Nullable K tree;
-  public final String key;
-  public final Status status;
-
-  enum Status {
-    PRESENT,
-    ABSENT,
-    UNKNOWN
-  }
-
-  protected YamlObject(CheckContext ctx, @Nullable K tree, String key, Status status) {
-    this.ctx = ctx;
-    this.tree = tree;
-    this.key = key;
-    this.status = status;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.common.yaml.block;

@@ -28,11 +28,12 @@ import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 class SequenceTreeImplTest extends YamlTreeTest {
 
   @Test
-  void simple_sequence() {
+  void shouldParseSimpleSequence() {
     SequenceTree tree = parse("[1, \"a\"]", SequenceTree.class);
     assertThat(tree.elements()).hasSize(2);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.textRange()).hasRange(1, 0, 1, 8);
+    assertThat(tree.toHighlight()).hasRange(1, 1, 1, 7);
     assertThat(tree.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
     assertThat(tree.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:seq");

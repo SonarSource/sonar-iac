@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.object;
+package org.sonar.iac.common.yaml.block;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -38,17 +38,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
-class ListObjectTest extends YamlTreeTest {
+class ListBlockTest extends YamlTreeTest {
 
   CheckContext ctx = mock(CheckContext.class);
   private final TupleTree tree = parseTuple("my_list : [\"my_item\", a]");
 
   @Test
   void reportOnItemsFromPresent() {
-    ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
+    ListBlock list = ListBlock.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.key).isEqualTo("my_list");
     assertThat(list.items).hasSize(2);
-    assertThat(list.status).isEqualTo(YamlObject.Status.PRESENT);
+    assertThat(list.status).isEqualTo(YamlBlock.Status.PRESENT);
 
     list.reportOnItems("message");
     var merged = TextRanges.merge(list.items.stream().map(HasTextRange::textRange).toList());
@@ -57,7 +57,7 @@ class ListObjectTest extends YamlTreeTest {
 
   @Test
   void reportFromAbsent() {
-    ListObject list = ListObject.fromAbsent(ctx, "unexistent");
+    ListBlock list = ListBlock.fromAbsent(ctx, "unexistent");
     list.reportOnItems("message");
     assertThat(list.items).isEmpty();
     assertNoIssueReported();
@@ -66,7 +66,7 @@ class ListObjectTest extends YamlTreeTest {
   @Test
   void reportItemIfFromPresent() {
     TupleTree tree = parseTuple("my_list : [\"my_item\"]");
-    ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
+    ListBlock list = ListBlock.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).hasSize(1);
     list.reportIfAnyItem(e -> true, "message");
     assertIssueReported(((SequenceTree) tree.value()).elements().get(0).textRange(), "message");
@@ -74,7 +74,7 @@ class ListObjectTest extends YamlTreeTest {
 
   @Test
   void reportItemIfFromAbsent() {
-    ListObject list = ListObject.fromAbsent(ctx, "my_list");
+    ListBlock list = ListBlock.fromAbsent(ctx, "my_list");
     list.reportIfAnyItem(e -> true, "message");
     assertNoIssueReported();
   }
@@ -82,7 +82,7 @@ class ListObjectTest extends YamlTreeTest {
   @Test
   void reportItemIfFromInvalid() {
     YamlTree tree = parseTuple("my_list : not_a_list");
-    ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
+    ListBlock list = ListBlock.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).isEmpty();
     list.reportIfAnyItem(e -> true, "message");
     assertNoIssueReported();

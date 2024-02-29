@@ -17,5 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.common.yaml.object;
+package org.sonar.iac.common.yaml.block;
+
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+
+abstract class YamlBlock<K extends YamlTree> {
+
+  public final CheckContext ctx;
+  public final @Nullable K tree;
+  public final String key;
+  public final Status status;
+
+  enum Status {
+    PRESENT,
+    ABSENT,
+    UNKNOWN
+  }
+
+  protected YamlBlock(CheckContext ctx, @Nullable K tree, String key, Status status) {
+    this.ctx = ctx;
+    this.tree = tree;
+    this.key = key;
+    this.status = status;
+  }
+}

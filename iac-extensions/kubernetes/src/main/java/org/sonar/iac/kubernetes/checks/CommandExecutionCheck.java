@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.yaml.TreePredicates;
-import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.common.yaml.block.BlockBlock;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6868")
@@ -45,15 +45,15 @@ public class CommandExecutionCheck extends AbstractKubernetesObjectCheck {
       .forEach(rule -> rule.attribute("resources").reportOnKey(MESSAGE)));
   }
 
-  private static boolean ruleContainsSensitiveVerb(BlockObject rule) {
+  private static boolean ruleContainsSensitiveVerb(BlockBlock rule) {
     return containsSensitiveItemOrWildCard(rule, "verbs", "create");
   }
 
-  private static boolean ruleContainsSensitiveResource(BlockObject rule) {
+  private static boolean ruleContainsSensitiveResource(BlockBlock rule) {
     return containsSensitiveItemOrWildCard(rule, "resources", "pods/exec");
   }
 
-  private static boolean containsSensitiveItemOrWildCard(BlockObject rule, String listKey, String sensitiveItem) {
+  private static boolean containsSensitiveItemOrWildCard(BlockBlock rule, String listKey, String sensitiveItem) {
     Predicate<YamlTree> verbsPredicate = TreePredicates.isEqualTo(sensitiveItem).or(TreePredicates.isEqualTo("*"));
     return rule.list(listKey).getItemIf(verbsPredicate).findAny().isPresent();
   }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.object;
+package org.sonar.iac.common.yaml.block;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -29,49 +29,49 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class BlockObject extends YamlObject<MappingTree> {
+public class BlockBlock extends YamlBlock<MappingTree> {
 
-  protected BlockObject(CheckContext ctx, @Nullable MappingTree tree, String key, Status status) {
+  protected BlockBlock(CheckContext ctx, @Nullable MappingTree tree, String key, Status status) {
     super(ctx, tree, key, status);
   }
 
-  public static BlockObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
+  public static BlockBlock fromPresent(CheckContext ctx, YamlTree tree, String key) {
     if (tree instanceof MappingTree mappingTree) {
-      return new BlockObject(ctx, mappingTree, key, Status.PRESENT);
+      return new BlockBlock(ctx, mappingTree, key, Status.PRESENT);
     }
-    return new BlockObject(ctx, null, key, Status.UNKNOWN);
+    return new BlockBlock(ctx, null, key, Status.UNKNOWN);
   }
 
-  public static BlockObject fromAbsent(CheckContext ctx, String key) {
-    return new BlockObject(ctx, null, key, Status.ABSENT);
+  public static BlockBlock fromAbsent(CheckContext ctx, String key) {
+    return new BlockBlock(ctx, null, key, Status.ABSENT);
   }
 
-  public Stream<BlockObject> blocks(String key) {
+  public Stream<BlockBlock> blocks(String key) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.value(tree, key, SequenceTree.class))
       .map(sequence -> sequence.elements().stream()
-        .map(block -> BlockObject.fromPresent(ctx, block, key)))
+        .map(block -> BlockBlock.fromPresent(ctx, block, key)))
       .orElse(Stream.empty());
   }
 
-  public BlockObject block(String key) {
+  public BlockBlock block(String key) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
-      .map(tuple -> BlockObject.fromPresent(ctx, tuple.value(), key))
-      .orElse(BlockObject.fromAbsent(ctx, key));
+      .map(tuple -> BlockBlock.fromPresent(ctx, tuple.value(), key))
+      .orElse(BlockBlock.fromAbsent(ctx, key));
   }
 
-  public AttributeObject attribute(String key) {
+  public AttributeBlock attribute(String key) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
-      .map(attribute -> AttributeObject.fromPresent(ctx, attribute, key))
-      .orElse(AttributeObject.fromAbsent(ctx, key));
+      .map(attribute -> AttributeBlock.fromPresent(ctx, attribute, key))
+      .orElse(AttributeBlock.fromAbsent(ctx, key));
   }
 
-  public ListObject list(String key) {
+  public ListBlock list(String key) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
-      .map(attribute -> ListObject.fromPresent(ctx, attribute, key, null))
-      .orElse(ListObject.fromAbsent(ctx, key));
+      .map(attribute -> ListBlock.fromPresent(ctx, attribute, key, null))
+      .orElse(ListBlock.fromAbsent(ctx, key));
   }
 }

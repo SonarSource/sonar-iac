@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.object;
+package org.sonar.iac.common.yaml.block;
 
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -27,52 +27,52 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class AttributeObject extends YamlObject<TupleTree> {
+public class AttributeBlock extends YamlBlock<TupleTree> {
 
-  AttributeObject(CheckContext ctx, @Nullable TupleTree tree, String key, Status status) {
+  AttributeBlock(CheckContext ctx, @Nullable TupleTree tree, String key, Status status) {
     super(ctx, tree, key, status);
   }
 
-  public static AttributeObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
+  public static AttributeBlock fromPresent(CheckContext ctx, YamlTree tree, String key) {
     if (tree instanceof TupleTree tupleTree) {
-      return new AttributeObject(ctx, tupleTree, key, Status.PRESENT);
+      return new AttributeBlock(ctx, tupleTree, key, Status.PRESENT);
     }
-    return new AttributeObject(ctx, null, key, Status.UNKNOWN);
+    return new AttributeBlock(ctx, null, key, Status.UNKNOWN);
   }
 
-  public static AttributeObject fromAbsent(CheckContext ctx, String key) {
-    return new AttributeObject(ctx, null, key, Status.ABSENT);
+  public static AttributeBlock fromAbsent(CheckContext ctx, String key) {
+    return new AttributeBlock(ctx, null, key, Status.ABSENT);
   }
 
-  public AttributeObject reportIfValue(Predicate<YamlTree> predicate, String message) {
+  public AttributeBlock reportIfValue(Predicate<YamlTree> predicate, String message) {
     if (tree != null && predicate.test(tree.value())) {
       ctx.reportIssue(tree.value(), message);
     }
     return this;
   }
 
-  public AttributeObject reportIfAbsent(@Nullable HasTextRange hasTextRange, String message) {
+  public AttributeBlock reportIfAbsent(@Nullable HasTextRange hasTextRange, String message) {
     if (this.status == Status.ABSENT && hasTextRange != null) {
       report(hasTextRange.textRange(), message);
     }
     return this;
   }
 
-  private AttributeObject report(@Nullable TextRange textRange, String message) {
+  private AttributeBlock report(@Nullable TextRange textRange, String message) {
     if (textRange != null) {
       ctx.reportIssue(textRange, message);
     }
     return this;
   }
 
-  public AttributeObject reportOnKey(String message) {
+  public AttributeBlock reportOnKey(String message) {
     if (tree != null) {
       report(tree.key().textRange(), message);
     }
     return this;
   }
 
-  public AttributeObject reportOnValue(String message) {
+  public AttributeBlock reportOnValue(String message) {
     if (tree != null) {
       report(tree.value().toHighlight(), message);
     }
