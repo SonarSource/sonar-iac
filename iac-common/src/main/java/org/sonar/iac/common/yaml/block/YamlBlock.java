@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-abstract class YamlBlock<K extends YamlTree> {
+class YamlBlock<K extends YamlTree> {
 
   public final CheckContext ctx;
   public final @Nullable K tree;

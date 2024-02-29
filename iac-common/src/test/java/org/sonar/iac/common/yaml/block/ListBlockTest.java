@@ -44,7 +44,7 @@ class ListBlockTest extends YamlTreeTest {
   private final TupleTree tree = parseTuple("my_list : [\"my_item\", a]");
 
   @Test
-  void reportOnItemsFromPresent() {
+  void shouldReportOnItemsFromPresent() {
     ListBlock list = ListBlock.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.key).isEqualTo("my_list");
     assertThat(list.items).hasSize(2);
@@ -56,7 +56,7 @@ class ListBlockTest extends YamlTreeTest {
   }
 
   @Test
-  void reportFromAbsent() {
+  void shouldReportFromAbsent() {
     ListBlock list = ListBlock.fromAbsent(ctx, "unexistent");
     list.reportOnItems("message");
     assertThat(list.items).isEmpty();
@@ -64,7 +64,7 @@ class ListBlockTest extends YamlTreeTest {
   }
 
   @Test
-  void reportItemIfFromPresent() {
+  void shouldReportItemIfFromPresent() {
     TupleTree tree = parseTuple("my_list : [\"my_item\"]");
     ListBlock list = ListBlock.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).hasSize(1);
@@ -73,14 +73,14 @@ class ListBlockTest extends YamlTreeTest {
   }
 
   @Test
-  void reportItemIfFromAbsent() {
+  void shouldReportItemIfFromAbsent() {
     ListBlock list = ListBlock.fromAbsent(ctx, "my_list");
     list.reportIfAnyItem(e -> true, "message");
     assertNoIssueReported();
   }
 
   @Test
-  void reportItemIfFromInvalid() {
+  void shouldReportItemIfFromInvalid() {
     YamlTree tree = parseTuple("my_list : not_a_list");
     ListBlock list = ListBlock.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).isEmpty();
