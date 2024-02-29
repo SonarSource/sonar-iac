@@ -20,14 +20,16 @@
 package org.sonar.iac.common.yaml.tree;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class MappingTreeImplTest extends YamlTreeTest {
 
   @Test
-  void simple_mapping() {
+  void shouldParseSimpleMapping() {
     MappingTree tree = parse("a: b", MappingTree.class);
     assertThat(tree.elements()).hasSize(1);
     assertThat(tree.children()).hasSize(1);
@@ -35,15 +37,19 @@ class MappingTreeImplTest extends YamlTreeTest {
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:map");
     assertThat(tree.elements().get(0)).isInstanceOf(TupleTree.class);
     assertThat(tree.comments()).isEmpty();
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 4);
+    assertThat(tree.toHighlight()).hasRange(1, 3, 1, 4);
   }
 
   @Test
-  void file_comment() {
+  void shouldParseFileComment() {
     MappingTree tree = parse("# comment", MappingTree.class);
     assertThat(tree.elements()).isEmpty();
     assertThat(tree.children()).isEmpty();
     assertThat(tree.properties()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:comment");
     assertThat(tree.comments()).hasSize(1);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 0);
+    assertThat(tree.toHighlight()).hasRange(1, 0, 1, 0);
   }
 }

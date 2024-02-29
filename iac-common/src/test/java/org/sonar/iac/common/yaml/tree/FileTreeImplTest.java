@@ -40,8 +40,12 @@ class FileTreeImplTest extends YamlTreeTest {
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.children()).hasSize(1);
     assertThat(tree.documents()).hasSize(1);
-    assertThat(tree.textRange()).hasRange(1, 0, 1, 4);
-    assertThat(tree.textRange()).isEqualTo(tree.documents().get(0).textRange());
+    assertThat(tree.textRange())
+      .hasRange(1, 0, 1, 4)
+      .isEqualTo(tree.documents().get(0).textRange());
+    assertThat(tree.toHighlight())
+      .hasRange(1, 0, 1, 4)
+      .isEqualTo(tree.documents().get(0).textRange());
     assertThat(tree.template()).isEqualTo(FileTree.Template.NONE);
   }
 
@@ -55,6 +59,7 @@ class FileTreeImplTest extends YamlTreeTest {
 
     List<TextRange> documentRanges = tree.documents().stream().map(HasTextRange::textRange).collect(Collectors.toList());
     assertThat(tree.textRange()).isEqualTo(TextRanges.merge(documentRanges));
+    assertThat(tree.toHighlight()).isEqualTo(tree.documents().get(0).textRange());
   }
 
   @Test
@@ -68,6 +73,7 @@ class FileTreeImplTest extends YamlTreeTest {
     assertThat(tree.documents()).hasSize(1);
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 0);
+    assertThat(tree.toHighlight()).hasRange(1, 0, 1, 0);
     YamlTree document = tree.documents().get(0);
     assertThat(document).isInstanceOf(MappingTree.class);
     assertThat(document.metadata().comments()).hasSize(1);

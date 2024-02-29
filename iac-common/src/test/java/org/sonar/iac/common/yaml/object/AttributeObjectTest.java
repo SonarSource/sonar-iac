@@ -106,14 +106,6 @@ class AttributeObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void testReport() {
-    TupleTree tree = parseTuple("a: b");
-    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
-    attributeObjectStatusPresent.report(null, "message");
-    assertThat(raisedIssues).isEmpty();
-  }
-
-  @Test
   void shouldReportOnKey() {
     TupleTree tree = parseTuple("a: b");
     AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
@@ -130,6 +122,27 @@ class AttributeObjectTest extends YamlTreeTest {
   void shouldNotReportOnKeyForMissingTree() {
     AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnKey("message");
+
+    assertThat(raisedIssues).isEmpty();
+  }
+
+  @Test
+  void shouldReportOnValue() {
+    TupleTree tree = parseTuple("a: b");
+    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
+    attributeObject.reportOnValue("message");
+
+    assertThat(raisedIssues).hasSize(1);
+    TestIssue issue = raisedIssues.get(0);
+    assertThat(issue.message).isEqualTo("message");
+    assertThat(issue.secondaryLocations).isEmpty();
+    assertThat(issue.textRange).isEqualTo(tree.value().textRange());
+  }
+
+  @Test
+  void shouldNotReportOnValueForMissingTree() {
+    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
+    attributeObject.reportOnValue("message");
 
     assertThat(raisedIssues).isEmpty();
   }

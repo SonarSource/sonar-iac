@@ -111,5 +111,4 @@ class BlockObjectTest extends YamlTreeTest {
   public MappingTree parseMap(String source) {
     return parse(source, MappingTree.class);
   }
-
 }

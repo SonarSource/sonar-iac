@@ -44,13 +44,13 @@ class ListObjectTest extends YamlTreeTest {
   private final TupleTree tree = parseTuple("my_list : [\"my_item\", a]");
 
   @Test
-  void reportFromPresent() {
+  void reportOnItemsFromPresent() {
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.key).isEqualTo("my_list");
     assertThat(list.items).hasSize(2);
     assertThat(list.status).isEqualTo(YamlObject.Status.PRESENT);
 
-    list.report("message");
+    list.reportOnItems("message");
     var merged = TextRanges.merge(list.items.stream().map(HasTextRange::textRange).toList());
     assertIssueReported(merged, "message");
   }
@@ -58,7 +58,7 @@ class ListObjectTest extends YamlTreeTest {
   @Test
   void reportFromAbsent() {
     ListObject list = ListObject.fromAbsent(ctx, "unexistent");
-    list.report("message");
+    list.reportOnItems("message");
     assertThat(list.items).isEmpty();
     assertNoIssueReported();
   }

@@ -25,12 +25,13 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class ListObject extends YamlObject<ListObject, SequenceTree> {
+public class ListObject extends YamlObject<SequenceTree> {
 
   protected final List<YamlTree> items;
 
@@ -64,19 +65,17 @@ public class ListObject extends YamlObject<ListObject, SequenceTree> {
   }
 
   public ListObject reportIfAnyItem(Predicate<YamlTree> predicate, String message) {
-    getItemIf(predicate).findFirst().ifPresent(item -> report(message));
+    getItemIf(predicate).findFirst().ifPresent(item -> reportOnItems(message));
     return this;
   }
 
-  @Nullable
-  @Override
-  protected TextRange toHighlight() {
-    if (tree != null) {
-      return tree.toHighlight();
+  public ListObject reportOnItems(String message) {
+    if (!items.isEmpty()) {
+      var merged = TextRanges.merge(items.stream()
+        .map(HasTextRange::textRange)
+        .toList());
+      ctx.reportIssue(merged, message);
     }
-    if (parent != null) {
-      return parent.toHighlight();
-    }
-    return null;
+    return this;
   }
 }

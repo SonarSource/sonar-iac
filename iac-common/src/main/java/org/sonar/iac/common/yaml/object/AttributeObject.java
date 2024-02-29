@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
+public class AttributeObject extends YamlObject<TupleTree> {
 
   AttributeObject(CheckContext ctx, @Nullable TupleTree tree, String key, Status status) {
     super(ctx, tree, key, status);
@@ -58,7 +58,7 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
     return this;
   }
 
-  public AttributeObject report(@Nullable TextRange textRange, String message) {
+  private AttributeObject report(@Nullable TextRange textRange, String message) {
     if (textRange != null) {
       ctx.reportIssue(textRange, message);
     }
@@ -77,14 +77,5 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
       report(tree.value().toHighlight(), message);
     }
     return this;
-  }
-
-  @Nullable
-  @Override
-  protected TextRange toHighlight() {
-    if (tree != null) {
-      return tree.toHighlight();
-    }
-    return null;
   }
 }
