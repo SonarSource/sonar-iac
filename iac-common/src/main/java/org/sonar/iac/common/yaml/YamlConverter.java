@@ -47,6 +47,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
 
+import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.comments;
 import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.range;
 
 public class YamlConverter {
@@ -67,8 +68,11 @@ public class YamlConverter {
     if (nodes.isEmpty()) {
       throw new ParseException("Unexpected empty nodes list while converting file", null, null);
     }
-    TextRange fileRange = TextRanges.merge(List.of(range(nodes.get(0)), range(ListUtils.getLast(nodes))));
-    YamlTreeMetadata metadata = new YamlTreeMetadata("FILE", fileRange, Collections.emptyList());
+
+    var fileNode = nodes.get(0);
+
+    TextRange fileRange = TextRanges.merge(List.of(range(fileNode), range(ListUtils.getLast(nodes))));
+    YamlTreeMetadata metadata = new YamlTreeMetadata("FILE", fileRange, comments(fileNode.getEndComments()));
     List<YamlTree> documents = nodes.stream().map(this::convert).collect(Collectors.toList());
     return new FileTreeImpl(documents, metadata, template);
   }

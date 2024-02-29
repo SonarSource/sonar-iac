@@ -78,7 +78,7 @@ public final class YamlTreeMetadata implements HasTextRange {
     return comments;
   }
 
-  private static List<Comment> comments(@Nullable List<CommentLine> commentLines) {
+  public static List<Comment> comments(@Nullable List<CommentLine> commentLines) {
     if (commentLines == null) {
       return Collections.emptyList();
     }
