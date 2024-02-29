@@ -46,19 +46,19 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
 
   public AttributeObject reportIfValue(Predicate<YamlTree> predicate, String message) {
     if (tree != null && predicate.test(tree.value())) {
-      report(message);
+      ctx.reportIssue(tree.value(), message);
     }
     return this;
   }
 
-  public AttributeObject reportIfAbsent(@Nullable HasTextRange textRange, String message) {
-    if (this.status == Status.ABSENT) {
-      report(textRange, message);
+  public AttributeObject reportIfAbsent(@Nullable HasTextRange hasTextRange, String message) {
+    if (this.status == Status.ABSENT && hasTextRange != null) {
+      report(hasTextRange.textRange(), message);
     }
     return this;
   }
 
-  public AttributeObject report(@Nullable HasTextRange textRange, String message) {
+  public AttributeObject report(@Nullable TextRange textRange, String message) {
     if (textRange != null) {
       ctx.reportIssue(textRange, message);
     }
@@ -67,7 +67,14 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
 
   public AttributeObject reportOnKey(String message) {
     if (tree != null) {
-      report(tree.key().metadata(), message);
+      report(tree.key().textRange(), message);
+    }
+    return this;
+  }
+
+  public AttributeObject reportOnValue(String message) {
+    if (tree != null) {
+      report(tree.value().toHighlight(), message);
     }
     return this;
   }

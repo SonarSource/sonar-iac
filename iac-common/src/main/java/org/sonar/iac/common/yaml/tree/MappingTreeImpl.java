@@ -49,7 +49,9 @@ public class MappingTreeImpl extends YamlTreeImpl implements MappingTree {
 
   @Override
   public TextRange toHighlight() {
-    // TODO MS
-    return null;
+    if (elements != null && !elements.isEmpty()) {
+      return elements.get(0).toHighlight();
+    }
+    return metadata().textRange();
   }
 }

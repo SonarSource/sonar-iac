@@ -24,4 +24,5 @@ spec:
         - name: test-volume
           hostPath:
             path: /etc # Noncompliant {{Make sure mounting the file system path is safe here.}}
-          # ^^^^^^^^^^
+                # ^^^^
+---

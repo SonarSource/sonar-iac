@@ -21,12 +21,16 @@ package org.sonar.iac.common.yaml.object;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 // TODO: Find better naming for wrapped trees than object or symbol
 abstract class YamlObject<T extends YamlObject<?, ?>, K extends YamlTree> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(YamlObject.class);
 
   public final CheckContext ctx;
   public final @Nullable K tree;
@@ -51,7 +55,8 @@ abstract class YamlObject<T extends YamlObject<?, ?>, K extends YamlTree> {
 
   public T report(String message) {
     Optional.ofNullable(toHighlight())
-      .ifPresent(hasTextRange -> ctx.reportIssue(hasTextRange, message));
+      .ifPresentOrElse(hasTextRange -> ctx.reportIssue(hasTextRange, message),
+        () -> LOG.debug("Not able to find element to highlight, tree: {}", tree));
     return (T) this;
   }
 }

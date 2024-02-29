@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
+import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -26,5 +27,6 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 public interface YamlTree extends Tree, HasComments {
   YamlTreeMetadata metadata();
 
+  @CheckForNull
   TextRange toHighlight();
 }

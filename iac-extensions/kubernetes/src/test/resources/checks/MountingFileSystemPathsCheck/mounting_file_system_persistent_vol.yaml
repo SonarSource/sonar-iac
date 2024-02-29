@@ -12,4 +12,5 @@ spec:
           name: test-volume
   hostPath:
     path: /bin # Noncompliant {{Make sure mounting the file system path is safe here.}}
-  # ^^^^^^^^^^
+        # ^^^^
+---

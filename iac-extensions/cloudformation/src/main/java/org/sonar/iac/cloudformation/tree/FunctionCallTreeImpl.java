@@ -62,7 +62,9 @@ public class FunctionCallTreeImpl extends YamlTreeImpl implements FunctionCallTr
 
   @Override
   public TextRange toHighlight() {
-    // TODO MS
-    return null;
+    if (!arguments.isEmpty()) {
+      return arguments.get(0).toHighlight();
+    }
+    return metadata().textRange();
   }
 }

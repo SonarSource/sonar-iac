@@ -32,7 +32,7 @@ class CpuLimitCheckTest {
 
   @Test
   void testKindWithTemplate() {
-    KubernetesVerifier.verify("CpuLimitCheck/cpu_limit_pod_template_object.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/cpu_limit_deployment.yaml", check);
   }
 
   @Test

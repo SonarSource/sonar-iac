@@ -71,6 +71,9 @@ public class ListObject extends YamlObject<ListObject, SequenceTree> {
   @Nullable
   @Override
   protected TextRange toHighlight() {
+    if (tree != null) {
+      return tree.toHighlight();
+    }
     if (parent != null) {
       return parent.toHighlight();
     }
