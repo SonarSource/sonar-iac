@@ -25,8 +25,8 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.Verifier;
-import org.sonar.iac.common.yaml.block.AttributeBlock;
-import org.sonar.iac.common.yaml.block.BlockBlock;
+import org.sonar.iac.common.yaml.object.AttributeObject;
+import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.kubernetes.visitors.HelmAwareCheckContext;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
@@ -75,7 +75,7 @@ class KubernetesVerifierTest {
   public static class ContainerNamePresentCheck extends AbstractKubernetesObjectCheck {
     @Override
     void registerObjectCheck() {
-      register("Pod", (BlockBlock pod) -> pod.blocks("containers").forEach(container -> reportIssueWithSecondaryInValuesFile(container.attribute("name"))));
+      register("Pod", (BlockObject pod) -> pod.blocks("containers").forEach(container -> reportIssueWithSecondaryInValuesFile(container.attribute("name"))));
     }
 
     @Override
@@ -85,7 +85,7 @@ class KubernetesVerifierTest {
       }
     }
 
-    private void reportIssueWithSecondaryInValuesFile(AttributeBlock attribute) {
+    private void reportIssueWithSecondaryInValuesFile(AttributeObject attribute) {
       List<SecondaryLocation> secondaryLocations = List.of(SECONDARY_IN_VALUES, SECONDARY_IN_PRIMARY_FILE, SECONDARY_IN_PRIMARY_WITH_FILE_PATH);
       attribute.ctx.reportIssue(attribute.tree, PRIMARY_ISSUE_MESSAGE, secondaryLocations);
     }

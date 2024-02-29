@@ -29,14 +29,14 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.yaml.block.BlockBlock;
+import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
 public abstract class AbstractKubernetesObjectCheck implements IacCheck {
 
-  private final Map<String, List<Consumer<BlockBlock>>> objectConsumersByKind = new HashMap<>();
+  private final Map<String, List<Consumer<BlockObject>>> objectConsumersByKind = new HashMap<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -80,17 +80,17 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
   }
 
   private void visitMappingTreeForKind(MappingTree mappingTree, CheckContext ctx, String kind) {
-    var blockObject = BlockBlock.fromPresent(ctx, mappingTree, kind);
+    var blockObject = BlockObject.fromPresent(ctx, mappingTree, kind);
     objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(blockObject));
   }
 
   abstract void registerObjectCheck();
 
-  protected void register(String kind, Consumer<BlockBlock> consumer) {
+  protected void register(String kind, Consumer<BlockObject> consumer) {
     objectConsumersByKind.computeIfAbsent(kind, s -> new ArrayList<>()).add(consumer);
   }
 
-  protected void register(Iterable<String> kinds, Consumer<BlockBlock> consumer) {
+  protected void register(Iterable<String> kinds, Consumer<BlockObject> consumer) {
     kinds.forEach(kind -> register(kind, consumer));
   }
 

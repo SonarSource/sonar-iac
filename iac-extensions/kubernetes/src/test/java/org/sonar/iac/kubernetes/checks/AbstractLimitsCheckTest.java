@@ -22,7 +22,7 @@ package org.sonar.iac.kubernetes.checks;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.yaml.block.BlockBlock;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,7 +32,7 @@ class AbstractLimitsCheckTest {
   @Test
   void testGetFirstChildElement() {
     CheckContext checkContext = mock(CheckContext.class);
-    BlockBlock block = BlockBlock.fromAbsent(checkContext, "a");
+    BlockObject block = BlockObject.fromAbsent(checkContext, "a");
     HasTextRange firstChildElement = getFirstChildElement(block);
     assertThat(firstChildElement).isNull();
   }

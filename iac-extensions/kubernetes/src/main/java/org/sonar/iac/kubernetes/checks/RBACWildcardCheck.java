@@ -24,7 +24,7 @@ import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.TreePredicates;
-import org.sonar.iac.common.yaml.block.BlockBlock;
+import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.kubernetes.visitors.HelmAwareCheckContext;
 
@@ -43,7 +43,7 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
   @Override
   void registerObjectCheck() {
     register(SENSITIVE_KINDS, document -> document.blocks("rules")
-      .forEach((BlockBlock rule) -> SENSITIVE_RULE_ATTRIBUTES.forEach((String attributeKey) -> {
+      .forEach((BlockObject rule) -> SENSITIVE_RULE_ATTRIBUTES.forEach((String attributeKey) -> {
         if (containsWildCardItem(rule, attributeKey)) {
           rule.attribute(attributeKey).reportOnValue(MESSAGE);
         }
@@ -57,7 +57,7 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
     }
   }
 
-  private static boolean containsWildCardItem(BlockBlock rule, String listKey) {
+  private static boolean containsWildCardItem(BlockObject rule, String listKey) {
     Predicate<YamlTree> wildcardPredicate = TreePredicates.isEqualTo("*");
     return rule.list(listKey).getItemIf(wildcardPredicate).findAny().isPresent();
   }

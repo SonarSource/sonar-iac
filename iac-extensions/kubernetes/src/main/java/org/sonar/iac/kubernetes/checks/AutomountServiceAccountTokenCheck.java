@@ -21,7 +21,7 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.block.BlockBlock;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
@@ -43,11 +43,11 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
     register(KIND_POD, document -> checkAndReport(document, String.format(MESSAGE, KIND_POD)));
 
     for (String kind : KIND_WITH_TEMPLATE) {
-      register(kind, (BlockBlock document) -> checkAndReport(document.block("spec").block("template"), String.format(MESSAGE, kind)));
+      register(kind, (BlockObject document) -> checkAndReport(document.block("spec").block("template"), String.format(MESSAGE, kind)));
     }
   }
 
-  private static void checkAndReport(BlockBlock blockObject, String message) {
+  private static void checkAndReport(BlockObject blockObject, String message) {
     var specAsBlockObject = blockObject.block("spec");
     var specAsAttributeObject = blockObject.attribute("spec");
     if (specAsAttributeObject.tree != null && isContainersPresentInSpecBlock(specAsBlockObject)) {
@@ -58,7 +58,7 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
     }
   }
 
-  private static boolean isContainersPresentInSpecBlock(BlockBlock blockObject) {
+  private static boolean isContainersPresentInSpecBlock(BlockObject blockObject) {
     return blockObject.attribute("containers").tree != null;
   }
 }

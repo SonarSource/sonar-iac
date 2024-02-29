@@ -22,7 +22,7 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.yaml.block.BlockBlock;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
@@ -32,11 +32,11 @@ public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck 
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, (BlockBlock pod) -> pod.blocks("containers").forEach(this::reportMissingLimit));
-    register(KIND_WITH_TEMPLATE, (BlockBlock obj) -> obj.block("template").block("spec").blocks("containers").forEach(this::reportMissingLimit));
+    register(KIND_POD, (BlockObject pod) -> pod.blocks("containers").forEach(this::reportMissingLimit));
+    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> obj.block("template").block("spec").blocks("containers").forEach(this::reportMissingLimit));
   }
 
-  void reportMissingLimit(BlockBlock container) {
+  void reportMissingLimit(BlockObject container) {
     container.block("resources").block("limits")
       .attribute(getLimitAttributeKey())
       .reportIfAbsent(getFirstChildElement(container), getMessage())
@@ -44,7 +44,7 @@ public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck 
   }
 
   @Nullable
-  static HasTextRange getFirstChildElement(BlockBlock blockObject) {
+  static HasTextRange getFirstChildElement(BlockObject blockObject) {
     if (blockObject.tree != null) {
       return blockObject.tree.elements().get(0).key().metadata();
     }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.block;
+package org.sonar.iac.common.yaml.object;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AttributeBlockTest extends YamlTreeTest {
+class AttributeObjectTest extends YamlTreeTest {
 
   static final List<TestIssue> raisedIssues = new ArrayList<>();
   CheckContext checkContext = new TestContext();
@@ -45,38 +45,38 @@ class AttributeBlockTest extends YamlTreeTest {
   }
 
   @Test
-  void testFromPresent() {
+  void shouldVerifyFromPresent() {
     TupleTree tree = parseTuple("a: b");
-    AttributeBlock attributeObjectStatusPresent = AttributeBlock.fromPresent(checkContext, tree, "a");
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "a");
     assertThat(attributeObjectStatusPresent.key).isEqualTo("a");
-    assertThat(attributeObjectStatusPresent.status).isEqualTo(YamlBlock.Status.PRESENT);
+    assertThat(attributeObjectStatusPresent.status).isEqualTo(YamlObject.Status.PRESENT);
     assertThat(attributeObjectStatusPresent.tree).isEqualTo(tree);
     assertThat(attributeObjectStatusPresent.ctx).isEqualTo(checkContext);
   }
 
   @Test
-  void testFromPresentUnknown() {
+  void shouldVerifyFromPresentUnknown() {
     YamlTree tree = parse("a:b", YamlTree.class);
-    AttributeBlock attributeObjectStatusUnknown = AttributeBlock.fromPresent(checkContext, tree, "a");
+    AttributeObject attributeObjectStatusUnknown = AttributeObject.fromPresent(checkContext, tree, "a");
     assertThat(attributeObjectStatusUnknown.key).isEqualTo("a");
-    assertThat(attributeObjectStatusUnknown.status).isEqualTo(YamlBlock.Status.UNKNOWN);
+    assertThat(attributeObjectStatusUnknown.status).isEqualTo(YamlObject.Status.UNKNOWN);
     assertThat(attributeObjectStatusUnknown.tree).isNull();
     assertThat(attributeObjectStatusUnknown.ctx).isEqualTo(checkContext);
   }
 
   @Test
-  void testFromAbsent() {
-    AttributeBlock attributeObjectStatusAbsent = AttributeBlock.fromAbsent(checkContext, "a");
+  void shouldVerifyAbsent() {
+    AttributeObject attributeObjectStatusAbsent = AttributeObject.fromAbsent(checkContext, "a");
     assertThat(attributeObjectStatusAbsent.key).isEqualTo("a");
-    assertThat(attributeObjectStatusAbsent.status).isEqualTo(YamlBlock.Status.ABSENT);
+    assertThat(attributeObjectStatusAbsent.status).isEqualTo(YamlObject.Status.ABSENT);
     assertThat(attributeObjectStatusAbsent.tree).isNull();
     assertThat(attributeObjectStatusAbsent.ctx).isEqualTo(checkContext);
   }
 
   @Test
-  void testReportIfValue() {
+  void shouldReportIfValue() {
     TupleTree tree = parseTuple("a: b");
-    AttributeBlock attributeObjectStatusPresent = AttributeBlock.fromPresent(checkContext, tree, "a");
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "a");
     attributeObjectStatusPresent.reportIfValue(t -> true, "message");
     assertThat(raisedIssues).hasSize(1);
     TestIssue issue = raisedIssues.get(0);
@@ -86,16 +86,16 @@ class AttributeBlockTest extends YamlTreeTest {
   }
 
   @Test
-  void testReportIfValueFromAbsent() {
-    AttributeBlock attributeObject = AttributeBlock.fromAbsent(checkContext, "a");
+  void shouldReportIfValueFromAbsent() {
+    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "a");
     attributeObject.reportIfValue(t -> true, "message");
     assertThat(raisedIssues).isEmpty();
   }
 
   @Test
-  void reportIfAbsentShouldReportIssueOnAbsentObject() {
+  void shouldReportIfAbsentShouldReportIssueOnAbsentObject() {
     TupleTree tree = parseTuple("a: b");
-    AttributeBlock attributeObjectStatusPresent = AttributeBlock.fromAbsent(checkContext, "b");
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromAbsent(checkContext, "b");
     attributeObjectStatusPresent.reportIfAbsent(tree.metadata(), "message");
     assertThat(raisedIssues).hasSize(1);
     TestIssue issue = raisedIssues.get(0);
@@ -105,17 +105,17 @@ class AttributeBlockTest extends YamlTreeTest {
   }
 
   @Test
-  void reportIfAbsentShouldNotReportIssueOnPresentObject() {
+  void shouldReportIfAbsentShouldNotReportIssueOnPresentObject() {
     TupleTree tree = parseTuple("a: b");
-    AttributeBlock attributeObjectStatusPresent = AttributeBlock.fromPresent(checkContext, tree, "b");
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
     attributeObjectStatusPresent.reportIfAbsent(tree.metadata(), "message");
     assertThat(raisedIssues).isEmpty();
   }
 
   @Test
-  void reportIfAbsentForNull() {
+  void shouldReportIfAbsentForNull() {
     TupleTree tree = parseTuple("a: b");
-    AttributeBlock attributeObjectStatusPresent = AttributeBlock.fromPresent(checkContext, tree, "b");
+    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
     attributeObjectStatusPresent.reportIfAbsent(null, "message");
     assertThat(raisedIssues).isEmpty();
   }
@@ -123,7 +123,7 @@ class AttributeBlockTest extends YamlTreeTest {
   @Test
   void shouldReportOnKey() {
     TupleTree tree = parseTuple("a: b");
-    AttributeBlock attributeObject = AttributeBlock.fromPresent(checkContext, tree, "a");
+    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
     attributeObject.reportOnKey("message");
 
     assertThat(raisedIssues).hasSize(1);
@@ -135,7 +135,7 @@ class AttributeBlockTest extends YamlTreeTest {
 
   @Test
   void shouldNotReportOnKeyForMissingTree() {
-    AttributeBlock attributeObject = AttributeBlock.fromAbsent(checkContext, "resources");
+    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnKey("message");
 
     assertThat(raisedIssues).isEmpty();
@@ -144,7 +144,7 @@ class AttributeBlockTest extends YamlTreeTest {
   @Test
   void shouldReportOnValue() {
     TupleTree tree = parseTuple("a: b");
-    AttributeBlock attributeObject = AttributeBlock.fromPresent(checkContext, tree, "a");
+    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
     attributeObject.reportOnValue("message");
 
     assertThat(raisedIssues).hasSize(1);
@@ -156,7 +156,7 @@ class AttributeBlockTest extends YamlTreeTest {
 
   @Test
   void shouldNotReportOnValueForMissingTree() {
-    AttributeBlock attributeObject = AttributeBlock.fromAbsent(checkContext, "resources");
+    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnValue("message");
 
     assertThat(raisedIssues).isEmpty();
@@ -181,7 +181,7 @@ class AttributeBlockTest extends YamlTreeTest {
 
     @Override
     public void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations) {
-      raisedIssues.add(new AttributeBlockTest.TestIssue(toHighlight.textRange(), message, secondaryLocations));
+      raisedIssues.add(new AttributeObjectTest.TestIssue(toHighlight.textRange(), message, secondaryLocations));
     }
   }
 
