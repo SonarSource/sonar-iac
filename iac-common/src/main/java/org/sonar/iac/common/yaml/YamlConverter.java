@@ -20,7 +20,6 @@
 package org.sonar.iac.common.yaml;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -70,9 +69,8 @@ public class YamlConverter {
     }
 
     var fileNode = nodes.get(0);
-
-    TextRange fileRange = TextRanges.merge(List.of(range(fileNode), range(ListUtils.getLast(nodes))));
-    YamlTreeMetadata metadata = new YamlTreeMetadata("FILE", fileRange, comments(fileNode.getEndComments()));
+    var fileRange = TextRanges.merge(List.of(range(fileNode), range(ListUtils.getLast(nodes))));
+    var metadata = new YamlTreeMetadata("FILE", fileRange, comments(fileNode.getEndComments()));
     List<YamlTree> documents = nodes.stream().map(this::convert).collect(Collectors.toList());
     return new FileTreeImpl(documents, metadata, template);
   }
