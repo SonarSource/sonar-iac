@@ -23,28 +23,21 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class BlockObject extends YamlObject<BlockObject, MappingTree> {
+public class BlockObject extends YamlObject<MappingTree> {
 
   protected BlockObject(CheckContext ctx, @Nullable MappingTree tree, String key, Status status) {
     super(ctx, tree, key, status);
   }
 
-  @Nullable
-  @Override
-  protected HasTextRange toHighlight() {
-    return tree;
-  }
-
   public static BlockObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
-    if (tree instanceof MappingTree) {
-      return new BlockObject(ctx, (MappingTree) tree, key, Status.PRESENT);
+    if (tree instanceof MappingTree mappingTree) {
+      return new BlockObject(ctx, mappingTree, key, Status.PRESENT);
     }
     return new BlockObject(ctx, null, key, Status.UNKNOWN);
   }

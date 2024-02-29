@@ -8,7 +8,9 @@ metadata:
     compliantOneSlash: http:/example.com # Compliant
     compliantDifferentProtocol: file:///opt/sdks/bin/sdk # Compliant
     nonCompliantUpperCase: HTTP://example.com # Noncompliant
+                         # ^^^^^^^^^^^^^^^^^^
     nonCompliantMixedCase: HttP://example.com # Noncompliant
+                         # ^^^^^^^^^^^^^^^^^^
 spec:
   template:
     spec:
@@ -64,3 +66,5 @@ metadata:
 spec:
   externalIPs:
     - http://example.com/ # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+#     ^^^^^^^^^^^^^^^^^^^
+---

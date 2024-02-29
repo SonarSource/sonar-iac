@@ -34,18 +34,18 @@ spec:
           resources:
             limits:
               cpu: "~" # Noncompliant
-            # ^^^^^^^^
+                 # ^^^
 
         - name: noncompliant_cpu_limit_empty_brackets
           resources:
             limits:
               cpu: "[]" # Noncompliant
-            # ^^^^^^^^^
+                 # ^^^^
 
         - resources:
             limits:
               cpu: "null" # Noncompliant
-            # ^^^^^^^^^^^
+                 # ^^^^^^
           name: noncompliant_cpu_limit_null
 
         - name: compliant_cpu_limit # Compliant

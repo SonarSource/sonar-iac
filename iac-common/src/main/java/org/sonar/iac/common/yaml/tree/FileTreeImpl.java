@@ -22,6 +22,7 @@ package org.sonar.iac.common.yaml.tree;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class FileTreeImpl extends YamlTreeImpl implements FileTree {
   private final List<YamlTree> documents;
@@ -47,5 +48,10 @@ public class FileTreeImpl extends YamlTreeImpl implements FileTree {
   @Override
   public Template template() {
     return template;
+  }
+
+  @Override
+  public TextRange toHighlight() {
+    return documents.get(0).textRange();
   }
 }

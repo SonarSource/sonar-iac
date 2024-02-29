@@ -45,15 +45,15 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
     register(SENSITIVE_KINDS, document -> document.blocks("rules")
       .forEach((BlockObject rule) -> SENSITIVE_RULE_ATTRIBUTES.forEach((String attributeKey) -> {
         if (containsWildCardItem(rule, attributeKey)) {
-          rule.attribute(attributeKey).reportOnKey(MESSAGE);
+          rule.attribute(attributeKey).reportOnValue(MESSAGE);
         }
       })));
   }
 
   @Override
   void initializeCheck(CheckContext ctx) {
-    if (ctx instanceof HelmAwareCheckContext) {
-      ((HelmAwareCheckContext) ctx).setShouldReportSecondaryInValues(true);
+    if (ctx instanceof HelmAwareCheckContext helmContext) {
+      helmContext.setShouldReportSecondaryInValues(true);
     }
   }
 

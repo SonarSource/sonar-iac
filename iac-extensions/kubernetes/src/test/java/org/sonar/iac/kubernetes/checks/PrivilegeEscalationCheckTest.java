@@ -28,12 +28,12 @@ class PrivilegeEscalationCheckTest {
 
   @Test
   void test_pod_object() {
-    KubernetesVerifier.verify("PrivilegeEscalationCheck/test_pod_object.yaml", check);
+    KubernetesVerifier.verify("PrivilegeEscalationCheck/privilege_escalation_pod.yaml", check);
   }
 
   @Test
   void test_template_object() {
-    KubernetesVerifier.verify("PrivilegeEscalationCheck/test_template_object.yaml", check);
+    KubernetesVerifier.verify("PrivilegeEscalationCheck/privilege_escalation_deployment.yaml", check);
   }
 
   @Test

@@ -22,7 +22,6 @@ package org.sonar.iac.kubernetes.checks;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.testing.Verifier;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
@@ -32,12 +31,12 @@ class CapabilitiesCheckTest {
 
   @Test
   void shouldVerifyPodObject() {
-    KubernetesVerifier.verify("CapabilitiesCheck/test_pod_object.yaml", check);
+    KubernetesVerifier.verify("CapabilitiesCheck/capabilities_pod.yaml", check);
   }
 
   @Test
   void shouldVerifyDeployment() {
-    KubernetesVerifier.verify("CapabilitiesCheck/test_template_object.yaml", check);
+    KubernetesVerifier.verify("CapabilitiesCheck/capabilities_deployment.yaml", check);
   }
 
   @Test
@@ -50,18 +49,18 @@ class CapabilitiesCheckTest {
     var secondaryLocation1 = new SecondaryLocation(range(1, 14, 1, 27),
       "This value is used in a noncompliant part of a template",
       "CapabilitiesCheck/CapabilitiesChart/values.yaml");
-    var issue1 = issue(12, 25, 12, 45,
+    var issue1 = issue(12, 25, 12, 44,
       "Make sure setting capabilities is safe here.",
       secondaryLocation1);
 
     var secondaryLocation2 = new SecondaryLocation(range(2, 15, 2, 40),
       "This value is used in a noncompliant part of a template",
       "CapabilitiesCheck/CapabilitiesChart/values.yaml");
-    var issue2 = issue(25, 25, 25, 46,
+    var issue2 = issue(25, 25, 25, 45,
       "Make sure setting capabilities is safe here.",
       secondaryLocation2);
 
-    var issue3 = issue(40, 27, 40, 43, "Make sure setting capabilities is safe here.", secondaryLocation1);
+    var issue3 = issue(41, 0, 41, 29, "Make sure setting capabilities is safe here.");
 
     KubernetesVerifier.verify("CapabilitiesCheck/CapabilitiesChart/templates/capabilities-pod-secondary.yaml",
       check,

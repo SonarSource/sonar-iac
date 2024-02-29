@@ -21,7 +21,7 @@ spec:
           securityContext:
             capabilities:
               add: ["SYS_ADMIN"] # Noncompliant {{Make sure setting capabilities is safe here.}}
-            # ^^^^^^^^^^^^^^^^^^
+                  # ^^^^^^^^^^^
 
         - image: ubuntu-2
           command: [ "sleep", "6000" ]

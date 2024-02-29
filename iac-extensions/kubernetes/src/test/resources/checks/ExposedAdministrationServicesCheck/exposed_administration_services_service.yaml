@@ -7,14 +7,17 @@ spec:
   ports:
     - port: 8022
       targetPort: 22  # NonCompliant {{Make sure that exposing administration services is safe here.}}
-  #   ^^^^^^^^^^^^^^
+                # ^^
     - targetPort: 23 # NonCompliant
-#     ^^^^^^^^^^^^^^
+                # ^^
       port: 23
     - targetPort: 5900 # NonCompliant
+                # ^^^^
     - targetPort: 5800 # NonCompliant
+                # ^^^^
     - targetPort: 338 # Compliant
     - targetPort: "5900" # NonCompliant
+                # ^^^^^^
     - port: 3389
   selector:
     app: example_app

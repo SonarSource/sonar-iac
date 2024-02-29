@@ -43,7 +43,7 @@ spec:
           resources:
             limits:
               ephemeral-storage: "~" # Noncompliant
-            # ^^^^^^^^^^^^^^^^^^^^^^
+                               # ^^^
           volumeMounts:
             - name: ephemeral
               mountPath: "/tmp"
@@ -52,7 +52,7 @@ spec:
           resources:
             limits:
               ephemeral-storage: "[]" # Noncompliant
-            # ^^^^^^^^^^^^^^^^^^^^^^^
+                               # ^^^^
           volumeMounts:
             - name: ephemeral
               mountPath: "/tmp"
@@ -60,7 +60,7 @@ spec:
         - resources:
             limits:
               ephemeral-storage: "null" # Noncompliant
-            # ^^^^^^^^^^^^^^^^^^^^^^^^^
+                               # ^^^^^^
           name: noncompliant_ephemeral-storage_limit_null
           volumeMounts:
             - name: ephemeral

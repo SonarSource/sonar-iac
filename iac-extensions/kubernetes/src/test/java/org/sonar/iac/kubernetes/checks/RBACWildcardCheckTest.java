@@ -51,14 +51,10 @@ class RBACWildcardCheckTest {
 
   @Test
   void testSecondariesInHelmChart() {
-    var expectedSecondary = new SecondaryLocation(
-      range(3, 8, 3, 11),
-      "This value is used in a noncompliant part of a template",
-      "RBACWildcardCheck/helm/values.yaml");
     var expectedIssues = new Verifier.Issue[] {
-      new Verifier.Issue(range(9, 0, 9, 29)),
-      new Verifier.Issue(range(12, 22, 12, 39),
-        "Do not use wildcards when defining RBAC permissions.", expectedSecondary)};
+      new Verifier.Issue(range(11, 0, 11, 11)),
+      new Verifier.Issue(range(13, 22, 13, 38),
+        "Do not use wildcards when defining RBAC permissions.")};
 
     KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check, expectedIssues);
   }

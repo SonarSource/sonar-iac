@@ -35,7 +35,7 @@ import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 class FunctionCallTreeImplTest {
 
   @Test
-  void parse_function_call() {
+  void shouldParseFunctionCall() {
     assertShortFunctionCall("!GetAtt logicalNameOfResource.attributeName");
     assertShortFunctionCall("!Ref logicalNameOfResource");
     assertFullFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]");
@@ -50,7 +50,7 @@ class FunctionCallTreeImplTest {
   }
 
   @Test
-  void get_function_call_name() {
+  void shouldGetFunctionCallName() {
     assertThat(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").name()).isEqualTo("GetAtt");
     assertThat(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").name()).isEqualTo("GetAtt");
     assertThat(parseFunctionCall("!Ref logicalNameOfResource").name()).isEqualTo("Ref");
@@ -61,24 +61,36 @@ class FunctionCallTreeImplTest {
   }
 
   @Test
-  void get_function_call_location() {
+  void shouldGetFunctionCallTextRange() {
     assertThat(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").textRange())
       .hasRange(1, 0, 1, 43);
     assertThat(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").textRange())
       .hasRange(1, 0, 1, 50);
     assertThat(parseFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName").textRange())
       .hasRange(1, 0, 3, 18);
+    assertThat(parseFunctionCall("Fn::GetAtt:").textRange())
+      .hasRange(1, 0, 1, 11);
   }
 
   @Test
-  void get_function_call_arguments() {
+  void shouldGetFunctionCallToHighlight() {
+    assertThat(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").toHighlight())
+      .hasRange(1, 0, 1, 43);
+    assertThat(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").toHighlight())
+      .hasRange(1, 0, 1, 50);
+    assertThat(parseFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName").toHighlight())
+      .hasRange(1, 0, 3, 18);
+  }
+
+  @Test
+  void shouldGetFunctionCallArguments() {
     assertThat(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").arguments()).hasSize(1);
     assertThat(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").arguments()).hasSize(2);
     assertThat(parseFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName").arguments()).hasSize(2);
   }
 
   @Test
-  void function_call_with_multiple_arguments() {
+  void shouldParseFunctionCallWithMultipleArguments() {
     FunctionCallTree tree = parse("{'Fn::Sub': ['foo', {'foo':'bar'}]}", FunctionCallTree.class);
     assertThat(tree.arguments()).hasSize(2);
     assertThat(tree.arguments().get(0)).isInstanceOf(ScalarTree.class);
@@ -86,7 +98,7 @@ class FunctionCallTreeImplTest {
   }
 
   @Test
-  void function_call_with_variable() {
+  void shouldParseFunctionCallWithVariable() {
     FunctionCallTree tree = parse("!Sub 'arn:aws:iam::${AWS::AccountId}:root'", FunctionCallTree.class);
     assertThat(tree.arguments()).hasSize(1);
     assertThat(tree.arguments().get(0)).isInstanceOfSatisfying(ScalarTree.class, argument -> {
@@ -95,7 +107,7 @@ class FunctionCallTreeImplTest {
   }
 
   @Test
-  void nested_function_call() {
+  void shouldParseNestedFunctionCall() {
     FunctionCallTree tree = parse("!Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]", FunctionCallTree.class);
     assertThat(tree.arguments()).hasSize(2);
     assertThat(tree.arguments().get(1)).isInstanceOfSatisfying(SequenceTree.class, sequence -> {

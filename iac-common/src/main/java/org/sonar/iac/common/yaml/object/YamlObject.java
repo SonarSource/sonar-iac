@@ -19,14 +19,11 @@
  */
 package org.sonar.iac.common.yaml.object;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-// TODO: Find better naming for wrapped trees than object or symbol
-abstract class YamlObject<T extends YamlObject<?, ?>, K extends YamlTree> {
+class YamlObject<K extends YamlTree> {
 
   public final CheckContext ctx;
   public final @Nullable K tree;
@@ -44,14 +41,5 @@ abstract class YamlObject<T extends YamlObject<?, ?>, K extends YamlTree> {
     this.tree = tree;
     this.key = key;
     this.status = status;
-  }
-
-  @Nullable
-  protected abstract HasTextRange toHighlight();
-
-  public T report(String message) {
-    Optional.ofNullable(toHighlight())
-      .ifPresent(hasTextRange -> ctx.reportIssue(hasTextRange, message));
-    return (T) this;
   }
 }

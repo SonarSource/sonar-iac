@@ -22,6 +22,7 @@ package org.sonar.iac.cloudformation.tree;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeImpl;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
@@ -57,5 +58,10 @@ public class FunctionCallTreeImpl extends YamlTreeImpl implements FunctionCallTr
   @Override
   public List<YamlTree> arguments() {
     return arguments;
+  }
+
+  @Override
+  public TextRange toHighlight() {
+    return metadata().textRange();
   }
 }

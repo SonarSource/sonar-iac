@@ -27,17 +27,17 @@ class MountingFileSystemPathsCheckTest {
   IacCheck check = new MountingFileSystemPathsCheck();
 
   @Test
-  void test_persistent_volume() {
-    KubernetesVerifier.verify("MountingFileSystemPathsCheck/test_persistent_vol.yaml", check);
+  void shouldVerifyMountingFileSystemInPersistentVolume() {
+    KubernetesVerifier.verify("MountingFileSystemPathsCheck/mounting_file_system_persistent_vol.yaml", check);
   }
 
   @Test
-  void test_pod_object() {
-    KubernetesVerifier.verify("MountingFileSystemPathsCheck/test_pod_object.yaml", check);
+  void shouldVerifyMountingFileSystemInPod() {
+    KubernetesVerifier.verify("MountingFileSystemPathsCheck/mounting_file_system_pod.yaml", check);
   }
 
   @Test
-  void test_template_object() {
-    KubernetesVerifier.verify("MountingFileSystemPathsCheck/test_template_object.yaml", check);
+  void shouldVerifyMountingFileSystemInDeployment() {
+    KubernetesVerifier.verify("MountingFileSystemPathsCheck/mounting_file_system_deployment.yaml", check);
   }
 }

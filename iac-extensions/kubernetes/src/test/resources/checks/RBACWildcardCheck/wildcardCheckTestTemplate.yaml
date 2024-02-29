@@ -6,37 +6,41 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["*"] # Noncompliant {{Do not use wildcards when defining RBAC permissions.}}
-#   ^^^^^^^^^
+              # ^^^
     verbs: ["*"] # Noncompliant {{Do not use wildcards when defining RBAC permissions.}}
-#   ^^^^^
+          # ^^^
 
   - apiGroups: [""]
     resources: ["*"] # Noncompliant
-#   ^^^^^^^^^
+              # ^^^
     verbs: ["create"]
 
   - apiGroups: [""]
     resources: ["pods/exec"]
     verbs: ["*"] # Noncompliant
-#   ^^^^^
+          # ^^^
 
   - apiGroups: [""]
     resources: ["services", "*", "endpointslices", "pods"] # Noncompliant
+              # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     verbs: ["get", "list", "watch", "*", "update", "patch", "delete"] # Noncompliant
+          # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   - apiGroups: [""]
-    resources: # Noncompliant
-#   ^^^^^^^^^
+# Noncompliant@+2
+    resources:
       - "*"
+      # ^^^
     verbs:
       - "create"
 
   - apiGroups: [""]
     "resources":
       - "pods/exec"
-    "verbs": # Noncompliant
-#   ^^^^^^^
+# Noncompliant@+2
+    "verbs":
       - "*"
+      # ^^^
 
   - apiGroups: [""]
     resources: ["pods/exec"] # Compliant

@@ -9,9 +9,9 @@ spec:
       name: test-container
       securityContext:
         capabilities:
-# Noncompliant@+1
+          # Noncompliant@+1
           add: {{ .Values.capabilities | toYaml | nindent 10 }}
-#                        ^^^^^^^^^^^^^^^^^^^^
+#                        ^^^^^^^^^^^^^^^^^^^
 ---
 apiVersion: v1
 kind: Pod
@@ -24,9 +24,9 @@ spec:
       name: test-container
       securityContext:
         capabilities:
-# Noncompliant@+1
+          # Noncompliant@+1
           add: {{ .Values.capabilities | toYaml | nindent 10 }}
-#                        ^^^^^^^^^^^^^^^^^^^^
+#                        ^^^^^^^^^^^^^^^^^^^
 ---
 apiVersion: v1
 kind: Pod
@@ -41,9 +41,8 @@ spec:
       {{- if .Values.capabilities }}
         capabilities:
           add:
-# Noncompliant@+1
+# Noncompliant@+2
           {{- range .Values.capabilities }}
-#                          ^^^^^^^^^^^^^^^^
             - {{ . | quote }}
           {{- end }}
       {{- end }}

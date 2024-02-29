@@ -11,4 +11,6 @@ spec:
         - mountPath: /var/run/d ocker.sock
           name: test-volume
   hostPath:
-    path: /another/path/docker.sock
+    path: /bin # Noncompliant {{Make sure mounting the file system path is safe here.}}
+        # ^^^^
+---

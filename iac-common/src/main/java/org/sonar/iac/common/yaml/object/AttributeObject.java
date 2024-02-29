@@ -23,18 +23,19 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
+public class AttributeObject extends YamlObject<TupleTree> {
 
   AttributeObject(CheckContext ctx, @Nullable TupleTree tree, String key, Status status) {
     super(ctx, tree, key, status);
   }
 
   public static AttributeObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
-    if (tree instanceof TupleTree) {
-      return new AttributeObject(ctx, (TupleTree) tree, key, Status.PRESENT);
+    if (tree instanceof TupleTree tupleTree) {
+      return new AttributeObject(ctx, tupleTree, key, Status.PRESENT);
     }
     return new AttributeObject(ctx, null, key, Status.UNKNOWN);
   }
@@ -45,19 +46,19 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
 
   public AttributeObject reportIfValue(Predicate<YamlTree> predicate, String message) {
     if (tree != null && predicate.test(tree.value())) {
-      report(message);
+      ctx.reportIssue(tree.value(), message);
     }
     return this;
   }
 
-  public AttributeObject reportIfAbsent(@Nullable HasTextRange textRange, String message) {
-    if (this.status == Status.ABSENT) {
-      report(textRange, message);
+  public AttributeObject reportIfAbsent(@Nullable HasTextRange hasTextRange, String message) {
+    if (this.status == Status.ABSENT && hasTextRange != null) {
+      report(hasTextRange.textRange(), message);
     }
     return this;
   }
 
-  public AttributeObject report(@Nullable HasTextRange textRange, String message) {
+  private AttributeObject report(@Nullable TextRange textRange, String message) {
     if (textRange != null) {
       ctx.reportIssue(textRange, message);
     }
@@ -66,15 +67,15 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
 
   public AttributeObject reportOnKey(String message) {
     if (tree != null) {
-      report(tree.key().metadata(), message);
+      report(tree.key().textRange(), message);
     }
     return this;
   }
 
-  @Nullable
-  @Override
-  protected HasTextRange toHighlight() {
-    return tree;
+  public AttributeObject reportOnValue(String message) {
+    if (tree != null) {
+      report(tree.value().toHighlight(), message);
+    }
+    return this;
   }
-
 }

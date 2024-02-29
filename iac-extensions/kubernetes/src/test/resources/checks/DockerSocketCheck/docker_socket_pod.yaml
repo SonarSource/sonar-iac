@@ -14,7 +14,7 @@ spec:
     - name: test-volume
       hostPath:
         path: /var/run/docker.sock # Noncompliant {{Make sure exposing the Docker socket is safe here.}}
-      # ^^^^^^^^^^^^^^^^^^^^^^^^^^
+            # ^^^^^^^^^^^^^^^^^^^^
       securityContext:
         privileged: false
 

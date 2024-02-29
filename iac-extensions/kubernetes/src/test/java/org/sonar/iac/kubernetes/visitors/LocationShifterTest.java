@@ -46,6 +46,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
+import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
 import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
 import org.sonar.iac.helm.tree.impl.FieldNodeImpl;
@@ -84,7 +85,7 @@ final class LocationShifterTest {
   @Test
   void shouldReturnShiftedRange() {
     setLinesSizes(ctx, 5, 10);
-    shifter.addShiftedLine(ctx, 1, 2);
+    shifter.addShiftedLine(ctx, 1, 2, 2);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRange).hasRange(2, 0, 2, 10);
   }
@@ -100,8 +101,8 @@ final class LocationShifterTest {
   @Test
   void shouldOverridePreviousShift() {
     setLinesSizes(ctx, 5, 10);
-    shifter.addShiftedLine(ctx, 1, 5);
-    shifter.addShiftedLine(ctx, 1, 2);
+    shifter.addShiftedLine(ctx, 1, 5, 5);
+    shifter.addShiftedLine(ctx, 1, 2, 2);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRange).hasRange(2, 0, 2, 10);
   }
@@ -109,8 +110,8 @@ final class LocationShifterTest {
   @Test
   void shouldKeepAllShifts() {
     setLinesSizes(ctx, 5, 10, 15, 20);
-    shifter.addShiftedLine(ctx, 1, 3);
-    shifter.addShiftedLine(ctx, 2, 4);
+    shifter.addShiftedLine(ctx, 1, 3, 3);
+    shifter.addShiftedLine(ctx, 2, 4, 4);
 
     TextRange shiftedRange1 = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRange1).hasRange(3, 0, 3, 15);
@@ -122,8 +123,8 @@ final class LocationShifterTest {
   @Test
   void shouldAllowSameTargetLine() {
     setLinesSizes(ctx, 5, 10, 15);
-    shifter.addShiftedLine(ctx, 1, 3);
-    shifter.addShiftedLine(ctx, 2, 3);
+    shifter.addShiftedLine(ctx, 1, 3, 3);
+    shifter.addShiftedLine(ctx, 2, 3, 3);
 
     TextRange shiftedRange1 = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRange1).hasRange(3, 0, 3, 15);
@@ -135,7 +136,7 @@ final class LocationShifterTest {
   @Test
   void shouldShiftStartRangeOnlyForRegisteredLineShift() {
     setLinesSizes(ctx, 5, 10, 15);
-    shifter.addShiftedLine(ctx, 1, 2);
+    shifter.addShiftedLine(ctx, 1, 2, 2);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 3, 3));
     assertThat(shiftedRange).hasRange(2, 0, 3, 15);
   }
@@ -143,7 +144,7 @@ final class LocationShifterTest {
   @Test
   void shouldShiftEndRangeOnlyForRegisteredLineShift() {
     setLinesSizes(ctx, 5, 10, 15);
-    shifter.addShiftedLine(ctx, 2, 3);
+    shifter.addShiftedLine(ctx, 2, 3, 3);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 2, 3));
     assertThat(shiftedRange).hasRange(3, 0, 3, 15);
   }
@@ -151,8 +152,8 @@ final class LocationShifterTest {
   @Test
   void shouldProvideShiftedRangeOnMultipleLines() {
     setLinesSizes(ctx, 5, 10, 15, 20);
-    shifter.addShiftedLine(ctx, 1, 3);
-    shifter.addShiftedLine(ctx, 2, 4);
+    shifter.addShiftedLine(ctx, 1, 3, 3);
+    shifter.addShiftedLine(ctx, 2, 4, 4);
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(1, 1, 2, 3));
     assertThat(shiftedRange).hasRange(3, 0, 4, 20);
   }
@@ -160,7 +161,7 @@ final class LocationShifterTest {
   @Test
   void shouldSkipShiftingIfContextIsNotRecorded() {
     setLinesSizes(ctx, 5, 10, 15);
-    shifter.addShiftedLine(ctx, 3, 1);
+    shifter.addShiftedLine(ctx, 3, 1, 1);
 
     InputFileContext differentCtx = new InputFileContext(context, createInputFile("file_2"));
 
@@ -175,8 +176,8 @@ final class LocationShifterTest {
 
     setLinesSizes(ctx, 5, 10, 15);
     setLinesSizes(differentCtx, 6, 11, 16, 21);
-    shifter.addShiftedLine(ctx, 1, 3);
-    shifter.addShiftedLine(differentCtx, 2, 4);
+    shifter.addShiftedLine(ctx, 1, 3, 3);
+    shifter.addShiftedLine(differentCtx, 2, 4, 4);
 
     TextRange shiftedRangeCtx1_1 = shifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
     assertThat(shiftedRangeCtx1_1).hasRange(3, 0, 3, 15);
@@ -192,8 +193,8 @@ final class LocationShifterTest {
   @Test
   void shouldShiftLocationsWithoutExplicitNumbers() {
     setLinesSizes(ctx, 2, 3, 4, 5, 10);
-    shifter.addShiftedLine(ctx, 4, 1);
-    shifter.addShiftedLine(ctx, 5, 2);
+    shifter.addShiftedLine(ctx, 4, 1, 1);
+    shifter.addShiftedLine(ctx, 5, 2, 2);
 
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(3, 1, 3, 3));
 
@@ -204,7 +205,7 @@ final class LocationShifterTest {
   void shouldShiftLocationsWithoutExplicitNumbersWithRanges() {
     setLinesSizes(ctx, 2, 3, 4, 5, 10);
     shifter.addShiftedLine(ctx, 4, 1, 3);
-    shifter.addShiftedLine(ctx, 5, 4);
+    shifter.addShiftedLine(ctx, 5, 4, 4);
 
     TextRange shiftedRange = shifter.computeShiftedLocation(ctx, range(3, 1, 3, 3));
 
@@ -214,7 +215,7 @@ final class LocationShifterTest {
   @Test
   void shouldShiftSecondaryLocationOnUnsetFilePath() {
     setLinesSizes(ctx, 5, 10);
-    shifter.addShiftedLine(ctx, 1, 2);
+    shifter.addShiftedLine(ctx, 1, 2, 2);
 
     var secondaryLocation = new SecondaryLocation(range(1, 1, 1, 3), "message");
     SecondaryLocation shiftedSecondaryLocation = shifter.computeShiftedSecondaryLocation(ctx, secondaryLocation);
@@ -227,7 +228,7 @@ final class LocationShifterTest {
   @Test
   void shouldShiftSecondaryLocationOnDefinedFilePathPointingToPrimaryFile() {
     setLinesSizes(ctx, 5, 10);
-    shifter.addShiftedLine(ctx, 1, 2);
+    shifter.addShiftedLine(ctx, 1, 2, 2);
 
     var secondaryLocation = new SecondaryLocation(range(1, 1, 1, 3), "message", "primaryFile");
     SecondaryLocation shiftedSecondaryLocation = shifter.computeShiftedSecondaryLocation(ctx, secondaryLocation);
@@ -240,7 +241,7 @@ final class LocationShifterTest {
   @Test
   void shouldNotShiftSecondaryLocationOnSecondaryFile() {
     setLinesSizes(ctx, 5, 10);
-    shifter.addShiftedLine(ctx, 1, 2);
+    shifter.addShiftedLine(ctx, 1, 2, 2);
 
     InputFile secondaryFile = createInputFile("secondaryFile");
     context.fileSystem().add(secondaryFile);
@@ -254,7 +255,7 @@ final class LocationShifterTest {
   @Test
   void shouldNotShiftSecondaryLocationOnNonExistingFile() {
     setLinesSizes(ctx, 5, 10);
-    shifter.addShiftedLine(ctx, 1, 2);
+    shifter.addShiftedLine(ctx, 1, 2, 2);
 
     var secondaryLocation = new SecondaryLocation(range(1, 1, 1, 3), "message", "nonExistingFile");
     SecondaryLocation shiftedSecondaryLocation = shifter.computeShiftedSecondaryLocation(ctx, secondaryLocation);
@@ -294,7 +295,7 @@ final class LocationShifterTest {
   void shouldComputeHelmValuePathTextRange() {
     var helmInputFileContext = inputFileContextWithTree();
     var textRange = shifter.computeHelmValuePathTextRange(helmInputFileContext, range(1, 6, 1, 22));
-    assertThat(textRange).hasRange(1, 15, 1, 18);
+    assertThat(textRange).hasRange(1, 15, 1, 17);
   }
 
   @Test
@@ -340,6 +341,14 @@ final class LocationShifterTest {
       .contains("Unable to read file path/to/file.yaml raising issue on less precise location");
   }
 
+  @Test
+  void shouldNotFixLocationIfNodeHasLengthOne() {
+    var helmInputFileContext = inputFileContextWithTreeValueLength1();
+    var range = range(1, 0, 1, 22);
+    var textRange = shifter.computeHelmValuePathTextRange(helmInputFileContext, range);
+    assertThat(textRange).hasRange(1, 15, 1, 16);
+  }
+
   void setLinesSizes(InputFileContext ctx, int... linesSizes) {
     for (int lineNumber = 1; lineNumber <= linesSizes.length; lineNumber++) {
       shifter.addLineSize(ctx, lineNumber, linesSizes[lineNumber - 1]);
@@ -353,13 +362,22 @@ final class LocationShifterTest {
   }
 
   private HelmInputFileContext inputFileContextWithTree() {
+    var fieldNode = new FieldNodeImpl(15, 3, List.of("Values", "bar"));
+    return inputFileContextWithTree(fieldNode);
+  }
+
+  private HelmInputFileContext inputFileContextWithTreeValueLength1() {
+    var fieldNode = new FieldNodeImpl(15, 1, List.of("Values", "b"));
+    return inputFileContextWithTree(fieldNode);
+  }
+
+  private HelmInputFileContext inputFileContextWithTree(FieldNode fieldNode) {
     var valuesFile = new TestInputFileBuilder("test", ".")
       .setContents("bar: baz")
       .build();
     var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null));
     inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
 
-    var fieldNode = new FieldNodeImpl(15, 3, List.of("Values", "bar"));
     var command = new CommandNodeImpl(8, 11, List.of(fieldNode));
     var pipeNode = new PipeNodeImpl(8, 11, List.of(), List.of(command));
     var actionNode = new ActionNodeImpl(8, 15, pipeNode);

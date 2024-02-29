@@ -22,6 +22,7 @@ package org.sonar.iac.common.yaml.tree;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class ScalarTreeImpl extends YamlTreeImpl implements ScalarTree {
 
@@ -47,5 +48,10 @@ public class ScalarTreeImpl extends YamlTreeImpl implements ScalarTree {
   @Override
   public List<Tree> children() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public TextRange toHighlight() {
+    return metadata().textRange();
   }
 }

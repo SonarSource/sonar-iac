@@ -27,16 +27,16 @@ class CpuLimitCheckTest {
 
   @Test
   void testPodKind() {
-    KubernetesVerifier.verify("CpuLimitCheck/test_pod_object.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/cpu_limit_pod.yaml", check);
   }
 
   @Test
   void testKindWithTemplate() {
-    KubernetesVerifier.verify("CpuLimitCheck/test_template_object.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/cpu_limit_deployment.yaml", check);
   }
 
   @Test
   void testPodKindForHelm() {
-    KubernetesVerifier.verify("CpuLimitCheck/helm/templates/test_pod_object_helm.yaml", check);
+    KubernetesVerifier.verify("CpuLimitCheck/helm/templates/cpu_limit_helm.yaml", check);
   }
 }

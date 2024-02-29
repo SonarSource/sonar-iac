@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
@@ -37,7 +36,7 @@ class BlockObjectTest extends YamlTreeTest {
   CheckContext ctx = mock(CheckContext.class);
 
   @Test
-  void fromPresent() {
+  void shouldVerifyFromPresent() {
     MappingTree tree = parseMap("a: b");
     BlockObject block = BlockObject.fromPresent(ctx, tree, "a");
     assertThat(block.key).isEqualTo("a");
@@ -47,7 +46,7 @@ class BlockObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void fromPresent_unknown() {
+  void shouldVerifyFromPresentUnknown() {
     YamlTree tree = parse("a:b", YamlTree.class);
     BlockObject block = BlockObject.fromPresent(ctx, tree, "a");
     assertThat(block.key).isEqualTo("a");
@@ -57,7 +56,7 @@ class BlockObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void fromAbsent() {
+  void shouldVerifyFromAbsent() {
     BlockObject block = BlockObject.fromAbsent(ctx, "a");
     assertThat(block.key).isEqualTo("a");
     assertThat(block.status).isEqualTo(YamlObject.Status.ABSENT);
@@ -66,7 +65,7 @@ class BlockObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void blocks() {
+  void shouldVerifyBlocks() {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo:\n - key: value"), "a");
     List<BlockObject> presentBlocks = block.blocks("foo").collect(Collectors.toList());
 
@@ -75,7 +74,7 @@ class BlockObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void block() {
+  void shouldVerifyBlock() {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo:\n key: value"), "a");
     BlockObject presentBlock = block.block("foo");
     assertThat(presentBlock.status).isEqualTo(YamlObject.Status.PRESENT);
@@ -85,7 +84,7 @@ class BlockObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void attribute() {
+  void shouldVerifyAttribute() {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: bar"), "a");
     AttributeObject presentAttr = block.attribute("foo");
     assertThat(presentAttr.status).isEqualTo(YamlObject.Status.PRESENT);
@@ -95,7 +94,7 @@ class BlockObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void list() {
+  void shouldVerifyList() {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: [bar, car]"), "a");
     ListObject listPresent = block.list("foo");
     assertThat(listPresent.status).isEqualTo(YamlObject.Status.PRESENT);
@@ -111,5 +110,4 @@ class BlockObjectTest extends YamlTreeTest {
   public MappingTree parseMap(String source) {
     return parse(source, MappingTree.class);
   }
-
 }

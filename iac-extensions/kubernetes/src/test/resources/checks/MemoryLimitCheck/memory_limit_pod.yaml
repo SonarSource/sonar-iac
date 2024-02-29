@@ -27,21 +27,21 @@ spec:
       resources:
         limits:
           memory: "~" # Noncompliant
-        # ^^^^^^^^^^^
+                # ^^^
 
     - name: noncompliant_memory_limit_empty_brackets
       image: nginx
       resources:
         limits:
           memory: "[]" # Noncompliant
-        # ^^^^^^^^^^^^
+                # ^^^^
 
     - image: nginx
       name: noncompliant_memory_limit_null
       resources:
         limits:
           memory: "null" # Noncompliant
-        # ^^^^^^^^^^^^^^
+                # ^^^^^^
 
     - name: compliant_memory_limit # Compliant
       image: nginx

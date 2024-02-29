@@ -28,62 +28,68 @@ import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 class ScalarTreeImplTest extends YamlTreeTest {
 
   @Test
-  void double_quoted() {
+  void shouldParseDoubleQuoted() {
     ScalarTree tree = parse("\"a\"", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 3);
+    assertThat(tree.toHighlight()).hasRange(1, 0, 1, 3);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED);
   }
 
   @Test
-  void single_quoted() {
+  void shouldParseSingleQuoted() {
     ScalarTree tree = parse("'a'", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 3);
+    assertThat(tree.toHighlight()).hasRange(1, 0, 1, 3);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.SINGLE_QUOTED);
   }
 
   @Test
-  void literal() {
+  void shouldParseLiteral() {
     ScalarTree tree = parse("| \n a", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
     assertThat(tree.textRange()).hasRange(1, 0, 2, 2);
+    assertThat(tree.toHighlight()).hasRange(1, 0, 2, 2);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.LITERAL);
   }
 
   @Test
-  void folded() {
+  void shouldParseFolded() {
     ScalarTree tree = parse("> \n a", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
     assertThat(tree.textRange()).hasRange(1, 0, 2, 2);
+    assertThat(tree.toHighlight()).hasRange(1, 0, 2, 2);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.FOLDED);
   }
 
   @Test
-  void plain() {
+  void shouldParsePlain() {
     ScalarTree tree = parse("a", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 1);
+    assertThat(tree.toHighlight()).hasRange(1, 0, 1, 1);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.PLAIN);
   }
 
   @Test
-  void plain_integer() {
+  void shouldParsePlainInteger() {
     ScalarTree tree = parse("123", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("123");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:int");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 3);
+    assertThat(tree.toHighlight()).hasRange(1, 0, 1, 3);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.PLAIN);
   }
 }

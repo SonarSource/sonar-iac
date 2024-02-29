@@ -27,18 +27,18 @@ class DockerSocketCheckTest {
   IacCheck check = new DockerSocketCheck();
 
   @Test
-  void test_persistent_volume() {
-    KubernetesVerifier.verify("DockerSocketCheck/test_persistent_vol.yaml", check);
-    KubernetesVerifier.verifyNoIssue("DockerSocketCheck/test_persistent_vol_compliant.yaml", check);
+  void testPersistentVolume() {
+    KubernetesVerifier.verify("DockerSocketCheck/docker_socket_persistent_vol.yaml", check);
+    KubernetesVerifier.verifyNoIssue("DockerSocketCheck/docker_socket_persistent_vol_compliant.yaml", check);
   }
 
   @Test
-  void test_pod_object() {
-    KubernetesVerifier.verify("DockerSocketCheck/test_pod_object.yaml", check);
+  void testPodObject() {
+    KubernetesVerifier.verify("DockerSocketCheck/docker_socket_pod.yaml", check);
   }
 
   @Test
-  void test_template_object() {
-    KubernetesVerifier.verify("DockerSocketCheck/test_template_object.yaml", check);
+  void testDeploymentObject() {
+    KubernetesVerifier.verify("DockerSocketCheck/docker_socket_deployment.yaml", check);
   }
 }

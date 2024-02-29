@@ -38,13 +38,15 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.tree.api.FieldNode;
+import org.sonar.iac.helm.tree.api.Location;
+import org.sonar.iac.helm.tree.impl.LocationImpl;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
 /**
  * This class is used to store all lines that has to be shifted.<p/>
- * The data are stored into this class through methods {@link #addLineSize(InputFileContext, int, int)} and {@link #addShiftedLine(InputFileContext, int, int)}.
+ * The data are stored into this class through methods {@link #addLineSize(InputFileContext, int, int)} and {@link #addShiftedLine(InputFileContext, int, int, int)}.
  * Then we can use those data through the method {@link #computeShiftedLocation(InputFileContext, TextRange)}, which for a given {@link TextRange} will provide
  * a shifted {@link TextRange}.
  * Every store or access methods is required to provide the concerned {@link InputFileContext}, as the data are stored contextually to this object.
@@ -55,10 +57,6 @@ public class LocationShifter {
   private static final Logger LOG = LoggerFactory.getLogger(LocationShifter.class);
 
   private final Map<URI, LinesShifting> linesShiftingPerContext = new HashMap<>();
-
-  public void addShiftedLine(InputFileContext ctx, int transformedLine, int targetLine) {
-    addShiftedLine(ctx, transformedLine, targetLine, targetLine);
-  }
 
   public void addShiftedLine(InputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
     var shifting = getOrCreateLinesShifting(ctx);
@@ -158,8 +156,9 @@ public class LocationShifter {
       try {
         var contents = helmContext.inputFile.contents();
         // The go template tree contains locations aligned to source code with additional trailing line numbers comments
-        var valuePathNodes = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, textRange, sourceWithComments);
-        var textRanges = valuePathNodes.map(FieldNode::location)
+        var textRanges = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, textRange, sourceWithComments)
+          .map(FieldNode::location)
+          .map(LocationShifter::fixLocation)
           .map(location -> location.toTextRange(sourceWithComments))
           .toList();
         if (!textRanges.isEmpty()) {
@@ -173,6 +172,15 @@ public class LocationShifter {
       }
     }
     return textRange;
+  }
+
+  // Currently the Go AST node location is not precise, and it includes usually new line what later {@link Location#toTextRange} cause that
+  // issue is reported in 2 lines
+  private static Location fixLocation(Location location) {
+    if (location.length() > 1) {
+      return new LocationImpl(location.position(), location.length() - 1);
+    }
+    return location;
   }
 
   public SecondaryLocation computeShiftedSecondaryLocation(InputFileContext ctx, SecondaryLocation secondaryLocation) {

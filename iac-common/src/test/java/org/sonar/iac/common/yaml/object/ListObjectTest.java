@@ -22,7 +22,10 @@ package org.sonar.iac.common.yaml.object;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.YamlTreeTest;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
@@ -33,6 +36,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class ListObjectTest extends YamlTreeTest {
 
@@ -40,43 +44,43 @@ class ListObjectTest extends YamlTreeTest {
   private final TupleTree tree = parseTuple("my_list : [\"my_item\", a]");
 
   @Test
-  void report_fromPresent() {
+  void shouldReportOnItemsFromPresent() {
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.key).isEqualTo("my_list");
     assertThat(list.items).hasSize(2);
     assertThat(list.status).isEqualTo(YamlObject.Status.PRESENT);
-    assertNoIssueReported();
 
-    list.report("message");
-    assertIssueReported(tree, "message");
+    list.reportOnItems("message");
+    var merged = TextRanges.merge(list.items.stream().map(HasTextRange::textRange).toList());
+    assertIssueReported(merged, "message");
   }
 
   @Test
-  void report_fromAbsent() {
+  void shouldReportFromAbsent() {
     ListObject list = ListObject.fromAbsent(ctx, "unexistent");
-    list.report("message");
+    list.reportOnItems("message");
     assertThat(list.items).isEmpty();
     assertNoIssueReported();
   }
 
   @Test
-  void reportItemIf_fromPresent() {
+  void shouldReportItemIfFromPresent() {
     TupleTree tree = parseTuple("my_list : [\"my_item\"]");
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).hasSize(1);
     list.reportIfAnyItem(e -> true, "message");
-    assertIssueReported(tree, "message");
+    assertIssueReported(((SequenceTree) tree.value()).elements().get(0).textRange(), "message");
   }
 
   @Test
-  void reportItemIf_fromAbsent() {
+  void shouldReportItemIfFromAbsent() {
     ListObject list = ListObject.fromAbsent(ctx, "my_list");
     list.reportIfAnyItem(e -> true, "message");
     assertNoIssueReported();
   }
 
   @Test
-  void reportItemIf_fromInvalid() {
+  void shouldReportItemIfFromInvalid() {
     YamlTree tree = parseTuple("my_list : not_a_list");
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).isEmpty();
@@ -88,7 +92,7 @@ class ListObjectTest extends YamlTreeTest {
     verify(ctx, never()).reportIssue(any(HasTextRange.class), anyString(), anyList());
   }
 
-  private void assertIssueReported(HasTextRange hasTextRange, String message) {
-    verify(ctx).reportIssue(hasTextRange, message);
+  private void assertIssueReported(TextRange textRange, String message) {
+    verify(ctx).reportIssue(textRange, message);
   }
 }
