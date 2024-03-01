@@ -4,5 +4,7 @@ metadata:
   name: example
 spec:
   containers:
-    - name: {{ .Values.container.name }} # Noncompliant
+# Noncompliant@+1
+    - name: {{ .Values.container.name }}
+#                     ^^^^^^^^^^^^^^^^^^
       image: nginx

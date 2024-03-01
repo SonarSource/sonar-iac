@@ -9,6 +9,7 @@ rules:
 # Noncompliant@+2
     resources:
       - '*'
+#       ^^^
 # Noncompliant@+1
     verbs: [{{ .Values.rule.verb | quote }}]
 #                     ^^^^^^^^^^^^^^^^

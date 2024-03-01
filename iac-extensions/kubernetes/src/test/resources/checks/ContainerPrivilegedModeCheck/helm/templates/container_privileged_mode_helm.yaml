@@ -10,3 +10,10 @@ spec:
         privileged: {{ .Values.container.privileged }}
 #                             ^^^^^^^^^^^^^^^^^^^^^^^^
       image: nginx
+
+    - name: container-1
+      securityContext:
+        # Noncompliant@+1
+        privileged: true
+#                   ^^^^
+      image: nginx
