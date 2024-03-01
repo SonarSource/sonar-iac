@@ -21,7 +21,9 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -38,6 +40,7 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 
 public class HelmProcessor {
+  public static final List<String> LINE_SEPARATORS = List.of("\n", "\r\n", "\r", "\u2028", "\u2029");
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private final HelmEvaluator helmEvaluator;
   private final HelmFileSystem helmFilesystem;
@@ -86,6 +89,16 @@ public class HelmProcessor {
   }
 
   static Map<String, String> validateAndReadFiles(HelmInputFileContext inputFileContext) {
+    if (containsLineBreak(inputFileContext.inputFile.filename())) {
+      throw parseExceptionFor(inputFileContext.inputFile, "File name contains line break", null);
+    } else if (inputFileContext.getAdditionalFiles().keySet().stream().anyMatch(HelmProcessor::containsLineBreak)) {
+      inputFileContext.setAdditionalFiles(
+        inputFileContext.getAdditionalFiles().entrySet().stream()
+          .filter(entry -> !containsLineBreak(entry.getKey()))
+          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+      LOG.debug("Some additional files have names containing line breaks, skipping them");
+    }
+
     // Currently we are only looking for the default location of the values file
     if (!inputFileContext.hasAdditionalFile("values.yaml") && !inputFileContext.hasAdditionalFile("values.yml")) {
       throw parseExceptionFor(inputFileContext.inputFile, "Failed to find values file", null);
@@ -121,5 +134,9 @@ public class HelmProcessor {
 
   private static ParseException parseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
     return new ParseException("Failed to evaluate Helm file " + inputFile + ": " + cause, null, details);
+  }
+
+  private static boolean containsLineBreak(String filename) {
+    return LINE_SEPARATORS.stream().anyMatch(filename::contains);
   }
 }
