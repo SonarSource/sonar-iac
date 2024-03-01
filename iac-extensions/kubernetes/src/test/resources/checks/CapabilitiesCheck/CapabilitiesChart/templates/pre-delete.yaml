@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pre-delete
+  annotations:
+    "helm.sh/hook": "pre-delete"
+    "helm.sh/hook-delete-policy": "hook-succeeded"
+spec:
+  template:
+    spec:
+      containers:
+        - name: pre-delete-hook
+{{ include "securityContext" . | indent 10 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/usr/bin/hook-executor"]
+          args: ["predelete"]
+          env:
+            - name: NAMESPACE
+              value: {{ .Release.Namespace }}

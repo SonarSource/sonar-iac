@@ -45,6 +45,13 @@ class CapabilitiesCheckTest {
   }
 
   @Test
+  void shouldNotHighlightIncorrectLine() {
+    // see https://sonarsource.atlassian.net/browse/SONARIAC-1308
+    var expectedIssue = issue(13, 0, 13, 45, "Make sure setting capabilities is safe here.");
+    KubernetesVerifier.verify("CapabilitiesCheck/CapabilitiesChart/templates/pre-delete.yaml", check, expectedIssue);
+  }
+
+  @Test
   void shouldVerifyHelmArrayValuesAndSecondaryLocations() {
     var secondaryLocation1 = new SecondaryLocation(range(1, 14, 1, 27),
       "This value is used in a noncompliant part of a template",
