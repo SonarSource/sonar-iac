@@ -1,2 +1,7 @@
 capabilities: ["SYS_ADMIN"]
 capabilities2: ["NET_ADMIN", "SYS_TIME"]
+
+image:
+  repository: ibmcom/ibm-storage-enabler-for-containers
+  tag: "2.1.0"
+  pullPolicy: IfNotPresent

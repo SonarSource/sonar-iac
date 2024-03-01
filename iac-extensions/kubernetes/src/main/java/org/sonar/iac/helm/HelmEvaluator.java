@@ -104,8 +104,8 @@ public class HelmEvaluator {
   }
 
   private static void writeFileToProcess(OutputStream out, String fileName, String content) throws IOException {
-    writeStringAsBytes(out, String.format("%s%n", fileName));
-    writeStringAsBytes(out, String.format("%d%n", content.lines().count()));
+    writeStringAsBytes(out, "%s%n".formatted(fileName));
+    writeStringAsBytes(out, "%d%n".formatted(content.lines().count()));
     if (!content.endsWith("\n")) {
       content += "\n";
     }

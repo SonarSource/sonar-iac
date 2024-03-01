@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -195,7 +197,7 @@ public class KubernetesVerifier {
     }
 
     public static void addDependentFilesToSensorContext(Path helmProjectPath) {
-      try (Stream<Path> pathStream = Files.list(helmProjectPath)) {
+      try (Stream<Path> pathStream = FileUtils.streamFiles(helmProjectPath.toFile(), true, (String[]) null).map(File::toPath)) {
         pathStream
           .filter(path -> path.toFile().isFile())
           .forEach(path -> addFileToSensorContext(sensorContext, BASE_DIR, path.toString()));
