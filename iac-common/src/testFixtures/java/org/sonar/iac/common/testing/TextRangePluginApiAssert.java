@@ -29,17 +29,17 @@ import org.sonar.api.batch.fs.TextRange;
  * This Assert class is for {@link org.sonar.api.batch.fs.TextRange}.
  * For {@link org.sonar.iac.common.api.tree.impl.TextRange} see {@link TextRangeAssert}.
  */
-public class TextRangePluginAssert extends AbstractAssert<TextRangePluginAssert, TextRange> {
+public class TextRangePluginApiAssert extends AbstractAssert<TextRangePluginApiAssert, TextRange> {
 
-  private TextRangePluginAssert(@Nullable TextRange actual) {
-    super(actual, TextRangePluginAssert.class);
+  private TextRangePluginApiAssert(@Nullable TextRange actual) {
+    super(actual, TextRangePluginApiAssert.class);
   }
 
-  public static TextRangePluginAssert assertThat(@Nullable TextRange actual) {
-    return new TextRangePluginAssert(actual);
+  public static TextRangePluginApiAssert assertThat(@Nullable TextRange actual) {
+    return new TextRangePluginApiAssert(actual);
   }
 
-  public TextRangePluginAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+  public TextRangePluginApiAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
     isNotNull();
     SoftAssertions.assertSoftly(softly -> {
       softly.assertThat(actual.start().line()).as("startLine mismatch").isEqualTo(startLine);
