@@ -349,6 +349,27 @@ final class LocationShifterTest {
     assertThat(textRange).hasRange(1, 15, 1, 16);
   }
 
+  @Test
+  void shouldShiftToLineButKeepOriginalLineOffsets() {
+    setLinesSizes(ctx, 5, 10);
+    shifter.addShiftedLine(ctx, 1, 2, 2);
+    TextRange shiftedRange = shifter.shiftLocation(ctx, range(1, 1, 1, 3));
+    assertThat(shiftedRange).hasRange(2, 1, 2, 3);
+  }
+
+  @Test
+  void shouldNotShift() {
+    TextRange shiftedRange = shifter.shiftLocation(ctx, range(1, 2, 3, 4));
+    assertThat(shiftedRange).hasRange(1, 2, 3, 4);
+  }
+
+  @Test
+  void shouldShiftToValuePath() {
+    var helmContext = inputFileContextWithTree();
+    TextRange shiftedRange = shifter.shiftLocation(helmContext, range(1, 6, 1, 22));
+    assertThat(shiftedRange).hasRange(1, 15, 1, 17);
+  }
+
   void setLinesSizes(InputFileContext ctx, int... linesSizes) {
     for (int lineNumber = 1; lineNumber <= linesSizes.length; lineNumber++) {
       shifter.addLineSize(ctx, lineNumber, linesSizes[lineNumber - 1]);
@@ -375,8 +396,8 @@ final class LocationShifterTest {
     var valuesFile = new TestInputFileBuilder("test", ".")
       .setContents("bar: baz")
       .build();
-    var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null));
-    inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
+    var helmContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null));
+    helmContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
 
     var command = new CommandNodeImpl(8, 11, List.of(fieldNode));
     var pipeNode = new PipeNodeImpl(8, 11, List.of(), List.of(command));
@@ -384,9 +405,9 @@ final class LocationShifterTest {
     var textNode = new TextNodeImpl(0, 5, "bar: ");
     ListNodeImpl root = new ListNodeImpl(0, 15, List.of(textNode, actionNode));
     var goTemplateTree = new GoTemplateTreeImpl("test", "test", 0, root);
-    inputFileContext.setGoTemplateTree(goTemplateTree);
-    inputFileContext.setSourceWithComments("bar: {{ .Values.bar }} #1");
-    return inputFileContext;
+    helmContext.setGoTemplateTree(goTemplateTree);
+    helmContext.setSourceWithComments("bar: {{ .Values.bar }} #1");
+    return helmContext;
   }
 
   private SensorContext mockSensorContextWithEnabledFeature() {
