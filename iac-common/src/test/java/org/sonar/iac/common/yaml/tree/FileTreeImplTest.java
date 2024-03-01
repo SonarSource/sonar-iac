@@ -76,9 +76,19 @@ class FileTreeImplTest extends YamlTreeTest {
     assertThat(tree.toHighlight()).hasRange(1, 0, 1, 0);
     YamlTree document = tree.documents().get(0);
     assertThat(document).isInstanceOf(MappingTree.class);
-    assertThat(document.metadata().comments()).hasSize(1);
-    assertThat(document.metadata().comments().get(0).value()).isEqualTo("# foo");
-    assertThat(document.metadata().comments().get(0).contentText()).isEqualTo(" foo");
+    var comments = document.metadata().comments();
+    assertThat(comments).hasSize(1);
+    assertThat(comments.get(0).value()).isEqualTo("# foo");
+    assertThat(comments.get(0).contentText()).isEqualTo(" foo");
+  }
+
+  @Test
+  void shouldParseEndOfFileComment() {
+    var file = parse("""
+      a: b
+      # comment
+      """);
+    assertThat(file.metadata().comments()).isNotEmpty();
   }
 
   @Test

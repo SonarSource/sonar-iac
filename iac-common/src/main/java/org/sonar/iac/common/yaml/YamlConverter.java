@@ -20,7 +20,6 @@
 package org.sonar.iac.common.yaml;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -32,7 +31,6 @@ import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.yaml.tree.FileTree;
@@ -47,6 +45,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
 
+import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.comments;
 import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.range;
 
 public class YamlConverter {
@@ -67,8 +66,10 @@ public class YamlConverter {
     if (nodes.isEmpty()) {
       throw new ParseException("Unexpected empty nodes list while converting file", null, null);
     }
-    TextRange fileRange = TextRanges.merge(List.of(range(nodes.get(0)), range(ListUtils.getLast(nodes))));
-    YamlTreeMetadata metadata = new YamlTreeMetadata("FILE", fileRange, Collections.emptyList());
+
+    var fileNode = nodes.get(0);
+    var fileRange = TextRanges.merge(List.of(range(fileNode), range(ListUtils.getLast(nodes))));
+    var metadata = new YamlTreeMetadata("FILE", fileRange, comments(fileNode.getEndComments()));
     List<YamlTree> documents = nodes.stream().map(this::convert).collect(Collectors.toList());
     return new FileTreeImpl(documents, metadata, template);
   }
