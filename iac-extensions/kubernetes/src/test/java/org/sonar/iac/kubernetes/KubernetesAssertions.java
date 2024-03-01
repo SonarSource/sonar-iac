@@ -19,8 +19,10 @@
  */
 package org.sonar.iac.kubernetes;
 
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
+import org.sonar.iac.common.testing.TextRangePluginApiAssert;
 import org.sonar.iac.helm.tree.api.Location;
 import org.sonar.iac.helm.tree.impl.LocationAssert;
 
@@ -32,5 +34,9 @@ public class KubernetesAssertions {
 
   public static TextRangeAssert assertThat(TextRange actual) {
     return TextRangeAssert.assertThat(actual);
+  }
+
+  public static TextRangePluginApiAssert assertThat(@Nullable org.sonar.api.batch.fs.TextRange actual) {
+    return TextRangePluginApiAssert.assertThat(actual);
   }
 }

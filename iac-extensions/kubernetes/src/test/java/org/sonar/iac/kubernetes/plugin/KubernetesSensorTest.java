@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -64,6 +64,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
 
@@ -271,7 +272,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(issue.primaryLocation().message()).isEqualTo("Issue");
 
     TextRange textRange = issue.primaryLocation().textRange();
-    assertTextRange(textRange, 4, 0, 4, 20);
+    assertThat(textRange).hasRange(4, 1, 4, 5);
 
     assertThat(issue.flows()).isEmpty();
     assertThat(logTester.logs(Level.DEBUG))
@@ -306,9 +307,9 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Issue issue2 = iterator.next();
 
     assertThat(issue1.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file2.yaml");
-    assertTextRange(issue1.primaryLocation().textRange(), 5, 0, 5, 25);
+    assertThat(issue1.primaryLocation().textRange()).hasRange(5, 9, 5, 22);
     assertThat(issue2.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file1.yaml");
-    assertTextRange(issue2.primaryLocation().textRange(), 4, 0, 4, 30);
+    assertThat(issue2.primaryLocation().textRange()).hasRange(4, 9, 4, 22);
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
         "Helm files count: 2, parsed: 2, not parsed: 0");
@@ -330,7 +331,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.primaryLocation().message()).isEqualTo("Issue");
     TextRange textRange = issue.primaryLocation().textRange();
-    assertThat(textRange).isNull();
+    Assertions.assertThat(textRange).isNull();
   }
 
   @Test
@@ -350,13 +351,17 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.primaryLocation().message()).isEqualTo("Primary message");
     TextRange textRange = issue.primaryLocation().textRange();
-    assertTextRange(textRange, originalSourceCode, "{{ some helm code }}");
-    assertTextRange(textRange, 4, 0, 4, 20);
+    assertThat(textRange)
+      .on(originalSourceCode)
+      .isEqualTo("{ so")
+      .hasRange(4, 1, 4, 5);
 
     assertThat(issue.flows()).hasSize(1);
     Issue.Flow flow1 = issue.flows().get(0);
     assertSecondaryLocation(flow1, 5, 0, 5, 26, "Secondary message");
-    assertTextRange(flow1.locations().get(0).textRange(), originalSourceCode, "{{ some other helm code }}");
+    assertThat(flow1.locations().get(0).textRange())
+      .on(originalSourceCode)
+      .isEqualTo("{{ some other helm code }}");
   }
 
   @Test
@@ -378,7 +383,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.primaryLocation().message()).isEqualTo("Primary message");
     TextRange textRange = issue.primaryLocation().textRange();
-    assertTextRange(textRange, 4, 0, 4, 20);
+    assertThat(textRange).hasRange(4, 1, 4, 5);
 
     assertThat(issue.flows()).hasSize(2);
 
@@ -388,40 +393,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertSecondaryLocation(flow2, 6, 0, 6, 23, "Secondary message 2");
   }
 
-  private void assertTextRange(@Nullable TextRange textRange, int startLine, int startLineOffset, int endLine, int endLineOffset) {
-    assertThat(textRange).isNotNull();
-    assertThat(textRange.start().line()).isEqualTo(startLine);
-    assertThat(textRange.start().lineOffset()).isEqualTo(startLineOffset);
-    assertThat(textRange.end().line()).isEqualTo(endLine);
-    assertThat(textRange.end().lineOffset()).isEqualTo(endLineOffset);
-  }
-
-  private void assertTextRange(@Nullable TextRange textRange, String input, String expectedText) {
-    var lines = input.split("\n");
-    assertThat(textRange).isNotNull();
-    var startLine = textRange.start().line();
-    var endLine = textRange.end().line();
-    if (startLine == endLine) {
-      var actual = lines[startLine - 1].substring(textRange.start().lineOffset(), textRange.end().lineOffset());
-      assertThat(actual).isEqualTo(expectedText);
-    } else {
-      var sb = new StringBuilder();
-      var first = lines[startLine - 1].substring(textRange.start().lineOffset(), textRange.end().lineOffset());
-      sb.append(first);
-      for (int i = startLine + 1; i < endLine; i++) {
-        sb.append(lines[i - 1]);
-      }
-      var last = lines[endLine - 1].substring(0, textRange.end().lineOffset());
-      sb.append(last);
-      assertThat(sb).hasToString(expectedText);
-    }
-  }
-
   private void assertSecondaryLocation(Issue.Flow flow, int startLine, int startLineOffset, int endLine, int endLineOffset, String message) {
     assertThat(flow.locations()).hasSize(1);
     IssueLocation issueLocation = flow.locations().get(0);
     assertThat(issueLocation.message()).isEqualTo(message);
-    assertTextRange(issueLocation.textRange(), startLine, startLineOffset, endLine, endLineOffset);
+    assertThat(issueLocation.textRange()).hasRange(startLine, startLineOffset, endLine, endLineOffset);
   }
 
   private HelmProcessor mockHelmProcessor(Map<String, String> inputToOutput) {

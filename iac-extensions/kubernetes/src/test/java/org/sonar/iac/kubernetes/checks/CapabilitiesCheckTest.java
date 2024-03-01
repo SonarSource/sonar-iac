@@ -67,7 +67,7 @@ class CapabilitiesCheckTest {
       "Make sure setting capabilities is safe here.",
       secondaryLocation2);
 
-    var issue3 = issue(41, 0, 41, 29, "Make sure setting capabilities is safe here.");
+    var issue3 = issue(41, 14, 41, 25, "Make sure setting capabilities is safe here.");
 
     KubernetesVerifier.verify("CapabilitiesCheck/CapabilitiesChart/templates/capabilities-pod-secondary.yaml",
       check,

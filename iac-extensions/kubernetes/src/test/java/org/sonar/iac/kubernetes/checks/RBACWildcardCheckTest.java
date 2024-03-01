@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.testing.Verifier;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
@@ -52,8 +51,8 @@ class RBACWildcardCheckTest {
   @Test
   void testSecondariesInHelmChart() {
     var expectedIssues = new Verifier.Issue[] {
-      new Verifier.Issue(range(11, 0, 11, 11)),
-      new Verifier.Issue(range(13, 22, 13, 38),
+      new Verifier.Issue(range(11, 8, 11, 11)),
+      new Verifier.Issue(range(14, 22, 14, 38),
         "Do not use wildcards when defining RBAC permissions.")};
 
     KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check, expectedIssues);

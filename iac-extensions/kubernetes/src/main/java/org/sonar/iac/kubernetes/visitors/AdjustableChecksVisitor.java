@@ -77,11 +77,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       var shiftedTextRange = textRange;
       List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
       if (textRange != null) {
-        shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
-
-        if (currentCtx instanceof HelmInputFileContext helmContext) {
-          shiftedTextRange = locationShifter.computeHelmValuePathTextRange(helmContext, shiftedTextRange);
-        }
+        shiftedTextRange = locationShifter.shiftLocation(currentCtx, textRange);
 
         boolean isReportingEnabled = currentCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
         if (isReportingEnabled || shouldReportSecondaryInValues()) {

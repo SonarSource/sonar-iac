@@ -78,6 +78,31 @@ public class LocationShifter {
   }
 
   /**
+   * It calculates shifted location in 3 steps:<br/>
+   * <ul>
+   *   <li>see {@link LocationShifter#computeShiftedLocation(InputFileContext, TextRange)}</li>
+   *   <li>see {@link LocationShifter#computeHelmValuePathTextRange(HelmInputFileContext, TextRange)}</li>
+   *   <li>if the location from 1st and 2nd step is the same then first line location is taken and line offsets of original TextRange</li>
+   * </ul>
+   */
+  public TextRange shiftLocation(InputFileContext currentCtx, TextRange textRange) {
+    var shiftedToLine = computeShiftedLocation(currentCtx, textRange);
+    var shiftedTextRange = shiftedToLine;
+    if (currentCtx instanceof HelmInputFileContext helmContext) {
+      shiftedTextRange = computeHelmValuePathTextRange(helmContext, shiftedToLine);
+    }
+    if (shiftedTextRange.equals(shiftedToLine)) {
+      // The shiftedTextRange doesn't contain Value path (Helm expression) so we can keep the line offsets
+      return TextRanges.range(
+        shiftedTextRange.start().line(),
+        textRange.start().lineOffset(),
+        shiftedTextRange.end().line(),
+        textRange.end().lineOffset());
+    }
+    return shiftedTextRange;
+  }
+
+  /**
    * Adjusts the given {@link TextRange} to the original file. In case there is already a line number or line numbers range associated with
    * the given line (i.e. the line is directly followed by a comment #X:Y), use this value. In case there is no comment, this means that the line
    * appeared during rendering of Helm templates. Then, use the value from the next line with a comment.<p/>

@@ -249,10 +249,7 @@ public class KubernetesVerifier {
 
     @Override
     protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      var shiftedTextRange = locationShifter.computeShiftedLocation(currentCtx, textRange);
-      if (currentCtx instanceof HelmInputFileContext helmContext) {
-        shiftedTextRange = locationShifter.computeHelmValuePathTextRange(helmContext, shiftedTextRange);
-      }
+      var shiftedTextRange = locationShifter.shiftLocation(currentCtx, textRange);
 
       List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
       if (shouldReportSecondaryInValues) {

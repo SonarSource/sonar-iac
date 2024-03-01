@@ -27,4 +27,8 @@ public class IacCommonAssertions {
   public static TextRangeAssert assertThat(@Nullable TextRange actual) {
     return TextRangeAssert.assertThat(actual);
   }
+
+  public static TextRangePluginApiAssert assertThat(@Nullable org.sonar.api.batch.fs.TextRange actual) {
+    return TextRangePluginApiAssert.assertThat(actual);
+  }
 }

@@ -47,3 +47,17 @@ spec:
           {{- end }}
       {{- end }}
 ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-capabilities-4
+spec:
+  containers:
+    - image: ubuntu
+      command: ["sleep", "6000"]
+      name: test-container
+      securityContext:
+        capabilities:
+          add: ["SYS_ADMIN"] # Noncompliant
+#               ^^^^^^^^^^^
+---
