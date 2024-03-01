@@ -36,6 +36,7 @@ public class KubernetesAssertions {
     return TextRangeAssert.assertThat(actual);
   }
 
+
   public static TextRangePluginApiAssert assertThat(@Nullable org.sonar.api.batch.fs.TextRange actual) {
     return TextRangePluginApiAssert.assertThat(actual);
   }
