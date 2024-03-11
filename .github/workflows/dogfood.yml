@@ -7,7 +7,7 @@ on:
       - 'dogfood/*'
 
 env:
-  SLACK_CHANNEL: team-lang-cloud-notifs
+  SLACK_CHANNEL: squad-cloud-notifs
   SLACK_USERNAME: Dogfood build action
 
 jobs:
