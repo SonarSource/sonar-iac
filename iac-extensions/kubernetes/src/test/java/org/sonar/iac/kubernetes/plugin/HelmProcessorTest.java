@@ -43,6 +43,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmEvaluatorMock;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
@@ -81,7 +82,7 @@ class HelmProcessorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
 
-    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", mock(HelmInputFileContext.class)))
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo", mock(HelmInputFileContext.class)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
   }
@@ -90,9 +91,9 @@ class HelmProcessorTest {
   void shouldRaiseExceptionIfEvaluatorIsNotInitialized() throws IOException {
     var helmEvaluator = mock(HelmEvaluator.class);
     doThrow(new IOException()).when(helmEvaluator).initialize();
-    var helmProcessor = new HelmProcessor(helmEvaluator, mock(SensorContext.class));
+    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
 
-    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo.yaml", "foo", null))
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo", null))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
 
@@ -104,7 +105,7 @@ class HelmProcessorTest {
     var helmProcessor = getHelmProcessor();
     var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
 
-    String evaluatedSource = helmProcessor.processHelmTemplate("foo.yaml", "", inputFileContext);
+    String evaluatedSource = helmProcessor.processHelmTemplate("", inputFileContext);
 
     assertThat(evaluatedSource).isNull();
     assertThat(logTester.logs(Level.DEBUG)).contains("The file chart/templates/foo.yaml is blank, skipping evaluation");
@@ -119,6 +120,8 @@ class HelmProcessorTest {
     var context = SensorContextTester.create(baseDir);
     context.fileSystem().add(valuesFile);
 
+    HelmFileSystem helmFileSystem = new HelmFileSystem(context.fileSystem());
+
     var processedFile = IacTestUtils.inputFile("templates/pod.yaml", baseDir);
 
     var helmEvaluator = HelmEvaluatorMock.builder()
@@ -126,9 +129,9 @@ class HelmProcessorTest {
       .build();
 
     var fileContext = new HelmInputFileContext(context, inputFile);
-    var processor = new HelmProcessor(helmEvaluator, context);
+    var processor = new HelmProcessor(helmEvaluator, helmFileSystem);
 
-    var result = processor.processHelmTemplate(inputFile.filename(), inputFile.contents(), fileContext);
+    var result = processor.processHelmTemplate(inputFile.contents(), fileContext);
 
     assertEquals(result, processedFile.contents());
   }
@@ -263,7 +266,7 @@ class HelmProcessorTest {
     FileSystem fileSystem = mock(FileSystem.class);
     when(sensorContext.fileSystem()).thenReturn(fileSystem);
 
-    return new HelmProcessor(helmEvaluator, sensorContext);
+    return new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
   }
 
   private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {

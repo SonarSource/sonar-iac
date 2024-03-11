@@ -63,8 +63,6 @@ public class KubernetesSensor extends YamlSensor {
   private final LocationShifter locationShifter = new LocationShifter();
   private final SecondaryLocationLocator secondaryLocationLocator = new SecondaryLocationLocator(new YamlParser());
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
-
-  //helmfilesystem
   private HelmFileSystem helmFileSystem;
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
@@ -77,7 +75,7 @@ public class KubernetesSensor extends YamlSensor {
   protected void initContext(SensorContext sensorContext) {
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
-      //initialize HFS here and pass it along the helmprocessor
+      // initialize HFS here and pass it along the helmprocessor
       helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
       helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
     } else {
@@ -238,7 +236,7 @@ public class KubernetesSensor extends YamlSensor {
 
     @Override
     public boolean apply(InputFile inputFile) {
-      return this.helmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri())) != null;
+      return HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem()) != null;
     }
   }
 }

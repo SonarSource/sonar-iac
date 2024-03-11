@@ -115,7 +115,7 @@ class HelmFileSystemTest {
 
   @Test
   void shouldReturnNullWhenInputIsNull() {
-    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(null, context.fileSystem().baseDir());
+    Path parentPath = helmFilesystem.retrieveHelmProjectFolder(null);
     assertThat(parentPath).isNull();
   }
 
@@ -127,7 +127,7 @@ class HelmFileSystemTest {
       Path inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(null);
 
-      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
+      Path parentPath = helmFilesystem.retrieveHelmProjectFolder(inputFilePath);
       assertThat(parentPath).isNull();
     }
   }
@@ -139,7 +139,7 @@ class HelmFileSystemTest {
     when(basePath.toRealPath()).thenThrow(IOException.class);
     File baseDir = mock(File.class);
     when(baseDir.toPath()).thenReturn(basePath);
-    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, baseDir);
+    Path parentPath = helmFilesystem.retrieveHelmProjectFolder(inputFilePath);
 
     assertThat(parentPath).isNull();
   }
@@ -153,7 +153,7 @@ class HelmFileSystemTest {
       when(inputFilePath.getParent()).thenReturn(mock(Path.class));
       when(inputFilePath.startsWith(any(Path.class))).thenReturn(false);
 
-      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem().baseDir());
+      Path parentPath = helmFilesystem.retrieveHelmProjectFolder(inputFilePath);
       assertThat(parentPath).isNull();
     }
   }
@@ -173,7 +173,7 @@ class HelmFileSystemTest {
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
 
-    var result = HelmFileSystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem().baseDir());
+    var result = helmFilesystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()));
 
     assertThat(result).isNull();
   }

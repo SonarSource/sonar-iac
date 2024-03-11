@@ -32,7 +32,6 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public final class HelmFileSystem {
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
@@ -95,8 +94,7 @@ public final class HelmFileSystem {
     return predicates.or(extensionPredicates);
   }
 
-  @CheckForNull
-  public Path retrieveHelmProjectFolder(Path inputFilePath) {
+  public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem) {
     var baseDirPath = fileSystem.baseDir().toPath();
 
     var helmProjectDirectoryPath = inputFilePath;
@@ -111,6 +109,11 @@ public final class HelmFileSystem {
       return null;
     }
     return helmProjectDirectoryPath;
+  }
+
+  @CheckForNull
+  public Path retrieveHelmProjectFolder(Path inputFilePath) {
+    return retrieveHelmProjectFolder(inputFilePath, fileSystem);
   }
 
   private static String resolveToInputFile(Path helmDirectoryPath, InputFile additionalFile) {
