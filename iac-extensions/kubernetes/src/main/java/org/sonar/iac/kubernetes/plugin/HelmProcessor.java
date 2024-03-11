@@ -46,11 +46,17 @@ public class HelmProcessor {
   private final HelmFileSystem helmFilesystem;
   private boolean isEvaluatorInitialized = true;
 
-  public HelmProcessor(HelmEvaluator helmEvaluator, SensorContext sensorContext) {
+  public HelmProcessor(HelmEvaluator helmEvaluator, HelmFileSystem helmFilesystem) {
     this.helmEvaluator = helmEvaluator;
-    this.helmFilesystem = new HelmFileSystem(sensorContext.fileSystem());
+    this.helmFilesystem = helmFilesystem;
     initialize();
   }
+
+  public HelmFileSystem getHelmFilesystem() {
+    return helmFilesystem;
+  }
+
+  //getter for helmFileSystem.
 
   public static boolean isHelmEvaluatorExecutableAvailable() {
     return OperatingSystemUtils.getCurrentPlatformIfSupported().isPresent();
@@ -70,7 +76,7 @@ public class HelmProcessor {
   }
 
   @CheckForNull
-  String processHelmTemplate(String path, String source, HelmInputFileContext inputFileContext) {
+  String processHelmTemplate(String source, HelmInputFileContext inputFileContext) {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
@@ -85,6 +91,7 @@ public class HelmProcessor {
     inputFileContext.setSourceWithComments(sourceWithComments);
     inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext.inputFile));
     var fileContents = validateAndReadFiles(inputFileContext);
+    String path = helmFilesystem.getFileRelativePath(inputFileContext.inputFile);
     return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, fileContents);
   }
 

@@ -127,7 +127,8 @@ public class KubernetesVerifier {
         throw new IllegalStateException("Could not create temporary directory", e);
       }
       HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
-      HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, sensorContext);
+      HelmFileSystem helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
+      HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
       KUBERNETES_PARSER = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
       temporaryDirectory.deleteOnExit();
     }
