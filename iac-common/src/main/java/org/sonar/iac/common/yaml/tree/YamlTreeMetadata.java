@@ -19,44 +19,23 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
+import org.snakeyaml.engine.v2.comments.CommentLine;
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.nodes.Node;
+import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.CommentImpl;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.ParseException;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
-import org.snakeyaml.engine.v2.comments.CommentLine;
-import org.snakeyaml.engine.v2.exceptions.Mark;
-import org.snakeyaml.engine.v2.nodes.Node;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.impl.CommentImpl;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.extension.ParseException;
 
-public final class YamlTreeMetadata implements HasTextRange {
-
-  private final String tag;
-  private final TextRange textRange;
-  private final List<Comment> comments;
-
-  public YamlTreeMetadata(String tag, TextRange textRange, List<Comment> comments) {
-    this.tag = tag;
-    this.textRange = textRange;
-    this.comments = comments;
-  }
-
-  public String tag() {
-    return tag;
-  }
-
-  public TextRange textRange() {
-    return textRange;
-  }
-
-  public List<Comment> comments() {
-    return comments;
-  }
+public record YamlTreeMetadata(String tag, TextRange textRange, List<Comment> comments) implements HasTextRange {
 
   public static YamlTreeMetadata fromNode(String tag, Node node) {
     return new YamlTreeMetadata(tag, range(node), comments(node));
@@ -109,7 +88,7 @@ public final class YamlTreeMetadata implements HasTextRange {
     // endMark is not present. This happens for example when we have a file with only a comment.
     // in that case, the root node will be an empty MappingNode with only a startMark to which the comment is attached
     return endMark.map(mark -> TextRanges.range(startLine, startColumn, mark.getLine() + 1, mark.getColumn()))
-      .orElseGet(() -> TextRanges.range(startLine, startColumn, startLine, startColumn));
+            .orElseGet(() -> TextRanges.range(startLine, startColumn, startLine, startColumn));
   }
 
   public static String tag(Node node) {

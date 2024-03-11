@@ -19,13 +19,6 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -54,6 +47,13 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static org.sonar.iac.common.extension.ParseException.createParseException;
 
@@ -160,7 +160,7 @@ public class ArmJsonBaseConverter {
     return new ArrayExpressionImpl(tree.metadata(),
       tree.elements().stream()
         .map(this::toExpression)
-        .collect(Collectors.toList()));
+        .toList());
   }
 
   public Expression toExpressionOrNull(TupleTree tree, String key) {
@@ -172,12 +172,12 @@ public class ArmJsonBaseConverter {
   }
 
   public Expression toExpression(YamlTree tree) {
-    if (tree instanceof SequenceTree) {
-      return toArrayExpression((SequenceTree) tree);
-    } else if (tree instanceof MappingTree) {
-      return toObjectExpression((MappingTree) tree);
-    } else if (tree instanceof ScalarTree) {
-      return toLiteralExpression((ScalarTree) tree);
+    if (tree instanceof SequenceTree sequence) {
+      return toArrayExpression(sequence);
+    } else if (tree instanceof MappingTree mapping) {
+      return toObjectExpression(mapping);
+    } else if (tree instanceof ScalarTree scalar) {
+      return toLiteralExpression(scalar);
     } else {
       throw createParseException("Couldn't convert to Expression, unsupported class " + tree.getClass().getSimpleName(),
         inputFileContext,
@@ -249,7 +249,7 @@ public class ArmJsonBaseConverter {
   }
 
   protected Predicate<TupleTree> filterOnField(String field) {
-    return tupleTree -> tupleTree.key() instanceof ScalarTree && field.equalsIgnoreCase(((ScalarTree) tupleTree.key()).value());
+    return tupleTree -> tupleTree.key()instanceof ScalarTree scalar && field.equalsIgnoreCase(scalar.value());
   }
 
   // Error generation

@@ -19,13 +19,6 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -47,6 +40,13 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.checks.TextUtils;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
@@ -197,7 +197,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     return getObjectBody()
       .map(b -> b.properties().stream()
         .map(Property.class::cast)
-        .collect(Collectors.toList()))
+        .toList())
       .orElse(List.of());
   }
 

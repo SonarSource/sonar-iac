@@ -39,8 +39,8 @@ public class BicepTypeExpressionResolution {
     }
     StringBuilder result = new StringBuilder();
     tree.children().forEach(t -> {
-      if (t instanceof TextTree) {
-        result.append(((TextTree) t).value());
+      if (t instanceof TextTree textTree) {
+        result.append(textTree.value());
       } else {
         result.append(resolve(t, maxDepth - 1));
       }

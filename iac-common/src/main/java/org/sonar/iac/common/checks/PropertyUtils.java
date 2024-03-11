@@ -19,17 +19,18 @@
  */
 package org.sonar.iac.common.checks;
 
+import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.Tree;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.HasProperties;
-import org.sonar.iac.common.api.tree.PropertyTree;
-import org.sonar.iac.common.api.tree.Tree;
 
 public class PropertyUtils {
 
@@ -38,8 +39,8 @@ public class PropertyUtils {
   }
 
   public static Trilean has(@Nullable Tree tree, String key) {
-    if (tree instanceof HasProperties) {
-      Set<Trilean> elementTrileans = ((HasProperties) tree).properties().stream()
+    if (tree instanceof HasProperties treeWithProperties) {
+      Set<Trilean> elementTrileans = treeWithProperties.properties().stream()
         .map(element -> TextUtils.isValue(element.key(), key))
         .collect(Collectors.toSet());
       if (elementTrileans.contains(Trilean.TRUE))
@@ -64,11 +65,11 @@ public class PropertyUtils {
   }
 
   public static List<PropertyTree> getAll(@Nullable Tree tree, String key) {
-    return getAll(tree, key::equals).collect(Collectors.toList());
+    return getAll(tree, key::equals).toList();
   }
 
   public static <T extends Tree> List<T> getAll(@Nullable Tree tree, String key, Class<T> clazz) {
-    return getAll(tree, key::equals).filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+    return getAll(tree, key::equals).filter(clazz::isInstance).map(clazz::cast).toList();
   }
 
   public static <T extends Tree> List<T> getAll(@Nullable Tree tree, Class<T> clazz) {

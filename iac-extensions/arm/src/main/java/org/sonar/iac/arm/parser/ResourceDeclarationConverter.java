@@ -19,12 +19,6 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
@@ -39,6 +33,13 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
 
@@ -60,7 +61,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
     return yamlTrees.stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
@@ -106,7 +107,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
       .filter(SequenceTree.class::isInstance)
       .map(SequenceTree.class::cast)
       .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
-      .map(m -> m.stream().map(this::convertToResourceDeclaration).collect(Collectors.toList()))
+      .map(m -> m.stream().map(this::convertToResourceDeclaration).toList())
       .orElse(Collections.emptyList());
     return new ResourceDeclarationImpl(name, version, type, otherProperties, resourceProperties, childResources);
   }

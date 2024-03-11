@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -29,6 +26,9 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+
+import java.util.List;
+import java.util.Set;
 
 @Rule(key = "S4830")
 public class UnsecureConnectionCheck implements IacCheck {
@@ -53,7 +53,7 @@ public class UnsecureConnectionCheck implements IacCheck {
   }
 
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
-    List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
+    List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).toList();
 
     SENSITIVE_CURL_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
     SENSITIVE_WGET_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));

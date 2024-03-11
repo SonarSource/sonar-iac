@@ -19,20 +19,21 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.utils.PolicyUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.policy.Policy.Statement;
-import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Rule(key = "S6270")
 public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
@@ -51,14 +52,7 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
       .forEach(statement -> ctx.reportIssue(statement.principal, MESSAGE, new SecondaryLocation(statement.effect, SECONDARY_MESSAGE)));
   }
 
-  private static class InsecureStatement {
-    final Tree principal;
-    final Tree effect;
-
-    public InsecureStatement(Tree principal, Tree effect) {
-      this.principal = principal;
-      this.effect = effect;
-    }
+  private record InsecureStatement(Tree principal, Tree effect) {
   }
 
   private static class PolicyValidator {
@@ -81,11 +75,11 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
     }
 
     private static Optional<Tree> findInsecurePrincipal(Tree principal) {
-      if (principal instanceof MappingTree) {
-        return findInsecurePrincipal((MappingTree) principal);
+      if (principal instanceof MappingTree mappingTree) {
+        return findInsecurePrincipal(mappingTree);
       }
-      if (principal instanceof SequenceTree) {
-        return findInsecurePrincipal((SequenceTree) principal);
+      if (principal instanceof SequenceTree sequenceTree) {
+        return findInsecurePrincipal(sequenceTree);
       }
       if (applyToAnyPrincipal(principal)) {
         return Optional.of(principal);

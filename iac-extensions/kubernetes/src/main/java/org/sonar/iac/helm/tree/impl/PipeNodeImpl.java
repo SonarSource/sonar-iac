@@ -19,15 +19,15 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.helm.protobuf.PipeNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.VariableNode;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class PipeNodeImpl extends AbstractNode implements PipeNode {
   private final List<VariableNode> declarations;
@@ -43,8 +43,8 @@ public class PipeNodeImpl extends AbstractNode implements PipeNode {
     return new PipeNodeImpl(
       nodePb.getPos(),
       nodePb.getLength(),
-      nodePb.getDeclList().stream().map(node -> (VariableNode) VariableNodeImpl.fromPb(node)).collect(Collectors.toList()),
-      nodePb.getCmdsList().stream().map(node -> (CommandNode) CommandNodeImpl.fromPb(node)).collect(Collectors.toList()));
+      nodePb.getDeclList().stream().map(node -> (VariableNode) VariableNodeImpl.fromPb(node)).toList(),
+      nodePb.getCmdsList().stream().map(node -> (CommandNode) CommandNodeImpl.fromPb(node)).toList());
   }
 
   public List<VariableNode> declarations() {

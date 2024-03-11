@@ -19,16 +19,17 @@
  */
 package org.sonar.iac.cloudformation.checks.utils;
 
+import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.stream.Stream;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.common.checks.TextUtils;
 
 public class XPathUtils {
 
@@ -69,9 +70,9 @@ public class XPathUtils {
       token = token.substring(0, token.length() - 2);
     }
 
-    if (tree instanceof MappingTree) {
+    if (tree instanceof MappingTree mappingTree) {
       String finalToken = token;
-      Stream<TupleTree> tuples = ((MappingTree) tree).elements().stream()
+      Stream<TupleTree> tuples = mappingTree.elements().stream()
         .filter(t -> TextUtils.isValue(t.key(), finalToken).isTrue());
 
       if (expectSequence) {

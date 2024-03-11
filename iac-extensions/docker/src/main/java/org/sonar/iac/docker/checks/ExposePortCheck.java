@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
@@ -32,6 +29,9 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Rule(key = "S6473")
 public class ExposePortCheck implements IacCheck {
@@ -56,7 +56,7 @@ public class ExposePortCheck implements IacCheck {
 
   private static List<Integer> sensitivePorts(String ports) {
     try {
-      return Arrays.stream(ports.split(",\\s*+")).map(Integer::parseInt).collect(Collectors.toList());
+      return Arrays.stream(ports.split(",\\s*+")).map(Integer::parseInt).toList();
     } catch (NumberFormatException e) {
       LOG.warn("The port list provided for ExposePortCheck (S6473) is not a comma seperated list of integers. " +
         "The default list is used. Invalid list of ports \"{}\"", ports);

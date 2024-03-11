@@ -19,11 +19,6 @@
  */
 package org.sonar.iac.common.yaml;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
@@ -32,6 +27,12 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.SequenceTreeImpl;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class YamlTreeUtils {
 
@@ -42,10 +43,10 @@ public class YamlTreeUtils {
   }
 
   public static List<String> getListValueElements(@Nullable Tree tree) {
-    if (tree instanceof ScalarTree) {
-      return List.of(TextUtils.getValue(tree).orElse(""));
-    } else if (tree instanceof SequenceTree) {
-      return getValuesOfSequenceTree((SequenceTree) tree);
+    if (tree instanceof ScalarTree scalarTree) {
+      return List.of(TextUtils.getValue(scalarTree).orElse(""));
+    } else if (tree instanceof SequenceTree sequenceTree) {
+      return getValuesOfSequenceTree(sequenceTree);
     } else {
       return Collections.emptyList();
     }
@@ -55,7 +56,7 @@ public class YamlTreeUtils {
     return tree.elements().stream()
       .map(YamlTreeUtils::getListValueElements)
       .flatMap(List::stream)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public static YamlTree scalar(String value) {

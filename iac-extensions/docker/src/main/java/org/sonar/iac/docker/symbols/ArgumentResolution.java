@@ -19,11 +19,6 @@
  */
 package org.sonar.iac.docker.symbols;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
@@ -35,6 +30,11 @@ import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
+
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Class dedicated to resolving {@link Argument}, which is a complex object used to represent most parameters of instruction.
@@ -217,7 +217,7 @@ public class ArgumentResolution {
       List<Usage> usages = ListUtils.reverse(symbol.usages());
       List<Usage> reversedAssignments = usages.stream()
         .filter(usage -> usage.kind().equals(Usage.Kind.ASSIGNMENT))
-        .collect(Collectors.toList());
+        .toList();
       Scope.Kind accessScopeKind = usages.get(0).scope().kind();
 
       Argument lastAssignedValue = findLastAccessibleAssignedValue(reversedAssignments, accessScopeKind);

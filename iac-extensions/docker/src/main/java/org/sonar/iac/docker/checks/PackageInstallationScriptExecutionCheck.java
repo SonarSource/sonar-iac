@@ -19,10 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -32,6 +28,10 @@ import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Rule(key = "S6505")
 public class PackageInstallationScriptExecutionCheck implements IacCheck {
@@ -77,7 +77,7 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
         .filter(c -> c.getResolvedArguments().get(0).equals(resolvedArgument.get(0)))
         // matched till the end of input
         .filter(c -> c.getResolvedArguments().get(c.getResolvedArguments().size() - 1).equals(resolvedArgument.get(resolvedArgument.size() - 1)))
-        .collect(Collectors.toList()));
+        .toList());
     }
 
     sensitiveCommands.forEach(command -> ctx.reportIssue(command, MESSAGE));

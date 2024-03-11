@@ -20,14 +20,6 @@
 package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -47,6 +39,14 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
 import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
 
@@ -101,7 +101,7 @@ public abstract class IacSensor implements Sensor {
 
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     List<InputFile> inputFiles = inputFiles(sensorContext);
-    List<String> filenames = inputFiles.stream().map(InputFile::toString).collect(Collectors.toList());
+    List<String> filenames = inputFiles.stream().map(InputFile::toString).toList();
 
     ProgressReport progressReport = new ProgressReport("Progress of the " + language.getName() + " analysis", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(filenames);
@@ -128,7 +128,7 @@ public abstract class IacSensor implements Sensor {
     FileSystem fileSystem = sensorContext.fileSystem();
     FilePredicate predicate = mainFilePredicate(sensorContext);
     return StreamSupport.stream(fileSystem.inputFiles(predicate).spliterator(), false)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
@@ -148,8 +148,8 @@ public abstract class IacSensor implements Sensor {
 
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
     TextPointer position = null;
-    if (cause instanceof RecognitionException) {
-      position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
+    if (cause instanceof RecognitionException recognitionException) {
+      position = inputFile.newPointer(recognitionException.getLine(), 0);
     }
     return createGeneralParseException(action, inputFile, cause, position);
   }

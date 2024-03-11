@@ -19,13 +19,13 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.checks.utils.ExpressionPredicate;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
@@ -101,7 +101,7 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     List<AttributeSymbol> disabled = Stream.of("delete", "read", "write")
       .map(logging::attribute)
       .filter(setting -> setting.is(isFalse()))
-      .collect(Collectors.toList());
+      .toList();
 
     long disabledLoggings = disabled.size();
 

@@ -19,20 +19,21 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Rule(key = "S6258")
 public class DisabledLoggingCheck extends AbstractResourceCheck {
@@ -124,7 +125,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void checkNeptuneDbCluster(CheckContext ctx, Resource resource) {
     PropertyUtils.value(resource.properties(), ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY).ifPresentOrElse(exportsValue -> {
-      if (exportsValue instanceof SequenceTree && ((SequenceTree) exportsValue).elements().isEmpty()) {
+      if (exportsValue instanceof SequenceTree sequenceTree && sequenceTree.elements().isEmpty()) {
         ctx.reportIssue(exportsValue, MESSAGE);
       }
     }, () -> reportResource(ctx, resource, omittingMessage(ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY)));
@@ -132,7 +133,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void checkDocDbCluster(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY).ifPresentOrElse(exportsProperty -> {
-      if (exportsProperty.value() instanceof SequenceTree && containsOnlyStringsWithoutAudit((SequenceTree) exportsProperty.value())) {
+      if (exportsProperty.value()instanceof SequenceTree sequenceTree && containsOnlyStringsWithoutAudit(sequenceTree)) {
         ctx.reportIssue(exportsProperty.key(), MESSAGE);
       }
     }, () -> reportResource(ctx, resource, omittingMessage(ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY)));
@@ -145,7 +146,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void checkAmazonMQBroker(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), "Logs").ifPresentOrElse(logs -> {
-      if (logs.value() instanceof MappingTree && containsOnlyFalse((MappingTree) logs.value())) {
+      if (logs.value()instanceof MappingTree mappingTree && containsOnlyFalse(mappingTree)) {
         ctx.reportIssue(logs.key(), MESSAGE);
       }
     }, () -> reportResource(ctx, resource, MESSAGE));
@@ -189,8 +190,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static Optional<Tree> getAccessLogsAttribute(Tree attributes) {
-    if (attributes instanceof SequenceTree) {
-      return ((SequenceTree) attributes).elements().stream()
+    if (attributes instanceof SequenceTree sequenceTree) {
+      return sequenceTree.elements().stream()
         .filter(attribute -> TextUtils.isValue(PropertyUtils.valueOrNull(attribute, "Key"), "access_logs.s3.enabled").isTrue())
         .map(attribute -> PropertyUtils.value(attribute, "Value")).findFirst().orElse(Optional.empty());
     }

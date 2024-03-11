@@ -19,19 +19,16 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper;
 
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN;
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_SUBSCRIPTION_SCOPE_PATTERN;
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN;
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_SUBSCRIPTION_SCOPE_PATTERN;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.*;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 
@@ -55,12 +52,12 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractNewResourceCheck
           .list("actions")
           .getItemIf(equalTo("*"))
           .map(scope -> new SecondaryLocation(scope, PERMISSION_MESSAGE))
-          .collect(Collectors.toList());
+          .toList();
 
         List<SecondaryLocation> sensitiveScopes = resource.list("assignable_scopes")
           .getItemIf(scope -> RoleScopeHelper.isSensitiveScope(scope, REFERENCE_SCOPE_PREDICATE, PLAIN_SCOPE_PREDICATE))
           .map(scope -> new SecondaryLocation(scope, SCOPE_MESSAGE))
-          .collect(Collectors.toList());
+          .toList();
 
         if (!(ownerPermissions.isEmpty() || sensitiveScopes.isEmpty())) {
           List<SecondaryLocation> secondaries = new ArrayList<>(ownerPermissions);

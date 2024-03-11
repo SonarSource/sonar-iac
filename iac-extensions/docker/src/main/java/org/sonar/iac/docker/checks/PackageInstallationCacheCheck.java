@@ -19,12 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -36,6 +30,12 @@ import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import static java.util.function.Predicate.not;
 
@@ -142,7 +142,7 @@ public class PackageInstallationCacheCheck implements IacCheck {
     return removeCacheDetector
       .searchWithoutSplit(commandsToSearchIn).stream()
       .filter(PackageInstallationCacheCheck::verifyActualCacheRemovalCommand)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static void removeCacheCleanedInstallCommands(List<CommandDetector.Command> installCommands, List<CommandDetector.Command> cacheCleaningCommands) {

@@ -19,11 +19,6 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -33,6 +28,11 @@ import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractResourceCheck implements IacCheck {
 
@@ -48,7 +48,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
       .filter(resource -> resource.key() instanceof ScalarTree && resource.value() instanceof MappingTree)
       .map(resource -> Resource.fromMapping((ScalarTree) resource.key(), (MappingTree) resource.value()))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   protected abstract void checkResource(CheckContext ctx, Resource resource);

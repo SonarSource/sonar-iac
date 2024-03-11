@@ -19,15 +19,6 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
@@ -45,6 +36,15 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
@@ -86,7 +86,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     if (!insecureValues.isEmpty()) {
       List<SecondaryLocation> secondaryLocations = insecureValues.entrySet().stream()
         .map(e -> new SecondaryLocation(e.getKey(), e.getValue()))
-        .collect(Collectors.toList());
+        .toList();
       ctx.reportIssue(bucket.type(), MESSAGE, secondaryLocations);
     }
   }
@@ -111,21 +111,21 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static boolean correspondsToBucket(@Nullable YamlTree policyBucketId, Resource bucket) {
-    if (policyBucketId instanceof FunctionCallTree && isReferringFunction((FunctionCallTree) policyBucketId)) {
-      return ((FunctionCallTree) policyBucketId).arguments().stream()
+    if (policyBucketId instanceof FunctionCallTree functionCall && isReferringFunction(functionCall)) {
+      return functionCall.arguments().stream()
         .map(TextUtils::getValue)
         .flatMap(Optional::stream)
         .anyMatch(argument -> TextUtils.isValue(bucket.name(), argument).isTrue());
-    } else if (policyBucketId instanceof FunctionCallTree && isJoin((FunctionCallTree) policyBucketId)) {
-      return ((FunctionCallTree) policyBucketId).arguments().stream()
+    } else if (policyBucketId instanceof FunctionCallTree functionCall && isJoin(functionCall)) {
+      return functionCall.arguments().stream()
         .map(YamlTreeUtils::getListValueElements)
         .flatMap(Collection::stream)
         // Remove the empty strings before checking for equality, as the bucket name can also be an empty string
         .filter(elem -> !"".equals(elem))
         .anyMatch(elementValue -> getNameOfBucket(bucket).equals(elementValue));
-    } else if (policyBucketId instanceof ScalarTree) {
+    } else if (policyBucketId instanceof ScalarTree scalar) {
       return PropertyUtils.value(bucket.properties(), "BucketName", YamlTree.class)
-        .filter(bucketName -> TextUtils.isValue(bucketName, ((ScalarTree) policyBucketId).value()).isTrue())
+        .filter(bucketName -> TextUtils.isValue(bucketName, scalar.value()).isTrue())
         .isPresent();
     }
     return false;
@@ -172,16 +172,14 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isInsecureResource(YamlTree resource) {
-      if (resource instanceof FunctionCallTree && "Join".equals(((FunctionCallTree) resource).name()) && (((FunctionCallTree) resource).arguments().size() == 2)) {
-        FunctionCallTree joinCall = (FunctionCallTree) resource;
-        YamlTree listOfValues = joinCall.arguments().get(1);
-        if (listOfValues instanceof SequenceTree) {
-          SequenceTree sequence = (SequenceTree) listOfValues;
+      if (resource instanceof FunctionCallTree functionCall && "Join".equals(functionCall.name()) && functionCall.arguments().size() == 2) {
+        YamlTree listOfValues = functionCall.arguments().get(1);
+        if (listOfValues instanceof SequenceTree sequence) {
           // Extract last element of Join value list to be checked if it's insecure
           return sequence.elements().isEmpty() || isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
         }
       }
-      return !(resource instanceof ScalarTree && ((ScalarTree) resource).value().endsWith("*"));
+      return !(resource instanceof ScalarTree scalar && scalar.value().endsWith("*"));
     }
 
     private static boolean isInsecurePrincipal(YamlTree principal) {

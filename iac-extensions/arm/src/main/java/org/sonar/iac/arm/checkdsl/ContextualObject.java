@@ -19,13 +19,14 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checkdsl.ContextualTree;
+
+import javax.annotation.Nullable;
+import java.util.stream.Stream;
 
 public class ContextualObject extends ContextualMap<ContextualObject, ObjectExpression> {
   protected ContextualObject(CheckContext ctx, @Nullable ObjectExpression tree, @Nullable String name, ContextualTree<?, ?> parent) {
@@ -45,8 +46,8 @@ public class ContextualObject extends ContextualMap<ContextualObject, ObjectExpr
       .map(Property.class::cast)
       .flatMap(p -> {
         Expression value = p.value();
-        if (value instanceof ObjectExpression) {
-          return ContextualObject.fromPresent(ctx, (ObjectExpression) value, p.key().value(), this).allPropertiesFlattened();
+        if (value instanceof ObjectExpression object) {
+          return ContextualObject.fromPresent(ctx, object, p.key().value(), this).allPropertiesFlattened();
         } else {
           return Stream.of(ContextualProperty.fromPresent(ctx, p, this));
         }

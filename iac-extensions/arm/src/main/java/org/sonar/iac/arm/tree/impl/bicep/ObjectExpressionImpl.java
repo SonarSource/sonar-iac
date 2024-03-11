@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -29,6 +26,9 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectExpression {
 
@@ -47,7 +47,7 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
     return objectProperties.stream()
       .filter(Property.class::isInstance)
       .map(Property.class::cast)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -55,7 +55,7 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
     return objectProperties.stream()
       .filter(ResourceDeclaration.class::isInstance)
       .map(ResourceDeclaration.class::cast)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

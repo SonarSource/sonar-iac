@@ -19,18 +19,6 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -47,6 +35,18 @@ import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
@@ -99,7 +99,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
   private static List<SecondaryLocation> checkWrongConfiguration(BlockTree publicAccessBlock) {
     return PAB_STATEMENTS.stream()
       .map(e -> PropertyUtils.value(publicAccessBlock, e))
-      .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
+      .flatMap(Optional::stream)
       .filter(TextUtils::isValueFalse)
       .map(value -> new SecondaryLocation(value, SECONDARY_MSG_PROPERTY))
       .collect(Collectors.toList());

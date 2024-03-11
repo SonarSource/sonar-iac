@@ -19,11 +19,12 @@
  */
 package org.sonar.iac.common.checks;
 
-import java.util.Optional;
-import java.util.function.Predicate;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
+
+import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class TextUtils {
 
@@ -32,8 +33,8 @@ public class TextUtils {
   }
 
   public static Optional<String> getValue(@Nullable Tree tree) {
-    if (tree instanceof TextTree) {
-      return Optional.ofNullable(((TextTree) tree).value());
+    if (tree instanceof TextTree textTree) {
+      return Optional.ofNullable(textTree.value());
     }
     return Optional.empty();
   }
@@ -55,8 +56,8 @@ public class TextUtils {
   }
 
   public static Trilean matchesValue(@Nullable Tree tree, Predicate<String> matcher) {
-    if (tree instanceof TextTree) {
-      return matcher.test(((TextTree) tree).value()) ? Trilean.TRUE : Trilean.FALSE;
+    if (tree instanceof TextTree textTree) {
+      return matcher.test(textTree.value()) ? Trilean.TRUE : Trilean.FALSE;
     }
     return Trilean.UNKNOWN;
   }

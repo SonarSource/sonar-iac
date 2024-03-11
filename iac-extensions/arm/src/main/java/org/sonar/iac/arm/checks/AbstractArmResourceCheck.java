@@ -19,18 +19,18 @@
  */
 package org.sonar.iac.arm.checks;
 
+import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import org.sonar.iac.arm.checkdsl.ContextualResource;
-import org.sonar.iac.arm.tree.api.HasResources;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 
 abstract class AbstractArmResourceCheck implements IacCheck {
 
@@ -57,12 +57,10 @@ abstract class AbstractArmResourceCheck implements IacCheck {
       contextualResourceConsumer.get(resourceType).forEach(consumer -> consumer.accept(symbol));
     }
 
-    if (resource instanceof HasResources) {
-      for (ResourceDeclaration child : ((HasResources) resource).childResources()) {
-        String childResourceType = resourceType + "/" + child.type().value();
-        processResource(ctx, child, childResourceType);
-      }
-    }
+    resource.childResources().forEach(child -> {
+      String childResourceType = resourceType + "/" + child.type().value();
+      processResource(ctx, child, childResourceType);
+    });
   }
 
   protected abstract void registerResourceConsumer();

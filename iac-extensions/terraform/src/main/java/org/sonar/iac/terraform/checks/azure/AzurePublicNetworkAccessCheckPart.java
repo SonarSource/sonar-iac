@@ -19,28 +19,27 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.FIREWALL_MESSAGE;
 import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.GATEWAYS_AND_INTERFACE_MESSAGE;
 import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.NETWORK_ACCESS_MESSAGE;
 import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.OMITTING_MESSAGE;
-import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
-import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualTo;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessMatches;
 
 public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
@@ -88,7 +87,7 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
 
     register("azurerm_application_insights",
       resource -> {
-        List<AttributeSymbol> attributes = Stream.of("internet_ingestion_enabled", "internet_query_enabled").map(resource::attribute).collect(Collectors.toList());
+        List<AttributeSymbol> attributes = Stream.of("internet_ingestion_enabled", "internet_query_enabled").map(resource::attribute).toList();
         if (attributes.stream().allMatch(ContextualTree::isAbsent)) {
           resource.report(String.format(OMITTING_MESSAGE, "internet_ingestion_enabled\" and \"internet_query_enabled"));
         } else {

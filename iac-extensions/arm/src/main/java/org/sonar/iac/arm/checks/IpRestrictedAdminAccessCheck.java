@@ -19,15 +19,6 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -39,9 +30,17 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils;
 
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.*;
 
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
@@ -136,9 +135,8 @@ public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
     }
 
     private static boolean isArrayWith(@Nullable Tree tree, Predicate<Tree> predicate) {
-      if (tree instanceof ArrayExpression) {
-        ArrayExpression array = (ArrayExpression) tree;
-        return array.elements().stream()
+      if (tree instanceof ArrayExpression arrayExpression) {
+        return arrayExpression.elements().stream()
           .anyMatch(predicate);
       }
       return false;

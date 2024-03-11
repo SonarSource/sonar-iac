@@ -19,12 +19,9 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -33,6 +30,11 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class FileConverter extends ArmJsonBaseConverter {
   public FileConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);
@@ -40,25 +42,24 @@ public class FileConverter extends ArmJsonBaseConverter {
 
   public File convertFile(FileTree fileTree) {
     MappingTree document = (MappingTree) fileTree.documents().get(0);
-    List<Statement> statements = new ArrayList<>();
     StringLiteral targetScope = toStringLiteralOrNull(document, "$schema");
 
     ResourceDeclarationConverter resourceConverter = new ResourceDeclarationConverter(inputFileContext);
     List<ResourceDeclaration> resources = resourceConverter.extractResourcesSequence(document)
       .map(resourceConverter::convertToResourceDeclaration)
-      .collect(Collectors.toList());
-    statements.addAll(resources);
+      .toList();
+    List<Statement> statements = new ArrayList<>(resources);
 
     OutputDeclarationConverter outputConverter = new OutputDeclarationConverter(inputFileContext);
     List<OutputDeclaration> outputs = outputConverter.extractOutputsMapping(document)
       .map(outputConverter::convertOutputDeclaration)
-      .collect(Collectors.toList());
+      .toList();
     statements.addAll(outputs);
 
     ParameterDeclarationConverter parameterConverter = new ParameterDeclarationConverter(inputFileContext);
-    List<Statement> params = parameterConverter.extractParametersSequence(document)
+    List<ParameterDeclaration> params = parameterConverter.extractParametersSequence(document)
       .map(parameterConverter::convertParameters)
-      .collect(Collectors.toList());
+      .toList();
     statements.addAll(params);
 
     VariableDeclarationConverter variableConverter = new VariableDeclarationConverter(inputFileContext);

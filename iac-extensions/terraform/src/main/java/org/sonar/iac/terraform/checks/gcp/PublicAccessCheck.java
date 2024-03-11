@@ -19,13 +19,6 @@
  */
 package org.sonar.iac.terraform.checks.gcp;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -39,10 +32,16 @@ import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ReferenceSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
+import javax.annotation.CheckForNull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.BLOCK;
-import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
-import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
-import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.*;
 
 @Rule(key = "S6404")
 public class PublicAccessCheck extends AbstractNewResourceCheck {
@@ -150,7 +149,7 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
   private static List<String> iamResourceNameList(String suffix) {
     return IAM_RESOURCES.stream()
       .map(resourceName -> GCP_RESOURCE_PREFIX + resourceName + suffix)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static boolean isPolicyDataBlock(StatementTree statement) {

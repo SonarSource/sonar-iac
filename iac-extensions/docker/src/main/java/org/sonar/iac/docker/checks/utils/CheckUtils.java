@@ -19,17 +19,17 @@
  */
 package org.sonar.iac.docker.checks.utils;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HasArguments;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 public final class CheckUtils {
 
@@ -38,7 +38,7 @@ public final class CheckUtils {
   }
 
   public static List<ArgumentResolution> resolveInstructionArguments(HasArguments instructionWithArguments) {
-    return instructionWithArguments.arguments().stream().map(ArgumentResolution::ofWithoutStrippingQuotes).collect(Collectors.toList());
+    return instructionWithArguments.arguments().stream().map(ArgumentResolution::ofWithoutStrippingQuotes).toList();
   }
 
   public static String getFileExtension(String name) {

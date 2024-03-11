@@ -19,10 +19,6 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.checks.utils.PolicyUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -33,6 +29,10 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.sonar.iac.common.checks.PrivilegeEscalationVector.actionEnablesVector;
 import static org.sonar.iac.common.checks.PrivilegeEscalationVector.getStatementEscalationVector;
@@ -58,10 +58,10 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
   private static void checkPrivilegeEscalation(CheckContext ctx, Policy policy, Resource resource) {
     for (Statement statement : policy.statement()) {
       Optional<Tree> action = statement.action();
-      if (action.isPresent() && action.get() instanceof SequenceTree) {
-        List<Tree> actionTrees = ((SequenceTree) action.get()).elements().stream()
+      if (action.isPresent() && action.get()instanceof SequenceTree sequenceTree) {
+        List<Tree> actionTrees = sequenceTree.elements().stream()
           .map(Tree.class::cast)
-          .collect(Collectors.toList());
+          .toList();
         Optional<PrivilegeEscalationVector> vectorOpt = getStatementEscalationVector(statement, actionTrees);
         if (vectorOpt.isPresent()) {
           PrivilegeEscalationVector vector = vectorOpt.get();
