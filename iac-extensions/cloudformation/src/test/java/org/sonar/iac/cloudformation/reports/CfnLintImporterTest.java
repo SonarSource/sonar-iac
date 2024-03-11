@@ -36,6 +36,7 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -117,7 +118,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo("E0000");
+    assertThat(issue).hasRuleId("E0000");
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
     assertThat(issue.primaryLocation().message()).isEqualTo("Null value at line 8 column 20");
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(8);
@@ -141,7 +142,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo("cfn-lint.fallback");
+    assertThat(issue).hasRuleId("cfn-lint.fallback");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     verifyNoInteractions(mockAnalysisWarnings);
   }

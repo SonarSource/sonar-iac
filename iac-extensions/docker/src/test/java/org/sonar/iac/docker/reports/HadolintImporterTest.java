@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.docker.reports;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -37,6 +34,10 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.docker.reports.hadolint.HadolintImporter;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -44,6 +45,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class HadolintImporterTest {
@@ -121,7 +123,7 @@ class HadolintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo("DL3007");
+    assertThat(issue).hasRuleId("DL3007");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
@@ -134,7 +136,7 @@ class HadolintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo("DL3007");
+    assertThat(issue).hasRuleId("DL3007");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
@@ -164,7 +166,7 @@ class HadolintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo("hadolint.fallback");
+    assertThat(issue).hasRuleId("hadolint.fallback");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     verifyNoInteractions(mockAnalysisWarnings);
   }
@@ -178,7 +180,7 @@ class HadolintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo(ruleId);
+    assertThat(issue).hasRuleId(ruleId);
     assertThat(issue.severity()).isEqualTo(Severity.MAJOR);
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
 
@@ -194,7 +196,7 @@ class HadolintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo(ruleId);
+    assertThat(issue).hasRuleId(ruleId);
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
     verifyNoInteractions(mockAnalysisWarnings);
