@@ -19,11 +19,6 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualArray;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
@@ -38,6 +33,12 @@ import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.TextUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.sonar.iac.arm.tree.ArmTreeUtils.containsParameterReference;
 
@@ -65,7 +66,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
       List<SecondaryLocation> sensitiveParameterUsages = extractPropertyValuesFromTemplate(resource.object("template").list(RESOURCES_PROP_NAME))
         .filter(containsParameterReference(sensitiveParameterNames))
         .map(value -> new SecondaryLocation(value.textRange(), SECONDARY_MESSAGE))
-        .collect(Collectors.toList());
+        .toList();
 
       if (!sensitiveParameterUsages.isEmpty()) {
         scope.report(MESSAGE, sensitiveParameterUsages)

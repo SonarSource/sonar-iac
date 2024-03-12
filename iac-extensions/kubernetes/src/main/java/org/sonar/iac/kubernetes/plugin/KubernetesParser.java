@@ -19,10 +19,6 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.nio.file.Path;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
@@ -35,6 +31,11 @@ import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
+
+import javax.annotation.Nullable;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 import static org.sonar.iac.helm.HelmFileSystem.retrieveHelmProjectFolder;
@@ -94,11 +95,11 @@ public class KubernetesParser extends YamlParser {
         throw pe;
       }
     } catch (MarkedYamlEngineException e) {
-      var shifted = locationShifter.shiftMarkedYamlException(inputFileContext, e);
-      if (shifted instanceof ShiftedMarkedYamlEngineException) {
-        LOG.debug("Shifting YAML exception {}", ((ShiftedMarkedYamlEngineException) shifted).describeShifting());
+      var exception = locationShifter.shiftMarkedYamlException(inputFileContext, e);
+      if (exception instanceof ShiftedMarkedYamlEngineException shiftedMarkedException) {
+        LOG.debug("Shifting YAML exception {}", shiftedMarkedException.describeShifting());
       }
-      throw shifted;
+      throw exception;
     }
     return result;
   }

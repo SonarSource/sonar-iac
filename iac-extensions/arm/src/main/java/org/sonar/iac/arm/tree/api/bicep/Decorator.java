@@ -19,8 +19,9 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.Expression;
+
+import javax.annotation.CheckForNull;
 
 public interface Decorator extends HasKeyword {
 
@@ -29,10 +30,10 @@ public interface Decorator extends HasKeyword {
   @CheckForNull
   default FunctionCall functionCallOrMemberFunctionCall() {
     Expression decoratorExpression = expression();
-    if (decoratorExpression instanceof FunctionCall) {
-      return (FunctionCall) decoratorExpression;
-    } else if (decoratorExpression instanceof MemberExpression && ((MemberExpression) decoratorExpression).expression() instanceof FunctionCall) {
-      return (FunctionCall) ((MemberExpression) decoratorExpression).expression();
+    if (decoratorExpression instanceof FunctionCall functionCall) {
+      return functionCall;
+    } else if (decoratorExpression instanceof MemberExpression memberExpression && memberExpression.expression()instanceof FunctionCall functionCall) {
+      return functionCall;
     } else {
       return null;
     }

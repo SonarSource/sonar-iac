@@ -19,12 +19,12 @@
  */
 package org.sonar.iac.common.checks.policy;
 
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
 
 public class Policy {
 
@@ -35,7 +35,7 @@ public class Policy {
   public <T extends Tree> Policy(T policyDocument, Function<T, List<T>> statementsProvider) {
     this.version = PropertyUtils.valueOrNull(policyDocument, "Version");
     this.id = PropertyUtils.valueOrNull(policyDocument, "Id");
-    this.statement = statementsProvider.apply(policyDocument).stream().map(Statement::new).collect(Collectors.toList());
+    this.statement = statementsProvider.apply(policyDocument).stream().map(Statement::new).toList();
   }
 
   public Optional<Tree> version() {

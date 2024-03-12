@@ -19,9 +19,10 @@
  */
 package org.sonar.iac.arm.tree.api;
 
+import org.sonar.iac.common.api.tree.HasProperties;
+
 import java.util.List;
 import java.util.stream.Stream;
-import org.sonar.iac.common.api.tree.HasProperties;
 
 public interface ObjectExpression extends Expression, HasProperties {
   List<ResourceDeclaration> nestedResources();
@@ -31,8 +32,8 @@ public interface ObjectExpression extends Expression, HasProperties {
       .map(Property.class::cast)
       .flatMap(p -> {
         Expression value = p.value();
-        if (value instanceof ObjectExpression) {
-          return ((ObjectExpression) value).allPropertiesFlattened();
+        if (value instanceof ObjectExpression object) {
+          return object.allPropertiesFlattened();
         } else {
           return Stream.of(p);
         }

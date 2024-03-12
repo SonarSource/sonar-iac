@@ -20,10 +20,6 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Optional;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.docker.tree.api.AddInstruction;
@@ -97,6 +93,11 @@ import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
 import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.emptySeparatedList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
@@ -208,8 +209,8 @@ public class TreeFactory {
   }
 
   public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Flag>> flags, DockerTree noneOrCmd) {
-    if (noneOrCmd instanceof CmdInstruction) {
-      return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), (CmdInstruction) noneOrCmd, null);
+    if (noneOrCmd instanceof CmdInstruction cmdInstruction) {
+      return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), cmdInstruction, null);
     } else {
       return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), null, (SyntaxToken) noneOrCmd);
     }

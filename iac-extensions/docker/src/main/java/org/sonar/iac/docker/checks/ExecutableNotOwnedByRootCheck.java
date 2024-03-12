@@ -19,11 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -36,6 +31,11 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
+
+import javax.annotation.CheckForNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Rule(key = "S6504")
 public class ExecutableNotOwnedByRootCheck implements IacCheck {
@@ -124,7 +124,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
       .map(ArgumentResolution::of)
       .filter(ExecutableNotOwnedByRootCheck::isSensitiveFile)
       .map(ArgumentResolution::argument)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static boolean isSensitiveFile(ArgumentResolution argumentResolution) {

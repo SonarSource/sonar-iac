@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.docker.reports.hadolint;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -35,6 +32,10 @@ import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 public class HadolintImporter extends AbstractJsonReportImporter {
   private static final String MESSAGE_PREFIX = "Hadolint report importing: ";
 
@@ -45,15 +46,15 @@ public class HadolintImporter extends AbstractJsonReportImporter {
   @Override
   protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
     Object parsedJson = jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
-    if (parsedJson instanceof JSONObject) {
+    if (parsedJson instanceof JSONObject object) {
       // case: sonarQube-Format
-      Object jsonObject = ((JSONObject) parsedJson).get("issues");
+      var jsonObject = object.get("issues");
       if (jsonObject != null) {
         return (JSONArray) jsonObject;
       }
     }
-    if (parsedJson instanceof JSONArray) {
-      return (JSONArray) parsedJson;
+    if (parsedJson instanceof JSONArray array) {
+      return array;
     } else {
       // exception is caught in calling method
       String message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());

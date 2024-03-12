@@ -19,11 +19,12 @@
  */
 package org.sonar.iac.terraform.checks.utils;
 
-import java.util.function.Predicate;
 import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
+
+import java.util.function.Predicate;
 
 import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.ATTRIBUTE_ACCESS;
 
@@ -43,11 +44,11 @@ public class TerraformUtils {
   public static String attributeAccessToString(AttributeAccessTree attributeAccess) {
     StringBuilder sb = new StringBuilder();
     ExpressionTree object = attributeAccess.object();
-    if (object instanceof AttributeAccessTree) {
-      sb.append(attributeAccessToString((AttributeAccessTree) object));
+    if (object instanceof AttributeAccessTree attributeAccessTree) {
+      sb.append(attributeAccessToString(attributeAccessTree));
       sb.append('.');
-    } else if (object instanceof VariableExprTree) {
-      sb.append(((VariableExprTree) object).value());
+    } else if (object instanceof VariableExprTree variableExprTree) {
+      sb.append(variableExprTree.value());
       sb.append('.');
     }
     sb.append(attributeAccess.attribute().value());

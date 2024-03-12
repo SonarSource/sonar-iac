@@ -19,21 +19,15 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
@@ -44,8 +38,15 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
-import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 import org.sonar.iac.terraform.api.tree.TupleTree;
+import org.sonar.iac.terraform.checks.utils.PolicyUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
 
@@ -88,7 +89,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     List<SecondaryLocation> secondaryLocations = insecureValues.entrySet().stream()
       .filter(e -> e.getKey() != null)
       .map(e -> new SecondaryLocation(e.getKey(), e.getValue()))
-      .collect(Collectors.toList());
+      .toList();
 
     ctx.reportIssue(bucket.labels().get(0), MESSAGE, secondaryLocations);
   }
@@ -125,13 +126,12 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static boolean correspondsToBucket(Tree key, BlockTree bucket) {
-    if (key instanceof LiteralExprTree) {
+    if (key instanceof LiteralExprTree literalExpr) {
       return PropertyUtils.value(bucket, "bucket")
-        .map(name -> TextUtils.isValue(name, ((LiteralExprTree) key).value()).isTrue())
+        .map(name -> TextUtils.isValue(name, literalExpr.value()).isTrue())
         .orElse(false);
-    } else if (key instanceof AttributeAccessTree && ((AttributeAccessTree) key).object() instanceof AttributeAccessTree && bucket.labels().size() >= 2) {
-      AttributeAccessTree object = (AttributeAccessTree) ((AttributeAccessTree) key).object();
-      return object.attribute().value().equals(bucket.labels().get(1).value());
+    } else if (key instanceof AttributeAccessTree attributeAccess && attributeAccess.object()instanceof AttributeAccessTree accessTree && bucket.labels().size() >= 2) {
+      return accessTree.attribute().value().equals(bucket.labels().get(1).value());
     }
 
     return false;

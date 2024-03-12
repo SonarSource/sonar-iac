@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.common.yaml;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.SonarRuntime;
@@ -47,6 +44,10 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
 
@@ -90,8 +91,8 @@ public abstract class YamlSensor extends IacSensor {
 
   @Override
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
-    if (cause instanceof MarkedYamlEngineException) {
-      Optional<Mark> problemMark = ((MarkedYamlEngineException) cause).getProblemMark();
+    if (cause instanceof MarkedYamlEngineException markedException) {
+      Optional<Mark> problemMark = markedException.getProblemMark();
       TextPointer position = null;
       if (problemMark.isPresent()) {
         position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);

@@ -19,14 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -38,6 +30,14 @@ import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
+
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Rule(key = "S6472")
 public class SecretsHandlingCheck implements IacCheck {
@@ -128,8 +128,8 @@ public class SecretsHandlingCheck implements IacCheck {
    */
   private static boolean isSensitiveVariableName(Argument secret) {
     List<Expression> expressions = secret.expressions();
-    if (expressions.size() == 1 && expressions.get(0) instanceof Variable) {
-      String identifier = ((Variable) expressions.get(0)).identifier();
+    if (expressions.size() == 1 && expressions.get(0)instanceof Variable variable) {
+      String identifier = variable.identifier();
       return isSensitiveVariableName(identifier);
     }
     return false;
@@ -183,7 +183,7 @@ public class SecretsHandlingCheck implements IacCheck {
     }
 
     private static List<String> toUpperCase(String[] strings) {
-      return Stream.of(strings).map(s -> s.toUpperCase(Locale.ROOT)).collect(Collectors.toList());
+      return Stream.of(strings).map(s -> s.toUpperCase(Locale.ROOT)).toList();
     }
   }
 

@@ -19,11 +19,6 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,6 +33,12 @@ import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 import org.sonar.iac.helm.tree.utils.ValuePath;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SecondaryLocationLocator {
   private static final Logger LOG = LoggerFactory.getLogger(SecondaryLocationLocator.class);
@@ -115,15 +116,13 @@ public class SecondaryLocationLocator {
 
   private static List<String> filteredPaths(ValuePath valuePath) {
     var path = valuePath.path();
-    switch (valuePath.path().get(0)) {
-      case "Values":
-        return path.subList(1, path.size());
-      case "Chart", "Release":
+    return switch (valuePath.path().get(0)) {
+      case "Values" -> path.subList(1, path.size());
+      case "Chart", "Release" ->
         // these come not from values.yaml
-        return List.of();
-      default:
-        return valuePath.path();
-    }
+        List.of();
+      default -> valuePath.path();
+    };
   }
 
   @CheckForNull

@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -31,6 +29,8 @@ import org.sonar.iac.common.checkdsl.ContextualPropertyTree;
 import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.Trilean;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ContextualProperty extends ContextualPropertyTree<ContextualProperty, Property, Expression> {
@@ -68,8 +68,8 @@ public class ContextualProperty extends ContextualPropertyTree<ContextualPropert
   private Trilean isResourceReferencing() {
     ContextualTree<?, ?> parentTree = this.parent;
     while (parentTree != null) {
-      if (parentTree instanceof ContextualResource) {
-        return ((ContextualResource) parentTree).isReferencingResource() ? Trilean.TRUE : Trilean.FALSE;
+      if (parentTree instanceof ContextualResource resource) {
+        return resource.isReferencingResource() ? Trilean.TRUE : Trilean.FALSE;
       }
       parentTree = parentTree.parent;
     }

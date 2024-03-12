@@ -24,13 +24,6 @@ import com.google.protobuf.AnyOrBuilder;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.helm.tree.api.Node;
@@ -54,6 +47,13 @@ import org.sonar.iac.helm.tree.impl.TemplateNodeImpl;
 import org.sonar.iac.helm.tree.impl.TextNodeImpl;
 import org.sonar.iac.helm.tree.impl.VariableNodeImpl;
 import org.sonar.iac.helm.tree.impl.WithNodeImpl;
+
+import javax.annotation.CheckForNull;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 public final class GoTemplateAstConverter {
   private static final Logger LOG = LoggerFactory.getLogger(GoTemplateAstConverter.class);
@@ -110,7 +110,7 @@ public final class GoTemplateAstConverter {
   public static List<Node> unpack(Collection<Any> nodesPb) {
     return nodesPb.stream()
       .map(GoTemplateAstConverter::unpackNode)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static String typeName(AnyOrBuilder nodePb) {

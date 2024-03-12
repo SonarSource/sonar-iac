@@ -19,14 +19,9 @@
  */
 package org.sonar.iac.terraform.checks.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -34,6 +29,11 @@ import org.sonar.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class PolicyUtils {
 
@@ -82,11 +82,11 @@ public class PolicyUtils {
       if (policyDocument.isPresent()) {
         Tree policyExpr = policyDocument.get();
         // For now we only handle policy expressions if they are wrapped by a function call
-        if (!(policyExpr instanceof FunctionCallTree) || ((FunctionCallTree) policyExpr).arguments().trees().isEmpty()) {
+        if (!(policyExpr instanceof FunctionCallTree policyFunctionCall) || policyFunctionCall.arguments().trees().isEmpty()) {
           policies.add(UNKNOWN_POLCY);
           return;
         }
-        TerraformTree policyArgument = ((FunctionCallTree) policyExpr).arguments().trees().get(0);
+        TerraformTree policyArgument = policyFunctionCall.arguments().trees().get(0);
         policies.add(new Policy(
           policyArgument,
           policy -> PropertyUtils.value(policy, "Statement", TupleTree.class)

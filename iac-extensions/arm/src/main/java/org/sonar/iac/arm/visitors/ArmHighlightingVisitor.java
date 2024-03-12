@@ -60,8 +60,8 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     register(OutputDeclaration.class, (ctx, tree) -> highlight(tree.type(), KEYWORD));
     register(Decorator.class, (ctx, tree) -> {
       Expression expression = tree.expression();
-      if (expression instanceof FunctionCall) {
-        highlight(((FunctionCall) expression).name(), KEYWORD);
+      if (expression instanceof FunctionCall functionCall) {
+        highlight(functionCall.name(), KEYWORD);
       }
     });
     register(ForExpression.class, (ctx, tree) -> {

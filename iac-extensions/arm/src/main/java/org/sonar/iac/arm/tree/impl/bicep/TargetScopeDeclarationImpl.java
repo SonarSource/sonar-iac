@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -27,6 +26,8 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
+
+import java.util.List;
 
 public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements TargetScopeDeclaration {
 
@@ -59,18 +60,13 @@ public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements T
   public File.Scope scope() {
     if (expression.is(Kind.STRING_COMPLETE)) {
       StringComplete stringLiteral = (StringComplete) expression;
-      switch (stringLiteral.value()) {
-        case "managementGroup":
-          return File.Scope.MANAGEMENT_GROUP;
-        case "resourceGroup":
-          return File.Scope.RESOURCE_GROUP;
-        case "subscription":
-          return File.Scope.SUBSCRIPTION;
-        case "tenant":
-          return File.Scope.TENANT;
-        default:
-          return File.Scope.UNKNOWN;
-      }
+      return switch (stringLiteral.value()) {
+        case "managementGroup" -> File.Scope.MANAGEMENT_GROUP;
+        case "resourceGroup" -> File.Scope.RESOURCE_GROUP;
+        case "subscription" -> File.Scope.SUBSCRIPTION;
+        case "tenant" -> File.Scope.TENANT;
+        default -> File.Scope.UNKNOWN;
+      };
     } else {
       return File.Scope.UNKNOWN;
     }

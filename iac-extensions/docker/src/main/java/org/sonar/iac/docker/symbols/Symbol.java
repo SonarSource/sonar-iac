@@ -19,10 +19,11 @@
  */
 package org.sonar.iac.docker.symbols;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.HasSymbol;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Symbol {
 
@@ -43,8 +44,8 @@ public class Symbol {
   public void addUsage(Scope scope, DockerTree tree, Usage.Kind kind) {
     var usage = new Usage(scope, tree, kind);
     usages.add(usage);
-    if (tree instanceof HasSymbol) {
-      ((HasSymbol) tree).setSymbol(new Symbol(this));
+    if (tree instanceof HasSymbol treeWithSymbol) {
+      treeWithSymbol.setSymbol(new Symbol(this));
     }
   }
 

@@ -19,15 +19,16 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileImpl extends AbstractArmTreeImpl implements File {
 
@@ -54,18 +55,13 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
     String scopeAsString = targetScope.value();
     String scopeSuffix = scopeAsString.substring(scopeAsString.lastIndexOf('/'));
 
-    switch (scopeSuffix) {
-      case "/managementGroupDeploymentTemplate.json#":
-        return Scope.MANAGEMENT_GROUP;
-      case "/deploymentTemplate.json#":
-        return Scope.RESOURCE_GROUP;
-      case "/subscriptionDeploymentTemplate.json#":
-        return Scope.SUBSCRIPTION;
-      case "/tenantDeploymentTemplate.json#":
-        return Scope.TENANT;
-      default:
-        return Scope.UNKNOWN;
-    }
+    return switch (scopeSuffix) {
+      case "/managementGroupDeploymentTemplate.json#" -> Scope.MANAGEMENT_GROUP;
+      case "/deploymentTemplate.json#" -> Scope.RESOURCE_GROUP;
+      case "/subscriptionDeploymentTemplate.json#" -> Scope.SUBSCRIPTION;
+      case "/tenantDeploymentTemplate.json#" -> Scope.TENANT;
+      default -> Scope.UNKNOWN;
+    };
   }
 
   @CheckForNull

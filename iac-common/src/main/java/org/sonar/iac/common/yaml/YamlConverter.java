@@ -19,11 +19,6 @@
  */
 package org.sonar.iac.common.yaml;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
@@ -44,6 +39,11 @@ import org.sonar.iac.common.yaml.tree.TupleTreeImpl;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.comments;
 import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.range;
@@ -70,7 +70,7 @@ public class YamlConverter {
     var fileNode = nodes.get(0);
     var fileRange = TextRanges.merge(List.of(range(fileNode), range(ListUtils.getLast(nodes))));
     var metadata = new YamlTreeMetadata("FILE", fileRange, comments(fileNode.getEndComments()));
-    List<YamlTree> documents = nodes.stream().map(this::convert).collect(Collectors.toList());
+    List<YamlTree> documents = nodes.stream().map(this::convert).toList();
     return new FileTreeImpl(documents, metadata, template);
   }
 
@@ -104,20 +104,13 @@ public class YamlConverter {
   }
 
   protected static ScalarTree.Style scalarStyleConvert(ScalarStyle style) {
-    switch (style) {
-      case DOUBLE_QUOTED:
-        return ScalarTree.Style.DOUBLE_QUOTED;
-      case SINGLE_QUOTED:
-        return ScalarTree.Style.SINGLE_QUOTED;
-      case LITERAL:
-        return ScalarTree.Style.LITERAL;
-      case FOLDED:
-        return ScalarTree.Style.FOLDED;
-      case PLAIN:
-        return ScalarTree.Style.PLAIN;
-      default:
-        return ScalarTree.Style.OTHER;
-    }
+    return switch (style) {
+      case DOUBLE_QUOTED -> ScalarTree.Style.DOUBLE_QUOTED;
+      case SINGLE_QUOTED -> ScalarTree.Style.SINGLE_QUOTED;
+      case LITERAL -> ScalarTree.Style.LITERAL;
+      case FOLDED -> ScalarTree.Style.FOLDED;
+      case PLAIN -> ScalarTree.Style.PLAIN;
+    };
   }
 
 }

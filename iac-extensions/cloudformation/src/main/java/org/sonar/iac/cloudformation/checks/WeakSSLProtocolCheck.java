@@ -19,14 +19,15 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+
+import java.util.Optional;
 
 @Rule(key = "S4423")
 public class WeakSSLProtocolCheck extends AbstractResourceCheck {
@@ -68,8 +69,8 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
-    if (config.value() instanceof SequenceTree && configSequenceContainsSecurityPolicy((SequenceTree) config.value())) {
-      getSecurityPolicyFromConfigSequence((SequenceTree) config.value())
+    if (config.value()instanceof SequenceTree sequenceTree && configSequenceContainsSecurityPolicy(sequenceTree)) {
+      getSecurityPolicyFromConfigSequence(sequenceTree)
         .ifPresent(policy -> checkSecurityPolicy(ctx, policy));
     } else {
       ctx.reportIssue(config.key(), omittingMessage(SECURITY_POLICY_KEY));

@@ -19,12 +19,12 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.DockerTree;
+
+import java.util.List;
 
 public abstract class AbstractDockerTreeImpl implements DockerTree {
 
@@ -44,7 +44,7 @@ public abstract class AbstractDockerTreeImpl implements DockerTree {
   @Override
   public TextRange textRange() {
     if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
+      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).toList();
       textRange = TextRanges.merge(childRanges);
     }
     return textRange;

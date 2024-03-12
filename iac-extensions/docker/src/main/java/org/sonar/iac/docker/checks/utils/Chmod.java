@@ -19,17 +19,17 @@
  */
 package org.sonar.iac.docker.checks.utils;
 
+import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.Argument;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
-import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
 
 /**
  * Represent chmod call instruction in RUN Arguments, with parsed permissions ready to be checked
@@ -68,7 +68,7 @@ public class Chmod {
     List<Chmod> chmods = new ArrayList<>();
     List<String> argumentsStrings = arguments.stream()
       .map(arg -> ArgumentResolution.of(arg).value())
-      .collect(Collectors.toList());
+      .toList();
 
     List<Integer> chmodIndexes = findChmodIndexes(argumentsStrings);
     for (Integer chmodIndex : chmodIndexes) {
@@ -85,7 +85,7 @@ public class Chmod {
     return IntStream.range(0, arguments.size())
       .filter(i -> "chmod".equals(arguments.get(i)))
       .boxed()
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static Integer skipOptions(int index, List<String> arguments) {

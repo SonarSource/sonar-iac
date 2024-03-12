@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.common.checks;
 
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.policy.Policy;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +29,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.policy.Policy;
 
 public enum PrivilegeEscalationVector {
 
@@ -63,7 +64,7 @@ public enum PrivilegeEscalationVector {
 
   PrivilegeEscalationVector(String name, List<String> permissions) {
     this.name = name;
-    this.permissions = permissions.stream().map(Permission.SimplePermission::new).collect(Collectors.toList());
+    this.permissions = permissions.stream().map(Permission.SimplePermission::new).toList();
   }
 
   public String getName() {

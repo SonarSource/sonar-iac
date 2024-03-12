@@ -19,21 +19,16 @@
  */
 package org.sonar.iac.arm;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
-import org.sonar.iac.arm.tree.api.ParameterDeclaration;
-import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.*;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -98,8 +93,8 @@ public class ArmTestUtils {
       return Stream.empty();
     }
     return tree.children().stream().flatMap(t -> {
-      if (t instanceof TextTree) {
-        return Stream.of(((TextTree) t).value());
+      if (t instanceof TextTree textTree) {
+        return Stream.of(textTree.value());
       } else {
         return recursiveTransformationOfTreeChildrenToStrings(t, maxDepth - 1);
       }

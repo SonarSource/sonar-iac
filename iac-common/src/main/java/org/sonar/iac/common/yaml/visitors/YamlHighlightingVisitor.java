@@ -32,7 +32,7 @@ public class YamlHighlightingVisitor extends SyntaxHighlightingVisitor {
   protected void languageSpecificHighlighting() {
     register(TupleTree.class, (ctx, tree) -> highlight(tree.key(), KEYWORD));
     register(ScalarTree.class, (ctx, tree) -> ctx.ancestors().stream().findFirst().ifPresent(p -> {
-      if (!(p instanceof TupleTree && ((TupleTree) p).key().equals(tree))) {
+      if (!(p instanceof TupleTree tuple && tuple.key().equals(tree))) {
         highlight(tree, STRING);
       }
     }));
