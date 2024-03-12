@@ -26,7 +26,6 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
@@ -146,8 +145,7 @@ public class KubernetesParser extends YamlParser {
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
     locationShifter.readLinesSizes(source, inputFileContext);
-    var fileRelativePath = HelmFileSystem.getFileRelativePath(inputFileContext);
-    var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
+    var evaluatedSource = helmProcessor.processHelmTemplate(source, inputFileContext);
     var evaluatedAndCleanedSource = Optional.ofNullable(evaluatedSource)
       .map(template -> cleanSource(template, inputFileContext, locationShifter))
       .orElse("");

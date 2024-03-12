@@ -85,7 +85,7 @@ class KubernetesParserTest {
 
   @Test
   void testParsingWhenHelmContentIsDetectedAndEvaluatorNotInitialized() {
-    when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
+    when(helmProcessor.processHelmTemplate(any(), any())).thenReturn("foo: bar");
 
     FileTree file = parser.parse("foo: {{ .Value.var }}", inputFileContext);
 
@@ -128,7 +128,7 @@ class KubernetesParserTest {
       when(valuesFile.filename()).thenReturn("values.yaml");
       when(valuesFile.contents()).thenReturn("foo: bar");
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
+      when(helmProcessor.processHelmTemplate(any(), any())).thenReturn("foo: bar");
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
 
       FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
@@ -145,7 +145,7 @@ class KubernetesParserTest {
   @Test
   void shouldNotEvaluateHelmWithoutValuesFile() {
     try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
+      when(helmProcessor.processHelmTemplate(any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
 
       assertThatThrownBy(() -> parser.parse("foo: {{ .Values.foo }}", inputFileContext))
@@ -189,7 +189,7 @@ class KubernetesParserTest {
       when(valuesFile.contents()).thenReturn("foo: bar");
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
       String evaluatedSource = code("#5");
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluatedSource);
+      when(helmProcessor.processHelmTemplate(any(), any())).thenReturn(evaluatedSource);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
 
       FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
@@ -413,7 +413,7 @@ class KubernetesParserTest {
       when(valuesFile.filename()).thenReturn("values.yaml");
       when(valuesFile.contents()).thenReturn("foo: bar");
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
+      when(helmProcessor.processHelmTemplate(any(), any())).thenReturn(evaluated);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
 
       file = parser.parse(originalCode, inputFileContext);
@@ -435,7 +435,7 @@ class KubernetesParserTest {
       var valuesFile = mock(InputFile.class);
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn(evaluated);
+      when(helmProcessor.processHelmTemplate(any(), any())).thenReturn(evaluated);
 
       assertThatThrownBy(() -> parser.parse("dummy: {{ dummy }}", inputFileContext))
         .isInstanceOf(ShiftedMarkedYamlEngineException.class);
@@ -453,7 +453,7 @@ class KubernetesParserTest {
       var valuesFile = mock(InputFile.class);
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(
+      when(helmProcessor.processHelmTemplate(any(), any())).thenThrow(
         new ParseException("Failed to evaluate Helm file dummy.yaml: Template evaluation failed", new BasicTextPointer(1, 1),
           "Evaluation error in Go library: template: dummy.yaml:10:11: executing \"dummy.yaml\" at <include \"a-template-from-dependency\" .>: error calling include: template: " +
             "error calling include: template: no template \"a-template-from-dependency\" associated with template \"aggregatingTemplate\""));
@@ -478,7 +478,7 @@ class KubernetesParserTest {
       var valuesFile = mock(InputFile.class);
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenThrow(
+      when(helmProcessor.processHelmTemplate(any(), any())).thenThrow(
         new ParseException(
           "Failed to evaluate Helm file dummy.yaml: Template evaluation failed",
           new BasicTextPointer(1, 1),
