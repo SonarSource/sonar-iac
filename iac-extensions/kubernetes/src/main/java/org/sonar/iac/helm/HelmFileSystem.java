@@ -100,12 +100,13 @@ public final class HelmFileSystem {
     return helmProjectDirectoryPath;
   }
 
-  public static String getFileRelativePath(InputFileContext inputFileContext) {
-    var filePath = Path.of(inputFileContext.inputFile.uri());
-    var chartRootDirectory = retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
+  public String getFileRelativePath(InputFileContext inputFileContext) {
+    var inputFile = inputFileContext.inputFile;
+    var filePath = Path.of(inputFile.uri());
+    var chartRootDirectory = retrieveHelmProjectFolder(filePath, fileSystem.baseDir());
     String fileRelativePath;
     if (chartRootDirectory == null) {
-      fileRelativePath = inputFileContext.inputFile.filename();
+      fileRelativePath = inputFile.filename();
     } else {
       fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
       // transform windows to unix path

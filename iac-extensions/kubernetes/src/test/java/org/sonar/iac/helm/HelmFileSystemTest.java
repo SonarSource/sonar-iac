@@ -183,7 +183,7 @@ class HelmFileSystemTest {
   void getFileRelativePathShouldFallbackToFilenameInCaseOfUnresolvedChartDirectory() throws IOException {
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
     InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
-    assertThat(HelmFileSystem.getFileRelativePath(templateInputFileContext)).isEqualTo("pod.yaml");
+    assertThat(helmFilesystem.getFileRelativePath(templateInputFileContext)).isEqualTo("pod.yaml");
   }
 
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {

@@ -86,7 +86,7 @@ public class HelmProcessor {
     inputFileContext.setSourceWithComments(sourceWithComments);
     inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext.inputFile));
     var fileContents = validateAndReadFiles(inputFileContext);
-    var path = HelmFileSystem.getFileRelativePath(inputFileContext);
+    var path = helmFilesystem.getFileRelativePath(inputFileContext);
     return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, fileContents);
   }
 
