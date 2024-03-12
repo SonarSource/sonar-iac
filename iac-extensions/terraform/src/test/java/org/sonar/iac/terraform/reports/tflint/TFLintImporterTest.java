@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.terraform.reports.tflint;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +34,10 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -44,6 +45,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class TFLintImporterTest {
@@ -73,7 +75,7 @@ class TFLintImporterTest {
 
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo("terraform_comment_syntax");
+    assertThat(issue).hasRuleId("terraform_comment_syntax");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo("Single line comments should begin with #");
     assertTextRange(issue.primaryLocation().textRange(), 2, 0, 3, 0);
@@ -89,7 +91,7 @@ class TFLintImporterTest {
 
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo("tflint.error");
+    assertThat(issue).hasRuleId("tflint.error");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo(
       "Failed to check ruleset; Failed to check `aws_instance_previous_type` rule: exampleError.tf:2,21-29: Reference to undeclared input variable; An input variable with the name \"type\" has not been declared. This variable can be declared with a variable \"type\" {} block.");
@@ -106,7 +108,7 @@ class TFLintImporterTest {
 
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue.ruleId()).isEqualTo("tflint.error");
+    assertThat(issue).hasRuleId("tflint.error");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo(
       "Failed to check ruleset; Failed to check `foo bar` rule: exampleError.tf:2,21-25: foo bar");

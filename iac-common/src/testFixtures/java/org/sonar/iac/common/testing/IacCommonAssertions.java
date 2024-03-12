@@ -19,10 +19,13 @@
  */
 package org.sonar.iac.common.testing;
 
-import javax.annotation.Nullable;
+import org.junit.jupiter.api.Assertions;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 
-public class IacCommonAssertions {
+import javax.annotation.Nullable;
+
+public class IacCommonAssertions extends Assertions {
 
   public static TextRangeAssert assertThat(@Nullable TextRange actual) {
     return TextRangeAssert.assertThat(actual);
@@ -30,5 +33,9 @@ public class IacCommonAssertions {
 
   public static TextRangePluginApiAssert assertThat(@Nullable org.sonar.api.batch.fs.TextRange actual) {
     return TextRangePluginApiAssert.assertThat(actual);
+  }
+
+  public static ExternalIssueAssert assertThat(@Nullable ExternalIssue issue) {
+    return ExternalIssueAssert.assertThat(issue);
   }
 }
