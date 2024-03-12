@@ -146,7 +146,7 @@ public class KubernetesParser extends YamlParser {
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
     locationShifter.readLinesSizes(source, inputFileContext);
-    var fileRelativePath = getFileRelativePath(inputFileContext);
+    var fileRelativePath = HelmFileSystem.getFileRelativePath(inputFileContext);
     var evaluatedSource = helmProcessor.processHelmTemplate(fileRelativePath, source, inputFileContext);
     var evaluatedAndCleanedSource = Optional.ofNullable(evaluatedSource)
       .map(template -> cleanSource(template, inputFileContext, locationShifter))
@@ -159,20 +159,6 @@ public class KubernetesParser extends YamlParser {
     return KubernetesFileTreeImpl.fromFileTree(
       super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM),
       inputFileContext.getGoTemplateTree());
-  }
-
-  private static String getFileRelativePath(InputFileContext inputFileContext) {
-    var filePath = Path.of(inputFileContext.inputFile.uri());
-    var chartRootDirectory = retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
-    String fileRelativePath;
-    if (chartRootDirectory == null) {
-      fileRelativePath = inputFileContext.inputFile.filename();
-    } else {
-      fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
-      // transform windows to unix path
-      fileRelativePath = HelmFileSystem.normalizeToUnixPathSeparator(fileRelativePath);
-    }
-    return fileRelativePath;
   }
 
   public static boolean hasHelmContent(String text) {

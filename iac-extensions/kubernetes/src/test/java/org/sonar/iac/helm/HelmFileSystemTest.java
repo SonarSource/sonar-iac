@@ -19,13 +19,6 @@
  */
 package org.sonar.iac.helm;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +33,14 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -178,6 +179,13 @@ class HelmFileSystemTest {
     assertThat(result).isNull();
   }
 
+  @Test
+  void getFileRelativePathShouldFallbackToFilenameInCaseOfUnresolvedChartDirectory() throws IOException {
+    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+    InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
+    assertThat(HelmFileSystem.getFileRelativePath(templateInputFileContext)).isEqualTo("pod.yaml");
+  }
+
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {
     for (InputFile inputFile : inputFiles) {
       sensorContext.fileSystem().add(inputFile);
@@ -193,5 +201,4 @@ class HelmFileSystemTest {
       .setContents("")
       .build();
   }
-
 }

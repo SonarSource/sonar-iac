@@ -19,19 +19,12 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
@@ -51,6 +44,13 @@ import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -154,21 +154,6 @@ class KubernetesParserTest {
 
       var logs = logTester.logs(Level.DEBUG);
       assertThat(logs).contains("Helm content detected in file '/chart/templates/foo.yaml'");
-    }
-  }
-
-  @Test
-  void shouldFallbackToFilenameInCaseOfUnresolvedChartDirectory() {
-    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(null);
-      when(helmProcessor.processHelmTemplate(any(), any(), any())).thenReturn("foo: bar");
-      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-
-      parser.parse("foo: {{ .Values.foo }}", inputFileContext);
-
-      var argumentCaptor = ArgumentCaptor.forClass(String.class);
-      Mockito.verify(helmProcessor).processHelmTemplate(argumentCaptor.capture(), any(), any());
-      assertThat(argumentCaptor.getValue()).isEqualTo("foo.yaml");
     }
   }
 

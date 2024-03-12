@@ -19,6 +19,14 @@
  */
 package org.sonar.iac.helm;
 
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,12 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FilePredicates;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.extension.ParseException;
 
 public final class HelmFileSystem {
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
@@ -96,6 +98,20 @@ public final class HelmFileSystem {
       return null;
     }
     return helmProjectDirectoryPath;
+  }
+
+  public static String getFileRelativePath(InputFileContext inputFileContext) {
+    var filePath = Path.of(inputFileContext.inputFile.uri());
+    var chartRootDirectory = retrieveHelmProjectFolder(filePath, inputFileContext.sensorContext.fileSystem().baseDir());
+    String fileRelativePath;
+    if (chartRootDirectory == null) {
+      fileRelativePath = inputFileContext.inputFile.filename();
+    } else {
+      fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
+      // transform windows to unix path
+      fileRelativePath = HelmFileSystem.normalizeToUnixPathSeparator(fileRelativePath);
+    }
+    return fileRelativePath;
   }
 
   private static String resolveToInputFile(Path helmDirectoryPath, InputFile additionalFile) {
