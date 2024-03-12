@@ -43,6 +43,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -176,6 +177,23 @@ class HelmFileSystemTest {
     var result = helmFilesystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()));
 
     assertThat(result).isNull();
+  }
+
+  @Test
+  void getFileRelativePathShouldReturnCorrectPathWhenHelmProjectFolderExists() throws IOException {
+    InputFile inputFile = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+    InputFile chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
+    addToFilesystem(context, inputFile, chartYamlFile);
+
+    String result = helmFilesystem.getFileRelativePath(inputFile);
+    assertEquals("templates/pod.yaml", result);
+  }
+
+  @Test
+  void getFileRelativePathShouldReturnFilenameWhenHelmProjectFolderDoesNotExist() throws IOException {
+    InputFile inputFile = createInputFile(helmProjectPathPrefix + "pod.yaml");
+    String result = helmFilesystem.getFileRelativePath(inputFile);
+    assertEquals("pod.yaml", result);
   }
 
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {

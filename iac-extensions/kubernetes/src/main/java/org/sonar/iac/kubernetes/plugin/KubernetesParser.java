@@ -22,7 +22,6 @@ package org.sonar.iac.kubernetes.plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;

@@ -30,6 +30,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.ParseException;
 
@@ -41,12 +42,12 @@ public final class HelmFileSystem {
     this.fileSystem = fileSystem;
   }
 
-  public String getFileRelativePath(InputFile inputFile) {
-    var filePath = Path.of(inputFile.uri());
+  public String getFileRelativePath(IndexedFile indexedInputFile) {
+    var filePath = Path.of(indexedInputFile.uri());
     var chartRootDirectory = retrieveHelmProjectFolder(filePath);
     String fileRelativePath;
     if (chartRootDirectory == null) {
-      fileRelativePath = inputFile.filename();
+      fileRelativePath = indexedInputFile.filename();
     } else {
       fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
       // transform windows to unix path

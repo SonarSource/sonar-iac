@@ -55,8 +55,6 @@ public class HelmProcessor {
     return helmFilesystem;
   }
 
-  // getter for helmFileSystem.
-
   public static boolean isHelmEvaluatorExecutableAvailable() {
     return OperatingSystemUtils.getCurrentPlatformIfSupported().isPresent();
   }

@@ -63,7 +63,6 @@ public class KubernetesSensor extends YamlSensor {
   private final LocationShifter locationShifter = new LocationShifter();
   private final SecondaryLocationLocator secondaryLocationLocator = new SecondaryLocationLocator(new YamlParser());
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
-  private HelmFileSystem helmFileSystem;
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator) {
@@ -75,8 +74,7 @@ public class KubernetesSensor extends YamlSensor {
   protected void initContext(SensorContext sensorContext) {
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
-      // initialize HFS here and pass it along the helmprocessor
-      helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
+      var helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
       helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
     } else {
       LOG.debug("Skipping initialization of Helm processor");
