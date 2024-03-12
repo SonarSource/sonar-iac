@@ -73,7 +73,7 @@ public class PropertyUtils {
   }
 
   public static <T extends Tree> List<T> getAll(@Nullable Tree tree, Class<T> clazz) {
-    return getAll(tree, t -> true).filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+    return getAll(tree, t -> true).filter(clazz::isInstance).map(clazz::cast).toList();
   }
 
   public static Optional<PropertyTree> get(@Nullable Tree tree, Predicate<String> keyMatcher) {
