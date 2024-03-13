@@ -19,11 +19,24 @@
  */
 package org.sonar.iac.arm.tree;
 
-import org.sonar.iac.arm.tree.api.*;
+import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
