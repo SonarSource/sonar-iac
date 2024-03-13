@@ -85,7 +85,7 @@ public class HelmProcessor {
     inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext.inputFile));
     var fileContents = validateAndReadFiles(inputFileContext);
     var path = helmFilesystem.getFileRelativePath(inputFileContext);
-    return evaluateHelmTemplate(String.valueOf(path), inputFileContext, sourceWithComments, fileContents);
+    return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, fileContents);
   }
 
   static Map<String, String> validateAndReadFiles(HelmInputFileContext inputFileContext) {

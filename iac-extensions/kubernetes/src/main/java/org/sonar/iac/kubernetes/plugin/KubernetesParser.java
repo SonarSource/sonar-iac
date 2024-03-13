@@ -32,7 +32,6 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import javax.annotation.Nullable;
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
