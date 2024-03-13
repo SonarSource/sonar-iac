@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 
 public class HelmInputFileContext extends InputFileContext {
@@ -73,5 +75,10 @@ public class HelmInputFileContext extends InputFileContext {
   @CheckForNull
   public String getSourceWithComments() {
     return sourceWithComments;
+  }
+
+  public boolean isInChartRootDirectory() {
+    var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
+    return inputFile.path().getParent() != null && inputFile.path().getParent().equals(rootChartDirectory);
   }
 }

@@ -184,15 +184,18 @@ class HelmFileSystemTest {
     InputFile inputFile = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
     InputFile chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
     addToFilesystem(context, inputFile, chartYamlFile);
+    InputFileContext inputFileContext = new InputFileContext(context, inputFile);
 
-    String result = helmFilesystem.getFileRelativePath(inputFile);
+    String result = helmFilesystem.getFileRelativePath(inputFileContext);
     assertEquals("templates/pod.yaml", result);
   }
 
   @Test
   void getFileRelativePathShouldReturnFilenameWhenHelmProjectFolderDoesNotExist() throws IOException {
     InputFile inputFile = createInputFile(helmProjectPathPrefix + "pod.yaml");
-    String result = helmFilesystem.getFileRelativePath(inputFile);
+    InputFileContext inputFileContext = new InputFileContext(context, inputFile);
+
+    String result = helmFilesystem.getFileRelativePath(inputFileContext);
     assertEquals("pod.yaml", result);
   }
 
@@ -211,5 +214,4 @@ class HelmFileSystemTest {
       .setContents("")
       .build();
   }
-
 }

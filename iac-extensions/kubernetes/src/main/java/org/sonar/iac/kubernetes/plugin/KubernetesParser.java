@@ -26,7 +26,6 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
@@ -111,7 +110,7 @@ public class KubernetesParser extends YamlParser {
 
     var isValuesYaml = "values.yaml".equals(inputFileContext.inputFile.filename()) ||
       "values.yml".equals(inputFileContext.inputFile.filename());
-    var isInChartRootDirectory = isInChartRootDirectory(inputFileContext);
+    var isInChartRootDirectory = inputFileContext.isInChartRootDirectory();
     if (isValuesYaml && isInChartRootDirectory) {
       LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
       return buildEmptyTree(inputFileContext);
@@ -134,11 +133,6 @@ public class KubernetesParser extends YamlParser {
 
   private Optional<FileTree> buildEmptyTree(@Nullable HelmInputFileContext inputFileContext) {
     return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
-  }
-
-  private static boolean isInChartRootDirectory(HelmInputFileContext inputFileContext) {
-    var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()), inputFileContext.sensorContext.fileSystem());
-    return inputFileContext.inputFile.path().getParent() != null && inputFileContext.inputFile.path().getParent().equals(rootChartDirectory);
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
