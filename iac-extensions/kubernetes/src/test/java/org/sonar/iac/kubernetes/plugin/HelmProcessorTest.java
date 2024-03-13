@@ -31,7 +31,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -46,6 +45,7 @@ import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -71,7 +71,7 @@ class HelmProcessorTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   // -------------------------------------------------
-  // ----Test HelmProcessor.processHelmTemplate-------
+  // ----Test HelmProcessor.process-------------------
   // -------------------------------------------------
 
   @Test
@@ -82,7 +82,7 @@ class HelmProcessorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to initialize Helm evaluator, analysis of Helm files will be disabled");
 
-    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo", mock(HelmInputFileContext.class)))
+    assertThatThrownBy(() -> helmProcessor.process("foo", mock(HelmInputFileContext.class), mock(LocationShifter.class)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
   }
@@ -93,7 +93,7 @@ class HelmProcessorTest {
     doThrow(new IOException()).when(helmEvaluator).initialize();
     var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
 
-    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo", null))
+    assertThatThrownBy(() -> helmProcessor.process("foo", null, mock(LocationShifter.class)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Attempt to process Helm template with uninitialized Helm evaluator");
 
@@ -105,9 +105,9 @@ class HelmProcessorTest {
     var helmProcessor = getHelmProcessor();
     var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
 
-    String evaluatedSource = helmProcessor.processHelmTemplate("", inputFileContext);
+    String evaluatedSource = helmProcessor.process("", inputFileContext, mock(LocationShifter.class));
 
-    assertThat(evaluatedSource).isNull();
+    assertThat(evaluatedSource).isEmpty();
     assertThat(logTester.logs(Level.DEBUG)).contains("The file chart/templates/foo.yaml is blank, skipping evaluation");
   }
 
@@ -131,9 +131,9 @@ class HelmProcessorTest {
     var fileContext = new HelmInputFileContext(context, inputFile);
     var processor = new HelmProcessor(helmEvaluator, helmFileSystem);
 
-    var result = processor.processHelmTemplate(inputFile.contents(), fileContext);
+    var result = processor.process(inputFile.contents(), fileContext, new LocationShifter());
 
-    assertEquals(result, processedFile.contents());
+    assertEquals(result, processedFile.contents().trim());
   }
 
   // -------------------------------------------------
@@ -192,7 +192,7 @@ class HelmProcessorTest {
   }
 
   @Test
-  void validateAndReadFilesShouldThrowExceptionIfMainFileNameContainsLineBreak() throws IOException {
+  void validateAndReadFilesShouldThrowExceptionIfMainFileNameContainsLineBreak() {
     var additionalFiles = Map.of("values.yaml", mock(InputFile.class));
     var inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn("file\n.yaml");

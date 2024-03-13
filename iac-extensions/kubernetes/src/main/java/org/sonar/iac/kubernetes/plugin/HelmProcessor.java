@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -35,8 +36,10 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
+import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
 
 public class HelmProcessor {
   public static final List<String> LINE_SEPARATORS = List.of("\n", "\r\n", "\r", "\u2028", "\u2029");
@@ -69,7 +72,16 @@ public class HelmProcessor {
   }
 
   @CheckForNull
-  String processHelmTemplate(String source, HelmInputFileContext inputFileContext) {
+  String process(String source, HelmInputFileContext inputFileContext, LocationShifter locationShifter) {
+    locationShifter.readLinesSizes(source, inputFileContext);
+
+    var evaluatedSource = processHelmTemplate(source, inputFileContext);
+    return Optional.ofNullable(evaluatedSource)
+      .map(template -> cleanSource(template, inputFileContext, locationShifter))
+      .orElse("");
+  }
+
+  private String processHelmTemplate(String source, HelmInputFileContext inputFileContext) {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
