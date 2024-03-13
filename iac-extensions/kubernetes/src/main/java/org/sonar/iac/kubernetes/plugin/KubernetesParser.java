@@ -26,6 +26,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
@@ -135,8 +136,8 @@ public class KubernetesParser extends YamlParser {
     return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
   }
 
-  private boolean isInChartRootDirectory(HelmInputFileContext inputFileContext) {
-    var rootChartDirectory = helmProcessor.getHelmFilesystem().retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()));
+  private static boolean isInChartRootDirectory(HelmInputFileContext inputFileContext) {
+    var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()), inputFileContext.sensorContext.fileSystem());
     return inputFileContext.inputFile.path().getParent() != null && inputFileContext.inputFile.path().getParent().equals(rootChartDirectory);
   }
 

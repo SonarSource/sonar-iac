@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -55,7 +54,6 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
@@ -72,13 +70,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\n";
   private static final String PARSING_ERROR_KEY = "S2260";
-
-  private HelmFileSystem helmFileSystem;
-
-  @BeforeEach
-  void setUp() {
-    helmFileSystem = mock(HelmFileSystem.class);
-  }
 
   @Test
   void shouldParseYamlFileWithKubernetesIdentifiers() {
@@ -270,7 +261,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.getHelmFilesystem()).thenReturn(helmFileSystem);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
     when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
@@ -334,7 +324,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5";
     var helmProcessor = Mockito.mock(HelmProcessor.class);
-    when(helmProcessor.getHelmFilesystem()).thenReturn(helmFileSystem);
     when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var issueRaiser = new RaiseIssue("Issue");
@@ -354,7 +343,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}\n{{ some other helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4\nSecondary: Issue #5";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.getHelmFilesystem()).thenReturn(helmFileSystem);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
     when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
@@ -385,7 +373,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}\n{{ some other helm code }}\n{{ more helm code... }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4\nSecondary1: Issue #5\nSecondary2: Issue #6";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.getHelmFilesystem()).thenReturn(helmFileSystem);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
     when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
@@ -419,7 +406,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   private HelmProcessor mockHelmProcessor(Map<String, String> inputToOutput) {
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.getHelmFilesystem()).thenReturn(helmFileSystem);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
     when(helmProcessor.processHelmTemplate(anyString(), any())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(0).toString(), ""));
     return helmProcessor;

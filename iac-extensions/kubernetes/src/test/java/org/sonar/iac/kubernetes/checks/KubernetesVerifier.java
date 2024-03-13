@@ -71,7 +71,6 @@ public class KubernetesVerifier {
   private static final LocationShifter locationShifter = new LocationShifter();
   private static final SecondaryLocationLocator secondaryLocationLocator = new SecondaryLocationLocator(new YamlParser());
   private static final YamlParser YAML_PARSER = new YamlParser();
-  private static HelmProcessor helmProcessor;
 
   public static void verify(String templateFileName, IacCheck check) {
     if (containsHelmContent(templateFileName)) {
@@ -128,7 +127,7 @@ public class KubernetesVerifier {
       }
       HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
       HelmFileSystem helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
-      helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
+      HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
       KUBERNETES_PARSER = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
       temporaryDirectory.deleteOnExit();
     }
@@ -187,7 +186,7 @@ public class KubernetesVerifier {
       var sourceInputFile = inputFile(templateFileName, BASE_DIR);
       sensorContext.fileSystem().add(sourceInputFile);
       var filePath = Path.of(sourceInputFile.uri());
-      var helmProjectPath = helmProcessor.getHelmFilesystem().retrieveHelmProjectFolder(filePath);
+      var helmProjectPath = HelmFileSystem.retrieveHelmProjectFolder(filePath, sensorContext.fileSystem());
       if (helmProjectPath == null) {
         throw new IllegalStateException(String.format("Could not resolve helmProjectPath for file %s, possible missing Chart.yaml",
           filePath));

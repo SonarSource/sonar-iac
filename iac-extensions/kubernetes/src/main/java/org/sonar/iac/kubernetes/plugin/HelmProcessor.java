@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,10 +50,6 @@ public class HelmProcessor {
     this.helmEvaluator = helmEvaluator;
     this.helmFilesystem = helmFilesystem;
     initialize();
-  }
-
-  public HelmFileSystem getHelmFilesystem() {
-    return helmFilesystem;
   }
 
   public static boolean isHelmEvaluatorExecutableAvailable() {
@@ -88,8 +85,8 @@ public class HelmProcessor {
     inputFileContext.setSourceWithComments(sourceWithComments);
     inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext.inputFile));
     var fileContents = validateAndReadFiles(inputFileContext);
-    String path = helmFilesystem.getFileRelativePath(inputFileContext.inputFile);
-    return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, fileContents);
+    var path = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFileContext.inputFile.uri()), inputFileContext.sensorContext.fileSystem());
+    return evaluateHelmTemplate(String.valueOf(path), inputFileContext, sourceWithComments, fileContents);
   }
 
   static Map<String, String> validateAndReadFiles(HelmInputFileContext inputFileContext) {

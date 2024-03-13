@@ -81,7 +81,6 @@ class KubernetesParserTest {
     when(inputFile.path()).thenReturn(Path.of("/chart/templates/foo.yaml"));
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
-    when(helmProcessor.getHelmFilesystem()).thenReturn(helmFileSystem);
   }
 
   @Test
