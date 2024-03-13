@@ -262,7 +262,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
+    when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
     analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
@@ -300,7 +300,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var issueRaiser = new RaiseIssue.RaiseIssueOnWord("non_compliant", "Sensitive word 'Issue' detected !");
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
 
-    analyse(sensor(helmProcessor, checkFactory), inputFile("file1.yaml", originalSourceCode1), inputFile("file2.yaml", originalSourceCode2));
+    KubernetesSensor sensor = sensor(helmProcessor, checkFactory);
+    InputFile inputFile1 = inputFile("file1.yaml", originalSourceCode1);
+    InputFile inputFile2 = inputFile("file2.yaml", originalSourceCode2);
+
+    analyse(sensor, inputFile1, inputFile2);
     assertThat(context.allIssues()).hasSize(2);
     Iterator<Issue> iterator = context.allIssues().iterator();
     Issue issue1 = iterator.next();
@@ -320,7 +324,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5";
     var helmProcessor = Mockito.mock(HelmProcessor.class);
-    when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
+    when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var issueRaiser = new RaiseIssue("Issue");
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
@@ -340,7 +344,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4\nSecondary: Issue #5";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
+    when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var secondaryLocation = new SecondaryLocation(TextRanges.range(6, 1, 6, 9), "Secondary message");
     var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocation(5, 1, 5, 5, "Primary message", secondaryLocation);
@@ -370,7 +374,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4\nSecondary1: Issue #5\nSecondary2: Issue #6";
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.processHelmTemplate(anyString(), eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
+    when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var secondaryLocation1 = new SecondaryLocation(TextRanges.range(6, 1, 6, 10), "Secondary message 1");
     var secondaryLocation2 = new SecondaryLocation(TextRanges.range(7, 1, 7, 10), "Secondary message 2");
@@ -403,7 +407,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   private HelmProcessor mockHelmProcessor(Map<String, String> inputToOutput) {
     HelmProcessor helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.processHelmTemplate(anyString(), anyString(), any())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(1).toString(), ""));
+    when(helmProcessor.processHelmTemplate(anyString(), any())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(0).toString(), ""));
     return helmProcessor;
   }
 

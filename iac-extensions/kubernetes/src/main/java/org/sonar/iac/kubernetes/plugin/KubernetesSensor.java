@@ -74,7 +74,8 @@ public class KubernetesSensor extends YamlSensor {
   protected void initContext(SensorContext sensorContext) {
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
-      helmProcessor = new HelmProcessor(helmEvaluator, sensorContext);
+      var helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
+      helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
     } else {
       LOG.debug("Skipping initialization of Helm processor");
     }
@@ -233,7 +234,7 @@ public class KubernetesSensor extends YamlSensor {
 
     @Override
     public boolean apply(InputFile inputFile) {
-      return HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem().baseDir()) != null;
+      return HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem()) != null;
     }
   }
 }

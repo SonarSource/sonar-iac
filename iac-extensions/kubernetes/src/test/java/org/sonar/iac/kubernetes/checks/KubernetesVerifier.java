@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -127,7 +126,8 @@ public class KubernetesVerifier {
         throw new IllegalStateException("Could not create temporary directory", e);
       }
       HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
-      HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, sensorContext);
+      HelmFileSystem helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
+      HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
       KUBERNETES_PARSER = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
       temporaryDirectory.deleteOnExit();
     }
@@ -186,7 +186,7 @@ public class KubernetesVerifier {
       var sourceInputFile = inputFile(templateFileName, BASE_DIR);
       sensorContext.fileSystem().add(sourceInputFile);
       var filePath = Path.of(sourceInputFile.uri());
-      var helmProjectPath = HelmFileSystem.retrieveHelmProjectFolder(filePath, BASE_DIR.toAbsolutePath().toFile());
+      var helmProjectPath = HelmFileSystem.retrieveHelmProjectFolder(filePath, sensorContext.fileSystem());
       if (helmProjectPath == null) {
         throw new IllegalStateException(String.format("Could not resolve helmProjectPath for file %s, possible missing Chart.yaml",
           filePath));

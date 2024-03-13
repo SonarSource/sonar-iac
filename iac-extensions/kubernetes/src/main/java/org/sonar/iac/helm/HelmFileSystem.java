@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public final class HelmFileSystem {
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
@@ -41,9 +42,24 @@ public final class HelmFileSystem {
     this.fileSystem = fileSystem;
   }
 
+  public String getFileRelativePath(InputFileContext inputFileContext) {
+    var inputFile = inputFileContext.inputFile;
+    var filePath = Path.of(inputFile.uri());
+    var chartRootDirectory = retrieveHelmProjectFolder(filePath, fileSystem);
+    String fileRelativePath;
+    if (chartRootDirectory == null) {
+      fileRelativePath = inputFile.filename();
+    } else {
+      fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
+      // transform windows to unix path
+      fileRelativePath = HelmFileSystem.normalizeToUnixPathSeparator(fileRelativePath);
+    }
+    return fileRelativePath;
+  }
+
   // Ignore additional file pattern mentioned in .helmignore
   public Map<String, InputFile> getRelatedHelmFiles(InputFile inputFile) {
-    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()), fileSystem.baseDir());
+    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()));
     if (helmDirectoryPath == null) {
       throw new ParseException("Failed to evaluate Helm file " + inputFile + ": Failed to resolve Helm project directory", null, null);
     }
@@ -80,9 +96,8 @@ public final class HelmFileSystem {
     return predicates.or(extensionPredicates);
   }
 
-  @CheckForNull
-  public static Path retrieveHelmProjectFolder(Path inputFilePath, File baseDir) {
-    var baseDirPath = baseDir.toPath();
+  public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem) {
+    var baseDirPath = fileSystem.baseDir().toPath();
 
     var helmProjectDirectoryPath = inputFilePath;
 
@@ -96,6 +111,11 @@ public final class HelmFileSystem {
       return null;
     }
     return helmProjectDirectoryPath;
+  }
+
+  @CheckForNull
+  public Path retrieveHelmProjectFolder(Path inputFilePath) {
+    return retrieveHelmProjectFolder(inputFilePath, fileSystem);
   }
 
   private static String resolveToInputFile(Path helmDirectoryPath, InputFile additionalFile) {

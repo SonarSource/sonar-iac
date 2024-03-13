@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
@@ -46,9 +45,9 @@ public class HelmProcessor {
   private final HelmFileSystem helmFilesystem;
   private boolean isEvaluatorInitialized = true;
 
-  public HelmProcessor(HelmEvaluator helmEvaluator, SensorContext sensorContext) {
+  public HelmProcessor(HelmEvaluator helmEvaluator, HelmFileSystem helmFilesystem) {
     this.helmEvaluator = helmEvaluator;
-    this.helmFilesystem = new HelmFileSystem(sensorContext.fileSystem());
+    this.helmFilesystem = helmFilesystem;
     initialize();
   }
 
@@ -70,7 +69,7 @@ public class HelmProcessor {
   }
 
   @CheckForNull
-  String processHelmTemplate(String path, String source, HelmInputFileContext inputFileContext) {
+  String processHelmTemplate(String source, HelmInputFileContext inputFileContext) {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
     }
@@ -85,6 +84,7 @@ public class HelmProcessor {
     inputFileContext.setSourceWithComments(sourceWithComments);
     inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext.inputFile));
     var fileContents = validateAndReadFiles(inputFileContext);
+    var path = helmFilesystem.getFileRelativePath(inputFileContext);
     return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, fileContents);
   }
 
