@@ -70,7 +70,6 @@ class KubernetesParserTest {
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
   private final KubernetesParser parser = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
   private final FileSystem fileSystem = mock(FileSystem.class);
-  private final HelmFileSystem helmFileSystem = mock(HelmFileSystem.class);
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -489,17 +488,19 @@ class KubernetesParserTest {
   @ParameterizedTest
   @ValueSource(strings = {"values.yaml", "values.yml"})
   void shouldParseValuesYamlFileWithHelmContentAsEmptyKubernetesFile(String filename) throws URISyntaxException {
-    when(helmFileSystem.retrieveHelmProjectFolder(any())).thenReturn(Path.of("/chart"));
-    when(inputFile.toString()).thenReturn("chart/" + filename);
-    when(inputFile.filename()).thenReturn(filename);
-    when(inputFile.uri()).thenReturn(new URI("file:///chart/" + filename));
-    when(inputFile.path()).thenReturn(Path.of("/chart/" + filename));
-    when(fileSystem.baseDir()).thenReturn(new File("/"));
+    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      when(inputFile.toString()).thenReturn("chart/" + filename);
+      when(inputFile.filename()).thenReturn(filename);
+      when(inputFile.uri()).thenReturn(new URI("file:///chart/" + filename));
+      when(inputFile.path()).thenReturn(Path.of("/chart/" + filename));
+      when(fileSystem.baseDir()).thenReturn(new File("/"));
 
-    var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
+      var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
 
-    assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
-    assertThat(logTester.logs(Level.DEBUG)).contains("Helm values file detected, skipping parsing chart/" + filename);
+      assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
+      assertThat(logTester.logs(Level.DEBUG)).contains("Helm values file detected, skipping parsing chart/" + filename);
+    }
   }
 
   @ParameterizedTest
@@ -519,17 +520,19 @@ class KubernetesParserTest {
 
   @Test
   void shouldIgnoreChartYaml() throws URISyntaxException {
-    when(helmFileSystem.retrieveHelmProjectFolder(any())).thenReturn(Path.of("/chart"));
-    when(inputFile.toString()).thenReturn("chart/Chart.yaml");
-    when(inputFile.filename()).thenReturn("Chart.yaml");
-    when(inputFile.uri()).thenReturn(new URI("file:///chart/Chart.yaml"));
-    when(inputFile.path()).thenReturn(Path.of("/chart/Chart.yaml"));
-    when(fileSystem.baseDir()).thenReturn(new File("/chart"));
+    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      when(inputFile.toString()).thenReturn("chart/Chart.yaml");
+      when(inputFile.filename()).thenReturn("Chart.yaml");
+      when(inputFile.uri()).thenReturn(new URI("file:///chart/Chart.yaml"));
+      when(inputFile.path()).thenReturn(Path.of("/chart/Chart.yaml"));
+      when(fileSystem.baseDir()).thenReturn(new File("/chart"));
 
-    var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
+      var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
 
-    assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
-    assertThat(logTester.logs(Level.DEBUG)).contains("Helm Chart.yaml file detected, skipping parsing chart/Chart.yaml");
+      assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
+      assertThat(logTester.logs(Level.DEBUG)).contains("Helm Chart.yaml file detected, skipping parsing chart/Chart.yaml");
+    }
   }
 
   @Test
