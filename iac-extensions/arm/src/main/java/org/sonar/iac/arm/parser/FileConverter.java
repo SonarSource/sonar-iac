@@ -19,12 +19,7 @@
  */
 package org.sonar.iac.arm.parser;
 
-import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.OutputDeclaration;
-import org.sonar.iac.arm.tree.api.ParameterDeclaration;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.*;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
@@ -33,7 +28,6 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FileConverter extends ArmJsonBaseConverter {
   public FileConverter(@Nullable InputFileContext inputFileContext) {
@@ -63,9 +57,9 @@ public class FileConverter extends ArmJsonBaseConverter {
     statements.addAll(params);
 
     VariableDeclarationConverter variableConverter = new VariableDeclarationConverter(inputFileContext);
-    List<Statement> variables = variableConverter.extractVariablesMapping(document)
+    List<VariableDeclaration> variables = variableConverter.extractVariablesMapping(document)
       .map(variableConverter::convertVariableDeclaration)
-      .collect(Collectors.toList());
+      .toList();
     statements.addAll(variables);
 
     return new FileImpl(targetScope, statements);

@@ -181,8 +181,8 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
       if (resource instanceof LiteralExprTree || resource instanceof TemplateExpressionTree) {
         resourceIdentifiers.add(resource);
-      } else if (resource instanceof TupleTree) {
-        resourceIdentifiers.addAll(((TupleTree) resource).elements().trees());
+      } else if (resource instanceof TupleTree tuple) {
+        resourceIdentifiers.addAll(tuple.elements().trees());
       }
 
       for (Tree resourceIdentifier : resourceIdentifiers) {
@@ -195,10 +195,10 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isResourceIdentifierSecure(Tree resourceIdentifier) {
-      if (resourceIdentifier instanceof LiteralExprTree) {
-        return ((LiteralExprTree) resourceIdentifier).value().endsWith("*");
-      } else if (resourceIdentifier instanceof TemplateExpressionTree) {
-        List<ExpressionTree> parts = ((TemplateExpressionTree) resourceIdentifier).parts();
+      if (resourceIdentifier instanceof LiteralExprTree literalExpr) {
+        return literalExpr.value().endsWith("*");
+      } else if (resourceIdentifier instanceof TemplateExpressionTree templateExpression) {
+        List<ExpressionTree> parts = templateExpression.parts();
         return !parts.isEmpty() && isResourceIdentifierSecure(parts.get(parts.size() - 1));
       }
       return true;
