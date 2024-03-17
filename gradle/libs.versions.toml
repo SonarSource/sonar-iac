@@ -16,7 +16,7 @@ sonar-scanner-gradle = "4.4.0.3356"
 jfrog-gradle = "5.2.0"
 spotless-gradle = "6.25.0"
 blowdryer-gradle = "1.7.0"
-google-protobuf = "3.25.0"
+google-protobuf = "4.26.0"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
