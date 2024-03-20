@@ -22,6 +22,7 @@ env:
   ORG_GRADLE_PROJECT_signingKey: VAULT[development/kv/data/sign data.key]
   ORG_GRADLE_PROJECT_signingPassword: VAULT[development/kv/data/sign data.passphrase]
   ORG_GRADLE_PROJECT_signingKeyId: 0x7DCD4258
+  PROJECT_VERSION_CACHE_DIR: project-version
 
 
 build_secrets: &BUILD_SECRETS
@@ -138,6 +139,15 @@ cleanup_gradle_cache: &CLEANUP_GRADLE_CACHE
     - /usr/bin/find "${CIRRUS_WORKING_DIR}/.gradle/caches" -type d -name "8.*" -prune -maxdepth 1 -exec rm -rf {} \;
     - rm -rf "${CIRRUS_WORKING_DIR}/.gradle/caches/journal-1/"
 
+setup_project_version_cache: &SETUP_PROJECT_VERSION_CACHE
+  project_version_cache:
+    folder: $PROJECT_VERSION_CACHE_DIR
+    fingerprint_script: echo $BUILD_NUMBER
+    populate_script: |
+      mkdir -p "$PROJECT_VERSION_CACHE_DIR"
+      touch "$PROJECT_VERSION_CACHE_DIR"/evaluated_project_version.txt
+    reupload_on_changes: "true"
+
 # ----------------------------------------------
 # -----------------TEMPLATES--------------------
 # ----------------------------------------------
@@ -169,7 +179,8 @@ build_template: &BUILD_TEMPLATE
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
     - regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}
-    - time source set_gradle_build_version $BUILD_NUMBER
+    - source set_gradle_build_version ${BUILD_NUMBER}
+    - echo export PROJECT_VERSION=${PROJECT_VERSION} >> ~/.profile
   <<: *CLEANUP_GRADLE_CACHE
 
 store_profile_report_template: &STORE_PROFILE_REPORT
@@ -187,14 +198,11 @@ build_task:
   env:
     DEPLOY_PULL_REQUEST: true
     BUILD_ARGUMENTS: "-DtrafficInspection=false --parallel --profile -x test -x sonar"
+  <<: *SETUP_PROJECT_VERSION_CACHE
   <<: *BUILD_TEMPLATE
   store_project_version_script:
-    - mkdir -p .project-version
-    - echo $PROJECT_VERSION > .project-version/evaluated_project_version.txt
-  project_version_cache:
-    folder: .project-version
-    fingerprint_script: echo $BUILD_NUMBER
-    reupload_on_changes: "true"
+    - source ~/.profile
+    - echo "export PROJECT_VERSION=${PROJECT_VERSION}" > ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt
   <<: *STORE_PROFILE_REPORT
 
 build_test_analyze_task:
@@ -225,6 +233,7 @@ sca_scan_task:
   depends_on:
     - build
   <<: *SETUP_GRADLE_CACHE
+  <<: *SETUP_PROJECT_VERSION_CACHE
   <<: *ONLY_MAIN_BRANCHES
   eks_container:
     <<: *LINUX_IMAGE_WITH_GCC
@@ -235,7 +244,7 @@ sca_scan_task:
   whitesource_script:
     - source cirrus-env QA
     - source .cirrus/use-gradle-wrapper.sh
-    - source set_gradle_build_version $BUILD_NUMBER
+    - source ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt
     - GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process
     - source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"
   allow_failures: "true"
@@ -277,12 +286,10 @@ promote_task:
     <<: *PROMOTE_SECRETS
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
-  project_version_cache:
-    folder: .project-version
-    fingerprint_script: echo $BUILD_NUMBER
+  <<: *SETUP_PROJECT_VERSION_CACHE
   script:
     - source cirrus-env PROMOTE
     - cirrus_jfrog_promote multi
-    - export PROJECT_VERSION=$(cat .project-version/evaluated_project_version.txt)
+    - source ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt
     - github-notify-promotion
     - burgr-notify-promotion
