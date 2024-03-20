@@ -169,6 +169,7 @@ build_template: &BUILD_TEMPLATE
     - source cirrus-env BUILD
     - source .cirrus/use-gradle-wrapper.sh
     - regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}
+    - time source set_gradle_build_version $BUILD_NUMBER
   <<: *CLEANUP_GRADLE_CACHE
 
 store_profile_report_template: &STORE_PROFILE_REPORT
@@ -187,6 +188,13 @@ build_task:
     DEPLOY_PULL_REQUEST: true
     BUILD_ARGUMENTS: "-DtrafficInspection=false --parallel --profile -x test -x sonar"
   <<: *BUILD_TEMPLATE
+  store_project_version_script:
+    - mkdir -p .project-version
+    - echo $PROJECT_VERSION > .project-version/evaluated_project_version.txt
+  project_version_cache:
+    folder: .project-version
+    fingerprint_script: echo $BUILD_NUMBER
+    reupload_on_changes: "true"
   <<: *STORE_PROFILE_REPORT
 
 build_test_analyze_task:
@@ -269,7 +277,12 @@ promote_task:
     <<: *PROMOTE_SECRETS
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
+  project_version_cache:
+    folder: .project-version
+    fingerprint_script: echo $BUILD_NUMBER
   script:
     - source cirrus-env PROMOTE
     - cirrus_jfrog_promote multi
+    - export PROJECT_VERSION=$(cat .project-version/evaluated_project_version.txt)
+    - github-notify-promotion
     - burgr-notify-promotion
