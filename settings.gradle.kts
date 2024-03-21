@@ -10,7 +10,7 @@ pluginManagement {
 }
 
 plugins {
-    id("com.diffplug.blowdryerSetup") version "1.7.0"
+    id("com.diffplug.blowdryerSetup") version "1.7.1"
 }
 
 rootProject.name = "iac"

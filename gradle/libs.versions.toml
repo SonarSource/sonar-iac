@@ -1,8 +1,8 @@
 [versions]
 sonarqube = "10.4.1.88267"
-sonar-plugin-api = "10.6.0.2114"
-sonar-commons = "2.7.0.1482"
-sonar-orchestrator = "4.8.0.1898"
+sonar-plugin-api = "10.7.0.2191"
+sonar-commons = "2.8.0.2699"
+sonar-orchestrator = "4.9.0.1920"
 junit = "5.10.2"
 assertj = "3.25.3"
 mockito = "4.11.0"
@@ -12,11 +12,11 @@ sslr = "1.24.0.633"
 archunit = "1.2.1"
 snakeyaml = "2.7"
 minimaljson = "0.9.5"
-sonar-scanner-gradle = "4.4.0.3356"
+sonar-scanner-gradle = "4.4.1.3373"
 jfrog-gradle = "5.2.0"
 spotless-gradle = "6.25.0"
-blowdryer-gradle = "1.7.0"
-google-protobuf = "3.25.0"
+blowdryer-gradle = "1.7.1"
+google-protobuf = "3.25.3"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
