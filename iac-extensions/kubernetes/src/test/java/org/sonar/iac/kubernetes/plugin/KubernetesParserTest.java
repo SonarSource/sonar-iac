@@ -25,12 +25,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
+
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
@@ -42,9 +43,9 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
@@ -54,8 +55,10 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.in;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -64,7 +67,7 @@ class KubernetesParserTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final InputFile inputFile = mock(InputFile.class);
   private final SensorContext sensorContext = mock(SensorContext.class);
-  private final InputFileContext inputFileContext = new HelmInputFileContext(sensorContext, inputFile);
+  private final HelmInputFileContext inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
   private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
   private final LocationShifter locationShifter = new LocationShifter();
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
@@ -486,80 +489,90 @@ class KubernetesParserTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"values.yaml", "values.yml"})
-  void shouldParseValuesYamlFileWithHelmContentAsEmptyKubernetesFile(String filename) throws URISyntaxException {
-    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
-      when(inputFile.toString()).thenReturn("chart/" + filename);
-      when(inputFile.filename()).thenReturn(filename);
-      when(inputFile.uri()).thenReturn(new URI("file:///chart/" + filename));
-      when(inputFile.path()).thenReturn(Path.of("/chart/" + filename));
-      when(fileSystem.baseDir()).thenReturn(new File("/"));
+  // filename, inChartRoot, expectedReturn
+  @CsvSource({
+    "values.yaml, true, true",
+    "values.yaml, false, false",
+    "values.yml, true, true",
+    "values.yml, false, false",
+    "not_values.yaml, true, false",
+    "not_values.yaml, false, false"
+  })
+  void isValuesFileShouldReturnExpectedValue(String filename, boolean inChartRoot, boolean expectedReturn) {
+    when(inputFileContext.isInChartRootDirectory()).thenReturn(inChartRoot);
+    when(inputFile.filename()).thenReturn(filename);
+    when(inputFile.toString()).thenReturn(filename);
 
-      var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
-
-      assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
-      assertThat(logTester.logs(Level.DEBUG)).contains("Helm values file detected, skipping parsing chart/" + filename);
+    assertThat(KubernetesParser.isValuesFile(inputFileContext)).isEqualTo(expectedReturn);
+    if (expectedReturn) {
+      assertThat(logTester.logs()).contains("Helm values file detected, skipping parsing " + filename);
+    } else {
+      assertThat(logTester.logs()).doesNotContain("Helm values file detected, skipping parsing " + filename);
     }
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"values.yaml", "values.yml"})
-  void shouldNotIgnoreValuesYamlInTemplatesDirectory(String filename) throws URISyntaxException {
-    when(inputFile.toString()).thenReturn("chart/templates/" + filename);
+  // filename, inChartRoot, expectedReturn
+  @CsvSource({
+    "Chart.yaml, true, true",
+    "Chart.yaml, false, false",
+    "Chart.yml, true, false",
+    "Chart.yml, false, false",
+    "Not_Charts.yaml, true, false",
+    "Not_Charts.yaml, false, false"
+  })
+  void isChartFileShouldReturnExpectedValue(String filename, boolean inChartRoot, boolean expectedReturn) {
+    when(inputFileContext.isInChartRootDirectory()).thenReturn(inChartRoot);
     when(inputFile.filename()).thenReturn(filename);
-    when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/" + filename));
-    when(inputFile.path()).thenReturn(Path.of("/chart/templates/" + filename));
-    when(fileSystem.baseDir()).thenReturn(new File("/"));
+    when(inputFile.toString()).thenReturn(filename);
 
-    var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
-
-    assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
-    assertThat(logTester.logs(Level.DEBUG)).doesNotContain("Helm values file detected, skipping parsing chart/templates/" + filename);
+    assertThat(KubernetesParser.isChartFile(inputFileContext)).isEqualTo(expectedReturn);
+    if (expectedReturn) {
+      assertThat(logTester.logs()).contains("Helm Chart.yaml file detected, skipping parsing " + filename);
+    } else {
+      assertThat(logTester.logs()).doesNotContain("Helm Chart.yaml file detected, skipping parsing " + filename);
+    }
   }
 
-  @Test
-  void shouldIgnoreChartYaml() throws URISyntaxException {
-    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
-      when(inputFile.toString()).thenReturn("chart/Chart.yaml");
-      when(inputFile.filename()).thenReturn("Chart.yaml");
-      when(inputFile.uri()).thenReturn(new URI("file:///chart/Chart.yaml"));
-      when(inputFile.path()).thenReturn(Path.of("/chart/Chart.yaml"));
-      when(fileSystem.baseDir()).thenReturn(new File("/chart"));
+  @ParameterizedTest
+  @CsvSource({
+    "_helpers.tpl, true",
+    "_helpers.yaml, false",
+    "_helpers.yml, false",
+    "_helpers.tpl.yaml, false",
+  })
+  void isTplFileShouldReturnExpectedValue(String filename, boolean expectedReturn) {
+    when(inputFile.toString()).thenReturn(filename);
+    when(inputFile.filename()).thenReturn(filename);
 
-      var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
-
-      assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
-      assertThat(logTester.logs(Level.DEBUG)).contains("Helm Chart.yaml file detected, skipping parsing chart/Chart.yaml");
+    assertThat(KubernetesParser.isTplFile(inputFileContext)).isEqualTo(expectedReturn);
+    if (expectedReturn) {
+      assertThat(logTester.logs()).contains("Helm tpl file detected, skipping parsing " + filename);
+    } else {
+      assertThat(logTester.logs()).doesNotContain("Helm tpl file detected, skipping parsing " + filename);
     }
   }
 
   @Test
-  void shouldNotIgnoreChartYamlInTemplatesDir() throws URISyntaxException {
-    when(inputFile.toString()).thenReturn("chart/templates/Chart.yaml");
-    when(inputFile.filename()).thenReturn("Chart.yaml");
-    when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/Chart.yaml"));
-    when(inputFile.path()).thenReturn(Path.of("/chart/templates/Chart.yaml"));
-    when(fileSystem.baseDir()).thenReturn(new File("/chart"));
-
-    var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
-
-    assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
-    assertThat(logTester.logs(Level.DEBUG)).doesNotContain("Helm Chart.yaml file detected, skipping parsing chart/Chart.yaml");
+  void skipProcessingWhenInputFileContextIsNull() {
+    assertEmptyFileTree(parser.parse("foo: {{ .Values.foo }}", null));
+    assertThat(logTester.logs()).contains("No InputFileContext provided, skipping processing of Helm file");
   }
 
   @Test
-  void shouldNotEvaluateTplFiles() throws URISyntaxException {
-    when(inputFile.toString()).thenReturn("chart/templates/_helpers.tpl");
+  void skipProcessingWhenInputFileIsInvalid() {
     when(inputFile.filename()).thenReturn("_helpers.tpl");
-    when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/_helpers.tpl"));
-    when(inputFile.path()).thenReturn(Path.of("/chart/templates/_helpers.tpl"));
-    when(fileSystem.baseDir()).thenReturn(new File("/chart"));
+    assertEmptyFileTree(parser.parse("foo: {{ .Values.foo }}", inputFileContext));
+    assertThat(logTester.logs()).doesNotContain("Helm content detected in file _helpers.tpl");
+  }
 
-    var actual = parser.parse("foo: bar\n{{ print \"aaa: bbb\" }}", inputFileContext);
-
-    assertThat(actual.template()).isEqualTo(FileTree.Template.HELM);
-    assertThat(logTester.logs(Level.DEBUG)).contains("Helm tpl file detected, skipping parsing chart/templates/_helpers.tpl");
+  private void assertEmptyFileTree(FileTree fileTree) {
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(fileTree.template()).isEqualTo(FileTree.Template.HELM);
+      softly.assertThat(fileTree.metadata().textRange()).hasToString("[1:0/1:2]");
+      softly.assertThat(fileTree.documents()).hasSize(1);
+      softly.assertThat(fileTree.documents().get(0)).isInstanceOf(MappingTree.class);
+      softly.assertThat(((MappingTree) fileTree.documents().get(0)).elements()).isEmpty();
+    });
   }
 }

@@ -69,15 +69,19 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree parseHelmFile(String source, @Nullable HelmInputFileContext inputFileContext) {
-    var defaultFileTree = validateInputFileContext(inputFileContext);
-    if (defaultFileTree.isPresent()) {
-      return defaultFileTree.get();
+    if (inputFileContext == null) {
+      LOG.debug("No InputFileContext provided, skipping processing of Helm file");
+      return buildEmptyTree();
+    }
+
+    if (isInvalidHelmInputFile(inputFileContext)) {
+      return buildEmptyTree();
     }
 
     LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
     if (!helmProcessor.isHelmEvaluatorInitialized()) {
       LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
-      return super.parse("{}", null, FileTree.Template.HELM);
+      return buildEmptyTree();
     }
 
     FileTree result;
@@ -87,7 +91,7 @@ public class KubernetesParser extends YamlParser {
       var details = pe.getDetails();
       if (details != null && details.contains("\" associated with template \"aggregatingTemplate\"")) {
         LOG.debug("Helm file {} requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file", inputFileContext.inputFile);
-        result = super.parse("{}", null, FileTree.Template.HELM);
+        result = buildEmptyTree();
       } else {
         throw pe;
       }
@@ -101,37 +105,48 @@ public class KubernetesParser extends YamlParser {
     return result;
   }
 
-  private Optional<FileTree> validateInputFileContext(@Nullable HelmInputFileContext inputFileContext) {
-    if (inputFileContext == null) {
-      LOG.debug("No InputFileContext provided, skipping processing of Helm file");
-      return buildEmptyTree(null);
-    }
-
-    var isValuesYaml = "values.yaml".equals(inputFileContext.inputFile.filename()) ||
-      "values.yml".equals(inputFileContext.inputFile.filename());
-    var isInChartRootDirectory = inputFileContext.isInChartRootDirectory();
-    if (isValuesYaml && isInChartRootDirectory) {
-      LOG.debug("Helm values file detected, skipping parsing {}", inputFileContext.inputFile);
-      return buildEmptyTree(inputFileContext);
-    }
-
-    // only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
-    var isChartYaml = "Chart.yaml".equals(inputFileContext.inputFile.filename());
-    if (isChartYaml && isInChartRootDirectory) {
-      LOG.debug("Helm Chart.yaml file detected, skipping parsing {}", inputFileContext.inputFile);
-      return buildEmptyTree(inputFileContext);
-    }
-
-    if (inputFileContext.inputFile.filename().endsWith(".tpl")) {
-      LOG.debug("Helm tpl file detected, skipping parsing {}", inputFileContext.inputFile);
-      return buildEmptyTree(inputFileContext);
-    }
-
-    return Optional.empty();
+  private static boolean isInvalidHelmInputFile(HelmInputFileContext helmFileCtx) {
+    return isValuesFile(helmFileCtx) || isChartFile(helmFileCtx) || isTplFile(helmFileCtx);
   }
 
-  private Optional<FileTree> buildEmptyTree(@Nullable HelmInputFileContext inputFileContext) {
-    return Optional.ofNullable(super.parse("{}", inputFileContext, FileTree.Template.HELM));
+  /**
+   * Values files are not analyzed directly. Their value will be processed when the actual Helm chart file is evaluated and analyzed.
+   */
+  static boolean isValuesFile(HelmInputFileContext helmFileCtx) {
+    var filename = helmFileCtx.inputFile.filename();
+    var isValuesYaml = "values.yaml".equals(filename) || "values.yml".equals(filename);
+    if (isValuesYaml && helmFileCtx.isInChartRootDirectory()) {
+      LOG.debug("Helm values file detected, skipping parsing {}", helmFileCtx.inputFile);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
+   */
+  static boolean isChartFile(HelmInputFileContext helmFileCtx) {
+    var isChartYaml = "Chart.yaml".equals(helmFileCtx.inputFile.filename());
+    if (isChartYaml && helmFileCtx.isInChartRootDirectory()) {
+      LOG.debug("Helm Chart.yaml file detected, skipping parsing {}", helmFileCtx.inputFile);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Tpl files are not analyzed directly. Their value will be processed when the actual Helm chart file is evaluated and analyzed.
+   */
+  static boolean isTplFile(HelmInputFileContext helmFileCtx) {
+    if (helmFileCtx.inputFile.filename().endsWith(".tpl")) {
+      LOG.debug("Helm tpl file detected, skipping parsing {}", helmFileCtx.inputFile);
+      return true;
+    }
+    return false;
+  }
+
+  private FileTree buildEmptyTree() {
+    return super.parse("{}", null, FileTree.Template.HELM);
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
