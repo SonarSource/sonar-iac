@@ -554,13 +554,13 @@ class KubernetesParserTest {
   }
 
   @Test
-  void skipProcessingWhenInputFileContextIsNull() {
+  void shouldSkipProcessingWhenInputFileContextIsNull() {
     assertEmptyFileTree(parser.parse("foo: {{ .Values.foo }}", null));
     assertThat(logTester.logs()).contains("No InputFileContext provided, skipping processing of Helm file");
   }
 
   @Test
-  void skipProcessingWhenInputFileIsInvalid() {
+  void shouldSkipProcessingWhenInputFileIsInvalid() {
     when(inputFile.filename()).thenReturn("_helpers.tpl");
     assertEmptyFileTree(parser.parse("foo: {{ .Values.foo }}", inputFileContext));
     assertThat(logTester.logs()).doesNotContain("Helm content detected in file _helpers.tpl");
