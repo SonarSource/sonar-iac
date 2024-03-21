@@ -503,7 +503,7 @@ class KubernetesParserTest {
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.toString()).thenReturn(filename);
 
-    assertThat(KubernetesParser.isValuesFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm values file detected, skipping parsing " + filename);
     } else {
@@ -526,7 +526,7 @@ class KubernetesParserTest {
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.toString()).thenReturn(filename);
 
-    assertThat(KubernetesParser.isChartFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm Chart.yaml file detected, skipping parsing " + filename);
     } else {
@@ -545,7 +545,7 @@ class KubernetesParserTest {
     when(inputFile.toString()).thenReturn(filename);
     when(inputFile.filename()).thenReturn(filename);
 
-    assertThat(KubernetesParser.isTplFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm tpl file detected, skipping parsing " + filename);
     } else {

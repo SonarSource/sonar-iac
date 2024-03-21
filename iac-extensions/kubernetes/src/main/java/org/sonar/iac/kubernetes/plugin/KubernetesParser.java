@@ -105,14 +105,14 @@ public class KubernetesParser extends YamlParser {
     return result;
   }
 
-  private static boolean isInvalidHelmInputFile(HelmInputFileContext helmFileCtx) {
+  static boolean isInvalidHelmInputFile(HelmInputFileContext helmFileCtx) {
     return isValuesFile(helmFileCtx) || isChartFile(helmFileCtx) || isTplFile(helmFileCtx);
   }
 
   /**
    * Values files are not analyzed directly. Their value will be processed when the actual Helm chart file is evaluated and analyzed.
    */
-  static boolean isValuesFile(HelmInputFileContext helmFileCtx) {
+  private static boolean isValuesFile(HelmInputFileContext helmFileCtx) {
     var filename = helmFileCtx.inputFile.filename();
     var isValuesYaml = "values.yaml".equals(filename) || "values.yml".equals(filename);
     if (isValuesYaml && helmFileCtx.isInChartRootDirectory()) {
@@ -125,7 +125,7 @@ public class KubernetesParser extends YamlParser {
   /**
    * Only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
    */
-  static boolean isChartFile(HelmInputFileContext helmFileCtx) {
+  private static boolean isChartFile(HelmInputFileContext helmFileCtx) {
     var isChartYaml = "Chart.yaml".equals(helmFileCtx.inputFile.filename());
     if (isChartYaml && helmFileCtx.isInChartRootDirectory()) {
       LOG.debug("Helm Chart.yaml file detected, skipping parsing {}", helmFileCtx.inputFile);
@@ -137,7 +137,7 @@ public class KubernetesParser extends YamlParser {
   /**
    * Tpl files are not analyzed directly. Their value will be processed when the actual Helm chart file is evaluated and analyzed.
    */
-  static boolean isTplFile(HelmInputFileContext helmFileCtx) {
+  private static boolean isTplFile(HelmInputFileContext helmFileCtx) {
     if (helmFileCtx.inputFile.filename().endsWith(".tpl")) {
       LOG.debug("Helm tpl file detected, skipping parsing {}", helmFileCtx.inputFile);
       return true;
