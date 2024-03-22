@@ -80,7 +80,7 @@ class HelmProcessorTest {
     var helmProcessor = getHelmProcessor();
     var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
     var processedSource = helmProcessor.process("", inputFileContext, mock(LocationShifter.class));
-    assertThat(processedSource).isEqualTo("");
+    assertThat(processedSource).isEmpty();
   }
 
   // -------------------------------------------------
