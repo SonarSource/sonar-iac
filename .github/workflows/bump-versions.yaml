@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           sed -i 's/version=.*/version=${{ github.event.inputs.version }}/' gradle.properties
-      - uses: peter-evans/create-pull-request@v6.0.2
+      - uses: peter-evans/create-pull-request@v6
         with:
           author: ${{ github.actor }} <${{ github.actor }}>
           commit-message: Prepare next development iteration
