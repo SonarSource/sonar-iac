@@ -32,11 +32,9 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
-import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
 
 public class KubernetesParser extends YamlParser {
 
@@ -150,12 +148,8 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
-    locationShifter.readLinesSizes(source, inputFileContext);
+    var evaluatedAndCleanedSource = helmProcessor.process(source, inputFileContext, locationShifter);
 
-    var evaluatedSource = helmProcessor.processHelmTemplate(source, inputFileContext);
-    var evaluatedAndCleanedSource = Optional.ofNullable(evaluatedSource)
-      .map(template -> cleanSource(template, inputFileContext, locationShifter))
-      .orElse("");
     if (evaluatedAndCleanedSource.isBlank()) {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
       return super.parse("{}", null, FileTree.Template.HELM);

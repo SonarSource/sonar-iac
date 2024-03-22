@@ -19,19 +19,12 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -46,6 +39,14 @@ import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -69,6 +70,18 @@ class HelmProcessorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+
+  // -------------------------------------------------
+  // ----------Test HelmProcessor.process-------------
+  // -------------------------------------------------
+
+  @Test
+  void shouldReturnEmptyStringWhenSourceContentIsEmpty() throws IOException {
+    var helmProcessor = getHelmProcessor();
+    var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
+    var processedSource = helmProcessor.process("", inputFileContext, mock(LocationShifter.class));
+    assertThat(processedSource).isEqualTo("");
+  }
 
   // -------------------------------------------------
   // ----Test HelmProcessor.processHelmTemplate-------
