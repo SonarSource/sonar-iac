@@ -24,14 +24,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Checks;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -41,12 +42,10 @@ import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class AdjustableChecksVisitorTest {
-  private final LocationShifter locationShifter = mock(LocationShifter.class);
   private final SecondaryLocationLocator secondaryLocationLocator = mock(SecondaryLocationLocator.class);
   private final AdjustableChecksVisitor visitor = new AdjustableChecksVisitor(
     mock(Checks.class),
     new DurationStatistics(mock(Configuration.class)),
-    locationShifter,
     secondaryLocationLocator);
   private AdjustableChecksVisitor.AdjustableContextAdapter context;
   private Tree tree;
@@ -87,12 +86,20 @@ class AdjustableChecksVisitorTest {
   }
 
   private InputFileContext mockInputFileContext(boolean isPropertyEnabled) {
-    var inputFileContext = spy(IacTestUtils.createInputFileContextMock("testFile"));
+    var inputFileContext = spy(createInputFileContextMock("testFile"));
     var config = mock(Configuration.class);
     when(config.getBoolean(AdjustableChecksVisitor.ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY)).thenReturn(Optional.of(isPropertyEnabled));
     when(inputFileContext.sensorContext.config()).thenReturn(config);
     doNothing().when(inputFileContext).reportIssue(any(), any(), any(), any());
 
+    return inputFileContext;
+  }
+
+  public static HelmInputFileContext createInputFileContextMock(String filename) {
+    var inputFile = mock(InputFile.class);
+    var inputFileContext = new HelmInputFileContext(mock(SensorContext.class), inputFile);
+    when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
+    when(inputFile.filename()).thenReturn(filename);
     return inputFileContext;
   }
 }

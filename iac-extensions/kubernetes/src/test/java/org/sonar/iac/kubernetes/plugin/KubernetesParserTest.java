@@ -67,9 +67,8 @@ class KubernetesParserTest {
   private final SensorContext sensorContext = mock(SensorContext.class);
   private final HelmInputFileContext inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
   private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
-  private final LocationShifter locationShifter = new LocationShifter();
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
-  private final KubernetesParser parser = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
+  private final KubernetesParser parser = new KubernetesParser(helmProcessor, kubernetesParserStatistics);
   private final FileSystem fileSystem = mock(FileSystem.class);
 
   @BeforeEach
@@ -128,7 +127,7 @@ class KubernetesParserTest {
       when(valuesFile.contents()).thenReturn("foo: bar");
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
 
-      when(helmProcessor.process(any(), any(), any())).thenReturn("foo: bar");
+      when(helmProcessor.process(any(), any())).thenReturn("foo: bar");
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
 
       FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
@@ -145,7 +144,7 @@ class KubernetesParserTest {
   @Test
   void shouldNotEvaluateHelmWithoutValuesFile() {
     try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
-      when(helmProcessor.process(any(), any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
+      when(helmProcessor.process(any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
 
       assertThatThrownBy(() -> parser.parse("foo: {{ .Values.foo }}", inputFileContext))
@@ -252,9 +251,9 @@ class KubernetesParserTest {
 
     parseTemplate(originalCode, evaluated);
 
-    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 15);
-    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRange shiftedLocation2 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
     TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 15);
   }
 
@@ -268,9 +267,9 @@ class KubernetesParserTest {
 
     parseTemplate(originalCode, evaluated);
 
-    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
-    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRange shiftedLocation2 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
     TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 30);
   }
 
@@ -288,9 +287,9 @@ class KubernetesParserTest {
 
     parseTemplate(originalCode, evaluated);
 
-    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 16));
+    TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 16));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(3, 0, 3, 19);
-    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 16));
+    TextRange shiftedLocation2 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 16));
     TextRangeAssert.assertThat(shiftedLocation2).hasRange(3, 0, 3, 19);
   }
 
@@ -305,9 +304,9 @@ class KubernetesParserTest {
 
     parseTemplate(originalCode, evaluated);
 
-    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(1, 1, 1, 8));
+    TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(1, 1, 1, 8));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(1, 0, 1, 42);
-    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 8));
+    TextRange shiftedLocation2 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 8));
     TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 2, 43);
   }
 
@@ -321,7 +320,7 @@ class KubernetesParserTest {
 
     parseTemplate(originalCode, evaluated);
 
-    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 30);
   }
 
@@ -337,17 +336,17 @@ class KubernetesParserTest {
     parseTemplate(originalCode, evaluated);
 
     TextRange textRange1 = TextRanges.range(2, 1, 2, 5);
-    TextRange shiftedTextRange1 = locationShifter.computeShiftedLocation(inputFileContext, textRange1);
+    TextRange shiftedTextRange1 = LocationShifter.computeShiftedLocation(inputFileContext, textRange1);
     TextRangeAssert.assertThat(shiftedTextRange1)
       .describedAs("Line comment is missing, should use the next available comment")
       .hasRange(2, 0, 2, 15);
 
     TextRange textRange2 = TextRanges.range(2, 1, 3, 5);
-    TextRange shiftedTextRange2 = locationShifter.computeShiftedLocation(inputFileContext, textRange2);
+    TextRange shiftedTextRange2 = LocationShifter.computeShiftedLocation(inputFileContext, textRange2);
     TextRangeAssert.assertThat(shiftedTextRange2).hasRange(2, 0, 2, 15);
 
     TextRange textRange3 = TextRanges.range(3, 1, 4, 5);
-    TextRange shiftedTextRange3 = locationShifter.computeShiftedLocation(inputFileContext, textRange3);
+    TextRange shiftedTextRange3 = LocationShifter.computeShiftedLocation(inputFileContext, textRange3);
     TextRangeAssert.assertThat(shiftedTextRange3)
       .describedAs("No more line comments on following lines, should fall back to the last line of the original file")
       .hasRange(2, 0, 2, 15);
@@ -364,7 +363,7 @@ class KubernetesParserTest {
 
     parseTemplate(originalCode, evaluated);
 
-    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 4, 2);
   }
 
@@ -380,9 +379,9 @@ class KubernetesParserTest {
 
     parseTemplate(originalCode, evaluated);
 
-    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
+    TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 2, 5));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 4, 2);
-    TextRange shiftedLocation2 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
+    TextRange shiftedLocation2 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(3, 1, 3, 5));
     TextRangeAssert.assertThat(shiftedLocation2).hasRange(2, 0, 4, 2);
   }
 
@@ -398,7 +397,7 @@ class KubernetesParserTest {
 
     parseTemplate(originalCode, evaluated);
 
-    TextRange shiftedLocation1 = locationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 3, 6));
+    TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 3, 6));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 22);
   }
 
@@ -409,7 +408,7 @@ class KubernetesParserTest {
     when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
 
     var processor = new TestHelmProcessor(evaluated);
-    var parser = new KubernetesParser(processor, locationShifter, kubernetesParserStatistics);
+    var parser = new KubernetesParser(processor, kubernetesParserStatistics);
     return parser.parse(originalCode, inputFileContext);
   }
 
@@ -437,7 +436,7 @@ class KubernetesParserTest {
     var valuesFile = mock(InputFile.class);
     when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.process(any(), any(), any())).thenThrow(
+    when(helmProcessor.process(any(), any())).thenThrow(
       new ParseException("Failed to evaluate Helm file dummy.yaml: Template evaluation failed", new BasicTextPointer(1, 1),
         "Evaluation error in Go library: template: dummy.yaml:10:11: executing \"dummy.yaml\" at <include \"a-template-from-dependency\" .>: error calling include: template: " +
           "error calling include: template: no template \"a-template-from-dependency\" associated with template \"aggregatingTemplate\""));
@@ -460,7 +459,7 @@ class KubernetesParserTest {
     var valuesFile = mock(InputFile.class);
     when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.process(any(), any(), any())).thenThrow(
+    when(helmProcessor.process(any(), any())).thenThrow(
       new ParseException(
         "Failed to evaluate Helm file dummy.yaml: Template evaluation failed",
         new BasicTextPointer(1, 1),

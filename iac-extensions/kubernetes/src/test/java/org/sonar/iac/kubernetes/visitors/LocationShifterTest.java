@@ -28,6 +28,7 @@ import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -43,7 +44,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.tree.api.FieldNode;
@@ -70,7 +70,7 @@ final class LocationShifterTest {
 
   private static File baseDir;
   private static SensorContextTester context;
-  private static InputFileContext ctx;
+  private static HelmInputFileContext ctx;
   private final LocationShifter shifter = new LocationShifter();
 
   @BeforeAll
@@ -78,8 +78,13 @@ final class LocationShifterTest {
     baseDir = tmpDir.toPath().toRealPath().resolve("test-project").toFile();
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
+
+  }
+
+  @BeforeEach
+  void setUp() {
     InputFile file = createInputFile("primaryFile");
-    ctx = new InputFileContext(context, file);
+    ctx = new HelmInputFileContext(context, file);
   }
 
   @Test
@@ -163,7 +168,7 @@ final class LocationShifterTest {
     setLinesSizes(ctx, 5, 10, 15);
     shifter.addShiftedLine(ctx, 3, 1, 1);
 
-    InputFileContext differentCtx = new InputFileContext(context, createInputFile("file_2"));
+    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2"));
 
     TextRange shiftedRange = shifter.computeShiftedLocation(differentCtx, range(1, 1, 1, 3));
 
@@ -172,7 +177,7 @@ final class LocationShifterTest {
 
   @Test
   void shouldNotAccessShiftedRangeOfDifferentContext() {
-    InputFileContext differentCtx = new InputFileContext(context, createInputFile("file_2"));
+    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2"));
 
     setLinesSizes(ctx, 5, 10, 15);
     setLinesSizes(differentCtx, 6, 11, 16, 21);
@@ -370,7 +375,7 @@ final class LocationShifterTest {
     assertThat(shiftedRange).hasRange(1, 15, 1, 17);
   }
 
-  void setLinesSizes(InputFileContext ctx, int... linesSizes) {
+  void setLinesSizes(HelmInputFileContext ctx, int... linesSizes) {
     for (int lineNumber = 1; lineNumber <= linesSizes.length; lineNumber++) {
       shifter.addLineSize(ctx, lineNumber, linesSizes[lineNumber - 1]);
     }

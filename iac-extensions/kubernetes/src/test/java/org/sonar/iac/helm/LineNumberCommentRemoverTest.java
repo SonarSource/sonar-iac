@@ -32,7 +32,7 @@ import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,9 +44,7 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 class LineNumberCommentRemoverTest {
   private final InputFile inputFile = mock(InputFile.class);
   private final SensorContext sensorContext = mock(SensorContext.class);
-  private final InputFileContext inputFileContext = new InputFileContext(sensorContext, inputFile);
-
-  private LocationShifter locationShifter;
+  private HelmInputFileContext inputFileContext;
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -56,7 +54,7 @@ class LineNumberCommentRemoverTest {
     when(inputFile.filename()).thenReturn("foo.yaml");
     when(inputFile.toString()).thenReturn("chart/templates/foo.yaml");
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
-    locationShifter = new LocationShifter();
+    inputFileContext = new HelmInputFileContext(sensorContext, inputFile);
   }
 
   @Test
@@ -230,7 +228,7 @@ class LineNumberCommentRemoverTest {
   }
 
   private String cleanSource(String evaluated) {
-    return LineNumberCommentRemover.cleanSource(evaluated, inputFileContext, locationShifter);
+    return LineNumberCommentRemover.cleanSource(evaluated, inputFileContext);
   }
 
   private void assertLineMapping(int... numbers) {
@@ -244,6 +242,6 @@ class LineNumberCommentRemoverTest {
   }
 
   private TextRange getComputeShiftedLocation(int startLine, int startLineOffset, int endLine, int endLineOffset) {
-    return locationShifter.computeShiftedLocation(inputFileContext, new TextRange(new TextPointer(startLine, startLineOffset), new TextPointer(endLine, endLineOffset)));
+    return LocationShifter.computeShiftedLocation(inputFileContext, new TextRange(new TextPointer(startLine, startLineOffset), new TextPointer(endLine, endLineOffset)));
   }
 }

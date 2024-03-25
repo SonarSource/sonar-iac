@@ -47,12 +47,10 @@ public class KubernetesParser extends YamlParser {
     String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
 
   private final HelmProcessor helmProcessor;
-  private final LocationShifter locationShifter;
   private final KubernetesParserStatistics kubernetesParserStatistics;
 
-  public KubernetesParser(HelmProcessor helmProcessor, LocationShifter locationShifter, KubernetesParserStatistics kubernetesParserStatistics) {
+  public KubernetesParser(HelmProcessor helmProcessor, KubernetesParserStatistics kubernetesParserStatistics) {
     this.helmProcessor = helmProcessor;
-    this.locationShifter = locationShifter;
     this.kubernetesParserStatistics = kubernetesParserStatistics;
   }
 
@@ -93,7 +91,7 @@ public class KubernetesParser extends YamlParser {
         throw pe;
       }
     } catch (MarkedYamlEngineException e) {
-      var exception = locationShifter.shiftMarkedYamlException(inputFileContext, e);
+      var exception = LocationShifter.shiftMarkedYamlException(inputFileContext, e);
       if (exception instanceof ShiftedMarkedYamlEngineException shiftedMarkedException) {
         LOG.debug("Shifting YAML exception {}", shiftedMarkedException.describeShifting());
       }
@@ -147,7 +145,7 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
-    var evaluatedAndCleanedSource = helmProcessor.process(source, inputFileContext, locationShifter);
+    var evaluatedAndCleanedSource = helmProcessor.process(source, inputFileContext);
 
     if (evaluatedAndCleanedSource.isBlank()) {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);

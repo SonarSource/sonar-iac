@@ -94,7 +94,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
+    return new KubernetesParser(helmProcessor, kubernetesParserStatistics);
   }
 
   @Override
@@ -104,7 +104,7 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
-    visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter, secondaryLocationLocator));
+    visitors.add(new AdjustableChecksVisitor(checks, statistics, secondaryLocationLocator));
     return visitors;
   }
 
