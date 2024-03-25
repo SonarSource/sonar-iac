@@ -25,21 +25,28 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class InputFileContextTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private static final TextRange INVALID_RANGE = range(1, 2, 0, 1);
   private static final TextRange EMPTY_RANGE = range(1, 1, 1, 1);
@@ -137,5 +144,29 @@ class InputFileContextTest {
     List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).flows()).isEmpty();
+  }
+
+  @Test
+  void shouldReturnNewPointer() {
+    var textPointer = inputFileContext.newPointer(1, 0, false);
+    assertThat(textPointer.line()).isEqualTo(1);
+    assertThat(textPointer.lineOffset()).isZero();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
+  }
+
+  @Test
+  void shouldReturnDefaultTextPointerDoNotFailFast() {
+    var textPointer = inputFileContext.newPointer(1000, 2000, false);
+    assertThat(textPointer.line()).isEqualTo(1);
+    assertThat(textPointer.lineOffset()).isZero();
+    assertThat(logTester.logs(Level.WARN)).contains("Unable to create new pointer for file position 1000:2000");
+  }
+
+  @Test
+  void shouldReturnDefaultTextPointerFailFast() {
+    var exception = catchException(() -> inputFileContext.newPointer(1000, 2000, true));
+    assertThat(exception)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unable to create new pointer for file position 1000:2000");
   }
 }
