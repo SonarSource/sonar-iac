@@ -76,6 +76,7 @@ public class KubernetesSensor extends YamlSensor {
       LOG.debug("Initializing Helm processor");
       var helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
       helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
+      helmProcessor.initialize();
     } else {
       LOG.debug("Skipping initialization of Helm processor");
     }

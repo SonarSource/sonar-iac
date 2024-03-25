@@ -45,24 +45,23 @@ public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private final HelmEvaluator helmEvaluator;
   private final HelmFileSystem helmFilesystem;
-  private boolean isEvaluatorInitialized = true;
+  private boolean isEvaluatorInitialized = false;
 
   public HelmProcessor(HelmEvaluator helmEvaluator, HelmFileSystem helmFilesystem) {
     this.helmEvaluator = helmEvaluator;
     this.helmFilesystem = helmFilesystem;
-    initialize();
   }
 
   public static boolean isHelmEvaluatorExecutableAvailable() {
     return OperatingSystemUtils.getCurrentPlatformIfSupported().isPresent();
   }
 
-  protected void initialize() {
+  public void initialize() {
     try {
       helmEvaluator.initialize();
+      isEvaluatorInitialized = true;
     } catch (IOException e) {
       LOG.debug("Failed to initialize Helm evaluator, analysis of Helm files will be disabled", e);
-      isEvaluatorInitialized = false;
     }
   }
 

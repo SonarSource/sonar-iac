@@ -128,6 +128,7 @@ public class KubernetesVerifier {
       HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
       HelmFileSystem helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
       HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
+      helmProcessor.initialize();
       KUBERNETES_PARSER = new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
       temporaryDirectory.deleteOnExit();
     }

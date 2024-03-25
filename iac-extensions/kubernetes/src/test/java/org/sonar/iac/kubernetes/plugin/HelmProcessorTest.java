@@ -104,6 +104,7 @@ class HelmProcessorTest {
     var helmEvaluator = mock(HelmEvaluator.class);
     doThrow(new IOException()).when(helmEvaluator).initialize();
     var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    helmProcessor.initialize();
 
     assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo", null))
       .isInstanceOf(IllegalStateException.class)
@@ -142,6 +143,7 @@ class HelmProcessorTest {
 
     var fileContext = new HelmInputFileContext(context, inputFile);
     var processor = new HelmProcessor(helmEvaluator, helmFileSystem);
+    processor.initialize();
 
     var result = processor.processHelmTemplate(inputFile.contents(), fileContext);
 
@@ -278,7 +280,10 @@ class HelmProcessorTest {
     FileSystem fileSystem = mock(FileSystem.class);
     when(sensorContext.fileSystem()).thenReturn(fileSystem);
 
-    return new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    var processor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    processor.initialize();
+
+    return processor;
   }
 
   private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {

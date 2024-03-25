@@ -44,7 +44,7 @@ public class TestHelmProcessor extends HelmProcessor {
   }
 
   @Override
-  protected void initialize() {
+  public void initialize() {
     // do nothing
   }
 
