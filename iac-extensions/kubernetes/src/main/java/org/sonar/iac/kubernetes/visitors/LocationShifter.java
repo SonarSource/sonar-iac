@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,10 +31,8 @@ import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.Location;
@@ -46,26 +43,24 @@ import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
 /**
  * This class is used to store all lines that has to be shifted.<p/>
- * The data are stored into this class through methods {@link #addLineSize(InputFileContext, int, int)} and {@link #addShiftedLine(InputFileContext, int, int, int)}.
- * Then we can use those data through the method {@link #computeShiftedLocation(InputFileContext, TextRange)}, which for a given {@link TextRange} will provide
+ * The data are stored into this class through methods {@link #addLineSize(HelmInputFileContext, int, int)} and {@link #addShiftedLine(HelmInputFileContext, int, int, int)}.
+ * Then we can use those data through the method {@link #computeShiftedLocation(HelmInputFileContext, TextRange)}, which for a given {@link TextRange} will provide
  * a shifted {@link TextRange}.
- * Every store or access methods is required to provide the concerned {@link InputFileContext}, as the data are stored contextually to this object.
+ * Every store or access methods is required to provide the concerned {@link HelmInputFileContext}, as the data are stored contextually to this object.
  * (It is more specifically using it's stored {@link InputFile#uri()})
  * This is especially used in helm context, when the issue we are detecting on the transformed code should be raised on the original code.
  */
-public class LocationShifter {
+public final class LocationShifter {
   private static final Logger LOG = LoggerFactory.getLogger(LocationShifter.class);
 
-  private final Map<URI, LinesShifting> linesShiftingPerContext = new HashMap<>();
-
-  public void addShiftedLine(InputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
-    var shifting = getOrCreateLinesShifting(ctx);
-    var linesData = shifting.getOrCreateLinesData(transformedLine);
-    linesData.targetStartLine = targetStartLine;
-    linesData.targetEndLine = targetEndLine;
+  private LocationShifter() {
   }
 
-  public void readLinesSizes(String source, InputFileContext ctx) {
+  public static void addShiftedLine(HelmInputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
+    ctx.sourceMap().addLineData(transformedLine, targetStartLine, targetEndLine);
+  }
+
+  public static void readLinesSizes(String source, HelmInputFileContext ctx) {
     var lines = splitLines(source);
     for (var lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
       addLineSize(ctx, lineNumber, lines[lineNumber - 1].length());
@@ -73,24 +68,21 @@ public class LocationShifter {
   }
 
   // default scope for testing
-  void addLineSize(InputFileContext ctx, int originalLine, int size) {
-    getOrCreateLinesShifting(ctx).originalLinesSizes.put(originalLine, size);
+  static void addLineSize(HelmInputFileContext ctx, int originalLine, int size) {
+    ctx.sourceMap().originalLinesSizes.put(originalLine, size);
   }
 
   /**
    * It calculates shifted location in 3 steps:<br/>
    * <ul>
-   *   <li>see {@link LocationShifter#computeShiftedLocation(InputFileContext, TextRange)}</li>
+   *   <li>see {@link LocationShifter#computeShiftedLocation(HelmInputFileContext, TextRange)}</li>
    *   <li>see {@link LocationShifter#computeHelmValuePathTextRange(HelmInputFileContext, TextRange)}</li>
    *   <li>if the location from 1st and 2nd step is the same then first line location is taken and line offsets of original TextRange</li>
    * </ul>
    */
-  public TextRange shiftLocation(InputFileContext currentCtx, TextRange textRange) {
+  public static TextRange shiftLocation(HelmInputFileContext currentCtx, TextRange textRange) {
     var shiftedToLine = computeShiftedLocation(currentCtx, textRange);
-    var shiftedTextRange = shiftedToLine;
-    if (currentCtx instanceof HelmInputFileContext helmContext) {
-      shiftedTextRange = computeHelmValuePathTextRange(helmContext, shiftedToLine);
-    }
+    var shiftedTextRange = computeHelmValuePathTextRange(currentCtx, shiftedToLine);
     if (shiftedTextRange.equals(shiftedToLine)) {
       // The shiftedTextRange doesn't contain Value path (Helm expression) so we can keep the line offsets
       return TextRanges.range(
@@ -127,29 +119,27 @@ public class LocationShifter {
    * And now we want to raise an issue on `genFoo3`, which is line 3, but originates from line 1.
    * We need to find the next line number comment to get its original line correctly
    */
-  public TextRange computeShiftedLocation(InputFileContext ctx, TextRange textRange) {
-    if (!linesShiftingPerContext.containsKey(ctx.inputFile.uri())) {
-      // No location shifting is recorded for this file, we are in a regular Kubernetes context.
+  public static TextRange computeShiftedLocation(HelmInputFileContext ctx, TextRange textRange) {
+    var shifting = ctx.sourceMap();
+    if (shifting.isNotInitialized()) {
+      // No location shifting is recorded for this file.
       return textRange;
     }
 
-    var shifting = getOrCreateLinesShifting(ctx);
     int lineStart = textRange.start().line();
     int lineEnd = textRange.end().line();
 
     var rangeStart = shifting.getClosestLineData(lineStart)
       .map(p -> p.targetStartLine)
       .orElse(shifting.getLastOriginalLine());
-    var start = new TextPointer(rangeStart, 0);
 
     var endLineData = shifting.getClosestLineData(lineEnd);
     var rangeEnd = endLineData
       .map(p -> p.targetEndLine)
       .orElse(shifting.getLastOriginalLine());
-    var rangeEndLineLength = getOrCreateLinesShifting(ctx).originalLinesSizes.getOrDefault(rangeEnd, 0);
-    var end = new TextPointer(rangeEnd, rangeEndLineLength);
+    var rangeEndLineLength = ctx.sourceMap().originalLinesSizes.getOrDefault(rangeEnd, 0);
 
-    return new TextRange(start, end);
+    return TextRanges.range(rangeStart, 0, rangeEnd, rangeEndLineLength);
   }
 
   /**
@@ -174,7 +164,7 @@ public class LocationShifter {
    *
    * The precision of highlighting depends on the precision of the nodes of Go template AST.
    */
-  public TextRange computeHelmValuePathTextRange(HelmInputFileContext helmContext, TextRange textRange) {
+  public static TextRange computeHelmValuePathTextRange(HelmInputFileContext helmContext, TextRange textRange) {
     var goTemplateTree = helmContext.getGoTemplateTree();
     var sourceWithComments = helmContext.getSourceWithComments();
     if (goTemplateTree != null && sourceWithComments != null) {
@@ -208,7 +198,7 @@ public class LocationShifter {
     return location;
   }
 
-  public SecondaryLocation computeShiftedSecondaryLocation(InputFileContext ctx, SecondaryLocation secondaryLocation) {
+  public static SecondaryLocation computeShiftedSecondaryLocation(HelmInputFileContext ctx, SecondaryLocation secondaryLocation) {
     InputFile fileToRaiseOn = ctx.retrieveFileToRaiseOn(secondaryLocation);
     if (fileToRaiseOn == null || !fileToRaiseOn.equals(ctx.inputFile)) {
       return secondaryLocation;
@@ -217,7 +207,7 @@ public class LocationShifter {
     return new SecondaryLocation(range, secondaryLocation.message, secondaryLocation.filePath);
   }
 
-  public MarkedYamlEngineException shiftMarkedYamlException(InputFileContext inputFileContext, MarkedYamlEngineException exception) {
+  public static MarkedYamlEngineException shiftMarkedYamlException(HelmInputFileContext inputFileContext, MarkedYamlEngineException exception) {
     var problemMark = exception.getProblemMark();
     if (problemMark.isPresent()) {
       var markInTransformedCode = problemMark.get();
@@ -242,16 +232,12 @@ public class LocationShifter {
     return exception;
   }
 
-  private LinesShifting getOrCreateLinesShifting(InputFileContext ctx) {
-    return linesShiftingPerContext.computeIfAbsent(ctx.inputFile.uri(), context -> new LinesShifting());
-  }
-
   /**
    * Store information related to an original line number.
    * The {@link #linesData} Map contain the original line number as the key.
    * The original line length and target line number are stored in the value, as a {@link LineData} object.
    */
-  static class LinesShifting {
+  public static class LinesShifting {
 
     /**
      * The key is line number 1-based - first line number is 1.
@@ -263,8 +249,12 @@ public class LocationShifter {
      */
     private final Map<Integer, Integer> originalLinesSizes = new HashMap<>();
 
-    private LineData getOrCreateLinesData(Integer lineNumber) {
-      return linesData.computeIfAbsent(lineNumber, line -> new LineData());
+    public void addLineData(int transformedLine, int targetStartLine, int targetEndLine) {
+      linesData.put(transformedLine, new LineData(targetStartLine, targetEndLine));
+    }
+
+    private boolean isNotInitialized() {
+      return linesData.isEmpty() && originalLinesSizes.isEmpty();
     }
 
     private Optional<LineData> getClosestLineData(Integer lineNumber) {
@@ -283,8 +273,13 @@ public class LocationShifter {
     }
   }
 
-  static class LineData {
-    private Integer targetStartLine;
-    private Integer targetEndLine;
+  static final class LineData {
+    private final Integer targetStartLine;
+    private final Integer targetEndLine;
+
+    public LineData(Integer targetStartLine, Integer targetEndLine) {
+      this.targetStartLine = targetStartLine;
+      this.targetEndLine = targetEndLine;
+    }
   }
 }

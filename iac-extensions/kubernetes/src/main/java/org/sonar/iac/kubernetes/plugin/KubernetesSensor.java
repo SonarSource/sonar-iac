@@ -51,7 +51,6 @@ import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
-import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 
 public class KubernetesSensor extends YamlSensor {
@@ -60,7 +59,6 @@ public class KubernetesSensor extends YamlSensor {
   private final HelmEvaluator helmEvaluator;
 
   private HelmProcessor helmProcessor;
-  private final LocationShifter locationShifter = new LocationShifter();
   private final SecondaryLocationLocator secondaryLocationLocator = new SecondaryLocationLocator(new YamlParser());
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
@@ -94,7 +92,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new KubernetesParser(helmProcessor, locationShifter, kubernetesParserStatistics);
+    return new KubernetesParser(helmProcessor, kubernetesParserStatistics);
   }
 
   @Override
@@ -104,7 +102,7 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
-    visitors.add(new AdjustableChecksVisitor(checks, statistics, locationShifter, secondaryLocationLocator));
+    visitors.add(new AdjustableChecksVisitor(checks, statistics, secondaryLocationLocator));
     return visitors;
   }
 

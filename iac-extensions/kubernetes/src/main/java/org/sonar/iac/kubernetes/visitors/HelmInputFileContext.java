@@ -30,6 +30,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
+import org.sonar.iac.kubernetes.visitors.LocationShifter.LinesShifting;
 
 public class HelmInputFileContext extends InputFileContext {
   @Nullable
@@ -37,6 +38,8 @@ public class HelmInputFileContext extends InputFileContext {
   private Map<String, InputFile> additionalFiles = new HashMap<>();
   @Nullable
   private String sourceWithComments;
+
+  private final LinesShifting linesShifting = new LinesShifting();
 
   public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile) {
     super(sensorContext, inputFile);
@@ -80,5 +83,9 @@ public class HelmInputFileContext extends InputFileContext {
   public boolean isInChartRootDirectory() {
     var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
     return inputFile.path().getParent() != null && inputFile.path().getParent().equals(rootChartDirectory);
+  }
+
+  public LinesShifting sourceMap() {
+    return linesShifting;
   }
 }

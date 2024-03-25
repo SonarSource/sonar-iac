@@ -41,12 +41,10 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
    * TODO SONARIAC-1352 Remove property "secondaryLocationsInValuesEnable"
    */
   protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm.secondaryLocationsInValuesEnable";
-  private final LocationShifter locationShifter;
   private final SecondaryLocationLocator secondaryLocationLocator;
 
-  public AdjustableChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, LocationShifter locationShifter, SecondaryLocationLocator secondaryLocationLocator) {
+  public AdjustableChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, SecondaryLocationLocator secondaryLocationLocator) {
     super(checks, statistics);
-    this.locationShifter = locationShifter;
     this.secondaryLocationLocator = secondaryLocationLocator;
   }
 
@@ -57,7 +55,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
 
   public class AdjustableContextAdapter extends ContextAdapter implements HelmAwareCheckContext {
 
-    private InputFileContext currentCtx;
+    private HelmInputFileContext currentCtx;
     private boolean shouldReportSecondaryInValues;
 
     public AdjustableContextAdapter(RuleKey ruleKey) {
@@ -67,7 +65,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
     @Override
     public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
       AdjustableChecksVisitor.this.register(cls, statistics.time(ruleKey.rule(), (InputFileContext ctx, T tree) -> {
-        currentCtx = ctx;
+        currentCtx = (HelmInputFileContext) ctx;
         visitor.accept(this, tree);
       }));
     }
@@ -77,7 +75,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
       var shiftedTextRange = textRange;
       List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
       if (textRange != null) {
-        shiftedTextRange = locationShifter.shiftLocation(currentCtx, textRange);
+        shiftedTextRange = LocationShifter.shiftLocation(currentCtx, textRange);
 
         boolean isReportingEnabled = currentCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
         if (isReportingEnabled || shouldReportSecondaryInValues()) {
@@ -85,7 +83,7 @@ public class AdjustableChecksVisitor extends ChecksVisitor {
         }
       }
       List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
-        .map(secondaryLocation -> locationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
+        .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
         .toList();
 
       allSecondaryLocations.addAll(shiftedSecondaryLocations);

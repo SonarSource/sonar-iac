@@ -45,7 +45,6 @@ import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
-import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -78,7 +77,7 @@ class HelmProcessorTest {
   void shouldReturnEmptyStringWhenSourceContentIsEmpty() throws IOException {
     var helmProcessor = getHelmProcessor();
     var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
-    var processedSource = helmProcessor.process("", inputFileContext, mock(LocationShifter.class));
+    var processedSource = helmProcessor.process("", inputFileContext);
     assertThat(processedSource).isEmpty();
   }
 

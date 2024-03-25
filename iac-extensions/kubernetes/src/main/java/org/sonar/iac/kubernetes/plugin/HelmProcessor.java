@@ -69,10 +69,10 @@ public class HelmProcessor {
     return isEvaluatorInitialized;
   }
 
-  public String process(String source, HelmInputFileContext inputFileContext, LocationShifter locationShifter) {
-    locationShifter.readLinesSizes(source, inputFileContext);
+  public String process(String source, HelmInputFileContext inputFileContext) {
+    LocationShifter.readLinesSizes(source, inputFileContext);
     var evaluatedSource = processHelmTemplate(source, inputFileContext);
-    return evaluatedSource == null ? "" : cleanSource(evaluatedSource, inputFileContext, locationShifter);
+    return evaluatedSource == null ? "" : cleanSource(evaluatedSource, inputFileContext);
   }
 
   @CheckForNull

@@ -22,7 +22,7 @@ package org.sonar.iac.helm;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 public final class LineNumberCommentRemover {
@@ -42,7 +42,7 @@ public final class LineNumberCommentRemover {
    * Such lines may be produced after evaluation of Helm template.
    * In some cases such lines may cause parsing issues in snakeyaml-engine.
    */
-  public static String cleanSource(String source, InputFileContext inputFileContext, LocationShifter locationShifter) {
+  public static String cleanSource(String source, HelmInputFileContext inputFileContext) {
     var sb = new StringBuilder();
     var matcher = LINE_PATTERN.matcher(source);
 
@@ -52,7 +52,7 @@ public final class LineNumberCommentRemover {
       var lineContent = matcher.group("lineContent");
       var lineAndComment = toLineAndComment(lineContent);
       if (!lineAndComment.contentWithoutComment.isBlank()) {
-        lineAndComment.addToLocationShifter(locationShifter, inputFileContext, lineCounter);
+        lineAndComment.addToLocationShifter(inputFileContext, lineCounter);
         sb.append(lineAndComment.contentWithoutComment);
         sb.append(matcher.group("newLine"));
         lastIndex = matcher.end();
@@ -64,7 +64,7 @@ public final class LineNumberCommentRemover {
     var lineAndComment = toLineAndComment(lastLine);
     if (!lineAndComment.contentWithoutComment.isBlank()) {
       sb.append(lineAndComment.contentWithoutComment);
-      lineAndComment.addToLocationShifter(locationShifter, inputFileContext, lineCounter);
+      lineAndComment.addToLocationShifter(inputFileContext, lineCounter);
     }
     return removeNewLinesAtTheEnd(sb.toString());
   }
@@ -111,9 +111,9 @@ public final class LineNumberCommentRemover {
       this.lineCommentRangeEnd = lineCommentRangeEnd;
     }
 
-    public void addToLocationShifter(LocationShifter locationShifter, InputFileContext inputFileContext, int lineCounter) {
+    public void addToLocationShifter(HelmInputFileContext inputFileContext, int lineCounter) {
       if (lineCommentRangeStart != null && lineCommentRangeEnd != null) {
-        locationShifter.addShiftedLine(inputFileContext, lineCounter, lineCommentRangeStart, lineCommentRangeEnd);
+        LocationShifter.addShiftedLine(inputFileContext, lineCounter, lineCommentRangeStart, lineCommentRangeEnd);
       }
     }
   }
