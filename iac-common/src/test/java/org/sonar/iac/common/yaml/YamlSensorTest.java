@@ -42,7 +42,9 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -82,8 +84,9 @@ class YamlSensorTest extends AbstractSensorTest {
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.toString()).thenReturn("TestFile");
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
+    var inputFileContext = new InputFileContext(null, inputFile);
 
-    ParseException e = sensor().toParseException("action", inputFile, yamlEngineException);
+    ParseException e = sensor().toParseException("action", inputFileContext, yamlEngineException, false);
     assertThat(e)
       .hasMessage("Cannot action 'TestFile:1:1'")
       .extracting(ParseException::getPosition)
@@ -98,8 +101,9 @@ class YamlSensorTest extends AbstractSensorTest {
 
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.toString()).thenReturn("TestFile");
+    var inputFileContext = new InputFileContext(null, inputFile);
 
-    ParseException e = sensor().toParseException("action", inputFile, yamlEngineException);
+    ParseException e = sensor().toParseException("action", inputFileContext, yamlEngineException, false);
     assertThat(e)
       .hasMessage("Cannot action 'TestFile'")
       .extracting(ParseException::getPosition)
@@ -114,8 +118,9 @@ class YamlSensorTest extends AbstractSensorTest {
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.toString()).thenReturn("TestFile");
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
+    var inputFileContext = new InputFileContext(null, inputFile);
 
-    ParseException e = sensor().toParseException("action", inputFile, exception);
+    ParseException e = sensor().toParseException("action", inputFileContext, exception, false);
     assertThat(e)
       .hasMessage("Cannot action 'TestFile'")
       .extracting(ParseException::getPosition)
@@ -127,11 +132,29 @@ class YamlSensorTest extends AbstractSensorTest {
     Exception exception = mock(Exception.class);
     when(exception.getMessage()).thenReturn("message");
 
-    ParseException e = sensor().toParseException("action", null, exception);
+    ParseException e = sensor().toParseException("action", new InputFileContext(null, null), exception, false);
     assertThat(e)
       .hasMessage("Cannot action 'null'")
       .extracting(ParseException::getPosition)
       .isNull();
+  }
+
+  @Test
+  void shouldThrowExceptionWhenFailFastIsTrue() {
+    MarkedYamlEngineException yamlEngineException = mock(MarkedYamlEngineException.class);
+    when(yamlEngineException.getProblemMark()).thenReturn(Optional.of(new Mark("mark", 1, 1, 1, new int[0], 1)));
+    when(yamlEngineException.getMessage()).thenReturn("message");
+
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.toString()).thenReturn("TestFile");
+    when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
+    var inputFileContext = new InputFileContext(null, inputFile);
+    when(inputFile.newPointer(anyInt(), anyInt())).thenThrow(IllegalArgumentException.class);
+
+    var e = catchException(() -> sensor().toParseException("action", inputFileContext, yamlEngineException, true));
+    assertThat(e)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unable to create new pointer for TestFile position 2:0");
   }
 
   @Test

@@ -146,12 +146,12 @@ public abstract class IacSensor implements Sensor {
     return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 
-  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+  protected ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause, Boolean failFast) {
     TextPointer position = null;
     if (cause instanceof RecognitionException recognitionException) {
-      position = inputFile.newPointer(recognitionException.getLine(), 0);
+      position = inputFileContext.newPointer(recognitionException.getLine(), 0, failFast);
     }
-    return createGeneralParseException(action, inputFile, cause, position);
+    return createGeneralParseException(action, inputFileContext.inputFile, cause, position);
   }
 
   private boolean isActive(SensorContext sensorContext) {
@@ -185,7 +185,7 @@ public abstract class IacSensor implements Sensor {
         }
         var inputFileContext = createInputFileContext(sensorContext, inputFile);
         try {
-          analyseFile(inputFileContext);
+          analyseFile(inputFileContext, sensorContext);
         } catch (ParseException e) {
           logParsingError(e);
           inputFileContext.reportParseError(repositoryKey(), e.getPosition());
@@ -195,13 +195,13 @@ public abstract class IacSensor implements Sensor {
       return true;
     }
 
-    private void analyseFile(InputFileContext inputFileContext) {
+    private void analyseFile(InputFileContext inputFileContext, SensorContext context) {
       InputFile inputFile = inputFileContext.inputFile;
       String content;
       try {
         content = inputFile.contents();
       } catch (IOException | RuntimeException e) {
-        throw toParseException("read", inputFile, e);
+        throw toParseException("read", inputFileContext, e, isFailFast(context));
       }
 
       if (EMPTY_FILE_CONTENT_PATTERN.matcher(content).matches()) {
@@ -214,7 +214,7 @@ public abstract class IacSensor implements Sensor {
         } catch (ParseException e) {
           throw e;
         } catch (RuntimeException e) {
-          throw toParseException("parse", inputFile, e);
+          throw toParseException("parse", inputFileContext, e, isFailFast(context));
         }
       });
 
@@ -232,9 +232,13 @@ public abstract class IacSensor implements Sensor {
     }
 
     private void interruptOnFailFast(SensorContext context, InputFile inputFile, Exception e) {
-      if (context.config().getBoolean(FAIL_FAST_PROPERTY_NAME).orElse(false)) {
+      if (isFailFast(context)) {
         throw new IllegalStateException("Exception when analyzing '" + inputFile + "'", e);
       }
+    }
+
+    private static boolean isFailFast(SensorContext context) {
+      return context.config().getBoolean(FAIL_FAST_PROPERTY_NAME).orElse(false);
     }
 
     private void logParsingError(ParseException e) {

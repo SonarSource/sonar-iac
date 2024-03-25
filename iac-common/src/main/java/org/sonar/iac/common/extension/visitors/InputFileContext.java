@@ -27,6 +27,8 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -40,7 +42,9 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 public class InputFileContext extends TreeContext {
 
+  private static final Logger LOG = LoggerFactory.getLogger(InputFileContext.class);
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
+
   public final SensorContext sensorContext;
   public final InputFile inputFile;
 
@@ -131,6 +135,19 @@ public class InputFileContext extends TreeContext {
       return inputFile;
     }
     return sensorContext.fileSystem().inputFile(sensorContext.fileSystem().predicates().is(new File(secondaryLocation.filePath)));
+  }
+
+  public TextPointer newPointer(int line, int lineOffset, boolean failFast) {
+    try {
+      return inputFile.newPointer(line, lineOffset);
+    } catch (Exception e) {
+      var message = "Unable to create new pointer for %s position %s:%s".formatted(inputFile, line, lineOffset);
+      LOG.warn(message, e);
+      if (failFast) {
+        throw new IllegalStateException(message, e);
+      }
+    }
+    return inputFile.newPointer(1, 0);
   }
 
   private static org.sonar.api.batch.fs.TextRange toInputFileRange(InputFile inputFile, TextRange textRange) {
