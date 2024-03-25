@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SecondaryLocationLocator {
+public final class SecondaryLocationLocator {
   private static final Logger LOG = LoggerFactory.getLogger(SecondaryLocationLocator.class);
   private static final YamlParser PARSER = new YamlParser();
 
