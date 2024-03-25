@@ -45,7 +45,7 @@ public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private final HelmEvaluator helmEvaluator;
   private final HelmFileSystem helmFilesystem;
-  private boolean isEvaluatorInitialized = false;
+  private boolean isEvaluatorInitialized;
 
   public HelmProcessor(HelmEvaluator helmEvaluator, HelmFileSystem helmFilesystem) {
     this.helmEvaluator = helmEvaluator;
