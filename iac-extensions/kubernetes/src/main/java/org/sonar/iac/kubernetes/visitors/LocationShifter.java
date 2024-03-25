@@ -50,11 +50,10 @@ import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
  * (It is more specifically using it's stored {@link InputFile#uri()})
  * This is especially used in helm context, when the issue we are detecting on the transformed code should be raised on the original code.
  */
-public class LocationShifter {
+public final class LocationShifter {
   private static final Logger LOG = LoggerFactory.getLogger(LocationShifter.class);
 
   private LocationShifter() {
-    throw new IllegalStateException("Utility class");
   }
 
   public static void addShiftedLine(HelmInputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
