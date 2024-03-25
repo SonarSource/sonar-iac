@@ -31,6 +31,13 @@
     },
     {
       "managers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": ["pin"],
+      "enabled": false
+    },
+    {
+      "managers": [
         "gradle"
       ],
       "matchPackagePatterns": [
