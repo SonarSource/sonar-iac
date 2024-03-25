@@ -19,10 +19,9 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
-
-import javax.annotation.CheckForNull;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 /**
  * The test helper allows to simulate the template processing for Helm charts.
