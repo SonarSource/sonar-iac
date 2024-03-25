@@ -416,7 +416,7 @@ final class LocationShifterTest {
 
   private SensorContext mockSensorContextWithEnabledFeature() {
     var config = mock(Configuration.class);
-    when(config.getBoolean(AdjustableChecksVisitor.ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY)).thenReturn(Optional.of(true));
+    when(config.getBoolean(KubernetesChecksVisitor.ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY)).thenReturn(Optional.of(true));
     var sensorContext = mock(SensorContext.class);
     when(sensorContext.config()).thenReturn(config);
     return sensorContext;

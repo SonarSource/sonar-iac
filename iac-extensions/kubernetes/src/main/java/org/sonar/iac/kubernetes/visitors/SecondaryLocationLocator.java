@@ -42,20 +42,20 @@ import java.util.List;
 
 public class SecondaryLocationLocator {
   private static final Logger LOG = LoggerFactory.getLogger(SecondaryLocationLocator.class);
-  private final YamlParser yamlParser;
+  private static final YamlParser PARSER = new YamlParser();
 
-  public SecondaryLocationLocator(YamlParser yamlParser) {
-    this.yamlParser = yamlParser;
+  private SecondaryLocationLocator() {
   }
 
-  public List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
+  public static List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
     if (inputFileContext instanceof HelmInputFileContext helmContext) {
+      LOG.trace("Find secondary location for issue in additional files for textRange {} in file {}", shiftedTextRange, inputFileContext.inputFile);
       return new ArrayList<>(doFindSecondaryLocationsInAdditionalFiles(helmContext, shiftedTextRange));
     }
     return new ArrayList<>();
   }
 
-  List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext helmContext, TextRange primaryLocationTextRange) {
+  static List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext helmContext, TextRange primaryLocationTextRange) {
     var ast = helmContext.getGoTemplateTree();
     var valuesFile = helmContext.getValuesFile();
     var sourceWithComments = helmContext.getSourceWithComments();
@@ -78,7 +78,7 @@ public class SecondaryLocationLocator {
   }
 
   @CheckForNull
-  TextRange toTextRangeInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {
+  static TextRange toTextRangeInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {
     var valuesFile = inputFileContext.getValuesFile();
     var valuesFileTree = buildTreeFrom(valuesFile);
     var path = filteredPaths(valuePath);
@@ -104,11 +104,11 @@ public class SecondaryLocationLocator {
   }
 
   @CheckForNull
-  private FileTree buildTreeFrom(@Nullable InputFile yamlFile) throws IOException {
+  private static FileTree buildTreeFrom(@Nullable InputFile yamlFile) throws IOException {
     if (yamlFile != null) {
       var valuesFileContent = yamlFile.contents();
       if (!valuesFileContent.isBlank()) {
-        return yamlParser.parse(valuesFileContent, null);
+        return PARSER.parse(valuesFileContent, null);
       }
     }
     return null;

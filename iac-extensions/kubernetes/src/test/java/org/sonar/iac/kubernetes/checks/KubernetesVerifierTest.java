@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
-import org.sonar.iac.kubernetes.visitors.HelmAwareCheckContext;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
@@ -80,8 +80,8 @@ class KubernetesVerifierTest {
 
     @Override
     void initializeCheck(CheckContext ctx) {
-      if (ctx instanceof HelmAwareCheckContext) {
-        ((HelmAwareCheckContext) ctx).setShouldReportSecondaryInValues(false);
+      if (ctx instanceof KubernetesCheckContext) {
+        ((KubernetesCheckContext) ctx).setShouldReportSecondaryInValues(false);
       }
     }
 
