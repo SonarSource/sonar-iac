@@ -51,7 +51,6 @@ import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.visitors.AdjustableChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
-import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 
 public class KubernetesSensor extends YamlSensor {
@@ -60,7 +59,6 @@ public class KubernetesSensor extends YamlSensor {
   private final HelmEvaluator helmEvaluator;
 
   private HelmProcessor helmProcessor;
-  private final LocationShifter locationShifter = new LocationShifter();
   private final SecondaryLocationLocator secondaryLocationLocator = new SecondaryLocationLocator(new YamlParser());
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 

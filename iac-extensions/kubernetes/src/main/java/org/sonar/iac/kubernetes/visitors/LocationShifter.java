@@ -53,9 +53,12 @@ import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 public class LocationShifter {
   private static final Logger LOG = LoggerFactory.getLogger(LocationShifter.class);
 
+  private LocationShifter() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static void addShiftedLine(HelmInputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
     var shifting = ctx.sourceMap();
-    ;
     var linesData = shifting.linesData(transformedLine);
     linesData.targetStartLine = targetStartLine;
     linesData.targetEndLine = targetEndLine;
@@ -83,8 +86,7 @@ public class LocationShifter {
    */
   public static TextRange shiftLocation(HelmInputFileContext currentCtx, TextRange textRange) {
     var shiftedToLine = computeShiftedLocation(currentCtx, textRange);
-    var shiftedTextRange = shiftedToLine;
-    shiftedTextRange = computeHelmValuePathTextRange(currentCtx, shiftedToLine);
+    var shiftedTextRange = computeHelmValuePathTextRange(currentCtx, shiftedToLine);
     if (shiftedTextRange.equals(shiftedToLine)) {
       // The shiftedTextRange doesn't contain Value path (Helm expression) so we can keep the line offsets
       return TextRanges.range(
