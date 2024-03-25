@@ -21,10 +21,10 @@ package converters
 import (
 	"fmt"
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
+	"github.com/sonarsource/go/src/text/template"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 	"testing"
-	"text/template"
 )
 
 func Test_ProtobufSerializer_Serialize(t *testing.T) {

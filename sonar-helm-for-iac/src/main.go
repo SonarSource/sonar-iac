@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/converters"
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
+	"github.com/sonarsource/go/src/text/template"
+	"github.com/sonarsource/go/src/text/template/parse"
 	"os"
 	"strings"
-	"text/template"
-	"text/template/parse"
 )
 
 var stdinReader converters.InputReader = converters.StdinReader{}

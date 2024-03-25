@@ -1,12 +1,13 @@
 module github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src
 
-go 1.21.7
+go 1.21.8
 
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/gobwas/glob v0.2.3
 	github.com/samber/mo v1.11.0
+	github.com/sonarsource/go/src v1.21.8-3
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/protobuf v1.31.0
 	sigs.k8s.io/yaml v1.3.0

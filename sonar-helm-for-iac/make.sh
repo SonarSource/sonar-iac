@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 set -euox pipefail
 
-readonly GO_VERSION="${GO_VERSION:-1.21.7}"
+readonly GO_VERSION="${GO_VERSION:-1.21.8}"
 readonly DEFAULT_GO_BINARY_DIRECTORY="${GOPATH:=${HOME}/go}/bin"
 readonly DEFAULT_GO_BINARY="${DEFAULT_GO_BINARY_DIRECTORY}/go"
 readonly PROTOBUF_GO_VERSION="${PROTOBUF_GO_VERSION:-1.31.0}"
