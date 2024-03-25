@@ -7,7 +7,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/gobwas/glob v0.2.3
 	github.com/samber/mo v1.11.0
-	github.com/sonarsource/go/src v1.21.8-3
+	github.com/sonarsource/go/src v1.21.8-4
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/protobuf v1.31.0
 	sigs.k8s.io/yaml v1.3.0

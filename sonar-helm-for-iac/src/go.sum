@@ -52,8 +52,8 @@ github.com/samber/mo v1.11.0/go.mod h1:BfkrCPuYzVG3ZljnZB783WIJIGk1mcZr9c9CPf8tA
 github.com/shopspring/decimal v1.2.0/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
 github.com/shopspring/decimal v1.3.1 h1:2Usl1nmF/WZucqkFZhnfFYxxxu8LG21F6nPQBE5gKV8=
 github.com/shopspring/decimal v1.3.1/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
-github.com/sonarsource/go/src v1.21.8-3 h1:Yl0C4ZgzS+/kQ4fK78hmtL/x8eoWEJYeHpfKOHuR4o0=
-github.com/sonarsource/go/src v1.21.8-3/go.mod h1:dav2N4hEVFlcW7B9dp9EY2s7Z+IW4yA/sWpu+r4bwtM=
+github.com/sonarsource/go/src v1.21.8-4 h1:t0BYv72uu2lAf4p78FgNzGpcHRSL8VznVxnIAXq6zAw=
+github.com/sonarsource/go/src v1.21.8-4/go.mod h1:dav2N4hEVFlcW7B9dp9EY2s7Z+IW4yA/sWpu+r4bwtM=
 github.com/spf13/cast v1.3.1/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
 github.com/spf13/cast v1.5.0 h1:rj3WzYc11XZaIZMPKmwP96zkFEnnAmV8s6XbB2aY32w=
 github.com/spf13/cast v1.5.0/go.mod h1:SpXXQ5YoyJw6s3/6cMTQuxvgRl3PCJiyaX9p6b155UU=
