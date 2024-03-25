@@ -39,7 +39,7 @@ public class HelmInputFileContext extends InputFileContext {
   @Nullable
   private String sourceWithComments;
 
-  private final LinesShifting sourceMap = new LinesShifting();
+  private final LinesShifting linesShifting = new LinesShifting();
 
   public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile) {
     super(sensorContext, inputFile);
@@ -86,6 +86,6 @@ public class HelmInputFileContext extends InputFileContext {
   }
 
   public LinesShifting sourceMap() {
-    return sourceMap;
+    return linesShifting;
   }
 }

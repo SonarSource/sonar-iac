@@ -57,10 +57,7 @@ public final class LocationShifter {
   }
 
   public static void addShiftedLine(HelmInputFileContext ctx, int transformedLine, int targetStartLine, int targetEndLine) {
-    var shifting = ctx.sourceMap();
-    var linesData = shifting.linesData(transformedLine);
-    linesData.targetStartLine = targetStartLine;
-    linesData.targetEndLine = targetEndLine;
+    ctx.sourceMap().addLineData(transformedLine, targetStartLine, targetEndLine);
   }
 
   public static void readLinesSizes(String source, HelmInputFileContext ctx) {
@@ -252,12 +249,12 @@ public final class LocationShifter {
      */
     private final Map<Integer, Integer> originalLinesSizes = new HashMap<>();
 
-    private boolean isNotInitialized() {
-      return linesData.isEmpty() && originalLinesSizes.isEmpty();
+    public void addLineData(int transformedLine, int targetStartLine, int targetEndLine) {
+      linesData.put(transformedLine, new LineData(targetStartLine, targetEndLine));
     }
 
-    private LineData linesData(Integer lineNumber) {
-      return linesData.computeIfAbsent(lineNumber, line -> new LineData());
+    private boolean isNotInitialized() {
+      return linesData.isEmpty() && originalLinesSizes.isEmpty();
     }
 
     private Optional<LineData> getClosestLineData(Integer lineNumber) {
@@ -276,8 +273,13 @@ public final class LocationShifter {
     }
   }
 
-  static class LineData {
-    private Integer targetStartLine;
-    private Integer targetEndLine;
+  static final class LineData {
+    private final Integer targetStartLine;
+    private final Integer targetEndLine;
+
+    public LineData(Integer targetStartLine, Integer targetEndLine) {
+      this.targetStartLine = targetStartLine;
+      this.targetEndLine = targetEndLine;
+    }
   }
 }
