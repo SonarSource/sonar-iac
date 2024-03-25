@@ -20,10 +20,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/sonarsource/go/src/text/template"
 	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"
-	"text/template"
 	"unsafe"
 )
 

@@ -1,15 +1,16 @@
-ARG GO_VERSION=1.21.7
+ARG GO_VERSION=1.21.8
 ARG BUILD_ENV=dev
 
-FROM golang:${GO_VERSION}-bookworm as dev_image
+FROM golang:${GO_VERSION}-bookworm AS dev_image
 
 ARG CA_CERT=Sonar-FGT-FW-TLS-Traffic-Inspection
 ARG CERT_LOCATION=/usr/local/share/ca-certificates
 
 ONBUILD ADD ${CA_CERT}.cer ${CERT_LOCATION}/${CA_CERT}.cer
-ONBUILD RUN cd ${CERT_LOCATION} && cp ${CA_CERT}.cer ${CA_CERT}.crt && update-ca-certificates
+ONBUILD WORKDIR ${CERT_LOCATION}
+ONBUILD RUN cp ${CA_CERT}.cer ${CA_CERT}.crt && update-ca-certificates
 
-FROM golang:${GO_VERSION}-bookworm as ci_image
+FROM golang:${GO_VERSION}-bookworm AS ci_image
 
 FROM ${BUILD_ENV}_image
 
