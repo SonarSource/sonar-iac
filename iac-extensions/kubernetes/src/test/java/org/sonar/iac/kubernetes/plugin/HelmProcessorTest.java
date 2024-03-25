@@ -31,7 +31,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -46,6 +45,7 @@ import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -71,6 +71,18 @@ class HelmProcessorTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   // -------------------------------------------------
+  // ----------Test HelmProcessor.process-------------
+  // -------------------------------------------------
+
+  @Test
+  void shouldReturnEmptyStringWhenSourceContentIsEmpty() throws IOException {
+    var helmProcessor = getHelmProcessor();
+    var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", "");
+    var processedSource = helmProcessor.process("", inputFileContext, mock(LocationShifter.class));
+    assertThat(processedSource).isEmpty();
+  }
+
+  // -------------------------------------------------
   // ----Test HelmProcessor.processHelmTemplate-------
   // -------------------------------------------------
 
@@ -92,6 +104,7 @@ class HelmProcessorTest {
     var helmEvaluator = mock(HelmEvaluator.class);
     doThrow(new IOException()).when(helmEvaluator).initialize();
     var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    helmProcessor.initialize();
 
     assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo", null))
       .isInstanceOf(IllegalStateException.class)
@@ -130,6 +143,7 @@ class HelmProcessorTest {
 
     var fileContext = new HelmInputFileContext(context, inputFile);
     var processor = new HelmProcessor(helmEvaluator, helmFileSystem);
+    processor.initialize();
 
     var result = processor.processHelmTemplate(inputFile.contents(), fileContext);
 
@@ -266,7 +280,10 @@ class HelmProcessorTest {
     FileSystem fileSystem = mock(FileSystem.class);
     when(sensorContext.fileSystem()).thenReturn(fileSystem);
 
-    return new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    var processor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    processor.initialize();
+
+    return processor;
   }
 
   private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {

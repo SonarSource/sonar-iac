@@ -19,6 +19,13 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -28,45 +35,44 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
+import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
 
 public class HelmProcessor {
   public static final List<String> LINE_SEPARATORS = List.of("\n", "\r\n", "\r", "\u2028", "\u2029");
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private final HelmEvaluator helmEvaluator;
   private final HelmFileSystem helmFilesystem;
-  private boolean isEvaluatorInitialized = true;
+  private boolean isEvaluatorInitialized;
 
   public HelmProcessor(HelmEvaluator helmEvaluator, HelmFileSystem helmFilesystem) {
     this.helmEvaluator = helmEvaluator;
     this.helmFilesystem = helmFilesystem;
-    initialize();
   }
 
   public static boolean isHelmEvaluatorExecutableAvailable() {
     return OperatingSystemUtils.getCurrentPlatformIfSupported().isPresent();
   }
 
-  private void initialize() {
+  public void initialize() {
     try {
       helmEvaluator.initialize();
+      isEvaluatorInitialized = true;
     } catch (IOException e) {
       LOG.debug("Failed to initialize Helm evaluator, analysis of Helm files will be disabled", e);
-      isEvaluatorInitialized = false;
     }
   }
 
   public boolean isHelmEvaluatorInitialized() {
     return isEvaluatorInitialized;
+  }
+
+  public String process(String source, HelmInputFileContext inputFileContext, LocationShifter locationShifter) {
+    locationShifter.readLinesSizes(source, inputFileContext);
+    var evaluatedSource = processHelmTemplate(source, inputFileContext);
+    return evaluatedSource == null ? "" : cleanSource(evaluatedSource, inputFileContext, locationShifter);
   }
 
   @CheckForNull
