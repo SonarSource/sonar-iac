@@ -54,7 +54,7 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
-import org.sonar.iac.kubernetes.visitors.HelmAwareCheckContext;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
@@ -67,7 +67,6 @@ public class KubernetesVerifier {
 
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesVerifier.class);
   public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
-  private static final SecondaryLocationLocator secondaryLocationLocator = new SecondaryLocationLocator(new YamlParser());
   private static final YamlParser YAML_PARSER = new YamlParser();
 
   public static void verify(String templateFileName, IacCheck check) {
@@ -161,7 +160,7 @@ public class KubernetesVerifier {
         Path.of(inputFileContext.inputFile.uri()),
         root,
         commentsWithShiftedTextRangeVisitor(inputFileContext));
-      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext, secondaryLocationLocator);
+      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext);
       runAnalysis(testContext, check, root);
       return verifier;
     }
@@ -176,7 +175,7 @@ public class KubernetesVerifier {
         Path.of(inputFileContext.inputFile.uri()),
         root,
         commentsWithShiftedTextRangeVisitor(inputFileContext));
-      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext, secondaryLocationLocator);
+      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext);
       List<Issue> issues = runAnalysis(testContext, check, root);
       compare(issues, Arrays.asList(expectedIssues));
     }
@@ -233,15 +232,13 @@ public class KubernetesVerifier {
     }
   }
 
-  public static class KubernetesTestContext extends Verifier.TestContext implements HelmAwareCheckContext {
+  public static class KubernetesTestContext extends Verifier.TestContext implements KubernetesCheckContext {
     private final HelmInputFileContext currentCtx;
-    private final SecondaryLocationLocator secondaryLocationLocator;
     private boolean shouldReportSecondaryInValues = true;
 
-    public KubernetesTestContext(MultiFileVerifier verifier, HelmInputFileContext currentCtx, SecondaryLocationLocator secondaryLocationLocator) {
+    public KubernetesTestContext(MultiFileVerifier verifier, HelmInputFileContext currentCtx) {
       super(verifier);
       this.currentCtx = currentCtx;
-      this.secondaryLocationLocator = secondaryLocationLocator;
     }
 
     @Override
@@ -250,7 +247,7 @@ public class KubernetesVerifier {
 
       List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
       if (shouldReportSecondaryInValues) {
-        allSecondaryLocations = secondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+        allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
       }
       List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
         .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))

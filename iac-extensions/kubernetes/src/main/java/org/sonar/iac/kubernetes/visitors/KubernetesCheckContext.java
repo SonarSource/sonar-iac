@@ -21,7 +21,7 @@ package org.sonar.iac.kubernetes.visitors;
 
 import org.sonar.iac.common.api.checks.CheckContext;
 
-public interface HelmAwareCheckContext extends CheckContext {
+public interface KubernetesCheckContext extends CheckContext {
   boolean shouldReportSecondaryInValues();
 
   void setShouldReportSecondaryInValues(boolean shouldReport);

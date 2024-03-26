@@ -21,19 +21,22 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -41,24 +44,19 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
-class AdjustableChecksVisitorTest {
-  private final SecondaryLocationLocator secondaryLocationLocator = mock(SecondaryLocationLocator.class);
-  private final AdjustableChecksVisitor visitor = new AdjustableChecksVisitor(
-    mock(Checks.class),
-    new DurationStatistics(mock(Configuration.class)),
-    secondaryLocationLocator);
-  private AdjustableChecksVisitor.AdjustableContextAdapter context;
-  private Tree tree;
+class KubernetesChecksVisitorTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.TRACE);
+  private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)));
+  private KubernetesChecksVisitor.KubernetesContextAdapter context;
+  private Tree tree = mock(Tree.class);
 
   @BeforeEach
   void setUp() {
-    context = (AdjustableChecksVisitor.AdjustableContextAdapter) visitor.context(RuleKey.of("testRepo", "testRule"));
-    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> {
-      ctx.reportIssue(tree.textRange(), "testIssue");
-    });
+    context = (KubernetesChecksVisitor.KubernetesContextAdapter) visitor.context(RuleKey.of("testRepo", "testRule"));
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree.textRange(), "testIssue"));
     validCheck.initialize(context);
-
-    tree = mock(Tree.class);
     when(tree.textRange()).thenReturn(range(1, 0, 1, 1));
   }
 
@@ -68,9 +66,7 @@ class AdjustableChecksVisitorTest {
     var inputFileContext = mockInputFileContext(isPropertyEnabled);
 
     visitor.scan(inputFileContext, tree);
-
-    var verificationMode = isPropertyEnabled ? Mockito.times(1) : Mockito.never();
-    Mockito.verify(secondaryLocationLocator, verificationMode).findSecondaryLocationsInAdditionalFiles(any(), any());
+    assertTraceLog(isPropertyEnabled);
   }
 
   @ParameterizedTest
@@ -80,15 +76,22 @@ class AdjustableChecksVisitorTest {
     context.setShouldReportSecondaryInValues(shouldReport);
 
     visitor.scan(inputFileContext, tree);
+    assertTraceLog(shouldReport);
+  }
 
-    var verificationMode = shouldReport ? Mockito.times(1) : Mockito.never();
-    Mockito.verify(secondaryLocationLocator, verificationMode).findSecondaryLocationsInAdditionalFiles(any(), any());
+  private void assertTraceLog(boolean shouldContainLog) {
+    var traceLogs = logTester.logs(Level.TRACE);
+    if (shouldContainLog) {
+      assertThat(traceLogs).containsExactly("Find secondary location for issue in additional files for textRange [1:0/1:1] in file dir1/dir2/testFile");
+    } else {
+      assertThat(traceLogs).isEmpty();
+    }
   }
 
   private InputFileContext mockInputFileContext(boolean isPropertyEnabled) {
     var inputFileContext = spy(createInputFileContextMock("testFile"));
     var config = mock(Configuration.class);
-    when(config.getBoolean(AdjustableChecksVisitor.ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY)).thenReturn(Optional.of(isPropertyEnabled));
+    when(config.getBoolean(KubernetesChecksVisitor.ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY)).thenReturn(Optional.of(isPropertyEnabled));
     when(inputFileContext.sensorContext.config()).thenReturn(config);
     doNothing().when(inputFileContext).reportIssue(any(), any(), any(), any());
 

@@ -26,7 +26,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.kubernetes.visitors.HelmAwareCheckContext;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S6867")
 public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
@@ -52,8 +52,8 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
 
   @Override
   void initializeCheck(CheckContext ctx) {
-    if (ctx instanceof HelmAwareCheckContext helmContext) {
-      helmContext.setShouldReportSecondaryInValues(true);
+    if (ctx instanceof KubernetesCheckContext kubernetesCtx) {
+      kubernetesCtx.setShouldReportSecondaryInValues(true);
     }
   }
 
