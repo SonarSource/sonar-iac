@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +33,8 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.config.Configuration;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
@@ -160,11 +162,10 @@ class YamlSensorTest extends AbstractSensorTest {
   }
 
   private static SensorContext createSensorContextFailFast() {
-    var sensorContext = mock(SensorContext.class);
-    Configuration config = mock(Configuration.class);
-    when(config.getBoolean("sonar.internal.analysis.failFast")).thenReturn(Optional.of(true));
-    when(sensorContext.config()).thenReturn(config);
-    return sensorContext;
+    var context = SensorContextTester.create(Paths.get("."));
+    var config = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(config);
+    return context;
   }
 
   @Test

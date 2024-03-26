@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -77,7 +76,7 @@ class InputFileContextTest {
     inputFileContext.reportIssue(RuleKey.parse("s:42"), null, "message", List.of());
     List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
     assertThat(issues).hasSize(1);
-    Assertions.assertThat(issues.get(0).primaryLocation().textRange()).isNull();
+    assertThat(issues.get(0).primaryLocation().textRange()).isNull();
   }
 
   @Test
@@ -87,7 +86,7 @@ class InputFileContextTest {
 
     List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
     assertThat(issues).hasSize(2)
-      .allSatisfy(i -> Assertions.assertThat(i.primaryLocation().textRange()).isNull());
+      .allSatisfy(i -> assertThat(i.primaryLocation().textRange()).isNull());
   }
 
   @Test
@@ -167,7 +166,7 @@ class InputFileContextTest {
   }
 
   @Test
-  void shouldReturnDefaultTextPointerInNewPointerFailFast() {
+  void shouldReturnDefaultTextPointerWhenNewPointerAndFailFastEnabled() {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty("sonar.internal.analysis.failFast", true);
     sensorContext.setSettings(mapSettings);
@@ -179,7 +178,7 @@ class InputFileContextTest {
   }
 
   @Test
-  void shouldThrowExceptionInToInputFileRangeWhenFailFast() {
+  void shouldThrowExceptionWhenReportingIssueWithOutOfTextRangeAndFailFastEnabled() {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty("sonar.internal.analysis.failFast", true);
     sensorContext.setSettings(mapSettings);
@@ -195,7 +194,7 @@ class InputFileContextTest {
   }
 
   @Test
-  void shouldReturnDefaultTextRangeInToInputFileRangeWhenNotFailFast() {
+  void shouldReturnDefaultTextRangeWhenReportIssueWithOutOfTextRangeWhenFailFastDisabled() {
     inputFileContext.reportIssue(RuleKey.parse("s:42"), OUT_OF_TEXT_RANGE, "msg", List.of());
     List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
     assertThat(issues).hasSize(1);

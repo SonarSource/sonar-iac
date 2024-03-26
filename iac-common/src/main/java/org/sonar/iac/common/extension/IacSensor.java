@@ -166,6 +166,10 @@ public abstract class IacSensor implements Sensor {
     return new InputFileContext(sensorContext, inputFile);
   }
 
+  public static boolean isFailFast(SensorContext context) {
+    return context.config().getBoolean(FAIL_FAST_PROPERTY_NAME).orElse(false);
+  }
+
   private class Analyzer {
 
     private final TreeParser<Tree> parser;
@@ -235,10 +239,6 @@ public abstract class IacSensor implements Sensor {
       if (isFailFast(context)) {
         throw new IllegalStateException("Exception when analyzing '" + inputFile + "'", e);
       }
-    }
-
-    private static boolean isFailFast(SensorContext context) {
-      return context.config().getBoolean(FAIL_FAST_PROPERTY_NAME).orElse(false);
     }
 
     private void logParsingError(ParseException e) {

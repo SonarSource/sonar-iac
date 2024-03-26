@@ -40,7 +40,7 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
-import static org.sonar.iac.common.extension.IacSensor.FAIL_FAST_PROPERTY_NAME;
+import static org.sonar.iac.common.extension.IacSensor.isFailFast;
 
 public class InputFileContext extends TreeContext {
 
@@ -145,7 +145,7 @@ public class InputFileContext extends TreeContext {
     } catch (IllegalArgumentException e) {
       var message = "Unable to create new pointer for %s position %s:%s".formatted(inputFile, line, lineOffset);
       LOG.warn(message, e);
-      if (isFailFast()) {
+      if (isFailFast(sensorContext)) {
         throw new IllegalStateException(message, e);
       }
     }
@@ -158,15 +158,11 @@ public class InputFileContext extends TreeContext {
     } catch (IllegalArgumentException e) {
       var message = "Unable to create new range for %s and range %s".formatted(inputFile, textRange);
       LOG.warn(message, e);
-      if (isFailFast()) {
+      if (isFailFast(sensorContext)) {
         throw new IllegalStateException(message, e);
       }
     }
     return inputFile.newRange(1, 0, 1, 1);
-  }
-
-  private boolean isFailFast() {
-    return sensorContext.config().getBoolean(FAIL_FAST_PROPERTY_NAME).orElse(false);
   }
 
   private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange, List<SecondaryLocation> secondaryLocations) {
