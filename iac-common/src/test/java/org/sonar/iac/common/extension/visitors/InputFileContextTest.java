@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -40,13 +39,10 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
@@ -203,6 +199,6 @@ class InputFileContextTest {
     inputFileContext.reportIssue(RuleKey.parse("s:42"), OUT_OF_TEXT_RANGE, "msg", List.of());
     List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
     assertThat(issues).hasSize(1);
-    assertThat(issues.get(0).primaryLocation().textRange()).hasRange(1,0,1,1);
+    assertThat(issues.get(0).primaryLocation().textRange()).hasRange(1, 0, 1, 1);
   }
 }
