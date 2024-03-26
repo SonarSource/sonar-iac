@@ -90,16 +90,16 @@ public abstract class YamlSensor extends IacSensor {
   }
 
   @Override
-  protected ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause, Boolean failFast) {
+  protected ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause) {
     if (cause instanceof MarkedYamlEngineException markedException) {
       Optional<Mark> problemMark = markedException.getProblemMark();
       TextPointer position = null;
       if (problemMark.isPresent()) {
-        position = inputFileContext.newPointer(problemMark.get().getLine() + 1, 0, failFast);
+        position = inputFileContext.newPointer(problemMark.get().getLine() + 1, 0);
       }
       return createGeneralParseException(action, inputFileContext.inputFile, cause, position);
     }
-    return super.toParseException(action, inputFileContext, cause, failFast);
+    return super.toParseException(action, inputFileContext, cause);
   }
 
   @Override

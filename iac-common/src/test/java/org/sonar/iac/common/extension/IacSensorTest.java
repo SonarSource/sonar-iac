@@ -415,7 +415,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void shouldNotIncludeStackTraceInLogsWhenIssueIsReportedOnInvalidLineOffset() {
+  void shouldIncludeStackTraceInLogsWhenIssueIsReportedOnInvalidLineOffset() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
     IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(TextRanges.range(1, 100, "foo"), "test"));
@@ -423,14 +423,17 @@ class IacSensorTest extends AbstractSensorTest {
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
-
     InputFile inputFile = inputFile("file1.iac", "foo");
+
     analyse(sensor(checkFactory), inputFile);
 
     Collection<Issue> issues = context.allIssues();
-    assertThat(issues).isEmpty();
-    assertThat(logTester.logs(Level.ERROR))
-      .containsExactly("Cannot analyse 'file1.iac': 100 is not a valid line offset for pointer. File file1.iac has 3 character(s) at line 1");
+    assertThat(issues).hasSize(1);
+    var issue = ((List<Issue>) issues).get(0);
+    assertThat(issue.primaryLocation().textRange())
+      .hasRange(1, 0, 1, 1);
+    assertThat(logTester.logs(Level.WARN))
+      .containsExactly("Unable to create new range for file1.iac and range [1:100/1:103]");
   }
 
   @Override

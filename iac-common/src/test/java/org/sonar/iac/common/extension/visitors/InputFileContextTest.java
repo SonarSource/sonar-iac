@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -148,7 +149,7 @@ class InputFileContextTest {
 
   @Test
   void shouldReturnNewPointer() {
-    var textPointer = inputFileContext.newPointer(1, 0, false);
+    var textPointer = inputFileContext.newPointer(1, 0);
     assertThat(textPointer.line()).isEqualTo(1);
     assertThat(textPointer.lineOffset()).isZero();
     assertThat(logTester.logs(Level.WARN)).isEmpty();
@@ -156,7 +157,7 @@ class InputFileContextTest {
 
   @Test
   void shouldReturnDefaultTextPointerDoNotFailFast() {
-    var textPointer = inputFileContext.newPointer(1000, 2000, false);
+    var textPointer = inputFileContext.newPointer(1000, 2000);
     assertThat(textPointer.line()).isEqualTo(1);
     assertThat(textPointer.lineOffset()).isZero();
     assertThat(logTester.logs(Level.WARN)).contains("Unable to create new pointer for file position 1000:2000");
@@ -164,7 +165,11 @@ class InputFileContextTest {
 
   @Test
   void shouldReturnDefaultTextPointerFailFast() {
-    var exception = catchException(() -> inputFileContext.newPointer(1000, 2000, true));
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty("sonar.internal.analysis.failFast", true);
+    sensorContext.setSettings(mapSettings);
+
+    var exception = catchException(() -> inputFileContext.newPointer(1000, 2000));
     assertThat(exception)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Unable to create new pointer for file position 1000:2000");

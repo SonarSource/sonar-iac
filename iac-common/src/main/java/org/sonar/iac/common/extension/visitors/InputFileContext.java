@@ -40,6 +40,8 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
+import static org.sonar.iac.common.extension.IacSensor.FAIL_FAST_PROPERTY_NAME;
+
 public class InputFileContext extends TreeContext {
 
   private static final Logger LOG = LoggerFactory.getLogger(InputFileContext.class);
@@ -137,21 +139,34 @@ public class InputFileContext extends TreeContext {
     return sensorContext.fileSystem().inputFile(sensorContext.fileSystem().predicates().is(new File(secondaryLocation.filePath)));
   }
 
-  public TextPointer newPointer(int line, int lineOffset, boolean failFast) {
+  public TextPointer newPointer(int line, int lineOffset) {
     try {
       return inputFile.newPointer(line, lineOffset);
     } catch (IllegalArgumentException e) {
       var message = "Unable to create new pointer for %s position %s:%s".formatted(inputFile, line, lineOffset);
       LOG.warn(message, e);
-      if (failFast) {
+      if (isFailFast()) {
         throw new IllegalStateException(message, e);
       }
     }
     return inputFile.newPointer(1, 0);
   }
 
-  private static org.sonar.api.batch.fs.TextRange toInputFileRange(InputFile inputFile, TextRange textRange) {
-    return inputFile.newRange(textRange.start().line(), textRange.start().lineOffset(), textRange.end().line(), textRange.end().lineOffset());
+  private org.sonar.api.batch.fs.TextRange toInputFileRange(InputFile inputFile, TextRange textRange) {
+    try {
+      return inputFile.newRange(textRange.start().line(), textRange.start().lineOffset(), textRange.end().line(), textRange.end().lineOffset());
+    } catch (IllegalArgumentException e) {
+      var message = "Unable to create new range for %s and range %s".formatted(inputFile, textRange);
+      LOG.warn(message, e);
+      if (isFailFast()) {
+        throw new IllegalStateException(message, e);
+      }
+    }
+    return inputFile.newRange(1, 0, 1, 1);
+  }
+
+  private boolean isFailFast() {
+    return sensorContext.config().getBoolean(FAIL_FAST_PROPERTY_NAME).orElse(false);
   }
 
   private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange, List<SecondaryLocation> secondaryLocations) {

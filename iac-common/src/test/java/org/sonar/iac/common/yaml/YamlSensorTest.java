@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
@@ -86,7 +87,7 @@ class YamlSensorTest extends AbstractSensorTest {
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
     var inputFileContext = new InputFileContext(null, inputFile);
 
-    ParseException e = sensor().toParseException("action", inputFileContext, yamlEngineException, false);
+    ParseException e = sensor().toParseException("action", inputFileContext, yamlEngineException);
     assertThat(e)
       .hasMessage("Cannot action 'TestFile:1:1'")
       .extracting(ParseException::getPosition)
@@ -103,7 +104,7 @@ class YamlSensorTest extends AbstractSensorTest {
     when(inputFile.toString()).thenReturn("TestFile");
     var inputFileContext = new InputFileContext(null, inputFile);
 
-    ParseException e = sensor().toParseException("action", inputFileContext, yamlEngineException, false);
+    ParseException e = sensor().toParseException("action", inputFileContext, yamlEngineException);
     assertThat(e)
       .hasMessage("Cannot action 'TestFile'")
       .extracting(ParseException::getPosition)
@@ -120,7 +121,7 @@ class YamlSensorTest extends AbstractSensorTest {
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
     var inputFileContext = new InputFileContext(null, inputFile);
 
-    ParseException e = sensor().toParseException("action", inputFileContext, exception, false);
+    ParseException e = sensor().toParseException("action", inputFileContext, exception);
     assertThat(e)
       .hasMessage("Cannot action 'TestFile'")
       .extracting(ParseException::getPosition)
@@ -132,7 +133,7 @@ class YamlSensorTest extends AbstractSensorTest {
     Exception exception = mock(Exception.class);
     when(exception.getMessage()).thenReturn("message");
 
-    ParseException e = sensor().toParseException("action", new InputFileContext(null, null), exception, false);
+    ParseException e = sensor().toParseException("action", new InputFileContext(null, null), exception);
     assertThat(e)
       .hasMessage("Cannot action 'null'")
       .extracting(ParseException::getPosition)
@@ -148,13 +149,22 @@ class YamlSensorTest extends AbstractSensorTest {
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.toString()).thenReturn("TestFile");
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
-    var inputFileContext = new InputFileContext(null, inputFile);
+    var sensorContext = createSensorContextFailFast();
+    var inputFileContext = new InputFileContext(sensorContext, inputFile);
     when(inputFile.newPointer(anyInt(), anyInt())).thenThrow(IllegalArgumentException.class);
 
-    var e = catchException(() -> sensor().toParseException("action", inputFileContext, yamlEngineException, true));
+    var e = catchException(() -> sensor().toParseException("action", inputFileContext, yamlEngineException));
     assertThat(e)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Unable to create new pointer for TestFile position 2:0");
+  }
+
+  private static SensorContext createSensorContextFailFast() {
+    var sensorContext = mock(SensorContext.class);
+    Configuration config = mock(Configuration.class);
+    when(config.getBoolean("sonar.internal.analysis.failFast")).thenReturn(Optional.of(true));
+    when(sensorContext.config()).thenReturn(config);
+    return sensorContext;
   }
 
   @Test

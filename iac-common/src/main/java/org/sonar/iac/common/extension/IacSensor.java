@@ -52,9 +52,9 @@ import static org.sonar.iac.common.extension.ParseException.createGeneralParseEx
 
 public abstract class IacSensor implements Sensor {
 
+  public static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
   private static final Logger LOG = LoggerFactory.getLogger(IacSensor.class);
   private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
-  private static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
 
   protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
@@ -146,10 +146,10 @@ public abstract class IacSensor implements Sensor {
     return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 
-  protected ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause, Boolean failFast) {
+  protected ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause) {
     TextPointer position = null;
     if (cause instanceof RecognitionException recognitionException) {
-      position = inputFileContext.newPointer(recognitionException.getLine(), 0, failFast);
+      position = inputFileContext.newPointer(recognitionException.getLine(), 0);
     }
     return createGeneralParseException(action, inputFileContext.inputFile, cause, position);
   }
@@ -185,7 +185,7 @@ public abstract class IacSensor implements Sensor {
         }
         var inputFileContext = createInputFileContext(sensorContext, inputFile);
         try {
-          analyseFile(inputFileContext, sensorContext);
+          analyseFile(inputFileContext);
         } catch (ParseException e) {
           logParsingError(e);
           inputFileContext.reportParseError(repositoryKey(), e.getPosition());
@@ -195,13 +195,13 @@ public abstract class IacSensor implements Sensor {
       return true;
     }
 
-    private void analyseFile(InputFileContext inputFileContext, SensorContext context) {
+    private void analyseFile(InputFileContext inputFileContext) {
       InputFile inputFile = inputFileContext.inputFile;
       String content;
       try {
         content = inputFile.contents();
       } catch (IOException | RuntimeException e) {
-        throw toParseException("read", inputFileContext, e, isFailFast(context));
+        throw toParseException("read", inputFileContext, e);
       }
 
       if (EMPTY_FILE_CONTENT_PATTERN.matcher(content).matches()) {
@@ -214,7 +214,7 @@ public abstract class IacSensor implements Sensor {
         } catch (ParseException e) {
           throw e;
         } catch (RuntimeException e) {
-          throw toParseException("parse", inputFileContext, e, isFailFast(context));
+          throw toParseException("parse", inputFileContext, e);
         }
       });
 
