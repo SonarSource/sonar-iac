@@ -27,6 +27,8 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -38,9 +40,13 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
+import static org.sonar.iac.common.extension.IacSensor.isFailFast;
+
 public class InputFileContext extends TreeContext {
 
+  private static final Logger LOG = LoggerFactory.getLogger(InputFileContext.class);
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
+
   public final SensorContext sensorContext;
   public final InputFile inputFile;
 
@@ -133,8 +139,30 @@ public class InputFileContext extends TreeContext {
     return sensorContext.fileSystem().inputFile(sensorContext.fileSystem().predicates().is(new File(secondaryLocation.filePath)));
   }
 
-  private static org.sonar.api.batch.fs.TextRange toInputFileRange(InputFile inputFile, TextRange textRange) {
-    return inputFile.newRange(textRange.start().line(), textRange.start().lineOffset(), textRange.end().line(), textRange.end().lineOffset());
+  public TextPointer newPointer(int line, int lineOffset) {
+    try {
+      return inputFile.newPointer(line, lineOffset);
+    } catch (IllegalArgumentException e) {
+      var message = "Unable to create new pointer for %s position %s:%s".formatted(inputFile, line, lineOffset);
+      LOG.warn(message, e);
+      if (isFailFast(sensorContext)) {
+        throw new IllegalStateException(message, e);
+      }
+    }
+    return inputFile.newPointer(1, 0);
+  }
+
+  private org.sonar.api.batch.fs.TextRange toInputFileRange(InputFile inputFile, TextRange textRange) {
+    try {
+      return inputFile.newRange(textRange.start().line(), textRange.start().lineOffset(), textRange.end().line(), textRange.end().lineOffset());
+    } catch (IllegalArgumentException e) {
+      var message = "Unable to create new range for %s and range %s".formatted(inputFile, textRange);
+      LOG.warn(message, e);
+      if (isFailFast(sensorContext)) {
+        throw new IllegalStateException(message, e);
+      }
+    }
+    return inputFile.newRange(1, 0, 1, 1);
   }
 
   private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange, List<SecondaryLocation> secondaryLocations) {

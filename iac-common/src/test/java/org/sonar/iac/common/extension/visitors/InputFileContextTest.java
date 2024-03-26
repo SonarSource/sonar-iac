@@ -25,25 +25,35 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class InputFileContextTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private static final TextRange INVALID_RANGE = range(1, 2, 0, 1);
   private static final TextRange EMPTY_RANGE = range(1, 1, 1, 1);
   private static final TextRange VALID_RANGE = range(1, 1, 1, 2);
+  private static final TextRange OUT_OF_TEXT_RANGE = range(5, 1, 5, 2);
   @TempDir
   Path tempDir;
 
@@ -137,5 +147,57 @@ class InputFileContextTest {
     List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).flows()).isEmpty();
+  }
+
+  @Test
+  void shouldReturnNewPointer() {
+    var textPointer = inputFileContext.newPointer(1, 0);
+    assertThat(textPointer.line()).isEqualTo(1);
+    assertThat(textPointer.lineOffset()).isZero();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
+  }
+
+  @Test
+  void shouldReturnDefaultTextPointerDoNotFailFast() {
+    var textPointer = inputFileContext.newPointer(1000, 2000);
+    assertThat(textPointer.line()).isEqualTo(1);
+    assertThat(textPointer.lineOffset()).isZero();
+    assertThat(logTester.logs(Level.WARN)).contains("Unable to create new pointer for file position 1000:2000");
+  }
+
+  @Test
+  void shouldReturnDefaultTextPointerWhenNewPointerAndFailFastEnabled() {
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty("sonar.internal.analysis.failFast", true);
+    sensorContext.setSettings(mapSettings);
+
+    var exception = catchException(() -> inputFileContext.newPointer(1000, 2000));
+    assertThat(exception)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unable to create new pointer for file position 1000:2000");
+  }
+
+  @Test
+  void shouldThrowExceptionWhenReportingIssueWithOutOfTextRangeAndFailFastEnabled() {
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty("sonar.internal.analysis.failFast", true);
+    sensorContext.setSettings(mapSettings);
+
+    var exception = catchException(() -> inputFileContext.reportIssue(
+      RuleKey.parse("s:42"),
+      OUT_OF_TEXT_RANGE,
+      "msg",
+      List.of()));
+    assertThat(exception)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unable to create new range for file and range [5:1/5:2]");
+  }
+
+  @Test
+  void shouldReturnDefaultTextRangeWhenReportIssueWithOutOfTextRangeWhenFailFastDisabled() {
+    inputFileContext.reportIssue(RuleKey.parse("s:42"), OUT_OF_TEXT_RANGE, "msg", List.of());
+    List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).primaryLocation().textRange()).hasRange(1, 0, 1, 1);
   }
 }
