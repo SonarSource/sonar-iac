@@ -6,5 +6,5 @@ spec:
   containers:
 # Noncompliant@+1
     - name: {{ .Values.container.name }}
-#                     ^^^^^^^^^^^^^^^^^^
+#              ^^^^^^^^^^^^^^^^^^^^^^
       image: nginx

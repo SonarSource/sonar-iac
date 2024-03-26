@@ -175,7 +175,7 @@ container: foo
 
 	assert.Equal(t, "", result.Template)
 	assert.Equal(t,
-		"template: test-project/templates/a.yaml:12:35: executing \"test-project/templates/a.yaml\" at <.Values.container.port>: "+
+		"template: test-project/templates/a.yaml:12:28: executing \"test-project/templates/a.yaml\" at <.Values.container.port>: "+
 			"can't evaluate field port in type interface {}",
 		result.Error.Error())
 }

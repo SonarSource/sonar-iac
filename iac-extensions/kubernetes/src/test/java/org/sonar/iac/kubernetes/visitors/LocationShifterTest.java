@@ -299,7 +299,7 @@ final class LocationShifterTest {
   void shouldComputeHelmValuePathTextRange() {
     var helmInputFileContext = inputFileContextWithTree();
     var textRange = LocationShifter.computeHelmValuePathTextRange(helmInputFileContext, range(1, 6, 1, 22));
-    assertThat(textRange).hasRange(1, 15, 1, 17);
+    assertThat(textRange).hasRange(1, 15, 1, 18);
   }
 
   @Test
@@ -329,23 +329,6 @@ final class LocationShifterTest {
   }
 
   @Test
-  void shouldReturnTheSameTextRangeWhenIoException() throws IOException {
-    InputFile inputFileMock = mock(InputFile.class);
-    when(inputFileMock.toString()).thenReturn("path/to/file.yaml");
-    when(inputFileMock.contents()).thenThrow(new IOException("error"));
-    var helmInputFileContext = new HelmInputFileContext(null, inputFileMock);
-    helmInputFileContext.setGoTemplateTree(mock(GoTemplateTreeImpl.class));
-    helmInputFileContext.setSourceWithComments("dummy");
-    var range = range(1, 0, 1, 3);
-
-    var textRange = LocationShifter.computeHelmValuePathTextRange(helmInputFileContext, range);
-
-    assertThat(textRange).isSameAs(range);
-    Assertions.assertThat(logTester.logs(Level.DEBUG))
-      .contains("Unable to read file path/to/file.yaml raising issue on less precise location");
-  }
-
-  @Test
   void shouldNotFixLocationIfNodeHasLengthOne() {
     var helmInputFileContext = inputFileContextWithTreeValueLength1();
     var range = range(1, 0, 1, 22);
@@ -371,7 +354,7 @@ final class LocationShifterTest {
   void shouldShiftToValuePath() {
     var helmContext = inputFileContextWithTree();
     TextRange shiftedRange = LocationShifter.shiftLocation(helmContext, range(1, 6, 1, 22));
-    assertThat(shiftedRange).hasRange(1, 15, 1, 17);
+    assertThat(shiftedRange).hasRange(1, 15, 1, 18);
   }
 
   void setLinesSizes(HelmInputFileContext ctx, int... linesSizes) {

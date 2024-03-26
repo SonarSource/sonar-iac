@@ -12,6 +12,6 @@ rules:
 #       ^^^
 # Noncompliant@+1
     verbs: [{{ .Values.rule.verb | quote }}]
-#                     ^^^^^^^^^^^^^^^^
+#              ^^^^^^^^^^^^^^^^^
 {{- end -}}
 ---

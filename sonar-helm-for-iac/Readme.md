@@ -47,6 +47,7 @@ In case you system does not require the certificate for traffic inspection set `
 
 This project is using a modified version of the `text/template` package from the GoLang standard library. The source code can be found at [SonarSource/go](https://github.com/SonarSource/go). The version has the following modifications:
 * Comment nodes are added into the AST by default
+* Nodes are enhanced with `Length` field, and `Pos` field is replaced with `StartOffset`. This better represents node location and can serve for precise highlighting and not only for error reporting, like in the original library.
 
 ### Working on the modified `text/template` package
 
