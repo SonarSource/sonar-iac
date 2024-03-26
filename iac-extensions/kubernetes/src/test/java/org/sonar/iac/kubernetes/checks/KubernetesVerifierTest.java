@@ -80,8 +80,8 @@ class KubernetesVerifierTest {
 
     @Override
     void initializeCheck(CheckContext ctx) {
-      if (ctx instanceof KubernetesCheckContext) {
-        ((KubernetesCheckContext) ctx).setShouldReportSecondaryInValues(false);
+      if (ctx instanceof KubernetesCheckContext kubernetesCtx) {
+        kubernetesCtx.setShouldReportSecondaryInValues(false);
       }
     }
 

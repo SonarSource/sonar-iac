@@ -52,8 +52,8 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
 
   @Override
   void initializeCheck(CheckContext ctx) {
-    if (ctx instanceof KubernetesCheckContext helmContext) {
-      helmContext.setShouldReportSecondaryInValues(true);
+    if (ctx instanceof KubernetesCheckContext kubernetesCtx) {
+      kubernetesCtx.setShouldReportSecondaryInValues(true);
     }
   }
 
