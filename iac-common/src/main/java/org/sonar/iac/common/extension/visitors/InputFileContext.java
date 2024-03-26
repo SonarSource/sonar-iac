@@ -140,7 +140,7 @@ public class InputFileContext extends TreeContext {
   public TextPointer newPointer(int line, int lineOffset, boolean failFast) {
     try {
       return inputFile.newPointer(line, lineOffset);
-    } catch (Exception e) {
+    } catch (IllegalArgumentException e) {
       var message = "Unable to create new pointer for %s position %s:%s".formatted(inputFile, line, lineOffset);
       LOG.warn(message, e);
       if (failFast) {
