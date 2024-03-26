@@ -26,6 +26,7 @@ import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.iac.helm.tree.impl.CommentNodeImpl;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
 import org.sonar.iac.helm.tree.impl.BoolNodeImpl;
@@ -66,6 +67,7 @@ public final class GoTemplateAstConverter {
     typeNameToConverter.put("org.sonar.iac.helm.protobuf.BreakNode", new Converter<>(org.sonar.iac.helm.protobuf.BreakNode.class, BreakNodeImpl::fromPb));
     typeNameToConverter.put("org.sonar.iac.helm.protobuf.ChainNode", new Converter<>(org.sonar.iac.helm.protobuf.ChainNode.class, ChainNodeImpl::fromPb));
     typeNameToConverter.put("org.sonar.iac.helm.protobuf.CommandNode", new Converter<>(org.sonar.iac.helm.protobuf.CommandNode.class, CommandNodeImpl::fromPb));
+    typeNameToConverter.put("org.sonar.iac.helm.protobuf.CommentNode", new Converter<>(org.sonar.iac.helm.protobuf.CommentNode.class, CommentNodeImpl::fromPb));
     typeNameToConverter.put("org.sonar.iac.helm.protobuf.ContinueNode",
       new Converter<>(org.sonar.iac.helm.protobuf.ContinueNode.class, ContinueNodeImpl::fromPb));
     typeNameToConverter.put("org.sonar.iac.helm.protobuf.DotNode", new Converter<>(org.sonar.iac.helm.protobuf.DotNode.class, DotNodeImpl::fromPb));

@@ -120,7 +120,7 @@ message CommandNode {
 }
 
 // CommentNode holds a comment.
-// By default, comments are not added into the AST. To change this, a field `Mode` which can be set on a parser.
+// Insertion of these nodes into the AST is toggleable by the parser mode and is enabled by default in `SonarSource/go`.
 message CommentNode {
   NodeType nodeType = 1;
   int64 pos = 2;

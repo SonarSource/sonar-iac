@@ -71,7 +71,7 @@ class GoTemplateAstConverterTest {
       assertThat(t).isNotNull();
       assertThat(t.name()).isEqualTo("my-chart/templates/test.yaml");
       assertThat(t.parseName()).isEqualTo("my-chart/templates/test.yaml");
-      assertThat(t.mode()).isZero();
+      assertThat(t.mode()).isOne();
       assertThat(t.root()).isInstanceOf(ListNode.class);
     });
     var node = tree.root().nodes().get(0);
