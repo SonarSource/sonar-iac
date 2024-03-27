@@ -54,7 +54,7 @@ Alternatively, execute Gradle task `ruleApiUpdate` to update rule metadata for a
 * Go 1.21 and the following dependencies:
   * musl on Linux (`musl-gcc` should be present on `PATH`)
   * protoc 25.0
-  * protoc-gen-go 1.31.0
+  * protoc-gen-go 1.33.0
 * Alternatively, Docker should be installed to perform the build of the Go part inside of a container
 
 #### Build and run unit tests:

@@ -4,7 +4,7 @@ set -euox pipefail
 readonly GO_VERSION="${GO_VERSION:-1.21.8}"
 readonly DEFAULT_GO_BINARY_DIRECTORY="${GOPATH:=${HOME}/go}/bin"
 readonly DEFAULT_GO_BINARY="${DEFAULT_GO_BINARY_DIRECTORY}/go"
-readonly PROTOBUF_GO_VERSION="${PROTOBUF_GO_VERSION:-1.31.0}"
+readonly PROTOBUF_GO_VERSION="${PROTOBUF_GO_VERSION:-1.33.0}"
 
 is_go_binary_the_expected_version() {
   if [[ "${#}" -ne 2 ]]; then
@@ -76,7 +76,7 @@ install_go() {
     export PATH="${PATH}:${DEFAULT_GO_BINARY_DIRECTORY}"
     go_binary="${DEFAULT_GO_BINARY}"
     # Install protoc-gen-go
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@v${PROTOBUF_GO_VERSION}
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v"${PROTOBUF_GO_VERSION}"
   fi
   echo "${go_binary}"
 }
