@@ -84,7 +84,7 @@ func Test_read_all_lines_from_input_different_new_lines2(t *testing.T) {
 }
 
 func Test_read_one_file(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nEND"))
+	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nEND\n"))
 	scanner.Split(ScanLinesIncludeNewLine)
 	stdinReader := StdinReader{}
 	_, contents, _ := stdinReader.ReadInput(scanner)
@@ -95,7 +95,7 @@ func Test_read_one_file(t *testing.T) {
 }
 
 func Test_read_one_file_with_trailing_newline(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\n \nEND"))
+	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\n \nEND\n"))
 	scanner.Split(ScanLinesIncludeNewLine)
 	stdinReader := StdinReader{}
 	_, contents, _ := stdinReader.ReadInput(scanner)
@@ -106,7 +106,7 @@ func Test_read_one_file_with_trailing_newline(t *testing.T) {
 }
 
 func Test_read_two_files(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nEND"))
+	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nEND\n"))
 	scanner.Split(ScanLinesIncludeNewLine)
 	stdinReader := StdinReader{}
 	_, contents, _ := stdinReader.ReadInput(scanner)
@@ -119,7 +119,7 @@ func Test_read_two_files(t *testing.T) {
 }
 
 func Test_read_three_files(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nfile3\n1\nline4\nEND"))
+	scanner := bufio.NewScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nfile3\n1\nline4\nEND\n"))
 	scanner.Split(ScanLinesIncludeNewLine)
 	stdinReader := StdinReader{}
 	_, contents, _ := stdinReader.ReadInput(scanner)
@@ -134,7 +134,7 @@ func Test_read_three_files(t *testing.T) {
 }
 
 func Test_read_zero_length(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("file1\n0\n\nEND"))
+	scanner := bufio.NewScanner(strings.NewReader("file1\n0\n\nEND\n"))
 	scanner.Split(ScanLinesIncludeNewLine)
 	stdinReader := StdinReader{}
 	_, contents, err := stdinReader.ReadInput(scanner)

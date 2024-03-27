@@ -28,7 +28,7 @@ import (
 	"strings"
 )
 
-var END_TOKEN = []byte("END")
+var END_TOKEN = []byte("END\n")
 
 type InputReader interface {
 	// ReadInput
@@ -58,6 +58,8 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 	for !bytes.Equal(firstLine, END_TOKEN) {
 		name := strings.TrimSuffix(string(firstLine), "\n")
 
+		fmt.Fprintf(os.Stderr, "XXXX readed '%s'\n", name)
+
 		var content []byte
 		contentResult := mo.TupleToResult(s.readInput(scanner, 1)).FlatMap(
 			func(lengthBytes []byte) mo.Result[[]byte] {
@@ -81,6 +83,8 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 		firstLine, err = contentResult.FlatMap(func([]byte) mo.Result[[]byte] {
 			return mo.TupleToResult(s.readInput(scanner, 1))
 		}).Get()
+
+		fmt.Fprintf(os.Stderr, "XXXX firstLine '%s'\n", firstLine)
 
 		if err != nil {
 			return "", nil, err
