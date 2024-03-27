@@ -24,7 +24,7 @@ import org.sonar.iac.common.checks.Trilean;
 /**
  * Data class to provide information about the project. This allows to share cross-file knowledge to the individual checks.
  */
-public class ProjectContext {
+public final class ProjectContext {
 
   private Trilean hasLimitRange = Trilean.FALSE;
 

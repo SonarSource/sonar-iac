@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -48,7 +49,9 @@ class KubernetesChecksVisitorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.TRACE);
-  private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), mock(ProjectContext.class));
+
+  private static final ProjectContext PROJECT_CONTEXT = mock(ProjectContext.class);
+  private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT);
   private KubernetesChecksVisitor.KubernetesContextAdapter context;
   private Tree tree = mock(Tree.class);
 
@@ -77,6 +80,12 @@ class KubernetesChecksVisitorTest {
 
     visitor.scan(inputFileContext, tree);
     assertTraceLog(shouldReport);
+  }
+
+  @Test
+  void shouldReturnProjectContext() {
+    KubernetesCheckContext checkContext = (KubernetesCheckContext) visitor.context(null);
+    assertThat(checkContext.project()).isEqualTo(PROJECT_CONTEXT);
   }
 
   private void assertTraceLog(boolean shouldContainLog) {

@@ -34,7 +34,6 @@ import org.sonar.iac.kubernetes.visitors.ProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -67,7 +66,7 @@ class AbstractLimitsCheckTest {
   void shouldNotReportLimitIssueWhenProjectHasNoLimitRange() {
     var projectContext = ProjectContext.builder().setLimitRange(Trilean.FALSE).build();
     var checkContext = checkContextAfterReportMissingLimit(projectContext);
-    verify(checkContext).reportIssue(eq(ABSENT_TEXT_RANGE), eq(MESSAGE));
+    verify(checkContext).reportIssue(ABSENT_TEXT_RANGE, MESSAGE);
   }
 
   @Test
