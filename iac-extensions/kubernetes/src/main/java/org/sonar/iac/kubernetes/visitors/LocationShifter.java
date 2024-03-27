@@ -31,7 +31,7 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
-import org.sonar.iac.helm.tree.api.FieldNode;
+import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
@@ -162,8 +162,8 @@ public final class LocationShifter {
     var sourceWithComments = helmContext.getSourceWithComments();
     if (goTemplateTree != null && sourceWithComments != null) {
       // The go template tree contains locations aligned to source code with additional trailing line numbers comments
-      var textRanges = GoTemplateAstHelper.findValuePathNodes(goTemplateTree, textRange, sourceWithComments)
-        .map(FieldNode::location)
+      var textRanges = GoTemplateAstHelper.findNodesToHighlight(goTemplateTree, textRange, sourceWithComments)
+        .map(Node::location)
         .map(location -> location.toTextRange(sourceWithComments))
         .toList();
       if (!textRanges.isEmpty()) {

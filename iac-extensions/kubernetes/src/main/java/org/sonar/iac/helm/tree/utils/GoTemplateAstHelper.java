@@ -26,10 +26,13 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
+import org.sonar.iac.helm.tree.api.IdentifierNode;
 import org.sonar.iac.helm.tree.api.Location;
 import org.sonar.iac.helm.tree.api.Node;
+import org.sonar.iac.helm.tree.api.NodeType;
 import org.sonar.iac.helm.tree.impl.LocationImpl;
 
 public final class GoTemplateAstHelper {
@@ -38,23 +41,41 @@ public final class GoTemplateAstHelper {
     // utility class
   }
 
-  public static Stream<FieldNode> findValuePathNodes(GoTemplateTree tree, TextRange range, String sourceText) {
+  public static Stream<Node> findNodesToHighlight(GoTemplateTree tree, TextRange range, String sourceText) {
     var location = LocationImpl.fromTextRange(range, sourceText);
+
+    return Stream.concat(
+      findValuePathNodes(tree, location),
+      findIncludeFunctionsFirstArg(tree, location));
+  }
+
+  static Stream<FieldNode> findValuePathNodes(GoTemplateTree tree, Location location) {
     var nodes = tree.root().children().stream()
       .filter(hasOverlayingLocation(location))
       .toList();
 
-    return allChildren(nodes).stream()
+    return nodesWithImmediateChildren(nodes).stream()
       .filter(FieldNode.class::isInstance)
+      // Sometimes top-level nodes have a very broad range and some children can be actually outside the range.
       .filter(hasOverlayingLocation(location))
       .map(FieldNode.class::cast);
   }
 
   public static List<ValuePath> findValuePaths(GoTemplateTree tree, TextRange range, String sourceText) {
-    return findValuePathNodes(tree, range, sourceText)
+    var location = LocationImpl.fromTextRange(range, sourceText);
+
+    return findValuePathNodes(tree, location)
       .map(FieldNode::identifiers)
       .map(ValuePath::new)
       .toList();
+  }
+
+  private static Stream<Node> findIncludeFunctionsFirstArg(GoTemplateTree tree, Location location) {
+    return collectNodesByType(tree.root(), NodeType.NODE_COMMAND, CommandNode.class)
+      .filter(hasOverlayingLocation(location))
+      .filter(cmd -> !cmd.arguments().isEmpty())
+      .filter(cmd -> cmd.arguments().get(0) instanceof IdentifierNode identifierNode && "include".equals(identifierNode.identifier()))
+      .map(cmd -> cmd.arguments().get(1));
   }
 
   private static Predicate<Node> hasOverlayingLocation(Location location) {
@@ -67,12 +88,19 @@ public final class GoTemplateAstHelper {
     };
   }
 
-  private static List<Node> allChildren(List<Node> nodes) {
+  private static List<Node> nodesWithImmediateChildren(List<Node> nodes) {
     List<Node> allNodes = new ArrayList<>(nodes);
     for (var i = 0; i < allNodes.size(); i++) {
       allNodes.addAll(allNodes.get(i).children());
     }
     return allNodes;
+  }
+
+  private static <T extends Node> Stream<T> collectNodesByType(Node node, NodeType type, Class<T> nodeClass) {
+    return Stream.concat(
+      Stream.of(node).filter(n -> type == n.type()),
+      node.children().stream().flatMap(child -> collectNodesByType(child, type, nodeClass)))
+      .map(nodeClass::cast);
   }
 
   public static void addChildrenIfPresent(Collection<Node> children, @Nullable Node tree) {

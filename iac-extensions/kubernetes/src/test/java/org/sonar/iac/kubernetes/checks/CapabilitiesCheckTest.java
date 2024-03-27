@@ -47,8 +47,7 @@ class CapabilitiesCheckTest {
   @Test
   void shouldNotHighlightIncorrectLine() {
     // see https://sonarsource.atlassian.net/browse/SONARIAC-1308
-    var expectedIssue = issue(13, 16, 13, 28, "Make sure setting capabilities is safe here.");
-    KubernetesVerifier.verify("CapabilitiesCheck/CapabilitiesChart/templates/pre-delete.yaml", check, expectedIssue);
+    KubernetesVerifier.verify("CapabilitiesCheck/CapabilitiesChart/templates/pre-delete.yaml", check);
   }
 
   @Test

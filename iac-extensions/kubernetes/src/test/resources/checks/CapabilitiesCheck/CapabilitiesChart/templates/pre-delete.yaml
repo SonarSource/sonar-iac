@@ -10,7 +10,9 @@ spec:
     spec:
       containers:
         - name: pre-delete-hook
+# Noncompliant@+1
 {{ include "securityContext" . | indent 10 }}
+#          ^^^^^^^^^^^^^^^^^
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/usr/bin/hook-executor"]
