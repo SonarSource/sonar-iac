@@ -73,8 +73,7 @@ public final class GoTemplateAstHelper {
   private static Stream<Node> findIncludeFunctionsFirstArg(GoTemplateTree tree, Location location) {
     return collectNodesByType(tree.root(), NodeType.NODE_COMMAND, CommandNode.class)
       .filter(hasOverlayingLocation(location))
-      .filter(cmd -> !cmd.arguments().isEmpty())
-      .filter(cmd -> cmd.arguments().get(0) instanceof IdentifierNode identifierNode && "include".equals(identifierNode.identifier()))
+      .filter(GoTemplateAstHelper::isIncludeFunction)
       .map(cmd -> cmd.arguments().get(1));
   }
 
@@ -107,5 +106,9 @@ public final class GoTemplateAstHelper {
     if (tree != null) {
       children.add(tree);
     }
+  }
+
+  private static boolean isIncludeFunction(CommandNode commandNode) {
+    return commandNode.arguments().size() > 1 && commandNode.arguments().get(0) instanceof IdentifierNode identifierNode && "include".equals(identifierNode.identifier());
   }
 }
