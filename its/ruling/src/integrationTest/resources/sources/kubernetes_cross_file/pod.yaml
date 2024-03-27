@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-ns-compliant
+  namespace: default-mem-example
+spec:
+  containers:
+    - name: nginx-ns-compliant
+      image: nginx
+    # Expect S6869 and S6864

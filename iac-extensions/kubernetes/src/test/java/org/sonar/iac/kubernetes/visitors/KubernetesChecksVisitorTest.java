@@ -48,7 +48,7 @@ class KubernetesChecksVisitorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.TRACE);
-  private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)));
+  private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), mock(ProjectContext.class));
   private KubernetesChecksVisitor.KubernetesContextAdapter context;
   private Tree tree = mock(Tree.class);
 

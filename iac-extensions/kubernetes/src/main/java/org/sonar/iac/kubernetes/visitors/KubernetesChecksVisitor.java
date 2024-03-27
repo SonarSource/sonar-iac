@@ -42,8 +42,11 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
    */
   protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm.secondaryLocationsInValuesEnable";
 
-  public KubernetesChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics) {
+  private final ProjectContext projectContext;
+
+  public KubernetesChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, ProjectContext projectContext) {
     super(checks, statistics);
+    this.projectContext = projectContext;
   }
 
   @Override
@@ -58,6 +61,11 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
     public KubernetesContextAdapter(RuleKey ruleKey) {
       super(ruleKey);
+    }
+
+    @Override
+    public ProjectContext project() {
+      return projectContext;
     }
 
     @Override

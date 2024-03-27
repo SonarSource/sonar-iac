@@ -124,7 +124,7 @@ public abstract class IacSensor implements Sensor {
     // do nothing by default
   }
 
-  private List<InputFile> inputFiles(SensorContext sensorContext) {
+  protected List<InputFile> inputFiles(SensorContext sensorContext) {
     FileSystem fileSystem = sensorContext.fileSystem();
     FilePredicate predicate = mainFilePredicate(sensorContext);
     return StreamSupport.stream(fileSystem.inputFiles(predicate).spliterator(), false)

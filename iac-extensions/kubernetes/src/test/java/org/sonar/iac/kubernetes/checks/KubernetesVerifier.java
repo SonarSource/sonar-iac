@@ -57,6 +57,7 @@ import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
+import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 
@@ -73,7 +74,8 @@ public class KubernetesVerifier {
     if (containsHelmContent(templateFileName)) {
       HelmVerifier.verify(templateFileName, check);
     } else {
-      Verifier.verify(YAML_PARSER, BASE_DIR.resolve(templateFileName), check);
+      Verifier.verify(YAML_PARSER, BASE_DIR.resolve(templateFileName), check,
+        (multiFileVerifier) -> new KubernetesTestContext(multiFileVerifier, new HelmInputFileContext(HelmVerifier.sensorContext, inputFile(templateFileName, BASE_DIR))));
     }
   }
 
@@ -114,6 +116,8 @@ public class KubernetesVerifier {
     private static final SensorContextTester sensorContext = SensorContextTester.create(BASE_DIR.toAbsolutePath());
     private static final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
     private static final KubernetesParser KUBERNETES_PARSER;
+
+    private static final ProjectContext PROJECT_CONTEXT = ProjectContext.builder().build();
 
     static {
       File temporaryDirectory;
@@ -239,6 +243,11 @@ public class KubernetesVerifier {
     public KubernetesTestContext(MultiFileVerifier verifier, HelmInputFileContext currentCtx) {
       super(verifier);
       this.currentCtx = currentCtx;
+    }
+
+    @Override
+    public ProjectContext project() {
+      return HelmVerifier.PROJECT_CONTEXT;
     }
 
     @Override

@@ -19,21 +19,89 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.checks.Trilean;
+import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
+import org.sonar.iac.kubernetes.visitors.ProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.getFirstChildElement;
 
 class AbstractLimitsCheckTest {
+  static MappingTree CONTAINER;
+
+  static {
+    var parser = new YamlParser();
+    CONTAINER = (MappingTree) parser.parse("""
+        containers:
+          - name: foo
+      """, null).documents().get(0);
+  }
+
+  static TextRange ABSENT_TEXT_RANGE = TextRanges.range(1, 2, 1, 12);
+  static String MESSAGE = "message";
+
   @Test
   void testGetFirstChildElement() {
     CheckContext checkContext = mock(CheckContext.class);
     BlockObject block = BlockObject.fromAbsent(checkContext, "a");
     HasTextRange firstChildElement = getFirstChildElement(block);
     assertThat(firstChildElement).isNull();
+  }
+
+  @Test
+  void shouldNotReportLimitIssueWhenProjectHasNoLimitRange() {
+    var projectContext = ProjectContext.builder().setLimitRange(Trilean.FALSE).build();
+    var checkContext = checkContextAfterReportMissingLimit(projectContext);
+    verify(checkContext).reportIssue(eq(ABSENT_TEXT_RANGE), eq(MESSAGE));
+  }
+
+  @Test
+  void shouldNotReportLimitIssueWhenProjectHasLimitRange() {
+    var projectContext = ProjectContext.builder().setLimitRange(Trilean.TRUE).build();
+    var checkContext = checkContextAfterReportMissingLimit(projectContext);
+    verify(checkContext, never()).reportIssue((TextRange) any(), any());
+  }
+
+  CheckContext checkContextAfterReportMissingLimit(ProjectContext projectContext) {
+    KubernetesCheckContext checkContext = mock(KubernetesCheckContext.class);
+    when(checkContext.project()).thenReturn(projectContext);
+    BlockObject container = BlockObject.fromPresent(checkContext, CONTAINER, null);
+    var check = new TestAbstractLimitsCheck(null);
+    check.reportMissingLimit(container);
+    return checkContext;
+  }
+
+  static class TestAbstractLimitsCheck extends AbstractLimitsCheck {
+
+    private final String limitAttributeKey;
+
+    TestAbstractLimitsCheck(@Nullable String limitAttributeKey) {
+      this.limitAttributeKey = limitAttributeKey;
+    }
+
+    @Override
+    String getLimitAttributeKey() {
+      return limitAttributeKey;
+    }
+
+    @Override
+    String getMessage() {
+      return MESSAGE;
+    }
   }
 }

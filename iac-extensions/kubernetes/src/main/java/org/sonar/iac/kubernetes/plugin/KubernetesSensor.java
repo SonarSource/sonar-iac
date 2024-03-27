@@ -38,6 +38,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -50,11 +51,14 @@ import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
+import org.sonar.iac.kubernetes.visitors.ProjectContext;
 
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
   private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
   private final HelmEvaluator helmEvaluator;
+
+  final ProjectContext.Builder projectContextBuilder = ProjectContext.builder();
 
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
@@ -75,6 +79,29 @@ public class KubernetesSensor extends YamlSensor {
     } else {
       LOG.debug("Skipping initialization of Helm processor");
     }
+  }
+
+  void checkExistingLimitRange(List<InputFile> inputFiles) {
+    for (InputFile inputFile : inputFiles) {
+      try {
+        if (inputFile.contents().contains("LimitRange")) {
+          LOG.debug("LimitRange detected, related rules will be suppressed");
+          projectContextBuilder.setLimitRange(Trilean.TRUE);
+          return;
+        }
+      } catch (IOException e) {
+        LOG.debug("IOException while detecting LimitRange, related rules will be suppressed");
+        projectContextBuilder.setLimitRange(Trilean.UNKNOWN);
+        return;
+      }
+    }
+  }
+
+  @Override
+  protected List<InputFile> inputFiles(SensorContext sensorContext) {
+    var inputFiles = super.inputFiles(sensorContext);
+    checkExistingLimitRange(inputFiles);
+    return inputFiles;
   }
 
   @Override
@@ -99,7 +126,7 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
-    visitors.add(new KubernetesChecksVisitor(checks, statistics));
+    visitors.add(new KubernetesChecksVisitor(checks, statistics, projectContextBuilder.build()));
     return visitors;
   }
 
