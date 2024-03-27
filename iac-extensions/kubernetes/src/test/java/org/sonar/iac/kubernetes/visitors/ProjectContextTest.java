@@ -19,12 +19,26 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import org.sonar.iac.common.api.checks.CheckContext;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.checks.Trilean;
 
-public interface KubernetesCheckContext extends CheckContext {
-  boolean shouldReportSecondaryInValues();
+import static org.assertj.core.api.Assertions.assertThat;
 
-  void setShouldReportSecondaryInValues(boolean shouldReport);
+class ProjectContextTest {
 
-  ProjectContext projectContext();
+  @Test
+  void contextShouldProvideInfoAboutLimitRange() {
+    var ctx = ProjectContext.builder().build();
+    assertThat(ctx.hasNoLimitRange()).isTrue();
+
+    ctx = ProjectContext.builder().setLimitRange(Trilean.FALSE).build();
+    assertThat(ctx.hasNoLimitRange()).isTrue();
+
+    ctx = ProjectContext.builder().setLimitRange(Trilean.TRUE).build();
+    assertThat(ctx.hasNoLimitRange()).isFalse();
+
+    ctx = ProjectContext.builder().setLimitRange(Trilean.UNKNOWN).build();
+    assertThat(ctx.hasNoLimitRange()).isFalse();
+  }
+
 }

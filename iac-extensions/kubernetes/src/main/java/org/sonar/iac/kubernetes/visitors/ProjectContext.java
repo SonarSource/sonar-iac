@@ -19,12 +19,41 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.checks.Trilean;
 
-public interface KubernetesCheckContext extends CheckContext {
-  boolean shouldReportSecondaryInValues();
+/**
+ * Data class to provide information about the project. This allows to share cross-file knowledge to the individual checks.
+ */
+public final class ProjectContext {
 
-  void setShouldReportSecondaryInValues(boolean shouldReport);
+  private Trilean hasLimitRange = Trilean.FALSE;
 
-  ProjectContext projectContext();
+  private ProjectContext() {
+  }
+
+  public boolean hasNoLimitRange() {
+    return hasLimitRange.isFalse();
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+
+    private final ProjectContext ctx;
+
+    public Builder() {
+      this.ctx = new ProjectContext();
+    }
+
+    public Builder setLimitRange(Trilean hasLimitRange) {
+      ctx.hasLimitRange = hasLimitRange;
+      return this;
+    }
+
+    public ProjectContext build() {
+      return ctx;
+    }
+  }
 }

@@ -110,6 +110,14 @@ class IacRulingTest {
   }
 
   @Test
+  void testKubernetesCrossFile() throws IOException {
+    Map<String, String> properties = new HashMap<>();
+    properties.put("sonar.inclusions",
+      "ruling/src/integrationTest/resources/sources/kubernetes_cross_file/**");
+    runRulingTest("kubernetes_cross_file", properties);
+  }
+
+  @Test
   void testDocker() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.inclusions", "sources/docker/**/Dockerfile*, ruling/src/integrationTest/resources/sources/docker/**/**");

@@ -480,6 +480,32 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(valuesFile)).isTrue();
   }
 
+  @Test
+  void shouldSetProjectContextProperlyWhenLimitRangeExists() {
+    var sensor = sensor();
+    sensor.checkExistingLimitRange(List.of(inputFile("LimitRange")));
+    assertThat(logTester.logs(Level.DEBUG)).contains("LimitRange detected, related rules will be suppressed");
+    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isFalse();
+  }
+
+  @Test
+  void shouldSetProjectContextProperlyWhenLimitRangeDoesNotExist() {
+    var sensor = sensor();
+    sensor.checkExistingLimitRange(List.of(inputFile("LimitNoRange")));
+    assertThat(logTester.logs(Level.DEBUG)).doesNotContain("LimitRange detected, related rules will be suppressed");
+    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isTrue();
+  }
+
+  @Test
+  void shouldSetProjectContextProperlyWhenIOException() throws IOException {
+    var sensor = sensor();
+    var inputFile = mock(InputFile.class);
+    when(inputFile.contents()).thenThrow(new IOException());
+    sensor.checkExistingLimitRange(List.of(inputFile));
+    assertThat(logTester.logs(Level.DEBUG)).contains("IOException while detecting LimitRange, related rules will be suppressed");
+    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isFalse();
+  }
+
   private void assertNotSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }
