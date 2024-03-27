@@ -130,7 +130,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       return PropertyUtils.value(bucket, "bucket")
         .map(name -> TextUtils.isValue(name, literalExpr.value()).isTrue())
         .orElse(false);
-    } else if (key instanceof AttributeAccessTree attributeAccess && attributeAccess.object()instanceof AttributeAccessTree accessTree && bucket.labels().size() >= 2) {
+    } else if (key instanceof AttributeAccessTree attributeAccess && attributeAccess.object() instanceof AttributeAccessTree accessTree && bucket.labels().size() >= 2) {
       return accessTree.attribute().value().equals(bucket.labels().get(1).value());
     }
 

@@ -53,7 +53,7 @@ public class PrivilegeEscalationCheck extends AbstractNewResourceCheck {
   private static void checkPrivilegeEscalation(ResourceSymbol resourceSymbol, Policy policy) {
     for (Statement statement : policy.statement()) {
       Optional<Tree> action = statement.action();
-      if (action.isPresent() && action.get()instanceof TupleTree tuple) {
+      if (action.isPresent() && action.get() instanceof TupleTree tuple) {
         List<Tree> actionTrees = tuple.elements().trees().stream().map(Tree.class::cast).toList();
         Optional<PrivilegeEscalationVector> vectorOpt = PrivilegeEscalationVector.getStatementEscalationVector(statement, actionTrees);
         if (vectorOpt.isPresent()) {

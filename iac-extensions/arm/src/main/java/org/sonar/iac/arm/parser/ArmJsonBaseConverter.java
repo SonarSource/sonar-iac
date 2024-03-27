@@ -249,7 +249,7 @@ public class ArmJsonBaseConverter {
   }
 
   protected Predicate<TupleTree> filterOnField(String field) {
-    return tupleTree -> tupleTree.key()instanceof ScalarTree scalar && field.equalsIgnoreCase(scalar.value());
+    return tupleTree -> tupleTree.key() instanceof ScalarTree scalar && field.equalsIgnoreCase(scalar.value());
   }
 
   // Error generation
