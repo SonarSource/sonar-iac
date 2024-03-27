@@ -103,9 +103,12 @@ public class HelmEvaluator {
     }
   }
 
+  // Suppress java:S3457 - Format strings should be used correctly.
+  // Here \n (instead of %n) needs to be used as it is expected on Go site
+  @SuppressWarnings("java:S3457")
   private static void writeFileToProcess(OutputStream out, String fileName, String content) throws IOException {
-    writeStringAsBytes(out, "%s%n".formatted(fileName));
-    writeStringAsBytes(out, "%d%n".formatted(content.lines().count()));
+    writeStringAsBytes(out, "%s\n".formatted(fileName));
+    writeStringAsBytes(out, "%d\n".formatted(content.lines().count()));
     if (!content.endsWith("\n")) {
       content += "\n";
     }
