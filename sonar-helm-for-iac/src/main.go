@@ -63,6 +63,7 @@ func main() {
 
 func readAndValidateSources() (*converters.TemplateSources, error) {
 	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Split(converters.ScanLinesIncludeNewLine)
 	templateName, sources, err := stdinReader.ReadInput(scanner)
 	if err != nil {
 		return nil, fmt.Errorf("error reading content: %w", err)

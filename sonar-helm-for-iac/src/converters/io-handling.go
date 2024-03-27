@@ -25,6 +25,7 @@ import (
 	"github.com/samber/mo"
 	"os"
 	"strconv"
+	"strings"
 )
 
 var END_TOKEN = []byte("END")
@@ -53,14 +54,15 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 		return "", contents, nil
 	}
 
-	templateName := string(firstLine)
+	templateName := strings.TrimSuffix(string(firstLine), "\n")
 	for !bytes.Equal(firstLine, END_TOKEN) {
-		name := string(firstLine)
+		name := strings.TrimSuffix(string(firstLine), "\n")
 
 		var content []byte
 		contentResult := mo.TupleToResult(s.readInput(scanner, 1)).FlatMap(
 			func(lengthBytes []byte) mo.Result[[]byte] {
-				length, err := strconv.Atoi(string(lengthBytes))
+				lengthTrimmed := strings.TrimSuffix(string(lengthBytes), "\n")
+				length, err := strconv.Atoi(lengthTrimmed)
 				if err != nil {
 					return mo.Err[[]byte](err)
 				}
@@ -98,17 +100,41 @@ func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) ([]byte, erro
 	linesToRead := nLines
 	for scanner.Scan() {
 		rawInput = append(rawInput, scanner.Bytes()...)
-		rawInput = append(rawInput, []byte("\n")...)
 		linesToRead--
 		if linesToRead == 0 {
 			break
 		}
 	}
-	// the last delimiter added needs to be removed again
-	if len(rawInput) > 0 {
-		rawInput = rawInput[:len(rawInput)-1]
-	}
 
 	// if scanner has encountered an error, scanner.Err will return it here
 	return rawInput, scanner.Err()
+}
+
+// By default bufio.Scanner scans input line by line using \n (LR) as separator, trims \r (CR)
+// and doesn't include new line separator in token.
+// This fuction split tokens using \r\n or \r or \n or \u2028 or \u2029 and include them in tokens.
+func ScanLinesIncludeNewLine(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+
+	indexCRLF := bytes.Index(data, []byte("\r\n"))
+	indexNewLine := bytes.IndexAny(data, "\r\n\u2028\u2029")
+
+	if indexCRLF >= 0 && indexCRLF <= indexNewLine {
+		// line ends with CRLR
+		return indexCRLF + 2, data[0 : indexCRLF+2], nil
+	}
+
+	if indexNewLine >= 0 {
+		// line ends with CR or LR or \u2028 or \u2029
+		return indexNewLine + 1, data[0 : indexNewLine+1], nil
+	}
+
+	// If we're at EOF, we have a final, non-terminated line. Return it.
+	if atEOF {
+		return len(data), data, nil
+	}
+	// Request more data.
+	return 0, nil, nil
 }
