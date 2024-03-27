@@ -64,7 +64,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     }
 
     @Override
-    public ProjectContext project() {
+    public ProjectContext projectContext() {
       return projectContext;
     }
 

@@ -85,7 +85,7 @@ class KubernetesChecksVisitorTest {
   @Test
   void shouldReturnProjectContext() {
     KubernetesCheckContext checkContext = (KubernetesCheckContext) visitor.context(null);
-    assertThat(checkContext.project()).isEqualTo(PROJECT_CONTEXT);
+    assertThat(checkContext.projectContext()).isEqualTo(PROJECT_CONTEXT);
   }
 
   private void assertTraceLog(boolean shouldContainLog) {

@@ -246,7 +246,7 @@ public class KubernetesVerifier {
     }
 
     @Override
-    public ProjectContext project() {
+    public ProjectContext projectContext() {
       return HelmVerifier.PROJECT_CONTEXT;
     }
 

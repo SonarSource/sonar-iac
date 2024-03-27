@@ -41,11 +41,11 @@ import static org.mockito.Mockito.when;
 import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.getFirstChildElement;
 
 class AbstractLimitsCheckTest {
-  static MappingTree CONTAINER;
+  static MappingTree CONTAINER_TREE;
 
   static {
     var parser = new YamlParser();
-    CONTAINER = (MappingTree) parser.parse("""
+    CONTAINER_TREE = (MappingTree) parser.parse("""
         containers:
           - name: foo
       """, null).documents().get(0);
@@ -78,8 +78,8 @@ class AbstractLimitsCheckTest {
 
   CheckContext checkContextAfterReportMissingLimit(ProjectContext projectContext) {
     KubernetesCheckContext checkContext = mock(KubernetesCheckContext.class);
-    when(checkContext.project()).thenReturn(projectContext);
-    BlockObject container = BlockObject.fromPresent(checkContext, CONTAINER, null);
+    when(checkContext.projectContext()).thenReturn(projectContext);
+    BlockObject container = BlockObject.fromPresent(checkContext, CONTAINER_TREE, null);
     var check = new TestAbstractLimitsCheck(null);
     check.reportMissingLimit(container);
     return checkContext;

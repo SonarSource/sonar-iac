@@ -38,7 +38,7 @@ public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck 
   }
 
   void reportMissingLimit(BlockObject container) {
-    if (((KubernetesCheckContext) container.ctx).project().hasNoLimitRange()) {
+    if (((KubernetesCheckContext) container.ctx).projectContext().hasNoLimitRange()) {
       container.block("resources").block("limits")
         .attribute(getLimitAttributeKey())
         .reportIfAbsent(getFirstChildElement(container), getMessage())

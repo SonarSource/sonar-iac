@@ -39,9 +39,6 @@ public final class ProjectContext {
     return new Builder();
   }
 
-  /**
-   * Build pattern is used to make context fields readonly, but also allows to flexible add fields to the context without changing the constructor.
-   */
   public static class Builder {
 
     private final ProjectContext ctx;
@@ -58,7 +55,5 @@ public final class ProjectContext {
     public ProjectContext build() {
       return ctx;
     }
-
   }
-
 }
