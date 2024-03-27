@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: {{ .Values.container.name }}
+      securityContext:
+        privileged: {{ .Values.container.privileged }}
+      image: nginx
+
+    - name: container-1
+      securityContext:
+        privileged: true
+      image: nginx

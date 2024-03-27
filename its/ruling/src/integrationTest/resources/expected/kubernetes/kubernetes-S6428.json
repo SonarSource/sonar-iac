@@ -5,6 +5,22 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/multiline-templates.yaml": [
 23
 ],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/new-line-mac.yaml": [
+9,
+14
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/new-line-u2028.yaml": [
+9,
+14
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/new-line-u2029.yaml": [
+9,
+14
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/new-line-windows.yaml": [
+9,
+14
+],
 "kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
 21
 ],

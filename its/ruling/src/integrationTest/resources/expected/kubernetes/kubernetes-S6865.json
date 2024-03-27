@@ -34,6 +34,18 @@
 21,
 38
 ],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/new-line-mac.yaml": [
+5
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/new-line-u2028.yaml": [
+5
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/new-line-u2029.yaml": [
+5
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/new-line-windows.yaml": [
+5
+],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/include/templates/include_test.yaml": [
 5
 ],
