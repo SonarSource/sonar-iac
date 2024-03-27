@@ -99,7 +99,7 @@ public class HelmEvaluator {
       for (var filenameToFileContent : templateDependencies.entrySet()) {
         writeFileToProcess(out, filenameToFileContent.getKey(), filenameToFileContent.getValue());
       }
-      writeStringAsBytes(out, String.format("END%n"));
+      writeStringAsBytes(out, "END\n");
     }
   }
 
