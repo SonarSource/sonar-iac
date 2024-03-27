@@ -68,11 +68,11 @@ func Test_TreeConvert_simple_dot(t *testing.T) {
 
 	tree := converter.ConvertTree(code, tpl.Tree)
 
-	basicTreeAsserts(t, tree, "test-simple-dot", 5, 0, 1)
+	basicTreeAsserts(t, tree, "test-simple-dot", 7, 0, 1)
 	n, _ := anypb.UnmarshalNew(tree.Root.Nodes[0], proto.UnmarshalOptions{})
 	actionNode := n.(*pbstructs.ActionNode)
 	assert.Equal(t, int64(3), actionNode.Pos)
-	assert.Equal(t, int64(5), actionNode.Length)
+	assert.Equal(t, int64(1), actionNode.Length)
 	assert.Equal(t, int64(1), actionNode.Pipe.Length)
 	assert.Empty(t, actionNode.Pipe.Decl)
 	assert.Equal(t, 1, len(actionNode.Pipe.Cmds))
@@ -98,7 +98,7 @@ func Test_TreeConvert_define_and_template(t *testing.T) {
 
 	tree := converter.ConvertTree(code, tpl.Tree)
 
-	basicTreeAsserts(t, tree, "test-define-and-template", 44, 5, 4)
+	basicTreeAsserts(t, tree, "test-define-and-template", 98, 5, 4)
 
 	n, _ := anypb.UnmarshalNew(tree.Root.Nodes[0], proto.UnmarshalOptions{})
 	commentNode := n.(*pbstructs.CommentNode)
@@ -130,11 +130,11 @@ func Test_TreeConvert_range(t *testing.T) {
 
 	tree := converter.ConvertTree(code, tpl.Tree)
 
-	basicTreeAsserts(t, tree, "test-range", 75, 1, 1)
+	basicTreeAsserts(t, tree, "test-range", 86, 1, 1)
 	n, _ := anypb.UnmarshalNew(tree.Root.Nodes[0], proto.UnmarshalOptions{})
 	rangeNode := n.(*pbstructs.RangeNode)
 	assert.Equal(t, int64(11), rangeNode.Pos)
-	assert.Equal(t, int64(75), rangeNode.Length)
+	assert.Equal(t, int64(73), rangeNode.Length)
 	assert.NotNil(t, rangeNode.BranchNode.Pipe)
 	assert.NotNil(t, rangeNode.BranchNode.List)
 	assert.Nil(t, rangeNode.BranchNode.ElseList)
@@ -168,7 +168,7 @@ metadata:
   {{- end }}
   {{- end }}
 `,
-			rootLength: 167,
+			rootLength: 195,
 			rootPos:    0,
 			numNodes:   3,
 		},
@@ -187,7 +187,7 @@ metadata:
 {{ print .Values.fallbacks.foo }}
 {{- end }}
 `,
-			rootLength: 259,
+			rootLength: 300,
 			rootPos:    1,
 			numNodes:   2,
 		},
@@ -200,7 +200,7 @@ metadata:
 {{- end }}
 {{- end }}
 `,
-			rootLength: 91,
+			rootLength: 110,
 			rootPos:    1,
 			numNodes:   2,
 		},
@@ -209,14 +209,14 @@ metadata:
 			tmpl: `
 {{- len ( print .Values.foo) }}
 `,
-			rootLength: 28,
+			rootLength: 32,
 			rootPos:    1,
 			numNodes:   2,
 		},
 		{
 			name:       "Test_test",
 			tmpl:       `{{ print (.Values).escalation }}`,
-			rootLength: 30,
+			rootLength: 32,
 			rootPos:    0,
 			numNodes:   1,
 		},

@@ -56,14 +56,14 @@ class CapabilitiesCheckTest {
     var secondaryLocation1 = new SecondaryLocation(range(1, 14, 1, 27),
       "This value is used in a noncompliant part of a template",
       "CapabilitiesCheck/CapabilitiesChart/values.yaml");
-    var issue1 = issue(12, 25, 12, 44,
+    var issue1 = issue(12, 18, 12, 38,
       "Make sure setting capabilities is safe here.",
       secondaryLocation1);
 
     var secondaryLocation2 = new SecondaryLocation(range(2, 15, 2, 40),
       "This value is used in a noncompliant part of a template",
       "CapabilitiesCheck/CapabilitiesChart/values.yaml");
-    var issue2 = issue(25, 25, 25, 45,
+    var issue2 = issue(25, 18, 25, 39,
       "Make sure setting capabilities is safe here.",
       secondaryLocation2);
 

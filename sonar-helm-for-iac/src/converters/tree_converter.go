@@ -10,12 +10,6 @@ import (
 	"os"
 )
 
-var KwBreak = "break"
-var KwContinue = "continue"
-var KwNil = "nil"
-var KwTrue = "true"
-var KwFalse = "false"
-
 type Converter interface {
 	ConvertTree(string, *parse.Tree) *pbstructs.Tree
 }
@@ -102,7 +96,7 @@ func (c ConversionContext) Convert(node parse.Node) proto.Message {
 		nodeAsMessage = &pbstructs.Node{
 			// NodeType duplicates declarations in parse.node, but with Unknown as 0
 			NodeType: (pbstructs.NodeType)(int(node.Type()) + 1),
-			Pos:      int64(node.Position()),
+			Pos:      int64(node.StartOffset()),
 		}
 	}
 
@@ -112,23 +106,17 @@ func (c ConversionContext) Convert(node parse.Node) proto.Message {
 func (c ConversionContext) convertActionNode(node parse.ActionNode) proto.Message {
 	return &pbstructs.ActionNode{
 		NodeType: pbstructs.NodeType_NodeAction,
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Pipe:     c.convertPipeNode(*node.Pipe),
 	}
 }
 
 func (c ConversionContext) convertBoolNode(node parse.BoolNode) proto.Message {
-	var length int
-	if node.True {
-		length = len(KwTrue)
-	} else {
-		length = len(KwFalse)
-	}
 	return &pbstructs.BoolNode{
 		NodeType: pbstructs.NodeType_NodeBool,
-		Pos:      int64(node.Position()),
-		Length:   int64(length),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		True:     node.True,
 	}
 }
@@ -141,8 +129,8 @@ func (c ConversionContext) convertBranchNode(node parse.BranchNode) proto.Messag
 		elseList = c.convertListNode(*node.ElseList)
 	}
 	return &pbstructs.BranchNode{
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Pipe:     c.convertPipeNode(*node.Pipe),
 		List:     c.convertListNode(*node.List),
 		ElseList: elseList,
@@ -152,16 +140,18 @@ func (c ConversionContext) convertBranchNode(node parse.BranchNode) proto.Messag
 func (c ConversionContext) convertBreakNode(node parse.BreakNode) proto.Message {
 	return &pbstructs.BreakNode{
 		NodeType: pbstructs.NodeType_NodeBreak,
-		Pos:      int64(node.Position()),
-		Length:   int64(len(KwBreak)),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 	}
 }
 
 func (c ConversionContext) convertChainNode(node parse.ChainNode) proto.Message {
+	n, _ := anypb.New(c.Convert(node.Node))
 	return &pbstructs.ChainNode{
 		NodeType: pbstructs.NodeType_NodeChain,
-		Pos:      int64(node.Pos),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
+		Node:     n,
 		Field:    node.Field,
 	}
 }
@@ -174,8 +164,8 @@ func (c ConversionContext) convertCommandNode(node parse.CommandNode) *pbstructs
 	}
 	return &pbstructs.CommandNode{
 		NodeType: pbstructs.NodeType_NodeCommand,
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Args:     args,
 	}
 }
@@ -183,8 +173,8 @@ func (c ConversionContext) convertCommandNode(node parse.CommandNode) *pbstructs
 func (c ConversionContext) convertCommentNode(node parse.CommentNode) proto.Message {
 	return &pbstructs.CommentNode{
 		NodeType: pbstructs.NodeType_NodeComment,
-		Pos:      int64(node.Position()),
-		Length:   int64(len(node.Text)),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Text:     &node.Text,
 	}
 }
@@ -192,24 +182,24 @@ func (c ConversionContext) convertCommentNode(node parse.CommentNode) proto.Mess
 func (c ConversionContext) convertContinueNode(node parse.ContinueNode) proto.Message {
 	return &pbstructs.ContinueNode{
 		NodeType: pbstructs.NodeType_NodeContinue,
-		Pos:      int64(node.Position()),
-		Length:   int64(len(KwContinue)),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 	}
 }
 
 func (c ConversionContext) convertDotNode(node parse.DotNode) proto.Message {
 	return &pbstructs.DotNode{
 		NodeType: pbstructs.NodeType_NodeDot,
-		Pos:      int64(node.Position()),
-		Length:   1,
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 	}
 }
 
 func (c ConversionContext) convertFieldNode(node parse.FieldNode) proto.Message {
 	return &pbstructs.FieldNode{
 		NodeType: pbstructs.NodeType_NodeField,
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Ident:    node.Ident,
 	}
 }
@@ -217,8 +207,8 @@ func (c ConversionContext) convertFieldNode(node parse.FieldNode) proto.Message 
 func (c ConversionContext) convertIdentifierNode(node parse.IdentifierNode) proto.Message {
 	return &pbstructs.IdentifierNode{
 		NodeType: pbstructs.NodeType_NodeIdentifier,
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Ident:    &node.Ident,
 	}
 }
@@ -226,8 +216,8 @@ func (c ConversionContext) convertIdentifierNode(node parse.IdentifierNode) prot
 func (c ConversionContext) convertIfNode(node parse.IfNode) proto.Message {
 	return &pbstructs.IfNode{
 		NodeType:   pbstructs.NodeType_NodeIf,
-		Pos:        int64(node.Pos),
-		Length:     nodeSourceLength(&node),
+		Pos:        int64(node.StartOffset()),
+		Length:     int64(node.Length()),
 		BranchNode: c.convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 	}
 }
@@ -235,8 +225,8 @@ func (c ConversionContext) convertIfNode(node parse.IfNode) proto.Message {
 func (c ConversionContext) convertListNode(node parse.ListNode) *pbstructs.ListNode {
 	return &pbstructs.ListNode{
 		NodeType: pbstructs.NodeType_NodeList,
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Nodes:    c.convertAnyNodeList(node.Nodes),
 	}
 }
@@ -244,16 +234,16 @@ func (c ConversionContext) convertListNode(node parse.ListNode) *pbstructs.ListN
 func (c ConversionContext) convertNilNode(node parse.NilNode) proto.Message {
 	return &pbstructs.NilNode{
 		NodeType: pbstructs.NodeType_NodeNil,
-		Pos:      int64(node.Position()),
-		Length:   int64(len(KwNil)),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 	}
 }
 
 func (c ConversionContext) convertNumberNode(node parse.NumberNode) proto.Message {
 	return &pbstructs.NumberNode{
 		NodeType: pbstructs.NodeType_NodeNumber,
-		Pos:      int64(node.Position()),
-		Length:   int64(len(node.Text)),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Text:     &node.Text,
 	}
 }
@@ -269,8 +259,8 @@ func (c ConversionContext) convertPipeNode(node parse.PipeNode) *pbstructs.PipeN
 	}
 	return &pbstructs.PipeNode{
 		NodeType: pbstructs.NodeType_NodePipe,
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Decl:     decls,
 		Cmds:     cmds,
 	}
@@ -279,8 +269,8 @@ func (c ConversionContext) convertPipeNode(node parse.PipeNode) *pbstructs.PipeN
 func (c ConversionContext) convertRangeNode(node parse.RangeNode) proto.Message {
 	return &pbstructs.RangeNode{
 		NodeType:   pbstructs.NodeType_NodeRange,
-		Pos:        int64(node.Pos),
-		Length:     nodeSourceLength(&node),
+		Pos:        int64(node.StartOffset()),
+		Length:     int64(node.Length()),
 		BranchNode: c.convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 	}
 }
@@ -288,8 +278,8 @@ func (c ConversionContext) convertRangeNode(node parse.RangeNode) proto.Message 
 func (c ConversionContext) convertStringNode(node parse.StringNode) proto.Message {
 	return &pbstructs.StringNode{
 		NodeType: pbstructs.NodeType_NodeString,
-		Pos:      int64(node.Position()),
-		Length:   int64(len(node.Quoted)),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Quoted:   &node.Quoted,
 		Text:     &node.Text,
 	}
@@ -298,8 +288,8 @@ func (c ConversionContext) convertStringNode(node parse.StringNode) proto.Messag
 func (c ConversionContext) convertTemplateNode(node parse.TemplateNode) proto.Message {
 	return &pbstructs.TemplateNode{
 		NodeType: pbstructs.NodeType_NodeTemplate,
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Name:     &node.Name,
 	}
 }
@@ -307,8 +297,8 @@ func (c ConversionContext) convertTemplateNode(node parse.TemplateNode) proto.Me
 func (c ConversionContext) convertTextNode(node parse.TextNode) proto.Message {
 	return &pbstructs.TextNode{
 		NodeType: pbstructs.NodeType_NodeText,
-		Pos:      int64(node.Position()),
-		Length:   int64(len(node.Text)),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Text:     node.Text,
 	}
 }
@@ -316,8 +306,8 @@ func (c ConversionContext) convertTextNode(node parse.TextNode) proto.Message {
 func (c ConversionContext) convertVariableNode(node parse.VariableNode) *pbstructs.VariableNode {
 	return &pbstructs.VariableNode{
 		NodeType: pbstructs.NodeType_NodeVariable,
-		Pos:      int64(node.Position()),
-		Length:   nodeSourceLength(&node),
+		Pos:      int64(node.StartOffset()),
+		Length:   int64(node.Length()),
 		Ident:    node.Ident,
 	}
 }
@@ -325,8 +315,8 @@ func (c ConversionContext) convertVariableNode(node parse.VariableNode) *pbstruc
 func (c ConversionContext) convertWithNode(node parse.WithNode) proto.Message {
 	return &pbstructs.WithNode{
 		NodeType:   pbstructs.NodeType_NodeWith,
-		Pos:        int64(node.Pos),
-		Length:     nodeSourceLength(&node),
+		Pos:        int64(node.StartOffset()),
+		Length:     int64(node.Length()),
 		BranchNode: c.convertBranchNode(node.BranchNode).(*pbstructs.BranchNode),
 	}
 }
@@ -338,12 +328,4 @@ func (c ConversionContext) convertAnyNodeList(nodes []parse.Node) []*anypb.Any {
 		result = append(result, nodeAsAny)
 	}
 	return result
-}
-
-// nodeSourceLength returns the length of the source code represented by the node.
-// `text/template/parse` doesn't store the original text, not gives it an easy way to access it.
-// Node representation returned by `.String()` is sometimes inaccurate and doesn't include spacing, but it's our best bet as the first step.
-// Note: sometimes `pos` points not to the start of the node, but to the start of the first token in the node.
-func nodeSourceLength(node parse.Node) int64 {
-	return int64(len(node.String()))
 }

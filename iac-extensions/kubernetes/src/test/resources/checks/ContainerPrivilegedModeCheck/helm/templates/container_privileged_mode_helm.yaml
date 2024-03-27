@@ -8,7 +8,7 @@ spec:
       securityContext:
 # Noncompliant@+1
         privileged: {{ .Values.container.privileged }}
-#                             ^^^^^^^^^^^^^^^^^^^^^^^^
+#                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       image: nginx
 
     - name: container-1

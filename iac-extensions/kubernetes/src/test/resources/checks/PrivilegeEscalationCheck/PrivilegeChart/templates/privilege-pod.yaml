@@ -13,7 +13,7 @@ spec:
       securityContext:
 # NonCompliant@+1
         allowPrivilegeEscalation: {{ .Values.privilege }}
-#                                           ^^^^^^^^^^^^^
+#                                    ^^^^^^^^^^^^^^^^^
 ---
 apiVersion: v1
 kind: Pod
@@ -30,7 +30,7 @@ spec:
       securityContext:
 # NonCompliant@+1
         allowPrivilegeEscalation: {{ .Values.foo }}{{ .Values.bar }}
-#                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+#                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ---
 apiVersion: v1
 kind: Pod
