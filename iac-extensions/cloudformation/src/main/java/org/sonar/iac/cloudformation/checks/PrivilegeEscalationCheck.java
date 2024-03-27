@@ -58,7 +58,7 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
   private static void checkPrivilegeEscalation(CheckContext ctx, Policy policy, Resource resource) {
     for (Statement statement : policy.statement()) {
       Optional<Tree> action = statement.action();
-      if (action.isPresent() && action.get()instanceof SequenceTree sequenceTree) {
+      if (action.isPresent() && action.get() instanceof SequenceTree sequenceTree) {
         List<Tree> actionTrees = sequenceTree.elements().stream()
           .map(Tree.class::cast)
           .toList();

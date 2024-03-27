@@ -7,7 +7,7 @@ plugins {
 spotless {
     encoding(Charsets.UTF_8)
     java {
-        eclipse("4.21")
+        eclipse("4.22")
             .configFile(
                 Blowdryer.immutableUrl(
                     "https://raw.githubusercontent.com/SonarSource/sonar-developer-toolset/master/eclipse/sonar-formatter.xml"

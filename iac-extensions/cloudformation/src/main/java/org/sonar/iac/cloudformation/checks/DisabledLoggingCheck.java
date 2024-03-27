@@ -133,7 +133,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void checkDocDbCluster(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY).ifPresentOrElse(exportsProperty -> {
-      if (exportsProperty.value()instanceof SequenceTree sequenceTree && containsOnlyStringsWithoutAudit(sequenceTree)) {
+      if (exportsProperty.value() instanceof SequenceTree sequenceTree && containsOnlyStringsWithoutAudit(sequenceTree)) {
         ctx.reportIssue(exportsProperty.key(), MESSAGE);
       }
     }, () -> reportResource(ctx, resource, omittingMessage(ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY)));
@@ -146,7 +146,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void checkAmazonMQBroker(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), "Logs").ifPresentOrElse(logs -> {
-      if (logs.value()instanceof MappingTree mappingTree && containsOnlyFalse(mappingTree)) {
+      if (logs.value() instanceof MappingTree mappingTree && containsOnlyFalse(mappingTree)) {
         ctx.reportIssue(logs.key(), MESSAGE);
       }
     }, () -> reportResource(ctx, resource, MESSAGE));

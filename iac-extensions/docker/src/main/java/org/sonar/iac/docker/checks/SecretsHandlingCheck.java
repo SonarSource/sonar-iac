@@ -128,7 +128,7 @@ public class SecretsHandlingCheck implements IacCheck {
    */
   private static boolean isSensitiveVariableName(Argument secret) {
     List<Expression> expressions = secret.expressions();
-    if (expressions.size() == 1 && expressions.get(0)instanceof Variable variable) {
+    if (expressions.size() == 1 && expressions.get(0) instanceof Variable variable) {
       String identifier = variable.identifier();
       return isSensitiveVariableName(identifier);
     }

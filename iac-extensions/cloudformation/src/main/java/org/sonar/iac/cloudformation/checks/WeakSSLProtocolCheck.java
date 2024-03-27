@@ -69,7 +69,7 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
-    if (config.value()instanceof SequenceTree sequenceTree && configSequenceContainsSecurityPolicy(sequenceTree)) {
+    if (config.value() instanceof SequenceTree sequenceTree && configSequenceContainsSecurityPolicy(sequenceTree)) {
       getSecurityPolicyFromConfigSequence(sequenceTree)
         .ifPresent(policy -> checkSecurityPolicy(ctx, policy));
     } else {

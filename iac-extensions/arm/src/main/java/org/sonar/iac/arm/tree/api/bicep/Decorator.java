@@ -32,7 +32,7 @@ public interface Decorator extends HasKeyword {
     Expression decoratorExpression = expression();
     if (decoratorExpression instanceof FunctionCall functionCall) {
       return functionCall;
-    } else if (decoratorExpression instanceof MemberExpression memberExpression && memberExpression.expression()instanceof FunctionCall functionCall) {
+    } else if (decoratorExpression instanceof MemberExpression memberExpression && memberExpression.expression() instanceof FunctionCall functionCall) {
       return functionCall;
     } else {
       return null;
