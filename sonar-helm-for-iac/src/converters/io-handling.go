@@ -23,6 +23,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/samber/mo"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -58,8 +59,6 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 	for !bytes.Equal(firstLine, END_TOKEN) {
 		name := strings.TrimSuffix(string(firstLine), "\n")
 
-		fmt.Fprintf(os.Stderr, "XXXX readed '%s'\n", name)
-
 		var content []byte
 		contentResult := mo.TupleToResult(s.readInput(scanner, 1)).FlatMap(
 			func(lengthBytes []byte) mo.Result[[]byte] {
@@ -83,8 +82,6 @@ func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 		firstLine, err = contentResult.FlatMap(func([]byte) mo.Result[[]byte] {
 			return mo.TupleToResult(s.readInput(scanner, 1))
 		}).Get()
-
-		fmt.Fprintf(os.Stderr, "XXXX firstLine '%s'\n", firstLine)
 
 		if err != nil {
 			return "", nil, err
@@ -114,7 +111,7 @@ func (s StdinReader) readInput(scanner *bufio.Scanner, nLines int) ([]byte, erro
 	return rawInput, scanner.Err()
 }
 
-// By default bufio.Scanner scans input line by line using \n (LR) as separator, trims \r (CR)
+// By default bufio.Scanner scans input line by line using \n (LF) as separator, trims \r (CR)
 // and doesn't include new line separator in token.
 // This fuction split tokens using \r\n or \r or \n or \u2028 or \u2029 and include them in tokens.
 func ScanLinesIncludeNewLine(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -126,12 +123,12 @@ func ScanLinesIncludeNewLine(data []byte, atEOF bool) (advance int, token []byte
 	indexNewLine := bytes.IndexAny(data, "\r\n\u2028\u2029")
 
 	if indexCRLF >= 0 && indexCRLF <= indexNewLine {
-		// line ends with CRLR
+		// line ends with CRLF
 		return indexCRLF + 2, data[0 : indexCRLF+2], nil
 	}
 
 	if indexNewLine >= 0 {
-		// line ends with CR or LR or \u2028 or \u2029
+		// line ends with CR or LF or \u2028 or \u2029
 		return indexNewLine + 1, data[0 : indexNewLine+1], nil
 	}
 
@@ -141,4 +138,10 @@ func ScanLinesIncludeNewLine(data []byte, atEOF bool) (advance int, token []byte
 	}
 	// Request more data.
 	return 0, nil, nil
+}
+
+func CreateScanner(reader io.Reader) *bufio.Scanner {
+	scanner := bufio.NewScanner(reader)
+	scanner.Split(ScanLinesIncludeNewLine)
+	return scanner
 }

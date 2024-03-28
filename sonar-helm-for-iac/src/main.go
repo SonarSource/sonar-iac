@@ -19,7 +19,6 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/converters"
@@ -62,8 +61,7 @@ func main() {
 }
 
 func readAndValidateSources() (*converters.TemplateSources, error) {
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Split(converters.ScanLinesIncludeNewLine)
+	scanner := converters.CreateScanner(os.Stdin)
 	templateName, sources, err := stdinReader.ReadInput(scanner)
 	if err != nil {
 		return nil, fmt.Errorf("error reading content: %w", err)
