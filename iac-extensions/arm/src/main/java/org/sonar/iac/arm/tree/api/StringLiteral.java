@@ -19,9 +19,10 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 
-public interface StringLiteral extends Expression, TextTree {
+public interface StringLiteral extends InterpolatedString, TypeExpressionAble {
   default Kind getKind() {
     return Kind.STRING_LITERAL;
   }

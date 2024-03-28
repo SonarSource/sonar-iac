@@ -91,7 +91,7 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(tree.value()).asIdentifier().hasValue("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
-    Assertions.assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_COMPLETE);
+    Assertions.assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
     InterpolatedString key = (InterpolatedString) tree.children().get(0);
 
     SyntaxToken colon = (SyntaxToken) tree.children().get(1);

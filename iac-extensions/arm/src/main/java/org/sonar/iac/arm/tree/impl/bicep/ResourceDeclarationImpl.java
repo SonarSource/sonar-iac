@@ -19,6 +19,12 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -31,7 +37,6 @@ import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -40,13 +45,6 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.checks.TextUtils;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
@@ -101,9 +99,9 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   public StringLiteral name() {
     return resourceProperties().stream()
       .filter(prop -> TextUtils.isValue(prop.key(), "name").isTrue())
-      .filter(prop -> prop.value().is(Kind.STRING_COMPLETE))
+      .filter(prop -> prop.value().is(Kind.STRING_LITERAL))
       .findFirst()
-      .map(prop -> ((StringComplete) prop.value()).content())
+      .map(prop -> ((StringLiteral) prop.value()))
       .orElse(null);
   }
 
@@ -129,7 +127,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
           typeAndVersionRange.end().line(),
           typeAndVersionRange.start().lineOffset() + indexOfAt + 1 + version.length());
         SyntaxToken token = new SyntaxTokenImpl(version, tokenRange, List.of());
-        return new StringLiteralImpl(token);
+        return new TypeOrVersionTreeImpl(token);
       }
     }
     return null;
@@ -150,7 +148,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
           typeAndVersionRange.end().line(),
           typeAndVersionRange.start().lineOffset() + type.length() + 1);
         SyntaxToken token = new SyntaxTokenImpl(type, tokenRange, List.of());
-        return new StringLiteralImpl(token);
+        return new TypeOrVersionTreeImpl(token);
       }
     }
     // TODO SONARIAC-1019 ARM Bicep: make ResourceDelcaration.type() @CheckForNull
@@ -218,5 +216,16 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
       .map(p -> (Collections.<Property>unmodifiableList(((ObjectExpression) ((Property) p).value()).properties())))
       .findFirst()
       .orElse(List.of());
+  }
+
+  static class TypeOrVersionTreeImpl extends StringLiteralImpl implements TextTree {
+    public TypeOrVersionTreeImpl(SyntaxToken token) {
+      super(token);
+    }
+
+    @Override
+    public String value() {
+      return token.value();
+    }
   }
 }

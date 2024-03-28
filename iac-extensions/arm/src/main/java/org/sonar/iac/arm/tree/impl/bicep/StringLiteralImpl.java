@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class StringLiteralImpl extends AbstractArmTreeImpl implements StringLiteral {
 
-  private final SyntaxToken token;
+  protected final SyntaxToken token;
 
   public StringLiteralImpl(SyntaxToken token) {
     this.token = token;
@@ -35,7 +35,8 @@ public class StringLiteralImpl extends AbstractArmTreeImpl implements StringLite
 
   @Override
   public String value() {
-    return token.value();
+    var val = token.value();
+    return val.substring(1, val.length() - 1);
   }
 
   @Override

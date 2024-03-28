@@ -32,6 +32,7 @@ import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -52,7 +53,6 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
@@ -290,15 +290,13 @@ public class BicepGrammar {
           INTERPOLATED_STRING_LEFT_PIECE(),
           b.zeroOrMore(INTERPOLATED_STRING_MIDDLE_PIECE()),
           INTERPOLATED_STRING_RIGHT_PIECE()),
-        STRING_COMPLETE()));
+        STRING_LITERAL()));
   }
 
-  public StringComplete STRING_COMPLETE() {
-    return b.<StringComplete>nonterminal(BicepLexicalGrammar.STRING_COMPLETE).is(
+  public StringLiteral STRING_LITERAL() {
+    return b.<StringLiteral>nonterminal(BicepLexicalGrammar.STRING_LITERAL).is(
       f.stringComplete(
-        b.token(Punctuator.APOSTROPHE),
-        b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
-        b.token(Punctuator.APOSTROPHE)));
+        b.token(BicepLexicalGrammar.REGULAR_STRING_LITERAL)));
   }
 
   public InterpolatedStringLeftPiece INTERPOLATED_STRING_LEFT_PIECE() {
@@ -388,7 +386,7 @@ public class BicepGrammar {
         IDENTIFIER(),
         UNARY_OPERATOR_LITERAL_VALUE(),
         MULTILINE_STRING(),
-        STRING_COMPLETE(),
+        STRING_LITERAL(),
         OBJECT_TYPE(),
         TUPLE_TYPE()));
   }
@@ -417,7 +415,7 @@ public class BicepGrammar {
         b.firstOf(
           MULTILINE_STRING(),
           IDENTIFIER(),
-          STRING_COMPLETE(),
+          STRING_LITERAL(),
           b.token(Punctuator.STAR)),
         b.token(Punctuator.COLON),
         TYPE_EXPRESSION()));

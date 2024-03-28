@@ -36,6 +36,7 @@ import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -56,7 +57,6 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
@@ -112,7 +112,7 @@ import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedTypeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.SingularTypeExpressionImpl;
-import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
+import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TupleItemImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TupleTypeImpl;
@@ -242,8 +242,8 @@ public class TreeFactory {
     return new ModuleDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equals, value);
   }
 
-  public StringComplete stringComplete(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
-    return new StringCompleteImpl(openingApostrophe, value, closingApostrophe);
+  public StringLiteral stringComplete(SyntaxToken value) {
+    return new StringLiteralImpl(value);
   }
 
   public InterpolatedString interpolatedString(InterpolatedStringLeftPiece stringLeftPiece,

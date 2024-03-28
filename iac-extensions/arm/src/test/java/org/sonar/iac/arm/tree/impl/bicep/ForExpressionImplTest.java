@@ -19,16 +19,15 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
@@ -74,8 +73,8 @@ class ForExpressionImplTest extends BicepTreeModelTest {
     softly.assertThat(tree.headerExpression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
     softly.assertThat(((Identifier) tree.headerExpression()).value()).isEqualTo("headerExpression");
 
-    softly.assertThat(tree.bodyExpression().is(ArmTree.Kind.STRING_COMPLETE)).isTrue();
-    softly.assertThat(((StringComplete) tree.bodyExpression()).value()).isEqualTo("bodyExpression");
+    softly.assertThat(tree.bodyExpression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    softly.assertThat(((StringLiteral) tree.bodyExpression()).value()).isEqualTo("bodyExpression");
 
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("[", "for", "(", "itemIdentifier123", ",", "indexIdentifier123", ")",
