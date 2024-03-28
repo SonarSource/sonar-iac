@@ -69,20 +69,26 @@ public final class LocationShifter {
    * It calculates shifted location in 3 steps:<br/>
    * <ul>
    *   <li>see {@link LocationShifter#computeShiftedLocation(HelmInputFileContext, TextRange)}</li>
-   *   <li>see {@link LocationShifter#computeHelmValuePathTextRange(HelmInputFileContext, TextRange)}</li>
+   *   <li>see {@link LocationShifter#computeHelmExpressionToHighlightingTextRange(HelmInputFileContext, TextRange)}</li>
    *   <li>if the location from 1st and 2nd step is the same then first line location is taken and line offsets of original TextRange</li>
    * </ul>
    */
   public static TextRange shiftLocation(HelmInputFileContext currentCtx, TextRange textRange) {
     var shiftedToLine = computeShiftedLocation(currentCtx, textRange);
-    var shiftedTextRange = computeHelmValuePathTextRange(currentCtx, shiftedToLine);
+    var shiftedTextRange = computeHelmExpressionToHighlightingTextRange(currentCtx, shiftedToLine);
     if (shiftedTextRange.equals(shiftedToLine)) {
-      // The shiftedTextRange doesn't contain Value path (Helm expression) so we can keep the line offsets
-      return TextRanges.range(
+      // The shiftedTextRange doesn't contain Value path (.Values.path.to.variable) or include or toYaml function
+      var rangeWithShiftedLine = TextRanges.range(
         shiftedTextRange.start().line(),
         textRange.start().lineOffset(),
         shiftedTextRange.end().line(),
         textRange.end().lineOffset());
+
+      // last safeguard that rangeWithShiftedLine is correct (will not throw IllegalArgumentException)
+      if (isTextRangeValid(rangeWithShiftedLine, currentCtx)) {
+        return rangeWithShiftedLine;
+      }
+      return shiftedTextRange;
     }
     return shiftedTextRange;
   }
@@ -136,8 +142,9 @@ public final class LocationShifter {
   }
 
   /**
-   * Adjust given {@link TextRange} to Helm template Value Path location.
-   * If no Value Path is found at provided {@link TextRange} the original {@link TextRange} is returned. <p/>
+   * Adjust given {@link TextRange} to Helm template Value Path location (e.g. {@code .Values.foo.bar} ) or
+   * include function parameter, or toYaml function, or another element to be highlighted.
+   * If nothing is found at provided {@link TextRange} the original {@link TextRange} is returned. <p/>
    *
    * The following example illustrates this:<br/>
    * <code>
@@ -157,7 +164,7 @@ public final class LocationShifter {
    *
    * The precision of highlighting depends on the precision of the nodes of Go template AST.
    */
-  public static TextRange computeHelmValuePathTextRange(HelmInputFileContext helmContext, TextRange textRange) {
+  public static TextRange computeHelmExpressionToHighlightingTextRange(HelmInputFileContext helmContext, TextRange textRange) {
     var goTemplateTree = helmContext.getGoTemplateTree();
     var sourceWithComments = helmContext.getSourceWithComments();
     if (goTemplateTree != null && sourceWithComments != null) {
@@ -205,6 +212,20 @@ public final class LocationShifter {
       return new ShiftedMarkedYamlEngineException(exception, shiftedMark);
     }
     return exception;
+  }
+
+  private static boolean isTextRangeValid(TextRange mixedTextRange, HelmInputFileContext currentCtx) {
+    try {
+      currentCtx.inputFile.newRange(
+        mixedTextRange.start().line(),
+        mixedTextRange.start().lineOffset(),
+        mixedTextRange.end().line(),
+        mixedTextRange.end().lineOffset());
+      return true;
+    } catch (IllegalArgumentException e) {
+      // the text range is invalid
+      return false;
+    }
   }
 
   /**

@@ -1,4 +1,10 @@
 {
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/SONARIAC-1367/grafana/templates/daemonset.yaml": [
+57
+],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/SONARIAC-1367/ibm-charts/templates/haproxy-deploy.yaml": [
+87
+],
 "kubernetes-project:sources/kubernetes/examples/cassandra/cassandra-statefulset.yaml": [
 20
 ],

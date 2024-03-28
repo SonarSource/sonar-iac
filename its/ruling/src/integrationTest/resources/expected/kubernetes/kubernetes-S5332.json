@@ -1,4 +1,7 @@
 {
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/SONARIAC-1367/ibm-charts/Chart.yaml": [
+4
+],
 "kubernetes-project:sources/kubernetes/examples/staging/cluster-dns/dns-frontend-pod.yaml": [
 14
 ],
