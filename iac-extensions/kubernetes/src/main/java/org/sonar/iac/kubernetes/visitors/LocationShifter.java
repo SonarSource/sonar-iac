@@ -78,15 +78,15 @@ public final class LocationShifter {
     var shiftedTextRange = computeHelmExpressionToHighlightingTextRange(currentCtx, shiftedToLine);
     if (shiftedTextRange.equals(shiftedToLine)) {
       // The shiftedTextRange doesn't contain Value path (.Values.path.to.variable) or include or toYaml function
-      var mixedTextRange = TextRanges.range(
+      var rangeWithShiftedLine = TextRanges.range(
         shiftedTextRange.start().line(),
         textRange.start().lineOffset(),
         shiftedTextRange.end().line(),
         textRange.end().lineOffset());
 
-      // last safeguard that mixedTextRange is correct (will not throw IllegalArgumentException)
-      if (isTextRangeValid(mixedTextRange, currentCtx)) {
-        return mixedTextRange;
+      // last safeguard that rangeWithShiftedLine is correct (will not throw IllegalArgumentException)
+      if (isTextRangeValid(rangeWithShiftedLine, currentCtx)) {
+        return rangeWithShiftedLine;
       }
       return shiftedTextRange;
     }
@@ -143,7 +143,7 @@ public final class LocationShifter {
 
   /**
    * Adjust given {@link TextRange} to Helm template Value Path location (e.g. {@code .Values.foo.bar} ) or
-   * include function parameter, or toYaml function.
+   * include function parameter, or toYaml function, or another element to be highlighted.
    * If nothing is found at provided {@link TextRange} the original {@link TextRange} is returned. <p/>
    *
    * The following example illustrates this:<br/>
