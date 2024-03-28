@@ -1,0 +1,5 @@
+*                               text=auto
+new-line-windows.yaml    text    eol=crlf
+new-line-mac.yaml        text    eol=cr
+new-line-u2028.yaml     -text
+new-line-u2029.yaml     -text

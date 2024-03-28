@@ -3,7 +3,7 @@
 6
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/corner-cases/templates/invalid-yaml-after-render.yaml": [
-2
+3
 ],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/methods/required/templates/required_missing.yaml": [
 0

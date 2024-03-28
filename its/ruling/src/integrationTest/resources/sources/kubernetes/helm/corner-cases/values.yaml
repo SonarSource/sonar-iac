@@ -14,3 +14,7 @@ multiline: |
   .
   .
   .
+
+container:
+  name: some-container-name
+  privileged: true
