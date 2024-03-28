@@ -295,7 +295,7 @@ public class BicepGrammar {
 
   public StringLiteral STRING_LITERAL() {
     return b.<StringLiteral>nonterminal(BicepLexicalGrammar.STRING_LITERAL).is(
-      f.stringComplete(
+      f.stringLiteral(
         b.token(BicepLexicalGrammar.REGULAR_STRING_LITERAL)));
   }
 

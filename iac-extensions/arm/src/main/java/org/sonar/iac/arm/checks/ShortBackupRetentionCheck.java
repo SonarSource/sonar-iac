@@ -160,7 +160,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
     return Optional.ofNullable(tree)
       .map(Property.class::cast)
       .map(Property::value)
-      .filter(expr -> expr.is(ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.STRING_LITERAL))
+      .filter(expr -> expr.is(ArmTree.Kind.STRING_LITERAL))
       .flatMap(TextUtils::getValue)
       .orElse(null);
   }

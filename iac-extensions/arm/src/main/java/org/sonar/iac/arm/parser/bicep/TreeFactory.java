@@ -242,7 +242,7 @@ public class TreeFactory {
     return new ModuleDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equals, value);
   }
 
-  public StringLiteral stringComplete(SyntaxToken value) {
+  public StringLiteral stringLiteral(SyntaxToken value) {
     return new StringLiteralImpl(value);
   }
 
