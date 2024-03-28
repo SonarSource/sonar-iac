@@ -44,9 +44,10 @@ public final class GoTemplateAstHelper {
   public static Stream<Node> findNodesToHighlight(GoTemplateTree tree, TextRange range, String sourceText) {
     var location = LocationImpl.fromTextRange(range, sourceText);
 
-    return Stream.concat(
+    return Stream.concat(Stream.concat(
       findValuePathNodes(tree, location),
-      findIncludeFunctionsFirstArg(tree, location));
+      findIncludeFunctionsFirstArg(tree, location)),
+      findToYamlNodes(tree, location));
   }
 
   static Stream<FieldNode> findValuePathNodes(GoTemplateTree tree, Location location) {
@@ -73,8 +74,14 @@ public final class GoTemplateAstHelper {
   private static Stream<Node> findIncludeFunctionsFirstArg(GoTemplateTree tree, Location location) {
     return collectNodesByType(tree.root(), NodeType.NODE_COMMAND, CommandNode.class)
       .filter(hasOverlayingLocation(location))
-      .filter(GoTemplateAstHelper::isIncludeFunction)
+      .filter(node -> isFunction(node, "include"))
       .map(cmd -> cmd.arguments().get(1));
+  }
+
+  private static Stream<? extends Node> findToYamlNodes(GoTemplateTree tree, Location location) {
+    return collectNodesByType(tree.root(), NodeType.NODE_COMMAND, CommandNode.class)
+      .filter(hasOverlayingLocation(location))
+      .filter(node -> isFunction(node, "toYaml"));
   }
 
   private static Predicate<Node> hasOverlayingLocation(Location location) {
@@ -108,7 +115,9 @@ public final class GoTemplateAstHelper {
     }
   }
 
-  private static boolean isIncludeFunction(CommandNode commandNode) {
-    return commandNode.arguments().size() > 1 && commandNode.arguments().get(0) instanceof IdentifierNode identifierNode && "include".equals(identifierNode.identifier());
+  private static boolean isFunction(CommandNode commandNode, String functionName) {
+    return commandNode.arguments().size() > 1
+      && commandNode.arguments().get(0) instanceof IdentifierNode identifierNode
+      && functionName.equals(identifierNode.identifier());
   }
 }

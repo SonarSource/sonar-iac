@@ -68,6 +68,7 @@ final class LocationShifterTest {
   @TempDir
   private static File tmpDir;
 
+  private static final String EMPTY_CONTENT = "";
   private static File baseDir;
   private static SensorContextTester context;
   private static HelmInputFileContext ctx;
@@ -82,7 +83,7 @@ final class LocationShifterTest {
 
   @BeforeEach
   void setUp() {
-    InputFile file = createInputFile("primaryFile");
+    InputFile file = createInputFile("primaryFile", EMPTY_CONTENT);
     ctx = new HelmInputFileContext(context, file);
   }
 
@@ -167,7 +168,7 @@ final class LocationShifterTest {
     setLinesSizes(ctx, 5, 10, 15);
     LocationShifter.addShiftedLine(ctx, 3, 1, 1);
 
-    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2"));
+    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2", EMPTY_CONTENT));
 
     TextRange shiftedRange = LocationShifter.computeShiftedLocation(differentCtx, range(1, 1, 1, 3));
 
@@ -176,7 +177,7 @@ final class LocationShifterTest {
 
   @Test
   void shouldNotAccessShiftedRangeOfDifferentContext() {
-    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2"));
+    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2", EMPTY_CONTENT));
 
     setLinesSizes(ctx, 5, 10, 15);
     setLinesSizes(differentCtx, 6, 11, 16, 21);
@@ -247,7 +248,7 @@ final class LocationShifterTest {
     setLinesSizes(ctx, 5, 10);
     LocationShifter.addShiftedLine(ctx, 1, 2, 2);
 
-    InputFile secondaryFile = createInputFile("secondaryFile");
+    InputFile secondaryFile = createInputFile("secondaryFile", EMPTY_CONTENT);
     context.fileSystem().add(secondaryFile);
 
     var secondaryLocation = new SecondaryLocation(range(1, 1, 1, 3), "message", "secondaryFile");
@@ -298,7 +299,7 @@ final class LocationShifterTest {
   @Test
   void shouldComputeHelmValuePathTextRange() {
     var helmInputFileContext = inputFileContextWithTree();
-    var textRange = LocationShifter.computeHelmValuePathTextRange(helmInputFileContext, range(1, 6, 1, 22));
+    var textRange = LocationShifter.computeHelmExpressionToHighlightingTextRange(helmInputFileContext, range(1, 6, 1, 22));
     assertThat(textRange).hasRange(1, 15, 1, 18);
   }
 
@@ -307,7 +308,7 @@ final class LocationShifterTest {
     var helmInputFileContext = inputFileContextWithTree();
     helmInputFileContext.setGoTemplateTree(null);
     var range = range(1, 6, 1, 22);
-    var textRange = LocationShifter.computeHelmValuePathTextRange(helmInputFileContext, range);
+    var textRange = LocationShifter.computeHelmExpressionToHighlightingTextRange(helmInputFileContext, range);
     assertThat(textRange).isSameAs(range);
   }
 
@@ -316,7 +317,7 @@ final class LocationShifterTest {
     var helmInputFileContext = inputFileContextWithTree();
     helmInputFileContext.setSourceWithComments(null);
     var range = range(1, 6, 1, 22);
-    var textRange = LocationShifter.computeHelmValuePathTextRange(helmInputFileContext, range);
+    var textRange = LocationShifter.computeHelmExpressionToHighlightingTextRange(helmInputFileContext, range);
     assertThat(textRange).isSameAs(range);
   }
 
@@ -324,7 +325,7 @@ final class LocationShifterTest {
   void shouldReturnTheSameTextRangeWhenTextRangeDoesntOverlapHelmAst() {
     var helmInputFileContext = inputFileContextWithTree();
     var range = range(1, 0, 1, 3);
-    var textRange = LocationShifter.computeHelmValuePathTextRange(helmInputFileContext, range);
+    var textRange = LocationShifter.computeHelmExpressionToHighlightingTextRange(helmInputFileContext, range);
     assertThat(textRange).isSameAs(range);
   }
 
@@ -332,12 +333,18 @@ final class LocationShifterTest {
   void shouldNotFixLocationIfNodeHasLengthOne() {
     var helmInputFileContext = inputFileContextWithTreeValueLength1();
     var range = range(1, 0, 1, 22);
-    var textRange = LocationShifter.computeHelmValuePathTextRange(helmInputFileContext, range);
+    var textRange = LocationShifter.computeHelmExpressionToHighlightingTextRange(helmInputFileContext, range);
     assertThat(textRange).hasRange(1, 15, 1, 16);
   }
 
   @Test
   void shouldShiftToLineButKeepOriginalLineOffsets() {
+    String content = """
+      abc
+      1234567890123
+      abc""";
+    InputFile file = createInputFile("primaryFile", content);
+    ctx = new HelmInputFileContext(context, file);
     setLinesSizes(ctx, 5, 10);
     LocationShifter.addShiftedLine(ctx, 1, 2, 2);
     TextRange shiftedRange = LocationShifter.shiftLocation(ctx, range(1, 1, 1, 3));
@@ -363,8 +370,8 @@ final class LocationShifterTest {
     }
   }
 
-  private static InputFile createInputFile(String fileName) {
-    InputFile inputFile = IacTestUtils.inputFile(fileName, baseDir.toPath(), "", null);
+  private static InputFile createInputFile(String fileName, String content) {
+    InputFile inputFile = IacTestUtils.inputFile(fileName, baseDir.toPath(), content, null);
     context.fileSystem().add(inputFile);
     return inputFile;
   }

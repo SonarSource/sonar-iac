@@ -40,4 +40,9 @@ class MountingFileSystemPathsCheckTest {
   void shouldVerifyMountingFileSystemInDeployment() {
     KubernetesVerifier.verify("MountingFileSystemPathsCheck/mounting_file_system_deployment.yaml", check);
   }
+
+  @Test
+  void shouldVerifyMountingFileSystemInPodInHelm() {
+    KubernetesVerifier.verify("MountingFileSystemPathsCheck/MountingFileSystemChart/templates/mounting-file-system-pod.yaml", check);
+  }
 }

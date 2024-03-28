@@ -5,6 +5,9 @@
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S6433/templates/deployment.yaml": [
 37
 ],
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/SONARIAC-1367/grafana/templates/daemonset.yaml": [
+92
+],
 "kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
 52,
 55
