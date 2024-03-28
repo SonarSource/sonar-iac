@@ -59,7 +59,7 @@ public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements T
   @Override
   public File.Scope scope() {
     if (expression.is(Kind.STRING_LITERAL)) {
-      StringLiteral stringLiteral = (StringLiteral) expression;
+      var stringLiteral = (StringLiteral) expression;
       return switch (stringLiteral.value()) {
         case "managementGroup" -> File.Scope.MANAGEMENT_GROUP;
         case "resourceGroup" -> File.Scope.RESOURCE_GROUP;

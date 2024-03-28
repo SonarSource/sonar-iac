@@ -218,7 +218,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
       .orElse(List.of());
   }
 
-  static class TypeOrVersionTreeImpl extends StringLiteralImpl implements TextTree {
+  static class TypeOrVersionTreeImpl extends StringLiteralImpl {
     public TypeOrVersionTreeImpl(SyntaxToken token) {
       super(token);
     }
