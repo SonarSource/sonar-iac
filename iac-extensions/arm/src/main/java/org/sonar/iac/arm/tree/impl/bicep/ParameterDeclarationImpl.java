@@ -36,7 +36,6 @@ import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -138,10 +137,9 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @Override
   @CheckForNull
   public StringLiteral description() {
-    return findDecoratorByName("description")
+    return (StringLiteral) findDecoratorByName("description")
       .map(Decorator::functionCallOrMemberFunctionCall)
       .map(d -> (d.argumentList().elements().get(0)))
-      .map(s -> ((StringComplete) s).content())
       .orElse(null);
   }
 

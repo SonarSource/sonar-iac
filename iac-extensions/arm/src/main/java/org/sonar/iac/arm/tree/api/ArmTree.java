@@ -39,7 +39,6 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
@@ -87,7 +86,6 @@ public interface ArmTree extends Tree {
     NUMERIC_LITERAL(NumericLiteral.class),
     NULL_LITERAL(NullLiteral.class),
     INTERPOLATED_STRING(InterpolatedString.class),
-    STRING_COMPLETE(StringComplete.class),
 
     STRING_LITERAL(StringLiteral.class),
     ARRAY_EXPRESSION(ArrayExpression.class),

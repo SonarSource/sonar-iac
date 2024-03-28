@@ -21,7 +21,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -58,8 +58,8 @@ public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements T
 
   @Override
   public File.Scope scope() {
-    if (expression.is(Kind.STRING_COMPLETE)) {
-      StringComplete stringLiteral = (StringComplete) expression;
+    if (expression.is(Kind.STRING_LITERAL)) {
+      var stringLiteral = (StringLiteral) expression;
       return switch (stringLiteral.value()) {
         case "managementGroup" -> File.Scope.MANAGEMENT_GROUP;
         case "resourceGroup" -> File.Scope.RESOURCE_GROUP;

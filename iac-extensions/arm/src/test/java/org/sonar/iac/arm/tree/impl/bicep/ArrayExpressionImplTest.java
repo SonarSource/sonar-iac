@@ -25,7 +25,7 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
@@ -71,12 +71,12 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
     assertThat(tree.elements()).hasSize(3);
-    StringComplete a = (StringComplete) tree.elements().get(0);
-    StringComplete b = (StringComplete) tree.elements().get(1);
-    StringComplete c = (StringComplete) tree.elements().get(2);
-    ArmAssertions.assertThat(a.content()).hasValue("a");
-    ArmAssertions.assertThat(b.content()).hasValue("b");
-    ArmAssertions.assertThat(c.content()).hasValue("c");
+    StringLiteral a = (StringLiteral) tree.elements().get(0);
+    StringLiteral b = (StringLiteral) tree.elements().get(1);
+    StringLiteral c = (StringLiteral) tree.elements().get(2);
+    ArmAssertions.assertThat(a).hasValue("a");
+    ArmAssertions.assertThat(b).hasValue("b");
+    ArmAssertions.assertThat(c).hasValue("c");
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("[", "a", ",", "b", "c", "]");

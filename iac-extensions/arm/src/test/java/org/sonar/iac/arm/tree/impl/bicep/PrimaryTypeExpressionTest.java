@@ -28,11 +28,11 @@ import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 
@@ -229,10 +229,10 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
   }
 
   @Test
-  void shouldParseSimpleStringComplete() {
-    StringComplete tree = parse("'abc123DEF'", BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
+  void shouldParseSimpleStringLiteral() {
+    StringLiteral tree = parse("'abc123DEF'", BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
     assertThat(tree.value()).isEqualTo("abc123DEF");
-    assertThat(tree.is(ArmTree.Kind.STRING_COMPLETE)).isTrue();
+    assertThat(tree.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
   }
 
   @Test

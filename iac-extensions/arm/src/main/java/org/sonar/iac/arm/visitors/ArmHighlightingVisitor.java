@@ -25,7 +25,6 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -85,7 +84,6 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     registerTree(AmbientTypeReference.class, KEYWORD);
     registerTree(InterpolatedString.class, STRING);
     registerTree(MultilineString.class, STRING);
-    registerTree(StringLiteral.class, STRING);
   }
 
   private <T extends Tree> void registerTree(Class<T> cls, TypeOfText type) {

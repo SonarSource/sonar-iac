@@ -21,20 +21,18 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class StringCompleteImplTest extends BicepTreeModelTest {
+class StringLiteralImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseStringComplete() {
-    ArmAssertions.assertThat(BicepLexicalGrammar.STRING_COMPLETE)
+  void shouldParseStringLiteral() {
+    ArmAssertions.assertThat(BicepLexicalGrammar.STRING_LITERAL)
       .matches("'123'")
       .matches("'abc'")
       .matches("'ab\\'c'")
@@ -49,6 +47,10 @@ class StringCompleteImplTest extends BicepTreeModelTest {
       .matches("'123BB789'")
       .matches("'a$b'")
       .matches("'a{}b'")
+      .matches("'a//a'")
+      .matches("'a#a'")
+      .matches("'#a'")
+      .matches("'//a'")
 
       .notMatches(".12'3456")
       .notMatches("-")
@@ -62,23 +64,11 @@ class StringCompleteImplTest extends BicepTreeModelTest {
   }
 
   @Test
-  void shouldParseSimpleStringComplete() {
+  void shouldParseSimpleStringLiteral() {
     String code = code("'abc123DEF'");
 
-    StringComplete tree = parse(code, BicepLexicalGrammar.STRING_COMPLETE);
+    StringLiteral tree = parse(code, BicepLexicalGrammar.STRING_LITERAL);
     assertThat(tree.value()).isEqualTo("abc123DEF");
-    assertThat(tree.is(ArmTree.Kind.STRING_COMPLETE)).isTrue();
-
-    SyntaxToken token1 = (SyntaxToken) tree.children().get(0);
-    assertThat(token1.value()).isEqualTo("'");
-
-    SyntaxToken token2 = (SyntaxToken) tree.children().get(1);
-    assertThat(token2.children()).isEmpty();
-    assertThat(token2.comments()).isEmpty();
-
-    SyntaxToken token3 = (SyntaxToken) tree.children().get(2);
-    assertThat(token3.value()).isEqualTo("'");
-
-    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
   }
 }

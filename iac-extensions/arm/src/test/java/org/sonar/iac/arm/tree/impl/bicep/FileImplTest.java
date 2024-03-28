@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
@@ -79,6 +79,6 @@ class FileImplTest extends BicepTreeModelTest {
     File tree = (File) parser.parse(code, inputFile);
 
     assertThat(tree.targetScope()).isEqualTo(expected);
-    assertThat(tree.targetScopeLiteral()).satisfiesAnyOf(s -> assertThat(s).isInstanceOf(StringComplete.class), s -> assertThat(s).isNull());
+    assertThat(tree.targetScopeLiteral()).satisfiesAnyOf(s -> assertThat(s).isInstanceOf(StringLiteral.class), s -> assertThat(s).isNull());
   }
 }
