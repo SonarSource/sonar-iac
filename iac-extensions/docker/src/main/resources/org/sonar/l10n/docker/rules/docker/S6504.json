@@ -1,5 +1,5 @@
 {
-  "title": "Having executables not owned by root is security-sensitive",
+  "title": "Allowing non-root users to modify resources copied to an image is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "code": {
     "impacts": {
