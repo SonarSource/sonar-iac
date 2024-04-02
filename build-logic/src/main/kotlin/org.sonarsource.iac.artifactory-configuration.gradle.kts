@@ -48,12 +48,12 @@ signing {
 }
 
 tasks.withType<Sign> {
-/*    onlyIf {
+    onlyIf {
         val branch = System.getenv()["CIRRUS_BRANCH"] ?: ""
         val artifactorySkip: Boolean = tasks.artifactoryPublish.get().skip
         !artifactorySkip && (branch == "master" || branch.matches("branch-[\\d.]+".toRegex())) &&
             gradle.taskGraph.hasTask(":artifactoryPublish")
-    }*/
+    }
 }
 
 artifactory {
