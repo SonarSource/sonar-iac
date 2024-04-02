@@ -7,13 +7,17 @@ addition, it can lead to unpredictability and issues such as version mismatch an
 <p>For example, if a developer builds and deploys an application using <code>my-image:latest</code>, they may unknowingly be using a different version
 of the image than another developer who also built and deployed the same application using <code>my-image:latest</code>. This can lead to version
 mismatches, which can cause bugs or compatibility issues.</p>
-<p>In addition, using <code>latest</code> as the tag for Docker images can potentially introduce security vulnerabilities. For instance, if a security
-vulnerability is discovered in an image and a new version is released to fix it, using <code>latest</code> as the tag means that the application will
-automatically use the updated image, even if it has not been properly tested and vetted for compatibility with the application.</p>
+<p>In addition, using <code>latest</code> as the tag for Dockerfile images can potentially introduce security vulnerabilities. For instance, if a
+security vulnerability is discovered in an image and a new version is released to fix it, using <code>latest</code> as the tag means that the
+application will automatically use the updated image, even if it has not been properly tested and vetted for compatibility with the application.</p>
 <h2>How to fix it</h2>
-<p>To avoid these issues, it is recommended to use specific version tags for Dockerfile images. This can be done by appending the version number or
-tag to the image name in the Dockerfile. For example, instead of using <code>my-image:latest</code>, it is better to use
-<code>my-image:1.2.3-alpine</code> or <code>my-image:1.2.3</code>.</p>
+<p>To avoid these issues, it is recommended to use specific version tags for Dockerfile images.</p>
+<p>This can be done by appending the version number or tag to the Dockerfile image name. For example, instead of <code>my-image:latest</code>, it is
+better to use <code>my-image:1.2.3-alpine</code> or <code>my-image:1.2.3</code>.</p>
+<p>For even more control and traceability, it is also possible to specify your image by digest using the sha256 of the image. This will pin your image
+to a specific version in time, but will also exclude it from eventual security updates. An example would be using
+<code>my-image@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d</code>.</p>
+<p>More information can be found in the documentation at the end.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -26,15 +30,17 @@ FROM my-image:1.2.3
 FROM my-image:1.2.3-alpine
 </pre>
 <h3>How does this work?</h3>
-<p>This way, the same version of the image is used every time the application is built, deployed, or run, ensuring consistency and predictability
-across different environments. It is also not enough to use the latest tag, as this version also changes with each release.</p>
+<p>This way, the same version of the Dockerfile image is used every time the application is built, deployed, or run, ensuring consistency and
+predictability across different environments. It is also not enough to use the latest tag, as this version also changes with each release.</p>
 <h3>Going the extra mile</h3>
-<p>Adhering to this can also make it easier to track which version of the image is being used, which can be useful for debugging and troubleshooting
-purposes.</p>
+<p>Adhering to this can also make it easier to track which version of the Dockerfile image is being used, which can be useful for debugging and
+troubleshooting purposes.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
   <li> <a href="https://docs.docker.com/engine/reference/builder/#from">Dockerfile reference - FROM</a> </li>
   <li> <a href="https://docs.docker.com/develop/dev-best-practices/#how-to-keep-your-images-small">Docker development best practices</a> </li>
+  <li> <a href="https://docs.docker.com/engine/reference/commandline/image_pull/#pull-an-image-by-digest-immutable-identifier">Pull an image by digest
+  (immutable identifier)</a> </li>
 </ul>
 
