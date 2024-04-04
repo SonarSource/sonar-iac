@@ -8,6 +8,7 @@
   ],
   "enabledManagers": [
     "gradle",
+    "gradle-wrapper",
     "github-actions",
     "bicep",
     "regex",
