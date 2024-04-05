@@ -16,7 +16,7 @@ publishing {
             }
             licenses {
                 license {
-                    name.set("GNU LPGL 3")
+                    name.set("GNU LGPL 3")
                     url.set("http://www.gnu.org/licenses/lgpl.txt")
                     distribution.set("repo")
                 }
