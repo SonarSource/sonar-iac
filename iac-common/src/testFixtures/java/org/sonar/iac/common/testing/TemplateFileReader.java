@@ -28,13 +28,18 @@ public class TemplateFileReader {
 
   public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
 
-  public static String readTemplateAndReplace(String path, String type) {
+  public static String readContent(String path) {
     String content;
     try {
       content = Files.readString(BASE_DIR.resolve(path));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+    return content;
+  }
+
+  public static String readTemplateAndReplace(String path, String type) {
+    String content = readContent(path);
     return content.replace("${type}", type);
   }
 
@@ -42,12 +47,7 @@ public class TemplateFileReader {
     if (types.length % 2 == 1) {
       throw new RuntimeException("There should be even number of strings");
     }
-    String content;
-    try {
-      content = Files.readString(BASE_DIR.resolve(path));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    String content = readContent(path);
     for (int i = 0; i < types.length; i = i + 2) {
       content = content.replace(types[i], types[i + 1]);
     }
