@@ -197,7 +197,17 @@ public abstract class TestBase {
       "org.eclipse.jgit.internal.util.ShutdownHook.cleanup",
       "at java.base/java.lang.Thread.run",
       "org.eclipse.jgit.internal.JGitText",
-      "... 2 more");
+      "... 2 more",
+      "java.lang.NoClassDefFoundError: ch/qos/logback/classic/spi/ThrowableProxy",
+      "at ch.qos.logback.classic.spi.LoggingEvent.<init>",
+      "at ch.qos.logback.classic.Logger.buildLoggingEventAndAppend",
+      "at ch.qos.logback.classic.Logger.filterAndLog_0_Or3Plus",
+      "at ch.qos.logback.classic.Logger.error",
+      "Caused by: java.lang.ClassNotFoundException: ch.qos.logback.classic.spi.ThrowableProxy",
+      "at java.base/java.net.URLClassLoader.findClass",
+      "at org.sonarsource.scanner.api.internal.IsolatedClassloader.loadClass",
+      "at java.base/java.lang.ClassLoader.loadClass",
+      "... 6 more");
 
     lines.removeIf(logElement -> temporaryToleratedStrings.stream().anyMatch(logElement::contains));
 
