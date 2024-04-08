@@ -19,16 +19,29 @@
  */
 package org.sonar.iac.arm.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.parser.bicep.BicepNodeBuilder;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
+import org.sonar.iac.arm.tree.impl.bicep.SyntaxTokenImpl;
 import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.BooleanLiteralImpl;
+import org.sonar.iac.arm.tree.impl.json.FunctionCallImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.json.MemberExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
@@ -37,6 +50,8 @@ import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.BasicTextPointer;
@@ -48,16 +63,11 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
 import static org.sonar.iac.common.extension.ParseException.createParseException;
 
 public class ArmJsonBaseConverter {
+  private static final BicepParser BICEP_EXPRESSION_PARSER = new BicepParser(
+    new BicepNodeBuilder(), BicepLexicalGrammar.BINARY_EXPRESSION);
 
   @Nullable
   protected final InputFileContext inputFileContext;
@@ -177,11 +187,56 @@ public class ArmJsonBaseConverter {
     } else if (tree instanceof MappingTree mapping) {
       return toObjectExpression(mapping);
     } else if (tree instanceof ScalarTree scalar) {
+      if (isArmJsonExpression(scalar.value())) {
+        return toExpressionFromString(scalar);
+      }
       return toLiteralExpression(scalar);
     } else {
       throw createParseException("Couldn't convert to Expression, unsupported class " + tree.getClass().getSimpleName(),
         inputFileContext,
         new BasicTextPointer(tree.metadata().textRange()));
+    }
+  }
+
+  private static boolean isArmJsonExpression(String value) {
+    return value.startsWith("[") && value.endsWith("]") && value.charAt(1) != '[';
+  }
+
+  private Expression toExpressionFromString(ScalarTree scalar) {
+    // Remove enclosing square brackets
+    var expressionString = scalar.value().substring(1, scalar.value().length() - 1);
+    var textRangeStart = scalar.metadata().textRange().start();
+
+    // Replacing line breaks, because the original string in JSON is definitely one-liner, but can contain line breaks which we should
+    // treat as escaped symbols.
+    var expression = (Expression) BICEP_EXPRESSION_PARSER.parse(expressionString.replace("\n", "\\n"));
+
+    shiftTextRangeRecursively(expression, textRangeStart);
+    // TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers
+    if (expression instanceof FunctionCall functionCall) {
+      return new FunctionCallImpl(scalar.metadata(), functionCall.name(), functionCall.argumentList());
+    } else if (expression instanceof StringLiteral stringLiteral) {
+      return new StringLiteralImpl(stringLiteral.value(), scalar.metadata());
+    } else if (expression instanceof MemberExpression memberExpression) {
+      return new MemberExpressionImpl(scalar.metadata(), memberExpression.expression(), memberExpression.separatingToken(), memberExpression.memberAccess());
+    } else {
+      throw createParseException("Failed to parse ARM template expression: " + scalar.value() + "; top-level expression is of kind " + expression.getKind(),
+        inputFileContext, new BasicTextPointer(scalar.metadata().textRange()));
+    }
+  }
+
+  private static void shiftTextRangeRecursively(Tree expression, TextPointer shiftStart) {
+    if (expression instanceof SyntaxTokenImpl syntaxToken) {
+      var textRange = syntaxToken.textRange();
+      // +1 because we skipped the opening [
+      var shiftOffset = shiftStart.lineOffset() + 1;
+      syntaxToken.setTextRange(TextRanges.range(shiftStart.line(),
+        textRange.start().lineOffset() + shiftOffset,
+        shiftStart.line(),
+        textRange.end().lineOffset() + shiftOffset));
+    }
+    for (Tree child : expression.children()) {
+      shiftTextRangeRecursively(child, shiftStart);
     }
   }
 
