@@ -1,0 +1,197 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "myString": "my string",
+    "var1": null,
+    "var2": "",
+    "var3": {},
+    "var4": [],
+    "var5": "my string",
+    "var6": "[variables('myString')]",
+    "var7": true,
+    "var8": {
+      "key": "val"
+    },
+    "var9": [
+      "val"
+    ],
+    "var10": [
+      {
+        "key": null
+      }
+    ]
+  },
+  "parameters": {
+    "par1": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "par2": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "par3": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "par4": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "myList": {
+      "type": "array",
+      "defaultValue": [
+        "val1",
+        "val2",
+        "val3"
+      ]
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "test",
+      "other": null,
+      "kind": "",
+      "tags": {},
+      "properties": {
+        "prop1": null,
+        "prop2": "",
+        "prop3": {},
+        "prop4": [],
+        "prop5": "my string",
+        "prop6": "[variables('myString')]",
+        "prop7": true,
+        "prop8": {
+          "key": "val"
+        },
+        "prop9": [
+          "val"
+        ],
+        "prop10": [
+          null,
+          "",
+          [],
+          {},
+          {
+            "key": null
+          }
+        ],
+        "other": [
+          {
+            "key": null
+          }
+        ],
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "comment": "Should not raise issue on below lines as we are in a inner template",
+          "parameters": {},
+          "variables": {},
+          "resources": [],
+          "unknown": null
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "out1": {
+      "type": "object",
+      "value": null
+    },
+    "out2": {
+      "type": "string",
+      "value": ""
+    },
+    "out3": {
+      "type": "object",
+      "value": {}
+    },
+    "out4": {
+      "type": "array",
+      "value": []
+    },
+    "out5": {
+      "type": "string",
+      "value": "my string"
+    },
+    "out6": {
+      "type": "string",
+      "value": "[variables('myString')]"
+    },
+    "out7": {
+      "type": "bool",
+      "value": true
+    },
+    "out8": {
+      "type": "object",
+      "value": {
+        "key": "val"
+      }
+    },
+    "out9": {
+      "type": "array",
+      "value": [
+        "val"
+      ]
+    },
+    "out10": {
+      "type": "object",
+      "value": {
+        "key": null
+      }
+    },
+    "out11": {
+      "type": "array",
+      "value": [
+        null,
+        "",
+        [],
+        {},
+        {
+          "key": null
+        }
+      ]
+    },
+    "outIf": {
+      "type": "string",
+      "value": "[if(greater(1, 2), 'v', '')]"
+    },
+    "outFor": {
+      "type": "array",
+      "copy": {
+        "count": "[length(parameters('myList'))]",
+        "input": {
+          "name": "[parameters('myList')[copyIndex()]]",
+          "other1": null,
+          "other2": "",
+          "other3": {},
+          "other4": [],
+          "other5": "my string",
+          "other6": "[variables('myString')]",
+          "other7": true,
+          "other8": {
+            "key": "val"
+          },
+          "other9": [
+            "val"
+          ],
+          "other10": {
+            "key": null
+          },
+          "other11": [
+            null,
+            "",
+            [],
+            {},
+            {
+              "key": null
+            }
+          ]
+        }
+      }
+    }
+  }
+}
