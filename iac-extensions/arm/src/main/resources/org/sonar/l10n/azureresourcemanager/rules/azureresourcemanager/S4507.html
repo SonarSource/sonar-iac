@@ -1,0 +1,67 @@
+<p>Development tools and frameworks usually have options to make debugging easier for developers. Although these features are useful during
+development, they should never be enabled for applications deployed in production. Debug instructions or error messages can leak detailed information
+about the system, like the application’s path or file names.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The code or configuration enabling the application debug features is deployed on production servers or distributed to end users. </li>
+  <li> The application runs by default with debug features activated. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Do not enable debugging features on production servers or applications distributed to end users.</p>
+<h2>Sensitive Code Example</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+      {
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2022-09-01",
+          "name": "templateDebug",
+          "properties": {
+              "debugSetting": { "detailLevel": "RequestContent, ResponseContent" }
+          }
+      }
+  ]
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource templateDebug 'Microsoft.Resources/deployments@2022-09-01' = {
+  name: 'templateDebug'
+  properties: {
+    debugSetting: {  // Noncompliant
+      detailLevel: 'RequestContent, ResponseContent'
+    }
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+      {
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2022-09-01",
+          "name": "templateDebug",
+          "properties": {}
+      }
+  ]
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource templateDebug 'Microsoft.Resources/deployments@2022-09-01' = {
+  name: 'templateDebug'
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> OWASP - <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">Top 10 2021 Category A5 - Security Misconfiguration</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  Exposure</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/489">CWE-489 - Active Debug Code</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/215">CWE-215 - Information Exposure Through Debug Information</a> </li>
+</ul>
+
