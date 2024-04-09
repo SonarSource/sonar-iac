@@ -1,0 +1,73 @@
+<p>All empty or <code>null</code> properties that are not required should be excluded from the template samples. This includes empty objects
+<code>{}</code>, arrays <code>[]</code>, strings <code>""</code>, and any property that has a <code>null</code> value.</p>
+<h2>Why is this an issue?</h2>
+<p>Empty or null elements are usually introduced by mistake. They are useless and prevent readability of the code.</p>
+<h3>Exceptions</h3>
+<p>The top-level JSON template properties: <code>parameters</code>, <code>variables</code>, <code>functions</code>, <code>resources</code> and
+<code>outputs</code> are excluded from this rule. Also required properties are excluded from this rule.</p>
+<h2>How to fix it in ARM Templates</h2>
+<p>Empty or null elements should be removed or completed with real code.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "sku": "Standard_GRS",
+      "name": null,
+      "kind": "",
+      "tags": {},
+      "dependsOn": []
+    }
+  ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "sku": "Standard_GRS",
+      "name": "myStorage",
+      "kind": "BlobStorage"
+    }
+  ]
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<p>Empty or null elements should be removed or completed with real code.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource exampleStorage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: null     // Noncompliant
+  kind: ''       // Noncompliant
+  sku: 'Standard_GRS'
+  tags: {}       // Noncompliant
+  dependsOn: []  // Noncompliant
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource exampleStorage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'myStorage'   // Compliant
+  kind: 'BlobStorage' // Compliant
+  sku: 'Standard_GRS'
+}
+</pre>
+<h2>Resources</h2>
+<h3>External coding guidelines</h3>
+<ul>
+  <li> Azure Quickstart Templates - <a
+  href="https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#empty-and-null-properties">Best
+  practices</a> </li>
+</ul>
+
