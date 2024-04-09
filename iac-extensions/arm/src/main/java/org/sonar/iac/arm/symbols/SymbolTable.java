@@ -17,25 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.symbols;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import javax.annotation.CheckForNull;
+import java.util.Map;
+import javax.annotation.Nullable;
 
-public interface File extends ArmTree, HasSymbolTable {
-  Scope targetScope();
+public class SymbolTable {
+  private final Map<String, Symbol> symbols = new HashMap<>();
 
-  @CheckForNull
-  Expression targetScopeLiteral();
-
-  List<Statement> statements();
-
-  enum Scope {
-    RESOURCE_GROUP,
-    MANAGEMENT_GROUP,
-    SUBSCRIPTION,
-    TENANT,
-    UNKNOWN,
-    NOT_SET
+  public Symbol addSymbol(String name) {
+    return symbols.computeIfAbsent(name, s -> new Symbol(name));
   }
+
+  @Nullable
+  public Symbol getSymbol(String name) {
+    return symbols.getOrDefault(name, null);
+  }
+
+  public List<Symbol> getSymbols() {
+    return new ArrayList<>(symbols.values());
+  }
+
 }

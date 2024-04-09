@@ -19,18 +19,25 @@
  */
 package org.sonar.iac.arm;
 
-import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.*;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.TextTree;
-import org.sonar.iac.common.api.tree.Tree;
-
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.arm.plugin.ArmLanguage;
+import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public class ArmTestUtils {
@@ -38,6 +45,17 @@ public class ArmTestUtils {
   private static final ArmParser PARSER = new ArmParser();
 
   public static final CheckContext CTX = mock(CheckContext.class);
+
+  public static File parseJson(String code) {
+    return (File) PARSER.parse(code, null);
+  }
+
+  public static File parseBicep(String code) {
+    InputFile mockedFile = mock(InputFile.class);
+    InputFileContext inputFileContext = new InputFileContext(null, mockedFile);
+    when(mockedFile.language()).thenReturn(ArmLanguage.KEY);
+    return (File) PARSER.parse(code, inputFileContext);
+  }
 
   public static ResourceDeclaration parseResource(String code) {
     String wrappedCode = code("{",

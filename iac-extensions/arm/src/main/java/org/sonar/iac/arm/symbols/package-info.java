@@ -17,25 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
-
-import java.util.List;
-import javax.annotation.CheckForNull;
-
-public interface File extends ArmTree, HasSymbolTable {
-  Scope targetScope();
-
-  @CheckForNull
-  Expression targetScopeLiteral();
-
-  List<Statement> statements();
-
-  enum Scope {
-    RESOURCE_GROUP,
-    MANAGEMENT_GROUP,
-    SUBSCRIPTION,
-    TENANT,
-    UNKNOWN,
-    NOT_SET
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.arm.symbols;

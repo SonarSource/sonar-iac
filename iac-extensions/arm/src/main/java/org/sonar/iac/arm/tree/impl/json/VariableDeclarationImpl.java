@@ -20,6 +20,8 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
@@ -30,6 +32,7 @@ public class VariableDeclarationImpl extends AbstractArmTreeImpl implements Vari
 
   private final Identifier name;
   private final Expression value;
+  private Symbol symbol;
 
   public VariableDeclarationImpl(Identifier name, Expression value) {
     this.name = name;
@@ -54,5 +57,19 @@ public class VariableDeclarationImpl extends AbstractArmTreeImpl implements Vari
   @Override
   public Kind getKind() {
     return Kind.VARIABLE_DECLARATION;
+  }
+
+  @Nullable
+  @Override
+  public Symbol symbol() {
+    return symbol;
+  }
+
+  @Override
+  public void setSymbol(Symbol symbol) {
+    if (this.symbol != null) {
+      throw new IllegalArgumentException("A symbol is already set");
+    }
+    this.symbol = symbol;
   }
 }

@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -35,6 +37,7 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
 
   private final List<Statement> statements;
   private final SyntaxToken eof;
+  private SymbolTable symbolTable;
 
   public FileImpl(List<Statement> statements, SyntaxToken eof) {
     this.statements = statements;
@@ -71,5 +74,19 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
 
   private Optional<TargetScopeDeclaration> findDeclarationStatement() {
     return statements.stream().filter(s -> s.is(Kind.TARGET_SCOPE_DECLARATION)).findFirst().map(d -> ((TargetScopeDeclaration) d));
+  }
+
+  @Nullable
+  @Override
+  public SymbolTable symbolTable() {
+    return symbolTable;
+  }
+
+  @Override
+  public void setSymbolTable(SymbolTable symbolTable) {
+    if (this.symbolTable != null) {
+      throw new IllegalArgumentException("A symbolTable is already set");
+    }
+    this.symbolTable = symbolTable;
   }
 }

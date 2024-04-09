@@ -57,7 +57,7 @@ public class TreeVisitor<C extends TreeContext> {
     // default behaviour is to do nothing
   }
 
-  public <T extends Tree> TreeVisitor<C> register(Class<T> cls, BiConsumer<C, T> visitor) {
+  public final <T extends Tree> TreeVisitor<C> register(Class<T> cls, BiConsumer<C, T> visitor) {
     consumers.add(new ConsumerFilter<>(cls, visitor));
     return this;
   }

@@ -17,25 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.symbols;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-public interface File extends ArmTree, HasSymbolTable {
-  Scope targetScope();
+public class Usage {
 
-  @CheckForNull
-  Expression targetScopeLiteral();
+  public enum Kind {
+    ASSIGNMENT,
+    ACCESS
+  }
 
-  List<Statement> statements();
+  private final ArmTree tree;
+  private final Kind kind;
+  private final SymbolTable symbolTable;
 
-  enum Scope {
-    RESOURCE_GROUP,
-    MANAGEMENT_GROUP,
-    SUBSCRIPTION,
-    TENANT,
-    UNKNOWN,
-    NOT_SET
+  public Usage(SymbolTable symbolTable, ArmTree tree, Kind kind) {
+    this.symbolTable = symbolTable;
+    this.tree = tree;
+    this.kind = kind;
+  }
+
+  public ArmTree tree() {
+    return tree;
+  }
+
+  public Kind kind() {
+    return kind;
+  }
+
+  public SymbolTable symbolTable() {
+    return symbolTable;
   }
 }
