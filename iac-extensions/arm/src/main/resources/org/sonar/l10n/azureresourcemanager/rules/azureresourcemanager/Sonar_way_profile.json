@@ -1,6 +1,7 @@
 {
   "name": "Sonar way",
   "ruleKeys": [
+    "S117",
     "S1135",
     "S4423",
     "S5332",

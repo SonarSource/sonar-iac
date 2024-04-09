@@ -37,6 +37,7 @@ public class ArmCheckList {
       IpRestrictedAdminAccessCheck.class,
       LogRetentionCheck.class,
       ManagedIdentityCheck.class,
+      ParameterAndVariableNameConventionCheck.class,
       ParsingErrorCheck.class,
       PublicNetworkAccessCheck.class,
       ResourceSpecificAdminAccountCheck.class,

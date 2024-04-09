@@ -1,0 +1,86 @@
+<p>Parameters and variables should be named consistently to communicate intent and improve maintainability. Rename your parameter or variable to
+follow your project’s naming convention to address this issue.</p>
+<h2>Why is this an issue?</h2>
+<p>A naming convention in software development is a set of guidelines for naming code elements like variables, functions, and classes.<br> Parameters
+and variables hold the meaning of the written code. Their names should be meaningful and follow a consistent and easily recognizable pattern.<br>
+Adhering to a consistent naming convention helps to make the code more readable and understandable, which makes it easier to maintain and debug. It
+also ensures consistency in the code, especially when multiple developers are working on the same project.</p>
+<p>This rule checks that parameter and variable names match a provided regular expression.</p>
+<h3>What is the potential impact?</h3>
+<p>Inconsistent naming of parameters and variables can lead to several issues in your code:</p>
+<ul>
+  <li> <strong>Reduced Readability</strong>: Inconsistent parameter and variable names make the code harder to read and understand; consequently, it
+  is more difficult to identify the purpose of each variable, spot errors, or comprehend the logic. </li>
+  <li> <strong>Difficulty in Identifying Variables</strong>: The parameters and variables that don’t adhere to a standard naming convention are
+  challenging to identify; thus, the coding process slows down, especially when dealing with a large codebase. </li>
+  <li> <strong>Increased Risk of Errors</strong>: Inconsistent or unclear parameter and variable names lead to misunderstandings about what the
+  variable represents. This ambiguity leads to incorrect assumptions and, consequently, bugs in the code. </li>
+  <li> <strong>Collaboration Difficulties</strong>: In a team setting, inconsistent naming conventions lead to confusion and miscommunication among
+  team members. </li>
+  <li> <strong>Difficulty in Code Maintenance</strong>: Inconsistent naming leads to an inconsistent codebase. The code is difficult to understand,
+  and making changes feels like refactoring constantly, as you face different naming methods. Ultimately, it makes the codebase harder to maintain.
+  </li>
+</ul>
+<p>In summary, not adhering to a naming convention for parameters and variables can lead to confusion, errors, and inefficiencies, making the code
+harder to read, understand, and maintain.</p>
+<h2>How to fix it in ARM templates</h2>
+<p>First, familiarize yourself with the particular naming convention of the project in question. Then, update the name to match the convention, as
+well as all usages of the name. For many IDEs, you can use built-in renaming and refactoring features to update all usages at once.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storage_account_name": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "string_variable": "example value"
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "stringVariable": "example value"
+  }
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<p>First, familiarize yourself with the particular naming convention of the project in question. Then, update the name to match the convention, as
+well as all usages of the name. For many IDEs, you can use built-in renaming and refactoring features to update all usages at once.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+param storage_account_name string    // Noncompliant
+var string_variable = 'example val'  // Noncompliant
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+param storageAccountName string
+var stringVariable = 'example val'
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#parameters">ARM template best
+  practices</a> </li>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/best-practices#names">Best practices for Bicep</a>
+  </li>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/variables">Variables in ARM templates</a> </li>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/parameters">Parameters in ARM templates</a> </li>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/variables">Variables in Bicep</a> </li>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/parameters">Parameters in Bicep</a> </li>
+</ul>
+
