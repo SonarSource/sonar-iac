@@ -38,7 +38,7 @@ public class ParameterAndVariableNameConventionCheck implements IacCheck {
 
   @RuleProperty(
     key = "format",
-    description = "Regular expression used to check the tag keys against.",
+    description = "Regular expression used to check the names of variables and parameters against.",
     defaultValue = DEFAULT_FORMAT)
   public String format = DEFAULT_FORMAT;
 

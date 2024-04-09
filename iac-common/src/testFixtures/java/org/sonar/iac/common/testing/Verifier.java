@@ -28,6 +28,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -354,7 +355,9 @@ public class Verifier {
     }
 
     var softly = new SoftAssertions();
-    map.values().stream()
+    map.entrySet().stream()
+      .sorted(Comparator.comparingInt(o -> o.getKey().start().line()))
+      .map(Map.Entry::getValue)
       .map(Tuple::check)
       .filter(it -> !it.isBlank())
       .forEach(softly::fail);

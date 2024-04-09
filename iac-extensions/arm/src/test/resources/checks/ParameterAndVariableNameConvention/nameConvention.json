@@ -10,12 +10,50 @@
     },
     "storageAccountName": {
       "type": "string"
+    },
+    "demo_Int": {
+      "type": "int"
+    },
+    "demoInt": {
+      "type": "int"
+    },
+    "_demo_bool": {
+      "type": "bool"
+    },
+    "demoBool": {
+      "type": "bool"
+    },
+    "demo_Object": {
+      "type": "object"
+    },
+    "demoObject": {
+      "type": "object"
+    },
+    "DemoArray": {
+      "type": "array"
+    },
+    "demoArray": {
+      "type": "array"
+    },
+    "AdminPassword": {
+      "type": "secureString"
+    },
+    "password": {
+      "type": "secureString"
     }
   },
   "variables": {
     "string_variable": "example value",
     "StringVariable": "example value",
-    "stringVariable": "example value"
+    "stringVariable": "example value",
+    "item_count": 3,
+    "itemCount": 3,
+    "ExampleBool": true,
+    "exampleBool": true,
+    "example_object": {"name":  "test name"},
+    "exampleObject": {"name":  "test name"},
+    "IntegerArray": [1,2,3],
+    "integerArray": [1,2,3]
   },
   "resources": [
     {
