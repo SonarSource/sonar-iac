@@ -39,35 +39,35 @@ class EmptyOrNullValueCheckTest {
       issue(56, 6, 56, 19, "Remove this null property or complete with real code."),
       issue(57, 6, 57, 16, "Remove this empty string or complete with real code."),
       issue(58, 6, 58, 16, "Remove this empty object or complete with real code."),
-      issue(60, 8, 60, 21),
-      issue(61, 8, 61, 19),
+      issue(59, 6, 59, 17, "Remove this empty array or complete with real code."),
+      issue(61, 8, 61, 21),
       issue(62, 8, 62, 19),
       issue(63, 8, 63, 19),
-      issue(79, 12, 79, 23),
-      issue(84, 12, 84, 23),
-      issue(100, 4, 102, 19),
-      issue(104, 4, 106, 17),
-      issue(108, 4, 110, 17),
-      issue(112, 4, 114, 17),
-      issue(143, 8, 143, 19),
-      issue(154, 10, 154, 21),
-      // TODO SONARIAC-1404 Fix AST nodes children/parents so that we can prevent issues from being raised in templates
-      issue(91, 10, 91, 26),
-      issue(92, 10, 92, 25),
+      issue(64, 8, 64, 19),
+      issue(80, 12, 80, 23),
+      issue(85, 12, 85, 23),
+      issue(92, 10, 92, 26),
       issue(93, 10, 93, 25),
-      issue(94, 10, 94, 25)
+      issue(94, 10, 94, 25),
+      issue(95, 10, 95, 25),
+      issue(101, 4, 103, 19),
+      issue(105, 4, 107, 17),
+      issue(109, 4, 111, 17),
+      issue(113, 4, 115, 17),
+      issue(144, 8, 144, 19),
+      issue(155, 10, 155, 21)
     // TODO SONARIAC-1403 ARM Template parser should produce the same AST as Bicep for output with FOR loop
-    // issue(159, 10, 159, 24),
-    // issue(160, 10, 160, 22),
-    // issue(161, 10, 161, 22),
-    // issue(162, 10, 162, 22),
-    // issue(173, 12, 173, 24),
-    // issue(181, 12, 181, 24)
+    // issue(169, 10, 169, 24),
+    // issue(170, 10, 170, 22),
+    // issue(171, 10, 171, 22),
+    // issue(172, 10, 172, 22),
+    // issue(182, 10, 183, 24),
+    // issue(191, 15, 191, 26)
     );
   }
 
   @Test
-  void testSourceAddressPrefixBicep() {
+  void testEmptyOrNullValueBicep() {
     BicepVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue.bicep", CHECK);
   }
 }

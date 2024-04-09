@@ -46,9 +46,14 @@ var var8 = {key:'val'}
 var var9 = ['val']
 var var10 = [
   {
-    key: null               // Noncompliant {{Remove this null property or complete with real code.}}
+    key: null             // Noncompliant {{Remove this null property or complete with real code.}}
   }
 ]
+
+param par1 object = null
+param par2 string = ''
+param par3 object = {}
+param par4 array = []
 
 output out1 object = null // Noncompliant {{Remove this null output or complete with real code.}}
 output out2 string = ''   // Noncompliant {{Remove this empty string or complete with real code.}}
@@ -75,10 +80,6 @@ output out11 array = [
 
 output outIf object = 1 > 2 ? null : '' // Not reporting any issue in case of conditional output
 
-param par1 object = null
-param par2 string = ''
-param par3 object = {}
-param par4 array = []
 param myList array = [
   'val1'
   'val2'

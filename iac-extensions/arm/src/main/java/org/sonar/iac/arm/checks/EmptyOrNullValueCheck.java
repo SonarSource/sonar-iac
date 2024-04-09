@@ -55,6 +55,29 @@ public class EmptyOrNullValueCheck implements IacCheck {
     init.register(OutputDeclaration.class, EmptyOrNullValueCheck::checkOutput);
   }
 
+  private static void checkResource(CheckContext ctx, ResourceDeclaration resource) {
+    for (Property property : resource.resourceProperties()) {
+      checkExpression(ctx, property, property.value(), "property");
+    }
+  }
+
+  private static void checkVariable(CheckContext ctx, VariableDeclaration variable) {
+    checkExpression(ctx, variable, variable.value(), "variable");
+  }
+
+  private static void checkOutput(CheckContext ctx, OutputDeclaration output) {
+    Expression outputValue = output.value();
+    if (outputValue == null) {
+      return;
+    }
+
+    if (outputValue.is(ArmTree.Kind.FOR_EXPRESSION)) {
+      checkForOutput(ctx, (ForExpression) outputValue);
+    } else {
+      checkExpression(ctx, output, outputValue, "output");
+    }
+  }
+
   private static void checkExpression(CheckContext ctx, HasTextRange propertyToReport, Expression expression, String kind) {
     if (isEmpty(expression)) {
       ctx.reportIssue(propertyToReport, message(expression.getKind(), kind));
@@ -79,29 +102,6 @@ public class EmptyOrNullValueCheck implements IacCheck {
       if (expression instanceof ObjectExpression object) {
         checkObject(ctx, object);
       }
-    }
-  }
-
-  private static void checkResource(CheckContext ctx, ResourceDeclaration resource) {
-    for (Property property : resource.resourceProperties()) {
-      checkExpression(ctx, property, property.value(), "property");
-    }
-  }
-
-  private static void checkVariable(CheckContext ctx, VariableDeclaration variable) {
-    checkExpression(ctx, variable, variable.value(), "variable");
-  }
-
-  private static void checkOutput(CheckContext ctx, OutputDeclaration output) {
-    Expression outputValue = output.value();
-    if (outputValue == null) {
-      return;
-    }
-
-    if (outputValue.is(ArmTree.Kind.FOR_EXPRESSION)) {
-      checkForOutput(ctx, (ForExpression) outputValue);
-    } else {
-      checkExpression(ctx, output, outputValue, "output");
     }
   }
 
