@@ -70,7 +70,7 @@ class DecoratorImplTest extends BicepTreeModelTest {
 
     assertThat(tree.expression().is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
     assertThat(((MemberExpression) tree.expression()).expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
-    assertThat(((MemberExpression) tree.expression()).memberAccess()).asIdentifier().hasValue("member");
+    assertThat(((MemberExpression) tree.expression()).memberAccess()).asWrappedIdentifier().hasValue("member");
   }
 
   @ParameterizedTest

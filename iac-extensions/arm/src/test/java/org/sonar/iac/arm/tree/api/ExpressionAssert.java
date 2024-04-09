@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.api;
 
 import org.assertj.core.api.Assertions;
+import org.sonar.iac.arm.ArmAssertions;
 
 public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expression> {
   private ExpressionAssert(Expression expression) {
@@ -63,6 +64,13 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
       .overridingErrorMessage("Expected Identifier, but it is kind: " + actual.getKind())
       .isTrue();
     return IdentifierAssert.assertThat((Identifier) actual);
+  }
+
+  public IdentifierAssert asWrappedIdentifier() {
+    Assertions.assertThat(actual)
+      .overridingErrorMessage("Expected HasIdentifier, but it is: " + actual.getClass().getSimpleName())
+      .isInstanceOf(HasIdentifier.class);
+    return ArmAssertions.assertThat(((HasIdentifier) actual).identifier()).asIdentifier();
   }
 
   public NumericLiteralAssert asNumericLiteral() {

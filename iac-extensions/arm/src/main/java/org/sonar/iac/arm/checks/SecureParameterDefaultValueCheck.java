@@ -24,12 +24,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualParameter;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.FunctionCall;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
@@ -74,20 +73,10 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
   }
 
   private static Predicate<Expression> isSecureParameterReference() {
-    return expr -> {
-      if (expr.is(ArmTree.Kind.IDENTIFIER)) {
-        // ARM Bicep
-        Identifier identifier = (Identifier) expr;
-        return isSecureParameter(identifier, identifier.value());
-      } else if (expr.is(ArmTree.Kind.FUNCTION_CALL)) {
-        // ARM Json -- TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers
-        var parameterName = CheckUtils.parameterName((FunctionCall) expr);
-        if (parameterName != null) {
-          return isSecureParameter(parameterName, parameterName.value());
-        }
-      }
-      return false;
-    };
+    // FixMe: should be checked for Parameter, but in Bicep parameters are Variables for now
+    return expr -> expr instanceof HasIdentifier hasIdentifier &&
+      hasIdentifier.identifier() instanceof Identifier identifier &&
+      isSecureParameter(identifier, identifier.value());
   }
 
   private static boolean isSecureParameter(ArmTree tree, String parameterName) {

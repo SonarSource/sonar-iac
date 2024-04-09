@@ -28,14 +28,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.FunctionCall;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -138,8 +138,8 @@ class SecureValuesExposureCheckTest {
 
     Assertions.assertThat(references).isNotEmpty();
     Assertions.assertThat(references)
-      .filteredOn(e -> e.is(ArmTree.Kind.IDENTIFIER))
-      .map(e -> ((Identifier) e).value())
+      .filteredOn(e -> e.is(ArmTree.Kind.VARIABLE))
+      .map(e -> ((Identifier) ((HasIdentifier) e).identifier()).value())
       .containsExactly("paramMode", "valueRef", "adminUsername");
   }
 
@@ -193,7 +193,7 @@ class SecureValuesExposureCheckTest {
     Assertions.assertThat(references).isNotEmpty();
     Assertions.assertThat(references)
       .filteredOn(ArmTreeUtils.containsParameterReference(List.of("paramMode", "valueRef", "adminUsername")))
-      .map(e -> CheckUtils.parameterName((FunctionCall) e).value())
+      .map(e -> ((Identifier) ((Parameter) e).identifier()).value())
       .containsExactly(
         "valueRef",
         "paramMode",

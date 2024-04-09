@@ -25,6 +25,7 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 
@@ -54,8 +55,10 @@ class ParenthesizedExpressionImplTest extends BicepTreeModelTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.PARENTHESIZED_EXPRESSION)).isTrue();
 
-    softly.assertThat(tree.expression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    softly.assertThat(((Identifier) tree.expression()).value()).isEqualTo("expression");
+    softly.assertThat(tree.expression().is(ArmTree.Kind.VARIABLE)).isTrue();
+    softly.assertThat(((HasIdentifier) tree.expression()).identifier())
+      .extracting(e -> ((Identifier) e).value())
+      .isEqualTo("expression");
 
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("(", "expression", ")");
 

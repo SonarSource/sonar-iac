@@ -50,8 +50,8 @@ class HighPrivilegedRoleCheckTest {
       issue(24, 8, 24, 137, String.format(MESSAGE, roleName)),
       issue(35, 8, 35, 150, String.format(MESSAGE, roleName)),
       issue(46, 8, 46, 119, String.format(MESSAGE, roleName)),
-      issue(57, 8, 57, 195, String.format(MESSAGE, roleName)),
-      issue(68, 8, 68, 277, String.format(MESSAGE, roleName)));
+      issue(57, 8, 57, 183, String.format(MESSAGE, roleName)),
+      issue(68, 8, 68, 265, String.format(MESSAGE, roleName)));
   }
 
   @MethodSource("listSecuritySensitiveRoles")
@@ -70,7 +70,7 @@ class HighPrivilegedRoleCheckTest {
   }
 
   @MethodSource("listSafeRoles")
-  @ParameterizedTest(name = "[{index}] should check Security Sensitive role {1} ({0})")
+  @ParameterizedTest(name = "[{index}] should check Security Sensitive role ({0})")
   void shouldCheckSafeRolesJson(String role) {
     String content = readTemplateAndReplace("HighPrivilegedRoleCheck/highPrivilegedRoleCheck.json", "${role}", role);
 

@@ -27,6 +27,7 @@ import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.FunctionCall;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -78,7 +79,7 @@ public class CheckUtils {
   }
 
   public static Predicate<Expression> isBlankString() {
-    return expr -> TextUtils.matchesValue(expr, String::isBlank).isTrue();
+    return expr -> TextUtils.matchesValue(maybeUnwrap(expr), String::isBlank).isTrue();
   }
 
   public static Predicate<Expression> isArrayWithValues() {
@@ -140,5 +141,13 @@ public class CheckUtils {
       return stringLiteral;
     }
     return null;
+  }
+
+  private static Expression maybeUnwrap(Expression expr) {
+    if (expr instanceof HasIdentifier hasIdentifier) {
+      return hasIdentifier.identifier();
+    } else {
+      return expr;
+    }
   }
 }

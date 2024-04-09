@@ -54,7 +54,7 @@
         "description": "Assign the reader role",
         "principalId": "string",
         "principalType": "ServicePrincipal",
-        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', parameters('${role}'))]"
+        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '${role}')]"
       }
     },
     {
@@ -65,7 +65,7 @@
         "description": "Assign the reader role",
         "principalId": "string",
         "principalType": "ServicePrincipal",
-        "roleDefinitionId": "[if(equals(parameters('newOrExistingRole'), 'new'), resourceId('Microsoft.Authorization/roleDefinitions/', variables('roleDefinitionId')), resourceId('Microsoft.Authorization/roleDefinitions/', parameters('${role}')))]"
+        "roleDefinitionId": "[if(equals(parameters('newOrExistingRole'), 'new'), resourceId('Microsoft.Authorization/roleDefinitions/', variables('roleDefinitionId')), resourceId('Microsoft.Authorization/roleDefinitions/', '${role}'))]"
       }
     },
     {

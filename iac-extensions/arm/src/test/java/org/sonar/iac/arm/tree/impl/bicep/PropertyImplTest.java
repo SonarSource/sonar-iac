@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
@@ -65,7 +66,7 @@ class PropertyImplTest extends BicepTreeModelTest {
     String code = code("key:value");
 
     Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
-    assertThat(tree.value()).asIdentifier().hasValue("value");
+    assertThat(tree.value()).asWrappedIdentifier().hasValue("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
     Assertions.assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
@@ -76,9 +77,11 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(colon.children()).isEmpty();
     assertThat(colon.comments()).isEmpty();
 
-    Assertions.assertThat(((ArmTree) tree.children().get(2)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
-    Identifier value = (Identifier) tree.children().get(2);
-    assertThat(value.value()).isEqualTo("value");
+    Assertions.assertThat(((ArmTree) tree.children().get(2)))
+      .satisfies(t -> ArmAssertions.assertThat(t).is(ArmTree.Kind.VARIABLE))
+      .extracting(e -> ((HasIdentifier) e).identifier())
+      .extracting(e -> ((Identifier) e).value())
+      .isEqualTo("value");
 
     assertThat(tree.children()).hasSize(3);
   }
@@ -88,7 +91,7 @@ class PropertyImplTest extends BicepTreeModelTest {
     String code = code("'key':value");
 
     Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
-    assertThat(tree.value()).asIdentifier().hasValue("value");
+    assertThat(tree.value()).asWrappedIdentifier().hasValue("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
     Assertions.assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
@@ -98,9 +101,11 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(colon.children()).isEmpty();
     assertThat(colon.comments()).isEmpty();
 
-    Assertions.assertThat(((ArmTree) tree.children().get(2)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
-    Identifier value = (Identifier) tree.children().get(2);
-    assertThat(value.value()).isEqualTo("value");
+    Assertions.assertThat(((ArmTree) tree.children().get(2)))
+      .satisfies(t -> ArmAssertions.assertThat(t).is(ArmTree.Kind.VARIABLE))
+      .extracting(e -> ((HasIdentifier) e).identifier())
+      .extracting(e -> ((Identifier) e).value())
+      .isEqualTo("value");
 
     assertThat(tree.children()).hasSize(3);
   }

@@ -34,6 +34,7 @@ import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -280,7 +281,7 @@ public class BicepGrammar {
         OBJECT_EXPRESSION(),
         PARENTHESIZED_EXPRESSION(),
         LAMBDA_EXPRESSION(),
-        IDENTIFIER()));
+        VARIABLE()));
   }
 
   public InterpolatedString INTERPOLATED_STRING() {
@@ -623,7 +624,8 @@ public class BicepGrammar {
     return b.<MemberExpression>nonterminal().is(
       f.memberExpressionComponent(
         b.token(Punctuator.DOT),
-        FUNCTION_CALL()));
+        // `variables()` and `parameters()` functions should never be part of member expression on the right hand side of the dot
+        (FunctionCall) FUNCTION_CALL()));
   }
 
   // Sections of code should not be commented out
@@ -688,8 +690,8 @@ public class BicepGrammar {
         b.token(Punctuator.TRIPLE_APOSTROPHE)));
   }
 
-  public FunctionCall FUNCTION_CALL() {
-    return b.<FunctionCall>nonterminal(BicepLexicalGrammar.FUNCTION_CALL).is(
+  public Expression FUNCTION_CALL() {
+    return b.<Expression>nonterminal(BicepLexicalGrammar.FUNCTION_CALL).is(
       f.functionCall(
         IDENTIFIER(),
         b.token(Punctuator.LPARENTHESIS),
@@ -752,6 +754,12 @@ public class BicepGrammar {
     return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
       f.identifier(
         b.token(BicepLexicalGrammar.IDENTIFIER_LITERAL)));
+  }
+
+  public Variable VARIABLE() {
+    return b.<Variable>nonterminal().is(
+      f.variable(
+        IDENTIFIER()));
   }
 
   public Decorator DECORATOR() {

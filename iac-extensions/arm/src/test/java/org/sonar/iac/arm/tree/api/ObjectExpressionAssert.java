@@ -31,8 +31,8 @@ public class ObjectExpressionAssert extends HasTextRangeAssert<ObjectExpressionA
     return new ObjectExpressionAssert(actual);
   }
 
-  public ObjectExpressionAssert containsIdentifierKeyValue(String key, String value) {
-    Assertions.assertThat(PropertyUtils.valueIs(actual, key, tree -> ((Identifier) tree).value().equals(value))).isTrue();
+  public ObjectExpressionAssert containsVariableKeyValue(String key, String value) {
+    Assertions.assertThat(PropertyUtils.valueIs(actual, key, tree -> ((Identifier) ((Variable) tree).identifier()).value().equals(value))).isTrue();
     return this;
   }
 
