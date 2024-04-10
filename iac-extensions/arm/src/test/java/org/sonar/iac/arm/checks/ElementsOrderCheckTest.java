@@ -57,4 +57,22 @@ class ElementsOrderCheckTest {
     var issue = issue(primaryTextRange, PRIMARY_MESSAGE);
     ArmVerifier.verify("ElementsOrderCheckTest/" + filename, new ElementsOrderCheck(), issue);
   }
+
+  @Test
+  void shouldNotFailOnEmptyJson() {
+    var content = """
+      {
+      }""";
+    ArmVerifier.verifyContent(content, new ElementsOrderCheck());
+  }
+
+  @Test
+  void shouldNotFailOnUnknownTopLevelProperty() {
+    var content = """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/...",
+        "unknown": ""
+      }""";
+    ArmVerifier.verifyContent(content, new ElementsOrderCheck());
+  }
 }
