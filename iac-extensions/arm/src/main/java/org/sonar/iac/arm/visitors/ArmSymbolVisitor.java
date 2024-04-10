@@ -39,7 +39,7 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     ArmTree.Kind.VARIABLE_DECLARATION,
     ArmTree.Kind.OUTPUT_DECLARATION,
     ArmTree.Kind.PROPERTY);
-  private final SymbolTable symbolTable = new SymbolTable();
+  private SymbolTable currentSymbolTable = new SymbolTable();
 
   public ArmSymbolVisitor() {
     register(File.class, (ctx, file) -> visitFile(file));
@@ -48,12 +48,13 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
   }
 
   void visitFile(File file) {
-    file.setSymbolTable(symbolTable);
+    currentSymbolTable = new SymbolTable();
+    file.setSymbolTable(currentSymbolTable);
   }
 
   private void visitVariableDeclaration(VariableDeclaration variableDeclaration) {
-    var symbol = symbolTable.addSymbol(variableDeclaration.declaratedName().value());
-    symbol.addUsage(symbolTable, variableDeclaration, Usage.Kind.ASSIGNMENT);
+    var symbol = currentSymbolTable.addSymbol(variableDeclaration.declaratedName().value());
+    symbol.addUsage(currentSymbolTable, variableDeclaration, Usage.Kind.ASSIGNMENT);
   }
 
   void visitIdentifier(Identifier identifier) {
@@ -65,16 +66,16 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
       return;
     }
 
-    var symbol = symbolTable.getSymbol(identifier.value());
+    var symbol = currentSymbolTable.getSymbol(identifier.value());
     if (symbol != null) {
-      symbol.addUsage(symbolTable, identifier, Usage.Kind.ACCESS);
+      symbol.addUsage(currentSymbolTable, identifier, Usage.Kind.ACCESS);
     }
   }
 
   private static boolean shouldRegisterAsUsage(Identifier identifier) {
     var identifierParent = identifier.parent();
     if (identifierParent == null) {
-      // Identifier without parent are invalid, so should not register as usage
+      // Identifier without parent are invalid /malformed, so they should not register as usage
       return false;
     }
 
