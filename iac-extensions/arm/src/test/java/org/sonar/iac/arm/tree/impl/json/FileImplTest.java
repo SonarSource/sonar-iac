@@ -36,7 +36,7 @@ class FileImplTest {
 
   @Test
   void shouldParseMinimalParameter() {
-    String code = code("{}");
+    String code = "{}";
 
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).isEmpty();
@@ -46,9 +46,11 @@ class FileImplTest {
 
   @Test
   void shouldParseSchema() {
-    String code = code("{",
-      "  \"$schema\": \"https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#\"",
-      "}");
+    String code = """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#"
+      }
+      """;
 
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).isEmpty();
@@ -68,9 +70,11 @@ class FileImplTest {
     "https://schema.management.azure.com/schemas/2018-05-01/UNKNOWN_SCHEMA.json,                     UNKNOWN",
   })
   void shouldParseSchemaCheckCorrespondingScope(String schema, String scope) {
-    String code = code("{",
-      "  \"$schema\": \"" + schema + "\"",
-      "}");
+    String code = """
+      {
+        "$schema": "%s"
+      }
+      """.formatted(schema);
 
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).isEmpty();
