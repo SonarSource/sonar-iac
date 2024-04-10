@@ -164,6 +164,6 @@ class ArmJsonBaseConverterTest {
     var stringLiteral = (StringLiteral) ((FunctionCall) expression).argumentList().elements().get(0);
     ArmTreeAssert.assertThat(stringLiteral)
       .describedAs("Adjusted text range should correspond to a single line in the original input")
-      .hasRange(1, 8, 1, 44);
+      .hasRange(1, 8, 1, 42);
   }
 }
