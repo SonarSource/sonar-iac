@@ -198,8 +198,6 @@ public class ArmJsonBaseConverter {
   }
 
   private Expression toExpressionFromString(ScalarTree scalar) {
-    // Replacing line breaks, because the original string in JSON is definitely one-liner, but can contain line breaks which we should
-    // treat as escaped symbols.
     var expression = (Expression) ARM_TEMPLATE_EXPRESSION_PARSER.parse(scalar);
 
     // TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers

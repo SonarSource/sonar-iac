@@ -40,8 +40,10 @@ public final class ArmTemplateExpressionParser extends BicepParser {
   }
 
   public ArmTree parse(ScalarTree scalar) {
-    // Remove enclosing square brackets
-    var expressionString = scalar.value().substring(1, scalar.value().length() - 1);
+    // Remove enclosing square brackets.
+    // Also replace line breaks, because the original string in JSON is definitely one-liner, but can contain line breaks which we should
+    // treat as escaped symbols.
+    var expressionString = scalar.value().substring(1, scalar.value().length() - 1).replace("\n", "\\n");
     var scalarTextRange = scalar.metadata().textRange();
     var expressionTextRange = TextRanges.range(
       scalarTextRange.start().line(), scalarTextRange.start().lineOffset() + 1,
