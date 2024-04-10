@@ -126,6 +126,8 @@ public interface ArmTree extends Tree {
     TYPED_LOCAL_VARIABLE(TypedLocalVariable.class),
     TYPED_VARIABLE_BLOCK(TypedVariableBlock.class),
     TYPED_LAMBDA_EXPRESSION(TypedLambdaExpression.class),
+
+    VARIABLE(Variable.class),
     VARIABLE_BLOCK(VariableBlock.class),
     LOCAL_VARIABLE(LocalVariable.class),
     LAMBDA_EXPRESSION(LambdaExpression.class);

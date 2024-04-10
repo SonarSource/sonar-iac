@@ -33,6 +33,7 @@ import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -280,7 +281,7 @@ public class BicepGrammar {
         OBJECT_EXPRESSION(),
         PARENTHESIZED_EXPRESSION(),
         LAMBDA_EXPRESSION(),
-        IDENTIFIER()));
+        VARIABLE()));
   }
 
   public InterpolatedString INTERPOLATED_STRING() {
@@ -746,6 +747,12 @@ public class BicepGrammar {
         b.token(Punctuator.LPARENTHESIS),
         EXPRESSION(),
         b.token(Punctuator.RPARENTHESIS)));
+  }
+
+  public Variable VARIABLE() {
+    return b.<Variable>nonterminal().is(
+      f.variable(
+        IDENTIFIER()));
   }
 
   public Identifier IDENTIFIER() {

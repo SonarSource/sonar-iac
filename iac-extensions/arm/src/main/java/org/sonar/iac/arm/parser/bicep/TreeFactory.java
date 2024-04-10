@@ -37,6 +37,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -123,6 +124,7 @@ import org.sonar.iac.arm.tree.impl.bicep.TypedLocalVariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.UnaryOperatorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.VariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.AdditiveExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.BinaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.EqualityExpressionImpl;
@@ -333,6 +335,10 @@ public class TreeFactory {
 
   public ParenthesizedExpression parenthesizedExpression(SyntaxToken leftParenthesis, Expression expression, SyntaxToken rightParenthesis) {
     return new ParenthesizedExpressionImpl(leftParenthesis, expression, rightParenthesis);
+  }
+
+  public Variable variable(Expression identifier) {
+    return new VariableImpl(identifier);
   }
 
   public Identifier identifier(SyntaxToken token) {
