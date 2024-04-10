@@ -46,6 +46,7 @@ public class ArmCheckList {
       RoleBasedAccessControlCheck.class,
       SecureParameterDefaultValueCheck.class,
       SecureValuesExposureCheck.class,
+      StringLiteralDuplicatedCheck.class,
       ShortBackupRetentionCheck.class,
       SubscriptionOwnerCapabilitiesCheck.class,
       SubscriptionRoleAssignmentCheck.class,
