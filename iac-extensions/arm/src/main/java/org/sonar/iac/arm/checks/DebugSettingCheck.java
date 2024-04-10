@@ -30,6 +30,8 @@ import java.util.function.Predicate;
 @Rule(key = "S4507")
 public class DebugSettingCheck extends AbstractArmResourceCheck {
   private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
+  private static final Predicate<Expression> SENSITIVE_DETAIL_LEVEL = detailLevel -> CheckUtils.contains("RequestContent").or(CheckUtils.contains("ResponseContent"))
+    .test(detailLevel);
 
   @Override
   protected void registerResourceConsumer() {
@@ -38,13 +40,9 @@ public class DebugSettingCheck extends AbstractArmResourceCheck {
 
   private static Consumer<ContextualResource> checkDebugSetting() {
     return (ContextualResource resource) -> {
-      if (resource.object("debugSetting").property("detailLevel").is(sensitiveDetailLevel())) {
+      if (resource.object("debugSetting").property("detailLevel").is(SENSITIVE_DETAIL_LEVEL)) {
         resource.property("debugSetting").report(MESSAGE);
       }
     };
-  }
-
-  private static Predicate<Expression> sensitiveDetailLevel() {
-    return detailLevel -> CheckUtils.contains("RequestContent").or(CheckUtils.contains("ResponseContent")).test(detailLevel);
   }
 }
