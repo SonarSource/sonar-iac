@@ -33,6 +33,7 @@ public class ArmCheckList {
       AnonymousAccessToResourceCheck.class,
       CertificateBasedAuthenticationCheck.class,
       ClearTextProtocolsCheck.class,
+      ElementsOrderCheck.class,
       EmptyOrNullValueCheck.class,
       HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,
