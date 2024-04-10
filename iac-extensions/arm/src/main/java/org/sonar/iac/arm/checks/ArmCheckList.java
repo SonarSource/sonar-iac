@@ -34,6 +34,7 @@ public class ArmCheckList {
       CertificateBasedAuthenticationCheck.class,
       ClearTextProtocolsCheck.class,
       DebugSettingCheck.class,
+      ElementsOrderCheck.class,
       EmptyOrNullValueCheck.class,
       HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,

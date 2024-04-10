@@ -24,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
@@ -75,5 +76,28 @@ class FileImplTest {
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.targetScope().name()).isEqualTo(scope);
     assertThat(tree.targetScopeLiteral()).asStringLiteral().hasValue(schema);
+  }
+
+  @Test
+  void shouldParseDocuments() {
+    String code = """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/...",
+        "contentVersion": "1.0.0.0",
+        "apiProfile": "...",
+        "parameters": {},
+        "functions": {},
+        "variables": {},
+        "resources": [],
+        "outputs": {}
+      }
+      """;
+
+    var tree = (FileImpl) parser.parse(code, null);
+    assertThat(tree.statements()).isEmpty();
+    assertThat(tree.document()).isNotNull();
+    var names = tree.document().elements().stream().map(e -> ((ScalarTree) e.key()).value());
+    assertThat(names)
+      .containsExactly("$schema", "contentVersion", "apiProfile", "parameters", "functions", "variables", "resources", "outputs");
   }
 }
