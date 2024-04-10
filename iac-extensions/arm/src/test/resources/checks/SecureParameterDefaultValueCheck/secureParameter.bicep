@@ -10,7 +10,8 @@ param nonCompliant1 string = 'my secret' // Noncompliant{{Remove the default val
 param nonCompliant2 object = {key:'my secret'} // Noncompliant{{Remove the default value from this secure object.}}
 //                           ^^^^^^^^^^^^^^^^^
 @secure()
-param nonCompliant3 string = '[newGuid()]' // False Negative, TODO SONARIAC-1038
+param nonCompliant3 string = '[newGuid()]' // Noncompliant{{Remove the default value from this secure string.}}
+//                           ^^^^^^^^^^^^^
 @secure()
 param nonCompliant4 string = uniqueString('secret') // Noncompliant
 @secure()

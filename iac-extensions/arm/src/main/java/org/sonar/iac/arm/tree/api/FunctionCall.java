@@ -17,14 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep;
+package org.sonar.iac.arm.tree.api;
 
-import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
+/**
+ * Represents a function call in ARM template expression or in Bicep
+ */
 public interface FunctionCall extends Expression {
+  /**
+   * Name of the function
+   * @return name of the function
+   */
   Identifier name();
 
+  /**
+   * Function arguments with separators
+   * @return function arguments with separators
+   */
   SeparatedList<Expression, SyntaxToken> argumentList();
 }

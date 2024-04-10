@@ -25,8 +25,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
-import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 
 import static org.fest.assertions.Assertions.assertThat;

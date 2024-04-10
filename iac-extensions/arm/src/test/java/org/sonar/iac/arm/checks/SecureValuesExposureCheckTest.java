@@ -28,14 +28,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.common.testing.Verifier;
@@ -192,11 +193,11 @@ class SecureValuesExposureCheckTest {
     Assertions.assertThat(references).isNotEmpty();
     Assertions.assertThat(references)
       .filteredOn(ArmTreeUtils.containsParameterReference(List.of("paramMode", "valueRef", "adminUsername")))
-      .map(e -> ((StringLiteral) e).value())
+      .map(e -> CheckUtils.parameterName((FunctionCall) e).value())
       .containsExactly(
-        "[parameters('valueRef')]",
-        "[parameters('paramMode')]",
-        "[parameters('adminUsername')]");
+        "valueRef",
+        "paramMode",
+        "adminUsername");
   }
 
   @Test

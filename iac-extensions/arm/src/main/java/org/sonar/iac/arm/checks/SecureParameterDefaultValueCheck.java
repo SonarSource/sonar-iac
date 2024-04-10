@@ -21,25 +21,24 @@ package org.sonar.iac.arm.checks;
 
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualParameter;
+import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
-import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyObject;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isBlankString;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyObject;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFunctionCall;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
 
@@ -47,7 +46,6 @@ import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
 public class SecureParameterDefaultValueCheck implements IacCheck {
 
   private static final String MESSAGE = "Remove the default value from this secure %s.";
-  private static final Pattern jsonParameters = Pattern.compile("^\\[\\s*+parameters\\('(?<name>.*)'\\)\\s*+\\]$");
   private static final Map<ParameterType, String> SENSITIVE_TYPE_WITH_DISPLAY_TYPE = Map.of(
     ParameterType.SECURE_STRING, "string",
     ParameterType.SECURE_OBJECT, "object");
@@ -77,17 +75,15 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
 
   private static Predicate<Expression> isSecureParameterReference() {
     return expr -> {
-      // TODO SONARIAC-1038 ARM Json: parse expression in string and build the AST to be same as Bicep equivalent
       if (expr.is(ArmTree.Kind.IDENTIFIER)) {
         // ARM Bicep
         Identifier identifier = (Identifier) expr;
         return isSecureParameter(identifier, identifier.value());
-      } else if (expr.is(ArmTree.Kind.STRING_LITERAL)) {
-        // ARM Json
-        StringLiteral stringLiteral = (StringLiteral) expr;
-        Matcher matcher = jsonParameters.matcher(stringLiteral.value());
-        if (matcher.find()) {
-          return isSecureParameter(stringLiteral, matcher.group("name"));
+      } else if (expr.is(ArmTree.Kind.FUNCTION_CALL)) {
+        // ARM Json -- TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers
+        var parameterName = CheckUtils.parameterName((FunctionCall) expr);
+        if (parameterName != null) {
+          return isSecureParameter(parameterName, parameterName.value());
         }
       }
       return false;

@@ -21,13 +21,15 @@ package org.sonar.iac.arm.checks.utils;
 
 import java.util.Collection;
 import java.util.function.Predicate;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
-import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.common.checks.TextUtils;
@@ -92,12 +94,7 @@ public class CheckUtils {
   }
 
   public static Predicate<Expression> isFunctionCall(String functionName) {
-    // TODO SONARIAC-1038 ARM Json: parse expression in string and build the AST to be same as Bicep equivalent
-    // Here we detect functionCall in two ways:
-    // - in Json we expect a StringLiteral with this format: "[functionName(...)]"
-    // - in Bicep we expect a FunctionCall object
-    return expr -> (expr.is(ArmTree.Kind.STRING_LITERAL) && isRegexMatch("^\\[" + jsonFunctionCall(functionName) + "\\]$").test(expr))
-      || (expr.is(ArmTree.Kind.FUNCTION_CALL) && ((FunctionCall) expr).name().value().equals(functionName));
+    return expr -> expr.is(ArmTree.Kind.FUNCTION_CALL) && ((FunctionCall) expr).name().value().equals(functionName);
   }
 
   /*
@@ -105,28 +102,18 @@ public class CheckUtils {
    * Example: myFunc().myProp
    */
   public static Predicate<Expression> isFunctionCallWithPropertyAccess(String functionName, String propertyName) {
-    // TODO SONARIAC-1038 ARM Json: parse expression in string and build the AST to be same as Bicep equivalent
     // Here we detect functionCall in two ways:
-    // - in Json we expect a StringLiteral with this format: "[functionName(...).propertyName]"
-    // - in Bicep we expect a MemberExpression with following attributes (separatingToken=".", memberAccess=FunctionCall,
-    // expression={"propertyName" expression})
+    // - in Json we expect an ArmTemplateExpression wrapping a MemberExpression
+    // - in Bicep we expect a MemberExpression directly
+    // We expect the following attributes (separatingToken=".", memberAccess=FunctionCall, expression={"propertyName" expression})
     return expr -> {
-      // ARM Json
-      if (expr.is(ArmTree.Kind.STRING_LITERAL) && isRegexMatch("^\\[" + jsonFunctionCall(functionName) + "\\." + propertyName + "\\s*+\\]$").test(expr)) {
-        return true;
-      } else if (expr.is(ArmTree.Kind.MEMBER_EXPRESSION)) {
-        // ARM Bicep
-        MemberExpression memberExpression = (MemberExpression) expr;
+      if (expr instanceof MemberExpression memberExpression) {
         return memberExpression.separatingToken().value().equals(".")
           && isFunctionCall(functionName).test(memberExpression.memberAccess())
           && TextUtils.isValue(memberExpression.expression(), propertyName).isTrue();
       }
       return false;
     };
-  }
-
-  private static String jsonFunctionCall(String functionName) {
-    return "\\s*+" + functionName + "\\(.*\\)\\s*+";
   }
 
   public static Predicate<Expression> inCollection(Collection<String> collection) {
@@ -142,6 +129,15 @@ public class CheckUtils {
         double factor = unaryExpression.operator().value().equals("-") ? -1 : 1;
         return ((NumericLiteral) unaryExpression.expression()).asDouble() * factor;
       }
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public static StringLiteral parameterName(FunctionCall functionCall) {
+    if ("parameters".equals(functionCall.name().value()) && functionCall.argumentList().elements().size() == 1 &&
+      functionCall.argumentList().elements().get(0) instanceof StringLiteral stringLiteral) {
+      return stringLiteral;
     }
     return null;
   }
