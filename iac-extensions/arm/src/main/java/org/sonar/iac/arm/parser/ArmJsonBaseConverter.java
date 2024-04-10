@@ -19,16 +19,27 @@
  */
 package org.sonar.iac.arm.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.parser.bicep.ArmTemplateExpressionParser;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.BooleanLiteralImpl;
+import org.sonar.iac.arm.tree.impl.json.FunctionCallImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.json.MemberExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
@@ -48,16 +59,10 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
 import static org.sonar.iac.common.extension.ParseException.createParseException;
 
 public class ArmJsonBaseConverter {
+  private static final ArmTemplateExpressionParser ARM_TEMPLATE_EXPRESSION_PARSER = ArmTemplateExpressionParser.create();
 
   @Nullable
   protected final InputFileContext inputFileContext;
@@ -177,11 +182,34 @@ public class ArmJsonBaseConverter {
     } else if (tree instanceof MappingTree mapping) {
       return toObjectExpression(mapping);
     } else if (tree instanceof ScalarTree scalar) {
+      if (isArmJsonExpression(scalar.value())) {
+        return toExpressionFromString(scalar);
+      }
       return toLiteralExpression(scalar);
     } else {
       throw createParseException("Couldn't convert to Expression, unsupported class " + tree.getClass().getSimpleName(),
         inputFileContext,
         new BasicTextPointer(tree.metadata().textRange()));
+    }
+  }
+
+  private static boolean isArmJsonExpression(String value) {
+    return value.startsWith("[") && value.endsWith("]") && value.charAt(1) != '[';
+  }
+
+  private Expression toExpressionFromString(ScalarTree scalar) {
+    var expression = (Expression) ARM_TEMPLATE_EXPRESSION_PARSER.parse(scalar);
+
+    // TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers
+    if (expression instanceof FunctionCall functionCall) {
+      return new FunctionCallImpl(scalar.metadata(), functionCall.name(), functionCall.argumentList());
+    } else if (expression instanceof StringLiteral stringLiteral) {
+      return new StringLiteralImpl(stringLiteral.value(), scalar.metadata());
+    } else if (expression instanceof MemberExpression memberExpression) {
+      return new MemberExpressionImpl(scalar.metadata(), memberExpression.expression(), memberExpression.separatingToken(), memberExpression.memberAccess());
+    } else {
+      throw createParseException("Failed to parse ARM template expression: " + scalar.value() + "; top-level expression is of kind " + expression.getKind(),
+        inputFileContext, new BasicTextPointer(scalar.metadata().textRange()));
     }
   }
 
@@ -224,8 +252,8 @@ public class ArmJsonBaseConverter {
 
     List<Property> properties = new ArrayList<>();
     for (PropertyTree propertyTree : ((HasProperties) tree).properties()) {
-      Identifier key = toIdentifier((YamlTree) propertyTree.key());
-      Expression value = toExpression((YamlTree) propertyTree.value());
+      var key = toIdentifier((YamlTree) propertyTree.key());
+      var value = toExpression((YamlTree) propertyTree.value());
       properties.add(new PropertyImpl(key, value));
     }
     return properties;

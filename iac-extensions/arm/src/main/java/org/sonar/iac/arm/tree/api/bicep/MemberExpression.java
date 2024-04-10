@@ -29,4 +29,9 @@ public interface MemberExpression extends Expression {
   SyntaxToken separatingToken();
 
   Expression memberAccess();
+
+  @Override
+  default Kind getKind() {
+    return Kind.MEMBER_EXPRESSION;
+  }
 }

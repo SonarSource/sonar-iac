@@ -17,49 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.arm.tree.impl.json;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
-
-public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberExpression {
-
-  private final SyntaxToken separatingToken;
-  @CheckForNull
+public class MemberExpressionImpl extends ExpressionImpl implements MemberExpression {
+  @Nullable
   private final Expression expression;
-  @CheckForNull
-  private final SyntaxToken closingBracket;
+  private final SyntaxToken separatingToken;
+  private final Expression memberAccess;
 
-  private Expression memberAccess;
-
-  public MemberExpressionImpl(SyntaxToken separatingToken, @Nullable Expression expression, @Nullable SyntaxToken closingBracket) {
-    this.separatingToken = separatingToken;
+  public MemberExpressionImpl(YamlTreeMetadata metadata, @Nullable Expression expression, SyntaxToken separatingToken, Expression memberAccess) {
+    super(metadata);
     this.expression = expression;
-    this.closingBracket = closingBracket;
-  }
-
-  public MemberExpression complete(Expression memberAccess) {
+    this.separatingToken = separatingToken;
     this.memberAccess = memberAccess;
-    return this;
-  }
-
-  @Override
-  public List<Tree> children() {
-    List<Tree> result = new ArrayList<>();
-    result.add(memberAccess);
-    result.add(separatingToken);
-    addChildrenIfPresent(result, expression);
-    addChildrenIfPresent(result, closingBracket);
-    return result;
   }
 
   @CheckForNull
@@ -77,5 +54,4 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
   public Expression memberAccess() {
     return memberAccess;
   }
-
 }

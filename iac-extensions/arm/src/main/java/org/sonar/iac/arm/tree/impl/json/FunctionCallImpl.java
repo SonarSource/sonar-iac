@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,46 +25,43 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-public class FunctionCallImpl extends AbstractArmTreeImpl implements FunctionCall {
-
-  private final Identifier identifier;
-  private final SyntaxToken leftParenthesis;
+public class FunctionCallImpl extends ExpressionImpl implements FunctionCall {
+  private final Identifier name;
   private final SeparatedList<Expression, SyntaxToken> argumentList;
-  private final SyntaxToken rightParenthesis;
 
-  public FunctionCallImpl(Identifier identifier, SyntaxToken leftParenthesis, SeparatedList<Expression, SyntaxToken> argumentList, SyntaxToken rightParenthesis) {
-    this.identifier = identifier;
-    this.leftParenthesis = leftParenthesis;
+  public FunctionCallImpl(
+    YamlTreeMetadata metadata,
+    Identifier name,
+    SeparatedList<Expression, SyntaxToken> argumentList) {
+    super(metadata);
+    this.name = name;
     this.argumentList = argumentList;
-    this.rightParenthesis = rightParenthesis;
+  }
+
+  @Override
+  public Identifier name() {
+    return name;
+  }
+
+  @Override
+  public SeparatedList<Expression, SyntaxToken> argumentList() {
+    return argumentList;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> result = new ArrayList<>();
-    result.add(identifier);
-    result.add(leftParenthesis);
-    result.addAll(argumentList.elementsAndSeparators());
-    result.add(rightParenthesis);
+    var result = new ArrayList<Tree>();
+    result.add(name);
+    result.addAll(argumentList.elements());
     return result;
   }
 
   @Override
   public Kind getKind() {
     return Kind.FUNCTION_CALL;
-  }
-
-  @Override
-  public Identifier name() {
-    return identifier;
-  }
-
-  @Override
-  public SeparatedList<Expression, SyntaxToken> argumentList() {
-    return argumentList;
   }
 }

@@ -19,9 +19,9 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.Expression;
-
 import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 
 public interface Decorator extends HasKeyword {
 

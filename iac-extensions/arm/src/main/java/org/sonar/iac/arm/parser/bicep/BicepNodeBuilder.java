@@ -31,10 +31,10 @@ import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.arm.tree.impl.bicep.SyntaxTokenImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.parser.NodeBuilderUtils;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 import static org.sonar.iac.common.parser.NodeBuilderUtils.createComments;
-import static org.sonar.iac.common.parser.NodeBuilderUtils.tokenRange;
 
 public class BicepNodeBuilder implements NodeBuilder {
 
@@ -64,5 +64,9 @@ public class BicepNodeBuilder implements NodeBuilder {
     String value = input.substring(startIndex, endIndex);
     TextRange range = tokenRange(input, startIndex, value);
     return new SyntaxTokenImpl(value, range, createComments(trivias));
+  }
+
+  protected TextRange tokenRange(Input input, int startIndex, String value) {
+    return NodeBuilderUtils.tokenRange(input, startIndex, value);
   }
 }

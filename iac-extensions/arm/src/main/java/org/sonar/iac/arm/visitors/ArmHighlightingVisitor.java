@@ -21,6 +21,7 @@ package org.sonar.iac.arm.visitors;
 
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
@@ -30,7 +31,6 @@ import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
-import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.HasToken;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
