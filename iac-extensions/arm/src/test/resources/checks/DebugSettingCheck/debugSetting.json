@@ -1,0 +1,74 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-05-01",
+      "name": "templateDebug1",
+      "properties": {
+        "debugSetting": {
+          "detailLevel": "RequestContent, ResponseContent"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-05-01",
+      "name": "templateDebug2",
+      "properties": {
+        "debugSetting": {
+          "detailLevel": "RequestContent"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-05-01",
+      "name": "templateDebug3",
+      "properties": {
+        "debugSetting": {
+          "detailLevel": "Something that contain ResponseContent anywhere"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-05-01",
+      "name": "templateDebug4",
+      "properties": {
+        "debugSetting": {}
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-05-01",
+      "name": "templateDebug5",
+      "properties": {
+        "debugSetting": {
+          "detailLevel": "other value"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-05-01",
+      "name": "templateDebug6",
+      "properties": {
+        "debugSetting": {
+          "detailLevel": null
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-05-01",
+      "name": "templateDebug7",
+      "properties": {
+        "debugSetting": {
+          "detailLevel": 6
+        }
+      }
+    }
+  ]
+}
