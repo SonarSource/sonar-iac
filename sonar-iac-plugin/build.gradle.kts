@@ -58,8 +58,8 @@ val cleanupTask = tasks.register<Delete>("cleanupOldVersion") {
     description = "Clean up jars of old plugin version"
 
     delete(fileTree(project.layout.buildDirectory.dir("libs")).matching {
-        include("${project.name}-*-all.jar")
-        exclude("${project.name}-${project.version}-all.jar")
+        include("${project.name}-*.jar")
+        exclude("${project.name}-${project.version}-*.jar")
     })
 }
 
