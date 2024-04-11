@@ -19,51 +19,20 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.Map;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.tree.impl.json.FileImpl;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 
 @Rule(key = "S6956")
 public class ElementsOrderCheck implements IacCheck {
 
-  private static final String MESSAGE = "Reorder the elements to match the recommended order.";
-
-  private static final Map<String, Integer> topLevelJsonElements = Map.of(
-    "$schema", 0,
-    "contentVersion", 1,
-    "apiProfile", 2,
-    "parameters", 3,
-    "functions", 4,
-    "variables", 5,
-    "resources", 6,
-    "outputs", 7);
-
   @Override
   public void initialize(InitContext init) {
-    init.register(FileImpl.class, ElementsOrderCheck::check);
+    var elementsOrderTopLevelJson = new ElementsOrderTopLevelJson();
+    elementsOrderTopLevelJson.initialize(init);
+
+    var elementsOrderTopLevelBicep = new ElementsOrderTopLevelBicep();
+    elementsOrderTopLevelBicep.initialize(init);
   }
 
-  private static void check(CheckContext checkContext, FileImpl file) {
-    var document = file.document();
-    var elements = document.elements().stream()
-      .map(TupleTree::key)
-      .filter(ScalarTree.class::isInstance)
-      .map(ScalarTree.class::cast)
-      .filter(tree -> topLevelJsonElements.containsKey(tree.value()))
-      .toList();
-    var prevIndex = 0;
-    for (ScalarTree element : elements) {
-      var index = topLevelJsonElements.get(element.value());
-      if (index < prevIndex) {
-        checkContext.reportIssue(element, MESSAGE);
-        break;
-      }
-      prevIndex = index;
-    }
-  }
 }
