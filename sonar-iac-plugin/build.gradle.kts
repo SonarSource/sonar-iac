@@ -53,7 +53,19 @@ tasks.jar {
     }
 }
 
+val cleanupTask = tasks.register<Delete>("cleanupOldVersion") {
+    group = "build"
+    description = "Clean up jars of old plugin version"
+
+    delete(fileTree(project.layout.buildDirectory.dir("libs")).matching {
+        include("${project.name}-*-all.jar")
+        exclude("${project.name}-${project.version}-all.jar")
+    })
+}
+
 tasks.shadowJar {
+    dependsOn(cleanupTask)
+
     minimize()
     exclude("META-INF/LICENSE*")
     exclude("META-INF/NOTICE*")
