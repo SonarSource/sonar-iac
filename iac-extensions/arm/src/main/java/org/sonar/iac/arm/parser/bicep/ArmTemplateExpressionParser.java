@@ -41,10 +41,11 @@ public final class ArmTemplateExpressionParser extends BicepParser {
 
   public ArmTree parse(ScalarTree scalar) {
     // Remove enclosing square brackets.
-    // Also replace line breaks, because the original string in JSON is definitely one-liner, but can contain line breaks which we should
-    // treat as escaped symbols.
-    var expressionString = scalar.value().substring(1, scalar.value().length() - 1).replace("\n", "\\n");
+    var expressionString = scalar.value().substring(1, scalar.value().length() - 1);
     var scalarTextRange = scalar.metadata().textRange();
+    // Expression text range is taken from the data provided by snakeyaml. It will be inaccurate w.r.t the original file in case of
+    // multiline strings (allowed in ARM JSON) and strings with escaped line break symbols. This is still in sync with the main AST,
+    // however may cause issues in issue highlighting and syntax highlighting.
     var expressionTextRange = TextRanges.range(
       scalarTextRange.start().line(), scalarTextRange.start().lineOffset() + 1,
       scalarTextRange.end().line(), scalarTextRange.end().lineOffset() - 1);
