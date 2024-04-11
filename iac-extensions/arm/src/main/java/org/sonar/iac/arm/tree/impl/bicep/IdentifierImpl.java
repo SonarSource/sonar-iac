@@ -29,7 +29,6 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
   private final SyntaxToken token;
-  private Symbol symbol;
 
   public IdentifierImpl(SyntaxToken token) {
     this.token = token;
@@ -52,19 +51,5 @@ public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
 
   public SyntaxToken getToken() {
     return token;
-  }
-
-  @Nullable
-  @Override
-  public Symbol symbol() {
-    return symbol;
-  }
-
-  @Override
-  public void setSymbol(Symbol symbol) {
-    if (this.symbol != null) {
-      throw new IllegalArgumentException("A symbol is already set");
-    }
-    this.symbol = symbol;
   }
 }

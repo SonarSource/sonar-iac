@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
+import org.sonar.iac.arm.tree.api.Parameter;
+import org.sonar.iac.arm.tree.api.Variable;
 
 public class SymbolTable {
   private final Map<String, Symbol> symbols = new HashMap<>();
@@ -45,15 +47,21 @@ public class SymbolTable {
     return new ArrayList<>(symbols.values());
   }
 
-  public boolean hasFoundUnresolvableVariableAccess() {
-    return !unresolvedReferences.isEmpty();
-  }
-
-  public void foundUnresolvableVariableAccess(HasIdentifier hasIdentifier) {
+  public void foundUnresolvableSymbolAccess(HasIdentifier hasIdentifier) {
     unresolvedReferences.add(hasIdentifier);
   }
 
   public Set<HasIdentifier> getUnresolvedReferences() {
     return unresolvedReferences;
+  }
+
+  public boolean hasFoundUnresolvableVariableAccess() {
+    return unresolvedReferences.stream()
+      .anyMatch(hasIdentifier -> hasIdentifier instanceof Variable);
+  }
+
+  public boolean hasFoundUnresolvableParameterAccess() {
+    return unresolvedReferences.stream()
+      .anyMatch(hasIdentifier -> hasIdentifier instanceof Parameter);
   }
 }

@@ -32,7 +32,6 @@ public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
 
   private final String identifier;
   private final YamlTreeMetadata metadata;
-  private Symbol symbol;
 
   public IdentifierImpl(String identifier, YamlTreeMetadata metadata) {
     this.identifier = identifier;
@@ -57,19 +56,5 @@ public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
   @Override
   public Kind getKind() {
     return Kind.IDENTIFIER;
-  }
-
-  @Nullable
-  @Override
-  public Symbol symbol() {
-    return symbol;
-  }
-
-  @Override
-  public void setSymbol(Symbol symbol) {
-    if (this.symbol != null) {
-      throw new IllegalArgumentException("A symbol is already set");
-    }
-    this.symbol = symbol;
   }
 }

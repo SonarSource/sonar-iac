@@ -28,7 +28,9 @@ import org.sonar.iac.arm.symbols.Usage;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
@@ -54,9 +56,10 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
    */
   public ArmSymbolVisitor() {
     register(File.class, (ctx, file) -> visitFile(file));
-    register(VariableDeclaration.class, (ctx, variableDeclaration) -> visitVariableDeclaration(variableDeclaration));
-    register(ParameterDeclaration.class, (ctx, parameterDeclaration) -> visitVariableDeclaration(parameterDeclaration));
-    registerAfter(Variable.class, (ctx, variable) -> visitVariable(variable));
+    register(VariableDeclaration.class, (ctx, variableDeclaration) -> visitDeclaration(variableDeclaration));
+    register(ParameterDeclaration.class, (ctx, parameterDeclaration) -> visitDeclaration(parameterDeclaration));
+    registerAfter(Variable.class, (ctx, variable) -> visitHasIdentifier(variable));
+    registerAfter(Parameter.class, (ctx, parameter) -> visitHasIdentifier(parameter));
   }
 
   @Override
@@ -80,24 +83,24 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
   }
 
 
-  private void visitVariableDeclaration(Declaration declaration) {
+  private void visitDeclaration(Declaration declaration) {
     var symbol = currentSymbolTable.addSymbol(declaration.declaratedName().value());
     symbol.addUsage(declaration, Usage.Kind.ASSIGNMENT);
   }
 
-  void visitVariable(Variable variable) {
-    if (variable.symbol() != null) {
+  void visitHasIdentifier(HasIdentifier hasIdentifier) {
+    if (hasIdentifier.symbol() != null) {
       return;
     }
 
-    Expression identifier = variable.identifier();
+    Expression identifier = hasIdentifier.identifier();
     if (identifier instanceof Identifier identifierTree) {
       var symbol = currentSymbolTable.getSymbol(identifierTree.value());
       if (symbol != null) {
-        symbol.addUsage(variable, Usage.Kind.ACCESS);
+        symbol.addUsage(hasIdentifier, Usage.Kind.ACCESS);
       }
     } else {
-      currentSymbolTable.foundUnresolvableVariableAccess(variable);
+      currentSymbolTable.foundUnresolvableSymbolAccess(hasIdentifier);
     }
   }
 }

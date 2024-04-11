@@ -40,6 +40,7 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.HasSymbol;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
@@ -79,7 +80,7 @@ class ArmSymbolVisitorTest {
 
     visitor.register(File.class, (ctx, tree) -> visited.add("file_visit"));
     visitor.register(VariableDeclaration.class, (ctx, tree) -> visited.add("variable_declaration_visit"));
-    visitor.registerAfter(Identifier.class, (ctx, tree) -> visited.add("identifier_visit_after"));
+    visitor.registerAfter(Variable.class, (ctx, tree) -> visited.add("variable_visit_after"));
     visitor.registerAfter(File.class, (ctx, tree) -> visited.add("file_visit_after"));
     visitor.scan(inputFileContext, file);
 
@@ -87,7 +88,7 @@ class ArmSymbolVisitorTest {
       "file_visit",
       "variable_declaration_visit",
       "file_visit_after",
-      "identifier_visit_after");
+      "variable_visit_after");
   }
 
   @ParameterizedTest
@@ -225,7 +226,7 @@ class ArmSymbolVisitorTest {
     File file = parse(code);
 
     ArmSymbolVisitor visitor = new ArmSymbolVisitor();
-    visitor.register(Variable.class, (ctx, variable) -> visitor.visitVariable(variable));
+    visitor.register(Variable.class, (ctx, variable) -> visitor.visitHasIdentifier(variable));
     visitor.scan(inputFileContext, file);
 
     SymbolTable symbolTable = file.symbolTable();
