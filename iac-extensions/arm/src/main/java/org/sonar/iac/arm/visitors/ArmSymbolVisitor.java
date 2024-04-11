@@ -39,7 +39,6 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
  * Class used to visit a {@link ArmTree} and build {@link org.sonar.iac.arm.symbols.Symbol} and their usages for variables.
  * Those Symbol/Usage can later be used in checks to  report issues in the variable flow.
  */
-
 public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
   private final List<ConsumerFilter<InputFileContext, ?>> consumersAfter = new ArrayList<>();
   private SymbolTable currentSymbolTable = new SymbolTable();
@@ -95,7 +94,7 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
         symbol.addUsage(variable, Usage.Kind.ACCESS);
       }
     } else {
-      currentSymbolTable.foundUnresolvableVariableAccess();
+      currentSymbolTable.foundUnresolvableVariableAccess(variable);
     }
   }
 }

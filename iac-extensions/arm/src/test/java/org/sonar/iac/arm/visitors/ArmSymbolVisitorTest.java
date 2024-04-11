@@ -24,9 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.arm.ArmTestUtils;
@@ -35,6 +37,7 @@ import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.symbols.Usage;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.HasSymbol;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -112,22 +115,20 @@ class ArmSymbolVisitorTest {
     });
   }
 
+  static Stream<Arguments> shouldRegisterUsageAccess() {
+    return Stream.of(
+      Arguments.of(BICEP, VAR, "var bar =  '${foo}'"),
+      Arguments.of(BICEP, VAR, "var bar =  '${foo}ConcatToVariable'"),
+      Arguments.of(BICEP, VAR, "var bar =  '${toLower(foo)}ConcatToVariable'"),
+      Arguments.of(BICEP, OUT, "output foo string =  foo"),
+      Arguments.of(JSON, VAR, "\"bar\": \"[variables('foo')]\""),
+      Arguments.of(JSON, VAR, "\"bar\": \"[concat(variables('foo'), '-addToVar')]\""),
+      Arguments.of(JSON, VAR, "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\"")
+    );
+  }
+
+  @MethodSource
   @ParameterizedTest
-  @CsvSource(delimiterString = ";", value = {
-    // BICEP
-    // access in variableDeclaration should create usage
-    "bicep;VAR;" + "var bar =  '${foo}'",
-    "bicep;VAR;" + "var bar =  '${foo}ConcatToVariable'",
-    // access in function in variableDeclaration should create usage
-    "bicep;VAR;" + "var bar =  '${toLower(foo)}ConcatToVariable'",
-
-    // output
-    "bicep;OUT;" + "output foo string =  foo",
-
-    "json;VAR;" + "\"bar\": \"[variables('foo')]\"",
-    "json;VAR;" + "\"bar\": \"[concat(variables('foo'), '-addToVar')]\"",
-    "json;VAR;" + "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\""
-  })
   void shouldRegisterUsageAccess(String language, CodeStatementType typeOfCodeStatement, String codeStatement) {
     String code = ArmSourceCodeBuilder.create(language)
       .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
@@ -152,16 +153,17 @@ class ArmSymbolVisitorTest {
       .allSatisfy(usage -> assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.VARIABLE));
   }
 
-  @ParameterizedTest
-  @CsvSource({
-    // no access usage should be registered when same name as variable in outputDeclaration
-    "bicep," + "output foo string =  deployment().name",
-    "bicep," + "output foo string =  baba['foo']",
+  static Stream<Arguments> shouldRegisterNoUsageAccess() {
+    return Stream.of(
+      Arguments.of(BICEP, "output foo string =  deployment().name"),
+      Arguments.of(BICEP, "output foo string =  baba['foo']"),
+      Arguments.of(JSON, "[deployment().name]"),
+      Arguments.of(JSON, "[baba['foo']]")
+    );
+  }
 
-    // JSON
-    "json," + "[deployment().name]",
-    "json," + "[baba['foo']]"
-  })
+  @MethodSource
+  @ParameterizedTest
   void shouldRegisterNoUsageAccess(String language, String codeStatement) {
     String code = ArmSourceCodeBuilder.create(language)
       .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
@@ -342,6 +344,9 @@ class ArmSymbolVisitorTest {
 
     assertThat(symbolTable).isNotNull();
     assertThat(symbolTable.hasFoundUnresolvableVariableAccess()).isTrue();
+    assertThat(symbolTable.getUnresolvedReferences())
+      .hasSize(1)
+      .containsExactly(((HasIdentifier) ((VariableDeclaration) file.statements().get(1)).value()));
     assertThat(symbolTable.getSymbols()).hasSize(2);
 
     Symbol symbol = symbolTable.getSymbol("foo");

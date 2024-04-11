@@ -21,13 +21,17 @@ package org.sonar.iac.arm.symbols;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 
 public class SymbolTable {
   private final Map<String, Symbol> symbols = new HashMap<>();
-  private boolean foundUnresolvableVariableAccess;
+  private final Set<HasIdentifier> unresolvedReferences = new HashSet<>();
 
   public Symbol addSymbol(String name) {
     return symbols.computeIfAbsent(name, s -> new Symbol(this, name));
@@ -43,10 +47,14 @@ public class SymbolTable {
   }
 
   public boolean hasFoundUnresolvableVariableAccess() {
-    return foundUnresolvableVariableAccess;
+    return !unresolvedReferences.isEmpty();
   }
 
-  public void foundUnresolvableVariableAccess() {
-    this.foundUnresolvableVariableAccess = true;
+  public void foundUnresolvableVariableAccess(HasIdentifier hasIdentifier) {
+    unresolvedReferences.add(hasIdentifier);
+  }
+
+  public Set<HasIdentifier> getUnresolvedReferences() {
+    return unresolvedReferences;
   }
 }
