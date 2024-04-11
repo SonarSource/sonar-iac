@@ -28,7 +28,9 @@ class HardcodeApiVersionCheckTest {
   void shouldCheckHardcodedApiVersionJson() {
     ArmVerifier.verify("HardcodeApiVersionCheck/resources.json", new HardcodeApiVersionCheck(),
       issue(13, 20, 13, 54, "Use a hard-coded value for the apiVersion of this resource."),
-      issue(19, 20, 19, 53));
+      issue(19, 20, 19, 53),
+      issue(25, 20, 25, 91),
+      issue(31, 20, 31, 48));
   }
 
   @Test

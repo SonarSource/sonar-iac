@@ -22,6 +22,18 @@
       "location": "[resourceGroup().location]"
     },
     {
+      "apiVersion": "[first(providers(‘Microsoft.Compute’,’virtualMachines’).apiVersions)]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "nonCompliantResource3",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "apiVersion": "[concat('2023', '-09-01')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "compliantResource1",
+      "location": "[resourceGroup().location]"
+    },
+    {
       "apiVersion": "2023-09-01",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "compliantResource1",
