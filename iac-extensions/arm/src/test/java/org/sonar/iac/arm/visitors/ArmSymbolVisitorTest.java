@@ -123,8 +123,7 @@ class ArmSymbolVisitorTest {
       Arguments.of(BICEP, OUT, "output foo string =  foo"),
       Arguments.of(JSON, VAR, "\"bar\": \"[variables('foo')]\""),
       Arguments.of(JSON, VAR, "\"bar\": \"[concat(variables('foo'), '-addToVar')]\""),
-      Arguments.of(JSON, VAR, "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\"")
-    );
+      Arguments.of(JSON, VAR, "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\""));
   }
 
   @MethodSource
@@ -158,8 +157,7 @@ class ArmSymbolVisitorTest {
       Arguments.of(BICEP, "output foo string =  deployment().name"),
       Arguments.of(BICEP, "output foo string =  baba['foo']"),
       Arguments.of(JSON, "[deployment().name]"),
-      Arguments.of(JSON, "[baba['foo']]")
-    );
+      Arguments.of(JSON, "[baba['foo']]"));
   }
 
   @MethodSource

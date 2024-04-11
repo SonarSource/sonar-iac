@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 
 public class SymbolTable {
