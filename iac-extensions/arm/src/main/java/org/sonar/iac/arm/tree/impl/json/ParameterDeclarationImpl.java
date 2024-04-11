@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -49,6 +50,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   private final NumericLiteral maxValue;
   private final NumericLiteral minLength;
   private final NumericLiteral maxLength;
+  private Symbol symbol;
 
   // Methods should not have too many parameters
   @SuppressWarnings("java:S107")
@@ -149,5 +151,19 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @CheckForNull
   public NumericLiteral maxLength() {
     return maxLength;
+  }
+
+  @Nullable
+  @Override
+  public Symbol symbol() {
+    return symbol;
+  }
+
+  @Override
+  public void setSymbol(Symbol symbol) {
+    if (this.symbol != null) {
+      throw new IllegalArgumentException("A symbol is already set");
+    }
+    this.symbol = symbol;
   }
 }

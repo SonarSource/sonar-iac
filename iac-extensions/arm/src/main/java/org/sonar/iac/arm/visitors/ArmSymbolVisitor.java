@@ -29,8 +29,10 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -53,6 +55,7 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
   public ArmSymbolVisitor() {
     register(File.class, (ctx, file) -> visitFile(file));
     register(VariableDeclaration.class, (ctx, variableDeclaration) -> visitVariableDeclaration(variableDeclaration));
+    register(ParameterDeclaration.class, (ctx, parameterDeclaration) -> visitVariableDeclaration(parameterDeclaration));
     registerAfter(Variable.class, (ctx, variable) -> visitVariable(variable));
   }
 
@@ -64,7 +67,6 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
         consumer.accept(ctx, node);
       }
       node.children().forEach(child -> after(ctx, child));
-      ctx.leave();
     }
   }
 
@@ -77,9 +79,10 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     file.setSymbolTable(currentSymbolTable);
   }
 
-  private void visitVariableDeclaration(VariableDeclaration variableDeclaration) {
-    var symbol = currentSymbolTable.addSymbol(variableDeclaration.declaratedName().value());
-    symbol.addUsage(variableDeclaration, Usage.Kind.ASSIGNMENT);
+
+  private void visitVariableDeclaration(Declaration declaration) {
+    var symbol = currentSymbolTable.addSymbol(declaration.declaratedName().value());
+    symbol.addUsage(declaration, Usage.Kind.ASSIGNMENT);
   }
 
   void visitVariable(Variable variable) {
