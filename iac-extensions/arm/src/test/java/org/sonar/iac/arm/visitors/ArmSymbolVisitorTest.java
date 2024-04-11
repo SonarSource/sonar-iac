@@ -39,8 +39,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.HasSymbol;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
@@ -51,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.OUT;
+import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.PARAM;
 import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.VAR;
 
 class ArmSymbolVisitorTest {
@@ -58,12 +57,26 @@ class ArmSymbolVisitorTest {
   private final InputFileContext inputFileContext = mock(InputFileContext.class);
   private static final String BICEP = "bicep";
   private static final String JSON = "json";
+  private static final String VARIABLE_DECLARATION_BICEP = "var foo = 'bar'";
+  private static final String VARIABLE_DECLARATION_JSON = "\"foo\": \"bar\"";
   private static final Map<String, String> VARIABLE_DECLARATION = Map.of(
-    BICEP, "var foo = 'bar'",
-    JSON, "\"foo\": \"bar\"");
+    BICEP, VARIABLE_DECLARATION_BICEP,
+    JSON, VARIABLE_DECLARATION_JSON);
+
   private static final Map<String, String> VARIABLE_DECLARATION_WITH_USAGE = Map.of(
     BICEP, "var bar = '${foo}'",
     JSON, "\"bar \": \"[variables('foo')]\"");
+
+  private static final String PARAMETER_DECLARATION_BICEP = "param foo string = 'bar'";
+  private static final String PARAMETER_DECLARATION_JSON = """
+    "foo": {
+      "type": "string",
+      "defaultValue": "bar"
+    }
+    """;
+  private static final Map<String, String> PARAMETER_DECLARATION = Map.of(
+    BICEP, PARAMETER_DECLARATION_BICEP,
+    JSON, PARAMETER_DECLARATION_JSON);
 
   public static Set<String> languagesToTest() {
     return Set.of(BICEP, JSON);
@@ -80,21 +93,30 @@ class ArmSymbolVisitorTest {
 
     visitor.register(File.class, (ctx, tree) -> visited.add("file_visit"));
     visitor.register(VariableDeclaration.class, (ctx, tree) -> visited.add("variable_declaration_visit"));
-    visitor.registerAfter(Variable.class, (ctx, tree) -> visited.add("variable_visit_after"));
     visitor.registerAfter(File.class, (ctx, tree) -> visited.add("file_visit_after"));
     visitor.scan(inputFileContext, file);
 
     assertThat(visited).containsExactly(
       "file_visit",
       "variable_declaration_visit",
-      "file_visit_after",
-      "variable_visit_after");
+      "file_visit_after");
   }
 
+  static Stream<Arguments> declarationShouldCreateSymbol() {
+    return Stream.of(
+      Arguments.of(BICEP, VAR, VARIABLE_DECLARATION_BICEP),
+      Arguments.of(BICEP, PARAM, PARAMETER_DECLARATION_BICEP),
+      Arguments.of(JSON, VAR, VARIABLE_DECLARATION_JSON),
+      Arguments.of(JSON, PARAM, PARAMETER_DECLARATION_JSON)
+    );
+  }
+
+  @MethodSource
   @ParameterizedTest
-  @MethodSource("languagesToTest")
-  void variableDeclarationShouldCreateSymbol(String language) {
-    String code = fileWithDefaultVariableDeclaration(language);
+  void declarationShouldCreateSymbol(String language, CodeStatementType typeOfCodeStatement, String codeStatement) {
+    String code = ArmSourceCodeBuilder.create(language)
+      .addCodeStatement(typeOfCodeStatement, codeStatement)
+      .build();
 
     File file = scanFile(code);
     HasSymbol declaration = (HasSymbol) file.statements().get(0);
@@ -380,11 +402,12 @@ class ArmSymbolVisitorTest {
 
   static class ArmSourceCodeBuilder {
     public enum CodeStatementType {
-      VAR, OUT
+      VAR, PARAM, OUT
     }
 
     private final String language;
     private final List<String> variableDeclarations = new ArrayList<>();
+    private final List<String> parameterDeclarations = new ArrayList<>();
     private String outputValue;
 
     public static ArmSourceCodeBuilder create(String language) {
@@ -398,6 +421,8 @@ class ArmSymbolVisitorTest {
     public ArmSourceCodeBuilder addCodeStatement(CodeStatementType type, String codeStatement) {
       if (type == VAR) {
         variableDeclarations.add(codeStatement);
+      } else if (type == PARAM) {
+        parameterDeclarations.add(codeStatement);
       } else if (type == OUT) {
         outputValue = codeStatement;
       }
@@ -409,22 +434,35 @@ class ArmSymbolVisitorTest {
       return this;
     }
 
-    public String build() {
-      return buildSourceCode(language, variableDeclarations, outputValue);
+    public ArmSourceCodeBuilder addParameterDeclaration(String parameterDeclaration) {
+      parameterDeclarations.add(parameterDeclaration);
+      return this;
     }
 
-    private static String buildSourceCode(String language, @Nullable List<String> variableDeclarations, @Nullable String outputValue) {
+    public String build() {
+      return buildSourceCode(language, parameterDeclarations, variableDeclarations, outputValue);
+    }
+
+    private static String buildSourceCode(String language, List<String> parameterDeclarations, List<String> variableDeclarations,
+      @Nullable String outputValue) {
       if (JSON.equals(language)) {
-        return buildJsonFile(variableDeclarations, outputValue);
+        return buildJsonFile(parameterDeclarations, variableDeclarations, outputValue);
       } else {
-        return buildBicepFile(variableDeclarations, outputValue);
+        return buildBicepFile(parameterDeclarations, variableDeclarations, outputValue);
       }
     }
 
-    private static String buildBicepFile(@Nullable List<String> variableDeclarations, @Nullable String outputValue) {
+    private static String buildBicepFile(List<String> parameterDeclarations, List<String> variableDeclarations,
+      @Nullable String outputValue) {
       String code = "";
-      if (variableDeclarations != null) {
-        code = String.join("\n", variableDeclarations);
+      if (!parameterDeclarations.isEmpty()) {
+        code = String.join("\n", parameterDeclarations);
+      }
+      if (!variableDeclarations.isEmpty()) {
+        if (!code.isEmpty()) {
+          code += "\n";
+        }
+        code += String.join("\n", variableDeclarations);
       }
       if (outputValue != null) {
         if (!code.isEmpty()) {
@@ -435,17 +473,25 @@ class ArmSymbolVisitorTest {
       return code;
     }
 
-    private static String buildJsonFile(@Nullable List<String> variables, @Nullable String outputValue) {
+    private static String buildJsonFile(List<String> parameterDeclarations, List<String> variableDeclarations,
+      @Nullable String outputValue) {
       String str = """
         {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
         """;
-      if (variables != null) {
+      if (!parameterDeclarations.isEmpty()) {
+        str += """
+            "parameters": {
+          %s
+            },
+          """.formatted(parameterDeclarations.stream().map(v -> "      " + v + ",").collect(Collectors.joining("\n")));
+      }
+      if (!variableDeclarations.isEmpty()) {
         str += """
             "variables": {
           %s
             },
-          """.formatted(variables.stream().map(v -> "      " + v + ",").collect(Collectors.joining("\n")));
+          """.formatted(variableDeclarations.stream().map(v -> "      " + v + ",").collect(Collectors.joining("\n")));
       }
       if (outputValue != null) {
         str += """
