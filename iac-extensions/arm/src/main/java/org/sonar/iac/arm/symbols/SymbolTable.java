@@ -32,6 +32,10 @@ import org.sonar.iac.arm.tree.api.Variable;
 
 public class SymbolTable {
   private final Map<String, Symbol> symbols = new HashMap<>();
+
+  // Currently we can't differentiate between unresolved variable and parameter references in bicep, because every access counts as variable
+  // In bicep there can be no unresolvedReferences...
+  // Fixme!
   private final Set<HasIdentifier> unresolvedReferences = new HashSet<>();
 
   public Symbol addSymbol(String name) {
@@ -55,13 +59,7 @@ public class SymbolTable {
     return unresolvedReferences;
   }
 
-  public boolean hasFoundUnresolvableVariableAccess() {
-    return unresolvedReferences.stream()
-      .anyMatch(hasIdentifier -> hasIdentifier instanceof Variable);
-  }
-
-  public boolean hasFoundUnresolvableParameterAccess() {
-    return unresolvedReferences.stream()
-      .anyMatch(hasIdentifier -> hasIdentifier instanceof Parameter);
+  public boolean hasFoundUnresolvableSymbolAccess() {
+    return !unresolvedReferences.isEmpty();
   }
 }
