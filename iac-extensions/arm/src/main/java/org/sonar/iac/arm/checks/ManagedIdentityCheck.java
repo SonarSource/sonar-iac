@@ -223,7 +223,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
 
   private static BiConsumer<CheckContext, ResourceDeclaration> checkManagedIdentity() {
     return (ctx, resource) -> {
-      Optional<Property> identityProperty = resource.resourceProperties().stream().filter(p -> "identity".equals(p.key().value())).findFirst();
+      Optional<Property> identityProperty = resource.getResourceProperty("identity");
       if (identityProperty.isEmpty()) {
         HasTextRange nameToHighlight = resource.symbolicName() != null ? resource.symbolicName() : resource.name();
         ctx.reportIssue(nameToHighlight, OMITTING_IDENTITY_MESSAGE);

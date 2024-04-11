@@ -97,10 +97,8 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   @CheckForNull
   public StringLiteral name() {
-    return resourceProperties().stream()
-      .filter(prop -> TextUtils.isValue(prop.key(), "name").isTrue())
+    return this.getResourceProperty("name")
       .filter(prop -> prop.value().is(Kind.STRING_LITERAL))
-      .findFirst()
       .map(prop -> ((StringLiteral) prop.value()))
       .orElse(null);
   }

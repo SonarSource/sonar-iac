@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -82,7 +83,18 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
   SyntaxToken existing();
 
   /**
-   * Returns list of all op level resource properties.
+   * Returns list of all top level resource properties.
    */
   List<Property> resourceProperties();
+
+  /**
+   * Returns a resource property by the key, if it is present.
+   * @param key name of the resource property
+   * @return a {@link Property} if it is found or an empty Optional
+   */
+  default Optional<Property> getResourceProperty(String key) {
+    return resourceProperties().stream()
+      .filter(p -> TextUtils.isValue(p.key(), key).isTrue())
+      .findFirst();
+  }
 }
