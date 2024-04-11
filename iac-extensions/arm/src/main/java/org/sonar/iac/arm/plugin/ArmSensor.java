@@ -34,6 +34,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.arm.checks.ArmCheckList;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.visitors.ArmHighlightingVisitor;
+import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
@@ -93,6 +94,7 @@ public class ArmSensor extends YamlSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    visitors.add(new ArmSymbolVisitor());
     visitors.add(new ChecksVisitor(checks, statistics));
     if (isNotSonarLintContext(sensorContext)) {
       visitors.add(new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter));

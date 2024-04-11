@@ -19,11 +19,10 @@
  */
 package org.sonar.iac.docker.symbols;
 
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.HasSymbol;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.HasSymbol;
 
 public class Symbol {
 
@@ -45,6 +44,8 @@ public class Symbol {
     var usage = new Usage(scope, tree, kind);
     usages.add(usage);
     if (tree instanceof HasSymbol treeWithSymbol) {
+      // Each symbol usage only references previous usages
+      // This is done to easily to compute findLastAccessibleAssignedValue in ArgumentResolution
       treeWithSymbol.setSymbol(new Symbol(this));
     }
   }

@@ -19,23 +19,21 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.symbols.SymbolTable;
 
-public interface File extends ArmTree, HasSymbolTable {
-  Scope targetScope();
+/**
+ * Interface to define any element that has a {@link SymbolTable}, with methods to modify/access it.
+ */
+public interface HasSymbolTable {
+  /**
+   * @return the {@link SymbolTable} associated with this element, or null if not set.
+   */
+  @Nullable
+  SymbolTable symbolTable();
 
-  @CheckForNull
-  Expression targetScopeLiteral();
-
-  List<Statement> statements();
-
-  enum Scope {
-    RESOURCE_GROUP,
-    MANAGEMENT_GROUP,
-    SUBSCRIPTION,
-    TENANT,
-    UNKNOWN,
-    NOT_SET
-  }
+  /**
+   * @throws IllegalArgumentException when symbolTable is already set
+   */
+  void setSymbolTable(SymbolTable symbolTable);
 }

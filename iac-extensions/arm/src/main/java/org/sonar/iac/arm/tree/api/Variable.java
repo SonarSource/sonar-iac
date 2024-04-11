@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api;
 /**
  * A node representing a variable usage in ARM template or in a Bicep file
  */
-public interface Variable extends HasIdentifier {
+public interface Variable extends HasIdentifier, HasSymbol {
   @Override
   default Kind getKind() {
     return Kind.VARIABLE;

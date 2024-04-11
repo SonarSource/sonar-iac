@@ -19,16 +19,16 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 
 public class FileImpl extends AbstractArmTreeImpl implements File {
@@ -37,6 +37,7 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
   private final StringLiteral targetScope;
   private final List<Statement> statements;
   private final MappingTree document;
+  private SymbolTable symbolTable;
 
   public FileImpl(@Nullable StringLiteral targetScope, List<Statement> statements, MappingTree document) {
     this.targetScope = targetScope;
@@ -85,5 +86,19 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
   @Override
   public Kind getKind() {
     return Kind.FILE;
+  }
+
+  @Nullable
+  @Override
+  public SymbolTable symbolTable() {
+    return symbolTable;
+  }
+
+  @Override
+  public void setSymbolTable(SymbolTable symbolTable) {
+    if (this.symbolTable != null) {
+      throw new IllegalArgumentException("A symbolTable is already set");
+    }
+    this.symbolTable = symbolTable;
   }
 }

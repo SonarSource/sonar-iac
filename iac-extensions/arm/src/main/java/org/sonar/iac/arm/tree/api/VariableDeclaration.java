@@ -21,7 +21,7 @@ package org.sonar.iac.arm.tree.api;
 
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 
-public interface VariableDeclaration extends Declaration {
+public interface VariableDeclaration extends Declaration, HasSymbol {
 
   Expression value();
 }

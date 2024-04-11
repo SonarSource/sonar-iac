@@ -19,12 +19,31 @@
  */
 package org.sonar.iac.arm.tree.impl;
 
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class VariableImpl extends AbstractHasIdentifierImpl implements Variable {
+
+  private Symbol symbol;
+
   public VariableImpl(Expression expression, TextRange textRange) {
     super(expression, textRange);
+  }
+
+  @Nullable
+  @Override
+  public Symbol symbol() {
+    return symbol;
+  }
+
+  @Override
+  public void setSymbol(Symbol symbol) {
+    if (this.symbol != null) {
+      throw new IllegalArgumentException("A symbol is already set");
+    }
+    this.symbol = symbol;
   }
 }

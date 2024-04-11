@@ -128,6 +128,10 @@ public class Verifier {
     verifyNoIssue(parser, path, check, TestContext::new);
   }
 
+  public static void verifyNoIssue(Tree root, Path path, IacCheck check) {
+    verifyNoIssue(root, path, check, TestContext::new);
+  }
+
   public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check,
     Function<MultiFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
@@ -177,8 +181,8 @@ public class Verifier {
     Set<TextRange> alreadyAdded = new HashSet<>();
     return (root, commentsByLine) -> (new TreeVisitor<>()).register(Tree.class,
       (ctx, tree) -> {
-        if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
-          for (Comment comment : ((HasComments) tree).comments()) {
+        if (tree instanceof HasComments hasComments && !alreadyAdded.contains(tree.textRange())) {
+          for (Comment comment : hasComments.comments()) {
             commentsByLine.computeIfAbsent(comment.textRange().start().line(), i -> new HashSet<>()).add(comment);
           }
           alreadyAdded.add(tree.textRange());

@@ -26,6 +26,9 @@ import org.sonar.iac.docker.symbols.Symbol;
  * Interface to define an element which has a {@link Symbol}, with methods to modify/access it.
  */
 public interface HasSymbol {
+  /**
+   * @return the {@link Symbol} associated with this element, or null if not set.
+   */
   @Nullable
   Symbol symbol();
 
