@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -38,7 +37,7 @@ public class HardcodedResourceLocationCheck implements IacCheck {
   }
 
   private static void checkResourceLocation(CheckContext ctx, ResourceDeclaration resource) {
-    ArmTreeUtils.getResourceProperty(resource, "location")
+    resource.getResourceProperty("location")
       .map(Property::value)
       .filter(tree -> !(tree instanceof HasIdentifier))
       .ifPresent(tree -> ctx.reportIssue(tree.textRange(), MESSAGE));

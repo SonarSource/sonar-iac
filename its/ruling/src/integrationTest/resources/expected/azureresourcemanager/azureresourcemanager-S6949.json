@@ -1,0 +1,39 @@
+{
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deploy-what-if/what-if-after.bicep": [
+3
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deploy-what-if/what-if-before.bicep": [
+3
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/sample.bicep": [
+7
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops/multiplesecurityrules.bicep": [
+21
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/resources.bicep": [
+51,
+60
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/activity-log-alert.bicep": [
+10
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/resource-health-alerts.bicep": [
+10
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/fullnamedeclaration.bicep": [
+3
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/insidedeclaration.bicep": [
+3
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/outsidedeclaration.bicep": [
+3
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/functions/loadTextContent/loaddeploymentscript.bicep": [
+3
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/parameters/parameterobject.bicep": [
+24
+]
+}

@@ -27,3 +27,12 @@ resource compliant1 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
   kind: 'StorageV2'
 }
+
+resource compliant2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: unresolved
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}

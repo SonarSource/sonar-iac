@@ -40,6 +40,16 @@
         "name": "Standard_LRS"
       },
       "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "compliant2",
+      "location": "[parameters('unresolved')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
     }
   ]
 }

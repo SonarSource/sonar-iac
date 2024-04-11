@@ -26,7 +26,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.File;
@@ -168,15 +167,15 @@ class ResourceDeclarationImplTest {
 
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
 
-    Property resourceProperty1 = ArmTreeUtils.getResourceProperty(resourceDeclaration, "resourceProperty1").get();
+    Property resourceProperty1 = resourceDeclaration.getResourceProperty("resourceProperty1").get();
     assertThat(resourceProperty1.key().value()).isEqualTo("resourceProperty1");
     assertThat(resourceProperty1.value()).asStringLiteral().hasValue("resourcePropertyValue");
 
-    Property resourceProperty2 = ArmTreeUtils.getResourceProperty(resourceDeclaration, "resourceProperty2").get();
+    Property resourceProperty2 = resourceDeclaration.getResourceProperty("resourceProperty2").get();
     assertThat(resourceProperty2.key().value()).isEqualTo("resourceProperty2");
     assertThat(resourceProperty2.value()).asObjectExpression().containsKeyValue("obj", "random value");
 
-    Property properties = ArmTreeUtils.getResourceProperty(resourceDeclaration, "properties").get();
+    Property properties = resourceDeclaration.getResourceProperty("properties").get();
     assertThat(properties.key().value()).isEqualTo("properties");
     List<String> allKeys = resourceDeclaration.resourceProperties().stream().map(p -> p.key().value()).collect(Collectors.toList());
     assertThat(allKeys).containsExactly("type", "apiVersion", "name", "resourceProperty1", "resourceProperty2", "properties");
