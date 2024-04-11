@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -223,7 +224,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
 
   private static BiConsumer<CheckContext, ResourceDeclaration> checkManagedIdentity() {
     return (ctx, resource) -> {
-      Optional<Property> identityProperty = resource.resourceProperties().stream().filter(p -> "identity".equals(p.key().value())).findFirst();
+      Optional<Property> identityProperty = ArmTreeUtils.getResourceProperty(resource, "identity");
       if (identityProperty.isEmpty()) {
         HasTextRange nameToHighlight = resource.symbolicName() != null ? resource.symbolicName() : resource.name();
         ctx.reportIssue(nameToHighlight, OMITTING_IDENTITY_MESSAGE);

@@ -37,6 +37,7 @@ public class ArmCheckList {
       ElementsOrderCheck.class,
       EmptyOrNullValueCheck.class,
       HardcodeApiVersionCheck.class,
+      HardcodedResourceLocationCheck.class,
       HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,
       LogRetentionCheck.class,

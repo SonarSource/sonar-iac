@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -36,8 +37,11 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 
 public class ArmTreeUtils {
 
@@ -111,5 +115,11 @@ public class ArmTreeUtils {
     return expr -> expr instanceof HasIdentifier hasIdentifier &&
       hasIdentifier.identifier() instanceof Identifier identifier &&
       parameterNames.contains(identifier.value());
+  }
+
+  public static Optional<Property> getResourceProperty(ResourceDeclaration resourceDeclaration, String key) {
+    return resourceDeclaration.resourceProperties().stream()
+      .filter(p -> TextUtils.isValue(p.key(), key).isTrue())
+      .findFirst();
   }
 }

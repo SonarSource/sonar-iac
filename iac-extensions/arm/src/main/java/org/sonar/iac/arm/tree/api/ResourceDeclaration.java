@@ -82,7 +82,7 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
   SyntaxToken existing();
 
   /**
-   * Returns list of all op level resource properties.
+   * Returns list of all top level resource properties.
    */
   List<Property> resourceProperties();
 }

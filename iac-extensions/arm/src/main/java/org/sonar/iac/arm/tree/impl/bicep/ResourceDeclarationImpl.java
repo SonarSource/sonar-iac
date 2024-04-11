@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -97,10 +98,8 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   @CheckForNull
   public StringLiteral name() {
-    return resourceProperties().stream()
-      .filter(prop -> TextUtils.isValue(prop.key(), "name").isTrue())
+    return ArmTreeUtils.getResourceProperty(this, "name")
       .filter(prop -> prop.value().is(Kind.STRING_LITERAL))
-      .findFirst()
       .map(prop -> ((StringLiteral) prop.value()))
       .orElse(null);
   }
