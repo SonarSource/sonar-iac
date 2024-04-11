@@ -41,8 +41,12 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
   @CheckForNull
   Identifier symbolicName();
 
+  /**
+   * An API version of the resource. Should always be a {@link StringLiteral} in Bicep, but can be an ARM template expression in JSON.
+   * @return An API version of the resource.
+   */
   @CheckForNull
-  TextTree version();
+  Expression version();
 
   TextTree type();
 

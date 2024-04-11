@@ -30,6 +30,7 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +51,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
     assertThat(tree.name().value()).isEqualTo("myName");
     assertThat(tree.type().value()).isEqualTo("type");
-    assertThat(tree.version().value()).isEqualTo("version");
+    assertThat(((StringLiteral) tree.version()).value()).isEqualTo("version");
 
     assertThat(tree.properties()).isEmpty();
     assertThat(tree.existing()).isNull();
@@ -254,12 +255,12 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
       "}");
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.type().value()).isEqualTo("type1");
-    assertThat(tree.version().value()).isEqualTo("version1");
+    assertThat(((StringLiteral) tree.version()).value()).isEqualTo("version1");
 
     assertThat(tree.childResources()).hasSize(1);
     ResourceDeclaration child = tree.childResources().get(0);
     assertThat(child.type().value()).isEqualTo("type2");
-    assertThat(child.version().value()).isEqualTo("version2");
+    assertThat(((StringLiteral) child.version()).value()).isEqualTo("version2");
   }
 
   @Test

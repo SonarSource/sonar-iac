@@ -26,6 +26,7 @@ import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.checks.TextUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +63,7 @@ class ContextualResourceTest {
 
     assertThat(contextualResource.name).isEqualTo("myResource");
     assertThat(contextualResource.type).isEqualTo("Microsoft.Kusto/clusters");
-    assertThat(contextualResource.version).isEqualTo("2022-12-29");
+    assertThat(((StringLiteral) contextualResource.version).value()).isEqualTo("2022-12-29");
   }
 
   @Test
@@ -71,7 +72,7 @@ class ContextualResourceTest {
 
     assertThat(contextualResource.name).isEqualTo("myName");
     assertThat(contextualResource.type).isEqualTo("type");
-    assertThat(contextualResource.version).isEmpty();
+    assertThat(contextualResource.version).isNull();
   }
 
   @Test

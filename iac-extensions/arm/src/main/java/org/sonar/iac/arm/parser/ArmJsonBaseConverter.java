@@ -97,18 +97,16 @@ public class ArmJsonBaseConverter {
   }
 
   public Identifier toIdentifier(YamlTree tree) {
-    if (!(tree instanceof ScalarTree)) {
+    if (!(tree instanceof ScalarTree scalarTree)) {
       throw convertError(tree, Identifier.class.getSimpleName(), ScalarTree.class.getSimpleName());
     }
-    ScalarTree scalarTree = (ScalarTree) tree;
     return new IdentifierImpl(scalarTree.value(), scalarTree.metadata());
   }
 
   private ScalarTree toDoubleQuoteScalarTree(PropertyTree property) {
-    if (!(property.value() instanceof ScalarTree)) {
+    if (!(property.value() instanceof ScalarTree value)) {
       throw convertError(property, StringLiteral.class.getSimpleName(), ScalarTree.class.getSimpleName());
     }
-    ScalarTree value = (ScalarTree) property.value();
     if (value.style() != ScalarTree.Style.DOUBLE_QUOTED) {
       throw convertError(property, value, StringLiteral.class.getSimpleName(), "ScalarTree.Style.DOUBLE_QUOTED");
     }
@@ -122,10 +120,9 @@ public class ArmJsonBaseConverter {
   }
 
   private NumericLiteral toNumericLiteral(PropertyTree property) {
-    if (!(property.value() instanceof ScalarTree)) {
+    if (!(property.value() instanceof ScalarTree value)) {
       throw convertError(property, NumericLiteral.class.getSimpleName(), ScalarTree.class.getSimpleName());
     }
-    ScalarTree value = (ScalarTree) property.value();
     if (value.style() != ScalarTree.Style.PLAIN) {
       throw convertError(property, value, NumericLiteral.class.getSimpleName(), "ScalarTree.Style.PLAIN");
     }
@@ -174,6 +171,12 @@ public class ArmJsonBaseConverter {
 
   public Expression toExpressionOrNull(TupleTree tree, String key) {
     return PropertyUtils.get(tree.value(), key::equalsIgnoreCase).map(this::toExpression).orElse(null);
+  }
+
+  public Expression toExpressionOrException(YamlTree tree, String key) {
+    return PropertyUtils.get(tree, key::equalsIgnoreCase)
+      .map(this::toExpression)
+      .orElseThrow(() -> missingMandatoryAttributeError(tree, key));
   }
 
   private Expression toExpression(PropertyTree tree) {
