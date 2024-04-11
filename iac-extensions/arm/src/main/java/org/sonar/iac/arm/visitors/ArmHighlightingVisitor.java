@@ -20,9 +20,9 @@
 package org.sonar.iac.arm.visitors;
 
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.ArmTreeUtils;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.FunctionCall;
-import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -37,7 +37,7 @@ import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.ANNOTATION;
@@ -58,7 +58,7 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     register(HasKeyword.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
     register(OutputDeclaration.class, (ctx, tree) -> highlight(tree.type(), KEYWORD));
     register(Decorator.class, (ctx, tree) -> {
-      Expression expression = tree.expression();
+      var expression = tree.expression();
       if (expression instanceof FunctionCall functionCall) {
         highlight(functionCall.name(), KEYWORD);
       }
@@ -71,7 +71,7 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     register(Declaration.class, (ctx, tree) -> highlight(tree.declaratedName(), KEYWORD_LIGHT));
 
     register(ResourceDeclaration.class, (ctx, tree) -> {
-      Identifier identifier = tree.symbolicName();
+      var identifier = tree.symbolicName();
       if (identifier != null) {
         highlight(identifier, KEYWORD_LIGHT);
       }
@@ -86,7 +86,13 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     registerTree(MultilineString.class, STRING);
   }
 
-  private <T extends Tree> void registerTree(Class<T> cls, TypeOfText type) {
-    register(cls, (ctx, tree) -> highlight(tree, type));
+  private <T extends ArmTree> void registerTree(Class<T> cls, TypeOfText type) {
+    register(cls, (ctx, tree) -> {
+      if (ArmTreeUtils.getRootNode(tree) instanceof FileImpl) {
+        // don't highlight Bicep parts in JSON file
+        return;
+      }
+      highlight(tree, type);
+    });
   }
 }
