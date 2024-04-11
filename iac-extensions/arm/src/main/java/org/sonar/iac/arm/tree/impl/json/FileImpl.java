@@ -29,16 +29,19 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.iac.common.yaml.tree.MappingTree;
 
 public class FileImpl extends AbstractArmTreeImpl implements File {
 
   @Nullable
   private final StringLiteral targetScope;
   private final List<Statement> statements;
+  private final MappingTree document;
 
-  public FileImpl(@Nullable StringLiteral targetScope, List<Statement> statements) {
+  public FileImpl(@Nullable StringLiteral targetScope, List<Statement> statements, MappingTree document) {
     this.targetScope = targetScope;
     this.statements = statements;
+    this.document = document;
   }
 
   @Override
@@ -73,6 +76,10 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
   @Override
   public List<Statement> statements() {
     return statements;
+  }
+
+  public MappingTree document() {
+    return document;
   }
 
   @Override

@@ -40,6 +40,10 @@ public final class IacTestUtils {
     // utils class
   }
 
+  /**
+   * @deprecated Text blocks from Java 15 should be used instead.
+   */
+  @Deprecated(since = "1.28", forRemoval = true)
   public static String code(String... lines) {
     return StringUtils.join(lines, "\n");
   }
