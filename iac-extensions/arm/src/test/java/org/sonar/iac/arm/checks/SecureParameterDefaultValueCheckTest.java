@@ -40,6 +40,8 @@ class SecureParameterDefaultValueCheckTest {
       issue(31, 22, 31, 38),
       issue(35, 22, 35, 52),
       issue(39, 22, 39, 48),
-      issue(43, 22, 43, 52));
+      issue(43, 22, 43, 52),
+      // TODO SONARIAC-1415: S6648 shouldn't raise when parameter reference is an expressing that evaluates to secure parameter name
+      issue(97, 22, 97, 64));
   }
 }

@@ -283,15 +283,17 @@ public class TreeFactory {
 
   public Expression functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
     SyntaxToken rightParenthesis) {
-    if ("parameters".equals(identifier.value()) || "variables".equals(identifier.value())) {
-      var isParameter = "parameters".equals(identifier.value());
+    var functionName = identifier.value();
+    var isParameter = "parameters".equals(functionName);
+    var isVariable = "variables".equals(functionName);
+    var hasSingleArgument = argumentList.isPresent() && argumentList.get().elements().size() == 1;
+    if ((isParameter || isVariable) && hasSingleArgument) {
       var symbolicName = argumentList.get().elements().get(0);
       var functionCallTextRange = TextRanges.merge(List.of(identifier.textRange(), rightParenthesis.textRange()));
       if (isParameter) {
         return new ParameterImpl(symbolicName, functionCallTextRange);
-      } else {
-        return new VariableImpl(symbolicName, functionCallTextRange);
       }
+      return new VariableImpl(symbolicName, functionCallTextRange);
     }
 
     return new FunctionCallImpl(identifier, leftParenthesis, argumentList.or(emptySeparatedList()), rightParenthesis);

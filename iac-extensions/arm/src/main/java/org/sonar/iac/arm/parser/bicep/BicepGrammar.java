@@ -624,7 +624,8 @@ public class BicepGrammar {
     return b.<MemberExpression>nonterminal().is(
       f.memberExpressionComponent(
         b.token(Punctuator.DOT),
-        // `variables()` and `parameters()` functions should never be part of member expression on the right hand side of the dot
+        // Casting is safe, because `variables()` and `parameters()` functions should never be part of member expression on the right hand side of
+        // the dot
         (FunctionCall) FUNCTION_CALL()));
   }
 
