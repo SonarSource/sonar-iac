@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -58,10 +57,6 @@ class ArmSymbolVisitorTest {
   private static final Map<String, String> VARIABLE_DECLARATION = Map.of(
     BICEP, "var foo = 'bar'",
     JSON, "\"foo\": \"bar\"");
-  private static final String USAGE_IN_FUNCTION_BICEP = "var concatToFoo =  '${toLower(foo)}ConcatToVariable'";
-  private static final Map<String, String> USAGE_IN_FUNCTION = Map.of(
-    BICEP, USAGE_IN_FUNCTION_BICEP,
-    JSON, "\"concatToFoo\": \"[concat(toLower(variables('foo')), '-addToVar')]\"");
   private static final Map<String, String> VARIABLE_DECLARATION_WITH_USAGE = Map.of(
     BICEP, "var bar = '${foo}'",
     JSON, "\"bar \": \"[variables('foo')]\"");
@@ -80,13 +75,15 @@ class ArmSymbolVisitorTest {
 
     visitor.register(File.class, (ctx, tree) -> visited.add("file_visit"));
     visitor.register(VariableDeclaration.class, (ctx, tree) -> visited.add("variable_declaration_visit"));
-    visitor.register(Identifier.class, (ctx, tree) -> visited.add("identifier_visit"));
+    visitor.registerAfter(Identifier.class, (ctx, tree) -> visited.add("identifier_visit_after"));
+    visitor.registerAfter(File.class, (ctx, tree) -> visited.add("file_visit_after"));
     visitor.scan(inputFileContext, file);
 
     assertThat(visited).containsExactly(
       "file_visit",
       "variable_declaration_visit",
-      "identifier_visit");
+      "file_visit_after",
+      "identifier_visit_after");
   }
 
   @ParameterizedTest
@@ -116,14 +113,15 @@ class ArmSymbolVisitorTest {
   @CsvSource({
     // BICEP
     // access in variableDeclaration should create usage
-    "bicep," + "var referenceFoo =  '${foo}'",
-    "bicep," + "var concatToFoo =  '${foo}ConcatToVariable'",
+    "bicep," + "var bar =  '${foo}'",
+    "bicep," + "var bar =  '${foo}ConcatToVariable'",
     // access in function in variableDeclaration should create usage
-    "bicep," + USAGE_IN_FUNCTION_BICEP,
+    "bicep," + "var bar =  '${toLower(foo)}ConcatToVariable'",
 
     // JSON - Not supported yet, see SONARIAC-1038
-    // "json," + "\"concatToFoo \": \"[variables('foo')]\"",
-    // "json," + "\"concatToFoo \": \"[concat(variables('foo'), '-addToVar')]\"",
+    // "json," + "\"bar\": \"[variables('foo')]\"",
+    // "json," + "\"bar\": \"[concat(variables('foo'), '-addToVar')]\"",
+    // "json," + "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\""",
   })
   void shouldRegisterUsageAccess(String language, String codeStatement) {
     String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language), codeStatement), null);
@@ -133,7 +131,6 @@ class ArmSymbolVisitorTest {
 
     assertThat(symbolTable).isNotNull();
     assertThat(symbolTable.getSymbols()).hasSize(2);
-    assertThat(symbolTable.getSymbol("bar")).isNull();
 
     Symbol symbol = symbolTable.getSymbol("foo");
     assertThat(symbol).isNotNull();
@@ -179,18 +176,20 @@ class ArmSymbolVisitorTest {
   }
 
   @ParameterizedTest
-  @MethodSource("languagesToTest")
-  @Disabled("Not supported yet")
+  @ValueSource(strings = {
+    "bicep"
+    // TODO: Json Not supported yet, see SONARIAC-1038
+    // "json"
+  })
   void shouldRegisterUsageWhenDeclarationAfterAccess(String language) {
-    String code = buildSourceCode(language, List.of(USAGE_IN_FUNCTION.get(language), VARIABLE_DECLARATION.get(language)), null);
+    String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION_WITH_USAGE.get(language), VARIABLE_DECLARATION.get(language)),
+      null);
     File file = scanFile(code);
 
-    var usageTree = file.statements().get(1);
     SymbolTable symbolTable = file.symbolTable();
 
     assertThat(symbolTable).isNotNull();
     assertThat(symbolTable.getSymbols()).hasSize(2);
-    assertThat(symbolTable.getSymbol("bar")).isNull();
 
     Symbol symbol = symbolTable.getSymbol("foo");
     assertThat(symbol).isNotNull();
@@ -198,8 +197,7 @@ class ArmSymbolVisitorTest {
     assertThat(symbol.usages()).hasSize(2);
     assertThat(symbol.usages())
       .filteredOn(usage -> usage.kind() == Usage.Kind.ACCESS)
-      .hasSize(1)
-      .map(Usage::tree).isEqualTo(usageTree);
+      .hasSize(1);
   }
 
   /**
