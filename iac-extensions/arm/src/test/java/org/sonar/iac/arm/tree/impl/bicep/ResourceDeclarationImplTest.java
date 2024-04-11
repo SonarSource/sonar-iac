@@ -71,7 +71,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("prop1");
-    assertThat(property.value()).asIdentifier().hasValue("val1");
+    assertThat(property.value()).asWrappedIdentifier().hasValue("val1");
     assertThat(tree.properties()).hasSize(1);
     assertThat(tree.name()).as("Name is not set in resource declaration").isNull();
   }
@@ -88,7 +88,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     Property property1 = tree.resourceProperties().get(0);
     assertThat(property1.key().value()).isEqualTo("key");
-    assertThat(property1.value()).asIdentifier().hasValue("value");
+    assertThat(property1.value()).asWrappedIdentifier().hasValue("value");
     Property property2 = tree.resourceProperties().get(1);
     assertThat(property2.key().value()).isEqualTo("properties");
     assertThat(tree.resourceProperties()).hasSize(2);
@@ -108,7 +108,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("prop1");
-    assertThat(property.value()).asIdentifier().hasValue("val1");
+    assertThat(property.value()).asWrappedIdentifier().hasValue("val1");
     assertThat(tree.properties()).hasSize(1);
     assertThat(tree.existing()).isNull();
 
@@ -136,7 +136,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("prop1");
-    assertThat(property.value()).asIdentifier().hasValue("val1");
+    assertThat(property.value()).asWrappedIdentifier().hasValue("val1");
     assertThat(tree.properties()).hasSize(1);
     assertThat(tree.existing()).isNull();
 

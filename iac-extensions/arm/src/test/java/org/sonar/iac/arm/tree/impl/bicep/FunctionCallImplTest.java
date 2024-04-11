@@ -21,13 +21,20 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.ArmTreeAssert;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.FunctionCall;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
@@ -82,5 +89,20 @@ class FunctionCallImplTest {
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("functionName123", "(", "123", ",", "456", ")");
     softly.assertAll();
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+    "variables('foo'),VARIABLE",
+    "parameters('foo'),PARAMETER",
+  })
+  void shouldParseFunctionCallAsVariableOrParameter(String code, ArmTree.Kind expectedKind) {
+    var tree = (Expression) parser.parse(code, null);
+
+    Assertions.assertThat(tree)
+      .satisfies(t -> ArmTreeAssert.assertThat(t).is(expectedKind))
+      .isInstanceOf(HasIdentifier.class)
+      .extracting(t -> ((Identifier) ((HasIdentifier) t).identifier()).value())
+      .isEqualTo("foo");
   }
 }

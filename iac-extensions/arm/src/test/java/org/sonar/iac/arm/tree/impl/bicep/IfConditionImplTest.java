@@ -22,11 +22,10 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
@@ -56,8 +55,10 @@ class IfConditionImplTest extends BicepTreeModelTest {
     softly.assertThat(tree.is(ArmTree.Kind.IF_CONDITION)).isTrue();
 
     softly.assertThat(((ArmTree) tree.children().get(1)).is(ArmTree.Kind.PARENTHESIZED_EXPRESSION)).isTrue();
-    softly.assertThat(tree.condition().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    softly.assertThat(((Identifier) tree.condition()).value()).isEqualTo("condition");
+    softly.assertThat(tree.condition().is(ArmTree.Kind.VARIABLE)).isTrue();
+    softly.assertThat(((Variable) tree.condition()).identifier())
+      .extracting(i -> ((Identifier) i).value())
+      .isEqualTo("condition");
 
     softly.assertThat(tree.object().is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
 

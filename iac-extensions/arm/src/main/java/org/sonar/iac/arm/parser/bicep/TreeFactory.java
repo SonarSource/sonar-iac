@@ -38,6 +38,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -82,6 +83,8 @@ import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
+import org.sonar.iac.arm.tree.impl.ParameterImpl;
+import org.sonar.iac.arm.tree.impl.VariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
@@ -140,6 +143,7 @@ import org.sonar.iac.arm.tree.impl.bicep.variable.VariableBlockImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 
 import static java.util.Collections.emptyList;
@@ -277,8 +281,21 @@ public class TreeFactory {
     return new ResourceDeclarationImpl(decorators.or(emptyList()), keyword, identifier, type, existing.orNull(), equalsSign, expression);
   }
 
-  public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
+  public Expression functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
     SyntaxToken rightParenthesis) {
+    var functionName = identifier.value();
+    var isParameter = "parameters".equals(functionName);
+    var isVariable = "variables".equals(functionName);
+    var hasSingleArgument = argumentList.isPresent() && argumentList.get().elements().size() == 1;
+    if ((isParameter || isVariable) && hasSingleArgument) {
+      var symbolicName = argumentList.get().elements().get(0);
+      var functionCallTextRange = TextRanges.merge(List.of(identifier.textRange(), rightParenthesis.textRange()));
+      if (isParameter) {
+        return new ParameterImpl(symbolicName, functionCallTextRange);
+      }
+      return new VariableImpl(symbolicName, functionCallTextRange);
+    }
+
     return new FunctionCallImpl(identifier, leftParenthesis, argumentList.or(emptySeparatedList()), rightParenthesis);
   }
 
@@ -337,6 +354,10 @@ public class TreeFactory {
 
   public Identifier identifier(SyntaxToken token) {
     return new IdentifierImpl(token);
+  }
+
+  public Variable variable(Expression expression) {
+    return new VariableImpl(expression, expression.textRange());
   }
 
   public Property objectProperty(TextTree key, SyntaxToken colon, Expression value) {

@@ -32,9 +32,13 @@ import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
+import org.sonar.iac.arm.tree.impl.ParameterImpl;
+import org.sonar.iac.arm.tree.impl.VariableImpl;
 import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.FunctionCallImpl;
@@ -200,13 +204,17 @@ public class ArmJsonBaseConverter {
   private Expression toExpressionFromString(ScalarTree scalar) {
     var expression = (Expression) ARM_TEMPLATE_EXPRESSION_PARSER.parse(scalar);
 
-    // TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers
+    // Repack top-level nodes so that their text ranges cover the entire text range of the expression
     if (expression instanceof FunctionCall functionCall) {
       return new FunctionCallImpl(scalar.metadata(), functionCall.name(), functionCall.argumentList());
     } else if (expression instanceof StringLiteral stringLiteral) {
       return new StringLiteralImpl(stringLiteral.value(), scalar.metadata());
     } else if (expression instanceof MemberExpression memberExpression) {
       return new MemberExpressionImpl(scalar.metadata(), memberExpression.expression(), memberExpression.separatingToken(), memberExpression.memberAccess());
+    } else if (expression instanceof Parameter parameter) {
+      return new ParameterImpl(parameter.identifier(), scalar.textRange());
+    } else if (expression instanceof Variable variable) {
+      return new VariableImpl(variable.identifier(), scalar.textRange());
     } else {
       throw createParseException("Failed to parse ARM template expression: " + scalar.value() + "; top-level expression is of kind " + expression.getKind(),
         inputFileContext, new BasicTextPointer(scalar.metadata().textRange()));

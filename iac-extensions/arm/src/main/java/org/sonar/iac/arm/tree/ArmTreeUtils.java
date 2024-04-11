@@ -29,12 +29,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.FunctionCall;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.common.api.tree.Tree;
@@ -109,18 +108,8 @@ public class ArmTreeUtils {
   }
 
   public static Predicate<Expression> containsParameterReference(Collection<String> parameterNames) {
-    return expr -> {
-      if (expr.is(ArmTree.Kind.IDENTIFIER)) {
-        // ARM Bicep
-        return parameterNames.contains(((Identifier) expr).value());
-      } else if (expr.is(ArmTree.Kind.FUNCTION_CALL)) {
-        // ARM Json -- TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers
-        var parameterName = CheckUtils.parameterName((FunctionCall) expr);
-        if (parameterName != null) {
-          return parameterNames.contains(parameterName.value());
-        }
-      }
-      return false;
-    };
+    return expr -> expr instanceof HasIdentifier hasIdentifier &&
+      hasIdentifier.identifier() instanceof Identifier identifier &&
+      parameterNames.contains(identifier.value());
   }
 }

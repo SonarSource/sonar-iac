@@ -21,15 +21,11 @@ package org.sonar.iac.arm.checks;
 
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualParameter;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
-import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.FunctionCall;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
@@ -41,6 +37,7 @@ import static org.sonar.iac.arm.checks.utils.CheckUtils.isBlankString;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyObject;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFunctionCall;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
+import static org.sonar.iac.arm.tree.ArmTreeUtils.getParametersByNames;
 
 @Rule(key = "S6648")
 public class SecureParameterDefaultValueCheck implements IacCheck {
@@ -74,33 +71,14 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
   }
 
   private static Predicate<Expression> isSecureParameterReference() {
-    return expr -> {
-      if (expr.is(ArmTree.Kind.IDENTIFIER)) {
-        // ARM Bicep
-        Identifier identifier = (Identifier) expr;
-        return isSecureParameter(identifier, identifier.value());
-      } else if (expr.is(ArmTree.Kind.FUNCTION_CALL)) {
-        // ARM Json -- TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers
-        var parameterName = CheckUtils.parameterName((FunctionCall) expr);
-        if (parameterName != null) {
-          return isSecureParameter(parameterName, parameterName.value());
-        }
-      }
-      return false;
-    };
+    // TODO SONARIAC-1414: Bicep: Distinguish usages of variables and parameters in the AST
+    return expr -> expr instanceof HasIdentifier hasIdentifier &&
+      hasIdentifier.identifier() instanceof Identifier identifier &&
+      isSecureParameter(identifier, identifier.value());
   }
 
   private static boolean isSecureParameter(ArmTree tree, String parameterName) {
     ParameterDeclaration param = getParametersByNames(tree).get(parameterName);
     return param != null && SENSITIVE_TYPE_WITH_DISPLAY_TYPE.containsKey(param.type());
-  }
-
-  private static Map<String, ParameterDeclaration> getParametersByNames(ArmTree tree) {
-    // TODO: after SONARIAC-1034 use symbol table instead of accessing parameters through `FILE`
-    File file = (File) ArmTreeUtils.getRootNode(tree);
-    return file.statements().stream()
-      .filter(ParameterDeclaration.class::isInstance)
-      .map(ParameterDeclaration.class::cast)
-      .collect(Collectors.toMap(param -> param.declaratedName().value(), param -> param));
   }
 }

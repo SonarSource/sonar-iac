@@ -28,8 +28,6 @@ import org.junit.jupiter.api.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.testing.IacCommonAssertions;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class ArmTreeAssert extends AbstractAssert<ArmTreeAssert, ArmTree> {
 
   private ArmTreeAssert(@Nullable ArmTree actual) {
@@ -43,7 +41,9 @@ public class ArmTreeAssert extends AbstractAssert<ArmTreeAssert, ArmTree> {
   public ArmTreeAssert is(ArmTree.Kind kind) {
     isNotNull();
     SoftAssertions.assertSoftly(softly -> {
-      softly.assertThat(actual.is(kind)).isTrue();
+      softly.assertThat(actual.is(kind))
+        .overridingErrorMessage("Expected node to be of kind %s but got %s", kind, actual.getKind())
+        .isTrue();
     });
     return this;
   }

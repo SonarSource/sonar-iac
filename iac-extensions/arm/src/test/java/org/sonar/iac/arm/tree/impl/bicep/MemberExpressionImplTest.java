@@ -86,7 +86,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo("!");
 
     MemberExpression outerMemberExpression = (MemberExpression) tree.memberAccess();
-    assertThat(outerMemberExpression.memberAccess()).asIdentifier().hasValue("memberExpression");
+    assertThat(outerMemberExpression.memberAccess()).asWrappedIdentifier().hasValue("memberExpression");
     assertThat(outerMemberExpression.expression()).hasKind(ArmTree.Kind.IDENTIFIER);
     assertThat(outerMemberExpression.children()).hasSize(3);
     assertThat(outerMemberExpression.children().get(1)).isInstanceOf(SyntaxToken.class);
@@ -97,7 +97,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
   void shouldNotWrapStringLiteralIntoMemberExpressionButBeParseable() {
     Expression tree = parse("memberExpression", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
-    assertThat(tree).hasKind(ArmTree.Kind.IDENTIFIER);
+    assertThat(tree).hasKind(ArmTree.Kind.VARIABLE);
   }
 
   @Test
@@ -106,7 +106,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
 
-    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.IDENTIFIER);
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.VARIABLE);
     assertThat(tree.expression()).hasKind(ArmTree.Kind.FUNCTION_CALL);
 
     assertThat(tree.children()).hasSize(3);
@@ -120,7 +120,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
 
-    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.IDENTIFIER);
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.VARIABLE);
     assertThat(tree.expression()).hasKind(ArmTree.Kind.IDENTIFIER);
 
     assertThat(tree.children()).hasSize(3);
@@ -134,8 +134,8 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
 
-    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.IDENTIFIER);
-    assertThat(tree.expression()).hasKind(ArmTree.Kind.IDENTIFIER);
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.VARIABLE);
+    assertThat(tree.expression()).hasKind(ArmTree.Kind.VARIABLE);
 
     assertThat(tree.children()).hasSize(4);
     assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);

@@ -91,6 +91,10 @@
     "compliant10": {
       "type": "securestring",
       "defaultValue": "[parameters('secureString')]"
+    },
+    "compliant11": {
+      "type": "securestring",
+      "defaultValue": "[parameters(concat('secure', 'String'))]"
     }
   }
 }

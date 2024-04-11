@@ -117,20 +117,20 @@ class ArmJsonBaseConverterTest {
       Arguments.of("[subscription().id]", ArmTree.Kind.MEMBER_EXPRESSION),
       Arguments.of("['foo']", ArmTree.Kind.STRING_LITERAL),
       Arguments.of("[reference('escapingTest').outputs.escaped]", ArmTree.Kind.MEMBER_EXPRESSION),
-      // TODO SONARIAC-1405: ARM template expressions: replace `variables()` and `parameters()` with corresponding Identifiers
-      Arguments.of("[parameters('demoParam1')]", ArmTree.Kind.FUNCTION_CALL),
+      Arguments.of("[parameters('demoParam1')]", ArmTree.Kind.PARAMETER),
+      Arguments.of("[variables('foo')]", ArmTree.Kind.VARIABLE),
       Arguments.of("[if(parameters('deployCaboodle'), variables('op'), filter(variables('op'), lambda('on', not(equals(lambdaVariables('on').name, 'Caboodle')))))]",
         ArmTree.Kind.FUNCTION_CALL));
   }
 
   @Test
   void shouldThrowForUnknownExpression() {
-    var input = "[foo]";
+    var input = "['${foo}']";
     var converter = new ArmJsonBaseConverter(inputFileContext);
     var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
 
     assertThatThrownBy(() -> converter.toExpression(tree)).isInstanceOf(ParseException.class)
-      .hasMessage("Failed to parse ARM template expression: [foo]; top-level expression is of kind IDENTIFIER at dir1/dir2/foo.json:1:0");
+      .hasMessage("Failed to parse ARM template expression: " + input + "; top-level expression is of kind INTERPOLATED_STRING at dir1/dir2/foo.json:1:0");
   }
 
   @ParameterizedTest

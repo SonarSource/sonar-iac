@@ -72,7 +72,7 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
     TextTree type = (TextTree) tree.type();
     assertThat(type.value()).isEqualTo("String");
     assertThat(type.textRange()).hasRange(1, 40, 1, 46);
-    assertThat(tree.value()).asIdentifier().hasValue("myValue").hasRange(1, 49, 1, 56);
+    assertThat(tree.value()).asWrappedIdentifier().hasValue("myValue").hasRange(1, 49, 1, 56);
     assertThat(tree.condition()).isNull();
     assertThat(tree.copyCount()).isNull();
     assertThat(tree.copyInput()).isNull();
@@ -89,10 +89,9 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.declaratedName()).hasValue("myOutput").hasRange(1, 7, 1, 15);
     assertThat(((TextTree) tree.type()).value()).isEqualTo("myResource");
     assertThat(tree.type().textRange()).hasRange(1, 25, 1, 37);
-    assertThat(tree.value()).asIdentifier().hasValue("myValue").hasRange(1, 40, 1, 47);
+    assertThat(tree.value()).asWrappedIdentifier().hasValue("myValue").hasRange(1, 40, 1, 47);
     assertThat(tree.condition()).isNull();
     assertThat(tree.copyCount()).isNull();
     assertThat(tree.copyInput()).isNull();
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("output", "myOutput", "resource", "myResource", "=", "myValue");
   }
 }

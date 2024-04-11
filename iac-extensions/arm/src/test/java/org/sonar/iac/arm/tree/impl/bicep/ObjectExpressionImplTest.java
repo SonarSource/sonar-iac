@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -56,8 +57,8 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
 
     ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     assertThat(tree)
-      .containsIdentifierKeyValue("key1", "value1")
-      .containsIdentifierKeyValue("key2", "value2")
+      .containsVariableKeyValue("key1", "value1")
+      .containsVariableKeyValue("key2", "value2")
       .hasSize(2)
       .hasRange(1, 0, 4, 1);
     assertThat(tree.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
@@ -68,12 +69,14 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
     Property property1 = (Property) tree.children().get(1);
     assertThat(((ArmTree) property1.key()).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
     assertThat(property1.key().value()).isEqualTo("key1");
-    assertThat(((TextTree) property1.value()).value()).isEqualTo("value1");
+    HasIdentifier value1 = (HasIdentifier) property1.value();
+    assertThat(((TextTree) value1.identifier()).value()).isEqualTo("value1");
 
     Property property2 = (Property) tree.children().get(2);
     assertThat(((ArmTree) property2.key()).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
     assertThat(property2.key().value()).isEqualTo("key2");
-    assertThat(((TextTree) property2.value()).value()).isEqualTo("value2");
+    HasIdentifier value2 = (HasIdentifier) property2.value();
+    assertThat(((TextTree) value2.identifier()).value()).isEqualTo("value2");
 
     SyntaxToken rightCurlyBrace = (SyntaxToken) tree.children().get(3);
     assertThat(rightCurlyBrace.value()).isEqualTo("}");
@@ -99,10 +102,10 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
 
     Property property1 = (Property) tree.properties().get(0);
     assertThat(property1.key().value()).isEqualTo("key1");
-    assertThat(property1.value()).asIdentifier().hasValue("value1");
+    assertThat(property1.value()).asWrappedIdentifier().hasValue("value1");
     Property property2 = (Property) tree.properties().get(1);
     assertThat(property2.key().value()).isEqualTo("key2");
-    assertThat(property2.value()).asIdentifier().hasValue("value2");
+    assertThat(property2.value()).asWrappedIdentifier().hasValue("value2");
 
     ResourceDeclaration resource1 = tree.nestedResources().get(0);
     assertThat(resource1.name()).hasValue("subnet1Name");
