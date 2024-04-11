@@ -113,7 +113,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   @CheckForNull
-  public TextTree version() {
+  public Expression version() {
     String text = TextUtils.getValue(typeAndVersion).orElse("");
     if (text.contains("@")) {
       String[] split = text.split("@");

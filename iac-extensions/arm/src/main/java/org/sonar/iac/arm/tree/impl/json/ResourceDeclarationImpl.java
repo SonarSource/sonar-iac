@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.json;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -33,14 +34,14 @@ import org.sonar.iac.common.api.tree.Tree;
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
   private final StringLiteral name;
-  private final StringLiteral version;
+  private final Expression version;
   private final StringLiteral type;
   private final List<Property> properties;
   private final List<Property> resourceProperties;
   private final List<ResourceDeclaration> childResources;
 
   public ResourceDeclarationImpl(StringLiteral name,
-    StringLiteral version,
+    Expression version,
     StringLiteral type,
     List<Property> properties,
     List<Property> resourceProperties,
@@ -86,7 +87,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public StringLiteral version() {
+  public Expression version() {
     return version;
   }
 

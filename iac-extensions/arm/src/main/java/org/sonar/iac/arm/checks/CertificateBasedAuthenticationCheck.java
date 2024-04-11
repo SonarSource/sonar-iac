@@ -21,6 +21,7 @@ package org.sonar.iac.arm.checks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualMap;
@@ -28,6 +29,7 @@ import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isArrayWithValues;
@@ -181,6 +183,10 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   }
 
   private static boolean isResourceVersionEqualsOrAfter(ContextualResource resource, String version) {
-    return resource.version.compareTo(version) >= 0;
+    var versionString = Optional.ofNullable(resource.version)
+      .filter(StringLiteral.class::isInstance)
+      .map(v -> ((StringLiteral) v).value())
+      .orElse("");
+    return versionString.compareTo(version) >= 0;
   }
 }

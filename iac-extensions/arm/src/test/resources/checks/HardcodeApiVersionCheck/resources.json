@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "parameters": {
+    "customApiVersion": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "customApiVersion": "[first(providers(‘Microsoft.Compute’,’virtualMachines’).apiVersions)]"
+  },
+  "resources": [
+    {
+      "apiVersion": "[parameters('customApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "nonCompliantResource1",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "apiVersion": "[variables('customApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "nonCompliantResource2",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "apiVersion": "2023-09-01",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "compliantResource1",
+      "location": "[resourceGroup().location]"
+    }
+  ]
+}

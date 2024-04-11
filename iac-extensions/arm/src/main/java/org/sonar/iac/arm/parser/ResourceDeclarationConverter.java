@@ -19,6 +19,12 @@
  */
 package org.sonar.iac.arm.parser;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
@@ -33,13 +39,6 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
-
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
 
@@ -66,7 +65,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
 
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
     StringLiteral type = toStringLiteralOrException(tree, "type");
-    StringLiteral version = toStringLiteralOrException(tree, "apiVersion");
+    var version = toExpressionOrException(tree, "apiVersion");
     StringLiteral name = toStringLiteralOrException(tree, "name");
     List<Property> resourceProperties = toResourceProperties(tree);
     List<Property> otherProperties = PropertyUtils.get(tree, "properties"::equalsIgnoreCase)
@@ -90,7 +89,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   }
 
   private static ResourceDeclaration toResourceDeclaration(StringLiteral type,
-    StringLiteral version,
+    Expression version,
     StringLiteral name,
     List<Property> otherProperties,
     List<Property> resourceProperties) {
@@ -98,7 +97,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   }
 
   private ResourceDeclaration toResourceDeclarationWithChildren(StringLiteral type,
-    StringLiteral version,
+    Expression version,
     StringLiteral name,
     List<Property> otherProperties,
     List<Property> resourceProperties,

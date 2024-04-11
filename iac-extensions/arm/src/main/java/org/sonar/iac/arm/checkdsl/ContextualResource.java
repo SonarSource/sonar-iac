@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -32,12 +33,13 @@ import org.sonar.iac.common.checks.TextUtils;
 public final class ContextualResource extends ContextualMap<ContextualResource, ResourceDeclaration> {
 
   public final String type;
-  public final String version;
+  @Nullable
+  public final Expression version;
 
   private ContextualResource(CheckContext ctx, @Nullable ResourceDeclaration tree, String type, @Nullable ContextualMap<?, ?> parent) {
     super(ctx, tree, Optional.ofNullable(tree).map(ResourceDeclaration::name).map(TextTree::value).orElse(null), parent);
     this.type = type;
-    this.version = Optional.ofNullable(tree).map(ResourceDeclaration::version).map(TextTree::value).orElse("");
+    this.version = Optional.ofNullable(tree).map(ResourceDeclaration::version).orElse(null);
   }
 
   public static ContextualResource fromPresent(CheckContext ctx, ResourceDeclaration tree) {
