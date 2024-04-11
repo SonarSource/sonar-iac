@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,21 +55,16 @@ class ArmSymbolVisitorTest {
 
   private static final String BICEP = "bicep";
   private static final String JSON = "json";
-  private static final String VARIABLE_DECLARATION_BICEP = "var foo = 'bar'";
-  private static final String VARIABLE_DECLARATION_JSON = "\"foo\": \"bar\"";
   private static final Map<String, String> VARIABLE_DECLARATION = Map.of(
-    BICEP, VARIABLE_DECLARATION_BICEP,
-    JSON, VARIABLE_DECLARATION_JSON);
+    BICEP, "var foo = 'bar'",
+    JSON, "\"foo\": \"bar\"");
   private static final String USAGE_IN_FUNCTION_BICEP = "var concatToFoo =  '${toLower(foo)}ConcatToVariable'";
-  private static final String USAGE_IN_FUNCTION_JSON = "\"concatToFoo\": \"[concat(toLower(variables('foo')), '-addToVar')]\"";
   private static final Map<String, String> USAGE_IN_FUNCTION = Map.of(
     BICEP, USAGE_IN_FUNCTION_BICEP,
-    JSON, USAGE_IN_FUNCTION_JSON);
-  private static final String VARIABLE_DECLARATION_WITH_USAGE_BICEP = "var bar = '${foo}'";
-  private static final String VARIABLE_DECLARATION_WITH_USAGE_JSON = "\"bar \": \"[variables('foo')]\"";
+    JSON, "\"concatToFoo\": \"[concat(toLower(variables('foo')), '-addToVar')]\"");
   private static final Map<String, String> VARIABLE_DECLARATION_WITH_USAGE = Map.of(
-    BICEP, VARIABLE_DECLARATION_WITH_USAGE_BICEP,
-    JSON, VARIABLE_DECLARATION_WITH_USAGE_JSON);
+    BICEP, "var bar = '${foo}'",
+    JSON, "\"bar \": \"[variables('foo')]\"");
 
   public static Set<String> languagesToTest() {
     return Set.of(BICEP, JSON);
@@ -124,9 +121,9 @@ class ArmSymbolVisitorTest {
     // access in function in variableDeclaration should create usage
     "bicep," + USAGE_IN_FUNCTION_BICEP,
 
-  // JSON - Not supported yet, see SONARIAC-1038
-  // "json," + "\"concatToFoo \": \"[variables('foo')]\"",
-  // "json," + "\"concatToFoo \": \"[concat(variables('foo'), '-addToVar')]\"",
+    // JSON - Not supported yet, see SONARIAC-1038
+    // "json," + "\"concatToFoo \": \"[variables('foo')]\"",
+    // "json," + "\"concatToFoo \": \"[concat(variables('foo'), '-addToVar')]\"",
   })
   void shouldRegisterUsageAccess(String language, String codeStatement) {
     String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language), codeStatement), null);
@@ -280,8 +277,8 @@ class ArmSymbolVisitorTest {
   @ParameterizedTest
   @ValueSource(strings = {
     "bicep"
-  // TODO: Json Not supported yet, see SONARIAC-1038
-  // "json"
+    // TODO: Json Not supported yet, see SONARIAC-1038
+    // "json"
   })
   void shouldOnlyCreateOneAccessUsageWhenRegisteringIdentifierMultipleTimes(String language) {
     String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language), VARIABLE_DECLARATION_WITH_USAGE.get(language)),
@@ -325,8 +322,8 @@ class ArmSymbolVisitorTest {
   @ParameterizedTest
   @ValueSource(strings = {
     "bicep"
-  // TODO: Json Not supported yet, see SONARIAC-1038
-  // "json"
+    // TODO: Json Not supported yet, see SONARIAC-1038
+    // "json"
   })
   void shouldThrowExceptionOnMultipleSymbolForIdentifier(String language) {
     String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language), VARIABLE_DECLARATION_WITH_USAGE.get(language)),
@@ -409,7 +406,7 @@ class ArmSymbolVisitorTest {
     return buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language)), null);
   }
 
-  private static String buildSourceCode(String language, List<String> variableDeclarations, String outputValue) {
+  private static String buildSourceCode(String language, @Nullable List<String> variableDeclarations, @Nullable String outputValue) {
     if ("json".equals(language)) {
       return buildJsonFile(variableDeclarations, outputValue);
     } else {
@@ -427,33 +424,28 @@ class ArmSymbolVisitorTest {
     }
   }
 
-  private static String buildJsonFile(List<String> variables, String outputValue) {
-    StringBuilder sb = new StringBuilder();
-
-    sb.append("{");
-    sb.append("  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",");
-
-    if (variables != null && !variables.isEmpty()) {
-      sb.append("\n  \"variables\": {\n");
-      for (String variable : variables) {
-        sb.append("      ");
-        sb.append(variable);
-        sb.append(",\n");
-      }
-      sb.append("  },");
+  private static String buildJsonFile(@Nullable List<String> variables, @Nullable String outputValue) {
+    String str = """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+      """;
+    if (variables != null) {
+      str += """
+          "variables": {
+        %s
+          },
+        """.formatted(variables.stream().map(v -> "      " + v + ",").collect(Collectors.joining("\n")));
     }
     if (outputValue != null) {
-      sb.append("\n  \"outputs\": {\n");
-      sb.append("    \"foo\": {\n");
-      sb.append("      \"type\": \"string\",\n");
-      sb.append("      \"value\": \"");
-      sb.append(outputValue);
-      sb.append("\",\n");
-      sb.append("    }\n");
-      sb.append("  },");
+      str += """
+          "outputs": {
+            "foo": {
+              "type": "string",
+              "value": "%s",
+            }
+          },
+        """.formatted(outputValue);
     }
-
-    sb.append("\n}");
-    return sb.toString();
+    return str + "}";
   }
 }
