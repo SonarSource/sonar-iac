@@ -38,9 +38,8 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.HasSymbol;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
-import org.sonar.iac.arm.tree.impl.bicep.AbstractDeclaration;
-import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
@@ -98,17 +97,18 @@ class ArmSymbolVisitorTest {
     SymbolTable symbolTable = file.symbolTable();
 
     assertThat(symbolTable).isNotNull();
+    assertThat(symbolTable.hasFoundUnresolvableVariableAccess()).isFalse();
     assertThat(symbolTable.getSymbols()).hasSize(1);
     assertThat(symbolTable.getSymbol("bar")).isNull();
 
     Symbol symbol = symbolTable.getSymbol("foo");
     assertThat(symbol).isNotNull().isEqualTo(declaration.symbol());
     assertThat(symbol.name()).isEqualTo("foo");
+    assertThat(symbol.symbolTable()).isEqualTo(symbolTable);
 
     assertThat(symbol.usages()).allSatisfy(usage -> {
       assertThat(usage.kind()).isEqualTo(Usage.Kind.ASSIGNMENT);
       assertThat(usage.tree()).isEqualTo(declaration);
-      assertThat(usage.symbolTable()).isEqualTo(symbolTable);
     });
   }
 
@@ -139,6 +139,7 @@ class ArmSymbolVisitorTest {
     SymbolTable symbolTable = file.symbolTable();
 
     assertThat(symbolTable).isNotNull();
+    assertThat(symbolTable.hasFoundUnresolvableVariableAccess()).isFalse();
     assertThat(symbolTable.getSymbols()).hasSize(typeOfCodeStatement == VAR ? 2 : 1);
 
     Symbol symbol = symbolTable.getSymbol("foo");
@@ -148,7 +149,7 @@ class ArmSymbolVisitorTest {
     assertThat(symbol.usages())
       .filteredOn(usage -> usage.kind() == Usage.Kind.ACCESS)
       .hasSize(1)
-      .allSatisfy(usage -> assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER));
+      .allSatisfy(usage -> assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.VARIABLE));
   }
 
   @ParameterizedTest
@@ -176,6 +177,7 @@ class ArmSymbolVisitorTest {
     SymbolTable symbolTable = file.symbolTable();
 
     assertThat(symbolTable).isNotNull();
+    assertThat(symbolTable.hasFoundUnresolvableVariableAccess()).isFalse();
     assertThat(symbolTable.getSymbols()).hasSize(1);
 
     Symbol symbol = symbolTable.getSymbol("foo");
@@ -200,6 +202,7 @@ class ArmSymbolVisitorTest {
     SymbolTable symbolTable = file.symbolTable();
 
     assertThat(symbolTable).isNotNull();
+    assertThat(symbolTable.hasFoundUnresolvableVariableAccess()).isFalse();
     assertThat(symbolTable.getSymbols()).hasSize(2);
 
     Symbol symbol = symbolTable.getSymbol("foo");
@@ -209,78 +212,6 @@ class ArmSymbolVisitorTest {
     assertThat(symbol.usages())
       .filteredOn(usage -> usage.kind() == Usage.Kind.ACCESS)
       .hasSize(1);
-  }
-
-  /**
-   * Tests that the identifier that is resolved from VariableDeclaration.declaratedName() will not register as usage.
-   * Normally this will not happen because of the Set ArmSymbolVisitor#PARENT_KIND_INDICATING_NO_USAGE.
-   * This test is to ensure that this also not happens when no parent Tree is set.
-   */
-  @Test
-  void identifierWithoutParentShouldNotRegisterAsUsageForBicep() {
-    String code = fileWithDefaultVariableDeclaration(BICEP);
-    File file = parse(code);
-
-    // identifier should have no parent in order for testing
-    file.statements().stream()
-      .filter(s -> s instanceof VariableDeclaration)
-      .map(VariableDeclarationImpl.class::cast)
-      .map(AbstractDeclaration::declaratedName)
-      .filter(identifier -> identifier.value().equals("foo"))
-      .forEach(s -> s.setParent(null));
-
-    ArmSymbolVisitor visitor = new ArmSymbolVisitor();
-    visitor.scan(inputFileContext, file);
-
-    SymbolTable symbolTable = file.symbolTable();
-
-    assertThat(symbolTable).isNotNull();
-    assertThat(symbolTable.getSymbols()).hasSize(1);
-
-    var symbol = symbolTable.getSymbol("foo");
-    assertThat(symbol).isNotNull();
-    assertThat(symbol.name()).isEqualTo("foo");
-
-    assertThat(symbol.usages()).allSatisfy(usage -> {
-      assertThat(usage.kind()).isEqualTo(Usage.Kind.ASSIGNMENT);
-      assertThat(usage.symbolTable()).isEqualTo(symbolTable);
-    });
-  }
-
-  /**
-   * Tests that the identifier that is resolved from VariableDeclaration.declaratedName() will not register as usage.
-   * Normally this will not happen because of the Set ArmSymbolVisitor#PARENT_KIND_INDICATING_NO_USAGE.
-   * This test is to ensure that this also not happens when no parent Tree is set.
-   */
-  @Test
-  void identifierWithoutParentShouldNotRegisterAsUsageForJson() {
-    String code = fileWithDefaultVariableDeclaration(JSON);
-    File file = parse(code);
-
-    // identifier should have no parent in order for testing
-    file.statements().stream()
-      .filter(s -> s instanceof VariableDeclaration)
-      .map(org.sonar.iac.arm.tree.impl.json.VariableDeclarationImpl.class::cast)
-      .map(org.sonar.iac.arm.tree.impl.json.VariableDeclarationImpl::declaratedName)
-      .filter(identifier -> identifier.value().equals("foo"))
-      .forEach(s -> s.setParent(null));
-
-    ArmSymbolVisitor visitor = new ArmSymbolVisitor();
-    visitor.scan(inputFileContext, file);
-
-    SymbolTable symbolTable = file.symbolTable();
-
-    assertThat(symbolTable).isNotNull();
-    assertThat(symbolTable.getSymbols()).hasSize(1);
-
-    var symbol = symbolTable.getSymbol("foo");
-    assertThat(symbol).isNotNull();
-    assertThat(symbol.name()).isEqualTo("foo");
-
-    assertThat(symbol.usages()).allSatisfy(usage -> {
-      assertThat(usage.kind()).isEqualTo(Usage.Kind.ASSIGNMENT);
-      assertThat(usage.symbolTable()).isEqualTo(symbolTable);
-    });
   }
 
   @ParameterizedTest
@@ -294,12 +225,13 @@ class ArmSymbolVisitorTest {
     File file = parse(code);
 
     ArmSymbolVisitor visitor = new ArmSymbolVisitor();
-    visitor.register(Identifier.class, (ctx, identifier) -> visitor.visitIdentifier(identifier));
+    visitor.register(Variable.class, (ctx, variable) -> visitor.visitVariable(variable));
     visitor.scan(inputFileContext, file);
 
     SymbolTable symbolTable = file.symbolTable();
 
     assertThat(symbolTable).isNotNull();
+    assertThat(symbolTable.hasFoundUnresolvableVariableAccess()).isFalse();
     assertThat(symbolTable.getSymbols()).hasSize(2);
 
     var symbol = symbolTable.getSymbol("foo");
@@ -311,7 +243,7 @@ class ArmSymbolVisitorTest {
     assertThat(symbol.usages())
       .filteredOn(usage -> usage.kind() == Usage.Kind.ACCESS)
       .hasSize(1)
-      .allSatisfy(usage -> assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER));
+      .allSatisfy(usage -> assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.VARIABLE));
   }
 
   @ParameterizedTest
@@ -337,13 +269,13 @@ class ArmSymbolVisitorTest {
 
     File file = scanFile(code);
 
-    Symbol newSymbol = new Symbol("bar");
-
     SymbolTable symbolTable = file.symbolTable();
-    Identifier foo = symbolTable.getSymbol("foo").usages().stream()
+
+    Symbol newSymbol = new Symbol(symbolTable, "bar");
+    Variable foo = symbolTable.getSymbol("foo").usages().stream()
       .map(Usage::tree)
-      .filter(tree -> tree.is(ArmTree.Kind.IDENTIFIER))
-      .map(Identifier.class::cast)
+      .filter(tree -> tree.is(ArmTree.Kind.VARIABLE))
+      .map(Variable.class::cast)
       .findFirst()
       .orElseThrow();
 
@@ -358,9 +290,9 @@ class ArmSymbolVisitorTest {
     String code = fileWithDefaultVariableDeclaration(language);
     File file = scanFile(code);
 
-    Symbol newSymbol = new Symbol("bar");
-
     SymbolTable symbolTable = file.symbolTable();
+    Symbol newSymbol = new Symbol(symbolTable, "bar");
+
     VariableDeclaration declaration = symbolTable.getSymbol("foo").usages().stream()
       .map(Usage::tree)
       .filter(tree -> tree.is(ArmTree.Kind.VARIABLE_DECLARATION))
@@ -388,10 +320,37 @@ class ArmSymbolVisitorTest {
     assertThat(file.symbolTable().getSymbols()).doesNotContainAnyElementsOf(file2.symbolTable().getSymbols());
     assertThat(file2.symbolTable().getSymbols()).doesNotContainAnyElementsOf(file.symbolTable().getSymbols());
 
+    assertThat(file.symbolTable().hasFoundUnresolvableVariableAccess()).isFalse();
+    assertThat(file2.symbolTable().hasFoundUnresolvableVariableAccess()).isFalse();
+
     assertThat(file.symbolTable().getSymbol("foo").usages()).hasSize(1)
       .allSatisfy(usage -> assertThat(usage.tree()).isEqualTo(file.statements().get(0)));
     assertThat(file2.symbolTable().getSymbol("foo").usages()).hasSize(1)
       .allSatisfy(usage -> assertThat(usage.tree()).isEqualTo(file2.statements().get(0)));
+  }
+
+  @Test
+  void symbolTableShouldBeInResolvableVariableState() {
+    String code = ArmSourceCodeBuilder.create(JSON)
+      .addVariableDeclaration(VARIABLE_DECLARATION.get(JSON))
+      .addVariableDeclaration("\"bar \": \"[variables(concat('fo', 'o'))]\"")
+      .build();
+
+    File file = scanFile(code);
+
+    SymbolTable symbolTable = file.symbolTable();
+
+    assertThat(symbolTable).isNotNull();
+    assertThat(symbolTable.hasFoundUnresolvableVariableAccess()).isTrue();
+    assertThat(symbolTable.getSymbols()).hasSize(2);
+
+    Symbol symbol = symbolTable.getSymbol("foo");
+    assertThat(symbol).isNotNull();
+
+    assertThat(symbol.usages()).hasSize(1).allSatisfy(usage -> {
+      assertThat(usage.kind()).isEqualTo(Usage.Kind.ASSIGNMENT);
+      assertThat(usage.tree()).isEqualTo(file.statements().get(0));
+    });
   }
 
   File scanFile(String code) {

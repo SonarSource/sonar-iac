@@ -20,8 +20,6 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import javax.annotation.Nullable;
-import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -32,7 +30,6 @@ public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
 
   private final String identifier;
   private final YamlTreeMetadata metadata;
-  private Symbol symbol;
 
   public IdentifierImpl(String identifier, YamlTreeMetadata metadata) {
     this.identifier = identifier;
@@ -57,19 +54,5 @@ public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
   @Override
   public Kind getKind() {
     return Kind.IDENTIFIER;
-  }
-
-  @Nullable
-  @Override
-  public Symbol symbol() {
-    return symbol;
-  }
-
-  @Override
-  public void setSymbol(Symbol symbol) {
-    if (this.symbol != null) {
-      throw new IllegalArgumentException("A symbol is already set");
-    }
-    this.symbol = symbol;
   }
 }

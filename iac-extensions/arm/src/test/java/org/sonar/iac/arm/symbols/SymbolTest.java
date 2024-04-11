@@ -21,6 +21,7 @@ package org.sonar.iac.arm.symbols;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.tree.api.HasSymbol;
+import org.sonar.iac.arm.tree.impl.VariableImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 
@@ -34,15 +35,15 @@ class SymbolTest {
     SymbolTable symbolTable = new SymbolTable();
     Symbol symbol = symbolTable.addSymbol("foo");
 
-    IdentifierImpl fooIdentifier = new IdentifierImpl("foo", null);
-    symbol.addUsage(symbolTable, fooIdentifier, Usage.Kind.ACCESS);
+    VariableImpl fooVariable = new VariableImpl(new IdentifierImpl("foo", null), null);
+    symbol.addUsage(fooVariable, Usage.Kind.ACCESS);
 
     assertThat(symbol.name()).isEqualTo("foo");
     assertThat(symbol.usages()).hasSize(1);
     assertThat(symbol.usages().get(0).kind()).isEqualTo(Usage.Kind.ACCESS);
-    assertThat(symbol.usages().get(0).tree()).isEqualTo(fooIdentifier);
+    assertThat(symbol.usages().get(0).tree()).isEqualTo(fooVariable);
 
-    assertThat(fooIdentifier.symbol()).isEqualTo(symbol);
+    assertThat(fooVariable.symbol()).isEqualTo(symbol);
   }
 
   @Test
@@ -50,11 +51,11 @@ class SymbolTest {
     SymbolTable symbolTable = new SymbolTable();
     Symbol symbol = symbolTable.addSymbol("foo");
 
-    IdentifierImpl fooIdentifier = new IdentifierImpl("foo", null);
-    symbol.addUsage(symbolTable, fooIdentifier, Usage.Kind.ACCESS);
+    VariableImpl fooVariable = new VariableImpl(new IdentifierImpl("foo", null), null);
+    symbol.addUsage(fooVariable, Usage.Kind.ACCESS);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> symbol.addUsage(symbolTable, fooIdentifier, Usage.Kind.ACCESS))
+      .isThrownBy(() -> symbol.addUsage(fooVariable, Usage.Kind.ACCESS))
       .withMessage("A symbol is already set");
   }
 
@@ -64,7 +65,7 @@ class SymbolTest {
     Symbol symbol = symbolTable.addSymbol("foo");
 
     StringLiteralImpl fooLiteral = new StringLiteralImpl("foo", null);
-    symbol.addUsage(symbolTable, fooLiteral, Usage.Kind.ACCESS);
+    symbol.addUsage(fooLiteral, Usage.Kind.ACCESS);
 
     assertThat(fooLiteral).isNotInstanceOf(HasSymbol.class);
     assertThat(symbol.name()).isEqualTo("foo");

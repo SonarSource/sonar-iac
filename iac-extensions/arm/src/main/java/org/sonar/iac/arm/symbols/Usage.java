@@ -30,10 +30,8 @@ public class Usage {
 
   private final ArmTree tree;
   private final Kind kind;
-  private final SymbolTable symbolTable;
 
-  public Usage(SymbolTable symbolTable, ArmTree tree, Kind kind) {
-    this.symbolTable = symbolTable;
+  public Usage(ArmTree tree, Kind kind) {
     this.tree = tree;
     this.kind = kind;
   }
@@ -44,9 +42,5 @@ public class Usage {
 
   public Kind kind() {
     return kind;
-  }
-
-  public SymbolTable symbolTable() {
-    return symbolTable;
   }
 }

@@ -25,20 +25,26 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.HasSymbol;
 
 public class Symbol {
+  private final SymbolTable symbolTable;
   private final String name;
   private final List<Usage> usages;
 
-  public Symbol(String name) {
+  public Symbol(SymbolTable symbolTable, String name) {
+    this.symbolTable = symbolTable;
     this.name = name;
     this.usages = new ArrayList<>();
   }
 
-  public void addUsage(SymbolTable symbolTable, ArmTree tree, Usage.Kind kind) {
-    var usage = new Usage(symbolTable, tree, kind);
+  public void addUsage(ArmTree tree, Usage.Kind kind) {
+    var usage = new Usage(tree, kind);
     usages.add(usage);
     if (tree instanceof HasSymbol treeWithSymbol) {
       treeWithSymbol.setSymbol(this);
     }
+  }
+
+  public SymbolTable symbolTable() {
+    return symbolTable;
   }
 
   public String name() {

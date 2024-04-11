@@ -27,9 +27,10 @@ import javax.annotation.Nullable;
 
 public class SymbolTable {
   private final Map<String, Symbol> symbols = new HashMap<>();
+  private boolean foundUnresolvableVariableAccess;
 
   public Symbol addSymbol(String name) {
-    return symbols.computeIfAbsent(name, s -> new Symbol(name));
+    return symbols.computeIfAbsent(name, s -> new Symbol(this, name));
   }
 
   @Nullable
@@ -41,4 +42,11 @@ public class SymbolTable {
     return new ArrayList<>(symbols.values());
   }
 
+  public boolean hasFoundUnresolvableVariableAccess() {
+    return foundUnresolvableVariableAccess;
+  }
+
+  public void foundUnresolvableVariableAccess() {
+    this.foundUnresolvableVariableAccess = true;
+  }
 }

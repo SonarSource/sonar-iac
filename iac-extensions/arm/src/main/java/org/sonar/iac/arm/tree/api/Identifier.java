@@ -22,5 +22,5 @@ package org.sonar.iac.arm.tree.api;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.common.api.tree.TextTree;
 
-public interface Identifier extends TypeExpressionAble, TextTree, Expression, HasSymbol {
+public interface Identifier extends TypeExpressionAble, TextTree, Expression {
 }

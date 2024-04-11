@@ -20,8 +20,6 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
-import javax.annotation.Nullable;
-import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -29,7 +27,6 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
   private final SyntaxToken token;
-  private Symbol symbol;
 
   public IdentifierImpl(SyntaxToken token) {
     this.token = token;
@@ -52,19 +49,5 @@ public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
 
   public SyntaxToken getToken() {
     return token;
-  }
-
-  @Nullable
-  @Override
-  public Symbol symbol() {
-    return symbol;
-  }
-
-  @Override
-  public void setSymbol(Symbol symbol) {
-    if (this.symbol != null) {
-      throw new IllegalArgumentException("A symbol is already set");
-    }
-    this.symbol = symbol;
   }
 }
