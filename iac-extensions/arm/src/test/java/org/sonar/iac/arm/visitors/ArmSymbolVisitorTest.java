@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.symbols.SymbolTable;
@@ -42,16 +41,18 @@ import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.AbstractDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
+import org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.OUT;
+import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.VAR;
 
 class ArmSymbolVisitorTest {
 
   private final InputFileContext inputFileContext = mock(InputFileContext.class);
-
   private static final String BICEP = "bicep";
   private static final String JSON = "json";
   private static final Map<String, String> VARIABLE_DECLARATION = Map.of(
@@ -69,6 +70,7 @@ class ArmSymbolVisitorTest {
   @MethodSource("languagesToTest")
   void registeredTreesShouldBeVisited(String language) {
     String code = fileWithDefaultVariableDeclaration(language);
+
     File file = parse(code);
     List<String> visited = new ArrayList<>();
     ArmSymbolVisitor visitor = new ArmSymbolVisitor();
@@ -90,6 +92,7 @@ class ArmSymbolVisitorTest {
   @MethodSource("languagesToTest")
   void variableDeclarationShouldCreateSymbol(String language) {
     String code = fileWithDefaultVariableDeclaration(language);
+
     File file = scanFile(code);
     HasSymbol declaration = (HasSymbol) file.statements().get(0);
     SymbolTable symbolTable = file.symbolTable();
@@ -110,27 +113,33 @@ class ArmSymbolVisitorTest {
   }
 
   @ParameterizedTest
-  @CsvSource({
+  @CsvSource(delimiterString = ";", value = {
     // BICEP
     // access in variableDeclaration should create usage
-    "bicep," + "var bar =  '${foo}'",
-    "bicep," + "var bar =  '${foo}ConcatToVariable'",
+    "bicep;VAR;" + "var bar =  '${foo}'",
+    "bicep;VAR;" + "var bar =  '${foo}ConcatToVariable'",
     // access in function in variableDeclaration should create usage
-    "bicep," + "var bar =  '${toLower(foo)}ConcatToVariable'",
+    "bicep;VAR;" + "var bar =  '${toLower(foo)}ConcatToVariable'",
 
-    // JSON - Not supported yet, see SONARIAC-1038
-    // "json," + "\"bar\": \"[variables('foo')]\"",
-    // "json," + "\"bar\": \"[concat(variables('foo'), '-addToVar')]\"",
-    // "json," + "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\""",
+    // output
+    "bicep;OUT;" + "output foo string =  foo",
+
+    "json;VAR;" + "\"bar\": \"[variables('foo')]\"",
+    "json;VAR;" + "\"bar\": \"[concat(variables('foo'), '-addToVar')]\"",
+    "json;VAR;" + "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\""
   })
-  void shouldRegisterUsageAccess(String language, String codeStatement) {
-    String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language), codeStatement), null);
+  void shouldRegisterUsageAccess(String language, CodeStatementType typeOfCodeStatement, String codeStatement) {
+    String code = ArmSourceCodeBuilder.create(language)
+      .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
+      .addCodeStatement(typeOfCodeStatement, codeStatement)
+      .build();
+
     File file = scanFile(code);
 
     SymbolTable symbolTable = file.symbolTable();
 
     assertThat(symbolTable).isNotNull();
-    assertThat(symbolTable.getSymbols()).hasSize(2);
+    assertThat(symbolTable.getSymbols()).hasSize(typeOfCodeStatement == VAR ? 2 : 1);
 
     Symbol symbol = symbolTable.getSymbol("foo");
     assertThat(symbol).isNotNull();
@@ -144,7 +153,6 @@ class ArmSymbolVisitorTest {
 
   @ParameterizedTest
   @CsvSource({
-    "bicep," + "output foo string =  foo",
     // no access usage should be registered when same name as variable in outputDeclaration
     "bicep," + "output foo string =  deployment().name",
     "bicep," + "output foo string =  baba['foo']",
@@ -154,7 +162,11 @@ class ArmSymbolVisitorTest {
     "json," + "[baba['foo']]"
   })
   void shouldRegisterNoUsageAccess(String language, String codeStatement) {
-    String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language)), codeStatement);
+    String code = ArmSourceCodeBuilder.create(language)
+      .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
+      .addCodeStatement(OUT, codeStatement)
+      .build();
+
     File file = scanFile(code);
 
     Statement variableDeclaration = file.statements().stream()
@@ -176,14 +188,13 @@ class ArmSymbolVisitorTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "bicep"
-    // TODO: Json Not supported yet, see SONARIAC-1038
-    // "json"
-  })
+  @MethodSource("languagesToTest")
   void shouldRegisterUsageWhenDeclarationAfterAccess(String language) {
-    String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION_WITH_USAGE.get(language), VARIABLE_DECLARATION.get(language)),
-      null);
+    String code = ArmSourceCodeBuilder.create(language)
+      .addVariableDeclaration(VARIABLE_DECLARATION_WITH_USAGE.get(language))
+      .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
+      .build();
+
     File file = scanFile(code);
 
     SymbolTable symbolTable = file.symbolTable();
@@ -273,14 +284,13 @@ class ArmSymbolVisitorTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "bicep"
-    // TODO: Json Not supported yet, see SONARIAC-1038
-    // "json"
-  })
+  @MethodSource("languagesToTest")
   void shouldOnlyCreateOneAccessUsageWhenRegisteringIdentifierMultipleTimes(String language) {
-    String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language), VARIABLE_DECLARATION_WITH_USAGE.get(language)),
-      null);
+    String code = ArmSourceCodeBuilder.create(language)
+      .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
+      .addVariableDeclaration(VARIABLE_DECLARATION_WITH_USAGE.get(language))
+      .build();
+
     File file = parse(code);
 
     ArmSymbolVisitor visitor = new ArmSymbolVisitor();
@@ -318,14 +328,13 @@ class ArmSymbolVisitorTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "bicep"
-    // TODO: Json Not supported yet, see SONARIAC-1038
-    // "json"
-  })
+  @MethodSource("languagesToTest")
   void shouldThrowExceptionOnMultipleSymbolForIdentifier(String language) {
-    String code = buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language), VARIABLE_DECLARATION_WITH_USAGE.get(language)),
-      null);
+    String code = ArmSourceCodeBuilder.create(language)
+      .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
+      .addVariableDeclaration(VARIABLE_DECLARATION_WITH_USAGE.get(language))
+      .build();
+
     File file = scanFile(code);
 
     Symbol newSymbol = new Symbol("bar");
@@ -400,14 +409,56 @@ class ArmSymbolVisitorTest {
     }
   }
 
-  private static String fileWithDefaultVariableDeclaration(String language) {
-    return buildSourceCode(language, List.of(VARIABLE_DECLARATION.get(language)), null);
+  private String fileWithDefaultVariableDeclaration(String language) {
+    return ArmSourceCodeBuilder.create(language)
+      .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
+      .build();
   }
 
-  private static String buildSourceCode(String language, @Nullable List<String> variableDeclarations, @Nullable String outputValue) {
-    if ("json".equals(language)) {
-      return buildJsonFile(variableDeclarations, outputValue);
-    } else {
+  static class ArmSourceCodeBuilder {
+    public enum CodeStatementType {
+      VAR, OUT
+    }
+
+    private final String language;
+    private final List<String> variableDeclarations = new ArrayList<>();
+    private String outputValue;
+
+    public static ArmSourceCodeBuilder create(String language) {
+      return new ArmSourceCodeBuilder(language);
+    }
+
+    private ArmSourceCodeBuilder(String language) {
+      this.language = language;
+    }
+
+    public ArmSourceCodeBuilder addCodeStatement(CodeStatementType type, String codeStatement) {
+      if (type == VAR) {
+        variableDeclarations.add(codeStatement);
+      } else if (type == OUT) {
+        outputValue = codeStatement;
+      }
+      return this;
+    }
+
+    public ArmSourceCodeBuilder addVariableDeclaration(String variableDeclaration) {
+      variableDeclarations.add(variableDeclaration);
+      return this;
+    }
+
+    public String build() {
+      return buildSourceCode(language, variableDeclarations, outputValue);
+    }
+
+    private static String buildSourceCode(String language, @Nullable List<String> variableDeclarations, @Nullable String outputValue) {
+      if (JSON.equals(language)) {
+        return buildJsonFile(variableDeclarations, outputValue);
+      } else {
+        return buildBicepFile(variableDeclarations, outputValue);
+      }
+    }
+
+    private static String buildBicepFile(@Nullable List<String> variableDeclarations, @Nullable String outputValue) {
       String code = "";
       if (variableDeclarations != null) {
         code = String.join("\n", variableDeclarations);
@@ -420,30 +471,30 @@ class ArmSymbolVisitorTest {
       }
       return code;
     }
-  }
 
-  private static String buildJsonFile(@Nullable List<String> variables, @Nullable String outputValue) {
-    String str = """
-      {
-        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-      """;
-    if (variables != null) {
-      str += """
-          "variables": {
-        %s
-          },
-        """.formatted(variables.stream().map(v -> "      " + v + ",").collect(Collectors.joining("\n")));
+    private static String buildJsonFile(@Nullable List<String> variables, @Nullable String outputValue) {
+      String str = """
+        {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        """;
+      if (variables != null) {
+        str += """
+            "variables": {
+          %s
+            },
+          """.formatted(variables.stream().map(v -> "      " + v + ",").collect(Collectors.joining("\n")));
+      }
+      if (outputValue != null) {
+        str += """
+            "outputs": {
+              "foo": {
+                "type": "string",
+                "value": "%s",
+              }
+            },
+          """.formatted(outputValue);
+      }
+      return str + "}";
     }
-    if (outputValue != null) {
-      str += """
-          "outputs": {
-            "foo": {
-              "type": "string",
-              "value": "%s",
-            }
-          },
-        """.formatted(outputValue);
-    }
-    return str + "}";
   }
 }
