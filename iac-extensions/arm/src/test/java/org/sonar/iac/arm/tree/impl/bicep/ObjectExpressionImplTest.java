@@ -26,6 +26,7 @@ import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.TextTree;
 
@@ -108,9 +109,9 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
     assertThat(property2.value()).asWrappedIdentifier().hasValue("value2");
 
     ResourceDeclaration resource1 = tree.nestedResources().get(0);
-    assertThat(resource1.name()).hasValue("subnet1Name");
+    assertThat(((StringLiteral) resource1.name())).hasValue("subnet1Name");
     ResourceDeclaration resource2 = tree.nestedResources().get(1);
-    assertThat(resource2.name()).hasValue("subnet2Name");
+    assertThat(((StringLiteral) resource2.name())).hasValue("subnet2Name");
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("{", "key1", ":", "value1", "resource", "subnet1", "subnets",
       "=", "{", "name", ":", "subnet1Name", "}", "key2", ":", "value2", "resource", "subnet2", "subnets", "=", "{", "name",

@@ -59,6 +59,9 @@ public class EmptyOrNullValueCheck implements IacCheck {
     for (Property property : resource.resourceProperties()) {
       checkExpression(ctx, property, property.value(), "property");
     }
+    for (Property property : resource.properties()) {
+      checkExpression(ctx, property, property.value(), "property");
+    }
   }
 
   private static void checkVariable(CheckContext ctx, VariableDeclaration variable) {

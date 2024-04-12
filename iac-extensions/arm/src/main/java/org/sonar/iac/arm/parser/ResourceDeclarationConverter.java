@@ -21,7 +21,9 @@ package org.sonar.iac.arm.parser;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -66,7 +68,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
     StringLiteral type = toStringLiteralOrException(tree, "type");
     var version = toExpressionOrException(tree, "apiVersion");
-    StringLiteral name = toStringLiteralOrException(tree, "name");
+    var name = toExpressionOrException(tree, "name");
     List<Property> resourceProperties = toResourceProperties(tree);
     List<Property> otherProperties = PropertyUtils.get(tree, "properties"::equalsIgnoreCase)
       .map(PropertyTree::value)
@@ -79,18 +81,20 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   }
 
   private List<Property> toResourceProperties(MappingTree tree) {
+    Set<String> alreadyParsedProperties = Set.of("type", "apiversion", "name", "properties", "resources");
     return tree.elements().stream()
       .map(tupleTree -> {
         Identifier key = toIdentifier(tupleTree.key());
         Expression value = toExpression(tupleTree.value());
         return new PropertyImpl(key, value);
       })
+      .filter(property -> !alreadyParsedProperties.contains(property.key().value().toLowerCase(Locale.ROOT)))
       .collect(Collectors.toList());
   }
 
   private static ResourceDeclaration toResourceDeclaration(StringLiteral type,
     Expression version,
-    StringLiteral name,
+    Expression name,
     List<Property> otherProperties,
     List<Property> resourceProperties) {
     return new ResourceDeclarationImpl(name, version, type, otherProperties, resourceProperties, Collections.emptyList());
@@ -98,7 +102,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
 
   private ResourceDeclaration toResourceDeclarationWithChildren(StringLiteral type,
     Expression version,
-    StringLiteral name,
+    Expression name,
     List<Property> otherProperties,
     List<Property> resourceProperties,
     PropertyTree childResourcesProperty) {

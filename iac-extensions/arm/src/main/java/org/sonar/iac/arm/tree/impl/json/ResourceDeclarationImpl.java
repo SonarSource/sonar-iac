@@ -29,18 +29,19 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
-  private final StringLiteral name;
+  private final Expression name;
   private final Expression version;
   private final StringLiteral type;
   private final List<Property> properties;
   private final List<Property> resourceProperties;
   private final List<ResourceDeclaration> childResources;
 
-  public ResourceDeclarationImpl(StringLiteral name,
+  public ResourceDeclarationImpl(Expression name,
     Expression version,
     StringLiteral type,
     List<Property> properties,
@@ -64,13 +65,17 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
       children.add(property.key());
       children.add(property.value());
     });
+    resourceProperties.forEach(resourceProperty -> {
+      children.add(resourceProperty.key());
+      children.add(resourceProperty.value());
+    });
     children.addAll(childResources);
     return children;
   }
 
   @Override
   @CheckForNull
-  public StringLiteral name() {
+  public Expression name() {
     return name;
   }
 
@@ -92,7 +97,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public StringLiteral type() {
+  public TextTree type() {
     return type;
   }
 

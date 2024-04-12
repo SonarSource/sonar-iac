@@ -49,7 +49,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
-    assertThat(tree.name().value()).isEqualTo("myName");
+    assertThat(((StringLiteral) tree.name()).value()).isEqualTo("myName");
     assertThat(tree.type().value()).isEqualTo("type");
     assertThat(((StringLiteral) tree.version()).value()).isEqualTo("version");
 

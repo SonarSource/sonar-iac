@@ -37,7 +37,7 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
    * @see <a href=”https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules”>Microsoft - Naming rules and restrictions for Azure resources</a>
    */
   @CheckForNull
-  StringLiteral name();
+  Expression name();
 
   @CheckForNull
   Identifier symbolicName();
