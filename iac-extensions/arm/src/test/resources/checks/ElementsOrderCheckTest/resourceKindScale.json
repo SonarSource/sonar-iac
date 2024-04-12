@@ -1,0 +1,20 @@
+{
+  "resources": [
+    {
+      "comments": "if any",
+      "condition": true,
+      "scope": "% parent scope %",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "location": "[parameters('location')]",
+      "scale": "",
+      "kind": "",
+      "plan": {},
+      "identity": {},
+      "dependsOn": [],
+      "tags": {},
+      "properties": {}
+    }
+  ]
+}

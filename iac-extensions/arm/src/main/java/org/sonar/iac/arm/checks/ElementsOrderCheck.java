@@ -30,6 +30,7 @@ public class ElementsOrderCheck implements IacCheck {
   public void initialize(InitContext init) {
     new ElementsOrderTopLevelJson().initialize(init);
     new ElementsOrderTopLevelBicep().initialize(init);
+    new ElementsOrderResourceJson().initialize(init);
   }
 
 }
