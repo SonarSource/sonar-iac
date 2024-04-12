@@ -28,11 +28,8 @@ public class ElementsOrderCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    var elementsOrderTopLevelJson = new ElementsOrderTopLevelJson();
-    elementsOrderTopLevelJson.initialize(init);
-
-    var elementsOrderTopLevelBicep = new ElementsOrderTopLevelBicep();
-    elementsOrderTopLevelBicep.initialize(init);
+    new ElementsOrderTopLevelJson().initialize(init);
+    new ElementsOrderTopLevelBicep().initialize(init);
   }
 
 }

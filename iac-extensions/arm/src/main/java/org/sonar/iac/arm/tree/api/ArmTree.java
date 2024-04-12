@@ -77,6 +77,7 @@ public interface ArmTree extends Tree {
     OUTPUT_DECLARATION(OutputDeclaration.class),
     PARAMETER_DECLARATION(ParameterDeclaration.class),
     RESOURCE_DECLARATION(ResourceDeclaration.class),
+    RESOURCE_DECLARATION_EXISTING(ResourceDeclaration.class),
     VARIABLE_DECLARATION(VariableDeclaration.class),
     MODULE_DECLARATION(ModuleDeclaration.class),
     IDENTIFIER(Identifier.class),

@@ -39,57 +39,41 @@ public class ElementsOrderTopLevelBicep implements IacCheck {
 
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
 
-  private static final Map<String, Integer> expectedOrder = Map.of(
-    ArmTree.Kind.TARGET_SCOPE_DECLARATION.name(), 0,
-    ArmTree.Kind.METADATA_DECLARATION.name(), 1,
-    ArmTree.Kind.PARAMETER_DECLARATION.name(), 2,
-    ArmTree.Kind.FUNCTION_DECLARATION.name(), 3,
-    ArmTree.Kind.VARIABLE_DECLARATION.name(), 4,
-    ArmTree.Kind.RESOURCE_DECLARATION.name() + "EXISTING", 5,
-    ArmTree.Kind.RESOURCE_DECLARATION.name(), 6,
-    ArmTree.Kind.MODULE_DECLARATION.name(), 7,
-    ArmTree.Kind.OUTPUT_DECLARATION.name(), 8);
+  private static final Map<ArmTree.Kind, Integer> expectedOrder = Map.of(
+    ArmTree.Kind.TARGET_SCOPE_DECLARATION, 0,
+    ArmTree.Kind.METADATA_DECLARATION, 1,
+    ArmTree.Kind.PARAMETER_DECLARATION, 2,
+    ArmTree.Kind.FUNCTION_DECLARATION, 3,
+    ArmTree.Kind.VARIABLE_DECLARATION, 4,
+    ArmTree.Kind.RESOURCE_DECLARATION_EXISTING, 5,
+    ArmTree.Kind.RESOURCE_DECLARATION, 6,
+    ArmTree.Kind.MODULE_DECLARATION, 7,
+    ArmTree.Kind.OUTPUT_DECLARATION, 8);
 
-  private String lastKind = ArmTree.Kind.TARGET_SCOPE_DECLARATION.name();
+  private ArmTree.Kind lastKind = ArmTree.Kind.TARGET_SCOPE_DECLARATION;
   private boolean issueFound;
 
   @Override
   public void initialize(InitContext init) {
+    // The bicep Impl classes are used here to avoid raising issues on JSON files
     init.register(FileImpl.class, this::checkFile);
     init.register(TargetScopeDeclarationImpl.class, this::checkDeclaration);
     init.register(MetadataDeclarationImpl.class, this::checkDeclaration);
     init.register(ParameterDeclarationImpl.class, this::checkDeclaration);
     init.register(VariableDeclarationImpl.class, this::checkDeclaration);
-    init.register(ResourceDeclarationImpl.class, this::checkResourceDeclaration);
+    init.register(ResourceDeclarationImpl.class, this::checkDeclaration);
     init.register(ModuleDeclarationImpl.class, this::checkDeclaration);
     init.register(OutputDeclarationImpl.class, this::checkDeclaration);
   }
 
   private void checkFile(CheckContext checkContext, FileImpl file) {
-    lastKind = ArmTree.Kind.TARGET_SCOPE_DECLARATION.name();
+    lastKind = ArmTree.Kind.TARGET_SCOPE_DECLARATION;
     issueFound = false;
   }
 
   private void checkDeclaration(CheckContext checkContext, HasKeyword tree) {
     if (!issueFound) {
-      var kind = tree.getKind().name();
-      if (expectedOrder.get(kind) < expectedOrder.get(lastKind)) {
-        checkContext.reportIssue(tree.keyword(), MESSAGE);
-        issueFound = true;
-      } else {
-        lastKind = kind;
-      }
-    }
-  }
-
-  private void checkResourceDeclaration(CheckContext checkContext, ResourceDeclarationImpl tree) {
-    if (!issueFound) {
-      var existing = "";
-      if (tree.existing() != null) {
-        existing = "EXISTING";
-      }
-      var kind = tree.getKind().name() + existing;
-
+      var kind = tree.getKind();
       if (expectedOrder.get(kind) < expectedOrder.get(lastKind) && tree.parent() instanceof File) {
         checkContext.reportIssue(tree.keyword(), MESSAGE);
         issueFound = true;

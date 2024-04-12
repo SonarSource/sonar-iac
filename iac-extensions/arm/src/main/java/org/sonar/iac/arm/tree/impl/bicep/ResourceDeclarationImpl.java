@@ -91,6 +91,9 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public Kind getKind() {
+    if (existing != null) {
+      return Kind.RESOURCE_DECLARATION_EXISTING;
+    }
     return Kind.RESOURCE_DECLARATION;
   }
 
@@ -151,7 +154,6 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
         return new TypeOrVersionTreeImpl(token);
       }
     }
-    // TODO SONARIAC-1019 ARM Bicep: make ResourceDelcaration.type() @CheckForNull
     return typeAndVersion;
   }
 

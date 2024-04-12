@@ -35,16 +35,16 @@ import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseResourceDeclarationObject() {
-    String code = code("resource mySymbolicName 'type@version' = {",
-      "name: 'myName'",
-      "key: value",
-      "}");
+    var code = """
+      resource mySymbolicName 'type@version' = {
+        name: 'myName'
+        key: value
+      }""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
@@ -61,11 +61,12 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseResourceDeclarationObjectAndReadProperties() {
-    String code = code("resource myName 'type@version' = { key: value",
-      "properties: {",
-      "prop1: val1",
-      "}",
-      "}");
+    var code = """
+      resource myName 'type@version' = { key: value
+        properties: {
+          prop1: val1
+        }
+      }""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
 
@@ -78,11 +79,12 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseResourceDeclarationObjectAndReadResourceProperties() {
-    String code = code("resource myName 'type@version' = { key: value",
-      "properties: {",
-      "prop1: val1",
-      "}",
-      "}");
+    var code = """
+      resource myName 'type@version' = { key: value
+        properties: {
+          prop1: val1
+        }
+      }""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
 
@@ -96,12 +98,13 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldRetrievePropertiesFromIfCondition() {
-    String code = code("resource myName 'type@version' = if (!empty(logAnalytics)) {",
-      "key: value",
-      "properties: {",
-      "prop1: val1",
-      "}",
-      "}");
+    var code = """
+      resource myName 'type@version' = if (!empty(logAnalytics)) {
+        key: value
+        properties: {
+          prop1: val1
+        }
+      }""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
@@ -123,13 +126,14 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldRetrievePropertiesFromForExpression() {
-    String code = code("resource myName 'type@version' = [for item in collection: {",
-      "key: value",
-      "properties: {",
-      "prop1: val1",
-      "}",
-      "}",
-      "]");
+    var code = """
+      resource myName 'type@version' = [for item in collection: {
+        key: value
+        properties: {
+          prop1: val1
+        }
+      }
+      ]""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
@@ -152,45 +156,53 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseResourceDeclarationWithExistingFlag() {
-    String code = code("resource myName 'type@version' existing = {",
-      "key: value",
-      "}");
+    var code = """
+      resource myName 'type@version' existing = {
+        key: value
+      }""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
 
     assertThat(tree.existing()).isNotNull();
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.RESOURCE_DECLARATION_EXISTING);
   }
 
   @Test
   void shouldParseResourceDeclaration() {
     ArmAssertions.assertThat(BicepLexicalGrammar.RESOURCE_DECLARATION)
-      .matches(code("resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {",
-        "  name: workloadIpGroupName",
-        "  location: location1",
-        "}"))
-      .matches(code("resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {",
-        "  name: workloadIpGroupName",
-        "  location: location1",
-        "}"))
-      .matches(code("resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' = {",
-        "  ABC: 123",
-        "  myKey: myValue",
-        "}"))
-      .matches(code("resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
-        "  ABC: 123",
-        "  myKey: myValue",
-        "}"))
-      .matches(code("@batchSize(10)",
-        "resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
-        "  ABC: 123",
-        "  myKey: myValue",
-        "}"))
-      .matches(code("@sys.batchSize(10)",
-        "@secure()",
-        "resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
-        "  ABC: 123",
-        "  myKey: myValue",
-        "}"))
+      .matches("""
+        resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {
+          name: workloadIpGroupName
+          location: location1
+        }""")
+      .matches("""
+        resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {
+          name: workloadIpGroupName
+          location: location1
+        }""")
+      .matches("""
+        resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' = {
+          ABC: 123
+          myKey: myValue
+        }""")
+      .matches("""
+        resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {
+          ABC: 123
+          myKey: myValue
+        }""")
+      .matches("""
+        @batchSize(10)
+        resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {
+          ABC: 123
+          myKey: myValue
+        }""")
+      .matches("""
+        @sys.batchSize(10)
+        @secure()
+        resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {
+          ABC: 123
+          myKey: myValue
+        }""")
       .matches("resource abc 'Microsoft.Web/sites@2022-09-01' = { name: value }")
       // defining a resource of name the same as keyword is possible
       .matches("resource for 'Microsoft.Web/sites@2022-09-01' = { name: value }")
@@ -200,15 +212,17 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
       .matches("resource param 'Microsoft.Web/sites@2022-09-01' = { name: value }")
       .matches("resource output 'Microsoft.Web/sites@2022-09-01' = { name: value }")
 
-      .notMatches(code("resource myName 'type_version' = {",
+      .notMatches("""
+        resource myName 'type_version' = {",
         "abc",
-        "}"));
+        "}""");
   }
 
   @Test
   void shouldProvideTypeAndVersionAsThisForInvalidTypeAndVersion() {
-    String code = code("resource myName 'type_version' = {",
-      "}");
+    String code = """
+      resource myName 'type_version' = {
+      }""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.type().value()).isEqualTo("type_version");
@@ -217,8 +231,9 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldProvideTypeAndVersionAsThisForInvalidTypeAndVersion2() {
-    String code = code("resource myName 'foo@bar@baz' = {",
-      "}");
+    String code = """
+      resource myName 'foo@bar@baz' = {
+      }""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.type().value()).isEqualTo("foo@bar@baz");
@@ -227,7 +242,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseResourceDeclarationWithDecorator() {
-    String code = code("@foo(10) resource myName 'type@version' = { key: value }");
+    String code = "@foo(10) resource myName 'type@version' = { key: value }";
     ResourceDeclarationImpl tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
 
@@ -240,18 +255,19 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldProvideEmptyPropertiesWithForBodyNotObject() {
-    String code = code("resource myName 'foo@bar@baz' = [for item in collection: 'value']");
+    String code = "resource myName 'foo@bar@baz' = [for item in collection: 'value']";
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.properties()).isEmpty();
   }
 
   @Test
   void shouldParseNestedResource() {
-    String code = code("resource myName 'type1@version1' = {",
-      "  resource childResource 'type2@version2' = {",
-      "    name: 'name'",
-      "  }",
-      "}");
+    String code = """
+      resource myName 'type1@version1' = {
+        resource childResource 'type2@version2' = {
+          name: 'name'
+        }
+      }""";
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.type().value()).isEqualTo("type1");
     assertThat(tree.version().value()).isEqualTo("version1");
@@ -264,14 +280,15 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldProvideEmptyPropertiesForTernaryExpression() {
-    String code = code("resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
-      "  name: myName",
-      "  properties: isPublicCloud ? {",
-      "    semanticSearch: 'standard'",
-      "  } : {",
-      "    semanticSearch: 'private'",
-      "  }",
-      "}");
+    String code = """
+      resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+        name: myName
+        properties: isPublicCloud ? {
+          semanticSearch: 'standard'
+        } : {
+          semanticSearch: 'private'
+        }
+      }""";
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.properties()).isEmpty();
@@ -279,12 +296,13 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldProvideEmptyPropertiesForIdentifier() {
-    String code = code("var myProperties = { property: 'value'}",
-      "",
-      "resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
-      "  name: myName",
-      "  properties: myProperties",
-      "}");
+    String code = """
+      var myProperties = { property: 'value'}
+
+      resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+        name: myName
+        properties: myProperties
+      }""";
 
     File tree = parse(code, BicepLexicalGrammar.FILE);
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(1);
@@ -294,9 +312,10 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
   @ParameterizedTest
   @ValueSource(strings = {"myName", "condition ? foo : 'bar'", "'my${foo}Name'"})
   void shouldProvideEmptyPropertiesForOtherNameTypes(String nameValue) {
-    String code = code("resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
-      "  name: " + nameValue,
-      "}");
+    String code = """
+      resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+        name: %s
+      }""".formatted(nameValue);
 
     File tree = parse(code, BicepLexicalGrammar.FILE);
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
@@ -305,11 +324,12 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void accessParent() {
-    String code = code("resource myName 'type1@version1' = {",
-      "  resource childResource 'type2@version2' = {",
-      "    name: 'name'",
-      "  }",
-      "}");
+    String code = """
+      resource myName 'type1@version1' = {
+        resource childResource 'type2@version2' = {
+          name: 'name'
+        }
+      }""";
     ResourceDeclaration resourceParent = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(resourceParent.parent()).isNull();
     assertThat(resourceParent.children()).hasSize(5);
