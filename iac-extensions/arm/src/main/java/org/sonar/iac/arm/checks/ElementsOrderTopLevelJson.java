@@ -33,12 +33,13 @@ public class ElementsOrderTopLevelJson implements IacCheck {
   private static final Map<String, Integer> topLevelJsonElements = Map.of(
     "$schema", 0,
     "contentVersion", 1,
-    "apiProfile", 2,
-    "parameters", 3,
-    "functions", 4,
-    "variables", 5,
-    "resources", 6,
-    "outputs", 7);
+    "metadata", 2,
+    "apiProfile", 3,
+    "parameters", 4,
+    "functions", 5,
+    "variables", 6,
+    "resources", 7,
+    "outputs", 8);
 
   @Override
   public void initialize(InitContext init) {

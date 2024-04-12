@@ -21,6 +21,7 @@ package org.sonar.iac.arm.checks;
 
 import java.util.Map;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
@@ -39,17 +40,18 @@ public class ElementsOrderTopLevelBicep implements IacCheck {
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
 
   private static final Map<String, Integer> expectedOrder = Map.of(
-    "TARGET_SCOPE_DECLARATION", 0,
-    "METADATA_DECLARATION", 1,
-    "PARAMETER_DECLARATION", 2,
-    "VARIABLE_DECLARATION", 3,
-    "RESOURCE_DECLARATION EXISTING", 4,
-    "RESOURCE_DECLARATION", 5,
-    "MODULE_DECLARATION", 6,
-    "OUTPUT_DECLARATION", 7);
+    ArmTree.Kind.TARGET_SCOPE_DECLARATION.name(), 0,
+    ArmTree.Kind.METADATA_DECLARATION.name(), 1,
+    ArmTree.Kind.PARAMETER_DECLARATION.name(), 2,
+    ArmTree.Kind.FUNCTION_DECLARATION.name(), 3,
+    ArmTree.Kind.VARIABLE_DECLARATION.name(), 4,
+    ArmTree.Kind.RESOURCE_DECLARATION.name() + "EXISTING", 5,
+    ArmTree.Kind.RESOURCE_DECLARATION.name(), 6,
+    ArmTree.Kind.MODULE_DECLARATION.name(), 7,
+    ArmTree.Kind.OUTPUT_DECLARATION.name(), 8);
 
   private String lastKind = ArmTree.Kind.TARGET_SCOPE_DECLARATION.name();
-  private boolean issueFound = false;
+  private boolean issueFound;
 
   @Override
   public void initialize(InitContext init) {
@@ -82,10 +84,13 @@ public class ElementsOrderTopLevelBicep implements IacCheck {
 
   private void checkResourceDeclaration(CheckContext checkContext, ResourceDeclarationImpl tree) {
     if (!issueFound) {
-      var existing = tree.existing() == null ? "" : " EXISTING";
+      var existing = "";
+      if (tree.existing() != null) {
+        existing = "EXISTING";
+      }
       var kind = tree.getKind().name() + existing;
 
-      if (expectedOrder.get(kind) < expectedOrder.get(lastKind)) {
+      if (expectedOrder.get(kind) < expectedOrder.get(lastKind) && tree.parent() instanceof File) {
         checkContext.reportIssue(tree.keyword(), MESSAGE);
         issueFound = true;
       } else {

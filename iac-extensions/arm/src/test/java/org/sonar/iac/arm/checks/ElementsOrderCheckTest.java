@@ -46,7 +46,7 @@ class ElementsOrderCheckTest {
     return Stream.of(
       // filename, primaryTextRange
       arguments("topLevelContentVersionAndSchema.json", range(3, 2, 3, 11)),
-      arguments("topLevelExpectedFunctionsAndParametersAndOutputsAndResources.json", range(5, 2, 5, 14)),
+      arguments("topLevelExpectedFunctionsAndParametersAndOutputsAndResources.json", range(6, 2, 6, 14)),
       arguments("topLevelFunctionsAndParameters.json", range(6, 2, 6, 14)),
       arguments("topLevelOutputsAsFirst.json", range(3, 2, 3, 11)),
       arguments("topLevelResourcesAndParameters.json", range(5, 2, 5, 14)),
@@ -80,9 +80,11 @@ class ElementsOrderCheckTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"topLevelExpected.bicep",
+  @ValueSource(strings = {
+    "topLevelExpected.bicep",
     "topLevelExpectedMultipleElements.bicep",
-    "topLevelExpectedNotAllElements.bicep"})
+    "topLevelExpectedNotAllElements.bicep",
+    "topLevelExpectedSubresources.bicep"})
   void shouldVerifyExpectedTopLevelBicep(String filename) {
     BicepVerifier.verifyNoIssue(DIR + filename, CHECK);
   }

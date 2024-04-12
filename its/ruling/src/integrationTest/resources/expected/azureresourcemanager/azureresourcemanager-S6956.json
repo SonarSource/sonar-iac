@@ -1,0 +1,17 @@
+{
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/resources.bicep": [
+43
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/tenant-resources.bicep": [
+20
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-rbac/scope-default.bicep": [
+4
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-secrets/function-app.bicep": [
+12
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/outputs/module-output.bicep": [
+5
+]
+}
