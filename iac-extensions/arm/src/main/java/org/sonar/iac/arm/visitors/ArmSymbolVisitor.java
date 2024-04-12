@@ -28,9 +28,13 @@ import org.sonar.iac.arm.symbols.Usage;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Parameter;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -52,8 +56,10 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
    */
   public ArmSymbolVisitor() {
     register(File.class, (ctx, file) -> visitFile(file));
-    register(VariableDeclaration.class, (ctx, variableDeclaration) -> visitVariableDeclaration(variableDeclaration));
-    registerAfter(Variable.class, (ctx, variable) -> visitVariable(variable));
+    register(VariableDeclaration.class, (ctx, variableDeclaration) -> visitDeclaration(variableDeclaration));
+    register(ParameterDeclaration.class, (ctx, parameterDeclaration) -> visitDeclaration(parameterDeclaration));
+    registerAfter(Variable.class, (ctx, variable) -> visitAccessUsage(variable));
+    registerAfter(Parameter.class, (ctx, parameter) -> visitAccessUsage(parameter));
   }
 
   @Override
@@ -77,24 +83,24 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     file.setSymbolTable(currentSymbolTable);
   }
 
-  private void visitVariableDeclaration(VariableDeclaration variableDeclaration) {
-    var symbol = currentSymbolTable.addSymbol(variableDeclaration.declaratedName().value());
-    symbol.addUsage(variableDeclaration, Usage.Kind.ASSIGNMENT);
+  private void visitDeclaration(Declaration declaration) {
+    var symbol = currentSymbolTable.addSymbol(declaration.declaratedName().value());
+    symbol.addUsage(declaration, Usage.Kind.ASSIGNMENT);
   }
 
-  void visitVariable(Variable variable) {
-    if (variable.symbol() != null) {
+  void visitAccessUsage(HasIdentifier tree) {
+    if (tree.symbol() != null) {
       return;
     }
 
-    Expression identifier = variable.identifier();
+    Expression identifier = tree.identifier();
     if (identifier instanceof Identifier identifierTree) {
       var symbol = currentSymbolTable.getSymbol(identifierTree.value());
       if (symbol != null) {
-        symbol.addUsage(variable, Usage.Kind.ACCESS);
+        symbol.addUsage(tree, Usage.Kind.ACCESS);
       }
     } else {
-      currentSymbolTable.foundUnresolvableVariableAccess(variable);
+      currentSymbolTable.foundUnresolvableSymbolAccess(tree);
     }
   }
 }

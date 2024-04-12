@@ -19,11 +19,14 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 public class MemberExpressionImpl extends ExpressionImpl implements MemberExpression {
@@ -32,7 +35,8 @@ public class MemberExpressionImpl extends ExpressionImpl implements MemberExpres
   private final SyntaxToken separatingToken;
   private final Expression memberAccess;
 
-  public MemberExpressionImpl(YamlTreeMetadata metadata, @Nullable Expression expression, SyntaxToken separatingToken, Expression memberAccess) {
+  public MemberExpressionImpl(YamlTreeMetadata metadata, @Nullable Expression expression, SyntaxToken separatingToken,
+    Expression memberAccess) {
     super(metadata);
     this.expression = expression;
     this.separatingToken = separatingToken;
@@ -53,5 +57,13 @@ public class MemberExpressionImpl extends ExpressionImpl implements MemberExpres
   @Override
   public Expression memberAccess() {
     return memberAccess;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Arrays.asList(
+      expression,
+      separatingToken,
+      memberAccess);
   }
 }

@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.common.api.tree.TextTree;
 
-public interface ParameterDeclaration extends Declaration {
+public interface ParameterDeclaration extends Declaration, HasSymbol {
 
   @CheckForNull
   ParameterType type();

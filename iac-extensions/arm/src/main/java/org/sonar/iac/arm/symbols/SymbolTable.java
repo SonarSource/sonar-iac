@@ -45,15 +45,15 @@ public class SymbolTable {
     return new ArrayList<>(symbols.values());
   }
 
-  public boolean hasFoundUnresolvableVariableAccess() {
-    return !unresolvedReferences.isEmpty();
-  }
-
-  public void foundUnresolvableVariableAccess(HasIdentifier hasIdentifier) {
+  public void foundUnresolvableSymbolAccess(HasIdentifier hasIdentifier) {
     unresolvedReferences.add(hasIdentifier);
   }
 
   public Set<HasIdentifier> getUnresolvedReferences() {
     return unresolvedReferences;
+  }
+
+  public boolean hasFoundUnresolvableSymbolAccess() {
+    return !unresolvedReferences.isEmpty();
   }
 }

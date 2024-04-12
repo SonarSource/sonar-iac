@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api;
 /**
  * A marker interface for symbolic names: variables, parameters.
  */
-public interface HasIdentifier extends Expression {
+public interface HasIdentifier extends Expression, HasSymbol {
   /**
    * @return An expression that evaluates into an identifier. Can be either an {@link Identifier} directly or an arbitrary expression.
    */

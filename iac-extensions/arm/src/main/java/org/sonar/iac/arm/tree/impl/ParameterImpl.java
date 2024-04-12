@@ -19,12 +19,31 @@
  */
 package org.sonar.iac.arm.tree.impl;
 
+import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class ParameterImpl extends AbstractHasIdentifierImpl implements Parameter {
+
+  private Symbol symbol;
+
   public ParameterImpl(Expression expression, TextRange textRange) {
     super(expression, textRange);
+  }
+
+  @CheckForNull
+  @Override
+  public Symbol symbol() {
+    return symbol;
+  }
+
+  @Override
+  public void setSymbol(Symbol symbol) {
+    if (this.symbol != null) {
+      throw new IllegalArgumentException("A symbol is already set");
+    }
+    this.symbol = symbol;
   }
 }

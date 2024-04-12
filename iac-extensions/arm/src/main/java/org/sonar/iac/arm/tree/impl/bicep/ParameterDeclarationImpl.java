@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.BicepTypeExpressionResolution;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -58,6 +59,8 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   private final SyntaxToken equ;
   @Nullable
   private final Expression defaultValue;
+  @Nullable
+  private Symbol symbol;
 
   public ParameterDeclarationImpl(
     List<Decorator> decorators,
@@ -197,5 +200,19 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @CheckForNull
   public TypeExpressionAble typeExpression() {
     return typeExpression;
+  }
+
+  @Nullable
+  @Override
+  public Symbol symbol() {
+    return symbol;
+  }
+
+  @Override
+  public void setSymbol(Symbol symbol) {
+    if (this.symbol != null) {
+      throw new IllegalArgumentException("A symbol is already set");
+    }
+    this.symbol = symbol;
   }
 }
