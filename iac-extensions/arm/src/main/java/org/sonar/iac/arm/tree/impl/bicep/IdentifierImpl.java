@@ -20,8 +20,6 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
-import javax.annotation.Nullable;
-import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;

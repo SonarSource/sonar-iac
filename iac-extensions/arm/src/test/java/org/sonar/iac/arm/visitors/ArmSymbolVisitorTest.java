@@ -40,9 +40,7 @@ import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.HasSymbol;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
@@ -122,8 +120,7 @@ class ArmSymbolVisitorTest {
       Arguments.of(BICEP, VAR),
       Arguments.of(BICEP, PARAM),
       Arguments.of(JSON, VAR),
-      Arguments.of(JSON, PARAM)
-    );
+      Arguments.of(JSON, PARAM));
   }
 
   @ParameterizedTest
@@ -157,19 +154,30 @@ class ArmSymbolVisitorTest {
   static Stream<Arguments> shouldRegisterUsageAccess() {
     return Stream.of(
       Arguments.of(BICEP, VAR, VARIABLE_DECLARATION_WITH_USAGE_BICEP, VAR),
-      Arguments.of(BICEP, PARAM, VARIABLE_DECLARATION_WITH_USAGE_BICEP, VAR),
+      Arguments.of(BICEP, PARAM, PARAMETER_DECLARATION_WITH_USAGE_BICEP, VAR),
       Arguments.of(BICEP, VAR, "var bar =  '${foo}ConcatToVariable'", VAR),
       Arguments.of(BICEP, PARAM, "var bar =  '${foo}ConcatToVariable'", VAR),
       Arguments.of(BICEP, VAR, "var bar =  '${toLower(foo)}ConcatToVariable'", VAR),
       Arguments.of(BICEP, PARAM, "var bar =  '${toLower(foo)}ConcatToVariable'", VAR),
       Arguments.of(BICEP, VAR, "output foo string =  foo", OUTPUT),
-      Arguments.of(BICEP, PARAM, "output foo string =  foo", OUTPUT),
+      Arguments.of(BICEP, VAR, "output foo string =  foo", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar[foo]", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar[foo]", OUTPUT),
+      Arguments.of(BICEP, VAR, "output foo string =  foo['bar']", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  foo['bar']", OUTPUT),
+
       Arguments.of(JSON, VAR, VARIABLE_DECLARATION_WITH_USAGE_JSON, VAR),
-      Arguments.of(JSON, PARAM, VARIABLE_DECLARATION_WITH_USAGE_JSON, VAR),
+      Arguments.of(JSON, PARAM, PARAMETER_DECLARATION_WITH_USAGE_JSON, VAR),
       Arguments.of(JSON, VAR, "\"bar\": \"[concat(variables('foo'), '-addToVar')]\"", VAR),
-      Arguments.of(JSON, PARAM, "\"bar\": \"[concat(variables('foo'), '-addToVar')]\"", VAR),
+      Arguments.of(JSON, PARAM, "\"bar\": \"[concat(parameters('foo'), '-addToVar')]\"", VAR),
       Arguments.of(JSON, VAR, "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\"", VAR),
-      Arguments.of(JSON, PARAM, "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\"", VAR));
+      Arguments.of(JSON, PARAM, "\"bar\": \"[concat(toLower(parameters('foo')), '-addToVar')]\"", VAR),
+      Arguments.of(JSON, VAR, "[variables('foo')]", OUTPUT),
+      Arguments.of(JSON, PARAM, "[parameters('foo')]", OUTPUT),
+      Arguments.of(JSON, VAR, "[bar[variables('foo')]]", OUTPUT),
+      Arguments.of(JSON, PARAM, "[bar[parameters('foo')]]", OUTPUT),
+      Arguments.of(JSON, VAR, "[variables('foo')['bar']]", OUTPUT),
+      Arguments.of(JSON, PARAM, "[parameters('foo')['bar']]", OUTPUT));
   }
 
   @MethodSource
@@ -197,19 +205,33 @@ class ArmSymbolVisitorTest {
     assertThat(symbol.usages())
       .filteredOn(usage -> usage.kind() == Usage.Kind.ACCESS)
       .hasSize(1)
-      .allSatisfy(usage -> assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.VARIABLE));
+      .allSatisfy(usage -> {
+        if (declarationType == PARAM && JSON.equals(language)) {
+          assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.PARAMETER);
+        } else {
+          assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.VARIABLE);
+        }
+      });
   }
 
   static Stream<Arguments> shouldRegisterNoUsageAccess() {
     return Stream.of(
       Arguments.of(BICEP, VAR, "output foo string =  deployment().name"),
       Arguments.of(BICEP, PARAM, "output foo string =  deployment().name"),
-      Arguments.of(BICEP, VAR, "output foo string =  baba['foo']"),
-      Arguments.of(BICEP, PARAM, "output foo string =  baba['foo']"),
+      Arguments.of(BICEP, VAR, "output foo string =  bar['foo']"),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo']"),
+      Arguments.of(BICEP, VAR, "output foo string =  bar['foo'].foo"),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo'].foo"),
+      Arguments.of(BICEP, VAR, "output foo string =  bar['foo'].foo()"),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo'].foo()"),
       Arguments.of(JSON, VAR, "[deployment().name]"),
       Arguments.of(JSON, PARAM, "[deployment().name]"),
       Arguments.of(JSON, VAR, "[baba['foo']]"),
-      Arguments.of(JSON, PARAM, "[baba['foo']]"));
+      Arguments.of(JSON, PARAM, "[baba['foo']]"),
+      Arguments.of(JSON, VAR, "[baba['foo'].foo]"),
+      Arguments.of(JSON, PARAM, "[baba['foo'].foo]"),
+      Arguments.of(JSON, VAR, "[baba['foo'].foo()]"),
+      Arguments.of(JSON, PARAM, "[baba['foo'].foo()]"));
   }
 
   @MethodSource
@@ -268,17 +290,20 @@ class ArmSymbolVisitorTest {
   }
 
   @ParameterizedTest
-  @MethodSource("languagesToTest")
-  void shouldOnlyCreateOneAccessUsageWhenRegisteringVariableMultipleTimes(String language) {
+  @MethodSource("defaultDeclarationsForAllLanguages")
+  void shouldOnlyCreateOneAccessUsageWhenRegisteringHasIdentifierMultipleTimes(String language, CodeStatementType declarationType) {
+    String declaration = declarationType == VAR ? VARIABLE_DECLARATION.get(language) : PARAMETER_DECLARATION.get(language);
+    String declarationWithUsage = declarationType == VAR ? VARIABLE_DECLARATION_WITH_USAGE.get(language) : PARAMETER_DECLARATION_WITH_USAGE.get(language);
     String code = ArmSourceCodeBuilder.create(language)
-      .addVariableDeclaration(VARIABLE_DECLARATION.get(language))
-      .addVariableDeclaration(VARIABLE_DECLARATION_WITH_USAGE.get(language))
+      .addCodeStatement(declarationType, declaration)
+      .addCodeStatement(declarationType, declarationWithUsage)
       .build();
 
     File file = parse(code);
 
     ArmSymbolVisitor visitor = new ArmSymbolVisitor();
-    visitor.register(Variable.class, (ctx, variable) -> visitor.visitHasIdentifier(variable));
+    visitor.register(HasIdentifier.class, (ctx, hasIdentifier) -> visitor.visitHasIdentifier(hasIdentifier));
+
     visitor.scan(inputFileContext, file);
 
     SymbolTable symbolTable = file.symbolTable();
@@ -296,7 +321,13 @@ class ArmSymbolVisitorTest {
     assertThat(symbol.usages())
       .filteredOn(usage -> usage.kind() == Usage.Kind.ACCESS)
       .hasSize(1)
-      .allSatisfy(usage -> assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.VARIABLE));
+      .allSatisfy(usage -> {
+        if (declarationType == PARAM && JSON.equals(language)) {
+          assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.PARAMETER);
+        } else {
+          assertThat(usage.tree().getKind()).isEqualTo(ArmTree.Kind.VARIABLE);
+        }
+      });
   }
 
   @ParameterizedTest
@@ -340,23 +371,28 @@ class ArmSymbolVisitorTest {
   }
 
   @ParameterizedTest
-  @MethodSource("languagesToTest")
-  void shouldThrowExceptionOnMultipleSymbolForVariableDeclaration(String language) {
-    String code = fileWithDefaultVariableDeclaration(language);
+  @MethodSource("defaultDeclarationsForAllLanguages")
+  void shouldThrowExceptionOnMultipleSymbolForDeclaration(String language, CodeStatementType declarationType) {
+    String declaration = declarationType == VAR ? VARIABLE_DECLARATION.get(language) : PARAMETER_DECLARATION.get(language);
+    PARAMETER_DECLARATION_WITH_USAGE.get(language);
+    String code = ArmSourceCodeBuilder.create(language)
+      .addCodeStatement(declarationType, declaration)
+      .build();
+
     File file = scanFile(code);
 
     SymbolTable symbolTable = file.symbolTable();
     Symbol newSymbol = new Symbol(symbolTable, "bar");
 
-    VariableDeclaration declaration = symbolTable.getSymbol("foo").usages().stream()
+    HasSymbol declarationTree = symbolTable.getSymbol("foo").usages().stream()
       .map(Usage::tree)
-      .filter(tree -> tree.is(ArmTree.Kind.VARIABLE_DECLARATION))
-      .map(VariableDeclaration.class::cast)
+      .filter(tree -> tree.is(ArmTree.Kind.VARIABLE_DECLARATION) || tree.is(ArmTree.Kind.PARAMETER_DECLARATION))
+      .map(HasSymbol.class::cast)
       .findFirst()
       .orElseThrow();
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> declaration.setSymbol(newSymbol))
+      .isThrownBy(() -> declarationTree.setSymbol(newSymbol))
       .withMessage("A symbol is already set");
   }
 
@@ -385,7 +421,7 @@ class ArmSymbolVisitorTest {
   }
 
   @Test
-  void symbolTableShouldBeInResolvableVariableState() {
+  void symbolTableShouldBeInUnresolvableSymbolState() {
     String code = ArmSourceCodeBuilder.create(JSON)
       .addVariableDeclaration(VARIABLE_DECLARATION.get(JSON))
       .addVariableDeclaration("\"bar \": \"[variables(concat('fo', 'o'))]\"")
@@ -463,11 +499,6 @@ class ArmSymbolVisitorTest {
 
     public ArmSourceCodeBuilder addVariableDeclaration(String variableDeclaration) {
       variableDeclarations.add(variableDeclaration);
-      return this;
-    }
-
-    public ArmSourceCodeBuilder addParameterDeclaration(String parameterDeclaration) {
-      parameterDeclarations.add(parameterDeclaration);
       return this;
     }
 

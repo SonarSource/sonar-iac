@@ -70,6 +70,7 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
         consumer.accept(ctx, node);
       }
       node.children().forEach(child -> after(ctx, child));
+      ctx.leave();
     }
   }
 
@@ -81,7 +82,6 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     currentSymbolTable = new SymbolTable();
     file.setSymbolTable(currentSymbolTable);
   }
-
 
   private void visitDeclaration(Declaration declaration) {
     var symbol = currentSymbolTable.addSymbol(declaration.declaratedName().value());
