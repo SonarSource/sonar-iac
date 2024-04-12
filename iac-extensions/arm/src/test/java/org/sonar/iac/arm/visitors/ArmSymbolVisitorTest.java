@@ -160,8 +160,6 @@ class ArmSymbolVisitorTest {
       Arguments.of(BICEP, VAR, "var bar =  '${toLower(foo)}ConcatToVariable'", VAR),
       Arguments.of(BICEP, PARAM, "var bar =  '${toLower(foo)}ConcatToVariable'", VAR),
       Arguments.of(BICEP, VAR, "output foo string =  foo", OUTPUT),
-      Arguments.of(BICEP, VAR, "output foo string =  foo", OUTPUT),
-      Arguments.of(BICEP, PARAM, "output foo string =  bar[foo]", OUTPUT),
       Arguments.of(BICEP, PARAM, "output foo string =  bar[foo]", OUTPUT),
       Arguments.of(BICEP, VAR, "output foo string =  foo['bar']", OUTPUT),
       Arguments.of(BICEP, PARAM, "output foo string =  foo['bar']", OUTPUT),
@@ -302,7 +300,7 @@ class ArmSymbolVisitorTest {
     File file = parse(code);
 
     ArmSymbolVisitor visitor = new ArmSymbolVisitor();
-    visitor.register(HasIdentifier.class, (ctx, hasIdentifier) -> visitor.visitHasIdentifier(hasIdentifier));
+    visitor.register(HasIdentifier.class, (ctx, hasIdentifier) -> visitor.visitAccessUsage(hasIdentifier));
 
     visitor.scan(inputFileContext, file);
 
@@ -358,7 +356,7 @@ class ArmSymbolVisitorTest {
     SymbolTable symbolTable = file.symbolTable();
 
     Symbol newSymbol = new Symbol(symbolTable, "bar");
-    HasIdentifier foo = symbolTable.getSymbol("foo").usages().stream()
+    var foo = symbolTable.getSymbol("foo").usages().stream()
       .map(Usage::tree)
       .filter(tree -> tree.is(ArmTree.Kind.VARIABLE) || tree.is(ArmTree.Kind.PARAMETER))
       .map(HasIdentifier.class::cast)
@@ -384,7 +382,7 @@ class ArmSymbolVisitorTest {
     SymbolTable symbolTable = file.symbolTable();
     Symbol newSymbol = new Symbol(symbolTable, "bar");
 
-    HasSymbol declarationTree = symbolTable.getSymbol("foo").usages().stream()
+    var declarationTree = symbolTable.getSymbol("foo").usages().stream()
       .map(Usage::tree)
       .filter(tree -> tree.is(ArmTree.Kind.VARIABLE_DECLARATION) || tree.is(ArmTree.Kind.PARAMETER_DECLARATION))
       .map(HasSymbol.class::cast)

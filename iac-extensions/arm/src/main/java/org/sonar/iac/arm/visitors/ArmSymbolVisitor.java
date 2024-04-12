@@ -58,8 +58,8 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     register(File.class, (ctx, file) -> visitFile(file));
     register(VariableDeclaration.class, (ctx, variableDeclaration) -> visitDeclaration(variableDeclaration));
     register(ParameterDeclaration.class, (ctx, parameterDeclaration) -> visitDeclaration(parameterDeclaration));
-    registerAfter(Variable.class, (ctx, variable) -> visitHasIdentifier(variable));
-    registerAfter(Parameter.class, (ctx, parameter) -> visitHasIdentifier(parameter));
+    registerAfter(Variable.class, (ctx, variable) -> visitAccessUsage(variable));
+    registerAfter(Parameter.class, (ctx, parameter) -> visitAccessUsage(parameter));
   }
 
   @Override
@@ -88,19 +88,19 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     symbol.addUsage(declaration, Usage.Kind.ASSIGNMENT);
   }
 
-  void visitHasIdentifier(HasIdentifier hasIdentifier) {
-    if (hasIdentifier.symbol() != null) {
+  void visitAccessUsage(HasIdentifier tree) {
+    if (tree.symbol() != null) {
       return;
     }
 
-    Expression identifier = hasIdentifier.identifier();
+    Expression identifier = tree.identifier();
     if (identifier instanceof Identifier identifierTree) {
       var symbol = currentSymbolTable.getSymbol(identifierTree.value());
       if (symbol != null) {
-        symbol.addUsage(hasIdentifier, Usage.Kind.ACCESS);
+        symbol.addUsage(tree, Usage.Kind.ACCESS);
       }
     } else {
-      currentSymbolTable.foundUnresolvableSymbolAccess(hasIdentifier);
+      currentSymbolTable.foundUnresolvableSymbolAccess(tree);
     }
   }
 }
