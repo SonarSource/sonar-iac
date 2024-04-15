@@ -95,6 +95,13 @@
           "unknown": null
         }
       }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "test",
+      "properties": {
+      }
     }
   ],
   "outputs": {

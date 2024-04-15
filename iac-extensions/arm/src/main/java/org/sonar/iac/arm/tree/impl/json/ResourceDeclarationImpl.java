@@ -61,13 +61,10 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     children.add(name);
     children.add(version);
     children.add(type);
-    properties.forEach(property -> {
+    // We don't need to add "properties" here, as it's included in the resourceProperties in order to visit its ObjectExpression
+    resourceProperties.forEach(property -> {
       children.add(property.key());
       children.add(property.value());
-    });
-    resourceProperties.forEach(resourceProperty -> {
-      children.add(resourceProperty.key());
-      children.add(resourceProperty.value());
     });
     children.addAll(childResources);
     return children;

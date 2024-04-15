@@ -177,7 +177,7 @@ class ResourceDeclarationImplTest {
     assertThat(resourceProperty2.value()).asObjectExpression().containsKeyValue("obj", "random value");
 
     List<String> allResourcePropertyKeys = resourceDeclaration.resourceProperties().stream().map(p -> p.key().value()).collect(Collectors.toList());
-    assertThat(allResourcePropertyKeys).containsExactly("resourceProperty1", "resourceProperty2");
+    assertThat(allResourcePropertyKeys).containsExactly("resourceProperty1", "resourceProperty2", "properties");
 
     List<String> allPropertyKeys = resourceDeclaration.properties().stream().map(p -> p.key().value()).collect(Collectors.toList());
     assertThat(allPropertyKeys).containsExactly("prop1");

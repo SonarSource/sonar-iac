@@ -50,12 +50,13 @@ class EmptyOrNullValueCheckTest {
       issue(93, 10, 93, 25),
       issue(94, 10, 94, 25),
       issue(95, 10, 95, 25),
-      issue(101, 4, 103, 19),
-      issue(105, 4, 107, 17),
-      issue(109, 4, 111, 17),
-      issue(113, 4, 115, 17),
-      issue(144, 8, 144, 19),
-      issue(155, 10, 155, 21)
+      issue(103, 6, 104, 7, "Remove this empty object or complete with real code."),
+      issue(108, 4, 110, 19),
+      issue(112, 4, 114, 17),
+      issue(116, 4, 118, 17),
+      issue(120, 4, 122, 17),
+      issue(151, 8, 151, 19),
+      issue(162, 10, 162, 21)
     // TODO SONARIAC-1403 ARM Template parser should produce the same AST as Bicep for output with FOR loop
     // issue(169, 10, 169, 24),
     // issue(170, 10, 170, 22),

@@ -81,7 +81,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   }
 
   private List<Property> toResourceProperties(MappingTree tree) {
-    Set<String> alreadyParsedProperties = Set.of("type", "apiversion", "name", "properties", "resources");
+    Set<String> alreadyParsedProperties = Set.of("type", "apiversion", "name", "resources");
     return tree.elements().stream()
       .map(tupleTree -> {
         Identifier key = toIdentifier(tupleTree.key());
