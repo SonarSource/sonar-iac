@@ -32,6 +32,7 @@ class JsonFileFilterTest {
   void buildWrapperFileShouldBeExcluded() {
     JsonFileFilter filter = new JsonFileFilter();
     assertThat(filter.accept(inputFile("build_wrapper_output_directory/build-wrapper-dump.json", "json"))).isFalse();
+    assertThat(filter.accept(inputFile("build_wrapper_output_directory/compile_commands.json", "json"))).isFalse();
     assertThat(filter.accept(inputFile("build_wrapper_output_directory/foo.json", "json"))).isTrue();
     assertThat(filter.accept(inputFile("foo.php", "php"))).isTrue();
   }
