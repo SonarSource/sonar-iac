@@ -84,7 +84,6 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
 
   /**
    * Returns list of all top level resource properties.
-   * Does not contain the name, type, apiVersion and childResources of the resource.
    */
   List<Property> resourceProperties();
 

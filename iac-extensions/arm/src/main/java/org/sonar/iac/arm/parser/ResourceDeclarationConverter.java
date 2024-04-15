@@ -21,9 +21,7 @@ package org.sonar.iac.arm.parser;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -81,14 +79,12 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   }
 
   private List<Property> toResourceProperties(MappingTree tree) {
-    Set<String> alreadyParsedProperties = Set.of("type", "apiversion", "name", "resources");
     return tree.elements().stream()
       .map(tupleTree -> {
         Identifier key = toIdentifier(tupleTree.key());
         Expression value = toExpression(tupleTree.value());
         return new PropertyImpl(key, value);
       })
-      .filter(property -> !alreadyParsedProperties.contains(property.key().value().toLowerCase(Locale.ROOT)))
       .collect(Collectors.toList());
   }
 

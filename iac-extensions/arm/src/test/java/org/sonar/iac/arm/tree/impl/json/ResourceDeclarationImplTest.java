@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -177,7 +176,8 @@ class ResourceDeclarationImplTest {
     assertThat(resourceProperty2.value()).asObjectExpression().containsKeyValue("obj", "random value");
 
     List<String> allResourcePropertyKeys = resourceDeclaration.resourceProperties().stream().map(p -> p.key().value()).collect(Collectors.toList());
-    assertThat(allResourcePropertyKeys).containsExactly("resourceProperty1", "resourceProperty2", "properties");
+    assertThat(allResourcePropertyKeys).containsExactly("type", "apiVersion", "name", "resourceProperty1", "resourceProperty2",
+      "properties");
 
     List<String> allPropertyKeys = resourceDeclaration.properties().stream().map(p -> p.key().value()).collect(Collectors.toList());
     assertThat(allPropertyKeys).containsExactly("prop1");
@@ -293,7 +293,7 @@ class ResourceDeclarationImplTest {
     assertThat(parentResource.type().value()).isEqualTo("Microsoft.Network/networkSecurityGroups");
     assertThat(((StringLiteral) parentResource.version()).value()).isEqualTo("2022-11-01");
     assertThat(parentResource.properties()).isEmpty();
-    assertThat(parentResource.resourceProperties()).isEmpty();
+    assertThat(parentResource.resourceProperties()).hasSize(4);
     assertThat(parentResource.childResources()).hasSize(1);
     List<Tree> children = parentResource.children();
     assertThat(children).hasSize(4);
@@ -351,7 +351,7 @@ class ResourceDeclarationImplTest {
     assertThat(parentResource.type().value()).isEqualTo("Microsoft.Network/networkSecurityGroups");
     assertThat(((StringLiteral) parentResource.version()).value()).isEqualTo("2022-11-01");
     assertThat(parentResource.properties()).isEmpty();
-    assertThat(parentResource.resourceProperties()).isEmpty();
+    assertThat(parentResource.resourceProperties()).hasSize(4);
 
     ResourceDeclaration childResource = parentResource.childResources().get(0);
     assertThat(childResource.is(RESOURCE_DECLARATION)).isTrue();

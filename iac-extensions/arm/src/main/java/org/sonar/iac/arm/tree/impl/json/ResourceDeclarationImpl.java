@@ -21,6 +21,8 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -57,14 +59,18 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Tree> children() {
+    // We don't need to add "properties" here, as it's included in the "resourceProperties" in order to visit its ObjectExpression
     List<Tree> children = new ArrayList<>();
     children.add(name);
     children.add(version);
     children.add(type);
-    // We don't need to add "properties" here, as it's included in the resourceProperties in order to visit its ObjectExpression
+    Set<String> alreadyAddedChildren = Set.of("type", "apiversion", "name", "resources");
     resourceProperties.forEach(property -> {
-      children.add(property.key());
-      children.add(property.value());
+      TextTree propertyKey = property.key();
+      if (!alreadyAddedChildren.contains(propertyKey.value().toLowerCase(Locale.ROOT))) {
+        children.add(propertyKey);
+        children.add(property.value());
+      }
     });
     children.addAll(childResources);
     return children;
