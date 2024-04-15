@@ -32,6 +32,7 @@ public class ElementsOrderResourceJson implements IacCheck {
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
 
   private static final Map<String, Integer> elementsOrder = new HashMap<>();
+  private static final int DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY = 20;
 
   static {
     elementsOrder.put("comments", 0);
@@ -62,7 +63,7 @@ public class ElementsOrderResourceJson implements IacCheck {
   private static void checkResource(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {
     var prevIndex = 0;
     for (Property property : resourceDeclaration.resourceProperties()) {
-      var index = elementsOrder.getOrDefault(property.key().value(), 20);
+      var index = elementsOrder.getOrDefault(property.key().value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
       if (index < prevIndex) {
         checkContext.reportIssue(property.key(), MESSAGE);
         break;
