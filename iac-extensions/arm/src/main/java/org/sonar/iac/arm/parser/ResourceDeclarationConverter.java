@@ -64,11 +64,11 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   }
 
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
-    StringLiteral type = toStringLiteralOrException(tree, "type");
+    var type = toStringLiteralOrException(tree, "type");
     var version = toExpressionOrException(tree, "apiVersion");
     var name = toExpressionOrException(tree, "name");
-    List<Property> resourceProperties = toResourceProperties(tree);
-    List<Property> otherProperties = PropertyUtils.get(tree, "properties"::equalsIgnoreCase)
+    var resourceProperties = toResourceProperties(tree);
+    var otherProperties = PropertyUtils.get(tree, "properties"::equalsIgnoreCase)
       .map(PropertyTree::value)
       .map(this::toProperties)
       .orElse(Collections.emptyList());

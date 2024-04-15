@@ -28,6 +28,7 @@ import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.Property;
@@ -49,7 +50,6 @@ import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ResourceDeclarationImplTest {
 
@@ -57,15 +57,16 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResource() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\"",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2022-12-29",
+            "name": "myResource"
+          }
+        ]
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
@@ -91,15 +92,16 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldFailOnInvalidPropertyValueType() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": 5," +
-        "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\"",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": 5,
+            "apiVersion": "2022-12-29",
+            "name": "myResource"
+          }
+        ]
+      }""";
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
@@ -108,19 +110,20 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResourceWithProperties() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\",",
-      "      \"properties\": {",
-      "        \"other properties 1\": {\"obj\": \"random location\"},",
-      "        \"other properties 2\": [\"val\"]",
-      "      },",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2022-12-29",
+            "name": "myResource",
+            "properties": {
+              "other properties 1": {"obj": "random location"},
+              "other properties 2": ["val"]
+            },
+          }
+        ]
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
@@ -147,20 +150,21 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResourceWithResourceProperties() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\",",
-      "      \"resourceProperty1\": \"resourcePropertyValue\",",
-      "      \"resourceProperty2\": {\"obj\": \"random value\"},",
-      "      \"properties\": {",
-      "        \"prop1\": \"value1\"",
-      "      },",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2022-12-29",
+            "name": "myResource",
+            "resourceProperty1": "resourcePropertyValue",
+            "resourceProperty2": {"obj": "random value"},
+            "properties": {
+              "prop1": "value1"
+            },
+          }
+        ]
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
@@ -176,27 +180,39 @@ class ResourceDeclarationImplTest {
     assertThat(resourceProperty2.value()).asObjectExpression().containsKeyValue("obj", "random value");
 
     List<String> allResourcePropertyKeys = resourceDeclaration.resourceProperties().stream().map(p -> p.key().value()).collect(Collectors.toList());
-    assertThat(allResourcePropertyKeys).containsExactly("type", "apiVersion", "name", "resourceProperty1", "resourceProperty2",
+    assertThat(allResourcePropertyKeys).containsExactly(
+      "type",
+      "apiVersion",
+      "name",
+      "resourceProperty1",
+      "resourceProperty2",
       "properties");
 
     List<String> allPropertyKeys = resourceDeclaration.properties().stream().map(p -> p.key().value()).collect(Collectors.toList());
     assertThat(allPropertyKeys).containsExactly("prop1");
 
     assertThat(resourceDeclaration.children()).hasSize(9);
+
+    List<String> childrenKeys = resourceDeclaration.children().stream()
+      .filter(Identifier.class::isInstance)
+      .map(child -> ((Identifier) child).value())
+      .toList();
+    assertThat(childrenKeys).containsExactly("resourceProperty1", "resourceProperty2", "properties");
   }
 
   @Test
   void shouldFailOnInvalidProperties() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\",",
-      "      \"properties\": [\"key\"]",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2022-12-29",
+            "name": "myResource",
+            "properties": ["key"]
+          }
+        ]
+      }""";
 
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
     assertThat(parseException).hasMessage("Couldn't convert properties: expecting object of class 'SequenceTreeImpl' to implement " +
@@ -216,13 +232,14 @@ class ResourceDeclarationImplTest {
     "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ; type",
   })
   void shouldThrowParseExceptionOnIncompleteResource(String attributes, String errorMessageComponents) {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      " + attributes,
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            %s
+          }
+        ]
+      }""".formatted(attributes);
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
     assertThat(parseException).hasMessage("Missing mandatory attribute '" + errorMessageComponents + "' at null:3:4");
     assertThat(parseException.getDetails()).isNull();
@@ -232,20 +249,21 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseMultipleResources() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"type1\",",
-      "      \"apiVersion\": \"version1\",",
-      "      \"name\": \"name1\"",
-      "    },",
-      "    {",
-      "      \"type\": \"type2\",",
-      "      \"apiVersion\": \"version2\",",
-      "      \"name\": \"name2\"",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "type1",
+            "apiVersion": "version1",
+            "name": "name1"
+          },
+          {
+            "type": "type2",
+            "apiVersion": "version2",
+            "name": "name2"
+          }
+        ]
+      }""";
 
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(2);
@@ -267,23 +285,24 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResourceWithChildResourcesInIt() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"name\": \"parent resource\",",
-      "      \"type\": \"Microsoft.Network/networkSecurityGroups\",",
-      "      \"apiVersion\": \"2022-11-01\",",
-      "      \"resources\": [",
-      "        {",
-      "          \"name\": \"child resource\",",
-      "          \"type\": \"securityRules\",",
-      "          \"apiVersion\": \"2022-11-01\",",
-      "          \"properties\": {\"attr\": \"value\"}",
-      "        }",
-      "      ]",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "name": "parent resource",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2022-11-01",
+            "resources": [
+              {
+                "name": "child resource",
+                "type": "securityRules",
+                "apiVersion": "2022-11-01",
+                "properties": {"attr": "value"}
+              }
+            ]
+          }
+        ]
+      }""";
 
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
@@ -319,29 +338,30 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResourceWithTwoInnerChildResource() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"name\": \"parent resource\",",
-      "      \"type\": \"Microsoft.Network/networkSecurityGroups\",",
-      "      \"apiVersion\": \"2022-11-01\",",
-      "      \"resources\": [",
-      "        {",
-      "          \"name\": \"child resource\",",
-      "          \"type\": \"securityRules\",",
-      "          \"apiVersion\": \"2022-11-01\",",
-      "          \"resources\": [",
-      "            {",
-      "              \"name\": \"inner child resource\",",
-      "              \"type\": \"firewall\",",
-      "              \"apiVersion\": \"2022-11-01\"",
-      "            }",
-      "          ]",
-      "        }",
-      "      ]",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "name": "parent resource",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2022-11-01",
+            "resources": [
+              {
+                "name": "child resource",
+                "type": "securityRules",
+                "apiVersion": "2022-11-01",
+                "resources": [
+                  {
+                    "name": "inner child resource",
+                    "type": "firewall",
+                    "apiVersion": "2022-11-01"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }""";
 
     File tree = (File) parser.parse(code, null);
 
@@ -373,16 +393,17 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResourceCaseInsensitive() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"Type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiversion\": \"2022-12-29\",",
-      "      \"nAME\": \"myResource\",",
-      "      \"proPertIes\": {\"attr\": \"value\"}",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "Type": "Microsoft.Kusto/clusters",
+            "apiversion": "2022-12-29",
+            "nAME": "myResource",
+            "proPertIes": {"attr": "value"}
+          }
+        ]
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
 
@@ -397,15 +418,16 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResourceWithNameAsVariable() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"[variables('foo')]\"",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2022-12-29",
+            "name": "[variables('foo')]"
+          }
+        ]
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
@@ -431,15 +453,16 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResourceWithNameAsParameter() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"[parameters('foo')]\"",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2022-12-29",
+            "name": "[parameters('foo')]"
+          }
+        ]
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();

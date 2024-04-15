@@ -36,6 +36,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
+  private static final Set<String> IGNORED_CHILDREN_RESOURCE_PROPERTIES = Set.of("type", "apiversion", "name", "resources");
   private final Expression name;
   private final Expression version;
   private final StringLiteral type;
@@ -64,10 +65,9 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     children.add(name);
     children.add(version);
     children.add(type);
-    Set<String> alreadyAddedChildren = Set.of("type", "apiversion", "name", "resources");
     resourceProperties.forEach(property -> {
       TextTree propertyKey = property.key();
-      if (!alreadyAddedChildren.contains(propertyKey.value().toLowerCase(Locale.ROOT))) {
+      if (!IGNORED_CHILDREN_RESOURCE_PROPERTIES.contains(propertyKey.value().toLowerCase(Locale.ROOT))) {
         children.add(propertyKey);
         children.add(property.value());
       }

@@ -659,10 +659,7 @@ class ArmSymbolVisitorTest {
       code = addListOfStatements(code, variableDeclarations);
       code = addListOfStatements(code, resourceDeclarations);
       if (outputValue != null) {
-        if (!code.isEmpty()) {
-          code += "\n";
-        }
-        code += outputValue;
+        code = addListOfStatements(code, List.of(outputValue));
       }
       return code;
     }
