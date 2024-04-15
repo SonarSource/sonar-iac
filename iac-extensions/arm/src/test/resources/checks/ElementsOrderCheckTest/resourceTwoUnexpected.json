@@ -1,0 +1,26 @@
+{
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "comments": "if any",
+      "condition": true,
+      "scope": "% parent scope %",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "location": "[parameters('location')]",
+      "zones": [],
+      "properties": {}
+    },
+    {
+      "location": "[parameters('location')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "zones": [],
+      "sku": {},
+      "other1": {},
+      "other2": {},
+      "properties": {}
+    }
+  ]
+}

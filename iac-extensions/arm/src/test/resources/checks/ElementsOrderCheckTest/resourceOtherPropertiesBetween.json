@@ -1,0 +1,25 @@
+{
+  "resources": [
+    {
+      "comments": "if any",
+      "condition": true,
+      "scope": "% parent scope %",
+      "myOtherCustomProperty": [],
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "location": "[parameters('location')]",
+      "zones": [],
+      "myOtherCustomProperty2": {},
+      "sku": {},
+      "kind": "",
+      "scale": "",
+      "plan": {},
+      "identity": {},
+      "copy": {},
+      "dependsOn": [],
+      "tags": {},
+      "properties": {}
+    }
+  ]
+}
