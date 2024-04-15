@@ -64,11 +64,11 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   }
 
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
-    StringLiteral type = toStringLiteralOrException(tree, "type");
+    var type = toStringLiteralOrException(tree, "type");
     var version = toExpressionOrException(tree, "apiVersion");
-    StringLiteral name = toStringLiteralOrException(tree, "name");
-    List<Property> resourceProperties = toResourceProperties(tree);
-    List<Property> otherProperties = PropertyUtils.get(tree, "properties"::equalsIgnoreCase)
+    var name = toExpressionOrException(tree, "name");
+    var resourceProperties = toResourceProperties(tree);
+    var otherProperties = PropertyUtils.get(tree, "properties"::equalsIgnoreCase)
       .map(PropertyTree::value)
       .map(this::toProperties)
       .orElse(Collections.emptyList());
@@ -90,7 +90,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
 
   private static ResourceDeclaration toResourceDeclaration(StringLiteral type,
     Expression version,
-    StringLiteral name,
+    Expression name,
     List<Property> otherProperties,
     List<Property> resourceProperties) {
     return new ResourceDeclarationImpl(name, version, type, otherProperties, resourceProperties, Collections.emptyList());
@@ -98,7 +98,7 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
 
   private ResourceDeclaration toResourceDeclarationWithChildren(StringLiteral type,
     Expression version,
-    StringLiteral name,
+    Expression name,
     List<Property> otherProperties,
     List<Property> resourceProperties,
     PropertyTree childResourcesProperty) {

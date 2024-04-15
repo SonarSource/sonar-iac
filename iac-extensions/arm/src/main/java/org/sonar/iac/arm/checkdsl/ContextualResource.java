@@ -27,7 +27,6 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.TextUtils;
 
 public final class ContextualResource extends ContextualMap<ContextualResource, ResourceDeclaration> {
@@ -37,7 +36,9 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
   public final Expression version;
 
   private ContextualResource(CheckContext ctx, @Nullable ResourceDeclaration tree, String type, @Nullable ContextualMap<?, ?> parent) {
-    super(ctx, tree, Optional.ofNullable(tree).map(ResourceDeclaration::name).map(TextTree::value).orElse(null), parent);
+    super(ctx, tree,
+      Optional.ofNullable(tree).map(ResourceDeclaration::name).flatMap(TextUtils::getValue).orElse(null),
+      parent);
     this.type = type;
     this.version = Optional.ofNullable(tree).map(ResourceDeclaration::version).orElse(null);
   }

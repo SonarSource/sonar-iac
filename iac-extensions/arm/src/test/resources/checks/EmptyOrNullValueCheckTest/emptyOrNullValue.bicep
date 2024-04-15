@@ -1,4 +1,11 @@
 resource exampleStorage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'my name'
+  properties: { // Noncompliant
+//^[el=+2;ec=3]
+  }
+}
+
+resource exampleStorage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: null              // Noncompliant {{Remove this null property or complete with real code.}}
 //^^^^^^^^^^
   kind: ''                // Noncompliant {{Remove this empty string or complete with real code.}}

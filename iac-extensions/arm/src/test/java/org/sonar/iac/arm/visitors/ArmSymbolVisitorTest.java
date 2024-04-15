@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -49,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.OUTPUT;
 import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.PARAM;
+import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.RESOURCE;
 import static org.sonar.iac.arm.visitors.ArmSymbolVisitorTest.ArmSourceCodeBuilder.CodeStatementType.VAR;
 
 class ArmSymbolVisitorTest {
@@ -152,24 +152,117 @@ class ArmSymbolVisitorTest {
   }
 
   static Stream<Arguments> shouldRegisterUsageAccess() {
+    String resourceWithParameterUsageInResourcePropertyValueBicep = """
+      resource aks 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+        name: 'storageAccountName'
+        location: foo
+      }
+      """;
+    String resourceWithParameterUsageInResourcePropertyObjectValueBicep = """
+      resource aks 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+        name: 'storageAccountName'
+        sku: {
+          name: foo
+        }
+      }
+      """;
+    String resourceWithParameterUsageInPropertyValueBicep = """
+      resource aks 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+        name: 'storageAccountName'
+        properties: {
+          accessTier: foo
+        }
+      }
+      """;
+    String resourceWithParameterUsageInChildResourceNameBicep = """
+      resource aks 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+        name: 'storageAccountName'
+        resource service 'fileServices' = {
+          name: foo
+        }
+      }
+      """;
+    String resourceWithParameterUsageInResourcePropertyValueJson = """
+      {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "storageAccountName",
+            "location": "[variables('foo')]"
+          }""";
+    String resourceWithParameterUsageInResourcePropertyObjectValueJson = """
+      {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "storageAccountName",
+            "sku": {
+              "name": "[variables('foo')]"
+            },
+          }""";
+    String resourceWithParameterUsageInPropertyValueJson = """
+      {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "storageAccountName",
+            "properties": {
+              "accessTier": "[parameters('foo')]"
+            }
+          }""";
+    String resourceWithParameterUsageInChildResourceNameJson = """
+      {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "storageAccountName",
+            "resources": [
+              {
+                "type": "Microsoft.Storage/storageAccounts",
+                "apiVersion": "2019-06-01",
+                "name": "[parameters('foo')]",
+              }
+            ]
+          }""";
+
     return Stream.of(
+      // Variable
       Arguments.of(BICEP, VAR, VARIABLE_DECLARATION_WITH_USAGE_BICEP, VAR),
       Arguments.of(BICEP, PARAM, PARAMETER_DECLARATION_WITH_USAGE_BICEP, VAR),
       Arguments.of(BICEP, VAR, "var bar =  '${foo}ConcatToVariable'", VAR),
       Arguments.of(BICEP, PARAM, "var bar =  '${foo}ConcatToVariable'", VAR),
       Arguments.of(BICEP, VAR, "var bar =  '${toLower(foo)}ConcatToVariable'", VAR),
       Arguments.of(BICEP, PARAM, "var bar =  '${toLower(foo)}ConcatToVariable'", VAR),
-      Arguments.of(BICEP, VAR, "output foo string =  foo", OUTPUT),
-      Arguments.of(BICEP, PARAM, "output foo string =  bar[foo]", OUTPUT),
-      Arguments.of(BICEP, VAR, "output foo string =  foo['bar']", OUTPUT),
-      Arguments.of(BICEP, PARAM, "output foo string =  foo['bar']", OUTPUT),
-
+      Arguments.of(BICEP, PARAM, "var bar =  [for i in range(0, foo): {\n" +
+        "  name: 'myDataDisk${(i + 1)}'\n" +
+        "  diskSizeGB: '1'\n" +
+        "  diskIndex: i\n" +
+        "}]", VAR),
+      Arguments.of(BICEP, VAR, "var bar =  [for i in range(0, foo): {\n" +
+        "  name: 'myDataDisk${(i + 1)}'\n" +
+        "  diskSizeGB: '1'\n" +
+        "  diskIndex: i\n" +
+        "}]", VAR),
       Arguments.of(JSON, VAR, VARIABLE_DECLARATION_WITH_USAGE_JSON, VAR),
       Arguments.of(JSON, PARAM, PARAMETER_DECLARATION_WITH_USAGE_JSON, VAR),
       Arguments.of(JSON, VAR, "\"bar\": \"[concat(variables('foo'), '-addToVar')]\"", VAR),
       Arguments.of(JSON, PARAM, "\"bar\": \"[concat(parameters('foo'), '-addToVar')]\"", VAR),
       Arguments.of(JSON, VAR, "\"bar\": \"[concat(toLower(variables('foo')), '-addToVar')]\"", VAR),
       Arguments.of(JSON, PARAM, "\"bar\": \"[concat(toLower(parameters('foo')), '-addToVar')]\"", VAR),
+
+      // Resource
+      Arguments.of(BICEP, VAR, resourceWithParameterUsageInResourcePropertyValueBicep, RESOURCE),
+      Arguments.of(BICEP, VAR, resourceWithParameterUsageInResourcePropertyObjectValueBicep, RESOURCE),
+      Arguments.of(BICEP, VAR, resourceWithParameterUsageInPropertyValueBicep, RESOURCE),
+      Arguments.of(BICEP, VAR, resourceWithParameterUsageInChildResourceNameBicep, RESOURCE),
+
+      Arguments.of(JSON, VAR, resourceWithParameterUsageInResourcePropertyValueJson, RESOURCE),
+      Arguments.of(JSON, VAR, resourceWithParameterUsageInResourcePropertyObjectValueJson, RESOURCE),
+      Arguments.of(JSON, PARAM, resourceWithParameterUsageInPropertyValueJson, RESOURCE),
+      Arguments.of(JSON, PARAM, resourceWithParameterUsageInChildResourceNameJson, RESOURCE),
+
+      // Output
+      Arguments.of(BICEP, VAR, "output foo string =  foo", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar[foo]", OUTPUT),
+      Arguments.of(BICEP, VAR, "output foo string =  foo['bar']", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  foo['bar']", OUTPUT),
+
       Arguments.of(JSON, VAR, "[variables('foo')]", OUTPUT),
       Arguments.of(JSON, PARAM, "[parameters('foo')]", OUTPUT),
       Arguments.of(JSON, VAR, "[bar[variables('foo')]]", OUTPUT),
@@ -213,32 +306,81 @@ class ArmSymbolVisitorTest {
   }
 
   static Stream<Arguments> shouldRegisterNoUsageAccess() {
+    String resourceBicep = """
+      resource aks 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+        name: 'foo'
+        foo: 'foo'
+        sku: {
+          foo: 'foo'
+        }
+        properties: {
+          foo: 'foo'
+        }
+        resource service 'fileServices' = {
+          foo: 'foo'
+        }
+      }
+      """;
+    String resourceJson = """
+      {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "foo",
+            "foo": "foo",
+            "sku": {
+              "foo": "foo"
+            },
+            "properties": {
+              "foo": "foo"
+            },
+            "resources": [
+              {
+                "type": "Microsoft.Storage/storageAccounts",
+                "apiVersion": "2019-06-01",
+                "name": "foo",
+              }
+            ]
+          }""";
     return Stream.of(
-      Arguments.of(BICEP, VAR, "output foo string =  deployment().name"),
-      Arguments.of(BICEP, PARAM, "output foo string =  deployment().name"),
-      Arguments.of(BICEP, VAR, "output foo string =  bar['foo']"),
-      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo']"),
-      Arguments.of(BICEP, VAR, "output foo string =  bar['foo'].foo"),
-      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo'].foo"),
-      Arguments.of(BICEP, VAR, "output foo string =  bar['foo'].foo()"),
-      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo'].foo()"),
-      Arguments.of(JSON, VAR, "[deployment().name]"),
-      Arguments.of(JSON, PARAM, "[deployment().name]"),
-      Arguments.of(JSON, VAR, "[baba['foo']]"),
-      Arguments.of(JSON, PARAM, "[baba['foo']]"),
-      Arguments.of(JSON, VAR, "[baba['foo'].foo]"),
-      Arguments.of(JSON, PARAM, "[baba['foo'].foo]"),
-      Arguments.of(JSON, VAR, "[baba['foo'].foo()]"),
-      Arguments.of(JSON, PARAM, "[baba['foo'].foo()]"));
+      // Output
+      Arguments.of(BICEP, VAR, "output foo string =  deployment().name", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  deployment().name", OUTPUT),
+      Arguments.of(BICEP, VAR, "output foo string =  bar['foo']", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo']", OUTPUT),
+      Arguments.of(BICEP, VAR, "output foo string =  bar['foo'].foo", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo'].foo", OUTPUT),
+      Arguments.of(BICEP, VAR, "output foo string =  bar['foo'].foo()", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output foo string =  bar['foo'].foo()", OUTPUT),
+      Arguments.of(BICEP, PARAM, "output bar array =  [for i in range(0, boo): {\n" +
+        "  foo: 'foo{(i + 1)}'\n" +
+        "}]", OUTPUT),
+      Arguments.of(BICEP, VAR, "output bar array =  [for i in range(0, boo): {\n" +
+        "  foo: 'foo{(i + 1)}'\n" +
+        "}]", OUTPUT),
+      Arguments.of(JSON, VAR, "[deployment().name]", OUTPUT),
+      Arguments.of(JSON, PARAM, "[deployment().name]", OUTPUT),
+      Arguments.of(JSON, VAR, "[baba['foo']]", OUTPUT),
+      Arguments.of(JSON, PARAM, "[baba['foo']]", OUTPUT),
+      Arguments.of(JSON, VAR, "[baba['foo'].foo]", OUTPUT),
+      Arguments.of(JSON, PARAM, "[baba['foo'].foo]", OUTPUT),
+      Arguments.of(JSON, VAR, "[baba['foo'].foo()]", OUTPUT),
+      Arguments.of(JSON, PARAM, "[baba['foo'].foo()]", OUTPUT),
+
+      // Resource
+      Arguments.of(BICEP, VAR, resourceBicep, RESOURCE),
+      Arguments.of(BICEP, PARAM, resourceBicep, RESOURCE),
+      Arguments.of(JSON, VAR, resourceJson, RESOURCE),
+      Arguments.of(JSON, PARAM, resourceJson, RESOURCE));
   }
 
   @MethodSource
   @ParameterizedTest
-  void shouldRegisterNoUsageAccess(String language, CodeStatementType declarationType, String codeStatement) {
+  void shouldRegisterNoUsageAccess(String language, CodeStatementType declarationType, String codeStatement,
+    CodeStatementType typeOfCodeStatement) {
     String declaration = declarationType == VAR ? VARIABLE_DECLARATION.get(language) : PARAMETER_DECLARATION.get(language);
     String code = ArmSourceCodeBuilder.create(language)
       .addCodeStatement(declarationType, declaration)
-      .addCodeStatement(OUTPUT, codeStatement)
+      .addCodeStatement(typeOfCodeStatement, codeStatement)
       .build();
 
     File file = scanFile(code);
@@ -468,12 +610,13 @@ class ArmSymbolVisitorTest {
 
   static class ArmSourceCodeBuilder {
     public enum CodeStatementType {
-      VAR, PARAM, OUTPUT
+      VAR, PARAM, OUTPUT, RESOURCE
     }
 
     private final String language;
     private final List<String> variableDeclarations = new ArrayList<>();
     private final List<String> parameterDeclarations = new ArrayList<>();
+    private final List<String> resourceDeclarations = new ArrayList<>();
     private String outputValue;
 
     public static ArmSourceCodeBuilder create(String language) {
@@ -491,6 +634,8 @@ class ArmSymbolVisitorTest {
         parameterDeclarations.add(codeStatement);
       } else if (type == OUTPUT) {
         outputValue = codeStatement;
+      } else if (type == RESOURCE) {
+        resourceDeclarations.add(codeStatement);
       }
       return this;
     }
@@ -501,41 +646,35 @@ class ArmSymbolVisitorTest {
     }
 
     public String build() {
-      return buildSourceCode(language, parameterDeclarations, variableDeclarations, outputValue);
-    }
-
-    private static String buildSourceCode(String language, List<String> parameterDeclarations, List<String> variableDeclarations,
-      @Nullable String outputValue) {
       if (JSON.equals(language)) {
-        return buildJsonFile(parameterDeclarations, variableDeclarations, outputValue);
+        return buildJsonFile();
       } else {
-        return buildBicepFile(parameterDeclarations, variableDeclarations, outputValue);
+        return buildBicepFile();
       }
     }
 
-    private static String buildBicepFile(List<String> parameterDeclarations, List<String> variableDeclarations,
-      @Nullable String outputValue) {
+    private String buildBicepFile() {
       String code = "";
-      if (!parameterDeclarations.isEmpty()) {
-        code = String.join("\n", parameterDeclarations);
-      }
-      if (!variableDeclarations.isEmpty()) {
-        if (!code.isEmpty()) {
-          code += "\n";
-        }
-        code += String.join("\n", variableDeclarations);
-      }
+      code = addListOfStatements(code, parameterDeclarations);
+      code = addListOfStatements(code, variableDeclarations);
+      code = addListOfStatements(code, resourceDeclarations);
       if (outputValue != null) {
-        if (!code.isEmpty()) {
-          code += "\n";
-        }
-        code += outputValue;
+        code = addListOfStatements(code, List.of(outputValue));
       }
       return code;
     }
 
-    private static String buildJsonFile(List<String> parameterDeclarations, List<String> variableDeclarations,
-      @Nullable String outputValue) {
+    private static String addListOfStatements(String code, List<String> statements) {
+      if (!statements.isEmpty()) {
+        if (!code.isEmpty()) {
+          code += "\n";
+        }
+        code += String.join("\n", statements);
+      }
+      return code;
+    }
+
+    private String buildJsonFile() {
       String str = """
         {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -553,6 +692,13 @@ class ArmSymbolVisitorTest {
           %s
             },
           """.formatted(variableDeclarations.stream().map(v -> "      " + v + ",").collect(Collectors.joining("\n")));
+      }
+      if (!resourceDeclarations.isEmpty()) {
+        str += """
+            "resources": [
+          %s
+            ],
+          """.formatted(resourceDeclarations.stream().map(v -> "    " + v + ",").collect(Collectors.joining("\n")));
       }
       if (outputValue != null) {
         str += """

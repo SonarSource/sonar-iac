@@ -21,6 +21,8 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -29,18 +31,20 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
-  private final StringLiteral name;
+  private static final Set<String> IGNORED_CHILDREN_RESOURCE_PROPERTIES = Set.of("type", "apiversion", "name", "resources");
+  private final Expression name;
   private final Expression version;
   private final StringLiteral type;
   private final List<Property> properties;
   private final List<Property> resourceProperties;
   private final List<ResourceDeclaration> childResources;
 
-  public ResourceDeclarationImpl(StringLiteral name,
+  public ResourceDeclarationImpl(Expression name,
     Expression version,
     StringLiteral type,
     List<Property> properties,
@@ -56,13 +60,17 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Tree> children() {
+    // We don't need to add "properties" here, as it's included in the "resourceProperties" in order to visit its ObjectExpression
     List<Tree> children = new ArrayList<>();
     children.add(name);
     children.add(version);
     children.add(type);
-    properties.forEach(property -> {
-      children.add(property.key());
-      children.add(property.value());
+    resourceProperties.forEach(property -> {
+      TextTree propertyKey = property.key();
+      if (!IGNORED_CHILDREN_RESOURCE_PROPERTIES.contains(propertyKey.value().toLowerCase(Locale.ROOT))) {
+        children.add(propertyKey);
+        children.add(property.value());
+      }
     });
     children.addAll(childResources);
     return children;
@@ -70,7 +78,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   @CheckForNull
-  public StringLiteral name() {
+  public Expression name() {
     return name;
   }
 
@@ -92,7 +100,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public StringLiteral type() {
+  public TextTree type() {
     return type;
   }
 
