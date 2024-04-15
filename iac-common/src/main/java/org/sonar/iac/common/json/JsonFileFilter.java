@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.InputFileFilter;
 
 public class JsonFileFilter implements InputFileFilter {
 
-  static final String[] dismiss = {"build-wrapper-dump", "compile_commands"};
+  private static final String[] dismiss = {"build-wrapper-dump", "compile_commands"};
 
   @Override
   public boolean accept(InputFile inputFile) {
