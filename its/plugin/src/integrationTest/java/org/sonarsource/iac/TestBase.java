@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
+import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +35,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import com.sonar.orchestrator.locator.FileLocation;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -207,7 +206,20 @@ public abstract class TestBase {
       "at java.base/java.net.URLClassLoader.findClass",
       "at org.sonarsource.scanner.api.internal.IsolatedClassloader.loadClass",
       "at java.base/java.lang.ClassLoader.loadClass",
-      "... 6 more");
+      "... 6 more",
+      "INFO in ch.qos.logback.classic.LoggerContext[default] - This is logback-classic version ?",
+      "INFO in ch.qos.logback.classic.util.ContextInitializer",
+      "INFO in ch.qos.logback.classic.LoggerContext[default]",
+      "INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList",
+      "INFO in ch.qos.logback.core.joran.util.ConfigurationWatchListUtil",
+      "INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler",
+      "INFO in ch.qos.logback.core.model.processor.AppenderModelHandler",
+      "INFO in ch.qos.logback.classic.model.processor.RootLoggerModelHandler",
+      "INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler",
+      "INFO in ch.qos.logback.core.model.processor.DefaultProcessor",
+      "INFO in ch.qos.logback.classic.joran.JoranConfigurator",
+      "WARN in ch.qos.logback.core.joran.util.ConfigurationWatchListUtil",
+      "INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler");
 
     lines.removeIf(logElement -> temporaryToleratedStrings.stream().anyMatch(logElement::contains));
 
