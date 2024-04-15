@@ -38,8 +38,7 @@ public class ElementsOrderResourceBicep implements IacCheck {
 
   private static final Map<String, Integer> decoratorsOrder = Map.of(
     "description", 1,
-    "batchSize", 2
-  );
+    "batchSize", 2);
 
   private static final Map<String, Integer> elementsOrder = new HashMap<>();
   private static final int DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY = 20;
@@ -84,11 +83,11 @@ public class ElementsOrderResourceBicep implements IacCheck {
   private static void checkResourceDecorators(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {
     var prevIndex = 0;
     for (Decorator decorator : resourceDeclaration.decorators()) {
-      var index = decoratorsOrder.getOrDefault(((FunctionCall)decorator.expression()).name().value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
+      var index = decoratorsOrder.getOrDefault(((FunctionCall) decorator.expression()).name().value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
       if (index < prevIndex) {
         var textRange = TextRanges.merge(List.of(
           decorator.keyword().textRange(),
-          ((FunctionCall)decorator.expression()).name().textRange()));
+          ((FunctionCall) decorator.expression()).name().textRange()));
         checkContext.reportIssue(textRange, MESSAGE_DECORATOR);
         break;
       }
