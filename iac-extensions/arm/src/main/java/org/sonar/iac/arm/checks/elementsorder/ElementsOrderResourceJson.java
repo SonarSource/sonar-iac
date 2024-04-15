@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.checks;
+package org.sonar.iac.arm.checks.elementsorder;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
@@ -39,7 +40,7 @@ public class ElementsOrderResourceJson implements IacCheck {
     elementsOrder.put("condition", 1);
     elementsOrder.put("scope", 2);
     elementsOrder.put("type", 3);
-    elementsOrder.put("apiVersion", 4);
+    elementsOrder.put("apiversion", 4);
     elementsOrder.put("name", 5);
     elementsOrder.put("location", 6);
     elementsOrder.put("zones", 7);
@@ -49,7 +50,7 @@ public class ElementsOrderResourceJson implements IacCheck {
     elementsOrder.put("plan", 11);
     elementsOrder.put("identity", 12);
     elementsOrder.put("copy", 13);
-    elementsOrder.put("dependsOn", 14);
+    elementsOrder.put("dependson", 14);
     elementsOrder.put("tags", 15);
     // between tags and properties is a place for elements not defined here
     elementsOrder.put("properties", 100);
@@ -63,7 +64,7 @@ public class ElementsOrderResourceJson implements IacCheck {
   private static void checkResource(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {
     var prevIndex = 0;
     for (Property property : resourceDeclaration.resourceProperties()) {
-      var index = elementsOrder.getOrDefault(property.key().value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
+      var index = elementsOrder.getOrDefault(property.key().value().toLowerCase(Locale.ROOT), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
       if (index < prevIndex) {
         checkContext.reportIssue(property.key(), MESSAGE);
         break;

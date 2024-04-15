@@ -20,6 +20,9 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceJson;
+import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelBicep;
+import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelJson;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 

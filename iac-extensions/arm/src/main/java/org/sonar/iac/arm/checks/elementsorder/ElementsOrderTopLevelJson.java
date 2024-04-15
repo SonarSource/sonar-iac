@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.checks;
+package org.sonar.iac.arm.checks.elementsorder;
 
+import java.util.Locale;
 import java.util.Map;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -32,9 +33,9 @@ public class ElementsOrderTopLevelJson implements IacCheck {
 
   private static final Map<String, Integer> topLevelJsonElements = Map.of(
     "$schema", 0,
-    "contentVersion", 1,
+    "contentversion", 1,
     "metadata", 2,
-    "apiProfile", 3,
+    "apiprofile", 3,
     "parameters", 4,
     "functions", 5,
     "variables", 6,
@@ -53,11 +54,11 @@ public class ElementsOrderTopLevelJson implements IacCheck {
       .map(TupleTree::key)
       .filter(ScalarTree.class::isInstance)
       .map(ScalarTree.class::cast)
-      .filter(tree -> topLevelJsonElements.containsKey(tree.value()))
+      .filter(tree -> topLevelJsonElements.containsKey(tree.value().toLowerCase(Locale.ROOT)))
       .toList();
     var prevIndex = 0;
     for (ScalarTree element : elements) {
-      var index = topLevelJsonElements.get(element.value());
+      var index = topLevelJsonElements.get(element.value().toLowerCase(Locale.ROOT));
       if (index < prevIndex) {
         checkContext.reportIssue(element, MESSAGE);
         break;

@@ -48,6 +48,7 @@ class ElementsOrderCheckTest {
       arguments("topLevelContentVersionAndSchema.json", range(3, 2, 3, 11)),
       arguments("topLevelExpectedFunctionsAndParametersAndOutputsAndResources.json", range(6, 2, 6, 14)),
       arguments("topLevelFunctionsAndParameters.json", range(6, 2, 6, 14)),
+      arguments("topLevelFunctionsAndParametersCaseInsensitive.json", range(6, 2, 6, 14)),
       arguments("topLevelOutputsAsFirst.json", range(3, 2, 3, 11)),
       arguments("topLevelResourcesAndParameters.json", range(5, 2, 5, 14)),
       arguments("topLevelSchemaAtEnd.json", range(9, 2, 9, 11)),
@@ -117,6 +118,7 @@ class ElementsOrderCheckTest {
       arguments("resourceCommentsAtEnd.json", range(22, 6, 22, 16)),
       arguments("resourceKindScale.json", range(12, 6, 12, 12)),
       arguments("resourceNameAndApiVersionAndType.json", range(8, 6, 8, 18)),
+      arguments("resourceNameAndApiVersionAndTypeCaseInsensitive.json", range(8, 6, 8, 18)),
       arguments("resourceOnlySecondUnexpected.json", range(15, 6, 15, 16)),
       arguments("resourceOtherPropertiesBetween.json", range(8, 6, 8, 12)),
       arguments("resourcePropertiesAtBeginning.json", range(5, 6, 5, 16)));
