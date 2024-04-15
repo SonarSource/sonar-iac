@@ -23,7 +23,7 @@ import java.util.List;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
-public class ArmCheckList {
+public final class ArmCheckList {
 
   private ArmCheckList() {
   }
@@ -38,6 +38,7 @@ public class ArmCheckList {
       EmptyOrNullValueCheck.class,
       HardcodeApiVersionCheck.class,
       HardcodedResourceLocationCheck.class,
+      HardCodedCredentialsCheck.class,
       HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,
       LogRetentionCheck.class,

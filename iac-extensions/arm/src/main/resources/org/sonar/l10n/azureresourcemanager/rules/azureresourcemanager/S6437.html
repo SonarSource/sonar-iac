@@ -1,0 +1,119 @@
+<p>Secret leaks often occur when a sensitive piece of authentication data is stored with the source code of an application. Considering the source
+code is intended to be deployed across multiple assets, including source code repositories or application hosting servers, the secrets might get
+exposed to an unintended audience.</p>
+<h2>Why is this an issue?</h2>
+<p>In most cases, trust boundaries are violated when a secret is exposed in a source code repository or an uncontrolled deployment environment.
+Unintended people who don’t need to know the secret might get access to it. They might then be able to use it to gain unwanted access to associated
+services or resources.</p>
+<p>The trust issue can be more or less severe depending on the people’s role and entitlement.</p>
+<h3>What is the potential impact?</h3>
+<p>The consequences vary greatly depending on the situation and the secret-exposed audience. Still, two main scenarios should be considered.</p>
+<h4>Financial loss</h4>
+<p>Financial losses can occur when a secret is used to access a paid third-party-provided service and is disclosed as part of the source code of
+client applications. Having the secret, each user of the application will be able to use it without limit to use the third party service to their own
+need, including in a way that was not expected.</p>
+<p>This additional use of the secret will lead to added costs with the service provider.</p>
+<p>Moreover, when rate or volume limiting is set up on the provider side, this additional use can prevent the regular operation of the affected
+application. This might result in a partial denial of service for all the application’s users.</p>
+<h4>Application’s security downgrade</h4>
+<p>A downgrade can happen when the disclosed secret is used to protect security-sensitive assets or features of the application. Depending on the
+affected asset or feature, the practical impact can range from a sensitive information leak to a complete takeover of the application, its hosting
+server or another linked component.</p>
+<p>For example, an application that would disclose a secret used to sign user authentication tokens would be at risk of user identity impersonation.
+An attacker accessing the leaked secret could sign session tokens for arbitrary users and take over their privileges and entitlements.</p>
+<h2>How to fix it in ARM Templates</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2023-05-01-preview",
+      "name": "example-database",
+      "properties": {
+        "administratorLogin": "admin",
+        "administratorLoginPassword": "password"
+      }
+    }
+  ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "securestring"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2023-05-01-preview",
+      "name": "example-database",
+      "properties": {
+        "administratorLogin": "[parameters('adminUsername')]",
+        "administratorLoginPassword": "[parameters('adminPassword')]"
+      }
+    }
+  ]
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
+  name: 'example-database'
+  properties: {
+    administratorLogin: 'admin'
+    administratorLoginPassword: 'password'
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+@secure()
+param adminLogin string
+@secure()
+param adminPassword string
+
+resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
+  name: 'example-database'
+  properties: {
+    administratorLogin: adminLogin
+    administratorLoginPassword: adminPassword
+  }
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Microsoft - <a
+  href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#security-recommendations-for-parameters">ARM template
+  best practices</a> </li>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/best-practices">Best practices for Bicep</a> </li>
+  <li> Microsoft - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers?pivots=deployment-language-arm-template">Microsoft.Sql servers
+  documentation</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> OWASP - <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">Top 10 2021 - Category A7 - Identification and
+  Authentication Failures</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A2_2017-Broken_Authentication">Top 10 2017 - Category A2 - Broken
+  Authentication</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/798">CWE-798 - Use of Hard-coded Credentials</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/259">CWE-259 - Use of Hard-coded Password</a> </li>
+</ul>
+
