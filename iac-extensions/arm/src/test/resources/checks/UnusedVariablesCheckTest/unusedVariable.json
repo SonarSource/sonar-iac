@@ -1,0 +1,139 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "unusedString": "bar",
+    "unusedBool": true,
+    "unusedInt": 2,
+    "unusedArray": [
+      "val"
+    ],
+    "unusedObject": {
+      "key": "foo"
+    },
+    "unusedVariable": "bar",
+    "usedInResourceProperties": "[variables('usedInOtherVar')]",
+    "usedInOtherVar": "bar",
+    "usedInResourceName": "bar",
+    "usedInResourceLocation": "bar",
+    "usedInResourceKind": "bar",
+    "usedInResourceTag": "bar",
+    "usedInResourceDependsOn": "bar",
+    "usedInResourceOtherKey": "bar",
+    "usedInResourceOtherFoo": "bar",
+    "usedInChildResource": "bar",
+    "usedInParamString": "bar",
+    "usedInParamBool": true,
+    "usedInParamInt": 2,
+    "usedInParamArray": [
+      "val"
+    ],
+    "usedInParamObject": {
+      "key": "foo"
+    },
+    "usedInOutputString": "bar",
+    "usedInOutputBool": true,
+    "usedInOutputInt": 2,
+    "usedInOutputArray": ["val"],
+    "usedInOutputObject": {
+      "key": "foo"
+    },
+    "usedInOutput2": "bar",
+    "usedInOutput3": "bar",
+    "usedCaseInsensitive": "bar"
+  },
+  "parameters": {
+    "par1": {
+      "type": "object",
+      "defaultValue": "[variables('usedInParamObject')]"
+    },
+    "par2": {
+      "type": "string",
+      "defaultValue": "[variables('usedInParamString')]"
+    },
+    "par3": {
+      "type": "int",
+      "defaultValue": "[variables('usedInParamInt')]"
+    },
+    "par4": {
+      "type": "array",
+      "defaultValue": "[variables('usedInParamArray')]"
+    },
+    "par5": {
+      "type": "bool",
+      "defaultValue": "[variables('usedInParamBool')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(toLower(variables('usedInResourceName')), '-addToVar')]",
+      "kind": "[concat(variables('usedInResourceKind'), '-addToVar')]",
+      "location": "[variables('usedInResourceLocation')]",
+      "tags": {
+        "tag1": "[variables('usedInResourceTag')]"
+      },
+      "dependsOn": [
+        "[variables('usedInResourceDependsOn')]"
+      ],
+      "unusedVariable": "foo",
+      "caseInsensitiveUsage": "[variables('UseDcaseInSensitivE')]",
+      "properties": {
+        "unusedVariable": "[variables('usedInResourceProperties')]"
+      },
+      "other": [
+        {
+          "key": "[variables('usedInResourceOtherKey')]",
+          "value": "[variables('usedInResourceOtherFoo')]",
+          "unusedVariable": "foo"
+        }
+      ],
+      "resources": [
+        {
+          "type": "Microsoft.Storage/storageAccounts",
+          "apiVersion": "2019-06-01",
+          "name": "[variables('usedInChildResource')]"
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "out1": {
+      "type": "object",
+      "value": "[variables('usedInOutputObject')]"
+    },
+    "out2": {
+      "type": "string",
+      "value": "[variables('usedInOutputString')]"
+    },
+    "out3": {
+      "type": "int",
+      "value": "[variables('usedInOutputInt')]"
+    },
+    "out4": {
+      "type": "array",
+      "value": "[variables('usedInOutputArray')]"
+    },
+    "out5": {
+      "type": "bool",
+      "value": "[variables('usedInOutputBool')]"
+    },
+    "out6": {
+      "type": "string",
+      "value": "[bar[variables('usedInOutput2')]]"
+    },
+    "out7": {
+      "type": "string",
+      "value": "[variables('usedInOutput3')['bar']]"
+    },
+    "outStillUnused": {
+      "type": "string",
+      "value": "[baba['unusedVariable'].unusedVariable]"
+    },
+    "outStillUnused2": {
+      "type": "string",
+      "value": "[baba['unusedVariable'].unusedVariable()]"
+    }
+  }
+}
