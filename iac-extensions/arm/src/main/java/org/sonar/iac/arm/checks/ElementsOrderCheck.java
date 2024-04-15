@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceBicep;
 import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceJson;
 import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelBicep;
 import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelJson;
@@ -36,5 +37,4 @@ public class ElementsOrderCheck implements IacCheck {
     new ElementsOrderResourceJson().initialize(init);
     new ElementsOrderResourceBicep().initialize(init);
   }
-
 }
