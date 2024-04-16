@@ -28,32 +28,35 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
+/**
+ * It is a sub check of S6956, see {@link org.sonar.iac.arm.checks.ElementsOrderCheck}.
+ */
 public class ElementsOrderResourceJson implements IacCheck {
 
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
 
-  private static final Map<String, Integer> elementsOrder = new HashMap<>();
+  private static final Map<String, Integer> ELEMENTS_ORDER = new HashMap<>();
   private static final int DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY = 20;
 
   static {
-    elementsOrder.put("comments", 0);
-    elementsOrder.put("condition", 1);
-    elementsOrder.put("scope", 2);
-    elementsOrder.put("type", 3);
-    elementsOrder.put("apiversion", 4);
-    elementsOrder.put("name", 5);
-    elementsOrder.put("location", 6);
-    elementsOrder.put("zones", 7);
-    elementsOrder.put("sku", 8);
-    elementsOrder.put("kind", 9);
-    elementsOrder.put("scale", 10);
-    elementsOrder.put("plan", 11);
-    elementsOrder.put("identity", 12);
-    elementsOrder.put("copy", 13);
-    elementsOrder.put("dependson", 14);
-    elementsOrder.put("tags", 15);
+    ELEMENTS_ORDER.put("comments", 0);
+    ELEMENTS_ORDER.put("condition", 1);
+    ELEMENTS_ORDER.put("scope", 2);
+    ELEMENTS_ORDER.put("type", 3);
+    ELEMENTS_ORDER.put("apiversion", 4);
+    ELEMENTS_ORDER.put("name", 5);
+    ELEMENTS_ORDER.put("location", 6);
+    ELEMENTS_ORDER.put("zones", 7);
+    ELEMENTS_ORDER.put("sku", 8);
+    ELEMENTS_ORDER.put("kind", 9);
+    ELEMENTS_ORDER.put("scale", 10);
+    ELEMENTS_ORDER.put("plan", 11);
+    ELEMENTS_ORDER.put("identity", 12);
+    ELEMENTS_ORDER.put("copy", 13);
+    ELEMENTS_ORDER.put("dependson", 14);
+    ELEMENTS_ORDER.put("tags", 15);
     // between tags and properties is a place for elements not defined here
-    elementsOrder.put("properties", 100);
+    ELEMENTS_ORDER.put("properties", 100);
   }
 
   @Override
@@ -64,7 +67,7 @@ public class ElementsOrderResourceJson implements IacCheck {
   private static void checkResource(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {
     var prevIndex = 0;
     for (Property property : resourceDeclaration.resourceProperties()) {
-      var index = elementsOrder.getOrDefault(property.key().value().toLowerCase(Locale.ROOT), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
+      var index = ELEMENTS_ORDER.getOrDefault(property.key().value().toLowerCase(Locale.ROOT), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
       if (index < prevIndex) {
         checkContext.reportIssue(property.key(), MESSAGE);
         break;

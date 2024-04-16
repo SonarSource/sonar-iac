@@ -3,7 +3,7 @@ resource resourceName1 'type@version' = {
   scope: demo
   name: 'Compliant expected order'
   otherProperty: {}
-// Noncompliant@+1
+// Noncompliant@+1 {{Reorder the elements to match the recommended order.}}
   location: location
 //^^^^^^^^
   properties: {}

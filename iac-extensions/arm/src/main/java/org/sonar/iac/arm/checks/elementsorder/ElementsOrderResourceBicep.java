@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.checks.elementsorder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Property;
@@ -31,35 +30,39 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
+/**
+ * It is a sub check of S6956, see {@link org.sonar.iac.arm.checks.ElementsOrderCheck}.
+ */
 public class ElementsOrderResourceBicep implements IacCheck {
 
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
   private static final String MESSAGE_DECORATOR = "Reorder the decorators to match the recommended order.";
 
-  private static final Map<String, Integer> decoratorsOrder = Map.of(
-    "description", 1,
-    "batchSize", 2);
+  private static final Map<String, Integer> DECORATORS_ORDER = new HashMap<>();
 
-  private static final Map<String, Integer> elementsOrder = new HashMap<>();
+  private static final Map<String, Integer> ELEMENTS_ORDER = new HashMap<>();
   private static final int DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY = 20;
 
   static {
-    elementsOrder.put("parent", 0);
-    elementsOrder.put("scope", 1);
-    elementsOrder.put("name", 2);
-    elementsOrder.put("location", 3);
+    ELEMENTS_ORDER.put("parent", 0);
+    ELEMENTS_ORDER.put("scope", 1);
+    ELEMENTS_ORDER.put("name", 2);
+    ELEMENTS_ORDER.put("location", 3);
     // extendedLocation has the same weight as location
-    elementsOrder.put("extendedLocation", 3);
-    elementsOrder.put("zones", 4);
-    elementsOrder.put("sku", 5);
-    elementsOrder.put("kind", 6);
-    elementsOrder.put("scale", 7);
-    elementsOrder.put("plan", 8);
-    elementsOrder.put("identity", 9);
-    elementsOrder.put("dependsOn", 10);
-    elementsOrder.put("tags", 11);
+    ELEMENTS_ORDER.put("extendedLocation", 3);
+    ELEMENTS_ORDER.put("zones", 4);
+    ELEMENTS_ORDER.put("sku", 5);
+    ELEMENTS_ORDER.put("kind", 6);
+    ELEMENTS_ORDER.put("scale", 7);
+    ELEMENTS_ORDER.put("plan", 8);
+    ELEMENTS_ORDER.put("identity", 9);
+    ELEMENTS_ORDER.put("dependsOn", 10);
+    ELEMENTS_ORDER.put("tags", 11);
     // between tags and properties is a place for elements not defined here
-    elementsOrder.put("properties", 100);
+    ELEMENTS_ORDER.put("properties", 100);
+
+    DECORATORS_ORDER.put("description", 1);
+    DECORATORS_ORDER.put("batchSize", 2);
   }
 
   @Override
@@ -71,7 +74,7 @@ public class ElementsOrderResourceBicep implements IacCheck {
   private static void checkResource(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {
     var prevIndex = 0;
     for (Property property : resourceDeclaration.resourceProperties()) {
-      var index = elementsOrder.getOrDefault(property.key().value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
+      var index = ELEMENTS_ORDER.getOrDefault(property.key().value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
       if (index < prevIndex) {
         checkContext.reportIssue(property.key(), MESSAGE);
         break;
@@ -83,11 +86,12 @@ public class ElementsOrderResourceBicep implements IacCheck {
   private static void checkResourceDecorators(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {
     var prevIndex = 0;
     for (Decorator decorator : resourceDeclaration.decorators()) {
-      var index = decoratorsOrder.getOrDefault(((FunctionCall) decorator.expression()).name().value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
+      var identifier = ((FunctionCall) decorator.expression()).name();
+      var index = DECORATORS_ORDER.getOrDefault(identifier.value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
       if (index < prevIndex) {
-        var textRange = TextRanges.merge(List.of(
+        var textRange = TextRanges.merge(
           decorator.keyword().textRange(),
-          ((FunctionCall) decorator.expression()).name().textRange()));
+          identifier.textRange());
         checkContext.reportIssue(textRange, MESSAGE_DECORATOR);
         break;
       }

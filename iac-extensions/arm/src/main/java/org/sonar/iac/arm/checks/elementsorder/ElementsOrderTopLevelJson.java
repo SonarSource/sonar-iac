@@ -28,10 +28,13 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
+/**
+ * It is a sub check of S6956, see {@link org.sonar.iac.arm.checks.ElementsOrderCheck}.
+ */
 public class ElementsOrderTopLevelJson implements IacCheck {
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
 
-  private static final Map<String, Integer> topLevelJsonElements = Map.of(
+  private static final Map<String, Integer> TOP_LEVEL_JSON_ELEMENTS = Map.of(
     "$schema", 0,
     "contentversion", 1,
     "metadata", 2,
@@ -54,11 +57,11 @@ public class ElementsOrderTopLevelJson implements IacCheck {
       .map(TupleTree::key)
       .filter(ScalarTree.class::isInstance)
       .map(ScalarTree.class::cast)
-      .filter(tree -> topLevelJsonElements.containsKey(tree.value().toLowerCase(Locale.ROOT)))
+      .filter(tree -> TOP_LEVEL_JSON_ELEMENTS.containsKey(tree.value().toLowerCase(Locale.ROOT)))
       .toList();
     var prevIndex = 0;
     for (ScalarTree element : elements) {
-      var index = topLevelJsonElements.get(element.value().toLowerCase(Locale.ROOT));
+      var index = TOP_LEVEL_JSON_ELEMENTS.get(element.value().toLowerCase(Locale.ROOT));
       if (index < prevIndex) {
         checkContext.reportIssue(element, MESSAGE);
         break;

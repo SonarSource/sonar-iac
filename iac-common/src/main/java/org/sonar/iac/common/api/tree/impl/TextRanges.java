@@ -20,6 +20,7 @@
 package org.sonar.iac.common.api.tree.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -49,6 +50,10 @@ public class TextRanges {
     return new TextRange(
       ranges.stream().map(TextRange::start).min(naturalOrder()).orElseThrow(MERGE_EXCEPTION_SUPPLIER),
       ranges.stream().map(TextRange::end).max(naturalOrder()).orElseThrow(MERGE_EXCEPTION_SUPPLIER));
+  }
+
+  public static TextRange merge(TextRange... ranges) {
+    return merge(Arrays.asList(ranges));
   }
 
   public static TextRange mergeElementsWithTextRange(List<? extends HasTextRange> elementsWithTextRange) {
