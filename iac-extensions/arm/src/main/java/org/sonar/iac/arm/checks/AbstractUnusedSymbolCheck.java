@@ -19,9 +19,7 @@
  */
 package org.sonar.iac.arm.checks;
 
-import javax.annotation.CheckForNull;
-import org.sonar.iac.arm.symbols.Symbol;
-import org.sonar.iac.arm.symbols.Usage;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -36,7 +34,7 @@ abstract class AbstractUnusedSymbolCheck implements IacCheck {
     init.register(File.class, this::checkSymbol);
   }
 
-  abstract Class<? extends Declaration> declarationClass();
+  abstract ArmTree.Kind declarationKind();
 
   abstract String typeOfSymbol();
 
@@ -44,27 +42,12 @@ abstract class AbstractUnusedSymbolCheck implements IacCheck {
     var symbolTable = file.symbolTable();
     if (symbolTable != null && !symbolTable.hasFoundUnresolvableSymbolAccess()) {
       symbolTable.getSymbols().forEach(symbol -> {
-        var declaration = retrieveDeclaration(symbol);
-        if (declarationClass().isInstance(declaration) && isUnused(symbol)) {
+        var declaration = symbol.findAssignmentDeclaration();
+        if (declaration != null && declarationKind() == declaration.getKind() && symbol.isUnused()) {
           reportOnDeclaration(checkContext, declaration);
         }
       });
     }
-  }
-
-  private static boolean isUnused(Symbol symbol) {
-    return symbol.usages().stream().noneMatch(usage -> Usage.Kind.ACCESS == usage.kind());
-  }
-
-  @CheckForNull
-  private static Declaration retrieveDeclaration(Symbol symbol) {
-    return symbol.usages().stream()
-      .filter(usage -> Usage.Kind.ASSIGNMENT == usage.kind())
-      .map(Usage::tree)
-      .filter(Declaration.class::isInstance)
-      .map(Declaration.class::cast)
-      .findFirst()
-      .orElse(null);
   }
 
   private void reportOnDeclaration(CheckContext checkContext, Declaration declaration) {

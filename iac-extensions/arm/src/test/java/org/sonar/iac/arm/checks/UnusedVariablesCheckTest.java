@@ -62,18 +62,13 @@ class UnusedVariablesCheckTest {
 
   @Test
   void shouldNotRaiseAnythingWhenNoAssignmentDetected() {
-    BicepParser parser = BicepParser.create();
-    Path path = Paths.get("src", "test", "resources", "checks").resolve("UnusedVariablesCheckTest/unusedVariable.bicep");
-    Tree root = Verifier.parse(parser, path);
-    ArmSymbolVisitor symbolVisitor = new ArmSymbolVisitor();
-    symbolVisitor.scan(mock(InputFileContext.class), root);
+    String fileName = "UnusedVariablesCheckTest/unusedVariable.bicep";
+    File file = BicepVerifier.parseAndScan(fileName);
 
     // manipulating the symbol table to remove all assignments
-    SymbolTable symbolTable = ((File) root).symbolTable();
-    for (Symbol symbol : symbolTable.getSymbols()) {
+    for (Symbol symbol : file.symbolTable().getSymbols()) {
       symbol.usages().removeIf(usage -> Usage.Kind.ASSIGNMENT == usage.kind());
     }
-
-    Verifier.verifyNoIssue(root, path, CHECK);
+    BicepVerifier.verifyNoIssue(fileName, file, CHECK);
   }
 }

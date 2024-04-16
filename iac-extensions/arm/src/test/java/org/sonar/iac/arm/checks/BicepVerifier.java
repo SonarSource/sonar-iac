@@ -20,7 +20,10 @@
 package org.sonar.iac.arm.checks;
 
 import java.nio.file.Path;
+import java.util.function.Consumer;
 import org.sonar.iac.arm.parser.BicepParser;
+import org.sonar.iac.arm.symbols.SymbolTable;
+import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
@@ -76,4 +79,17 @@ public class BicepVerifier {
     symbolVisitor.scan(mock(InputFileContext.class), root);
     Verifier.verifyNoIssue(root, path, check);
   }
+
+  public static File parseAndScan(String fileName) {
+    Path path = BASE_DIR.resolve(fileName);
+    Tree root = Verifier.parse(PARSER, path);
+    ArmSymbolVisitor symbolVisitor = new ArmSymbolVisitor();
+    symbolVisitor.scan(mock(InputFileContext.class), root);
+    return (File) root;
+  }
+
+  public static void verifyNoIssue(String fileName, Tree root, IacCheck check) {
+    Verifier.verifyNoIssue(root, BASE_DIR.resolve(fileName), check);
+  }
+
 }

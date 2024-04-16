@@ -20,15 +20,14 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.tree.api.VariableDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.Declaration;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
 @Rule(key = "S1481")
 public class UnusedVariablesCheck extends AbstractUnusedSymbolCheck {
 
   @Override
-  Class<? extends Declaration> declarationClass() {
-    return VariableDeclaration.class;
+  ArmTree.Kind declarationKind() {
+    return ArmTree.Kind.VARIABLE_DECLARATION;
   }
 
   @Override

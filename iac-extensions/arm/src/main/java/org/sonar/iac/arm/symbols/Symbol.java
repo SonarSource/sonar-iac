@@ -21,8 +21,10 @@ package org.sonar.iac.arm.symbols;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.HasSymbol;
+import org.sonar.iac.arm.tree.api.bicep.Declaration;
 
 public class Symbol {
   private final SymbolTable symbolTable;
@@ -41,6 +43,21 @@ public class Symbol {
     if (tree instanceof HasSymbol treeWithSymbol) {
       treeWithSymbol.setSymbol(this);
     }
+  }
+
+  public boolean isUnused() {
+    return usages.stream().noneMatch(usage -> Usage.Kind.ACCESS == usage.kind());
+  }
+
+  @CheckForNull
+  public Declaration findAssignmentDeclaration() {
+    return usages.stream()
+      .filter(usage -> Usage.Kind.ASSIGNMENT == usage.kind())
+      .map(Usage::tree)
+      .filter(Declaration.class::isInstance)
+      .map(Declaration.class::cast)
+      .findFirst()
+      .orElse(null);
   }
 
   public SymbolTable symbolTable() {
