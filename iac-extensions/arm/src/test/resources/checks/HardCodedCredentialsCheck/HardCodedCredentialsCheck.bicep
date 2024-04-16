@@ -8,6 +8,9 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
     secret: 'password' // Noncompliant
     adminPassword: 'password' // Noncompliant
     adminUsername: 'admin' // Noncompliant
+    publishingPassword: 'password' // Noncompliant
+    publishingUserName: 'admin' // Noncompliant
+    randomProperty: 'password'
   }
 }
 
@@ -20,5 +23,6 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
     secret: secret
     adminPassword: adminPassword
     adminUsername: ''
+    publishingPassword: '  '
   }
 }

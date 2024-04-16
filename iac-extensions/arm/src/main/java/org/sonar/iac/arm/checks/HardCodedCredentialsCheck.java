@@ -20,16 +20,14 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.List;
-import java.util.function.Predicate;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checkdsl.ContextualResource;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6437")
 public class HardCodedCredentialsCheck implements IacCheck {
@@ -42,21 +40,30 @@ public class HardCodedCredentialsCheck implements IacCheck {
     "password",
     "secret",
     "adminPassword",
-    "adminUsername");
+    "adminUsername",
+    "publishingPassword",
+    "publishingUserName");
 
   @Override
   public void initialize(InitContext init) {
-    init.register(ResourceDeclaration.class, HardCodedCredentialsCheck::checkCredentials);
+    init.register(Tree.class, HardCodedCredentialsCheck::checkCredentials);
   }
 
-  private static void checkCredentials(CheckContext ctx, ResourceDeclaration resourceDeclaration) {
-    var resource = ContextualResource.fromPresent(ctx, resourceDeclaration);
-    CREDENTIAL_PROPERTIES.forEach(credentialProperty -> resource.property(credentialProperty)
-      .reportIf(isHardcoded(), MESSAGE));
+  private static void checkCredentials(CheckContext ctx, Tree tree) {
+    if (tree instanceof HasProperties hasProperties) {
+      for (PropertyTree property : hasProperties.properties()) {
+        TextUtils.getValue(property.key())
+          .ifPresent(propertyName -> {
+            if (CREDENTIAL_PROPERTIES.contains(propertyName) && isHardcoded(property.value())) {
+              ctx.reportIssue(property, MESSAGE);
+            }
+          });
+      }
+    }
   }
 
   /** TODO <a href="https://sonarsource.atlassian.net/browse/SONARIAC-1420">SONARIAC-1420</a>: S6437 should raise when credential is not defined via parameter */
-  private static Predicate<Expression> isHardcoded() {
-    return expression -> expression.is(ArmTree.Kind.STRING_LITERAL) && !((StringLiteral) expression).value().isBlank();
+  private static boolean isHardcoded(Tree tree) {
+    return TextUtils.matchesValue(tree, String::isBlank).isFalse();
   }
 }
