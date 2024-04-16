@@ -1,0 +1,93 @@
+<h2>Why is this an issue?</h2>
+<p>Duplicated string literals make the process of refactoring complex and error-prone, as any change would need to be propagated on all
+occurrences.</p>
+<h3>Exceptions</h3>
+<p>The following are ignored:</p>
+<ul>
+  <li> literals with fewer than 5 characters </li>
+  <li> The <code>apiVersion</code> of a resource (see rule {rule:azureresourcemanager:S6893}) </li>
+</ul>
+<h2>How to fix it in ARM templates</h2>
+<p>Use variables to replace the duplicated string literals. Variables can be referenced from many places, but only need to be updated in a single
+place.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<p>With the default threshold of 3:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "appSuperStorage",
+      "tags": {
+        "displayName": "appSuperStorage",
+        "shortName" : "appSuperStorage"
+      }
+    }
+  ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "storageAccountName": "appSuperStorage"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "[variables('storageAccountName')]",
+      "tags": {
+        "displayName": "[variables('storageAccountName')]",
+        "shortName" : "[variables('storageAccountName')]"
+      }
+    }
+  ]
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<p>Use variables to replace the duplicated string literals. Variables can be referenced from many places, but only need to be updated in a single
+place.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<p>With the default threshold of 3:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
+  name: 'appSuperStorage'          // Noncompliant
+  tags: {
+    displayName: 'appSuperStorage' // Noncompliant
+    shortName: 'appSuperStorage'   // Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+var storageAccountName = 'appSuperStorage'
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
+  name: storageAccountName
+  tags: {
+    displayName: storageAccountName
+    shortName: storageAccountName
+  }
+}
+</pre>
+<h2>Resources</h2>
+<h2>Documentation</h2>
+<ul>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#variables">ARM template best
+  practices</a> </li>
+  <li> Microsoft - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/best-practices">Best practices for Bicep</a> </li>
+</ul>
+<h3>Related rules</h3>
+<ul>
+  <li> {rule:azureresourcemanager:S6893} - Use a hard-coded value for the apiVersion </li>
+</ul>
+

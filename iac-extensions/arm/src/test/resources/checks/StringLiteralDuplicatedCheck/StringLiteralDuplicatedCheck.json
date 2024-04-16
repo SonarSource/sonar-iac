@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "storageAccountName": "app Super Storage 2"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "appSuperStorage",
+      "tags": {
+        "displayName": "appSuperStorage",
+        "shortName" : "appSuperStorage"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "app Super Storage",
+      "tags": {
+        "displayName": "app Super Storage",
+        "shortName" : "app Super Storage"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "[variables('storageAccountName')]",
+      "tags": {
+        "displayName": "[variables('storageAccountName')]",
+        "shortName" : "[variables('storageAccountName')]"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts@",
+      "apiVersion": "2021-01-01",
+      "name": "invalid type"
+    }
+  ]
+}
