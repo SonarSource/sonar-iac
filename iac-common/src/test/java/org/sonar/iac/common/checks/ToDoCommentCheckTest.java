@@ -44,16 +44,14 @@ class ToDoCommentCheckTest {
   void shouldNotReportIssueForSimpleComment() {
     TextTree tree = createTreeWithComment("foo bar");
 
-    // identical to Verifier.verify(tree, Path.of(""), check, new Verifier.Issue[0]);
-    Verifier.verify(tree, Path.of(""), check);
+    Verifier.verifyNoIssue(tree, Path.of(""), check);
   }
 
   @Test
   void shouldNotReportIssueWhenNoComment() {
     TextTree tree = CommonTestUtils.TestTextTree.text("foo");
 
-    // identical to Verifier.verify(tree, Path.of(""), check, new Verifier.Issue[0]);
-    Verifier.verify(tree, Path.of(""), check);
+    Verifier.verifyNoIssue(tree, Path.of(""), check);
   }
 
   @Test
@@ -62,8 +60,7 @@ class ToDoCommentCheckTest {
     TextTree value = CommonTestUtils.TestTextTree.text("value");
     CommonTestUtils.TestAttributeTree tree = (CommonTestUtils.TestAttributeTree) CommonTestUtils.TestAttributeTree.attribute(key, value);
 
-    // identical to Verifier.verify(tree, Path.of(""), check, new Verifier.Issue[0]);
-    Verifier.verify(tree, Path.of(""), check);
+    Verifier.verifyNoIssue(tree, Path.of(""), check);
   }
 
   private static TextTree createTreeWithComment(String commentText) {

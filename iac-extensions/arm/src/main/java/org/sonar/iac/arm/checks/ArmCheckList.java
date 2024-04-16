@@ -54,6 +54,7 @@ public class ArmCheckList {
       SubscriptionRoleAssignmentCheck.class,
       TlsVersionCheck.class,
       ToDoCommentCheck.class,
-      UnencryptedCloudServicesCheck.class);
+      UnencryptedCloudServicesCheck.class,
+      UnusedVariablesCheck.class);
   }
 }

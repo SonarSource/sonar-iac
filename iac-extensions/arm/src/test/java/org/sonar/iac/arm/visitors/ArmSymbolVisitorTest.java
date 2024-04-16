@@ -227,6 +227,8 @@ class ArmSymbolVisitorTest {
       Arguments.of(BICEP, PARAM, PARAMETER_DECLARATION_WITH_USAGE_BICEP, VAR),
       Arguments.of(BICEP, VAR, "var bar =  '${foo}ConcatToVariable'", VAR),
       Arguments.of(BICEP, PARAM, "var bar =  '${foo}ConcatToVariable'", VAR),
+      Arguments.of(BICEP, VAR, "var bar =  '${FoO}ConcatToVariable'", VAR),
+      Arguments.of(BICEP, PARAM, "var bar =  '${FoO}ConcatToVariable'", VAR),
       Arguments.of(BICEP, VAR, "var bar =  '${toLower(foo)}ConcatToVariable'", VAR),
       Arguments.of(BICEP, PARAM, "var bar =  '${toLower(foo)}ConcatToVariable'", VAR),
       Arguments.of(BICEP, PARAM, "var bar =  [for i in range(0, foo): {\n" +

@@ -69,6 +69,10 @@ public class Verifier {
     verify(parser, path, check, TestContext::new);
   }
 
+  public static void verify(Tree root, Path path, IacCheck check) {
+    verify(root, path, check, TestContext::new);
+  }
+
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
     verify(root, path, check, contextSupplier);
