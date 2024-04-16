@@ -254,6 +254,10 @@ public class ArmJsonBaseConverter {
   }
 
   protected List<Property> toProperties(Tree tree) {
+    List<Property> properties = new ArrayList<>();
+    if (tree instanceof ScalarTree) {
+      return properties;
+    }
     if (!(tree instanceof HasProperties)) {
       throw createParseException(
         "Couldn't convert properties: expecting object of class '" + tree.getClass().getSimpleName() + "' to implement HasProperties",
@@ -261,7 +265,6 @@ public class ArmJsonBaseConverter {
         new BasicTextPointer(tree.textRange()));
     }
 
-    List<Property> properties = new ArrayList<>();
     for (PropertyTree propertyTree : ((HasProperties) tree).properties()) {
       var key = toIdentifier((YamlTree) propertyTree.key());
       var value = toExpression((YamlTree) propertyTree.value());
