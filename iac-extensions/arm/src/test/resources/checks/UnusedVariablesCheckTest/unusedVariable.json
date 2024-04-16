@@ -44,8 +44,8 @@
   },
   "parameters": {
     "par1": {
-      "type": "object",
-      "defaultValue": "[variables('usedInParamObject')]"
+      "type": "string",
+      "defaultValue": "[variables('usedInParamObject').key]"
     },
     "par2": {
       "type": "string",

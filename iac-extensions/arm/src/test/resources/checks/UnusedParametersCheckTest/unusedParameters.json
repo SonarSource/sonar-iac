@@ -1,0 +1,209 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "unusedString": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "unusedBool": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "unusedInt": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "unusedArray": {
+      "type": "array",
+      "defaultValue": [
+        "val"
+      ]
+    },
+    "unusedObject": {
+      "type": "object",
+      "defaultValue": {
+        "key": "foo"
+      }
+    },
+    "unusedParameter": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInResourceProperties": {
+      "type": "string",
+      "defaultValue": "[parameters('usedInOtherParameter')]"
+    },
+    "usedInOtherParameter": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInResourceName": {
+      "type": "string"
+    },
+    "usedInResourceLocation": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInResourceKind": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInResourceTag": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInResourceDependsOn": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInResourceOtherKey": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInResourceOtherFoo": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInChildResource": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInVariableString": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInVariableBool": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "usedInVariableInt": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "usedInVariableArray": {
+      "type": "array",
+      "defaultValue": [
+        "val"
+      ]
+    },
+    "usedInVariableObject": {
+      "type": "object",
+      "defaultValue": {
+        "key": "foo"
+      }
+    },
+    "usedInOutputString": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInOutputBool": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "usedInOutputInt": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "usedInOutputArray": {
+      "type": "array",
+      "defaultValue": [
+        "val"
+      ]
+    },
+    "usedInOutputObject": {
+      "type": "object"
+    },
+    "usedInOutput2": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedInOutput3": {
+      "type": "string",
+      "defaultValue": "bar"
+    },
+    "usedCaseInsensitive": {
+      "type": "string",
+      "defaultValue": "bar"
+    }
+  },
+  "variables": {
+    "var1": "[parameters('usedInVariableObject').key]",
+    "var2": "[parameters('usedInVariableString')]",
+    "var3": "[parameters('usedInVariableInt')]",
+    "var4": "[parameters('usedInVariableArray')]",
+    "var5": "[parameters('usedInVariableBool')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(toLower(parameters('usedInResourceName')), '-addToVar')]",
+      "kind": "[concat(parameters('usedInResourceKind'), '-addToVar')]",
+      "location": "[parameters('usedInResourceLocation')]",
+      "tags": {
+        "tag1": "[parameters('usedInResourceTag')]"
+      },
+      "dependsOn": [
+        "[parameters('usedInResourceDependsOn')]"
+      ],
+      "unusedParameter": "foo",
+      "caseInsensitiveUsage": "[parameters('UseDcaseInSensitivE')]",
+      "properties": {
+        "unusedParameter": "[parameters('usedInResourceProperties')]"
+      },
+      "other": [
+        {
+          "key": "[parameters('usedInResourceOtherKey')]",
+          "value": "[parameters('usedInResourceOtherFoo')]",
+          "unusedParameter": "foo"
+        }
+      ],
+      "resources": [
+        {
+          "type": "Microsoft.Storage/storageAccounts",
+          "apiVersion": "2019-06-01",
+          "name": "[parameters('usedInChildResource')]"
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "out1": {
+      "type": "object",
+      "value": "[parameters('usedInOutputObject')]"
+    },
+    "out2": {
+      "type": "string",
+      "value": "[parameters('usedInOutputString')]"
+    },
+    "out3": {
+      "type": "int",
+      "value": "[parameters('usedInOutputInt')]"
+    },
+    "out4": {
+      "type": "array",
+      "value": "[parameters('usedInOutputArray')]"
+    },
+    "out5": {
+      "type": "bool",
+      "value": "[parameters('usedInOutputBool')]"
+    },
+    "out6": {
+      "type": "string",
+      "value": "[bar[parameters('usedInOutput2')]]"
+    },
+    "out7": {
+      "type": "string",
+      "value": "[parameters('usedInOutput3')['bar']]"
+    },
+    "outStillUnused": {
+      "type": "string",
+      "value": "[baba['unusedParameter'].unusedParameter]"
+    },
+    "outStillUnused2": {
+      "type": "string",
+      "value": "[baba['unusedParameter'].unusedParameter()]"
+    }
+  }
+}

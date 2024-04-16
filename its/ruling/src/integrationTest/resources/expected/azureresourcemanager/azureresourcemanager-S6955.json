@@ -1,0 +1,14 @@
+{
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/deployToLinkedWorkspaceWithAuditLogs.json": [
+5,
+35
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/best-practices/resource-name-expressions.bicep": [
+3
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/sample.bicep": [
+1,
+2,
+3
+]
+}
