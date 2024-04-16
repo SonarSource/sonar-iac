@@ -137,4 +137,42 @@ class ElementsOrderCheckTest {
     var issue2 = issue(range(16, 6, 16, 12), PRIMARY_MESSAGE);
     ArmVerifier.verify(DIR + "resourceTwoUnexpected.json", CHECK, issue1, issue2);
   }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"resourceExpected.bicep",
+    "resourceExpectedMoreResources.bicep",
+    "resourceExpectedSmall.bicep"})
+  void shouldVerifyExpectedResourceBicep(String filename) {
+    BicepVerifier.verifyNoIssue(DIR + filename, CHECK);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"resourceMoreIssues.bicep",
+    "resourceOnlySecondUnexpected.bicep",
+    "resourceParentAtEnd.bicep",
+    "resourcePlanAndTags.bicep",
+    "resourcePropertiesFirst.bicep",
+    "resourceScopeAndParent.bicep"})
+  void shouldVerifyUnexpectedResourceBicep(String filename) {
+    BicepVerifier.verify(DIR + filename, CHECK);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"decoratorExpected.bicep",
+    "decoratorExpectedAndOthers.bicep",
+    "decoratorExpectedBatchSizeOnly.bicep",
+    "decoratorExpectedDescriptionOnly.bicep"})
+  void shouldVerifyDecorator(String filename) {
+    BicepVerifier.verifyNoIssue(DIR + filename, CHECK);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"decoratorCustomFirst.bicep",
+    "decoratorCustomFirstOnlyBatchSize.bicep",
+    "decoratorCustomInBetween.bicep",
+    "decoratorDescriptionAndBatchSize.bicep",
+    "decoratorMoreResources.bicep"})
+  void shouldVerifyUnexpectedDecorator(String filename) {
+    BicepVerifier.verify(DIR + filename, CHECK);
+  }
 }
