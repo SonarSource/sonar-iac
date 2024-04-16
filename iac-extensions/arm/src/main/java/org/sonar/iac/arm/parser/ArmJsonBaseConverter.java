@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -254,9 +255,8 @@ public class ArmJsonBaseConverter {
   }
 
   protected List<Property> toProperties(Tree tree) {
-    List<Property> properties = new ArrayList<>();
     if (tree instanceof ScalarTree) {
-      return properties;
+      return Collections.emptyList();
     }
     if (!(tree instanceof HasProperties)) {
       throw createParseException(
@@ -265,6 +265,7 @@ public class ArmJsonBaseConverter {
         new BasicTextPointer(tree.textRange()));
     }
 
+    List<Property> properties = new ArrayList<>();
     for (PropertyTree propertyTree : ((HasProperties) tree).properties()) {
       var key = toIdentifier((YamlTree) propertyTree.key());
       var value = toExpression((YamlTree) propertyTree.value());
