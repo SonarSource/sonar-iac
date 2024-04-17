@@ -22,20 +22,35 @@ package org.sonar.iac.arm.checks;
 import org.junit.jupiter.api.Test;
 
 import static org.sonar.iac.common.testing.Verifier.issue;
+import static org.sonar.iac.common.testing.Verifier.secondary;
 
 class StringLiteralDuplicatedCheckTest {
 
   private final StringLiteralDuplicatedCheck check = new StringLiteralDuplicatedCheck();
 
   @Test
-  void testJson() {
+  void testJsonOOB() {
     ArmVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json",
       check,
-      issue(20, 14, 20, 33, "Define a variable instead of duplicating this literal \"app Super Storage\" 3 times."));
+      issue(20, 14, 20, 33, "Define a variable instead of duplicating this literal \"app Super Storage\" 3 times.",
+        secondary(22, 23, 22, 42, "Duplication."),
+        secondary(23, 22, 23, 41, "Duplication.")));
   }
 
   @Test
-  void testBicep() {
+  void testJsonChangedMinLength() {
+    check.minimalLiteralLength = 18;
+    ArmVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json", check);
+  }
+
+  @Test
+  void testJsonChangedThreshold() {
+    check.threshold = 4;
+    ArmVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json", check);
+  }
+
+  @Test
+  void testBicepOOB() {
     BicepVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.bicep", check);
   }
 

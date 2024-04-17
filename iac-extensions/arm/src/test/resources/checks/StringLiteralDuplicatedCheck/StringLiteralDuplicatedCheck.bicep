@@ -10,9 +10,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: 'app Super Storage' // Noncompliant {{Define a variable instead of duplicating this literal "app Super Storage" 3 times.}}
+//      ^^^^^^^^^^^^^^^^^^^
   tags: {
     displayName: 'app Super Storage'
+//               ^^^^^^^^^^^^^^^^^^^< {{Duplication.}}
     shortName: 'app Super Storage'
+//             ^^^^^^^^^^^^^^^^^^^< {{Duplication.}}
   }
 }
 

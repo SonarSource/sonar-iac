@@ -32,6 +32,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -40,6 +41,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 public class StringLiteralDuplicatedCheck implements IacCheck {
 
   private static final String MESSAGE = "Define a variable instead of duplicating this literal \"%s\" %d times.";
+  private static final String SECONDARY_MESSAGE = "Duplication.";
   private static final Pattern ALLOWED_DUPLICATED_LITERALS = Pattern.compile("(?U)^[a-zA-Z_][.\\-\\w]+$");
 
   public static final int THRESHOLD_DEFAULT = 3;
@@ -69,7 +71,6 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
   private class StringVisitor extends TreeVisitor<TreeContext> {
 
     private static final TreeContext DUMMY_TREE_CONTEXT = new TreeContext();
-    private final Map<String, StringLiteral> firstOccurrenceTrees = new HashMap<>();
     private final Map<String, List<StringLiteral>> sameLiteralOccurrences = new HashMap<>();
 
     public StringVisitor() {
@@ -87,7 +88,6 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
           List<StringLiteral> occurrences = new ArrayList<>();
           occurrences.add(tree);
           sameLiteralOccurrences.put(value, occurrences);
-          firstOccurrenceTrees.put(value, tree);
         } else {
           sameLiteralOccurrences.get(value).add(tree);
         }
@@ -115,8 +115,12 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
         if (occurrences.size() >= threshold) {
           var literal = literalOccurrences.getKey();
           var message = String.format(MESSAGE, literal, occurrences.size());
-          StringLiteral firstOccurrenceTree = firstOccurrenceTrees.get(literal);
-          ctx.reportIssue(firstOccurrenceTree, message);
+          StringLiteral firstOccurrenceTree = occurrences.get(0);
+          List<SecondaryLocation> otherOccurrencesLocation = occurrences.stream()
+            .skip(1)
+            .map(o -> new SecondaryLocation(o, SECONDARY_MESSAGE))
+            .toList();
+          ctx.reportIssue(firstOccurrenceTree, message, otherOccurrencesLocation);
         }
       }
     }
