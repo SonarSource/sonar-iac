@@ -30,10 +30,10 @@ import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.api.IdentifierNode;
-import org.sonar.iac.helm.tree.api.Location;
+import org.sonar.iac.common.api.tree.Location;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.NodeType;
-import org.sonar.iac.helm.tree.impl.LocationImpl;
+import org.sonar.iac.common.api.tree.impl.LocationImpl;
 
 public final class GoTemplateAstHelper {
 

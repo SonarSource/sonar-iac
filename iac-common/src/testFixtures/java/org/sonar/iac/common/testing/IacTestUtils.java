@@ -92,4 +92,14 @@ public final class IacTestUtils {
     when(inputFile.language()).thenReturn(languageKey);
     return inputFileContext;
   }
+
+  public static InputFileContext createInputFileContextMockFromContent(String content, String filename, String languageKey) {
+    var inputFileContext = createInputFileContextMock(filename, languageKey);
+    try {
+      when(inputFileContext.inputFile.contents()).thenReturn(content);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return inputFileContext;
+  }
 }

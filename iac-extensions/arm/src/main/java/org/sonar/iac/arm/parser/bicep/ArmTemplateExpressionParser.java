@@ -20,10 +20,13 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Input;
+import java.io.IOException;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.common.api.tree.impl.LocationImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -39,37 +42,53 @@ public final class ArmTemplateExpressionParser extends BicepParser {
     return new ArmTemplateExpressionParser(new ArmTemplateExpressionNodeBuilder(), BicepLexicalGrammar.BINARY_EXPRESSION);
   }
 
-  public ArmTree parse(ScalarTree scalar) {
-    // Remove enclosing square brackets.
-    var expressionString = scalar.value().substring(1, scalar.value().length() - 1);
+  public ArmTree parse(ScalarTree scalar, InputFileContext inputFileContext) {
     var scalarTextRange = scalar.metadata().textRange();
-    // Expression text range is taken from the data provided by snakeyaml. It will be inaccurate w.r.t the original file in case of
-    // multiline strings (allowed in ARM JSON) and strings with escaped line break symbols. This is still in sync with the main AST,
-    // however may cause issues in issue highlighting and syntax highlighting.
+    // Remove enclosing double quotes.
     var expressionTextRange = TextRanges.range(
       scalarTextRange.start().line(), scalarTextRange.start().lineOffset() + 1,
       scalarTextRange.end().line(), scalarTextRange.end().lineOffset() - 1);
 
-    nodeBuilder.setOriginalTextRange(expressionTextRange);
+    // In case when scalar is a multiline string, snakeyaml returns it without line breaks and indentation.
+    // This breaks text ranges of child trees, so we have to read the source code to have correct TextRanges.
+    String content;
+    try {
+      content = inputFileContext.inputFile.contents();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    var location = LocationImpl.fromTextRange(expressionTextRange, content);
+    // Remove enclosing square brackets.
+    var locationNoSquareBrackets = location.shift(1, -2);
+    var expressionString = content.substring(
+      locationNoSquareBrackets.position(),
+      locationNoSquareBrackets.position() + locationNoSquareBrackets.length());
+    var noSquareBracketsTextRange = locationNoSquareBrackets.toTextRange(content);
+    nodeBuilder.setStartTextRange(noSquareBracketsTextRange);
+    nodeBuilder.setContent(content);
     return super.parse(expressionString);
   }
 
   static class ArmTemplateExpressionNodeBuilder extends BicepNodeBuilder {
-    private TextRange originalTextRange;
+    private TextRange startTextRange;
+    private String content;
 
     @Override
     protected TextRange tokenRange(Input input, int startIndex, String value) {
-      return computeTextRangeAtIndex(originalTextRange, startIndex, value);
+      var textRange = super.tokenRange(input, startIndex, value);
+      var startLocation = LocationImpl.fromTextRange(startTextRange, content);
+      var tokenLocation = LocationImpl.fromTextRange(textRange, new String(input.input()));
+      var shiftedLocation = new LocationImpl(startLocation.position() + tokenLocation.position(), tokenLocation.length());
+      return shiftedLocation.toTextRange(content);
     }
 
-    private static TextRange computeTextRangeAtIndex(TextRange originalTextRange, int startIndex, String value) {
-      return TextRanges.range(
-        originalTextRange.start().line(), originalTextRange.start().lineOffset() + startIndex, value);
+    public void setStartTextRange(TextRange startPointer) {
+      this.startTextRange = startPointer;
     }
 
-    protected void setOriginalTextRange(TextRange originalTextRange) {
-      this.originalTextRange = originalTextRange;
+    public void setContent(String content) {
+      this.content = content;
     }
-
   }
 }

@@ -206,7 +206,7 @@ public class ArmJsonBaseConverter {
   }
 
   private Expression toExpressionFromString(ScalarTree scalar) {
-    var expression = (Expression) ARM_TEMPLATE_EXPRESSION_PARSER.parse(scalar);
+    var expression = (Expression) ARM_TEMPLATE_EXPRESSION_PARSER.parse(scalar, inputFileContext);
 
     // Repack top-level nodes so that their text ranges cover the entire text range of the expression
     if (expression instanceof FunctionCall functionCall) {

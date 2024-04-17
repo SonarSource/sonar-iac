@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.testing.TextRangePluginApiAssert;
-import org.sonar.iac.helm.tree.api.Location;
+import org.sonar.iac.common.api.tree.Location;
 import org.sonar.iac.helm.tree.impl.LocationAssert;
 
 public class KubernetesAssertions {

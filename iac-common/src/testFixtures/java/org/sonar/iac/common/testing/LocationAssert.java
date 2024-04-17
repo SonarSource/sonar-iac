@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.impl;
+package org.sonar.iac.common.testing;
 
+import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.SoftAssertions;
-import org.sonar.iac.helm.tree.api.Location;
+import org.sonar.iac.common.api.tree.Location;
 
 /**
  * Common usage:
@@ -36,11 +37,11 @@ import org.sonar.iac.helm.tree.api.Location;
  */
 public class LocationAssert extends AbstractAssert<LocationAssert, Location> {
 
-  protected LocationAssert(Location location) {
+  protected LocationAssert(@Nullable Location location) {
     super(location, LocationAssert.class);
   }
 
-  public static LocationAssert assertThat(Location actual) {
+  public static LocationAssert assertThat(@Nullable Location actual) {
     return new LocationAssert(actual);
   }
 

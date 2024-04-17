@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.impl;
+package org.sonar.iac.common.api.tree.impl;
 
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
-import static org.sonar.iac.helm.tree.impl.LocationImpl.fromTextRange;
-import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
+import static org.sonar.iac.common.api.tree.impl.LocationImpl.fromTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class LocationImplTest {
 

@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.impl;
+package org.sonar.iac.common.api.tree.impl;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.sonar.iac.common.api.tree.impl.TextPointer;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.helm.tree.api.Location;
+import org.sonar.iac.common.api.tree.Location;
 
 public class LocationImpl implements Location {
 
@@ -131,6 +129,11 @@ public class LocationImpl implements Location {
     var start = toTextPointer(position, sourceCode);
     var end = toTextPointer(position + length, sourceCode);
     return new TextRange(start, end);
+  }
+
+  @Override
+  public Location shift(int positionShift, int lengthShift) {
+    return new LocationImpl(position + positionShift, length + lengthShift);
   }
 
   private static TextPointer toTextPointer(int position, String sourceCode) {

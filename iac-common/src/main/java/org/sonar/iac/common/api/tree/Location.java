@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.api;
+package org.sonar.iac.common.api.tree;
 
 import org.sonar.iac.common.api.tree.impl.TextRange;
 
@@ -43,4 +43,11 @@ public interface Location {
    */
   TextRange toTextRange(String sourceCode);
 
+  /**
+   * Returns new shifted Location
+   * @param positionShift how much shift position
+   * @param lengthShift how much shift length
+   * @return new shifted Location
+   */
+  Location shift(int positionShift, int lengthShift);
 }

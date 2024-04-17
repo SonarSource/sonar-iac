@@ -21,6 +21,7 @@ package org.sonar.iac.common.testing;
 
 import org.junit.jupiter.api.Assertions;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
+import org.sonar.iac.common.api.tree.Location;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 
 import javax.annotation.Nullable;
@@ -37,5 +38,9 @@ public class IacCommonAssertions extends Assertions {
 
   public static ExternalIssueAssert assertThat(@Nullable ExternalIssue issue) {
     return ExternalIssueAssert.assertThat(issue);
+  }
+
+  public static LocationAssert assertThat(@Nullable Location location) {
+    return LocationAssert.assertThat(location);
   }
 }

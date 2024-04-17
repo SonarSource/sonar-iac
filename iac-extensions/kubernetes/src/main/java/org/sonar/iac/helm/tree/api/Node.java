@@ -20,6 +20,7 @@
 package org.sonar.iac.helm.tree.api;
 
 import java.util.List;
+import org.sonar.iac.common.api.tree.Location;
 
 /**
  * Node represents a node in the Go template AST.

@@ -27,7 +27,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.arm.ArmTreeAssert;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.FunctionCall;
@@ -49,7 +48,9 @@ import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMockFromContent;
 
 class ArmJsonBaseConverterTest {
 
@@ -99,12 +100,13 @@ class ArmJsonBaseConverterTest {
   @ParameterizedTest
   @MethodSource
   void shouldBuildExpressionTreesFromJsonExpression(String input, ArmTree.Kind expectedKind) {
+    inputFileContext = createInputFileContextMockFromContent(input, "foo.json", "json");
     var converter = new ArmJsonBaseConverter(inputFileContext);
     var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
 
     var expression = (Expression) converter.toExpression(tree);
 
-    ArmTreeAssert.assertThat(expression).is(expectedKind)
+    assertThat(expression).hasKind(expectedKind)
       // Top-level node has the same range as the expression, including brackets
       .hasRange(1, 0, 1, input.length());
   }
@@ -126,6 +128,7 @@ class ArmJsonBaseConverterTest {
   @Test
   void shouldThrowForUnknownExpression() {
     var input = "['${foo}']";
+    inputFileContext = createInputFileContextMockFromContent(input, "foo.json", "json");
     var converter = new ArmJsonBaseConverter(inputFileContext);
     var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
 
@@ -144,7 +147,7 @@ class ArmJsonBaseConverterTest {
 
     var expression = (Expression) converter.toExpression(tree);
 
-    ArmTreeAssert.assertThat(expression).is(ArmTree.Kind.STRING_LITERAL);
+    assertThat(expression).hasKind(ArmTree.Kind.STRING_LITERAL);
   }
 
   @Test
@@ -154,15 +157,15 @@ class ArmJsonBaseConverterTest {
       [base64('#! /bin/bash -xe
 
       wait_for_apt()')]""";
-
+    inputFileContext = createInputFileContextMockFromContent(input, "foo.json", "json");
     var converter = new ArmJsonBaseConverter(inputFileContext);
     var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
 
     var expression = (Expression) converter.toExpression(tree);
 
-    ArmTreeAssert.assertThat(expression).hasRange(1, 0, 1, 44);
+    assertThat(expression).hasRange(1, 0, 1, 44);
     var stringLiteral = (StringLiteral) ((FunctionCall) expression).argumentList().elements().get(0);
-    ArmTreeAssert.assertThat(stringLiteral)
+    assertThat(stringLiteral)
       .hasRange(1, 8, 3, 15);
   }
 }

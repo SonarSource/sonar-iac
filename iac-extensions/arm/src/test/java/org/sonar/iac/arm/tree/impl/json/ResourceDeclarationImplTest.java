@@ -21,10 +21,12 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.arm.plugin.ArmLanguage;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.File;
@@ -34,23 +36,29 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacCommonAssertions;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMockFromContent;
 
 class ResourceDeclarationImplTest {
 
@@ -429,7 +437,8 @@ class ResourceDeclarationImplTest {
           }
         ]
       }""";
-    File tree = (File) parser.parse(code, null);
+    var inputFileContext = createInputFileContextMockFromContent(code, "foo.json", "json");
+    File tree = (File) parser.parse(code, inputFileContext);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isFalse();
@@ -464,7 +473,9 @@ class ResourceDeclarationImplTest {
           }
         ]
       }""";
-    File tree = (File) parser.parse(code, null);
+    var inputFileContext = createInputFileContextMockFromContent(code, "foo.json", "json");
+
+    File tree = (File) parser.parse(code, inputFileContext);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isFalse();
@@ -501,7 +512,8 @@ class ResourceDeclarationImplTest {
         ]
       }""";
 
-    File tree = (File) parser.parse(code, null);
+    var inputFileContext = createInputFileContextMockFromContent(code, "foo.json", "json");
+    File tree = (File) parser.parse(code, inputFileContext);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
 
@@ -518,5 +530,57 @@ class ResourceDeclarationImplTest {
       .get();
     assertThat(propertiesFunctionCall.name().value()).isEqualTo("if");
     assertThat(resourceDeclaration.children()).contains(propertiesFunctionCall);
+  }
+
+  @Test
+  void shouldParseArmTemplateExpressionIncludingEmptyLines() {
+    var code = """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+          {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2021-01-01",
+            "name": "name",
+            "location": "location",
+            "foo1": "[copyIndex()]",
+            "foo2":
+            "[if(equals(copyIndex(), 0),
+                concat('sh install_reverse_nginx.sh ',
+                reference(variables('nicConfig')[0].name).ipConfigurations[0].properties.privateIPAddress, ' ',
+                reference(variables('nicConfig')[2].name).ipConfigurations[0].properties.privateIPAddress, ' ',
+                reference(variables('nicConfig')[4].name).ipConfigurations[0].properties.privateIPAddress),
+                'sh install_nginx_php.sh')]"
+          }
+        ]
+      }
+      """;
+
+    var inputFileContext = createInputFileContextMockFromContent(code, "foo.json", "json");
+    File tree = (File) parser.parse(code, inputFileContext);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
+
+    var resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+    var functionCall1 = (FunctionCall) resourceDeclaration.resourceProperties().get(4).value();
+    // "[copyIndex()]"
+    assertThat(functionCall1.textRange()).hasRange(10, 14, 10, 29);
+    // copyIndex
+    assertThat(functionCall1.name().textRange()).hasRange(10, 16, 17, 25);
+
+    var functionCall2 = (FunctionCall) resourceDeclaration.resourceProperties().get(5).value();
+    // "[if(equals(copyIndex(), 0),\n..."
+    assertThat(functionCall2.textRange()).hasRange(12, 6, 12, 38);
+    // if
+    assertThat(functionCall2.name().textRange()).hasRange(12, 8, 12, 10);
+    // equals(copyIndex(), 0)
+    assertThat(functionCall2.argumentList().elements().get(0).textRange()).hasRange(12, 11, 12, 33);
+    // concat
+    assertThat(((FunctionCall) functionCall2.argumentList().elements().get(1)).name().textRange())
+      .hasRange(13, 10, 13, 16);
+    // 'sh install_nginx_php.sh'
+    assertThat(functionCall2.argumentList().elements().get(2).textRange())
+      .hasRange(17, 10, 17, 35);
   }
 }
