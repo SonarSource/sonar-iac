@@ -38,6 +38,7 @@ public final class ArmCheckList {
       EmptyOrNullValueCheck.class,
       HardcodeApiVersionCheck.class,
       HardcodedResourceLocationCheck.class,
+      HardCodedCredentialsCheck.class,
       HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,
       LogRetentionCheck.class,
