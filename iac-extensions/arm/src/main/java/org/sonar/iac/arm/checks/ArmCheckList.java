@@ -55,6 +55,7 @@ public class ArmCheckList {
       TlsVersionCheck.class,
       ToDoCommentCheck.class,
       UnencryptedCloudServicesCheck.class,
+      UnusedParametersCheck.class,
       UnusedVariablesCheck.class);
   }
 }

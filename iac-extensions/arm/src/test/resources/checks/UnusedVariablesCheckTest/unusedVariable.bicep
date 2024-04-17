@@ -77,7 +77,7 @@ resource exampleStorage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-param par1 object = usedInParamObject
+param par1 string = usedInParamObject.key
 param par2 string = usedInParamString
 param par3 int = usedInParamInt
 param par4 array = usedInParamArray

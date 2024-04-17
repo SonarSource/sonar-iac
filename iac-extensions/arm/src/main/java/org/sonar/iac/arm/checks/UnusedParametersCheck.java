@@ -19,38 +19,32 @@
  */
 package org.sonar.iac.arm.checks;
 
+import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.bicep.Declaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 
-abstract class AbstractUnusedSymbolCheck implements IacCheck {
-  private static final String MESSAGE = "Remove the unused %s \"%s\".";
+@Rule(key = "S6955")
+public class UnusedParametersCheck extends AbstractUnusedSymbolCheck {
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(File.class, this::checkSymbols);
-  }
-
-  abstract ArmTree.Kind declarationKind();
-
-  abstract String typeOfSymbol();
-
   void checkSymbols(CheckContext checkContext, File file) {
-    var symbolTable = file.symbolTable();
-    if (symbolTable != null && !symbolTable.hasFoundUnresolvableSymbolAccess()) {
-      symbolTable.getSymbols().forEach(symbol -> {
-        var declaration = symbol.findAssignmentDeclaration();
-        if (declaration != null && declarationKind() == declaration.getKind() && symbol.isUnused()) {
-          reportOnDeclaration(checkContext, declaration);
-        }
-      });
+    if (file.targetScopeLiteral() instanceof StringLiteral literal && literal.value().endsWith("deploymentParameters.json#")) {
+      // This is to ignore json parameter files
+      // We don't need to care about bicep parameter files as they have the extension .bicepparam and are not picked up by the ArmSensor
+      return;
     }
+    super.checkSymbols(checkContext, file);
   }
 
-  private void reportOnDeclaration(CheckContext checkContext, Declaration declaration) {
-    checkContext.reportIssue(declaration.declaratedName(), MESSAGE.formatted(typeOfSymbol(), declaration.declaratedName().value()));
+  @Override
+  ArmTree.Kind declarationKind() {
+    return ArmTree.Kind.PARAMETER_DECLARATION;
+  }
+
+  @Override
+  String typeOfSymbol() {
+    return "parameter";
   }
 }
