@@ -1,0 +1,89 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "parameterWithAllowedValues": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "eastus",
+        "westus",
+        "northeurope",
+        "westeurope",
+        "southeastasia"
+      ]
+    },
+    "parameterWithAllowedValues2": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "eastus"
+      ]
+    },
+    "parameterWithAllowedValuesShouldNotBeRaisedBecauseOfUsageInStringInterpolation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "eastus"
+      ]
+    },
+    "parameterWithAllowedValuesShouldNotBeRaisedBecauseOfNoUsage": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "eastus"
+      ]
+    },
+    "parameterWithEmptyAllowedValues": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": []
+    },
+    "parameterWithoutAllowedValues": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(toLower(variables('usedInResourceName')), '-addToVar')]",
+      "location": "[parameters('parameterWithAllowedValues')]",
+      "resources": [
+        {
+          "type": "Microsoft.Storage/storageAccounts",
+          "apiVersion": "2019-06-01",
+          "name": "foo",
+          "location": "[parameters('parameterWithAllowedValues2')]"
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(toLower(variables('usedInResourceName')), '-addToVar')]",
+      "location": "[parameters('parameterWithEmptyAllowedValues')]"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(toLower(variables('usedInResourceName')), '-addToVar')]",
+      "location": "[concat(parameters('parameterWithEmptyAllowedValues'), 'fooo')]"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(toLower(variables('usedInResourceName')), '-addToVar')]",
+      "location": "[parameters('parameterWithoutAllowedValues')]",
+      "resources": [
+        {
+          "type": "Microsoft.Storage/storageAccounts",
+          "apiVersion": "2019-06-01",
+          "name": "foo",
+          "location": "[parameters('parameterWithoutAllowedValues')]"
+        }
+      ]
+    }
+  ]
+}
