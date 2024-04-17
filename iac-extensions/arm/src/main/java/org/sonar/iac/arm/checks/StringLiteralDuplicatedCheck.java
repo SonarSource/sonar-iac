@@ -55,7 +55,8 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
 
   @RuleProperty(
     key = "minimal_literal_length",
-    defaultValue = "" + MINIMAL_LITERAL_LENGTH_DEFAULT)
+    defaultValue = "" + MINIMAL_LITERAL_LENGTH_DEFAULT,
+    description = "Specify the minimum number of characters a string literal must have to be considered as a potential duplication")
   protected int minimalLiteralLength = MINIMAL_LITERAL_LENGTH_DEFAULT;
 
   @Override
@@ -85,20 +86,14 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
     private void visitLiteral(StringLiteral tree) {
       if (!isIgnored(tree)) {
         var value = tree.value();
-        if (!sameLiteralOccurrences.containsKey(value)) {
-          List<StringLiteral> occurrences = new ArrayList<>();
-          occurrences.add(tree);
-          sameLiteralOccurrences.put(value, occurrences);
-        } else {
-          sameLiteralOccurrences.get(value).add(tree);
-        }
+        sameLiteralOccurrences.computeIfAbsent(value, k -> new ArrayList<>()).add(tree);
       }
     }
 
     private boolean isIgnored(StringLiteral stringLiteral) {
       var value = stringLiteral.value();
       return value.length() < minimalLiteralLength
-        || ALLOWED_DUPLICATED_LITERALS.matcher(value).find()
+        || ALLOWED_DUPLICATED_LITERALS.matcher(value).matches()
         || isResourceTypeAndApiVersionField(stringLiteral)
         || isResourceId(stringLiteral);
     }
@@ -121,7 +116,7 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
         List<StringLiteral> occurrences = literalOccurrences.getValue();
         if (occurrences.size() >= threshold) {
           var literal = literalOccurrences.getKey();
-          var message = String.format(MESSAGE, literal, occurrences.size());
+          var message = MESSAGE.formatted(literal, occurrences.size());
           StringLiteral firstOccurrenceTree = occurrences.get(0);
           List<SecondaryLocation> otherOccurrencesLocation = occurrences.stream()
             .skip(1)

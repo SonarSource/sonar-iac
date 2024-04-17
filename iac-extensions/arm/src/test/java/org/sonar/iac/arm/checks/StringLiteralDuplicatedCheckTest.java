@@ -40,13 +40,13 @@ class StringLiteralDuplicatedCheckTest {
   @Test
   void testJsonChangedMinLength() {
     check.minimalLiteralLength = 18;
-    ArmVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json", check);
+    ArmVerifier.verifyNoIssue("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json", check);
   }
 
   @Test
   void testJsonChangedThreshold() {
     check.threshold = 4;
-    ArmVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json", check);
+    ArmVerifier.verifyNoIssue("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json", check);
   }
 
   @Test

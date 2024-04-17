@@ -5,7 +5,8 @@ occurrences.</p>
 <p>The following are ignored:</p>
 <ul>
   <li> literals with fewer than 5 characters </li>
-  <li> The <code>apiVersion</code> of a resource (see rule {rule:azureresourcemanager:S6893}) </li>
+  <li> literals with only letters, numbers, underscores, hyphens and periods </li>
+  <li> <code>apiVersion</code> property of a resource (see rule {rule:azureresourcemanager:S6874}) </li>
 </ul>
 <h2>How to fix it in ARM templates</h2>
 <p>Use variables to replace the duplicated string literals. Variables can be referenced from many places, but only need to be updated in a single
