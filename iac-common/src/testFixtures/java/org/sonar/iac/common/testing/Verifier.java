@@ -219,6 +219,10 @@ public class Verifier {
     return new Issue(textRange, message, List.of(secondaryLocations));
   }
 
+  public static SecondaryLocation secondary(int startLine, int startColumn, int endLine, int endColumn, String message) {
+    return new SecondaryLocation(TextRanges.range(startLine, startColumn, endLine, endColumn), message);
+  }
+
   public static class TestContext extends TreeContext implements InitContext, CheckContext {
 
     private final TreeVisitor<TestContext> visitor;
