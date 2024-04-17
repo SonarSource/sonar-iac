@@ -36,6 +36,18 @@
       "type": "Microsoft.Storage/storageAccounts@",
       "apiVersion": "2021-01-01",
       "name": "invalid type"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report recourceId()",
+      "properties": {
+        "foo": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+          "[resourceId('Microsoft.Network/networkSecurityGroups', variables('fooBar'))]",
+          "[resourceId(variables('resourceGroup'), 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        ]
+      }
     }
   ]
 }

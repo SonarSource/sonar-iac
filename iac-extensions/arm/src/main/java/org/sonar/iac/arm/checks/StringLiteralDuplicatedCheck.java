@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -98,7 +99,8 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
       var value = stringLiteral.value();
       return value.length() < minimalLiteralLength
         || ALLOWED_DUPLICATED_LITERALS.matcher(value).find()
-        || isResourceTypeAndApiVersionField(stringLiteral);
+        || isResourceTypeAndApiVersionField(stringLiteral)
+        || isResourceId(stringLiteral);
     }
 
     private static boolean isResourceTypeAndApiVersionField(StringLiteral stringLiteral) {
@@ -107,6 +109,11 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
         return stringLiteral.value().contains("@") || resource.type() == stringLiteral || resource.version() == stringLiteral;
       }
       return false;
+    }
+
+    private static boolean isResourceId(StringLiteral stringLiteral) {
+      Tree parent = stringLiteral.parent();
+      return parent instanceof FunctionCall functionCall && "resourceId".equals(functionCall.name().value());
     }
 
     private void reportDuplicates(CheckContext ctx) {
