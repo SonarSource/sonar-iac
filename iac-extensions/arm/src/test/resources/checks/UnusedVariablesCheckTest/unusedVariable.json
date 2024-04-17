@@ -41,7 +41,9 @@
     "usedInOutput2": "bar",
     "usedInOutput3": "bar",
     "usedCaseInsensitive": "bar",
-    "usedInsideUserAssignedIdentities": "bar"
+    "usedInsideUserAssignedIdentities": "bar",
+    "usedInsideUserAssignedIdentities2": "bar",
+    "usedInsideKey": "bar"
   },
   "parameters": {
     "par1": {
@@ -80,7 +82,7 @@
       ],
       "unusedVariable": "foo",
       "escapedVariableCall": "[[variables('unusedVariable')]",
-      "test2": "[[resourceId('microsoft.OperationalInsights/Workspaces', variables('workspace-name'))]",
+      "escapedVariableCall2": "[[resourceId('microsoft.OperationalInsights/Workspaces', variables('unusedVariable'))]",
       "caseInsensitiveUsage": "[variables('UseDcaseInSensitivE')]",
       "properties": {
         "unusedVariable": "[variables('usedInResourceProperties')]"
@@ -89,26 +91,15 @@
         {
           "key": "[variables('usedInResourceOtherKey')]",
           "value": "[variables('usedInResourceOtherFoo')]",
-          "unusedVariable": "foo"
+          "unusedVariable": "foo",
+          "usedInsideKey[variables('usedInsideKey')]": "bar"
         }
       ],
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
           "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('usedInsideUserAssignedIdentities'))]": {},
-          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/will/not/match/pattern',variables('unusedVariable'))]": {}
-        },
-        "notUserAssignedIdentitiesSoNoUsageInside": {
-          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('unusedVariable'))]": {}
-        }
-      },
-      "notIdentitySoNoUsageInside": {
-        "type": "UserAssigned",
-        "userAssignedIdentities": {
-          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('unusedVariable'))]": {}
-        },
-        "notUserAssignedIdentitiesSoNoUsageInside": {
-          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('unusedVariable'))]": {}
+          "[somethingBeforeHere,variables('usedInsideUserAssignedIdentities2'))]": {}
         }
       },
       "resources": [

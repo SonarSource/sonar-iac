@@ -33,16 +33,13 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
-import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -52,8 +49,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
  * Those Symbol/Usage can later be used in checks to  report issues in the variable flow.
  */
 public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
-  private static final Pattern ASSIGNED_IDENTITIES_PATTERN = Pattern.compile("(?U)^\\[resourceID\\('Microsoft\\" +
-    ".ManagedIdentity/userAssignedIdentities/',variables\\('(?<variableName>[a-zA-Z_]\\w*)'\\)\\)]$");
+  private static final Pattern ASSIGNED_IDENTITIES_PATTERN = Pattern.compile("(?U)variables\\('(?<variableName>[a-zA-Z_]\\w*)'\\)");
   private final List<ConsumerFilter<InputFileContext, ?>> consumersAfter = new ArrayList<>();
   private SymbolTable currentSymbolTable = new SymbolTable();
 
@@ -119,56 +115,24 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     }
   }
 
+  /**
+   * We visit the identifier to find use cases where a variable is used inside a key of a {@link Property}.
+   * One example would be in userAssignedIdentities where the key contains the following:
+   * "userAssignedIdentities": {
+   *   "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('usedInsideUserAssignedIdentities'))]": {},
+   * }
+   */
   private void visitIdentifierJson(IdentifierImpl identifier) {
-    if (!containedInUserAssignedIdentitiesTreeStructure(identifier)) {
-      return;
-    }
-    String variableName = matchesAssignedIdentitiesPattern(identifier.value());
+    String variableName = containsMentionOfVariable(identifier.value());
     if (variableName != null) {
       addAccessUsageIfSymbolExists(identifier, variableName);
     }
   }
 
-  /**
-   * Checks whether the identifier is contained in the following tree structure:
-   * "resources": [
-   *   {
-   *     "identity": {
-   *       "type": "UserAssigned",
-   *       "userAssignedIdentities": {
-   *         "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('usedInsideUserAssignedIdentities'))]": {},
-   *       }
-   *     }
-   *   }
-   * ]
-   */
-  private static boolean containedInUserAssignedIdentitiesTreeStructure(Identifier identifier) {
-    if (identifier.parent() instanceof ObjectExpression identifierParent
-      && identifierParent.parent() instanceof ObjectExpression identifierGrandParent
-      && identifierGrandParent.parent() instanceof ResourceDeclaration resourceDeclaration) {
-      return isIdentityObjectOfResourceDeclaration(resourceDeclaration, identifierGrandParent)
-        && isUserAssignedIdentitiesProperty(identifierGrandParent, identifierParent);
-    }
-    return false;
-  }
-
-  private static boolean isIdentityObjectOfResourceDeclaration(ResourceDeclaration resourceDeclaration, ObjectExpression objectExpression) {
-    return objectExpression == resourceDeclaration.getResourceProperty("identity").map(PropertyTree::value).orElse(null);
-  }
-
-  private static boolean isUserAssignedIdentitiesProperty(ObjectExpression objectExpression,
-    ObjectExpression userAssignedIdentitiesObject) {
-    return userAssignedIdentitiesObject == objectExpression.properties().stream()
-      .filter(propertyTree -> "userAssignedIdentities".equalsIgnoreCase(((Property) propertyTree).key().value()))
-      .map(PropertyTree::value)
-      .findAny()
-      .orElse(null);
-  }
-
   @CheckForNull
-  private static String matchesAssignedIdentitiesPattern(String value) {
+  private static String containsMentionOfVariable(String value) {
     var matcher = ASSIGNED_IDENTITIES_PATTERN.matcher(value);
-    if (matcher.matches()) {
+    if (matcher.find()) {
       return matcher.group("variableName");
     }
     return null;
