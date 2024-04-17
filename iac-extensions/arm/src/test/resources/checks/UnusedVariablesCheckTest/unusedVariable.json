@@ -40,7 +40,8 @@
     },
     "usedInOutput2": "bar",
     "usedInOutput3": "bar",
-    "usedCaseInsensitive": "bar"
+    "usedCaseInsensitive": "bar",
+    "usedInsideUserAssignedIdentities": "bar"
   },
   "parameters": {
     "par1": {
@@ -78,6 +79,8 @@
         "[variables('usedInResourceDependsOn')]"
       ],
       "unusedVariable": "foo",
+      "escapedVariableCall": "[[variables('unusedVariable')]",
+      "test2": "[[resourceId('microsoft.OperationalInsights/Workspaces', variables('workspace-name'))]",
       "caseInsensitiveUsage": "[variables('UseDcaseInSensitivE')]",
       "properties": {
         "unusedVariable": "[variables('usedInResourceProperties')]"
@@ -89,6 +92,25 @@
           "unusedVariable": "foo"
         }
       ],
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('usedInsideUserAssignedIdentities'))]": {},
+          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/will/not/match/pattern',variables('unusedVariable'))]": {}
+        },
+        "notUserAssignedIdentitiesSoNoUsageInside": {
+          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('unusedVariable'))]": {}
+        }
+      },
+      "notIdentitySoNoUsageInside": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('unusedVariable'))]": {}
+        },
+        "notUserAssignedIdentitiesSoNoUsageInside": {
+          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('unusedVariable'))]": {}
+        }
+      },
       "resources": [
         {
           "type": "Microsoft.Storage/storageAccounts",

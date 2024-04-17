@@ -16,6 +16,7 @@ var unusedVariable = 'bar' // Noncompliant {{Remove the unused variable "unusedV
 
 var usedInResourceProperties = usedInOtherVar
 var usedInOtherVar = 'bar'
+var usedInsideUserAssignedIdentities = 'bar'
 var usedInResourceName = 'bar'
 var usedInResourceLocation = 'bar'
 var usedInResourceKind = 'bar'
@@ -72,6 +73,12 @@ resource exampleStorage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
       unusedVariable: 'foo'
     }
   ]
+  identity: {
+      type: 'UserAssigned'
+      userAssignedIdentities: {
+        '${usedInsideUserAssignedIdentities}': {}
+      }
+    }
   resource service 'fileServices' = {
     unusedVariable: usedInChildResource
   }
