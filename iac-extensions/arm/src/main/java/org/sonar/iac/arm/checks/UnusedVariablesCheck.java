@@ -20,21 +20,18 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceBicep;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceJson;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelBicep;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelJson;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-@Rule(key = "S6956")
-public class ElementsOrderCheck implements IacCheck {
+@Rule(key = "S1481")
+public class UnusedVariablesCheck extends AbstractUnusedSymbolCheck {
 
   @Override
-  public void initialize(InitContext init) {
-    new ElementsOrderTopLevelJson().initialize(init);
-    new ElementsOrderTopLevelBicep().initialize(init);
-    new ElementsOrderResourceJson().initialize(init);
-    new ElementsOrderResourceBicep().initialize(init);
+  ArmTree.Kind declarationKind() {
+    return ArmTree.Kind.VARIABLE_DECLARATION;
+  }
+
+  @Override
+  String typeOfSymbol() {
+    return "variable";
   }
 }

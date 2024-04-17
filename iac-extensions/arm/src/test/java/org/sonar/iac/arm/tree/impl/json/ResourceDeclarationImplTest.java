@@ -28,6 +28,7 @@ import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Parameter;
@@ -484,5 +485,38 @@ class ResourceDeclarationImplTest {
 
     assertThat((ArmTree) children.get(1)).is(STRING_LITERAL).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
     assertThat((ArmTree) children.get(2)).is(STRING_LITERAL).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
+  }
+
+  @Test
+  void shouldParsePropertiesAsTemplateExpression() {
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Attestation/attestationProviders",
+            "apiVersion": "2021-06-01-preview",
+            "name": "someName",
+            "properties": "[if(empty(parameters('policySigningCertificates')), json('{}'), variables('PolicySigningCertificates'))]"
+          }
+        ]
+      }""";
+
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
+
+    ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+    assertThat(resourceDeclaration.type().value()).isEqualTo("Microsoft.Attestation/attestationProviders");
+    assertThat(((StringLiteral) resourceDeclaration.version()).value()).isEqualTo("2021-06-01-preview");
+    assertThat(((StringLiteral) resourceDeclaration.name()).value()).isEqualTo("someName");
+
+    assertThat(resourceDeclaration.properties()).isEmpty();
+    var propertiesFunctionCall = (FunctionCall) resourceDeclaration.resourceProperties().stream()
+      .filter(property -> property.key().value().equals("properties"))
+      .map(property -> property.value())
+      .findFirst()
+      .get();
+    assertThat(propertiesFunctionCall.name().value()).isEqualTo("if");
+    assertThat(resourceDeclaration.children()).contains(propertiesFunctionCall);
   }
 }

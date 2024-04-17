@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -254,6 +255,9 @@ public class ArmJsonBaseConverter {
   }
 
   protected List<Property> toProperties(Tree tree) {
+    if (tree instanceof ScalarTree) {
+      return Collections.emptyList();
+    }
     if (!(tree instanceof HasProperties)) {
       throw createParseException(
         "Couldn't convert properties: expecting object of class '" + tree.getClass().getSimpleName() + "' to implement HasProperties",

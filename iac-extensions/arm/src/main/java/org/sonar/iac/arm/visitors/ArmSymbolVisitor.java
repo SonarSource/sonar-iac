@@ -21,6 +21,7 @@ package org.sonar.iac.arm.visitors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.symbols.SymbolTable;
@@ -84,7 +85,7 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
   }
 
   private void visitDeclaration(Declaration declaration) {
-    var symbol = currentSymbolTable.addSymbol(declaration.declaratedName().value());
+    var symbol = currentSymbolTable.addSymbol(declaration.declaratedName().value().toLowerCase(Locale.ROOT));
     symbol.addUsage(declaration, Usage.Kind.ASSIGNMENT);
   }
 
@@ -95,7 +96,7 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
 
     Expression identifier = tree.identifier();
     if (identifier instanceof Identifier identifierTree) {
-      var symbol = currentSymbolTable.getSymbol(identifierTree.value());
+      var symbol = currentSymbolTable.getSymbol(identifierTree.value().toLowerCase(Locale.ROOT));
       if (symbol != null) {
         symbol.addUsage(tree, Usage.Kind.ACCESS);
       }

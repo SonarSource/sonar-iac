@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.checks;
+package org.sonar.iac.arm.checks.elementsorder;
 
 import java.util.Map;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -35,11 +35,14 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
+/**
+ * It is a sub check of S6956, see {@link org.sonar.iac.arm.checks.ElementsOrderCheck}.
+ */
 public class ElementsOrderTopLevelBicep implements IacCheck {
 
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
 
-  private static final Map<ArmTree.Kind, Integer> expectedOrder = Map.of(
+  private static final Map<ArmTree.Kind, Integer> EXPECTED_ORDER = Map.of(
     ArmTree.Kind.TARGET_SCOPE_DECLARATION, 0,
     ArmTree.Kind.METADATA_DECLARATION, 1,
     ArmTree.Kind.PARAMETER_DECLARATION, 2,
@@ -74,7 +77,7 @@ public class ElementsOrderTopLevelBicep implements IacCheck {
   private void checkDeclaration(CheckContext checkContext, HasKeyword tree) {
     if (!issueFound) {
       var kind = tree.getKind();
-      if (expectedOrder.get(kind) < expectedOrder.get(lastKind) && tree.parent() instanceof File) {
+      if (EXPECTED_ORDER.get(kind) < EXPECTED_ORDER.get(lastKind) && tree.parent() instanceof File) {
         checkContext.reportIssue(tree.keyword(), MESSAGE);
         issueFound = true;
       } else {

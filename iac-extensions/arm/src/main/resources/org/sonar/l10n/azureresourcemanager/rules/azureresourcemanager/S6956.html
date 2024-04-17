@@ -10,6 +10,7 @@ order.</p>
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/...",
   "contentVersion": "1.0.0.0",
+  "metadata": {},
   "apiProfile": "...",
   "parameters": {},
   "functions": {},
@@ -36,13 +37,8 @@ order.</p>
       "scale": "",
       "plan": {},
       "identity": {},
-      "copy": {
-        "name": "vmLoop",
-        "count": "[parameters('numberOfVMs')]"
-      },
-      "dependsOn": [
-        "nicLoop"
-      ],
+      "copy": {},
+      "dependsOn": [],
       "tags": {},
       "properties": {}
     }
@@ -53,15 +49,17 @@ order.</p>
 <h2>How to fix it in Bicep</h2>
 <p><strong>Recommended order of the top-level template properties</strong>:</p>
 <pre>
-targetScope '...'
-metadata '...'
-param '...'
-var '...'
-resource // (existing resources collected together)
-resource/module // (new resources)
-output '...'
+targetScope ...
+metadata ...
+param ...
+func ...
+var ...
+resource ... // (existing resources collected together)
+resource ... // (new resources)
+module ...
+output ...
 </pre>
-<p><strong>Recommended order of the resource properties</strong>:</p>
+<p><strong>Recommended order of the resource properties and decorators</strong>:</p>
 <pre>
 @description
 @batchSize
@@ -91,6 +89,6 @@ or elements not listed here should be placed before the <code>properties</code> 
   <li> Microsoft Azure - Understand the structure and syntax of ARM templates - <a
   href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/syntax#template-format">Template Format</a> </li>
   <li> Microsoft Azure - Understand the structure and syntax of Bicep files - <a
-  href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/syntax#template-format">Bicep Format</a> </li>
+  href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/file#bicep-format">Bicep Format</a> </li>
 </ul>
 

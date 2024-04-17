@@ -17,24 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.checks;
-
-import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceBicep;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceJson;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelBicep;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelJson;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
-
-@Rule(key = "S6956")
-public class ElementsOrderCheck implements IacCheck {
-
-  @Override
-  public void initialize(InitContext init) {
-    new ElementsOrderTopLevelJson().initialize(init);
-    new ElementsOrderTopLevelBicep().initialize(init);
-    new ElementsOrderResourceJson().initialize(init);
-    new ElementsOrderResourceBicep().initialize(init);
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.arm.checks.elementsorder;

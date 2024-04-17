@@ -48,6 +48,7 @@ class ElementsOrderCheckTest {
       arguments("topLevelContentVersionAndSchema.json", range(3, 2, 3, 11)),
       arguments("topLevelExpectedFunctionsAndParametersAndOutputsAndResources.json", range(6, 2, 6, 14)),
       arguments("topLevelFunctionsAndParameters.json", range(6, 2, 6, 14)),
+      arguments("topLevelFunctionsAndParametersCaseInsensitive.json", range(6, 2, 6, 14)),
       arguments("topLevelOutputsAsFirst.json", range(3, 2, 3, 11)),
       arguments("topLevelResourcesAndParameters.json", range(5, 2, 5, 14)),
       arguments("topLevelSchemaAtEnd.json", range(9, 2, 9, 11)),
@@ -99,6 +100,79 @@ class ElementsOrderCheckTest {
     "topLevelTargetScopeEnd.bicep"
   })
   void shouldVerifyUnexpectedTopLevelBicep(String filename) {
+    BicepVerifier.verify(DIR + filename, CHECK);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"resourceExpected.json",
+    "resourceExpectedMoreResources.json",
+    "resourceExpectedMoreResources.json",
+    "resourceExpectedSmall.json"})
+  void shouldVerifyExpectedResourceJson(String filename) {
+    ArmVerifier.verifyNoIssue(DIR + filename, CHECK);
+  }
+
+  static Stream<Arguments> shouldVerifyUnexpectedResourceJson() {
+    return Stream.of(
+      // filename, primaryTextRange
+      arguments("resourceCommentsAtEnd.json", range(22, 6, 22, 16)),
+      arguments("resourceKindScale.json", range(12, 6, 12, 12)),
+      arguments("resourceNameAndApiVersionAndType.json", range(8, 6, 8, 18)),
+      arguments("resourceNameAndApiVersionAndTypeCaseInsensitive.json", range(8, 6, 8, 18)),
+      arguments("resourceOnlySecondUnexpected.json", range(15, 6, 15, 16)),
+      arguments("resourceOtherPropertiesBetween.json", range(8, 6, 8, 12)),
+      arguments("resourcePropertiesAtBeginning.json", range(5, 6, 5, 16)));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldVerifyUnexpectedResourceJson(String filename, TextRange primaryTextRange) {
+    var issue = issue(primaryTextRange, PRIMARY_MESSAGE);
+    ArmVerifier.verify(DIR + filename, CHECK, issue);
+  }
+
+  @Test
+  void shouldVerifyTwoUnexpectedResourcesInOneFile() {
+    var issue1 = issue(range(5, 6, 5, 16), PRIMARY_MESSAGE);
+    var issue2 = issue(range(16, 6, 16, 12), PRIMARY_MESSAGE);
+    ArmVerifier.verify(DIR + "resourceTwoUnexpected.json", CHECK, issue1, issue2);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"resourceExpected.bicep",
+    "resourceExpectedMoreResources.bicep",
+    "resourceExpectedSmall.bicep"})
+  void shouldVerifyExpectedResourceBicep(String filename) {
+    BicepVerifier.verifyNoIssue(DIR + filename, CHECK);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"resourceMoreIssues.bicep",
+    "resourceOnlySecondUnexpected.bicep",
+    "resourceParentAtEnd.bicep",
+    "resourcePlanAndTags.bicep",
+    "resourcePropertiesFirst.bicep",
+    "resourceScopeAndParent.bicep"})
+  void shouldVerifyUnexpectedResourceBicep(String filename) {
+    BicepVerifier.verify(DIR + filename, CHECK);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"decoratorExpected.bicep",
+    "decoratorExpectedAndOthers.bicep",
+    "decoratorExpectedBatchSizeOnly.bicep",
+    "decoratorExpectedDescriptionOnly.bicep"})
+  void shouldVerifyDecorator(String filename) {
+    BicepVerifier.verifyNoIssue(DIR + filename, CHECK);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"decoratorCustomFirst.bicep",
+    "decoratorCustomFirstOnlyBatchSize.bicep",
+    "decoratorCustomInBetween.bicep",
+    "decoratorDescriptionAndBatchSize.bicep",
+    "decoratorMoreResources.bicep"})
+  void shouldVerifyUnexpectedDecorator(String filename) {
     BicepVerifier.verify(DIR + filename, CHECK);
   }
 }

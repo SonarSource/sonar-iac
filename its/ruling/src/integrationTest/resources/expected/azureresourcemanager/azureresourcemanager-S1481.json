@@ -1,0 +1,9 @@
+{
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/deployToLinkedWorkspaceWithAuditLogs.json": [
+196
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-shared-variable-file/example-1.bicep": [
+3,
+4
+]
+}

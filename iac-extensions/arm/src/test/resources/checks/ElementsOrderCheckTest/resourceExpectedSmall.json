@@ -1,0 +1,12 @@
+{
+  "resources": [
+    {
+      "scope": "% parent scope %",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "location": "[parameters('location')]",
+      "properties": {}
+    }
+  ]
+}

@@ -45,6 +45,14 @@ class TextRangesTest {
   }
 
   @Test
+  void shouldMerge2RangesVarArg() {
+    TextRange range1 = TextRangesTest.range(1, 2, 3, 4);
+    TextRange range2 = TextRangesTest.range(5, 6, 7, 8);
+    assertThat(TextRanges.merge(range1, range2))
+      .isEqualTo(TextRangesTest.range(1, 2, 7, 8));
+  }
+
+  @Test
   void shouldMergeSingleRange() {
     TextRange range1 = TextRangesTest.range(1, 2, 3, 4);
     assertThat(TextRanges.merge(Collections.singletonList(range1)))

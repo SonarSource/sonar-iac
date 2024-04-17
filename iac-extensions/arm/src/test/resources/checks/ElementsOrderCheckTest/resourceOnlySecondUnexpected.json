@@ -1,0 +1,47 @@
+{
+  "resources": [
+    {
+      "comments": "if any",
+      "condition": true,
+      "scope": "% parent scope %",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "location": "[parameters('location')]",
+      "properties": {}
+    },
+    {
+      "condition": true,
+      "comments": "if any",
+      "scope": "% parent scope %",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "location": "[parameters('location')]",
+      "other1": {},
+      "other2": {},
+      "properties": {}
+    },
+    {
+      "comments": "if any",
+      "condition": true,
+      "scope": "% parent scope %",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "location": "[parameters('location')]",
+      "zones": [],
+      "sku": {},
+      "kind": "",
+      "scale": "",
+      "plan": {},
+      "identity": {},
+      "copy": {},
+      "dependsOn": [],
+      "tags": {},
+      "other1": {},
+      "other2": {},
+      "properties": {}
+    }
+  ]
+}

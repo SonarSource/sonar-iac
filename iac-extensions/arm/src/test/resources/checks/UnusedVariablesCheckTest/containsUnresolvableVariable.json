@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "unusedInParamString": "bar",
+    "unusedInParamBool": true,
+    "unusedInParamInt": 2,
+    "unusedInParamArray": [
+      "val"
+    ],
+    "unusedInParamObject": {
+      "key": "foo"
+    }
+  },
+  "parameters": {
+    "par2": {
+      "type": "string",
+      "defaultValue": "[variables(concat('foo', 'ooo'))]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "foo",
+      "unusedVariable": "foo"
+    }
+  ]
+}
