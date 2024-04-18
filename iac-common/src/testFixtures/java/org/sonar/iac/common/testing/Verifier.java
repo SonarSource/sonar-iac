@@ -156,7 +156,8 @@ public class Verifier {
 
   public static Tree parse(TreeParser<Tree> parser, Path path) {
     var testFileContent = readFile(path);
-    return parse(parser, testFileContent, null);
+    var inputFileContext = IacTestUtils.createInputFileContextMockFromContent(testFileContent, path.toFile().getName(), "");
+    return parse(parser, testFileContent, inputFileContext);
   }
 
   public static Tree parse(TreeParser<Tree> parser, String content, @Nullable InputFileContext inputFileContext) {
@@ -194,7 +195,7 @@ public class Verifier {
       }).scan(new TreeContext(), root);
   }
 
-  private static String readFile(Path path) {
+  public static String readFile(Path path) {
     try {
       return Files.readString(path);
     } catch (IOException e) {

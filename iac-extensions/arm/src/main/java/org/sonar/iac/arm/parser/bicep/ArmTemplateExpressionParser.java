@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.parser.bicep;
 
+import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.Input;
 import java.io.IOException;
 import org.sonar.iac.arm.parser.BicepParser;
@@ -26,9 +27,12 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.api.tree.impl.LocationImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
+
+import static org.sonar.iac.common.extension.ParseException.createParseException;
 
 public final class ArmTemplateExpressionParser extends BicepParser {
   private final ArmTemplateExpressionNodeBuilder nodeBuilder;
@@ -55,7 +59,7 @@ public final class ArmTemplateExpressionParser extends BicepParser {
     try {
       content = inputFileContext.inputFile.contents();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
 
     var location = LocationImpl.fromTextRange(expressionTextRange, content);
@@ -67,7 +71,14 @@ public final class ArmTemplateExpressionParser extends BicepParser {
     var noSquareBracketsTextRange = locationNoSquareBrackets.toTextRange(content);
     nodeBuilder.setStartTextRange(noSquareBracketsTextRange);
     nodeBuilder.setContent(content);
-    return super.parse(expressionString);
+    try {
+      return super.parse(expressionString);
+    } catch (RecognitionException e) {
+      throw createParseException(
+        "Failed to parse ARM template expression: " + scalar.value(),
+        inputFileContext,
+        new BasicTextPointer(scalar.metadata().textRange()));
+    }
   }
 
   static class ArmTemplateExpressionNodeBuilder extends BicepNodeBuilder {

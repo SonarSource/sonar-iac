@@ -214,14 +214,20 @@ public class ArmJsonBaseConverter {
     } else if (expression instanceof StringLiteral stringLiteral) {
       return new StringLiteralImpl(stringLiteral.value(), scalar.metadata());
     } else if (expression instanceof MemberExpression memberExpression) {
-      return new MemberExpressionImpl(scalar.metadata(), memberExpression.expression(), memberExpression.separatingToken(), memberExpression.memberAccess());
+      return new MemberExpressionImpl(
+        scalar.metadata(),
+        memberExpression.expression(),
+        memberExpression.separatingToken(),
+        memberExpression.memberAccess());
     } else if (expression instanceof Parameter parameter) {
       return new ParameterImpl(parameter.identifier(), scalar.textRange());
     } else if (expression instanceof Variable variable) {
       return new VariableImpl(variable.identifier(), scalar.textRange());
     } else {
-      throw createParseException("Failed to parse ARM template expression: " + scalar.value() + "; top-level expression is of kind " + expression.getKind(),
-        inputFileContext, new BasicTextPointer(scalar.metadata().textRange()));
+      throw createParseException(
+        "Failed to parse ARM template expression: " + scalar.value() + "; top-level expression is of kind " + expression.getKind(),
+        inputFileContext,
+        new BasicTextPointer(scalar.metadata().textRange()));
     }
   }
 

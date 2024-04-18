@@ -29,8 +29,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.FunctionCall;
-import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -49,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMockFromContent;
 
@@ -100,15 +103,18 @@ class ArmJsonBaseConverterTest {
   @ParameterizedTest
   @MethodSource
   void shouldBuildExpressionTreesFromJsonExpression(String input, ArmTree.Kind expectedKind) {
-    inputFileContext = createInputFileContextMockFromContent(input, "foo.json", "json");
+    // The text range in ScalarTreeImpl in real life include surrounding double quotes
+    var inputInDoubleQuotes = "\"" + input + "\"";
+    inputFileContext = createInputFileContextMockFromContent(inputInDoubleQuotes, "foo.json", "json");
     var converter = new ArmJsonBaseConverter(inputFileContext);
-    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
+    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED,
+      new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, inputInDoubleQuotes.length()), List.of()));
 
     var expression = (Expression) converter.toExpression(tree);
 
     assertThat(expression).hasKind(expectedKind)
       // Top-level node has the same range as the expression, including brackets
-      .hasRange(1, 0, 1, input.length());
+      .hasRange(1, 0, 1, inputInDoubleQuotes.length());
   }
 
   static Stream<Arguments> shouldBuildExpressionTreesFromJsonExpression() {
@@ -133,7 +139,7 @@ class ArmJsonBaseConverterTest {
     var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
 
     assertThatThrownBy(() -> converter.toExpression(tree)).isInstanceOf(ParseException.class)
-      .hasMessage("Failed to parse ARM template expression: " + input + "; top-level expression is of kind INTERPOLATED_STRING at dir1/dir2/foo.json:1:0");
+      .hasMessage("Failed to parse ARM template expression: " + input + " at dir1/dir2/foo.json:1:0");
   }
 
   @ParameterizedTest
@@ -151,21 +157,89 @@ class ArmJsonBaseConverterTest {
   }
 
   @Test
-  void shouldShiftTextRangesOfExpressionNodes() {
-    // ArmJsonConverter gets strings with newlines, while in the original JSON they are line break escaped symbols in the one-line string
-    var input = """
-      [base64('#! /bin/bash -xe
+  void shouldParseArmTemplateExpressionIncludingEmptyLines() {
+    var code = """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+          {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2021-01-01",
+            "name": "name",
+            "location": "location",
+            "foo1": "[copyIndex()]",
+            "foo2":
+            "[if(equals(copyIndex(), 0),
+                concat('sh install_reverse_nginx.sh ',
+                reference(variables('nicConfig')[0].name).ipConfigurations[0].properties.privateIPAddress, ' ',
+                reference(variables('nicConfig')[2].name).ipConfigurations[0].properties.privateIPAddress, ' ',
+                reference(variables('nicConfig')[4].name).ipConfigurations[0].properties.privateIPAddress),
+                'sh install_nginx_php.sh')]"
 
-      wait_for_apt()')]""";
-    inputFileContext = createInputFileContextMockFromContent(input, "foo.json", "json");
-    var converter = new ArmJsonBaseConverter(inputFileContext);
-    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
 
-    var expression = (Expression) converter.toExpression(tree);
 
-    assertThat(expression).hasRange(1, 0, 1, 44);
-    var stringLiteral = (StringLiteral) ((FunctionCall) expression).argumentList().elements().get(0);
-    assertThat(stringLiteral)
-      .hasRange(1, 8, 3, 15);
+          }
+        ]
+      }
+      """;
+
+    var inputFileContext = createInputFileContextMockFromContent(code, "foo.json", "json");
+    var parser = new ArmParser();
+    File tree = (File) parser.parse(code, inputFileContext);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
+
+    var resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+    var functionCall1 = (FunctionCall) resourceDeclaration.resourceProperties().get(4).value();
+    // "[copyIndex()]"
+    assertThat(functionCall1.textRange()).hasRange(10, 14, 10, 29);
+    // copyIndex
+    assertThat(functionCall1.name().textRange()).hasRange(10, 16, 10, 25);
+
+    var functionCall2 = (FunctionCall) resourceDeclaration.resourceProperties().get(5).value();
+    // "[if(equals(copyIndex(), 0),\n..."
+    assertThat(functionCall2.textRange()).hasRange(12, 6, 17, 38);
+    // if
+    assertThat(functionCall2.name().textRange()).hasRange(12, 8, 12, 10);
+    // equals(copyIndex(), 0)
+    assertThat(functionCall2.argumentList().elements().get(0).textRange()).hasRange(12, 11, 12, 33);
+    // concat
+    assertThat(((FunctionCall) functionCall2.argumentList().elements().get(1)).name().textRange())
+      .hasRange(13, 10, 13, 16);
+    // 'sh install_nginx_php.sh'
+    assertThat(functionCall2.argumentList().elements().get(2).textRange())
+      .hasRange(17, 10, 17, 35);
+  }
+
+  @Test
+  void shouldParseArmTemplateExpressionIncludingNewLines() {
+    var code = """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+          {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2021-01-01",
+            "name": "name",
+            "location": "location",
+            "foo1": "[if(equals(copyIndex(), 0), \\n concat('sh install_reverse_nginx.sh ', \\n 'sh install_nginx_php.sh'))]"
+          }
+        ]
+      }""";
+
+    var inputFileContext = createInputFileContextMockFromContent(code, "foo.json", "json");
+    var parser = new ArmParser();
+    File tree = (File) parser.parse(code, inputFileContext);
+
+    var resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+    // TODO The tree is not correct if input contains \\n
+    // but TextRanges are ok
+    var variable = (Variable) resourceDeclaration.resourceProperties().get(4).value();
+    // "[if(equals...."
+    assertThat(variable.textRange()).hasRange(10, 14, 10, 117);
+    // if
+    assertThat(variable.identifier().textRange()).hasRange(10, 16, 10, 18);
   }
 }

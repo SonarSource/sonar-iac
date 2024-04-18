@@ -35,10 +35,11 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMockFromContent;
 
 public class ArmTestUtils {
 
@@ -47,7 +48,8 @@ public class ArmTestUtils {
   public static final CheckContext CTX = mock(CheckContext.class);
 
   public static File parseJson(String code) {
-    return (File) PARSER.parse(code, null);
+    var inputFileContextMock = IacTestUtils.createInputFileContextMockFromContent(code, "file.json", "json");
+    return (File) PARSER.parse(code, inputFileContextMock);
   }
 
   public static File parseBicep(String code) {
@@ -58,12 +60,14 @@ public class ArmTestUtils {
   }
 
   public static ResourceDeclaration parseResource(String code) {
-    String wrappedCode = code("{",
-      "  \"resources\": [",
-      code,
-      "  ]",
-      "}");
-    File file = (File) PARSER.parse(wrappedCode, null);
+    String wrappedCode = """
+      {
+        "resources": [
+      %s
+        ]
+      }""".formatted(code);
+    var inputFileContext = createInputFileContextMockFromContent(wrappedCode, "foo.json", "");
+    File file = (File) PARSER.parse(wrappedCode, inputFileContext);
     return (ResourceDeclaration) file.statements().get(0);
   }
 
@@ -77,27 +81,29 @@ public class ArmTestUtils {
   }
 
   public static Property parseProperty(String propertyCode) {
-    String wrappedPropertyCode = code("{",
-      "    \"name\": \"dummy resource\",",
-      "    \"type\": \"resource type\",",
-      "    \"apiVersion\": \"version\",",
-      "    \"properties\": {",
-      propertyCode,
-      "    }",
-      "}");
+    String wrappedPropertyCode = """
+      {
+          "name": "dummy resource",
+          "type": "resource type",
+          "apiVersion": "version",
+          "properties": {
+      %s
+          }
+      }""".formatted(propertyCode);
     ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
     return resourceDeclaration.properties().get(0);
   }
 
   public static ObjectExpression parseObject(String objectCode) {
-    String wrappedPropertyCode = code("{",
-      "    \"name\": \"dummy resource\",",
-      "    \"type\": \"resource type\",",
-      "    \"apiVersion\": \"version\",",
-      "    \"properties\": {",
-      "      \"object\": " + objectCode,
-      "    }",
-      "}");
+    String wrappedPropertyCode = """
+      {
+          "name": "dummy resource",
+          "type": "resource type",
+          "apiVersion": "version",
+          "properties": {
+            "object": %s
+          }
+      }""".formatted(objectCode);
     ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
     return (ObjectExpression) resourceDeclaration.properties().get(0).value();
   }

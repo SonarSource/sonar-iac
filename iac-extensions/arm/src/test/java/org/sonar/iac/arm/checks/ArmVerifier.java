@@ -26,6 +26,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.common.testing.Verifier;
 
 import static org.mockito.Mockito.mock;
@@ -51,7 +52,8 @@ public class ArmVerifier {
   private static void verify(Path path, IacCheck check, Verifier.Issue... expectedIssues) {
     Tree root = Verifier.parse(PARSER, path);
     ArmSymbolVisitor symbolVisitor = new ArmSymbolVisitor();
-    symbolVisitor.scan(mock(InputFileContext.class), root);
+    var inputFileContext = IacTestUtils.createInputFileContextMockFromContent(Verifier.readFile(path), path.toFile().getName(), "");
+    symbolVisitor.scan(inputFileContext, root);
     Verifier.verify(root, path, check, expectedIssues);
   }
 
