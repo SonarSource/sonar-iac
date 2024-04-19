@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -50,6 +49,7 @@ public class RedundantResourceDependenciesCheck implements IacCheck {
   private static final String MESSAGE = "Remove this explicit dependency as it is already defined implicitly.";
   private static final String SECONDARY_MESSAGE_REFERENCE = "Implicit dependency is created via the \"reference\" function.";
   private static final String SECONDARY_MESSAGE_SYMBOLIC = "Implicit dependency is created via a symbolic name.";
+  private static final int NUM_ARGUMENTS_IN_BASIC_RESOURCE_ID = 2;
   // Implicit dependency can be expressed only with `reference(s)?` functions:
   // https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource#implicit-dependency
   // https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource#implicit-dependency-1
@@ -76,25 +76,16 @@ public class RedundantResourceDependenciesCheck implements IacCheck {
     for (var dependency : explicitDependencies) {
       String dependencyName = dependency.value();
 
-      var references = new ArrayList<TextTree>();
-      for (var referencedResource : referencedResources) {
-        String referencedName = referencedResource.value();
-        if (dependencyName.equals(referencedName)) {
-          references.add(referencedResource);
-        }
-      }
+      var references = referencedResources.stream()
+        .filter(referencedResource -> dependencyName.equals(referencedResource.value()));
 
-      var symbolicReferences = new ArrayList<TextTree>();
-      for (var referencedSymbol : referencedResourcesSymbolic) {
-        var referencedName = referencedSymbol.value();
-        if (dependencyName.equals(referencedName)) {
-          symbolicReferences.add(referencedSymbol);
-        }
-      }
+      var symbolicReferences = referencedResourcesSymbolic.stream()
+        .filter(symbolicResource -> dependencyName.equals(symbolicResource.value()));
 
       var secondaryLocations = Stream.concat(
-        references.stream().map(textTree -> new SecondaryLocation(textTree, SECONDARY_MESSAGE_REFERENCE)),
-        symbolicReferences.stream().map(textTree -> new SecondaryLocation(textTree, SECONDARY_MESSAGE_SYMBOLIC))).toList();
+        references.map(textTree -> new SecondaryLocation(textTree, SECONDARY_MESSAGE_REFERENCE)),
+        symbolicReferences.map(textTree -> new SecondaryLocation(textTree, SECONDARY_MESSAGE_SYMBOLIC)))
+        .toList();
       if (!secondaryLocations.isEmpty()) {
         checkContext.reportIssue(dependency, MESSAGE, secondaryLocations);
       }
@@ -103,8 +94,9 @@ public class RedundantResourceDependenciesCheck implements IacCheck {
 
   private static List<TextTree> collectDependencies(ArrayExpression dependsOn) {
     // The value can be a comma-separated list of a resource names or resource unique identifiers:
-    // https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/syntax#resources
-    return dependsOn.elements().stream().map(RedundantResourceDependenciesCheck::extractDependencyTextTree)
+    // https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/resource-dependency#dependson
+    return dependsOn.elements().stream()
+      .map(RedundantResourceDependenciesCheck::extractDependencyTextTree)
       .filter(Objects::nonNull)
       .toList();
   }
@@ -118,10 +110,10 @@ public class RedundantResourceDependenciesCheck implements IacCheck {
   private static TextTree extractDependencyTextTree(Expression expression) {
     if (expression instanceof FunctionCall functionCall &&
       TextUtils.matchesValue(functionCall.name(), name -> "resourceId".equals(name) || name.endsWith("ResourceId")).isTrue()) {
-      if (functionCall.argumentList().elements().size() == 2 && functionCall.argumentList().elements().get(1) instanceof TextTree textTree) {
+      if (functionCall.argumentList().elements().size() == NUM_ARGUMENTS_IN_BASIC_RESOURCE_ID && functionCall.argumentList().elements().get(1) instanceof TextTree textTree) {
         // TODO SONARIAC-1426: S6952: Cover `*ResourceId` functions in the `dependsOn` block
         // There are multiple overloads of this function. For now, we cover only the case where two mandatory arguments are provided:
-        // the resource type the resource name.
+        // the resource type, the resource name.
         return textTree;
       }
     } else if (expression instanceof MemberExpression memberExpression) {
@@ -134,9 +126,9 @@ public class RedundantResourceDependenciesCheck implements IacCheck {
     return null;
   }
 
-  private static List<TextTree> collectReferences(ResourceDeclaration resourceDeclaration) {
+  private static List<StringLiteral> collectReferences(ResourceDeclaration resourceDeclaration) {
     // Traverse all nodes of all property values and find expressions that can be references to other resources. This includes:
-    // * function calls to `reference[s]?` function
+    // * function calls to `reference(s)?` function
     // * `Identifier`s, because they can be usages of symbolic names
 
     return resourceDeclaration.properties().stream().flatMap(property -> getAllPropertyValues(property.value()))
@@ -144,7 +136,7 @@ public class RedundantResourceDependenciesCheck implements IacCheck {
       .filter(IS_REFERENCE_FUNCTION)
       .map(functionCall -> functionCall.argumentList().elements().get(0))
       .filter(StringLiteral.class::isInstance)
-      .map(TextTree.class::cast)
+      .map(StringLiteral.class::cast)
       .toList();
   }
 

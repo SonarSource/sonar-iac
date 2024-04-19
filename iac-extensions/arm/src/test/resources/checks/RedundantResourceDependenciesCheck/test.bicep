@@ -75,8 +75,7 @@ resource nonCompliant3 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   }
 }
 
-resource compliant 'Microsoft.Network/networkInterfaces@2020-06-01' = {
-  name: 'compliant'
+resource compliant1 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   location: resourceGroup().location
   properties: {
     ipConfigurations: [
@@ -91,3 +90,12 @@ resource compliant 'Microsoft.Network/networkInterfaces@2020-06-01' = {
     ]
   }
 }
+
+resource compliant2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+  location: resourceGroup().location
+  dependsOn: [
+    validExplicitDependency
+  ]
+  properties: {}
+}
+

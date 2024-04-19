@@ -22,6 +22,8 @@ package org.sonar.iac.arm.checks;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.testing.Verifier;
 
+import static org.sonar.iac.common.testing.Verifier.issue;
+
 class RedundantResourceDependenciesCheckTest {
   @Test
   void shouldRaiseIssuesInJson() {
@@ -29,7 +31,8 @@ class RedundantResourceDependenciesCheckTest {
     // should also raise on line 11 (`dependsOn` with `resourceId`). On line 13 there is `dependsOn` with more complex function,
     // which we can't resolve, because it's dynamic, so it's a known FN.
     ArmVerifier.verify("RedundantResourceDependenciesCheck/test.json", new RedundantResourceDependenciesCheck(),
-      Verifier.issue(12, 8, 12, 27, "Remove this explicit dependency as it is already defined implicitly."));
+      issue(15, 8, 15, 27, "Remove this explicit dependency as it is already defined implicitly.",
+        Verifier.secondary(27, 39, 27, 58, "Implicit dependency is created via the \"reference\" function.")));
   }
 
   @Test
