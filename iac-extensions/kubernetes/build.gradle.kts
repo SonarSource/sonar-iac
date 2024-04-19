@@ -17,4 +17,5 @@ dependencies {
     testImplementation(libs.sonar.plugin.api.test.fixtures)
     testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
+    testImplementation(libs.apache.commons.lang)
 }
