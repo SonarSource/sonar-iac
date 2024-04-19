@@ -22,6 +22,7 @@ package org.sonar.iac.arm.checks.elementsorder;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import org.sonar.iac.arm.checks.ElementsOrderResourceCheck;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -29,9 +30,9 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
 /**
- * It is a sub check of S6956, see {@link org.sonar.iac.arm.checks.ElementsOrderCheck}.
+ * It is a sub check of S6956, see {@link ElementsOrderResourceCheck}.
  */
-public class ElementsOrderResourceJson implements IacCheck {
+public class ElementsOrderResourceCheckJson implements IacCheck {
 
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
 
@@ -61,7 +62,7 @@ public class ElementsOrderResourceJson implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(ResourceDeclarationImpl.class, ElementsOrderResourceJson::checkResource);
+    init.register(ResourceDeclarationImpl.class, ElementsOrderResourceCheckJson::checkResource);
   }
 
   private static void checkResource(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {

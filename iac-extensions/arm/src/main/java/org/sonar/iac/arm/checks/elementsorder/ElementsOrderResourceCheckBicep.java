@@ -21,6 +21,7 @@ package org.sonar.iac.arm.checks.elementsorder;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.iac.arm.checks.ElementsOrderResourceCheck;
 import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -31,9 +32,9 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 /**
- * It is a sub check of S6956, see {@link org.sonar.iac.arm.checks.ElementsOrderCheck}.
+ * It is a sub check of S6956, see {@link ElementsOrderResourceCheck}.
  */
-public class ElementsOrderResourceBicep implements IacCheck {
+public class ElementsOrderResourceCheckBicep implements IacCheck {
 
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
   private static final String MESSAGE_DECORATOR = "Reorder the decorators to match the recommended order.";
@@ -67,8 +68,8 @@ public class ElementsOrderResourceBicep implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(ResourceDeclarationImpl.class, ElementsOrderResourceBicep::checkResource);
-    init.register(ResourceDeclarationImpl.class, ElementsOrderResourceBicep::checkResourceDecorators);
+    init.register(ResourceDeclarationImpl.class, ElementsOrderResourceCheckBicep::checkResource);
+    init.register(ResourceDeclarationImpl.class, ElementsOrderResourceCheckBicep::checkResourceDecorators);
   }
 
   private static void checkResource(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {

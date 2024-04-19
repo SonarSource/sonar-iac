@@ -20,21 +20,17 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceBicep;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceJson;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelBicep;
-import org.sonar.iac.arm.checks.elementsorder.ElementsOrderTopLevelJson;
+import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceCheckBicep;
+import org.sonar.iac.arm.checks.elementsorder.ElementsOrderResourceCheckJson;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
-@Rule(key = "S6956")
-public class ElementsOrderCheck implements IacCheck {
+@Rule(key = "S6975")
+public class ElementsOrderResourceCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    new ElementsOrderTopLevelJson().initialize(init);
-    new ElementsOrderTopLevelBicep().initialize(init);
-    new ElementsOrderResourceJson().initialize(init);
-    new ElementsOrderResourceBicep().initialize(init);
+    new ElementsOrderResourceCheckJson().initialize(init);
+    new ElementsOrderResourceCheckBicep().initialize(init);
   }
 }

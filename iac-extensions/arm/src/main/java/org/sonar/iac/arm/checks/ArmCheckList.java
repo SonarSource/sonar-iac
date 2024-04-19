@@ -34,7 +34,7 @@ public final class ArmCheckList {
       CertificateBasedAuthenticationCheck.class,
       ClearTextProtocolsCheck.class,
       DebugSettingCheck.class,
-      ElementsOrderCheck.class,
+      ElementsOrderResourceCheck.class,
       EmptyOrNullValueCheck.class,
       HardcodeApiVersionCheck.class,
       HardcodedResourceLocationCheck.class,
@@ -56,6 +56,7 @@ public final class ArmCheckList {
       SubscriptionRoleAssignmentCheck.class,
       TlsVersionCheck.class,
       ToDoCommentCheck.class,
+      TopLevelPropertiesOrderCheck.class,
       UnencryptedCloudServicesCheck.class,
       UnusedParametersCheck.class,
       UnusedVariablesCheck.class);

@@ -1,0 +1,63 @@
+<h2>Why is this an issue?</h2>
+<p>According to the best practices defined by Azure, a consistent order of elements in a templates is recommended. This makes it easier to read and
+understand the template.</p>
+<p>Not following this convention has no technical impact, but will reduce the template’s readability because most developers are used to the standard
+order.</p>
+<h2>How to fix it in ARM Templates</h2>
+<p><strong>Recommended order of the resource elements</strong>:</p>
+<pre>
+{
+  "resources": [
+    {
+      "comments": "if any",
+      "condition": true,
+      "scope": "% parent scope %",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "resourceName",
+      "location": "[parameters('location')]",
+      "zones": [],
+      "sku": {},
+      "kind": "",
+      "scale": "",
+      "plan": {},
+      "identity": {},
+      "copy": {},
+      "dependsOn": [],
+      "tags": {},
+      "properties": {}
+    }
+  ]
+}
+</pre>
+<p>Any other properties not listed here should be placed before the <code>properties</code> object for the resource.</p>
+<h2>How to fix it in Bicep</h2>
+<p><strong>Recommended order of the resource elements and decorators</strong>:</p>
+<pre>
+@description
+@batchSize
+resource resourceName
+  parent
+  scope
+  name
+  location/extendedLocation
+  zones
+  sku
+  kind
+  scale
+  plan
+  identity
+  dependsOn
+  tags
+  properties
+</pre>
+<p>Any other decorated not listed here should be placed before the <code>resource</code> object and after the other decorators. Any other elements not
+listed here should be placed before the <code>properties</code> object for the resource.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Azure quickstart templates best practices - <a
+  href="https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#sort-order-of-properties">Sort order of
+  properties</a> </li>
+</ul>
+

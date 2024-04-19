@@ -1,110 +1,17 @@
 {
-"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/darktrace-vsensor-autoscaling-azuredeploy.json": [
-353,
-373,
-391,
-407,
-426,
-503,
-514,
-551,
-986,
-1000,
-1118,
-1131
-],
-"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/deployToLinkedWorkspaceWithAuditLogs.json": [
-405,
-417,
-2066,
-2596,
-2606,
-2622,
-2637,
-2652,
-2667,
-2682,
-2705,
-2727,
-2749,
-2771,
-2789,
-2816,
-2827,
-2862,
-2889,
-2908,
-2927,
-2947,
-2967,
-2996
-],
-"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/parameterized-linked-templates-azuredeploy.json": [
-318
-],
-"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/sas9.4-viya-azuredeploy.json": [
-318
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/deploymentscript-keyvault-mi.bicep": [
-131
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/deploymentscript-keyvault.bicep": [
-113
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-configuration-set/main.bicep": [
-73
-],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/resources.bicep": [
-43,
-59,
-69,
-86,
-98
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/service-bus.bicep": [
-22
+43
 ],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/tenant-resources.bicep": [
 20
 ],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-name-generation/storage.bicep": [
-11,
-21
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/autoscaling-rules.bicep": [
-10
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/diagnostic-settings.bicep": [
-22
-],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-rbac/scope-default.bicep": [
 4
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-rbac/scope.bicep": [
-11
 ],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-secrets/function-app.bicep": [
 12
 ],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/fullnamedeclaration.bicep": [
-5
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/insidedeclaration.bicep": [
-5
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/outsidedeclaration.bicep": [
-5,
-12,
-17
-],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/outputs/module-output.bicep": [
 5
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/synapse-keys/keys.bicep": [
-3,
-25
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/variables/variableswithfunction.bicep": [
-10
 ]
 }

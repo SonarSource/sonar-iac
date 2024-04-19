@@ -31,77 +31,11 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
-class ElementsOrderCheckTest {
+class ElementsOrderResourceCheckTest {
 
   private static final String PRIMARY_MESSAGE = "Reorder the elements to match the recommended order.";
-  private static final String DIR = "ElementsOrderCheckTest/";
-  private static final ElementsOrderCheck CHECK = new ElementsOrderCheck();
-
-  @Test
-  void shouldVerifyExpectedTopLevelJson() {
-    ArmVerifier.verifyNoIssue("ElementsOrderCheckTest/topLevelExpected.json", CHECK);
-  }
-
-  static Stream<Arguments> shouldVerifyUnexpectedTopLevelJson() {
-    return Stream.of(
-      // filename, primaryTextRange
-      arguments("topLevelContentVersionAndSchema.json", range(3, 2, 3, 11)),
-      arguments("topLevelExpectedFunctionsAndParametersAndOutputsAndResources.json", range(6, 2, 6, 14)),
-      arguments("topLevelFunctionsAndParameters.json", range(6, 2, 6, 14)),
-      arguments("topLevelFunctionsAndParametersCaseInsensitive.json", range(6, 2, 6, 14)),
-      arguments("topLevelOutputsAsFirst.json", range(3, 2, 3, 11)),
-      arguments("topLevelResourcesAndParameters.json", range(5, 2, 5, 14)),
-      arguments("topLevelSchemaAtEnd.json", range(9, 2, 9, 11)),
-      arguments("topLevelVariablesBeforeFunctions.json", range(6, 2, 6, 14)));
-  }
-
-  @ParameterizedTest
-  @MethodSource
-  void shouldVerifyUnexpectedTopLevelJson(String filename, TextRange primaryTextRange) {
-    var issue = issue(primaryTextRange, PRIMARY_MESSAGE);
-    ArmVerifier.verify(DIR + filename, CHECK, issue);
-  }
-
-  @Test
-  void shouldNotFailOnEmptyJson() {
-    var content = """
-      {
-      }""";
-    ArmVerifier.verifyContent(content, new ElementsOrderCheck());
-  }
-
-  @Test
-  void shouldNotFailOnUnknownTopLevelPropertyJson() {
-    var content = """
-      {
-        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/...",
-        "unknown": ""
-      }""";
-    ArmVerifier.verifyContent(content, new ElementsOrderCheck());
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "topLevelExpected.bicep",
-    "topLevelExpectedMultipleElements.bicep",
-    "topLevelExpectedNotAllElements.bicep",
-    "topLevelExpectedSubresources.bicep"})
-  void shouldVerifyExpectedTopLevelBicep(String filename) {
-    BicepVerifier.verifyNoIssue(DIR + filename, CHECK);
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"topLevelExistingResourceBetweenAnotherResources.bicep",
-    "topLevelMetadataAndTargetScope.bicep",
-    "topLevelModuleAndResourcesMixed.bicep",
-    "topLevelOutputAsFirst.bicep",
-    "topLevelParametersAndVariables.bicep",
-    "topLevelResourceExistingBetweenOtherResource.bicep",
-    "topLevelTargetScopeEnd.bicep"
-  })
-  void shouldVerifyUnexpectedTopLevelBicep(String filename) {
-    BicepVerifier.verify(DIR + filename, CHECK);
-  }
+  private static final String DIR = "ElementsOrderResource/";
+  private static final ElementsOrderResourceCheck CHECK = new ElementsOrderResourceCheck();
 
   @ParameterizedTest
   @ValueSource(strings = {"resourceExpected.json",
@@ -175,4 +109,5 @@ class ElementsOrderCheckTest {
   void shouldVerifyUnexpectedDecorator(String filename) {
     BicepVerifier.verify(DIR + filename, CHECK);
   }
+
 }
