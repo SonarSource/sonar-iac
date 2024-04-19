@@ -67,7 +67,6 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
     private Node startNode;
     private Node endNode;
     private String tag;
-    private TextRange range;
     private List<Comment> comments;
 
     public Builder fromNode(Node node) {
@@ -100,7 +99,7 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
         comments = comments(startNode);
       }
 
-      range = TextRanges.merge(range(startNode), range(endNode));
+      var range = TextRanges.merge(range(startNode), range(endNode));
       var startPointer = pointer(startNode.getStartMark().orElse(null));
       var endPointer = startPointer;
       if (endNode.getEndMark().isPresent()) {
@@ -161,7 +160,7 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
 
     private static Comment comment(CommentLine comment) {
       // We prefix the comment value with # as it is already stripped away when arrive at this point.
-      var ranage = range(comment.getStartMark().orElseGet(null), comment.getEndMark().orElseGet(null));
+      var ranage = range(comment.getStartMark().orElse(null), comment.getEndMark().orElse(null));
       return new CommentImpl('#' + comment.getValue(), comment.getValue(), ranage);
     }
   }}
