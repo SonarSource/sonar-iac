@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -111,5 +112,24 @@ public class ArmTreeUtils {
     return expr -> expr instanceof HasIdentifier hasIdentifier &&
       hasIdentifier.identifier() instanceof Identifier identifier &&
       parameterNames.contains(identifier.value());
+  }
+
+  public static Expression retrieveIdentifierOrExpression(Expression expr) {
+    if (expr instanceof HasIdentifier hasIdentifier) {
+      return hasIdentifier.identifier();
+    } else {
+      return expr;
+    }
+  }
+
+  public static <T extends ArmTree> Stream<T> findAllNodes(ArmTree tree, Class<T> type) {
+    Stream<T> result = Stream.empty();
+    if (type.isInstance(tree)) {
+      result = Stream.of(type.cast(tree));
+    }
+    return Stream.concat(result, tree.children().stream()
+      .flatMap(child -> findAllNodes((ArmTree) child, type))
+      .filter(type::isInstance)
+      .map(type::cast));
   }
 }

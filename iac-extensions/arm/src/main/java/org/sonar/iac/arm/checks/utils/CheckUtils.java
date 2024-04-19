@@ -26,12 +26,13 @@ import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.FunctionCall;
-import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.common.checks.TextUtils;
+
+import static org.sonar.iac.arm.tree.ArmTreeUtils.retrieveIdentifierOrExpression;
 
 public final class CheckUtils {
 
@@ -128,13 +129,5 @@ public final class CheckUtils {
       }
     }
     return null;
-  }
-
-  private static Expression retrieveIdentifierOrExpression(Expression expr) {
-    if (expr instanceof HasIdentifier hasIdentifier) {
-      return hasIdentifier.identifier();
-    } else {
-      return expr;
-    }
   }
 }

@@ -1,0 +1,16 @@
+{
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/darktrace-vsensor-autoscaling-azuredeploy.json": [
+520,
+554,
+555,
+706,
+776,
+1105
+],
+"azureresourcemanager-project:ruling/src/integrationTest/resources/sources/azureresourcemanager/rules/parameterized-linked-templates-azuredeploy.json": [
+839
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/resources.bicep": [
+100
+]
+}

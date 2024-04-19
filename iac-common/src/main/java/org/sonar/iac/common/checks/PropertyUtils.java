@@ -19,20 +19,19 @@
  */
 package org.sonar.iac.common.checks;
 
-import org.sonar.iac.common.api.tree.HasProperties;
-import org.sonar.iac.common.api.tree.PropertyTree;
-import org.sonar.iac.common.api.tree.Tree;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.Tree;
 
-public class PropertyUtils {
+public final class PropertyUtils {
 
   private PropertyUtils() {
     // Utils class

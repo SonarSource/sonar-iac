@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "serverName": "exampleServer"
+  },
+  "resources": [
+    {
+      "apiVersion": "2019-04-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "noncompliant1",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'exampleVNet')]",
+        "exampleDependency",
+        "validExplicitDependency",
+        "[concat('Microsoft.DBforPostgreSQL/servers/', variables('serverName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[reference('Microsoft.Network/virtualNetworks/exampleVNet/subnets/exampleSubnet').id]"
+              },
+              "exampleKey": "[reference('exampleDependency').value]",
+              "exampleKey2": "[reference('serverName').value]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

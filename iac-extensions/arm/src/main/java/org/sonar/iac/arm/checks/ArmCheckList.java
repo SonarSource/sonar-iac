@@ -47,6 +47,7 @@ public final class ArmCheckList {
       ParameterAndVariableNameConventionCheck.class,
       ParsingErrorCheck.class,
       PublicNetworkAccessCheck.class,
+      RedundantResourceDependenciesCheck.class,
       ResourceSpecificAdminAccountCheck.class,
       RoleBasedAccessControlCheck.class,
       SecureParameterDefaultValueCheck.class,
