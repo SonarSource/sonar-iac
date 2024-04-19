@@ -20,17 +20,17 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.elementsorder.PropertiesOrderBicep;
-import org.sonar.iac.arm.checks.elementsorder.PropertiesOrderJson;
+import org.sonar.iac.arm.checks.elementsorder.TopLevelPropertiesOrderBicep;
+import org.sonar.iac.arm.checks.elementsorder.TopLevelPropertiesOrderJson;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
 @Rule(key = "S6956")
-public class PropertiesOrderCheck implements IacCheck {
+public class TopLevelPropertiesOrderCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    new PropertiesOrderJson().initialize(init);
-    new PropertiesOrderBicep().initialize(init);
+    new TopLevelPropertiesOrderJson().initialize(init);
+    new TopLevelPropertiesOrderBicep().initialize(init);
   }
 }

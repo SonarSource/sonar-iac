@@ -45,7 +45,6 @@ public final class ArmCheckList {
       ManagedIdentityCheck.class,
       ParameterAndVariableNameConventionCheck.class,
       ParsingErrorCheck.class,
-      PropertiesOrderCheck.class,
       PublicNetworkAccessCheck.class,
       ResourceSpecificAdminAccountCheck.class,
       RoleBasedAccessControlCheck.class,
@@ -57,6 +56,7 @@ public final class ArmCheckList {
       SubscriptionRoleAssignmentCheck.class,
       TlsVersionCheck.class,
       ToDoCommentCheck.class,
+      TopLevelPropertiesOrderCheck.class,
       UnencryptedCloudServicesCheck.class,
       UnusedParametersCheck.class,
       UnusedVariablesCheck.class);

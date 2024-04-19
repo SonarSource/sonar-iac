@@ -20,7 +20,7 @@
 package org.sonar.iac.arm.checks.elementsorder;
 
 import java.util.Map;
-import org.sonar.iac.arm.checks.PropertiesOrderCheck;
+import org.sonar.iac.arm.checks.TopLevelPropertiesOrderCheck;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
@@ -37,9 +37,9 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
 /**
- * It is a sub check of S6956, see {@link PropertiesOrderCheck}.
+ * It is a sub check of S6956, see {@link TopLevelPropertiesOrderCheck}.
  */
-public class PropertiesOrderBicep implements IacCheck {
+public class TopLevelPropertiesOrderBicep implements IacCheck {
 
   private static final String MESSAGE = "Reorder the elements to match the recommended order.";
 

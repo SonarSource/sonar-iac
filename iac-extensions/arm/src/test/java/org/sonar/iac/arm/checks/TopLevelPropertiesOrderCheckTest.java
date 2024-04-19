@@ -31,11 +31,11 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
-class PropertiesOrderCheckTest {
+class TopLevelPropertiesOrderCheckTest {
 
   private static final String PRIMARY_MESSAGE = "Reorder the elements to match the recommended order.";
-  private static final String DIR = "PropertiesOrderCheck/";
-  private static final PropertiesOrderCheck CHECK = new PropertiesOrderCheck();
+  private static final String DIR = "TopLevelPropertiesOrderCheck/";
+  private static final TopLevelPropertiesOrderCheck CHECK = new TopLevelPropertiesOrderCheck();
 
   @Test
   void shouldVerifyExpectedTopLevelJson() {
@@ -67,7 +67,7 @@ class PropertiesOrderCheckTest {
     var content = """
       {
       }""";
-    ArmVerifier.verifyContent(content, new PropertiesOrderCheck());
+    ArmVerifier.verifyContent(content, CHECK);
   }
 
   @Test
@@ -77,7 +77,7 @@ class PropertiesOrderCheckTest {
         "$schema": "https://schema.management.azure.com/schemas/2019-04-01/...",
         "unknown": ""
       }""";
-    ArmVerifier.verifyContent(content, new PropertiesOrderCheck());
+    ArmVerifier.verifyContent(content, CHECK);
   }
 
   @ParameterizedTest
