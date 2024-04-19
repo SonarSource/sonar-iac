@@ -43,8 +43,8 @@ class IpAddressValidatorTest {
 
   private static final String MESSAGE = "message";
   private static final String SECONDARY_MESSAGE = "secondary message";
-  private YamlTreeMetadata startMetadata = new YamlTreeMetadata("start", range(1, 2, 1, 7), List.of());
-  private YamlTreeMetadata endMetadata = new YamlTreeMetadata("end", range(2, 2, 2, 5), List.of());
+  private YamlTreeMetadata startMetadata = new YamlTreeMetadata("start", range(1, 2, 1, 7), 0, 0, List.of());
+  private YamlTreeMetadata endMetadata = new YamlTreeMetadata("end", range(2, 2, 2, 5), 0, 0, List.of());
 
   static Stream<Arguments> shouldReportIssue() {
     return Stream.of(

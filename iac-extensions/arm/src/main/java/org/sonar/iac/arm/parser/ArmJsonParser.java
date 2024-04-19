@@ -21,6 +21,7 @@ package org.sonar.iac.arm.parser;
 
 import javax.annotation.Nullable;
 import org.snakeyaml.engine.v2.exceptions.ScannerException;
+import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -28,15 +29,22 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.yaml.YamlConverter;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
 
 public class ArmJsonParser implements TreeParser<Tree> {
 
+  private final YamlParser yamlParser = new YamlParser(new ArmJsonConverter());
+
   @Nullable
   private InputFileContext inputFileContext;
+  private String source;
 
   @Override
   public ArmTree parse(String source, @Nullable InputFileContext inputFileContext) {
@@ -46,8 +54,8 @@ public class ArmJsonParser implements TreeParser<Tree> {
     return file;
   }
 
-  private FileTree parseJson(String source) {
-    YamlParser yamlParser = new YamlParser();
+  protected FileTree parseJson(String source) {
+    this.source = source;
     InputFile inputFile = inputFileContext != null ? inputFileContext.inputFile : null;
     try {
       return yamlParser.parse(source, inputFileContext);
@@ -71,6 +79,28 @@ public class ArmJsonParser implements TreeParser<Tree> {
       ArmTree child = (ArmTree) children;
       child.setParent(tree);
       setParents(child);
+    }
+  }
+
+  class ArmJsonConverter extends YamlConverter {
+
+    @Override
+    protected YamlTree convertScalar(ScalarNode node) {
+      var metadata = YamlTreeMetadata.fromNode(node);
+      var value = node.getValue();
+      if (isMultilineScalar(metadata)) {
+        value = originalStringValue(metadata);
+      }
+      return new ScalarTreeImpl(value, scalarStyleConvert(node.getScalarStyle()), metadata);
+    }
+
+    private String originalStringValue(YamlTreeMetadata metadata) {
+      return source.substring(metadata.startPointer() + 1, metadata.endPointer() - 1);
+    }
+
+    private static boolean isMultilineScalar(YamlTreeMetadata metadata) {
+      var range = metadata.textRange();
+      return range.start().line() != range.end().line();
     }
   }
 }

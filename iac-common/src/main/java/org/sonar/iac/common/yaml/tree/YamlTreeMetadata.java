@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.snakeyaml.engine.v2.comments.CommentLine;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.nodes.Node;
@@ -29,69 +33,135 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer, int endPointer, List<Comment> comments) implements HasTextRange {
 
-public record YamlTreeMetadata(String tag, TextRange textRange, List<Comment> comments) implements HasTextRange {
-
+  @Deprecated
   public static YamlTreeMetadata fromNode(String tag, Node node) {
-    return new YamlTreeMetadata(tag, range(node), comments(node));
+    return builder()
+      .fromNode(node)
+      .withTag(tag)
+      .build();
   }
 
+  @Deprecated
   public static YamlTreeMetadata fromNode(Node node) {
-    return fromNode(tag(node), node);
+    return builder()
+      .fromNode(node)
+      .build();
   }
 
+  @Deprecated
   public static YamlTreeMetadata fromNodes(String tag, Node firstNode, Node secondNode) {
-    return new YamlTreeMetadata(tag, TextRanges.merge(List.of(range(firstNode), range(secondNode))), Collections.emptyList());
+    return builder()
+      .fromNodes(firstNode, secondNode)
+      .withTag(tag)
+      .build();
   }
 
-  public static List<Comment> comments(Node node) {
-    // For now we group all comments together. This might change, once we have a reason to separate them.
-    List<Comment> comments = new ArrayList<>(comments(node.getBlockComments()));
-    comments.addAll(comments(node.getInLineComments()));
-    comments.addAll(comments(node.getEndComments()));
-    return comments;
+  public static Builder builder() {
+    return new Builder();
   }
 
-  public static List<Comment> comments(@Nullable List<CommentLine> commentLines) {
-    if (commentLines == null) {
-      return Collections.emptyList();
-    }
-    List<Comment> comments = new ArrayList<>();
-    for (CommentLine comment : commentLines) {
-      comments.add(comment(comment));
-    }
-    return comments;
-  }
+  public static class Builder {
 
-  private static Comment comment(CommentLine comment) {
-    // We prefix the comment value with # as it is already stripped away when arrive at this point.
-    return new CommentImpl('#' + comment.getValue(), comment.getValue(), range(comment.getStartMark(), comment.getEndMark()));
-  }
+    private Node startNode;
+    private Node endNode;
+    private String tag;
+    private TextRange range;
+    private List<Comment> comments;
 
-  public static TextRange range(Node node) {
-    return range(node.getStartMark(), node.getEndMark());
-  }
-
-  private static TextRange range(Optional<Mark> startMark, Optional<Mark> endMark) {
-    if (startMark.isEmpty()) {
-      throw new ParseException("Nodes are expected to have a start mark during conversion", null, null);
+    public Builder fromNode(Node node) {
+      this.startNode = node;
+      this.endNode = node;
+      return this;
     }
 
-    int startLine = startMark.get().getLine() + 1;
-    int startColumn = startMark.get().getColumn();
+    public Builder fromNodes(Node startNode, Node endNode) {
+      this.startNode = startNode;
+      this.endNode = endNode;
+      return this;
+    }
 
-    // endMark is not present. This happens for example when we have a file with only a comment.
-    // in that case, the root node will be an empty MappingNode with only a startMark to which the comment is attached
-    return endMark.map(mark -> TextRanges.range(startLine, startColumn, mark.getLine() + 1, mark.getColumn()))
-            .orElseGet(() -> TextRanges.range(startLine, startColumn, startLine, startColumn));
-  }
+    public Builder withTag(String tag) {
+      this.tag = tag;
+      return this;
+    }
 
-  public static String tag(Node node) {
-    return node.getTag().getValue();
-  }
-}
+    public Builder withComments(List<CommentLine> commentLines) {
+      this.comments = comments(commentLines);
+      return this;
+    }
+
+    public YamlTreeMetadata build() {
+      if (tag == null) {
+        tag = tag(startNode);
+      }
+      if (comments == null) {
+        comments = comments(startNode);
+      }
+
+      range = TextRanges.merge(range(startNode), range(endNode));
+      var startPointer = pointer(startNode.getStartMark().orElseGet(null));
+      var endPointer = startPointer;
+      if (endNode.getEndMark().isPresent()) {
+        endPointer = pointer(endNode.getEndMark().orElseGet(null));
+      }
+      return new YamlTreeMetadata(tag, range, startPointer, endPointer, comments);
+    }
+
+    public static String tag(Node node) {
+      return node.getTag().getValue();
+    }
+
+    private static int pointer(@Nullable Mark mark) {
+      if (mark == null) {
+        throw new ParseException("Nodes are expected to have a start mark during conversion", null, null);
+      }
+      return mark.getPointer();
+    }
+
+    private static TextRange range(Node node) {
+      return range(node.getStartMark().orElseGet(null), node.getEndMark().orElseGet(null));
+    }
+
+    private static TextRange range(@Nullable Mark startMark, @Nullable Mark endMark) {
+      if (startMark == null) {
+        throw new ParseException("Nodes are expected to have a start mark during conversion", null, null);
+      }
+
+      int startLine = startMark.getLine() + 1;
+      int startColumn = startMark.getColumn();
+
+      // endMark is not present. This happens for example when we have a file with only a comment.
+      // in that case, the root node will be an empty MappingNode with only a startMark to which the comment is attached
+      if (endMark != null) {
+        return TextRanges.range(startLine, startColumn, endMark.getLine() + 1, endMark.getColumn());
+      } else {
+        return TextRanges.range(startLine, startColumn, startLine, startColumn);
+      }
+    }
+
+    private static List<Comment> comments(Node node) {
+      // For now we group all comments together. This might change, once we have a reason to separate them.
+      List<Comment> comments = new ArrayList<>(comments(node.getBlockComments()));
+      comments.addAll(comments(node.getInLineComments()));
+      comments.addAll(comments(node.getEndComments()));
+      return comments;
+    }
+    private static List<Comment> comments(@Nullable List<CommentLine> commentLines) {
+      if (commentLines == null) {
+        return Collections.emptyList();
+      }
+      List<Comment> comments = new ArrayList<>();
+      for (CommentLine comment : commentLines) {
+        comments.add(comment(comment));
+      }
+      return comments;
+    }
+
+    private static Comment comment(CommentLine comment) {
+      // We prefix the comment value with # as it is already stripped away when arrive at this point.
+      var ranage = range(comment.getStartMark().orElseGet(null), comment.getEndMark().orElseGet(null));
+      return new CommentImpl('#' + comment.getValue(), comment.getValue(), ranage);
+    }
+  }}

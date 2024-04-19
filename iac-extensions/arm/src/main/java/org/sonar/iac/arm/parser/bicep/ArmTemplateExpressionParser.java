@@ -27,6 +27,10 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
+/**
+ * The ARM Template JSON syntax allows to write function call as StringLiteral in Bicep syntax.
+ * To access these function calls, the Bicep paser is utilized to convert the literal into a FunctionCall tree or more general an Expression tree.
+ */
 public final class ArmTemplateExpressionParser extends BicepParser {
   private final ArmTemplateExpressionNodeBuilder nodeBuilder;
 
@@ -54,22 +58,30 @@ public final class ArmTemplateExpressionParser extends BicepParser {
     return super.parse(expressionString);
   }
 
-  static class ArmTemplateExpressionNodeBuilder extends BicepNodeBuilder {
+  private static class ArmTemplateExpressionNodeBuilder extends BicepNodeBuilder {
     private TextRange originalTextRange;
 
+    /**
+     * The BicepParser is used to convert JSON StringLiteral to FunctionCall expression including arguments to be also converted to nodes.
+     * As just the value of the StringLiteral is provided to the parser,
+     * the generated token locations need to adapted by the original location in file of the literal which represents the function call.
+     */
     @Override
     protected TextRange tokenRange(Input input, int startIndex, String value) {
-      return computeTextRangeAtIndex(originalTextRange, startIndex, value);
-    }
+      var range = super.tokenRange(input, startIndex, value);
+      var originalStartLine = originalTextRange.start().line();
+      // Shift the offset only the endLineOffset is in a line different from the startLine.
+      var endLineOffsetShift = range.start().line() == range.end().line() ? originalTextRange.start().lineOffset() : 0;
 
-    private static TextRange computeTextRangeAtIndex(TextRange originalTextRange, int startIndex, String value) {
       return TextRanges.range(
-        originalTextRange.start().line(), originalTextRange.start().lineOffset() + startIndex, value);
+        range.start().line() + originalStartLine - 1,
+        range.start().lineOffset() + originalTextRange.start().lineOffset(),
+        range.end().line() + originalStartLine - 1,
+        range.end().lineOffset() + endLineOffsetShift);
     }
 
     protected void setOriginalTextRange(TextRange originalTextRange) {
       this.originalTextRange = originalTextRange;
     }
-
   }
 }
