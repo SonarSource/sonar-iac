@@ -101,10 +101,10 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
       }
 
       range = TextRanges.merge(range(startNode), range(endNode));
-      var startPointer = pointer(startNode.getStartMark().orElseGet(null));
+      var startPointer = pointer(startNode.getStartMark().orElse(null));
       var endPointer = startPointer;
       if (endNode.getEndMark().isPresent()) {
-        endPointer = pointer(endNode.getEndMark().orElseGet(null));
+        endPointer = pointer(endNode.getEndMark().orElse(null));
       }
       return new YamlTreeMetadata(tag, range, startPointer, endPointer, comments);
     }
@@ -121,7 +121,7 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
     }
 
     private static TextRange range(Node node) {
-      return range(node.getStartMark().orElseGet(null), node.getEndMark().orElseGet(null));
+      return range(node.getStartMark().orElse(null), node.getEndMark().orElse(null));
     }
 
     private static TextRange range(@Nullable Mark startMark, @Nullable Mark endMark) {
