@@ -1,22 +1,23 @@
 [versions]
-sonarqube = "10.4.1.88267"
+sonarqube = "10.5.0.89998"
 sonar-plugin-api = "10.7.0.2191"
-sonar-commons = "2.8.0.2699"
+sonar-commons = "2.9.0.2753"
 sonar-orchestrator = "4.9.0.1920"
 junit = "5.10.2"
 assertj = "3.25.3"
 mockito = "4.11.0"
-slf4j = "2.0.12"
+slf4j = "2.0.13"
 sonar-lint = "9.8.0.76914"
 sslr = "1.24.0.633"
-archunit = "1.2.1"
+archunit = "1.3.0"
 snakeyaml = "2.7"
 minimaljson = "0.9.5"
 sonar-scanner-gradle = "5.0.0.4638"
-jfrog-gradle = "4.28.2"
+jfrog-gradle = "4.33.13"
 spotless-gradle = "6.25.0"
 blowdryer-gradle = "1.7.1"
 google-protobuf = "3.25.3"
+apache-commons-lang = "2.6"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
@@ -43,3 +44,4 @@ sonar-scanner-gradle = { module = "org.sonarsource.scanner.gradle:sonarqube-grad
 diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless-gradle" }
 diffplug-blowdryer = { module = "com.diffplug:blowdryer", version.ref = "blowdryer-gradle" }
 google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "google-protobuf" }
+apache-commons-lang = { module = "commons-lang:commons-lang", version.ref = "apache-commons-lang" }
