@@ -49,7 +49,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
  * Those Symbol/Usage can later be used in checks to  report issues in the variable flow.
  */
 public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
-  private static final Pattern ASSIGNED_IDENTITIES_PATTERN = Pattern.compile("(?U)variables\\('(?<variableName>[a-zA-Z_]\\w*)'\\)");
+  private static final Pattern ASSIGNED_IDENTITIES_PATTERN = Pattern.compile("(?U)variables\\('(?<variableName>[\\p{L}_]\\w*)'\\)");
   private final List<ConsumerFilter<InputFileContext, ?>> consumersAfter = new ArrayList<>();
   private SymbolTable currentSymbolTable = new SymbolTable();
 
