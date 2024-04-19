@@ -1,0 +1,21 @@
+{
+  "title": "Don\u0027t use \"allowedValues\" for a location parameter",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6953",
+  "sqKey": "S6953",
+  "scope": "All",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  }
+}

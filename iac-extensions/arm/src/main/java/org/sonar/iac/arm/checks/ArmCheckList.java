@@ -41,6 +41,7 @@ public final class ArmCheckList {
       HardCodedCredentialsCheck.class,
       HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,
+      LocationParameterAllowedValuesCheck.class,
       LogRetentionCheck.class,
       ManagedIdentityCheck.class,
       ParameterAndVariableNameConventionCheck.class,

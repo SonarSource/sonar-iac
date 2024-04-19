@@ -1,0 +1,79 @@
+<p>In Azure Resource Manager (ARM) templates, it is possible to set <code>allowedValues</code> for various parameters. This field is used to define a
+list of valid values for a parameter. This is a way to restrict the input values provided when deploying or updating a resource using the
+template.</p>
+<p>However, when it comes to a parameter defining the <code>location</code> of a resource, this practice can lead to a code smell. Users may be unable
+to deploy such a template if their desired location is not included in the <code>allowedValues</code>.</p>
+<h2>Why is this an issue?</h2>
+<p>In Azure Resource Manager (ARM) templates, it is possible to set <code>allowedValues</code> for various parameters to limit the options and
+maintain control. However, when it comes to a parameter defining the <code>location</code> of a resource, this practice can lead to a code smell.
+Specifically, setting <code>allowedValues</code> for a location parameter can cause issues because the locations list might not be exhaustive or
+suitable for all users. Users may be unable to deploy such a template if their desired location is not included in the <code>allowedValues</code>,
+causing inconvenience and potential delays in their work.</p>
+<h2>How to fix it in ARM Templates</h2>
+<p>Remove <code>allowedValues</code> for the parameter specifying the location.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "location": {
+          "type": "string",
+          "metadata": {
+              "description": "The location in which the resources should be deployed."
+          },
+          "defaultValue": "[resourceGroup().location]",
+          "allowedValues": [
+              "eastus",
+              "westus",
+              "northeurope",
+              "westeurope",
+              "southeastasia"
+          ]
+      }
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "location": {
+          "type": "string",
+          "metadata": {
+              "description": "The location in which the resources should be deployed."
+          },
+          "defaultValue": "[resourceGroup().location]"
+      }
+  }
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<p>Remove <code>allowedValues</code> for the parameter specifying the location.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+@allowed([
+  'eastus'
+  'westus'
+  'northeurope'
+  'westeurope'
+  'southeastasia'
+])  // Noncompliant
+param location string = resourceGroup().location
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+param location string = resourceGroup().location
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Azure Resource Manager - <a
+  href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#location-recommendations-for-parameters">Location
+  recommendations for parameters</a> </li>
+</ul>
+
