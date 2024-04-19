@@ -192,11 +192,8 @@ public abstract class TestBase {
     lines.removeIf(logElement -> allowedStrings.stream().anyMatch(logElement::startsWith));
 
     Set<String> temporaryToleratedStrings = Set.of(
-      "java.lang.NoClassDefFoundError: org/eclipse/jgit/internal/JGitText",
       "org.eclipse.jgit.internal.util.ShutdownHook.cleanup",
       "at java.base/java.lang.Thread.run",
-      "org.eclipse.jgit.internal.JGitText",
-      "... 2 more",
       "java.lang.NoClassDefFoundError: ch/qos/logback/classic/spi/ThrowableProxy",
       "at ch.qos.logback.classic.spi.LoggingEvent.<init>",
       "at ch.qos.logback.classic.Logger.buildLoggingEventAndAppend",
@@ -206,20 +203,7 @@ public abstract class TestBase {
       "at java.base/java.net.URLClassLoader.findClass",
       "at org.sonarsource.scanner.api.internal.IsolatedClassloader.loadClass",
       "at java.base/java.lang.ClassLoader.loadClass",
-      "... 6 more",
-      "INFO in ch.qos.logback.classic.LoggerContext[default] - This is logback-classic version ?",
-      "INFO in ch.qos.logback.classic.util.ContextInitializer",
-      "INFO in ch.qos.logback.classic.LoggerContext[default]",
-      "INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList",
-      "INFO in ch.qos.logback.core.joran.util.ConfigurationWatchListUtil",
-      "INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler",
-      "INFO in ch.qos.logback.core.model.processor.AppenderModelHandler",
-      "INFO in ch.qos.logback.classic.model.processor.RootLoggerModelHandler",
-      "INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler",
-      "INFO in ch.qos.logback.core.model.processor.DefaultProcessor",
-      "INFO in ch.qos.logback.classic.joran.JoranConfigurator",
-      "WARN in ch.qos.logback.core.joran.util.ConfigurationWatchListUtil",
-      "INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler");
+      "... 6 more");
 
     lines.removeIf(logElement -> temporaryToleratedStrings.stream().anyMatch(logElement::contains));
 
