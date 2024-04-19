@@ -40,7 +40,10 @@
     },
     "usedInOutput2": "bar",
     "usedInOutput3": "bar",
-    "usedCaseInsensitive": "bar"
+    "usedCaseInsensitive": "bar",
+    "usedInsideUserAssignedIdentities": "bar",
+    "usedInsideUserAssignedIdentities2": "bar",
+    "usedInsideKey": "bar"
   },
   "parameters": {
     "par1": {
@@ -78,6 +81,8 @@
         "[variables('usedInResourceDependsOn')]"
       ],
       "unusedVariable": "foo",
+      "escapedVariableCall": "[[variables('unusedVariable')]",
+      "escapedVariableCall2": "[[resourceId('microsoft.OperationalInsights/Workspaces', variables('unusedVariable'))]",
       "caseInsensitiveUsage": "[variables('UseDcaseInSensitivE')]",
       "properties": {
         "unusedVariable": "[variables('usedInResourceProperties')]"
@@ -86,9 +91,17 @@
         {
           "key": "[variables('usedInResourceOtherKey')]",
           "value": "[variables('usedInResourceOtherFoo')]",
-          "unusedVariable": "foo"
+          "unusedVariable": "foo",
+          "usedInsideKey[variables('usedInsideKey')]": "bar"
         }
       ],
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('usedInsideUserAssignedIdentities'))]": {},
+          "[somethingBeforeHere,variables('usedInsideUserAssignedIdentities2'))]": {}
+        }
+      },
       "resources": [
         {
           "type": "Microsoft.Storage/storageAccounts",

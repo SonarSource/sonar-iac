@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.symbols.Usage;
@@ -33,9 +35,11 @@ import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Parameter;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
+import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -45,6 +49,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
  * Those Symbol/Usage can later be used in checks to  report issues in the variable flow.
  */
 public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
+  private static final Pattern ASSIGNED_IDENTITIES_PATTERN = Pattern.compile("(?U)variables\\('(?<variableName>[\\p{L}_]\\w*)'\\)");
   private final List<ConsumerFilter<InputFileContext, ?>> consumersAfter = new ArrayList<>();
   private SymbolTable currentSymbolTable = new SymbolTable();
 
@@ -61,6 +66,7 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     register(ParameterDeclaration.class, (ctx, parameterDeclaration) -> visitDeclaration(parameterDeclaration));
     registerAfter(Variable.class, (ctx, variable) -> visitAccessUsage(variable));
     registerAfter(Parameter.class, (ctx, parameter) -> visitAccessUsage(parameter));
+    registerAfter(IdentifierImpl.class, (ctx, identifier) -> visitIdentifierJson(identifier));
   }
 
   @Override
@@ -96,12 +102,39 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
 
     Expression identifier = tree.identifier();
     if (identifier instanceof Identifier identifierTree) {
-      var symbol = currentSymbolTable.getSymbol(identifierTree.value().toLowerCase(Locale.ROOT));
-      if (symbol != null) {
-        symbol.addUsage(tree, Usage.Kind.ACCESS);
-      }
+      addAccessUsageIfSymbolExists(tree, identifierTree.value());
     } else {
       currentSymbolTable.foundUnresolvableSymbolAccess(tree);
     }
+  }
+
+  private void addAccessUsageIfSymbolExists(ArmTree tree, String symbolName) {
+    var symbol = currentSymbolTable.getSymbol(symbolName.toLowerCase(Locale.ROOT));
+    if (symbol != null) {
+      symbol.addUsage(tree, Usage.Kind.ACCESS);
+    }
+  }
+
+  /**
+   * We visit the identifier to find use cases where a variable is used inside a key of a {@link Property}.
+   * One example would be in userAssignedIdentities where the key contains the following:
+   * "userAssignedIdentities": {
+   *   "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',variables('usedInsideUserAssignedIdentities'))]": {},
+   * }
+   */
+  private void visitIdentifierJson(IdentifierImpl identifier) {
+    String variableName = containsMentionOfVariable(identifier.value());
+    if (variableName != null) {
+      addAccessUsageIfSymbolExists(identifier, variableName);
+    }
+  }
+
+  @CheckForNull
+  private static String containsMentionOfVariable(String value) {
+    var matcher = ASSIGNED_IDENTITIES_PATTERN.matcher(value);
+    if (matcher.find()) {
+      return matcher.group("variableName");
+    }
+    return null;
   }
 }
