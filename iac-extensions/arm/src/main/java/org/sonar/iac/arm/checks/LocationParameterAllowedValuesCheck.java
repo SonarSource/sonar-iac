@@ -42,17 +42,17 @@ public class LocationParameterAllowedValuesCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(ResourceDeclaration.class, this::checkResourceLocation);
+    init.register(ResourceDeclaration.class, LocationParameterAllowedValuesCheck::checkResourceLocation);
   }
 
-  void checkResourceLocation(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
+  private static void checkResourceLocation(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
     resourceDeclaration.resourceProperties().stream()
       .filter(property -> "location".equals(property.key().value().toLowerCase(Locale.ROOT)))
       .map(Property::value)
       .forEach(expression -> reportIfParameterWithAllowedValuesIsUsed(checkContext, expression));
   }
 
-  private void reportIfParameterWithAllowedValuesIsUsed(CheckContext checkContext, Expression expression) {
+  private static void reportIfParameterWithAllowedValuesIsUsed(CheckContext checkContext, Expression expression) {
     if (expression instanceof HasSymbol expressionWithSymbol) {
       Optional.ofNullable(expressionWithSymbol.symbol())
         .map(Symbol::findAssignmentDeclaration)
@@ -63,12 +63,14 @@ public class LocationParameterAllowedValuesCheck implements IacCheck {
     }
   }
 
-  private void reportOnDeclaration(CheckContext checkContext, ParameterDeclaration declaration) {
+  private static void reportOnDeclaration(CheckContext checkContext, ParameterDeclaration declaration) {
     ArmTree treeToRaiseOn = declaration.allowedValues().get(0).parent();
     boolean isBicep = declaration instanceof ParameterDeclarationImpl;
     if (isBicep) {
       treeToRaiseOn = treeToRaiseOn.parent();
     }
-    checkContext.reportIssue(treeToRaiseOn, isBicep ? MESSAGE_BICEP : MESSAGE_JSON);
+    if (treeToRaiseOn != null) {
+      checkContext.reportIssue(treeToRaiseOn, isBicep ? MESSAGE_BICEP : MESSAGE_JSON);
+    }
   }
 }
