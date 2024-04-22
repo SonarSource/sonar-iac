@@ -190,7 +190,9 @@
         "func2": "[[variables('SentinelConnectionName')]",
         "func3": "[[variables('SentinelConnectionName')]",
         "func4": "[[variables('SentinelConnectionName')]",
-        "func5": "[[variables('SentinelConnectionName')]"
+        "func5": "[[variables('SentinelConnectionName')]",
+        "func6": "[[variables('SentinelConnectionName') for coverage",
+        "func7": "[variables('SentinelConnectionName') for coverage]"
       }
     }
   ]

@@ -46,7 +46,8 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
 
   private static final String MESSAGE = "Define a variable instead of duplicating this literal \"%s\" %d times.";
   private static final String SECONDARY_MESSAGE = "Duplication.";
-  private static final Pattern ALLOWED_DUPLICATED_LITERALS = Pattern.compile("(?U)^(?:([a-zA-Z_][.\\-\\w]+)|(\\d+[.-]\\d+[.-]\\d+[.-]*\\d*))$");
+  private static final Pattern ALLOWED_DUPLICATED_LITERALS = Pattern.compile("(?U)^[\\p{L}_][.\\-\\w]+$");
+  private static final Pattern ALLOWED_VERSION_NUMBER = Pattern.compile("^\\d++[.-]\\d++[.-]\\d++[.-]*\\d*+$");
 
   public static final int THRESHOLD_DEFAULT = 5;
   public static final int MINIMAL_LITERAL_LENGTH_DEFAULT = 5;
@@ -101,7 +102,8 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
         || isSchemaProperty(stringLiteral)
         || isTypeProperty(stringLiteral)
         || isEscapedFunction(stringLiteral)
-        || ALLOWED_DUPLICATED_LITERALS.matcher(value).matches();
+        || ALLOWED_DUPLICATED_LITERALS.matcher(value).matches()
+        || ALLOWED_VERSION_NUMBER.matcher(value).matches();
     }
 
     private static boolean isResourceTypeAndApiVersionField(StringLiteral stringLiteral) {
