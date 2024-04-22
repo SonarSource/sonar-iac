@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AbstractResourceCheckTest {
 
-  private static final YamlTreeMetadata METADATA = new YamlTreeMetadata(null, null, Collections.emptyList());
+  private static final YamlTreeMetadata METADATA = new YamlTreeMetadata(null, null, 0, 0, Collections.emptyList());
 
   @Test
   void checkResource_is_called_on_every_resource() {

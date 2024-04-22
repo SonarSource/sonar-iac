@@ -32,6 +32,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -49,6 +50,7 @@ import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ArmJsonBaseConverterTest {
@@ -63,6 +65,8 @@ class ArmJsonBaseConverterTest {
     yamlTreeMetadata = new YamlTreeMetadata(
       "tag",
       new TextRange(new TextPointer(1, 5), new TextPointer(1, 8)),
+      0,
+      0,
       List.of());
   }
 
@@ -100,7 +104,7 @@ class ArmJsonBaseConverterTest {
   @MethodSource
   void shouldBuildExpressionTreesFromJsonExpression(String input, ArmTree.Kind expectedKind) {
     var converter = new ArmJsonBaseConverter(inputFileContext);
-    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
+    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), 0, 0, List.of()));
 
     var expression = (Expression) converter.toExpression(tree);
 
@@ -127,7 +131,7 @@ class ArmJsonBaseConverterTest {
   void shouldThrowForUnknownExpression() {
     var input = "['${foo}']";
     var converter = new ArmJsonBaseConverter(inputFileContext);
-    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
+    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), 0, 0, List.of()));
 
     assertThatThrownBy(() -> converter.toExpression(tree)).isInstanceOf(ParseException.class)
       .hasMessage("Failed to parse ARM template expression: " + input + "; top-level expression is of kind INTERPOLATED_STRING at dir1/dir2/foo.json:1:0");
@@ -140,11 +144,92 @@ class ArmJsonBaseConverterTest {
   })
   void shouldNotParseExpressionsWithoutMatchingBrackets(String input) {
     var converter = new ArmJsonBaseConverter(inputFileContext);
-    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
+    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), 0, 0, List.of()));
 
     var expression = (Expression) converter.toExpression(tree);
 
     ArmTreeAssert.assertThat(expression).is(ArmTree.Kind.STRING_LITERAL);
+  }
+
+  @Test
+  void shouldParseMultilineString() {
+    var code = """
+      {
+        "string": "foo
+          bar"
+      }
+      """;
+    var parser = new ArmParser();
+    var file = (FileImpl) parser.parse(code, null);
+    var multilineString = (ScalarTree) file.document().elements().get(0).value();
+    assertThat(multilineString.value()).isEqualTo("foo\n    bar");
+    assertThat(multilineString.textRange()).hasRange(2, 12, 3, 8);
+  }
+
+  @Test
+  void shouldConvertSingleLineFunctionCall() {
+    var code = """
+      {"function": "[function_call()]"}
+      """;
+    var expression = parserAndConvertExpression(code);
+
+    assertThat(expression.getKind()).isEqualTo(ArmTree.Kind.FUNCTION_CALL);
+
+    var functionCall = ((FunctionCall) expression);
+    assertThat(functionCall).hasRange(1, 13, 1, 32);
+
+    var identifier = functionCall.name();
+    assertThat(identifier).hasValue("function_call");
+    assertThat(identifier).hasRange(1, 15, 1, 27);
+  }
+
+  @Test
+  void shouldConvertSingleLineOfNestedFunctionCall() {
+    var code = """
+      {"function": "[function_call(foo())]"}
+      """;
+    var expression = parserAndConvertExpression(code);
+
+    assertThat(expression.getKind()).isEqualTo(ArmTree.Kind.FUNCTION_CALL);
+
+    var functionCall = ((FunctionCall) expression);
+    assertThat(functionCall).hasRange(1, 13, 1, 37);
+
+    var arguments = functionCall.argumentList().elements();
+    assertThat(arguments).hasSize(1);
+
+    var argument = arguments.get(0);
+    assertThat(argument.getKind()).isEqualTo(ArmTree.Kind.FUNCTION_CALL);
+    var nestedFunction = (FunctionCall) argument;
+    assertThat(nestedFunction).hasRange(1, 29, 1, 33);
+    assertThat(nestedFunction.name()).hasRange(1, 29, 1, 31);
+  }
+
+  @Test
+  void shouldConvertMultilineFunctionCall() {
+    var code = """
+      {
+        "function": "[function_call(
+          'foobar'
+        )]"
+      }
+      """;
+    var expression = parserAndConvertExpression(code);
+
+    assertThat(expression.getKind()).isEqualTo(ArmTree.Kind.FUNCTION_CALL);
+
+    var functionCall = ((FunctionCall) expression);
+    assertThat(functionCall).hasRange(2, 14, 4, 5);
+
+    assertThat(functionCall.name()).hasRange(2, 16, 2, 28);
+
+    var arguments = functionCall.argumentList().elements();
+    assertThat(arguments).hasSize(1);
+
+    var argument = arguments.get(0);
+    assertThat(argument.getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
+    assertThat(argument).hasRange(3, 4, 3, 12);
+    assertThat(((StringLiteral) argument)).hasValue("foobar");
   }
 
   @Test
@@ -156,13 +241,25 @@ class ArmJsonBaseConverterTest {
       wait_for_apt()')]""";
 
     var converter = new ArmJsonBaseConverter(inputFileContext);
-    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, new YamlTreeMetadata("tag", TextRanges.range(1, 0, 1, input.length()), List.of()));
+    var metadata = new YamlTreeMetadata("tag", TextRanges.range(1, 0, 3, 17), 0, input.length(), List.of());
+    var tree = new ScalarTreeImpl(input, ScalarTree.Style.DOUBLE_QUOTED, metadata);
 
-    var expression = (Expression) converter.toExpression(tree);
+    var expression = (FunctionCall) converter.toExpression(tree);
 
-    ArmTreeAssert.assertThat(expression).hasRange(1, 0, 1, 44);
-    var stringLiteral = (StringLiteral) ((FunctionCall) expression).argumentList().elements().get(0);
-    ArmTreeAssert.assertThat(stringLiteral)
-      .hasRange(1, 8, 3, 15);
+    assertThat(expression).hasRange(1, 0, 3, 17);
+    var identifier = expression.name();
+    assertThat(identifier).hasValue("base64");
+    assertThat(identifier).hasRange(1, 2, 1, 7);
+
+    var stringLiteral = (StringLiteral) expression.argumentList().elements().get(0);
+    assertThat(stringLiteral).hasRange(1, 9, 3, 15);
+  }
+
+  private static Expression parserAndConvertExpression(String code) {
+    var parser = new ArmParser();
+    var file = (FileImpl) parser.parse(code, null);
+    var expressionScalar = (ScalarTree) file.document().elements().get(0).value();
+    var converter = new ArmJsonBaseConverter(null);
+    return converter.toExpression(expressionScalar);
   }
 }

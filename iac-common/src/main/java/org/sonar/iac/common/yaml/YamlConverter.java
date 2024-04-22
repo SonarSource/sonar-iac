@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
@@ -26,7 +30,6 @@ import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.FileTreeImpl;
@@ -39,14 +42,6 @@ import org.sonar.iac.common.yaml.tree.TupleTreeImpl;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.comments;
-import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.range;
 
 public class YamlConverter {
 
@@ -68,8 +63,12 @@ public class YamlConverter {
     }
 
     var fileNode = nodes.get(0);
-    var fileRange = TextRanges.merge(List.of(range(fileNode), range(ListUtils.getLast(nodes))));
-    var metadata = new YamlTreeMetadata("FILE", fileRange, comments(fileNode.getEndComments()));
+    var lastNode = ListUtils.getLast(nodes);
+    var metadata = YamlTreeMetadata.builder()
+      .fromNodes(fileNode, lastNode)
+      .withTag("FILE")
+      .withComments(fileNode.getEndComments())
+      .build();
     List<YamlTree> documents = nodes.stream().map(this::convert).toList();
     return new FileTreeImpl(documents, metadata, template);
   }

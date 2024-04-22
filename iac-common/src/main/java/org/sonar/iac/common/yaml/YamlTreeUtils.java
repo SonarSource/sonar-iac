@@ -34,9 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class YamlTreeUtils {
+public final class YamlTreeUtils {
 
-  private static final YamlTreeMetadata METADATA = new YamlTreeMetadata(null, null, Collections.emptyList());
+  private static final YamlTreeMetadata METADATA = new YamlTreeMetadata(null, null, 0, 0, Collections.emptyList());
   private static final ScalarTree.Style STYLE = ScalarTree.Style.PLAIN;
 
   private YamlTreeUtils() {
