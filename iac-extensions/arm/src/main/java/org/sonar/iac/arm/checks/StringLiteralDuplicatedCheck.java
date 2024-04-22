@@ -131,7 +131,7 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
       Tree parent = stringLiteral.parent();
       if (parent instanceof ObjectExpression objectExpression) {
         var key = objectExpression.properties().stream()
-          .filter(p -> p.value().equals(stringLiteral))
+          .filter(p -> stringLiteral.equals(p.value()))
           .map(PropertyTree::key)
           .findAny();
         if (key.isPresent()) {
