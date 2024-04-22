@@ -32,7 +32,7 @@ class RedundantResourceDependenciesCheckTest {
     // which we can't resolve, because it's dynamic, so it's a known FN.
     ArmVerifier.verify("RedundantResourceDependenciesCheck/test.json", new RedundantResourceDependenciesCheck(),
       issue(15, 8, 15, 27, "Remove this explicit dependency as it is already defined implicitly.",
-        Verifier.secondary(27, 39, 27, 58, "Implicit dependency is created via the \"reference\" function.")));
+        Verifier.secondary(27, 40, 27, 58, "Implicit dependency is created via the \"reference\" function.")));
   }
 
   @Test
