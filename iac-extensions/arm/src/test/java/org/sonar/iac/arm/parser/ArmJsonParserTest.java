@@ -24,6 +24,7 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
 class ArmJsonParserTest {
 
@@ -39,6 +40,7 @@ class ArmJsonParserTest {
       """);
     ScalarTree scalar = (ScalarTree) ((MappingTree) file.documents().get(0)).elements().get(0).value();
     assertThat(scalar.value()).isEqualTo("line1\n    line2");
+    assertThat(scalar.textRange()).hasRange(2, 12, 3, 10);
   }
 
 }

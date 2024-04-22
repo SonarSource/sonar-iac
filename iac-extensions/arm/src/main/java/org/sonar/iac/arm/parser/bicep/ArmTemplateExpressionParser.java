@@ -30,6 +30,7 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 /**
  * The ARM Template JSON syntax allows to write function call as StringLiteral in Bicep syntax.
  * To access these function calls, the Bicep paser is utilized to convert the literal into a FunctionCall tree or more general an Expression tree.
+ * E.g. "[function_call('foo')]" will be converted to a function call expression.
  */
 public final class ArmTemplateExpressionParser extends BicepParser {
   private final ArmTemplateExpressionNodeBuilder nodeBuilder;
@@ -70,12 +71,23 @@ public final class ArmTemplateExpressionParser extends BicepParser {
     protected TextRange tokenRange(Input input, int startIndex, String value) {
       var range = super.tokenRange(input, startIndex, value);
       var originalStartLine = originalTextRange.start().line();
-      // Shift the offset only the endLineOffset is in a line different from the startLine.
-      var endLineOffsetShift = range.start().line() == range.end().line() ? originalTextRange.start().lineOffset() : 0;
 
+      // Shift the offset only for the first line of the parsed expression
+      var startLineOffsetShift = 0;
+      var endLineOffsetShift = 0;
+      if (range.start().line() == 1) {
+        var originalOffset = originalTextRange.start().lineOffset();
+        // Offset +1 to reduce the text range by the opening bracket '['
+        startLineOffsetShift = originalOffset + 1;
+        if (range.end().line() == 1) {
+          endLineOffsetShift = originalOffset;
+        }
+      }
+
+      // As the line numbers are 1-based, each line shift needs to reduced by 1
       return TextRanges.range(
         range.start().line() + originalStartLine - 1,
-        range.start().lineOffset() + originalTextRange.start().lineOffset(),
+        range.start().lineOffset() + startLineOffsetShift,
         range.end().line() + originalStartLine - 1,
         range.end().lineOffset() + endLineOffsetShift);
     }
