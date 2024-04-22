@@ -28,12 +28,15 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.FunctionCall;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -43,9 +46,9 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
 
   private static final String MESSAGE = "Define a variable instead of duplicating this literal \"%s\" %d times.";
   private static final String SECONDARY_MESSAGE = "Duplication.";
-  private static final Pattern ALLOWED_DUPLICATED_LITERALS = Pattern.compile("(?U)^[a-zA-Z_][.\\-\\w]+$");
+  private static final Pattern ALLOWED_DUPLICATED_LITERALS = Pattern.compile("(?U)^(?:([a-zA-Z_][.\\-\\w]+)|(\\d+[.-]\\d+[.-]\\d+[.-]*\\d*))$");
 
-  public static final int THRESHOLD_DEFAULT = 3;
+  public static final int THRESHOLD_DEFAULT = 5;
   public static final int MINIMAL_LITERAL_LENGTH_DEFAULT = 5;
 
   @RuleProperty(
@@ -93,9 +96,12 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
     private boolean isIgnored(StringLiteral stringLiteral) {
       var value = stringLiteral.value();
       return value.length() < minimalLiteralLength
-        || ALLOWED_DUPLICATED_LITERALS.matcher(value).matches()
         || isResourceTypeAndApiVersionField(stringLiteral)
-        || isResourceId(stringLiteral);
+        || isResourceId(stringLiteral)
+        || isSchemaProperty(stringLiteral)
+        || isTypeProperty(stringLiteral)
+        || isEscapedFunction(stringLiteral)
+        || ALLOWED_DUPLICATED_LITERALS.matcher(value).matches();
     }
 
     private static boolean isResourceTypeAndApiVersionField(StringLiteral stringLiteral) {
@@ -109,6 +115,36 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
     private static boolean isResourceId(StringLiteral stringLiteral) {
       Tree parent = stringLiteral.parent();
       return parent instanceof FunctionCall functionCall && "resourceId".equals(functionCall.name().value());
+    }
+
+    private boolean isSchemaProperty(StringLiteral stringLiteral) {
+      return isValueOfKey(stringLiteral, "$schema");
+    }
+
+    private boolean isTypeProperty(StringLiteral stringLiteral) {
+      return isValueOfKey(stringLiteral, "type");
+    }
+
+    private static boolean isValueOfKey(StringLiteral stringLiteral, String keyName) {
+      Tree parent = stringLiteral.parent();
+      if (parent instanceof ObjectExpression objectExpression) {
+        var key = objectExpression.properties().stream()
+          .filter(p -> p.value().equals(stringLiteral))
+          .map(PropertyTree::key)
+          .findAny();
+        if (key.isPresent()) {
+          var tree = key.get();
+          if (tree instanceof Identifier identifier) {
+            return identifier.value().equals(keyName);
+          }
+        }
+      }
+      return false;
+    }
+
+    private boolean isEscapedFunction(StringLiteral stringLiteral) {
+      var value = stringLiteral.value();
+      return value.startsWith("[[") && value.endsWith("]");
     }
 
     private void reportDuplicates(CheckContext ctx) {
