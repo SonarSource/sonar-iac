@@ -20,7 +20,9 @@
       "name": "app Super Storage",
       "tags": {
         "displayName": "app Super Storage",
-        "shortName" : "app Super Storage"
+        "shortName" : "app Super Storage",
+        "someName": "app Super Storage",
+        "yetAnotherName": "app Super Storage"
       }
     },
     {
@@ -47,6 +49,150 @@
           "[resourceId('Microsoft.Network/networkSecurityGroups', variables('fooBar'))]",
           "[resourceId(variables('resourceGroup'), 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
         ]
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on contentVersion 1.0.0.0 2 time",
+      "properties": {
+        "template": {
+          "contentVersion": "1.0.0.0"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on contentVersion 1.0.0.0 3 time",
+      "properties": {
+        "template": {
+          "contentVersion": "1.0.0.0"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on contentVersion 1.0.0.0 4 time",
+      "properties": {
+        "template": {
+          "contentVersion": "1.0.0.0"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on contentVersion 1.0.0.0 5 time",
+      "properties": {
+        "template": {
+          "contentVersion": "1.0.0.0"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on $schema 2 time",
+      "properties": {
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on $schema 3 time",
+      "properties": {
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on $schema 4 time",
+      "properties": {
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on $schema 5 time",
+      "properties": {
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on type in properties 1 time",
+      "properties": {
+        "template": {
+          "type": "Microsoft.OperationalInsights/workspaces/providers/metadata"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on type in properties 2 time",
+      "properties": {
+        "template": {
+          "type": "Microsoft.OperationalInsights/workspaces/providers/metadata"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on type in properties 3 time",
+      "properties": {
+        "template": {
+          "type": "Microsoft.OperationalInsights/workspaces/providers/metadata"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on type in properties 4 time",
+      "properties": {
+        "template": {
+          "type": "Microsoft.OperationalInsights/workspaces/providers/metadata"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on type in properties 5 time",
+      "properties": {
+        "template": {
+          "type": "Microsoft.OperationalInsights/workspaces/providers/metadata"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on escaped functions",
+      "properties": {
+        "func1": "[[variables('SentinelConnectionName')]",
+        "func2": "[[variables('SentinelConnectionName')]",
+        "func3": "[[variables('SentinelConnectionName')]",
+        "func4": "[[variables('SentinelConnectionName')]",
+        "func5": "[[variables('SentinelConnectionName')]",
+        "func6": "[[variables('SentinelConnectionName') for coverage",
+        "func7": "[variables('SentinelConnectionName') for coverage]"
       }
     }
   ]

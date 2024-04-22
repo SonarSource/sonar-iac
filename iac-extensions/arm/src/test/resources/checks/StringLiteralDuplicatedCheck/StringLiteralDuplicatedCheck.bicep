@@ -9,13 +9,17 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
-  name: 'app Super Storage' // Noncompliant {{Define a variable instead of duplicating this literal "app Super Storage" 3 times.}}
+  name: 'app Super Storage' // Noncompliant {{Define a variable instead of duplicating this literal "app Super Storage" 5 times.}}
 //      ^^^^^^^^^^^^^^^^^^^
   tags: {
     displayName: 'app Super Storage'
 //               ^^^^^^^^^^^^^^^^^^^< {{Duplication.}}
     shortName: 'app Super Storage'
 //             ^^^^^^^^^^^^^^^^^^^< {{Duplication.}}
+    someName: 'app Super Storage'
+//            ^^^^^^^^^^^^^^^^^^^< {{Duplication.}}
+    yetAnotherName: 'app Super Storage'
+//                  ^^^^^^^^^^^^^^^^^^^< {{Duplication.}}
   }
 }
 
@@ -39,4 +43,14 @@ resource storageAccount 'Microsoft.Storage/foo@' = { // invalid, but to avoid cr
   name: storageAccountName
 }
 
+resource storageAccount 'Microsoft.Storage/storageAccounts' = {
+  name: storageAccountName
+  tags: {
+    tag1: '1-0-0'
+    tag2: '1-0-0'
+    tag3: '1-0-0'
+    tag4: '1-0-0'
+    tag5: '1-0-0'
+  }
+}
 

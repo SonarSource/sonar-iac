@@ -32,9 +32,11 @@ class StringLiteralDuplicatedCheckTest {
   void testJsonOOB() {
     ArmVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json",
       check,
-      issue(20, 14, 20, 33, "Define a variable instead of duplicating this literal \"app Super Storage\" 3 times.",
+      issue(20, 14, 20, 33, "Define a variable instead of duplicating this literal \"app Super Storage\" 5 times.",
         secondary(22, 23, 22, 42, "Duplication."),
-        secondary(23, 22, 23, 41, "Duplication.")));
+        secondary(23, 22, 23, 41, "Duplication."),
+        secondary(24, 20, 24, 39, "Duplication."),
+        secondary(25, 26, 25, 45, "Duplication.")));
   }
 
   @Test
@@ -45,7 +47,7 @@ class StringLiteralDuplicatedCheckTest {
 
   @Test
   void testJsonChangedThreshold() {
-    check.threshold = 4;
+    check.threshold = 6;
     ArmVerifier.verifyNoIssue("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.json", check);
   }
 
