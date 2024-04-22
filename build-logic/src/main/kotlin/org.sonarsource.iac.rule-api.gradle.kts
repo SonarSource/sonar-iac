@@ -25,9 +25,9 @@ dependencies {
 
 val iacExtensionNames =
     gradle.rootProject.allprojects.filter {
-        it.path.startsWith(":iac-extensions")
-    }.map {
-        it.name
+        it.path.startsWith(":iac-extensions:")
+    }.map { project ->
+        project.name.replace("-[a-z]".toRegex()) { it.value.last().uppercase() }
     }
 
 val ruleApiUpdateTasks = iacExtensionNames.map(::registerApiUpdate)
