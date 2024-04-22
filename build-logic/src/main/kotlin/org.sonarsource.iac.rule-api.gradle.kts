@@ -17,17 +17,20 @@ repositories {
     mavenCentral()
 }
 
-val ruleApi = configurations.create("ruleApi")
+val ruleApi: Configuration = configurations.create("ruleApi")
 
 dependencies {
     ruleApi("com.sonarsource.rule-api:rule-api:$rulApiVersion")
 }
 
-val ruleApiUpdateArm = registerApiUpdate("arm")
-val ruleApiUpdateCloudformation = registerApiUpdate("cloudformation")
-val ruleApiUpdateDocker = registerApiUpdate("docker")
-val ruleApiUpdateKubernetes = registerApiUpdate("kubernetes")
-val ruleApiUpdateTerraform = registerApiUpdate("terraform")
+val iacExtensionNames =
+    gradle.rootProject.allprojects.filter {
+        it.path.startsWith(":iac-extensions:")
+    }.map { project ->
+        project.name.replace("-[a-z]".toRegex()) { it.value.last().uppercase() }
+    }
+
+val ruleApiUpdateTasks = iacExtensionNames.map(::registerApiUpdate)
 
 fun registerApiUpdate(name: String): TaskProvider<JavaExec> {
     return tasks.register<JavaExec>("ruleApiUpdate" + name.capitalized()) {
@@ -46,29 +49,25 @@ fun registerApiUpdate(name: String): TaskProvider<JavaExec> {
 tasks.register("ruleApiUpdate") {
     description = "Update ALL rules description"
     group = "Rule API"
-    dependsOn(ruleApiUpdateArm, ruleApiUpdateCloudformation, ruleApiUpdateDocker, ruleApiUpdateKubernetes, ruleApiUpdateTerraform)
+    ruleApiUpdateTasks.forEach { this.dependsOn(it) }
 }
 
-val rule: String? by project
+iacExtensionNames.forEach(::registerApiUpdateRule)
 
-registerApiUpdateRule("arm")
-registerApiUpdateRule("cloudformation")
-registerApiUpdateRule("docker")
-registerApiUpdateRule("kubernetes")
-registerApiUpdateRule("terraform")
+val rule = providers.gradleProperty("rule")
 
-fun registerApiUpdateRule(name: String): TaskProvider<JavaExec> {
-    return tasks.register<JavaExec>("ruleApiUpdateRule" + name.capitalized()) {
+fun registerApiUpdateRule(name: String) =
+    tasks.register<JavaExec>("ruleApiUpdateRule" + name.capitalized()) {
         description = "Update rule description for " + name.capitalized()
         group = "Rule API"
         workingDir = file("$projectDir/iac-extensions/$name")
         classpath = ruleApi
+        inputs.property("rule", rule)
 
         args(
             "com.sonarsource.ruleapi.Main",
             "generate",
             "-rule",
-            rule.orEmpty()
+            rule.getOrElse("")
         )
     }
-}
