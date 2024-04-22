@@ -29,7 +29,7 @@ import static org.sonar.iac.arm.ArmAssertions.assertThat;
 class ArmJsonParserTest {
 
   @Test
-  void convertedMultilineStringShouldBeConvertedToScalarWithLinebreaks() {
+  void multilineStringShouldBeConvertedToScalarWithLinebreaks() {
     var parser = new ArmJsonParser();
 
     var file = parser.parseJson("""
@@ -41,6 +41,20 @@ class ArmJsonParserTest {
     ScalarTree scalar = (ScalarTree) ((MappingTree) file.documents().get(0)).elements().get(0).value();
     assertThat(scalar.value()).isEqualTo("line1\n    line2");
     assertThat(scalar.textRange()).hasRange(2, 12, 3, 10);
+  }
+
+  @Test
+  void stringWithLineBreakMarkShouldNotBeSplitInMultipleLine() {
+    var parser = new ArmJsonParser();
+    var file = parser.parseJson("""
+      {
+        "string": "line1\nline2"
+      }
+      """);
+    ScalarTree scalar = (ScalarTree) ((MappingTree) file.documents().get(0)).elements().get(0).value();
+    assertThat(scalar.value()).isEqualTo("line1\nline2");
+    // TODO SONARIAC-1436
+    // assertThat(scalar.textRange()).hasRange(2, 12, 2, 25);
   }
 
 }

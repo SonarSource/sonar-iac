@@ -86,7 +86,7 @@ public class ArmJsonParser implements TreeParser<Tree> {
 
     @Override
     protected YamlTree convertScalar(ScalarNode node) {
-      var metadata = YamlTreeMetadata.fromNode(node);
+      var metadata = YamlTreeMetadata.builder().fromNode(node).build();
       var value = node.getValue();
       if (isMultilineScalar(metadata)) {
         value = originalStringValue(metadata);
