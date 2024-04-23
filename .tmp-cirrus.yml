@@ -218,13 +218,10 @@ qa_os_win_task:
   <<: *QA_TASK_FILTER
   <<: *WINDOWS_VM_DEFINITION
   <<: *SETUP_GRADLE_CACHE
-  _lib:
-    # For windows, refresh the path env variable, particularly useful after an installation with choco (RefreshEnv.cmd cannot be used in this context)
-    - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
   build_script:
     - choco install golang --version ${GO_VERSION}
     - choco install protoc --version ${PROTOC_VERSION}.0
-    - *refreshpath
+    - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
     - source cirrus-env CI
     - ./gradlew ${GRADLE_COMMON_FLAGS} test
   <<: *STORE_PROFILE_REPORT

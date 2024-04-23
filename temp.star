@@ -196,7 +196,7 @@ def build_script():
     }
 
 
-def gradle_build_template(cpu=4, memory="6G"):
+def build_template(cpu=4, memory="6G"):
     template = builder_container_factory(cpu, memory)
     template |= setup_gradle_cache()
     template |= build_script()
@@ -233,21 +233,10 @@ def build_args():
 def build_task():
     conf = {"env": build_secrets_vars() | build_args()}
     conf |= setup_project_version_cache()
-    conf |= gradle_build_template(cpu=10)
+    conf |= build_template(10)
     conf |= store_project_version_script()
     conf |= store_profile_report_template()
     return {"build_task": conf}
-
-def build_test_args():
-    return {
-        "DEPLOY_PULL_REQUEST": False,
-        "BUILD_ARGUMENTS": "-x artifactoryPublish"
-    }
-
-def build_test_analyze_task():
-    conf = {"env": build_test_args()}
-    conf |= gradle_build_template(cpu=6)
-    return {"build_test_analyze_task": conf}
 
 
 def main(ctx):
@@ -255,5 +244,4 @@ def main(ctx):
     merge_dict(conf, load_features(ctx))
     merge_dict(conf, env())
     merge_dict(conf, build_task())
-    merge_dict(conf, build_test_analyze_task())
     return conf
