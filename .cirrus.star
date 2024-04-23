@@ -246,6 +246,7 @@ def build_test_args():
 
 def build_test_analyze_task():
     conf = {"env": build_test_args()}
+    conf |= qa_task_filter()
     conf |= gradle_build_template(cpu=6)
     return {"build_test_analyze_task": conf}
 
