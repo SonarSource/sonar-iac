@@ -272,7 +272,7 @@ def sca_scan_task():
     conf |= {"env": ws_scan_secrets()}
     #conf |= only_main_branches_filter()
     conf |= setup_project_version_cache()
-    conf |= gradle_build_template(cpu=4, memory="8G", use_cache=False)
+    conf |= builder_container_factory(cpu=4, memory="8G")
     conf |= whitesource_script()
     conf |= store_project_version_script()
     conf |= store_profile_report_template()
