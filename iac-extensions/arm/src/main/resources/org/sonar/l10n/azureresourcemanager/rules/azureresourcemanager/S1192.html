@@ -7,13 +7,17 @@ occurrences.</p>
   <li> literals with fewer than 5 characters </li>
   <li> literals with only letters, numbers, underscores, hyphens and periods </li>
   <li> <code>apiVersion</code> property of a resource (see rule {rule:azureresourcemanager:S6874}) </li>
+  <li> <code>type</code> in nested templates </li>
+  <li> <code>$schema</code> property </li>
+  <li> version numbers like <code>1.0.0</code> or <code>1-0-0</code> </li>
+  <li> escaped template expressions starting with <code>[[</code>, like <code>[[variables('variableName')]</code> </li>
 </ul>
 <h2>How to fix it in ARM templates</h2>
 <p>Use variables to replace the duplicated string literals. Variables can be referenced from many places, but only need to be updated in a single
 place.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<p>With the default threshold of 3:</p>
+<p>With the default threshold of 5:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -26,7 +30,9 @@ place.</p>
       "name": "appSuperStorage",
       "tags": {
         "displayName": "appSuperStorage",
-        "shortName" : "appSuperStorage"
+        "shortName" : "appSuperStorage",
+        "someName": "appSuperStorage",
+        "yetAnotherName": "appSuperStorage"
       }
     }
   ]
@@ -47,7 +53,9 @@ place.</p>
       "name": "[variables('storageAccountName')]",
       "tags": {
         "displayName": "[variables('storageAccountName')]",
-        "shortName" : "[variables('storageAccountName')]"
+        "shortName" : "[variables('storageAccountName')]",
+        "someName": "[variables('storageAccountName')]",
+        "yetAnotherName": "[variables('storageAccountName')]"
       }
     }
   ]
@@ -58,13 +66,15 @@ place.</p>
 place.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<p>With the default threshold of 3:</p>
+<p>With the default threshold of 5:</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
-  name: 'appSuperStorage'          // Noncompliant
+  name: 'appSuperStorage'             // Noncompliant
   tags: {
-    displayName: 'appSuperStorage' // Noncompliant
-    shortName: 'appSuperStorage'   // Noncompliant
+    displayName: 'appSuperStorage'    // Noncompliant
+    shortName: 'appSuperStorage'      // Noncompliant
+    someName: 'appSuperStorage'       // Noncompliant
+    yetAnotherName: 'appSuperStorage' // Noncompliant
   }
 }
 </pre>
@@ -77,6 +87,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   tags: {
     displayName: storageAccountName
     shortName: storageAccountName
+    someName: storageAccountName
+    yetAnotherName: storageAccountName
   }
 }
 </pre>

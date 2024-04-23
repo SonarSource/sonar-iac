@@ -1,5 +1,5 @@
 {
-  "title": "The properties and elements inside a template should appear in the recommended order",
+  "title": "The properties should appear in the recommended order",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
