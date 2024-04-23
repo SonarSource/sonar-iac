@@ -286,4 +286,5 @@ def main(ctx):
     merge_dict(conf, env())
     merge_dict(conf, build_task())
     merge_dict(conf, build_test_analyze_task())
+    merge_dict(conf, sca_scan_task())
     return conf
