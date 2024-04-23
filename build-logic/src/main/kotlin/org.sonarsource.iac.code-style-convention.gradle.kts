@@ -10,7 +10,8 @@ spotless {
         eclipse("4.22")
             .configFile(
                 Blowdryer.immutableUrl(
-                    "https://raw.githubusercontent.com/SonarSource/sonar-developer-toolset/master/eclipse/sonar-formatter.xml"
+                    "https://raw.githubusercontent.com/SonarSource/" +
+                        "sonar-developer-toolset/975900353cb119cb20a7ad3ecb53183480dd4c2e/eclipse/sonar-formatter.xml",
                 )
             )
         licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
