@@ -196,11 +196,13 @@ def build_script():
     }
 
 
-def gradle_build_template(cpu=4, memory="6G"):
+def gradle_build_template(cpu=4, memory="6G", use_cache=True):
     template = builder_container_factory(cpu, memory)
-    template |= setup_gradle_cache()
+    if use_cache:
+        template |= setup_gradle_cache()
     template |= build_script()
-    template |= cleanup_gradle_cache()
+    if use_cache:
+        template |= cleanup_gradle_cache()
     return template
 
 
@@ -238,17 +240,44 @@ def build_task():
     conf |= store_profile_report_template()
     return {"build_task": conf}
 
+
 def build_test_args():
     return {
         "DEPLOY_PULL_REQUEST": False,
         "BUILD_ARGUMENTS": "-x artifactoryPublish"
     }
 
+
 def build_test_analyze_task():
     conf = {"env": build_test_args()}
     conf |= qa_task_filter()
     conf |= gradle_build_template(cpu=6)
     return {"build_test_analyze_task": conf}
+
+
+def whitesource_script():
+    return {
+        "whitesource_script": [
+            "source cirrus-env SCA",
+            "source .cirrus/use-gradle-wrapper.sh",
+            "source ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt",
+            'GRADLE_OPTS="-Xmx64m -Dorg.gradle.jvmargs=\'-Xmx3G\' -Dorg.gradle.daemon=false" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process"',
+            'source ws_scan.sh -d "${PWD},${PWD}/sonar-helm-for-iac"'
+        ]
+    }
+
+
+def sca_scan_task():
+    conf = {"depends_on": ["build"], "allow_failures": "true"}
+    conf |= {"env": ws_scan_secrets()}
+    conf |= only_main_branches_filter()
+    conf |= setup_project_version_cache()
+    conf |= gradle_build_template(cpu=4, memory="8G", use_cache=False)
+    conf |= whitesource_script()
+    conf |= store_project_version_script()
+    conf |= store_profile_report_template()
+    conf |= {"always": {"ws_artifacts": {"path": "whitesource/whitesource*.html"}}}
+    return {"sca_scan_task": conf}
 
 
 def main(ctx):
