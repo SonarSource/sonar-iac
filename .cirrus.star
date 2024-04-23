@@ -270,7 +270,7 @@ def whitesource_script():
 def sca_scan_task():
     conf = {"depends_on": ["build"], "allow_failures": "true"}
     conf |= {"env": ws_scan_secrets()}
-    conf |= only_main_branches_filter()
+    #conf |= only_main_branches_filter()
     conf |= setup_project_version_cache()
     conf |= gradle_build_template(cpu=4, memory="8G", use_cache=False)
     conf |= whitesource_script()
