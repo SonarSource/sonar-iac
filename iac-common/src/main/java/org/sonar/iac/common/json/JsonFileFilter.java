@@ -19,14 +19,13 @@
  */
 package org.sonar.iac.common.json;
 
-import java.util.Arrays;
-
+import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 
 public class JsonFileFilter implements InputFileFilter {
 
-  private static final String[] dismiss = {"build-wrapper-dump", "compile_commands"};
+  private static final Set<String> FILTERED_FILENAME_FRAGMENTS = Set.of("build-wrapper-dump", "compile_commands");
 
   @Override
   public boolean accept(InputFile inputFile) {
@@ -34,6 +33,6 @@ public class JsonFileFilter implements InputFileFilter {
       return true;
     }
 
-    return Arrays.stream(dismiss).noneMatch(inputFile.filename()::contains);
+    return FILTERED_FILENAME_FRAGMENTS.stream().noneMatch(inputFile.filename()::contains);
   }
 }
