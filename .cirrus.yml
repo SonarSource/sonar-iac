@@ -15,13 +15,13 @@ env:
   GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
   GRADLE_COMMON_FLAGS: --console plain --no-daemon --profile
   
-  GO_VERSION: 1.21.7
+  GO_VERSION: "1.21.7"
   GO_CROSS_COMPILE: '1'
-  PROTOC_VERSION: 25.0
+  PROTOC_VERSION: "25.0"
 
   ORG_GRADLE_PROJECT_signingKey: VAULT[development/kv/data/sign data.key]
   ORG_GRADLE_PROJECT_signingPassword: VAULT[development/kv/data/sign data.passphrase]
-  ORG_GRADLE_PROJECT_signingKeyId: 0x7DCD4258
+  ORG_GRADLE_PROJECT_signingKeyId: "0x7DCD4258"
   PROJECT_VERSION_CACHE_DIR: project-version
 
 
@@ -52,7 +52,7 @@ linux_image_template: &LINUX_IMAGE
   cluster_name: ${CIRRUS_CLUSTER_NAME}
   region: eu-central-1
   namespace: default
-  use_in_memory_disk: true
+  use_in_memory_disk: "true"
 
 linux_image_with_gcc_template: &LINUX_IMAGE_WITH_GCC
   dockerfile: .cirrus/Dockerfile
@@ -67,7 +67,7 @@ linux_image_with_gcc_template: &LINUX_IMAGE_WITH_GCC
   builder_subnet_id: ${CIRRUS_AWS_SUBNET}
   region: eu-central-1
   namespace: default
-  use_in_memory_disk: true
+  use_in_memory_disk: "true"
 
 linux_1_cpu_2G_template: &LINUX_1_CPU_2G
   eks_container:
@@ -83,14 +83,14 @@ linux_4_cpu_8G_java_17_template: &LINUX_4_CPU_8G_JAVA_17
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
-    experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
+    experimental: "true" # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
     image: base-windows-jdk17-v*
     platform: windows
     region: eu-central-1
     type: c5.4xlarge # 3.6 GHz (3.9GHz single core) Intel Xeon Scalable Processor, 16 vCPU, 32 GiB Memory
     subnet_id: ${CIRRUS_AWS_SUBNET}
-    preemptible: false
-    use_ssd: true
+    preemptible: "false"
+    use_ssd: "true"
 
 # ----------------------------------------------
 # ------------------FILTERS---------------------
@@ -193,10 +193,8 @@ store_profile_report_template: &STORE_PROFILE_REPORT
 # ----------------------------------------------
 
 build_task:
-  eks_container:
-    cpu: 10
   env:
-    DEPLOY_PULL_REQUEST: true
+    DEPLOY_PULL_REQUEST: "true"
     BUILD_ARGUMENTS: "-DtrafficInspection=false --parallel --profile -x test -x sonar"
   <<: *SETUP_PROJECT_VERSION_CACHE
   <<: *BUILD_TEMPLATE
@@ -207,24 +205,19 @@ build_task:
 
 build_test_analyze_task:
   <<: *QA_TASK_FILTER
-  eks_container:
-    cpu: 6
   env:
-    DEPLOY_PULL_REQUEST: false
+    DEPLOY_PULL_REQUEST: "false"
     BUILD_ARGUMENTS: "-x artifactoryPublish"
   <<: *BUILD_TEMPLATE
 
 qa_os_win_task:
   <<: *QA_TASK_FILTER
   <<: *WINDOWS_VM_DEFINITION
-  <<: *SETUP_GRADLE_CACHE
-  _lib:
-    # For windows, refresh the path env variable, particularly useful after an installation with choco (RefreshEnv.cmd cannot be used in this context)
-    - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+  <<: *SETUP_GRADLE_CACHE # No Gradle clean up???
   build_script:
     - choco install golang --version ${GO_VERSION}
     - choco install protoc --version ${PROTOC_VERSION}.0
-    - *refreshpath
+    - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
     - source cirrus-env CI
     - ./gradlew ${GRADLE_COMMON_FLAGS} test
   <<: *STORE_PROFILE_REPORT
@@ -286,7 +279,7 @@ promote_task:
     <<: *PROMOTE_SECRETS
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
-  <<: *SETUP_PROJECT_VERSION_CACHE
+  <<: *SETUP_PROJECT_VERSION_CACHE # No Clean up?
   script:
     - source cirrus-env PROMOTE
     - cirrus_jfrog_promote multi
