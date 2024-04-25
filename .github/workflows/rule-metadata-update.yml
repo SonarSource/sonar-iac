@@ -26,13 +26,10 @@ jobs:
         env:
           ARTIFACTORY_ROLE: vault-${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ROLE }}
           ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-      - run: |
-          git status
-          git diff
-#      - uses: peter-evans/create-pull-request@v6
-#        with:
-#          author: ${{ github.actor }} <${{ github.actor }}>
-#          commit-message: Update rule metadata
-#          title: Update rule metadata
-#          branch: bot/rule-metadata-update
-#          branch-suffix: timestamp
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          author: ${{ github.actor }} <${{ github.actor }}>
+          commit-message: Update rule metadata
+          title: Update rule metadata
+          branch: bot/rule-metadata-update
+          branch-suffix: timestamp
