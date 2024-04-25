@@ -31,5 +31,6 @@ jobs:
           author: ${{ github.actor }} <${{ github.actor }}>
           commit-message: Update rule metadata
           title: Update rule metadata
+          base: master
           branch: bot/rule-metadata-update
           branch-suffix: timestamp
