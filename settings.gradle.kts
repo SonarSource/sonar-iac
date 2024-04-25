@@ -26,6 +26,7 @@ include(":iac-extensions:docker")
 include(":iac-extensions:kubernetes")
 include(":iac-extensions:arm")
 include(":iac-extensions:cloudformation")
+include(":iac-extensions:spring-config")
 include(":its:ruling")
 include(":its:plugin")
 
