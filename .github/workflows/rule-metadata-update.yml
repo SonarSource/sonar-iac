@@ -1,8 +1,6 @@
 name: rule-metadata-update
 on:
   workflow_dispatch:
-  # TODO: remove after testing
-  pull_request:
 
 jobs:
   rule-metadata-update:
