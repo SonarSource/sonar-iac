@@ -28,6 +28,10 @@ public final class SpringConfigExtension {
   }
 
   public static void define(Plugin.Context context) {
+    context.addExtensions(
+      SpringConfigExtension.class,
+      SpringConfigRulesDefinition.class);
 
+    context.addExtensions(SpringConfigSettings.getGeneralProperties());
   }
 }

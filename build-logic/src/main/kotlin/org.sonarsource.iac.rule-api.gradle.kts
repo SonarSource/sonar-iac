@@ -26,14 +26,14 @@ dependencies {
 val iacExtensionNames =
     gradle.rootProject.allprojects.filter {
         it.path.startsWith(":iac-extensions:")
-    }.map { project ->
-        project.name.replace("-[a-z]".toRegex()) { it.value.last().uppercase() }
+    }.map {
+        it.name
     }
 
 val ruleApiUpdateTasks = iacExtensionNames.map(::registerApiUpdate)
 
 fun registerApiUpdate(name: String): TaskProvider<JavaExec> {
-    return tasks.register<JavaExec>("ruleApiUpdate" + name.capitalized()) {
+    return tasks.register<JavaExec>("ruleApiUpdate${name.toCamelCase()}") {
         description = "Update $name rules description"
         group = "Rule API"
         workingDir = file("$projectDir/iac-extensions/$name")
@@ -56,9 +56,9 @@ iacExtensionNames.forEach(::registerApiUpdateRule)
 
 val rule = providers.gradleProperty("rule")
 
-fun registerApiUpdateRule(name: String) =
-    tasks.register<JavaExec>("ruleApiUpdateRule" + name.capitalized()) {
-        description = "Update rule description for " + name.capitalized()
+fun registerApiUpdateRule(name: String): TaskProvider<JavaExec> {
+    return tasks.register<JavaExec>("ruleApiUpdateRule${name.toCamelCase()}") {
+        description = "Update rule description for ${name.capitalized()}"
         group = "Rule API"
         workingDir = file("$projectDir/iac-extensions/$name")
         classpath = ruleApi
@@ -71,3 +71,6 @@ fun registerApiUpdateRule(name: String) =
             rule.getOrElse("")
         )
     }
+}
+
+fun String.toCamelCase() = replace("-[a-z]".toRegex()) { it.value.last().uppercase() }.capitalized()
