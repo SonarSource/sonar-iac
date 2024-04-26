@@ -52,3 +52,7 @@ sonar-helm-for-iac/sonar-helm-for-iac
 #Docker cache
 sonar-helm-for-iac/.cache/*
 *.cer
+
+# ANTLR - sometimes files are generated in this location, I don't know why
+iac-extensions/spring-config/src/main/antlr/gen
+iac-extensions/spring-config/src/main/gen
