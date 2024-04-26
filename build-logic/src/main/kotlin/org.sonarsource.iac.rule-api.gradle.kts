@@ -34,7 +34,7 @@ val ruleApiUpdateTasks = iacExtensionNames.map(::registerApiUpdate)
 
 fun registerApiUpdate(name: String): TaskProvider<JavaExec> {
     return tasks.register<JavaExec>("ruleApiUpdate${name.toCamelCase()}") {
-        description = "Update $name rules description"
+        description = "Update ${name.capitalized()} rules description"
         group = "Rule API"
         workingDir = file("$projectDir/iac-extensions/$name")
         classpath = ruleApi

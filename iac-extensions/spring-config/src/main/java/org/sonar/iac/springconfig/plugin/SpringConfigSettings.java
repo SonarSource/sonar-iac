@@ -25,13 +25,13 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
 public final class SpringConfigSettings {
-  static final String ACTIVATION_KEY = "sonar.springconfig.activate";
-  static final String ACTIVATION_DEFAULT_VALUE = "true";
-  static final String FILE_PATTERNS_KEY = "sonar.springconfig.file.patterns";
-  static final String DEFAULT_FILE_PATTERNS = "**/src/main/resources/**/application*.properties," +
+  private static final String ACTIVATION_KEY = "sonar.springconfig.activate";
+  private static final String ACTIVATION_DEFAULT_VALUE = "true";
+  private static final String FILE_PATTERNS_KEY = "sonar.springconfig.file.patterns";
+  private static final String FILE_PATTERNS_DEFAULT_VALUE = "**/src/main/resources/**/application*.properties," +
     "**/src/main/resources/**/application*.yaml,**/src/main/resources/**/application*.yml";
   private static final String JAVA_CATEGORY = "Java";
-  private static final String GENERAL_SUBCATEGORY = "General";
+  private static final String GENERAL_SUBCATEGORY = "Spring";
 
   private SpringConfigSettings() {
   }
@@ -39,7 +39,6 @@ public final class SpringConfigSettings {
   public static List<PropertyDefinition> getGeneralProperties() {
     return List.of(
       PropertyDefinition.builder(ACTIVATION_KEY)
-        .index(1)
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
         .name("Activate Analysis of Spring Configuration files")
         .description("Disabling Spring Configuration analysis ensures that no Spring configuration files are parsed, highlighted and analyzed, " +
@@ -51,7 +50,7 @@ public final class SpringConfigSettings {
         .build(),
 
       PropertyDefinition.builder(FILE_PATTERNS_KEY)
-        .defaultValue(DEFAULT_FILE_PATTERNS)
+        .defaultValue(FILE_PATTERNS_DEFAULT_VALUE)
         .name("File Patterns")
         .description("List of file patterns of Spring configuration files to be indexed.")
         .onQualifiers(Qualifiers.PROJECT)
