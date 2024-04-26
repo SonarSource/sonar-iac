@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.springconfig.tree.api.Scalar;
 import org.sonar.iac.springconfig.tree.api.SyntaxToken;
 
-public class ScalarImpl extends SpringConfigImpl implements Scalar {
+public class ScalarImpl extends AbstractSpringConfigImpl implements Scalar {
   private final SyntaxToken value;
 
   public ScalarImpl(SyntaxToken value) {

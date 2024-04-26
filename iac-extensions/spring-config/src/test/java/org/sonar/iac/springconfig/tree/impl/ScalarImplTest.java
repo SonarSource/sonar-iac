@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ScalarImplTest {
 
   @Test
-  void constructorTest() {
+  void constructorShouldFunctionCorrectly() {
     SyntaxTokenImpl syntaxToken = new SyntaxTokenImpl("testValue", TextRanges.range(1, 2, 3, 4));
     ScalarImpl scalarTree = new ScalarImpl(syntaxToken);
 

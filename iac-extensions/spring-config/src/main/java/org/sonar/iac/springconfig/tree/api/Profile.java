@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasProperties;
 
-/*
+/**
  * Represents a Spring configuration profile.
  * Each profile contains all key value pairs belonging to this specific spring profile.
  */

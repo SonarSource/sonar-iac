@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.springconfig.tree.api.File;
 import org.sonar.iac.springconfig.tree.api.Profile;
 
-public class FileImpl extends SpringConfigImpl implements File {
+public class FileImpl extends AbstractSpringConfigImpl implements File {
   private final List<Profile> profiles;
 
   public FileImpl(List<Profile> profiles) {

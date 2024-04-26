@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.springconfig.tree.api.SpringConfig;
 
-public abstract class SpringConfigImpl implements SpringConfig {
+public abstract class AbstractSpringConfigImpl implements SpringConfig {
   protected TextRange textRange;
 
   @Override

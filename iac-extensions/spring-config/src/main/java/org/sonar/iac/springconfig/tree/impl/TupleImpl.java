@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.springconfig.tree.api.Scalar;
 import org.sonar.iac.springconfig.tree.api.Tuple;
 
-public class TupleImpl extends SpringConfigImpl implements Tuple {
+public class TupleImpl extends AbstractSpringConfigImpl implements Tuple {
   private final Scalar key;
   private final Scalar value;
 

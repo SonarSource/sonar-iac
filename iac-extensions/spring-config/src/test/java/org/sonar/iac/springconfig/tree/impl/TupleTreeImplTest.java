@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class TupleTreeImplTest {
 
   @Test
-  void constructorTest() {
+  void constructorShouldFunctionCorrectly() {
     SyntaxTokenImpl keySyntaxToken = new SyntaxTokenImpl("keySyntaxToken", TextRanges.range(1, 3, 1, 7));
     ScalarImpl keyScalar = new ScalarImpl(keySyntaxToken);
 

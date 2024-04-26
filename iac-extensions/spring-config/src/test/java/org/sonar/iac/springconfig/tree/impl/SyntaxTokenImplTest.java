@@ -29,7 +29,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 class SyntaxTokenImplTest {
 
   @Test
-  void constructorTest() {
+  void constructorShouldFunctionCorrectly() {
     TextRange range = TextRanges.range(1, 2, 3, 4);
     String value = "testValue";
     SyntaxTokenImpl syntaxToken = new SyntaxTokenImpl(value, range);

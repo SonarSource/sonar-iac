@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ProfileImplTest {
 
   @Test
-  void constructorTest() {
+  void constructorShouldFunctionCorrectly() {
     SyntaxTokenImpl keySyntaxToken = new SyntaxTokenImpl("keySyntaxToken", TextRanges.range(1, 4, 1, 10));
     ScalarImpl keyScalar = new ScalarImpl(keySyntaxToken);
     SyntaxTokenImpl valueSyntaxToken = new SyntaxTokenImpl("valueSyntaxToken", TextRanges.range(1, 11, 1, 20));

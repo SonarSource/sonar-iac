@@ -26,7 +26,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.springconfig.tree.api.Profile;
 import org.sonar.iac.springconfig.tree.api.Tuple;
 
-public class ProfileImpl extends SpringConfigImpl implements Profile {
+public class ProfileImpl extends AbstractSpringConfigImpl implements Profile {
   private final List<Tuple> properties;
 
   public ProfileImpl(List<Tuple> properties) {

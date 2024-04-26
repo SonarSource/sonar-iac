@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.springconfig.tree.api.SyntaxToken;
 
-public class SyntaxTokenImpl extends SpringConfigImpl implements SyntaxToken {
+public class SyntaxTokenImpl extends AbstractSpringConfigImpl implements SyntaxToken {
   private final String value;
 
   public SyntaxTokenImpl(String value, TextRange textRange) {
