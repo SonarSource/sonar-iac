@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.springconfig.plugin;
 
+import java.util.List;
 import org.sonar.api.Plugin;
 
 public final class SpringConfigExtension {
@@ -28,6 +29,9 @@ public final class SpringConfigExtension {
   }
 
   public static void define(Plugin.Context context) {
+    context.addExtensions(List.of(
+      SpringConfigSettings.class));
 
+    context.addExtensions(SpringConfigSettings.getGeneralProperties());
   }
 }

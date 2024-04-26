@@ -20,21 +20,33 @@
 package org.sonar.iac.springconfig.plugin;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SpringConfigExtensionTest {
+class SpringConfigRulesDefinitionTest {
+
   @Test
-  void shouldRegisterExtensions() {
-    var runtime = SonarRuntimeImpl.forSonarQube(Version.create(10, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    var context = new Plugin.Context(runtime);
-    SpringConfigExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(3);
+  void shouldLoadRulesFromRepository() {
+    var repository = javaconfigRuleRepository(9, 3);
+    assertThat(repository).isNotNull();
+    assertThat(repository.name()).isEqualTo("Sonar");
+    assertThat(repository.language()).isEqualTo("java");
+    assertThat(repository.key()).isEqualTo("javaconfig");
+    assertThat(repository.rules()).isEmpty();
+  }
+
+  private static RulesDefinition.Repository javaconfigRuleRepository(int major, int minor) {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
+    var rulesDefinition = new SpringConfigRulesDefinition(sonarRuntime);
+    var context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    return context.repository(SpringConfigExtension.REPOSITORY_KEY);
   }
 
 }
