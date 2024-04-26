@@ -19,22 +19,27 @@
  */
 package org.sonar.iac.springconfig.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import java.util.List;
+import org.sonar.api.SonarRuntime;
+import org.sonar.iac.common.extension.IacRulesDefinition;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class SpringConfigExtensionTest {
-  @Test
-  void shouldRegisterExtensions() {
-    var runtime = SonarRuntimeImpl.forSonarQube(Version.create(10, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    var context = new Plugin.Context(runtime);
-    SpringConfigExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(3);
+public class SpringConfigRulesDefinition extends IacRulesDefinition {
+  protected SpringConfigRulesDefinition(SonarRuntime runtime) {
+    super(runtime);
   }
 
+  @Override
+  protected List<Class<?>> checks() {
+    return List.of();
+  }
+
+  @Override
+  protected String ruleRepositoryKey() {
+    return SpringConfigExtension.REPOSITORY_KEY;
+  }
+
+  @Override
+  public String languageKey() {
+    return "java";
+  }
 }
