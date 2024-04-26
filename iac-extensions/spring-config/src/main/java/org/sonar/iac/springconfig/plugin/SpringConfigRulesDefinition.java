@@ -40,6 +40,6 @@ public class SpringConfigRulesDefinition extends IacRulesDefinition {
 
   @Override
   public String languageKey() {
-    return "java";
+    return SpringConfigExtension.LANGUAGE_KEY;
   }
 }
