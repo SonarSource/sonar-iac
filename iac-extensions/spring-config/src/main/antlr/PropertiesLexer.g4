@@ -1,6 +1,6 @@
 lexer grammar PropertiesLexer;
 
-COMMENT   : [!#] ~[\r\n]*;
+COMMENT   : [!#] -> pushMode(VALUE_MODE);
 NEWLINE   : [\r\n\u2028\u2029]+;
 DELIMITER : [:=] -> pushMode(VALUE_MODE);
 SLASH     : '\\' -> more, pushMode(INSIDE);
