@@ -57,7 +57,7 @@ public class YamlConverter {
     return converters.get(node.getClass()).apply(node);
   }
 
-  public FileTree convertFile(List<Node> nodes, FileTree.Template template) {
+  public FileTree convertFile(List<Node> nodes) {
     if (nodes.isEmpty()) {
       throw new ParseException("Unexpected empty nodes list while converting file", null, null);
     }
@@ -70,7 +70,7 @@ public class YamlConverter {
       .withComments(fileNode.getEndComments())
       .build();
     List<YamlTree> documents = nodes.stream().map(this::convert).toList();
-    return new FileTreeImpl(documents, metadata, template);
+    return new FileTreeImpl(documents, metadata);
   }
 
   protected YamlTree convertMapping(MappingNode mappingNode) {
