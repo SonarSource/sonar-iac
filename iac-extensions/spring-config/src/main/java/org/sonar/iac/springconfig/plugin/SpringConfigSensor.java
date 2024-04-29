@@ -37,6 +37,7 @@ import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.springconfig.parser.SpringConfigParser;
 
 import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.SENSOR_NAME;
 
@@ -68,8 +69,7 @@ public class SpringConfigSensor extends IacSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    // TODO: SONARIAC-1446 Implement "SpringConfigParser"
-    return null;
+    return new SpringConfigParser();
   }
 
   @Override
