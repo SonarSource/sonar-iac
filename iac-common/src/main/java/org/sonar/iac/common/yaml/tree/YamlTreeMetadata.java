@@ -153,6 +153,7 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
       comments.addAll(comments(node.getEndComments()));
       return comments;
     }
+
     private static List<Comment> comments(@Nullable List<CommentLine> commentLines) {
       if (commentLines == null) {
         return Collections.emptyList();
@@ -169,4 +170,5 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
       var ranage = range(comment.getStartMark().orElse(null), comment.getEndMark().orElse(null));
       return new CommentImpl('#' + comment.getValue(), comment.getValue(), ranage);
     }
-  }}
+  }
+}
