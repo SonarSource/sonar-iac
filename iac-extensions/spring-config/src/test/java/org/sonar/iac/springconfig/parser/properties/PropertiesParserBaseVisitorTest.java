@@ -24,6 +24,7 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,9 +34,8 @@ class PropertiesParserBaseVisitorTest {
   TestVisitor visitor = new TestVisitor();
 
   @Test
-  void shouldParseSimpleExpression() {
-    var code = """
-      foo=bar""";
+  void shouldParseSimpleKeyValue() {
+    var code = "foo=bar";
 
     parseProperties(code);
 
@@ -43,6 +43,72 @@ class PropertiesParserBaseVisitorTest {
       "visitPropertiesFile foo=bar<EOF>",
       "visitRow foo=bar<EOF>",
       "visitLine foo=bar<EOF>",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseKeyValueSeparatedByColon() {
+    var code = "foo:bar";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo:bar<EOF>",
+      "visitRow foo:bar<EOF>",
+      "visitLine foo:bar<EOF>",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol <EOF>");
+  }
+
+  // TODO separate by space
+  @Disabled
+  @Test
+  void shouldParseKeyValueSeparatedBySpace() {
+    var code = "foo bar";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo bar<EOF>",
+      "visitRow foo bar<EOF>",
+      "visitLine foo bar<EOF>",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol <EOF>");
+  }
+
+  // TODO separate by TAB
+  @Disabled
+  @Test
+  void shouldParseKeyValueSeparatedByTab() {
+    var code = "foo\tbar";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo\\tbar<EOF>",
+      "visitRow foo\\tbar<EOF>",
+      "visitLine foo\\tbar<EOF>",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol <EOF>");
+  }
+
+  // TODO separate by Form Feed
+  @Disabled
+  @Test
+  void shouldParseKeyValueSeparatedByFormFeed() {
+    var code = "foo\fbar";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo\\fbar<EOF>",
+      "visitRow foo\\fbar<EOF>",
+      "visitLine foo\\fbar<EOF>",
       "visitKey foo",
       "visitKey bar",
       "visitEol <EOF>");
@@ -61,6 +127,8 @@ class PropertiesParserBaseVisitorTest {
       "visitPropertiesFile # example comment\\nfoo=bar\\n#comment at the end<EOF>",
       "visitRow # example comment\\n",
       "visitComment # example comment\\n",
+      "visitCommentStartAndText # example comment",
+      "visitCommentText  example comment",
       "visitEol \\n",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
@@ -69,6 +137,8 @@ class PropertiesParserBaseVisitorTest {
       "visitEol \\n",
       "visitRow #comment at the end<EOF>",
       "visitComment #comment at the end<EOF>",
+      "visitCommentStartAndText #comment at the end",
+      "visitCommentText comment at the end",
       "visitEol <EOF>");
   }
 
@@ -85,6 +155,8 @@ class PropertiesParserBaseVisitorTest {
       "visitPropertiesFile ! also a comment\\nfoo=bar\\n! also comment at the end<EOF>",
       "visitRow ! also a comment\\n",
       "visitComment ! also a comment\\n",
+      "visitCommentStartAndText ! also a comment",
+      "visitCommentText  also a comment",
       "visitEol \\n",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
@@ -93,6 +165,8 @@ class PropertiesParserBaseVisitorTest {
       "visitEol \\n",
       "visitRow ! also comment at the end<EOF>",
       "visitComment ! also comment at the end<EOF>",
+      "visitCommentStartAndText ! also comment at the end",
+      "visitCommentText  also comment at the end",
       "visitEol <EOF>");
   }
 
@@ -271,8 +345,381 @@ class PropertiesParserBaseVisitorTest {
       "visitEol \\u2029");
   }
 
+  @Test
+  void shouldAcceptAllCharactersInComments() {
+    var code = """
+      #comment 1 ! # : =
+      !comment 2 # aa
+      foo2=bar2""";
 
-  
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile #comment 1 ! # : =\\n!comment 2 # aa\\nfoo2=bar2<EOF>",
+      "visitRow #comment 1 ! # : =\\n",
+      "visitComment #comment 1 ! # : =\\n",
+      "visitCommentStartAndText #comment 1 ! # : =",
+      "visitCommentText comment 1 ! # : =",
+      "visitEol \\n",
+      "visitRow !comment 2 # aa\\n",
+      "visitComment !comment 2 # aa\\n",
+      "visitCommentStartAndText !comment 2 # aa",
+      "visitCommentText comment 2 # aa",
+      "visitEol \\n",
+      "visitRow foo2=bar2<EOF>",
+      "visitLine foo2=bar2<EOF>",
+      "visitKey foo2",
+      "visitKey bar2",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseNewLinesCommentsLF() {
+    var code = """
+      #comment 1
+      !comment 2
+      foo=bar
+      #
+      !
+      foo2=bar2
+      !comment 5""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile #comment 1\\n!comment 2\\nfoo=bar\\n#\\n!\\nfoo2=bar2\\n!comment 5<EOF>",
+      "visitRow #comment 1\\n",
+      "visitComment #comment 1\\n",
+      "visitCommentStartAndText #comment 1",
+      "visitCommentText comment 1",
+      "visitEol \\n",
+      "visitRow !comment 2\\n",
+      "visitComment !comment 2\\n",
+      "visitCommentStartAndText !comment 2",
+      "visitCommentText comment 2",
+      "visitEol \\n",
+      "visitRow foo=bar\\n",
+      "visitLine foo=bar\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\n",
+      "visitRow #\\n",
+      "visitComment #\\n",
+      "visitCommentStartAndText #",
+      "visitCommentText ",
+      "visitEol \\n",
+      "visitRow !\\nfoo2=",
+      "visitComment !\\nfoo2=",
+      "visitCommentStartAndText !\\nfoo2",
+      "visitCommentText \\nfoo2",
+      "visitEol =",
+      "visitRow bar2\\n",
+      "visitLine bar2\\n",
+      "visitKey bar2",
+      "visitEol \\n",
+      "visitRow !comment 5<EOF>",
+      "visitComment !comment 5<EOF>",
+      "visitCommentStartAndText !comment 5",
+      "visitCommentText comment 5",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseNewLinesCommentsCR() {
+    var code = "#comment 1\r!comment 2\rfoo=bar\r#\r!\rfoo2=bar2\r!comment 5";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile #comment 1\\r!comment 2\\rfoo=bar\\r#\\r!\\rfoo2=bar2\\r!comment 5<EOF>",
+      "visitRow #comment 1\\r",
+      "visitComment #comment 1\\r",
+      "visitCommentStartAndText #comment 1",
+      "visitCommentText comment 1",
+      "visitEol \\r",
+      "visitRow !comment 2\\r",
+      "visitComment !comment 2\\r",
+      "visitCommentStartAndText !comment 2",
+      "visitCommentText comment 2",
+      "visitEol \\r",
+      "visitRow foo=bar\\r",
+      "visitLine foo=bar\\r",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\r",
+      "visitRow #\\r",
+      "visitComment #\\r",
+      "visitCommentStartAndText #",
+      "visitCommentText ",
+      "visitEol \\r",
+      "visitRow !\\rfoo2=",
+      "visitComment !\\rfoo2=",
+      "visitCommentStartAndText !\\rfoo2",
+      "visitCommentText \\rfoo2",
+      "visitEol =",
+      "visitRow bar2\\r",
+      "visitLine bar2\\r",
+      "visitKey bar2",
+      "visitEol \\r",
+      "visitRow !comment 5<EOF>",
+      "visitComment !comment 5<EOF>",
+      "visitCommentStartAndText !comment 5",
+      "visitCommentText comment 5",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseNewLinesCommentsCRLF() {
+    var code = "#comment 1\r\n!comment 2\r\nfoo=bar\r\n#\r\n!\r\nfoo2=bar2\r\n!comment 5";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile #comment 1\\r\\n!comment 2\\r\\nfoo=bar\\r\\n#\\r\\n!\\r\\nfoo2=bar2\\r\\n!comment 5<EOF>",
+      "visitRow #comment 1\\r\\n",
+      "visitComment #comment 1\\r\\n",
+      "visitCommentStartAndText #comment 1",
+      "visitCommentText comment 1",
+      "visitEol \\r\\n",
+      "visitRow !comment 2\\r\\n",
+      "visitComment !comment 2\\r\\n",
+      "visitCommentStartAndText !comment 2",
+      "visitCommentText comment 2",
+      "visitEol \\r\\n",
+      "visitRow foo=bar\\r\\n",
+      "visitLine foo=bar\\r\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\r\\n",
+      "visitRow #\\r\\n",
+      "visitComment #\\r\\n",
+      "visitCommentStartAndText #",
+      "visitCommentText ",
+      "visitEol \\r\\n",
+      "visitRow !\\r\\nfoo2=",
+      "visitComment !\\r\\nfoo2=",
+      "visitCommentStartAndText !\\r\\nfoo2",
+      "visitCommentText \\r\\nfoo2",
+      "visitEol =",
+      "visitRow bar2\\r\\n",
+      "visitLine bar2\\r\\n",
+      "visitKey bar2",
+      "visitEol \\r\\n",
+      "visitRow !comment 5<EOF>",
+      "visitComment !comment 5<EOF>",
+      "visitCommentStartAndText !comment 5",
+      "visitCommentText comment 5",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseKeyWithoutValue() {
+    var code = "foo";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo<EOF>",
+      "visitRow foo<EOF>",
+      "visitLine foo<EOF>",
+      "visitKey foo",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseValueWithUnicodeCharacters() {
+    var code = "foo=\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo=\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9<EOF>",
+      "visitRow foo=\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9<EOF>",
+      "visitLine foo=\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9<EOF>",
+      "visitKey foo",
+      "visitKey \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseKeyWithUnicodeCharacters() {
+    var code = "\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9=bar";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9=bar<EOF>",
+      "visitRow \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9=bar<EOF>",
+      "visitLine \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9=bar<EOF>",
+      "visitKey \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9",
+      "visitKey bar",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseKeyValueExtraSpace() {
+    var code = """
+      foo1 = bar1
+      foo2= bar2
+      foo3 =bar3""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo1 = bar1\\nfoo2= bar2\\nfoo3 =bar3<EOF>",
+      "visitRow foo1 = bar1\\n",
+      "visitLine foo1 = bar1\\n",
+      "visitKey foo1 ",
+      // TODO trim whitespace for before value?
+      "visitKey  bar1",
+      "visitEol \\n",
+      "visitRow foo2= bar2\\n",
+      "visitLine foo2= bar2\\n",
+      "visitKey foo2",
+      "visitKey  bar2",
+      "visitEol \\n",
+      "visitRow foo3 =bar3<EOF>",
+      "visitLine foo3 =bar3<EOF>",
+      "visitKey foo3 ",
+      "visitKey bar3",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseDuplicatedKeys() {
+    var code = """
+      duplicateKey=first
+      duplicateKey=second""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile duplicateKey=first\\nduplicateKey=second<EOF>",
+      "visitRow duplicateKey=first\\n",
+      "visitLine duplicateKey=first\\n",
+      "visitKey duplicateKey",
+      "visitKey first",
+      "visitEol \\n",
+      "visitRow duplicateKey=second<EOF>",
+      "visitLine duplicateKey=second<EOF>",
+      "visitKey duplicateKey",
+      "visitKey second",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseKeyContainingDelimiter() {
+    var code = "delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF>",
+      "visitRow delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF>",
+      "visitLine delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF>",
+      "visitKey delimiterCharacters\\:\\=\\ ",
+      "visitKey  This is the value for the key \"delimiterCharacters\\:\\=\\ \"",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseMultilineValue() {
+    var code = """
+      multiline = This line \\
+      continues""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile multiline = This line \\\\ncontinues<EOF>",
+      "visitRow multiline = This line \\\\ncontinues<EOF>",
+      "visitLine multiline = This line \\\\ncontinues<EOF>",
+      "visitKey multiline ",
+      "visitKey  This line \\\\ncontinues",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseWindowsPath() {
+    var code = "path=c:\\wiki\\templates";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile path=c:\\wiki\\templates<EOF>",
+      "visitRow path=c:\\wiki\\templates<EOF>",
+      "visitLine path=c:\\wiki\\templates<EOF>",
+      "visitKey path",
+      "visitKey c:\\wiki\\templates",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseDoubleSlashAtTheEndOfValue() {
+    var code = "evenKey = This is on one line\\\\";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile evenKey = This is on one line\\\\<EOF>",
+      "visitRow evenKey = This is on one line\\\\<EOF>",
+      "visitLine evenKey = This is on one line\\\\<EOF>",
+      "visitKey evenKey ",
+      "visitKey  This is on one line\\\\",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseOddSlashAndNextLineAsContinuationOfTheValue() {
+    var code = """
+      oddKey = This is line one and\\\\\\
+      # This is line two""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile oddKey = This is line one and\\\\\\\\n# This is line two<EOF>",
+      "visitRow oddKey = This is line one and\\\\\\\\n# This is line two<EOF>",
+      "visitLine oddKey = This is line one and\\\\\\\\n# This is line two<EOF>",
+      "visitKey oddKey ",
+      "visitKey  This is line one and\\\\\\\\n# This is line two",
+      "visitEol <EOF>");
+  }
+
+  // TODO Spaces are not removed - not sure if this should be fixed
+  @Disabled
+  @Test
+  void shouldRemoveSpacesAfterLineBreak() {
+    var code = """
+      welcome = Welcome to \\
+                Wikipedia!""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile welcome = Welcome to \\n          Wikipedia!<EOF>",
+      "visitRow welcome = Welcome to \\n          Wikipedia!<EOF>",
+      "visitLine welcome = Welcome to \\n          Wikipedia!<EOF>",
+      "visitKey welcome ",
+      "visitKey  Welcome to \\n          Wikipedia!",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseEscapedNewLineAndCarriageReturn() {
+    var code = "valueWithEscapes = This is a newline\\n and a carriage return\\r and a tab\\t.";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile valueWithEscapes = This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
+      "visitRow valueWithEscapes = This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
+      "visitLine valueWithEscapes = This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
+      "visitKey valueWithEscapes ",
+      "visitKey  This is a newline\\n and a carriage return\\r and a tab\\t.",
+      "visitEol <EOF>");
+  }
+
   private void parseProperties(String code) {
     var inputCode = CharStreams.fromString(code);
     var propertiesLexer = new PropertiesLexer(inputCode);
@@ -325,11 +772,25 @@ class PropertiesParserBaseVisitorTest {
       return super.visitComment(ctx);
     }
 
+    @Override
+    public Void visitCommentText(PropertiesParser.CommentTextContext ctx) {
+      visited.add("visitCommentText " + printText(ctx));
+      return super.visitCommentText(ctx);
+    }
+
+    @Override
+    public Void visitCommentStartAndText(PropertiesParser.CommentStartAndTextContext ctx) {
+      visited.add("visitCommentStartAndText " + printText(ctx));
+      return super.visitCommentStartAndText(ctx);
+    }
+
     private static String printText(ParseTree ctx) {
       return ctx.getText()
         .replace("\r\n", "\\r\\n")
         .replace("\r", "\\r")
         .replace("\n", "\\n")
+        .replace("\t", "\\t")
+        .replace("\f", "\\f")
         .replace("\u2028", "\\u2028")
         .replace("\u2029", "\\u2029");
     }

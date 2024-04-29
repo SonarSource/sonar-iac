@@ -7,7 +7,7 @@ plugins {
 description = "SonarSource IaC Analyzer :: Extensions :: Spring Config"
 
 dependencies {
-    antlr("org.antlr:antlr4:4.13.1")
+    antlr(libs.antlr4)
 
     api(project(":iac-common"))
 
@@ -22,11 +22,8 @@ dependencies {
 tasks.generateGrammarSource {
     maxHeapSize = "64m"
     arguments = arguments + listOf("-visitor", "-long-messages", "-no-listener", "-package", "org.sonar.iac.springconfig.parser.properties")
-    // Due to bug in ANTLR Gradle plugin https://stackoverflow.com/a/49388412
-    outputDirectory =
-        project.layout.buildDirectory.dir(
-            "generated-src/antlr/main/org/sonar/iac/springconfig/parser/properties/"
-        ).get().asFile
+    // To generate files in expected package/directory due to Java conventions https://stackoverflow.com/a/49388412
+    outputDirectory = File(outputDirectory.path + "/org/sonar/iac/springconfig/parser/properties/")
 }
 
 tasks.sourcesJar {

@@ -26,6 +26,14 @@ eol
     | EOF
     ;
 
+commentText
+    : CHARACTER+
+    ;
+
+commentStartAndText
+    : COMMENT commentText
+    ;
+
 comment
-    : COMMENT eol
+    : commentStartAndText eol
     ;
