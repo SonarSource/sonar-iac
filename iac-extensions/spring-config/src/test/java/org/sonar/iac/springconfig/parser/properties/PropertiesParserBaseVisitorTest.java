@@ -24,7 +24,6 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -624,11 +623,11 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile multiline=This line \\\\ncontinues<EOF>",
-      "visitRow multiline=This line \\\\ncontinues<EOF>",
-      "visitLine multiline=This line \\\\ncontinues<EOF>",
+      "visitPropertiesFile multiline=This line continues<EOF>",
+      "visitRow multiline=This line continues<EOF>",
+      "visitLine multiline=This line continues<EOF>",
       "visitKey multiline",
-      "visitKey This line \\\\ncontinues",
+      "visitKey This line continues",
       "visitEol <EOF>");
   }
 
@@ -671,18 +670,16 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile oddKey=This is line one and\\\\\\\\n# This is line two<EOF>",
-      "visitRow oddKey=This is line one and\\\\\\\\n# This is line two<EOF>",
-      "visitLine oddKey=This is line one and\\\\\\\\n# This is line two<EOF>",
+      "visitPropertiesFile oddKey=This is line one and\\\\# This is line two<EOF>",
+      "visitRow oddKey=This is line one and\\\\# This is line two<EOF>",
+      "visitLine oddKey=This is line one and\\\\# This is line two<EOF>",
       "visitKey oddKey",
-      "visitKey This is line one and\\\\\\\\n# This is line two",
+      "visitKey This is line one and\\\\# This is line two",
       "visitEol <EOF>");
   }
 
-  // TODO Spaces after slash + line break should be removed
-  @Disabled
   @Test
-  void shouldRemoveSpacesAfterLineBreak() {
+  void shouldRemoveLeadingSpacesAfterLineBreak() {
     var code = """
       welcome = Welcome to \\
                 Wikipedia!""";
@@ -690,11 +687,11 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile welcome = Welcome to \\n          Wikipedia!<EOF>",
-      "visitRow welcome = Welcome to \\n          Wikipedia!<EOF>",
-      "visitLine welcome = Welcome to \\n          Wikipedia!<EOF>",
-      "visitKey welcome ",
-      "visitKey  Welcome to \\n          Wikipedia!",
+      "visitPropertiesFile welcome = Welcome to Wikipedia!<EOF>",
+      "visitRow welcome = Welcome to Wikipedia!<EOF>",
+      "visitLine welcome = Welcome to Wikipedia!<EOF>",
+      "visitKey welcome",
+      "visitKey Welcome to Wikipedia!",
       "visitEol <EOF>");
   }
 
