@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.springconfig.tree.api;
 
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.PropertyTree;
 
 /**
@@ -31,7 +32,8 @@ public interface Tuple extends SpringConfig, PropertyTree {
   Scalar key();
 
   /**
-   * @return the value of the tuple.
+   * @return the value of the tuple, maybe null
    */
+  @Nullable
   Scalar value();
 }

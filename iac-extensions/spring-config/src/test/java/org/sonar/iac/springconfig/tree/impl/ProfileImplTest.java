@@ -21,6 +21,7 @@ package org.sonar.iac.springconfig.tree.impl;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
@@ -45,13 +46,16 @@ class ProfileImplTest {
 
     TupleImpl tupleTree2 = new TupleImpl(keyScalar2, valueScalar2);
 
-    ProfileImpl profileTree = new ProfileImpl(List.of(tupleTree, tupleTree2));
+    CommentImpl comment = new CommentImpl("# commentValue", "commentValue", TextRanges.range(1, 1, 1, 10));
+    String profileName = "profileName";
+    boolean isActive = true;
+    ProfileImpl profileTree = new ProfileImpl(List.of(tupleTree, tupleTree2), List.of(comment), profileName, isActive);
 
     assertThat(profileTree.properties()).containsExactly(tupleTree, tupleTree2);
     assertThat(profileTree.children()).containsExactly(tupleTree, tupleTree2);
-    assertThat(profileTree.comments()).isEmpty();
-    assertThat(profileTree.name()).isEqualTo("default");
-    assertThat(profileTree.isActive()).isTrue();
+    assertThat(profileTree.comments()).containsExactly(comment);
+    assertThat(profileTree.name()).isEqualTo(profileName);
+    assertThat(profileTree.isActive()).isEqualTo(isActive);
 
     TextRangeAssert.assertThat(profileTree.textRange())
       .hasRange(1, 4, 3, 30);
@@ -59,7 +63,7 @@ class ProfileImplTest {
 
   @Test
   void constructorTestWhenEmpty() {
-    ProfileImpl profileTree = new ProfileImpl(List.of());
+    ProfileImpl profileTree = new ProfileImpl(List.of(), List.of(), "default", true);
 
     assertThat(profileTree.properties()).isEmpty();
     assertThat(profileTree.children()).isEmpty();

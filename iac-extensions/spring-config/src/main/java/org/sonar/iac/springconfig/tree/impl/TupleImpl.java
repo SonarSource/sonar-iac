@@ -21,12 +21,15 @@ package org.sonar.iac.springconfig.tree.impl;
 
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.springconfig.tree.api.Scalar;
 import org.sonar.iac.springconfig.tree.api.Tuple;
 
 public class TupleImpl extends AbstractSpringConfigImpl implements Tuple {
   private final Scalar key;
+
+  @Nullable
   private final Scalar value;
 
   public TupleImpl(Scalar key, Scalar value) {
@@ -45,6 +48,7 @@ public class TupleImpl extends AbstractSpringConfigImpl implements Tuple {
   }
 
   @Override
+  @Nullable
   public Scalar value() {
     return value;
   }

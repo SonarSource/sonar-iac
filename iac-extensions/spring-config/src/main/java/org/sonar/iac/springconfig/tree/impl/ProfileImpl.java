@@ -28,9 +28,15 @@ import org.sonar.iac.springconfig.tree.api.Tuple;
 
 public class ProfileImpl extends AbstractSpringConfigImpl implements Profile {
   private final List<Tuple> properties;
+  private final List<Comment> comments;
+  private final String name;
+  private final boolean active;
 
-  public ProfileImpl(List<Tuple> properties) {
+  public ProfileImpl(List<Tuple> properties, List<Comment> comments, String name, boolean active) {
     this.properties = properties;
+    this.comments = comments;
+    this.name = name;
+    this.active = active;
   }
 
   @Override
@@ -45,16 +51,16 @@ public class ProfileImpl extends AbstractSpringConfigImpl implements Profile {
 
   @Override
   public List<Comment> comments() {
-    return List.of();
+    return comments;
   }
 
   @Override
   public String name() {
-    return "default";
+    return name;
   }
 
   @Override
   public boolean isActive() {
-    return true;
+    return active;
   }
 }

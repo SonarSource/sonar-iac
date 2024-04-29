@@ -43,7 +43,7 @@ class FileImplTest {
     ScalarImpl valueScalar2 = new ScalarImpl(valueSyntaxToken2);
     TupleImpl tupleTree2 = new TupleImpl(keyScalar2, valueScalar2);
 
-    ProfileImpl profileTree = new ProfileImpl(List.of(tupleTree, tupleTree2));
+    ProfileImpl profileTree = new ProfileImpl(List.of(tupleTree, tupleTree2), List.of(), "profileName", true);
 
     FileImpl fileTree = new FileImpl(List.of(profileTree));
 

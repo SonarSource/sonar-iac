@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.springconfig.tree.impl;
 
-import java.util.Arrays;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.springconfig.tree.api.Scalar;
@@ -39,7 +38,7 @@ public class ScalarImpl extends AbstractSpringConfigImpl implements Scalar {
 
   @Override
   public List<Tree> children() {
-    return Arrays.asList(value);
+    return List.of(value);
   }
 
 }

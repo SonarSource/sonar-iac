@@ -46,8 +46,7 @@ class ScalarImplTest {
     ScalarImpl scalarTree = new ScalarImpl(null);
 
     assertThat(scalarTree.value()).isNull();
-    assertThat(scalarTree.children()).hasSize(1);
-    assertThat(scalarTree.children()).containsNull();
+    assertThatThrownBy(scalarTree::children).isInstanceOf(NullPointerException.class);
     assertThatThrownBy(scalarTree::textRange).isInstanceOf(NullPointerException.class);
   }
 }
