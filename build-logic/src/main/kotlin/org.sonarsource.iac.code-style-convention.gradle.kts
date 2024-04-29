@@ -7,10 +7,12 @@ plugins {
 spotless {
     encoding(Charsets.UTF_8)
     java {
+        // point to immutable specific commit of sonar-formater.xml version 23
         eclipse("4.22")
             .configFile(
                 Blowdryer.immutableUrl(
-                    "https://raw.githubusercontent.com/SonarSource/sonar-developer-toolset/master/eclipse/sonar-formatter.xml"
+                    "https://raw.githubusercontent.com/SonarSource/sonar-developer-toolset/" +
+                        "540ef32ba22c301f6d05a5305f4e1dbd204839f3/eclipse/sonar-formatter.xml"
                 )
             )
         licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
