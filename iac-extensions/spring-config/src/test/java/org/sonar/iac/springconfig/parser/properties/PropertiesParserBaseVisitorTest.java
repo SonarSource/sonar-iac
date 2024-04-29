@@ -63,7 +63,7 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
-  // TODO separate by space
+  // TODO separate by space -> Do it!
   @Disabled
   @Test
   void shouldParseKeyValueSeparatedBySpace() {
@@ -80,8 +80,6 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
-  // TODO separate by TAB
-  @Disabled
   @Test
   void shouldParseKeyValueSeparatedByTab() {
     var code = "foo\tbar";
@@ -97,8 +95,6 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
-  // TODO separate by Form Feed
-  @Disabled
   @Test
   void shouldParseKeyValueSeparatedByFormFeed() {
     var code = "foo\fbar";
@@ -570,7 +566,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow foo1 = bar1\\n",
       "visitLine foo1 = bar1\\n",
       "visitKey foo1 ",
-      // TODO trim whitespace for before value?
+      // TODO trim whitespace for before value? -> do it!
       "visitKey  bar1",
       "visitEol \\n",
       "visitRow foo2= bar2\\n",
@@ -686,7 +682,7 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
-  // TODO Spaces are not removed - not sure if this should be fixed
+  // TODO Spaces after slash + line break should be removed
   @Disabled
   @Test
   void shouldRemoveSpacesAfterLineBreak() {
