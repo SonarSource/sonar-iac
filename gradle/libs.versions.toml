@@ -47,3 +47,4 @@ diffplug-blowdryer = { module = "com.diffplug:blowdryer", version.ref = "blowdry
 google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "google-protobuf" }
 apache-commons-lang = { module = "commons-lang:commons-lang", version.ref = "apache-commons-lang" }
 antlr4 = { module = "org.antlr:antlr4", version.ref = "antlr4" }
+antlr4-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr4" }

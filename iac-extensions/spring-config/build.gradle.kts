@@ -11,12 +11,19 @@ dependencies {
 
     api(project(":iac-common"))
 
+    implementation(libs.antlr4.runtime)
+
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
     testImplementation(libs.sonar.plugin.api.test.fixtures)
     testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
+}
+
+// The antlr configuration add automatically a whole library to the JAR, however only antlr4-runtime is needed
+configurations.implementation {
+    exclude(group = "org.antlr", module = "antlr4")
 }
 
 tasks.generateGrammarSource {
