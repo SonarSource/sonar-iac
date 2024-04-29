@@ -63,8 +63,6 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
-  // TODO separate by space -> Do it!
-  @Disabled
   @Test
   void shouldParseKeyValueSeparatedBySpace() {
     var code = "foo bar";
