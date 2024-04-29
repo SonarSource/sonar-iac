@@ -30,8 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public record SeparatedListImpl<T extends Tree, U extends IacToken>(List<T> elements,
-                                                                    List<U> separators) implements SeparatedList<T, U> {
+public record SeparatedListImpl<T extends Tree, U extends IacToken> (List<T> elements,
+  List<U> separators) implements SeparatedList<T, U> {
 
   @Override
   public List<U> separators() {
