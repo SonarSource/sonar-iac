@@ -21,6 +21,7 @@ package org.sonar.iac.springconfig.parser.properties;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
-  void shouldParseSimpleExpressionWithComment() {
+  void shouldParseSimpleExpressionWithComments() {
     var code = """
       # example comment
       foo=bar
@@ -57,19 +58,41 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile # example comment\n" +
-        "foo=bar\n" +
-        "#comment at the end<EOF>",
-      "visitRow # example comment\n",
-      "visitComment # example comment\n",
-      "visitEol \n",
-      "visitRow foo=bar\n",
-      "visitLine foo=bar\n",
+      "visitPropertiesFile # example comment\\nfoo=bar\\n#comment at the end<EOF>",
+      "visitRow # example comment\\n",
+      "visitComment # example comment\\n",
+      "visitEol \\n",
+      "visitRow foo=bar\\n",
+      "visitLine foo=bar\\n",
       "visitKey foo",
       "visitKey bar",
-      "visitEol \n",
+      "visitEol \\n",
       "visitRow #comment at the end<EOF>",
       "visitComment #comment at the end<EOF>",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseCommentsStartsWithExclamationMark() {
+    var code = """
+      ! also a comment
+      foo=bar
+      ! also comment at the end""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile ! also a comment\\nfoo=bar\\n! also comment at the end<EOF>",
+      "visitRow ! also a comment\\n",
+      "visitComment ! also a comment\\n",
+      "visitEol \\n",
+      "visitRow foo=bar\\n",
+      "visitLine foo=bar\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\n",
+      "visitRow ! also comment at the end<EOF>",
+      "visitComment ! also comment at the end<EOF>",
       "visitEol <EOF>");
   }
 
@@ -112,13 +135,12 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile mail.defaultRecipients[0]=admin@mail.com\n" +
-        "mail.defaultRecipients[1]=owner@mail.com<EOF>",
-      "visitRow mail.defaultRecipients[0]=admin@mail.com\n",
-      "visitLine mail.defaultRecipients[0]=admin@mail.com\n",
+      "visitPropertiesFile mail.defaultRecipients[0]=admin@mail.com\\nmail.defaultRecipients[1]=owner@mail.com<EOF>",
+      "visitRow mail.defaultRecipients[0]=admin@mail.com\\n",
+      "visitLine mail.defaultRecipients[0]=admin@mail.com\\n",
       "visitKey mail.defaultRecipients[0]",
       "visitKey admin@mail.com",
-      "visitEol \n",
+      "visitEol \\n",
       "visitRow mail.defaultRecipients[1]=owner@mail.com<EOF>",
       "visitLine mail.defaultRecipients[1]=owner@mail.com<EOF>",
       "visitKey mail.defaultRecipients[1]",
@@ -127,33 +149,130 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
-  void shouldParseDifferentNewLines() {
-    var code = "foo1=bar1\nfoo2=bar2\rfoo3=bar3\r\nfoo4=4\n";
+  void shouldParseMultipleEmptyLines() {
+    var code = """
+      foo=bar
+
+      bar=foo""";
 
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo1=bar1\n" +
-      // the character after \r is missing
-        "foo2=bar2oo3=bar3\r\n" +
-        "foo4=4\n",
-      "visitRow foo1=bar1\n",
-      "visitLine foo1=bar1\n",
-      "visitKey foo1",
-      "visitKey bar1",
-      "visitEol \n",
-      "visitRow foo2=bar2oo3=bar3\r\n",
-      "visitLine foo2=bar2oo3=bar3\r\n",
-      "visitKey foo2",
-      "visitKey bar2oo3=bar3",
-      "visitEol \r\n",
-      "visitRow foo4=4\n",
-      "visitLine foo4=4\n",
-      "visitKey foo4",
-      "visitKey 4",
-      "visitEol \n");
+      "visitPropertiesFile foo=bar\\n\\nbar=foo<EOF>",
+      "visitRow foo=bar\\n\\n",
+      "visitLine foo=bar\\n\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\n\\n",
+      "visitRow bar=foo<EOF>",
+      "visitLine bar=foo<EOF>",
+      "visitKey bar",
+      "visitKey foo",
+      "visitEol <EOF>");
   }
 
+  @Test
+  void shouldParseNewLinesCR() {
+    var code = "foo1=bar1\rfoo2=bar2\r\r\rfoo3=bar3\r";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo1=bar1\\rfoo2=bar2\\r\\r\\rfoo3=bar3\\r",
+      "visitRow foo1=bar1\\r",
+      "visitLine foo1=bar1\\r",
+      "visitKey foo1",
+      "visitKey bar1",
+      "visitEol \\r",
+      "visitRow foo2=bar2\\r\\r\\r",
+      "visitLine foo2=bar2\\r\\r\\r",
+      "visitKey foo2",
+      "visitKey bar2",
+      "visitEol \\r\\r\\r",
+      "visitRow foo3=bar3\\r",
+      "visitLine foo3=bar3\\r",
+      "visitKey foo3",
+      "visitKey bar3",
+      "visitEol \\r");
+  }
+
+  @Test
+  void shouldParseNewLinesCRLF() {
+    var code = "foo1=bar1\r\nfoo2=bar2\r\n\r\n\r\nfoo3=bar3\r\n";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo1=bar1\\r\\nfoo2=bar2\\r\\n\\r\\n\\r\\nfoo3=bar3\\r\\n",
+      "visitRow foo1=bar1\\r\\n",
+      "visitLine foo1=bar1\\r\\n",
+      "visitKey foo1",
+      "visitKey bar1",
+      "visitEol \\r\\n",
+      "visitRow foo2=bar2\\r\\n\\r\\n\\r\\n",
+      "visitLine foo2=bar2\\r\\n\\r\\n\\r\\n",
+      "visitKey foo2",
+      "visitKey bar2",
+      "visitEol \\r\\n\\r\\n\\r\\n",
+      "visitRow foo3=bar3\\r\\n",
+      "visitLine foo3=bar3\\r\\n",
+      "visitKey foo3",
+      "visitKey bar3",
+      "visitEol \\r\\n");
+  }
+
+  @Test
+  void shouldParseNewLinesU2028() {
+    var code = "foo1=bar1\u2028foo2=bar2\u2028\u2028\u2028foo3=bar3\u2028";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo1=bar1\\u2028foo2=bar2\\u2028\\u2028\\u2028foo3=bar3\\u2028",
+      "visitRow foo1=bar1\\u2028",
+      "visitLine foo1=bar1\\u2028",
+      "visitKey foo1",
+      "visitKey bar1",
+      "visitEol \\u2028",
+      "visitRow foo2=bar2\\u2028\\u2028\\u2028",
+      "visitLine foo2=bar2\\u2028\\u2028\\u2028",
+      "visitKey foo2",
+      "visitKey bar2",
+      "visitEol \\u2028\\u2028\\u2028",
+      "visitRow foo3=bar3\\u2028",
+      "visitLine foo3=bar3\\u2028",
+      "visitKey foo3",
+      "visitKey bar3",
+      "visitEol \\u2028");
+  }
+
+  @Test
+  void shouldParseNewLinesU2029() {
+    var code = "foo1=bar1\u2029foo2=bar2\u2029\u2029\u2029foo3=bar3\u2029";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo1=bar1\\u2029foo2=bar2\\u2029\\u2029\\u2029foo3=bar3\\u2029",
+      "visitRow foo1=bar1\\u2029",
+      "visitLine foo1=bar1\\u2029",
+      "visitKey foo1",
+      "visitKey bar1",
+      "visitEol \\u2029",
+      "visitRow foo2=bar2\\u2029\\u2029\\u2029",
+      "visitLine foo2=bar2\\u2029\\u2029\\u2029",
+      "visitKey foo2",
+      "visitKey bar2",
+      "visitEol \\u2029\\u2029\\u2029",
+      "visitRow foo3=bar3\\u2029",
+      "visitLine foo3=bar3\\u2029",
+      "visitKey foo3",
+      "visitKey bar3",
+      "visitEol \\u2029");
+  }
+
+
+  
   private void parseProperties(String code) {
     var inputCode = CharStreams.fromString(code);
     var propertiesLexer = new PropertiesLexer(inputCode);
@@ -170,38 +289,49 @@ class PropertiesParserBaseVisitorTest {
 
     @Override
     public Void visitPropertiesFile(PropertiesParser.PropertiesFileContext ctx) {
-      visited.add("visitPropertiesFile " + ctx.getText());
+      visited.add("visitPropertiesFile " + printText(ctx));
       return super.visitPropertiesFile(ctx);
     }
 
     @Override
     public Void visitRow(PropertiesParser.RowContext ctx) {
-      visited.add("visitRow " + ctx.getText());
+      visited.add("visitRow " + printText(ctx));
       return super.visitRow(ctx);
     }
 
     @Override
     public Void visitLine(PropertiesParser.LineContext ctx) {
-      visited.add("visitLine " + ctx.getText());
+      visited.add("visitLine " + printText(ctx));
+      // ctx.key()
+
       return super.visitLine(ctx);
     }
 
     @Override
     public Void visitKey(PropertiesParser.KeyContext ctx) {
-      visited.add("visitKey " + ctx.getText());
+      visited.add("visitKey " + printText(ctx));
       return super.visitKey(ctx);
     }
 
     @Override
     public Void visitEol(PropertiesParser.EolContext ctx) {
-      visited.add("visitEol " + ctx.getText());
+      visited.add("visitEol " + printText(ctx));
       return super.visitEol(ctx);
     }
 
     @Override
     public Void visitComment(PropertiesParser.CommentContext ctx) {
-      visited.add("visitComment " + ctx.getText());
+      visited.add("visitComment " + printText(ctx));
       return super.visitComment(ctx);
+    }
+
+    private static String printText(ParseTree ctx) {
+      return ctx.getText()
+        .replace("\r\n", "\\r\\n")
+        .replace("\r", "\\r")
+        .replace("\n", "\\n")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029");
     }
 
     public List<String> visited() {
