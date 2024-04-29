@@ -565,18 +565,17 @@ class PropertiesParserBaseVisitorTest {
       "visitPropertiesFile foo1 = bar1\\nfoo2= bar2\\nfoo3 =bar3<EOF>",
       "visitRow foo1 = bar1\\n",
       "visitLine foo1 = bar1\\n",
-      "visitKey foo1 ",
-      // TODO trim whitespace for before value? -> do it!
-      "visitKey  bar1",
+      "visitKey foo1",
+      "visitKey bar1",
       "visitEol \\n",
       "visitRow foo2= bar2\\n",
       "visitLine foo2= bar2\\n",
       "visitKey foo2",
-      "visitKey  bar2",
+      "visitKey bar2",
       "visitEol \\n",
       "visitRow foo3 =bar3<EOF>",
       "visitLine foo3 =bar3<EOF>",
-      "visitKey foo3 ",
+      "visitKey foo3",
       "visitKey bar3",
       "visitEol <EOF>");
   }
@@ -614,24 +613,24 @@ class PropertiesParserBaseVisitorTest {
       "visitRow delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF>",
       "visitLine delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF>",
       "visitKey delimiterCharacters\\:\\=\\ ",
-      "visitKey  This is the value for the key \"delimiterCharacters\\:\\=\\ \"",
+      "visitKey This is the value for the key \"delimiterCharacters\\:\\=\\ \"",
       "visitEol <EOF>");
   }
 
   @Test
   void shouldParseMultilineValue() {
     var code = """
-      multiline = This line \\
+      multiline=This line \\
       continues""";
 
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile multiline = This line \\\\ncontinues<EOF>",
-      "visitRow multiline = This line \\\\ncontinues<EOF>",
-      "visitLine multiline = This line \\\\ncontinues<EOF>",
-      "visitKey multiline ",
-      "visitKey  This line \\\\ncontinues",
+      "visitPropertiesFile multiline=This line \\\\ncontinues<EOF>",
+      "visitRow multiline=This line \\\\ncontinues<EOF>",
+      "visitLine multiline=This line \\\\ncontinues<EOF>",
+      "visitKey multiline",
+      "visitKey This line \\\\ncontinues",
       "visitEol <EOF>");
   }
 
@@ -652,33 +651,33 @@ class PropertiesParserBaseVisitorTest {
 
   @Test
   void shouldParseDoubleSlashAtTheEndOfValue() {
-    var code = "evenKey = This is on one line\\\\";
+    var code = "evenKey=This is on one line\\\\";
 
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile evenKey = This is on one line\\\\<EOF>",
-      "visitRow evenKey = This is on one line\\\\<EOF>",
-      "visitLine evenKey = This is on one line\\\\<EOF>",
-      "visitKey evenKey ",
-      "visitKey  This is on one line\\\\",
+      "visitPropertiesFile evenKey=This is on one line\\\\<EOF>",
+      "visitRow evenKey=This is on one line\\\\<EOF>",
+      "visitLine evenKey=This is on one line\\\\<EOF>",
+      "visitKey evenKey",
+      "visitKey This is on one line\\\\",
       "visitEol <EOF>");
   }
 
   @Test
   void shouldParseOddSlashAndNextLineAsContinuationOfTheValue() {
     var code = """
-      oddKey = This is line one and\\\\\\
+      oddKey=This is line one and\\\\\\
       # This is line two""";
 
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile oddKey = This is line one and\\\\\\\\n# This is line two<EOF>",
-      "visitRow oddKey = This is line one and\\\\\\\\n# This is line two<EOF>",
-      "visitLine oddKey = This is line one and\\\\\\\\n# This is line two<EOF>",
-      "visitKey oddKey ",
-      "visitKey  This is line one and\\\\\\\\n# This is line two",
+      "visitPropertiesFile oddKey=This is line one and\\\\\\\\n# This is line two<EOF>",
+      "visitRow oddKey=This is line one and\\\\\\\\n# This is line two<EOF>",
+      "visitLine oddKey=This is line one and\\\\\\\\n# This is line two<EOF>",
+      "visitKey oddKey",
+      "visitKey This is line one and\\\\\\\\n# This is line two",
       "visitEol <EOF>");
   }
 
@@ -703,16 +702,16 @@ class PropertiesParserBaseVisitorTest {
 
   @Test
   void shouldParseEscapedNewLineAndCarriageReturn() {
-    var code = "valueWithEscapes = This is a newline\\n and a carriage return\\r and a tab\\t.";
+    var code = "valueWithEscapes=This is a newline\\n and a carriage return\\r and a tab\\t.";
 
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile valueWithEscapes = This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
-      "visitRow valueWithEscapes = This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
-      "visitLine valueWithEscapes = This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
-      "visitKey valueWithEscapes ",
-      "visitKey  This is a newline\\n and a carriage return\\r and a tab\\t.",
+      "visitPropertiesFile valueWithEscapes=This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
+      "visitRow valueWithEscapes=This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
+      "visitLine valueWithEscapes=This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
+      "visitKey valueWithEscapes",
+      "visitKey This is a newline\\n and a carriage return\\r and a tab\\t.",
       "visitEol <EOF>");
   }
 
