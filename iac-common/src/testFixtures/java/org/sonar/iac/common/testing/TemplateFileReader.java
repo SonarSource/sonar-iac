@@ -29,13 +29,11 @@ public class TemplateFileReader {
   public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
 
   public static String readContent(String path) {
-    String content;
     try {
-      content = Files.readString(BASE_DIR.resolve(path));
+      return Files.readString(BASE_DIR.resolve(path));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return content;
   }
 
   public static String readTemplateAndReplace(String path, String type) {
