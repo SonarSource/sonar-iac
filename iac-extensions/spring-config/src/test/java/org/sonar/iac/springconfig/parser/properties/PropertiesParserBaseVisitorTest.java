@@ -221,8 +221,7 @@ class PropertiesParserBaseVisitorTest {
       "visitLine foo=bar # foo2=bar2<EOF>",
       "visitKey foo",
       "visitKey bar # foo2=bar2",
-      "visitEol <EOF>"
-      );
+      "visitEol <EOF>");
   }
 
   @Test
@@ -796,8 +795,7 @@ class PropertiesParserBaseVisitorTest {
       "visitKey foo4",
       "visitKey valueUnicode\u00FC\u00F6 [7:5/7:18] StartIndex: 72",
       "visitKey valueUnicode\u00FC\u00F6",
-      "visitEol <EOF>"
-    );
+      "visitEol <EOF>");
   }
 
   @Test
