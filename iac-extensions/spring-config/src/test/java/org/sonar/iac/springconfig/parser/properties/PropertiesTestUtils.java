@@ -17,40 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.tree.impl;
+package org.sonar.iac.springconfig.parser.properties;
 
-import java.util.Arrays;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.springconfig.tree.api.Scalar;
-import org.sonar.iac.springconfig.tree.api.Tuple;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 
-public class TupleImpl extends AbstractSpringConfigImpl implements Tuple {
-  private final Scalar key;
+public class PropertiesTestUtils {
 
-  @Nullable
-  private final Scalar value;
-
-  public TupleImpl(Scalar key, @Nullable Scalar value) {
-    this.key = key;
-    this.value = value;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Arrays.asList(key, value);
-  }
-
-  @Override
-  public Scalar key() {
-    return key;
-  }
-
-  @Override
-  @CheckForNull
-  public Scalar value() {
-    return value;
+  public static PropertiesParser.PropertiesFileContext createPropertiesFileContext(String code) {
+    var inputCode = CharStreams.fromString(code);
+    var propertiesLexer = new PropertiesLexer(inputCode);
+    var commonTokenStream = new CommonTokenStream(propertiesLexer);
+    var parser = new PropertiesParser(commonTokenStream);
+    return parser.propertiesFile();
   }
 }

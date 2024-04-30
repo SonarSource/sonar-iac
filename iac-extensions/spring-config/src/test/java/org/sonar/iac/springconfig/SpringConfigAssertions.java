@@ -17,40 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.tree.impl;
+package org.sonar.iac.springconfig;
 
-import java.util.Arrays;
-import java.util.List;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.springconfig.tree.api.Scalar;
-import org.sonar.iac.springconfig.tree.api.Tuple;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.testing.ExternalIssueAssert;
+import org.sonar.iac.common.testing.TextRangeAssert;
+import org.sonar.iac.common.testing.TextRangePluginApiAssert;
 
-public class TupleImpl extends AbstractSpringConfigImpl implements Tuple {
-  private final Scalar key;
-
-  @Nullable
-  private final Scalar value;
-
-  public TupleImpl(Scalar key, @Nullable Scalar value) {
-    this.key = key;
-    this.value = value;
+public class SpringConfigAssertions {
+  public static TextRangeAssert assertThat(@Nullable TextRange actual) {
+    return TextRangeAssert.assertThat(actual);
   }
 
-  @Override
-  public List<Tree> children() {
-    return Arrays.asList(key, value);
+  public static TextRangePluginApiAssert assertThat(@Nullable org.sonar.api.batch.fs.TextRange actual) {
+    return TextRangePluginApiAssert.assertThat(actual);
   }
 
-  @Override
-  public Scalar key() {
-    return key;
-  }
-
-  @Override
-  @CheckForNull
-  public Scalar value() {
-    return value;
+  public static ExternalIssueAssert assertThat(@Nullable ExternalIssue issue) {
+    return ExternalIssueAssert.assertThat(issue);
   }
 }
