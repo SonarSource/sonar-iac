@@ -21,16 +21,19 @@ package org.sonar.iac.springconfig.parser.properties;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PropertiesParserBaseVisitorTest {
 
   TestVisitor visitor = new TestVisitor();
+  TextRangeTestVisitor visitorTextRanges = new TextRangeTestVisitor();
 
   @Test
   void shouldParseSimpleKeyValue() {
@@ -191,6 +194,35 @@ class PropertiesParserBaseVisitorTest {
       "visitKey logging.pattern.console",
       "visitKey %d{mm:ss.SSS} %-5p [%-31t] [%-54logger{0}] %marker%m%ex{full} - %logger - %F:%L%n",
       "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseTrailingCommentsAsValue() {
+    var code = """
+      foo=bar
+      # foo=bar
+      foo=bar # foo2=bar2""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo=bar\\n# foo=bar\\nfoo=bar # foo2=bar2<EOF>",
+      "visitRow foo=bar\\n",
+      "visitLine foo=bar\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\n",
+      "visitRow # foo=bar\\n",
+      "visitComment # foo=bar\\n",
+      "visitCommentStartAndText # foo=bar",
+      "visitCommentText  foo=bar",
+      "visitEol \\n",
+      "visitRow foo=bar # foo2=bar2<EOF>",
+      "visitLine foo=bar # foo2=bar2<EOF>",
+      "visitKey foo",
+      "visitKey bar # foo2=bar2",
+      "visitEol <EOF>"
+      );
   }
 
   @Test
@@ -710,6 +742,71 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
+  @Test
+  void shouldVerifyTextRanges() {
+    var code = """
+      # comment 1
+      foo1 = bar1
+      !comment2
+      foo2=bar2
+      foo3 =multiline\\
+      value
+      foo4=valueUnicode\u00FC\u00F6""";
+
+    parseProperties(code);
+
+    assertThat(visitorTextRanges.visited()).containsExactly(
+      "visitPropertiesFile # comment 1\\nfoo1 = bar1\\n!comment2\\nfoo2=bar2\\nfoo3 =multilinevalue\\nfoo4=valueUnicode\u00FC\u00F6<EOF>",
+      "visitRow # comment 1\\n",
+      "visitComment # comment 1\\n",
+      "visitCommentStartAndText # comment 1 [1:0/1:10] StartIndex: 0",
+      "visitCommentStartAndText # comment 1",
+      "visitCommentText  comment 1",
+      "visitEol \\n",
+      "visitRow foo1 = bar1\\n",
+      "visitLine foo1 = bar1\\n",
+      "visitKey foo1 [2:0/2:3] StartIndex: 12",
+      "visitKey foo1",
+      "visitKey bar1 [2:7/2:10] StartIndex: 19",
+      "visitKey bar1",
+      "visitEol \\n",
+      "visitRow !comment2\\n",
+      "visitComment !comment2\\n",
+      "visitCommentStartAndText !comment2 [3:0/3:8] StartIndex: 24",
+      "visitCommentStartAndText !comment2",
+      "visitCommentText comment2",
+      "visitEol \\n",
+      "visitRow foo2=bar2\\n",
+      "visitLine foo2=bar2\\n",
+      "visitKey foo2 [4:0/4:3] StartIndex: 34",
+      "visitKey foo2",
+      "visitKey bar2 [4:5/4:8] StartIndex: 39",
+      "visitKey bar2",
+      "visitEol \\n",
+      "visitRow foo3 =multilinevalue\\n",
+      "visitLine foo3 =multilinevalue\\n",
+      "visitKey foo3 [5:0/5:3] StartIndex: 44",
+      "visitKey foo3",
+      "visitKey multilinevalue [5:6/6:4] StartIndex: 50",
+      "visitKey multilinevalue",
+      "visitEol \\n",
+      "visitRow foo4=valueUnicode\u00FC\u00F6<EOF>",
+      "visitLine foo4=valueUnicode\u00FC\u00F6<EOF>",
+      "visitKey foo4 [7:0/7:3] StartIndex: 67",
+      "visitKey foo4",
+      "visitKey valueUnicode\u00FC\u00F6 [7:5/7:18] StartIndex: 72",
+      "visitKey valueUnicode\u00FC\u00F6",
+      "visitEol <EOF>"
+    );
+  }
+
+  @Test
+  void shouldParseEmptyString() {
+    var code = "";
+    parseProperties(code);
+    assertThat(visitor.visited()).containsExactly("visitPropertiesFile ");
+  }
+
   private void parseProperties(String code) {
     var inputCode = CharStreams.fromString(code);
     var propertiesLexer = new PropertiesLexer(inputCode);
@@ -718,11 +815,12 @@ class PropertiesParserBaseVisitorTest {
     var propertiesFileContext = parser.propertiesFile();
 
     visitor.visitPropertiesFile(propertiesFileContext);
+    visitorTextRanges.visitPropertiesFile(propertiesFileContext);
   }
 
   static class TestVisitor extends PropertiesParserBaseVisitor<Void> {
 
-    private List<String> visited = new ArrayList<>();
+    protected List<String> visited = new ArrayList<>();
 
     @Override
     public Void visitPropertiesFile(PropertiesParser.PropertiesFileContext ctx) {
@@ -739,8 +837,6 @@ class PropertiesParserBaseVisitorTest {
     @Override
     public Void visitLine(PropertiesParser.LineContext ctx) {
       visited.add("visitLine " + printText(ctx));
-      // ctx.key()
-
       return super.visitLine(ctx);
     }
 
@@ -774,7 +870,7 @@ class PropertiesParserBaseVisitorTest {
       return super.visitCommentStartAndText(ctx);
     }
 
-    private static String printText(ParseTree ctx) {
+    protected static String printText(ParseTree ctx) {
       return ctx.getText()
         .replace("\r\n", "\\r\\n")
         .replace("\r", "\\r")
@@ -787,6 +883,29 @@ class PropertiesParserBaseVisitorTest {
 
     public List<String> visited() {
       return visited;
+    }
+  }
+
+  static class TextRangeTestVisitor extends TestVisitor {
+    @Override
+    public Void visitKey(PropertiesParser.KeyContext ctx) {
+      visited.add("visitKey " + printText(ctx) + printTextRange(ctx));
+      return super.visitKey(ctx);
+    }
+
+    @Override
+    public Void visitCommentStartAndText(PropertiesParser.CommentStartAndTextContext ctx) {
+      visited.add("visitCommentStartAndText " + printText(ctx) + printTextRange(ctx));
+      return super.visitCommentStartAndText(ctx);
+    }
+
+    private String printTextRange(ParserRuleContext ctx) {
+      var textRange = TextRanges.range(
+        ctx.start.getLine(),
+        ctx.start.getCharPositionInLine(),
+        ctx.stop.getLine(),
+        ctx.stop.getCharPositionInLine());
+      return " " + textRange + " StartIndex: " + ctx.start.getStartIndex();
     }
   }
 }
