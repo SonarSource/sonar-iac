@@ -17,30 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.plugin;
+package org.sonar.iac.springconfig.checks;
 
 import java.util.List;
-import org.sonar.api.SonarRuntime;
-import org.sonar.iac.common.extension.IacRulesDefinition;
-import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 
-public class SpringConfigRulesDefinition extends IacRulesDefinition {
-  protected SpringConfigRulesDefinition(SonarRuntime runtime) {
-    super(runtime);
+public final class SpringConfigCheckList {
+  private SpringConfigCheckList() {
   }
 
-  @Override
-  protected List<Class<?>> checks() {
-    return SpringConfigCheckList.checks();
-  }
-
-  @Override
-  protected String ruleRepositoryKey() {
-    return SpringConfigExtension.REPOSITORY_KEY;
-  }
-
-  @Override
-  public String languageKey() {
-    return SpringConfigExtension.LANGUAGE_KEY;
+  public static List<Class<?>> checks() {
+    return List.of();
   }
 }

@@ -23,6 +23,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -48,6 +49,7 @@ class IacRulingTest {
   private static final String LITS_VERSION = "0.11.0.2659";
   private static final File LITS_OUTPUT_DIRECTORY = FileLocation.of("build/reports/lits").getFile();
   private static final File LITS_DIFFERENCES_FILE = Path.of(LITS_OUTPUT_DIRECTORY.toURI()).resolve("differences").toFile();
+  private static final String JAVA_VERSION = "7.34.0.35958";
   private static final String SCANNER_VERSION = "5.0.1.3006";
 
   @RegisterExtension
@@ -55,6 +57,7 @@ class IacRulingTest {
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardFilename(new File("../../sonar-iac-plugin/build/libs"), "sonar-iac-plugin-*-all.jar"))
+    .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", JAVA_VERSION))
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
     .build();
 
@@ -74,6 +77,8 @@ class IacRulingTest {
       File languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
       orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
     });
+    orchestrator.getServer().restoreProfile(ResourceLocation.create("/no_rules-java.xml"));
+
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
   }
 
@@ -147,6 +152,7 @@ class IacRulingTest {
     String projectKey = project.replace("/", "-") + "-project";
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     LANGUAGES.forEach(lang -> orchestrator.getServer().associateProjectToQualityProfile(projectKey, lang, "rules"));
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "java", "rules");
 
     SonarScanner build = SonarScanner.create(FileLocation.of("../").getFile())
       .setScannerVersion(SCANNER_VERSION)

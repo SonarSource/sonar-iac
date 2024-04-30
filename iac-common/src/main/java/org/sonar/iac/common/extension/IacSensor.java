@@ -20,6 +20,12 @@
 package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -40,14 +46,6 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
-
 import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
 
 public abstract class IacSensor implements Sensor {
@@ -55,6 +53,7 @@ public abstract class IacSensor implements Sensor {
   public static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
   private static final Logger LOG = LoggerFactory.getLogger(IacSensor.class);
   private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
+  private static final long PROGRESS_REPORT_PERIOD_MILLIS = 10_000;
 
   protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
@@ -71,12 +70,20 @@ public abstract class IacSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguage(language.getKey())
-      .name("IaC " + language.getName() + " Sensor");
+      .onlyOnLanguage(languageKey())
+      .name("IaC " + languageName() + " Sensor");
 
     if (sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
       descriptor.processesFilesIndependently();
     }
+  }
+
+  protected String languageName() {
+    return language.getName();
+  }
+
+  protected String languageKey() {
+    return language.getKey();
   }
 
   protected abstract TreeParser<Tree> treeParser();
@@ -103,7 +110,7 @@ public abstract class IacSensor implements Sensor {
     List<InputFile> inputFiles = inputFiles(sensorContext);
     List<String> filenames = inputFiles.stream().map(InputFile::toString).toList();
 
-    ProgressReport progressReport = new ProgressReport("Progress of the " + language.getName() + " analysis", TimeUnit.SECONDS.toMillis(10));
+    var progressReport = new ProgressReport("Progress of the " + languageName() + " analysis", PROGRESS_REPORT_PERIOD_MILLIS);
     progressReport.start(filenames);
     boolean success = false;
     Analyzer analyzer = new Analyzer(treeParser(), visitors(sensorContext, statistics), statistics);
@@ -134,7 +141,7 @@ public abstract class IacSensor implements Sensor {
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     FileSystem fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(
-      fileSystem.predicates().hasLanguage(language.getKey()),
+      fileSystem.predicates().hasLanguage(languageKey()),
       fileSystem.predicates().hasType(InputFile.Type.MAIN));
   }
 
@@ -228,7 +235,7 @@ public abstract class IacSensor implements Sensor {
           statistics.time(visitorId, () -> visitor.scan(inputFileContext, tree));
         } catch (RuntimeException e) {
           inputFileContext.reportAnalysisError(e.getMessage(), null);
-          LOG.error("Cannot analyse '" + inputFile + "': " + e.getMessage(), e);
+          LOG.error("Cannot analyse '{}': {}", inputFile, e.getMessage(), e);
 
           interruptOnFailFast(inputFileContext.sensorContext, inputFile, e);
         }

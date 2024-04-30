@@ -20,15 +20,14 @@
 package org.sonar.iac.common.api.tree.impl;
 
 import com.sonar.sslr.api.typed.Optional;
-import org.sonar.iac.common.api.tree.IacToken;
-import org.sonar.iac.common.api.tree.SeparatedList;
-import org.sonar.iac.common.api.tree.Tree;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import org.sonar.iac.common.api.tree.IacToken;
+import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.Tree;
 
 public record SeparatedListImpl<T extends Tree, U extends IacToken> (List<T> elements,
   List<U> separators) implements SeparatedList<T, U> {

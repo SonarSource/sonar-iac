@@ -25,10 +25,10 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
 public final class SpringConfigSettings {
-  private static final String ACTIVATION_KEY = "sonar.springconfig.activate";
+  static final String ACTIVATION_KEY = "sonar.java.springconfig.activate";
   private static final String ACTIVATION_DEFAULT_VALUE = "true";
-  private static final String FILE_PATTERNS_KEY = "sonar.springconfig.file.patterns";
-  private static final String FILE_PATTERNS_DEFAULT_VALUE = "**/src/main/resources/**/application*.properties," +
+  static final String FILE_PATTERNS_KEY = "sonar.java.springconfig.file.patterns";
+  static final String FILE_PATTERNS_DEFAULT_VALUE = "**/src/main/resources/**/application*.properties," +
     "**/src/main/resources/**/application*.yaml,**/src/main/resources/**/application*.yml";
   private static final String JAVA_CATEGORY = "Java";
   private static final String GENERAL_SUBCATEGORY = "Spring";

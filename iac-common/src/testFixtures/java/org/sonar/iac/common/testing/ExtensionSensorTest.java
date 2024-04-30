@@ -102,7 +102,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void shouldRaiseIssueWhenFileCorrupted() throws IOException {
+  protected void shouldRaiseIssueWhenFileCorrupted() throws IOException {
     InputFile inputFile = validFile();
     InputFile spyInputFile = spy(inputFile);
     when(spyInputFile.contents()).thenThrow(IOException.class);

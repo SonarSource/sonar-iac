@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.plugin;
+package org.sonar.iac.springconfig.parser;
 
 import java.util.List;
-import org.sonar.api.SonarRuntime;
-import org.sonar.iac.common.extension.IacRulesDefinition;
-import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.springconfig.tree.api.SpringConfig;
+import org.sonar.iac.springconfig.tree.impl.FileImpl;
 
-public class SpringConfigRulesDefinition extends IacRulesDefinition {
-  protected SpringConfigRulesDefinition(SonarRuntime runtime) {
-    super(runtime);
-  }
-
+public class SpringConfigParser implements TreeParser<Tree> {
   @Override
-  protected List<Class<?>> checks() {
-    return SpringConfigCheckList.checks();
-  }
-
-  @Override
-  protected String ruleRepositoryKey() {
-    return SpringConfigExtension.REPOSITORY_KEY;
-  }
-
-  @Override
-  public String languageKey() {
-    return SpringConfigExtension.LANGUAGE_KEY;
+  public SpringConfig parse(String source, @Nullable InputFileContext inputFileContext) {
+    // TODO: SONARIAC-1446 Implement "SpringConfigParser"
+    return new FileImpl(List.of());
   }
 }
