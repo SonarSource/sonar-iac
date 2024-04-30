@@ -95,6 +95,6 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
       ctx.start.getLine(),
       ctx.start.getCharPositionInLine(),
       ctx.stop.getLine(),
-      ctx.stop.getCharPositionInLine());
+      ctx.stop.getCharPositionInLine() + 1);
   }
 }

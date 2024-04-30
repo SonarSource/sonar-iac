@@ -96,6 +96,12 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
     assertThat(descriptor.isProcessesFilesIndependently()).isFalse();
   }
 
+  @Test
+  void shouldReturnVisitors() {
+    var sensor = (SpringConfigSensor) sensor(checkFactory());
+    assertThat(sensor.visitors(context, null)).hasSize(3);
+  }
+
   @ParameterizedTest
   @MethodSource
   void shouldUseDefaultFilePatternsIfProvidedAreEmpty(List<String> input) {

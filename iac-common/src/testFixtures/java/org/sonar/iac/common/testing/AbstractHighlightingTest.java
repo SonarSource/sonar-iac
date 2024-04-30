@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.common.testing;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +50,7 @@ public abstract class AbstractHighlightingTest {
   }
 
   @TempDir
-  public File tempFolder;
+  public Path tempFolder;
 
   @BeforeEach
   void setUp() {
@@ -58,18 +58,30 @@ public abstract class AbstractHighlightingTest {
   }
 
   protected void highlight(String code) {
-    inputFile = new TestInputFileBuilder("moduleKey", tempFolder.getName())
+    highlight(code, null, null);
+  }
+
+  protected void highlight(String code, @Nullable Path filePath, @Nullable String languageKey) {
+    var relativePath = tempFolder;
+    if (filePath != null) {
+      relativePath = relativePath.resolve(filePath);
+    }
+    var inputFileBuilder = new TestInputFileBuilder("moduleKey", relativePath.getFileName().toString())
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code)
-      .setContents(code)
-      .build();
+      .setContents(code);
+    if (languageKey != null) {
+      inputFileBuilder.setLanguage(languageKey);
+    }
+
+    inputFile = inputFileBuilder.build();
     this.code = code;
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
-    highlightingVisitor.scan(ctx, parser.parse(code, null));
+    highlightingVisitor.scan(ctx, parser.parse(code, ctx));
   }
 
   protected void highlight(Tree root) {
-    inputFile = new TestInputFileBuilder("moduleKey", tempFolder.getName())
+    inputFile = new TestInputFileBuilder("moduleKey", tempFolder.getFileName().toString())
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata("dummy")
       .build();
