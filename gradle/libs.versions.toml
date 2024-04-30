@@ -18,6 +18,7 @@ spotless-gradle = "6.25.0"
 blowdryer-gradle = "1.7.1"
 google-protobuf = "3.25.3"
 apache-commons-lang = "2.6"
+antlr4 = "4.13.1"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
@@ -45,3 +46,5 @@ diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", v
 diffplug-blowdryer = { module = "com.diffplug:blowdryer", version.ref = "blowdryer-gradle" }
 google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "google-protobuf" }
 apache-commons-lang = { module = "commons-lang:commons-lang", version.ref = "apache-commons-lang" }
+antlr4 = { module = "org.antlr:antlr4", version.ref = "antlr4" }
+antlr4-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr4" }
