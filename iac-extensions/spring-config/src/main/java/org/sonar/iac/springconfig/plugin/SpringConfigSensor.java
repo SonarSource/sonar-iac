@@ -26,15 +26,19 @@ import java.util.regex.Pattern;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.springconfig.parser.SpringConfigParser;
@@ -43,14 +47,16 @@ import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.SENSOR_NAM
 
 public class SpringConfigSensor extends IacSensor {
   private static final Set<String> EXCLUDED_PROFILES = Set.of("dev", "test");
+  private final Checks<IacCheck> checks;
 
-  public SpringConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
+  public SpringConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, CheckFactory checkFactory) {
     // The Java language is registered by the sonar-java plugin. However, for the sensor we only need language key and name, and don't need to
     // rely on the SQ extension.
     // Mechanisms of dependency injection between SQ and SL can differ, and the `org.sonar.plugins.java.Java` language is available only in the
     // `sonar-java` plugin, so it's not possible to inject it here.
     // That's why the sensor is hardcoding key and name and not providing a `Language` object.
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, null);
+    checks = checkFactory.create(SpringConfigExtension.REPOSITORY_KEY);
   }
 
   @Override
@@ -59,9 +65,16 @@ public class SpringConfigSensor extends IacSensor {
   }
 
   @Override
+  protected String repositoryKey() {
+    return SpringConfigExtension.REPOSITORY_KEY;
+  }
+
+  @Override
   public void describe(SensorDescriptor descriptor) {
     // Do not define the sensor only on Java language, because Spring configuration files are not assigned to it.
-    descriptor.name(SENSOR_NAME);
+    descriptor
+      .name(SENSOR_NAME)
+      .createIssuesForRuleRepositories(repositoryKey());
 
     // The sensor shouldn't call `processFilesIndependently()`, because if a default Spring profile is defined in another file,
     // it should still be loaded.
@@ -84,14 +97,10 @@ public class SpringConfigSensor extends IacSensor {
   }
 
   @Override
-  protected String repositoryKey() {
-    return SpringConfigExtension.REPOSITORY_KEY;
-  }
-
-  @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     // TODO: SONARIAC-1437 Implement metrics and highlighting visitors for .properties files
-    return List.of();
+    return List.of(
+      new ChecksVisitor(checks, statistics));
   }
 
   @Override
@@ -110,14 +119,14 @@ public class SpringConfigSensor extends IacSensor {
   }
 
   private static class ProfileNameFilePredicate implements FilePredicate {
-    private static final Pattern SPRING_CONFIG_FILENAME_PATTERN = Pattern.compile("application(?:-(?<name>[^.]++))?+.(properties|yaml|yml)");
+    private static final Pattern SPRING_CONFIG_FILENAME_PATTERN = Pattern.compile("application-(?<name>[^.]++).(properties|yaml|yml)");
 
     @Override
     public boolean apply(InputFile inputFile) {
       var matcher = SPRING_CONFIG_FILENAME_PATTERN.matcher(inputFile.filename());
-      if (matcher.find()) {
+      if (matcher.matches()) {
         var profileName = matcher.group("name");
-        return profileName == null || !EXCLUDED_PROFILES.contains(profileName);
+        return !EXCLUDED_PROFILES.contains(profileName);
       }
       return true;
     }

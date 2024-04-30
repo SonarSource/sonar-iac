@@ -49,7 +49,8 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
     return new SpringConfigSensor(
       SONAR_RUNTIME_10_0,
       fileLinesContextFactory,
-      noSonarFilter);
+      noSonarFilter,
+      checkFactory);
   }
 
   @Override

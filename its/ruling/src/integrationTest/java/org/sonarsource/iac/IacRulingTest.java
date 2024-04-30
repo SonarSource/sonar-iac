@@ -23,6 +23,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -37,7 +38,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.io.TempDir;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,8 +51,6 @@ class IacRulingTest {
   private static final File LITS_DIFFERENCES_FILE = Path.of(LITS_OUTPUT_DIRECTORY.toURI()).resolve("differences").toFile();
   private static final String JAVA_VERSION = "7.34.0.35958";
   private static final String SCANNER_VERSION = "5.0.1.3006";
-  @TempDir
-  private static Path temporaryDirectory;
 
   @RegisterExtension
   static OrchestratorExtension orchestrator = OrchestratorExtension.builderEnv()
@@ -79,18 +77,7 @@ class IacRulingTest {
       File languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
       orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
     });
-
-    var javaLanguageProfile = temporaryDirectory.resolve("profile.xml");
-    Files.writeString(javaLanguageProfile,
-      // language=xml
-      """
-        <profile>
-          <name>rules</name>
-          <language>java</language>
-          <rules/>
-        </profile>
-        """);
-    orchestrator.getServer().restoreProfile(FileLocation.of(javaLanguageProfile.toFile()));
+    orchestrator.getServer().restoreProfile(ResourceLocation.create("/no_rules-java.xml"));
 
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
   }

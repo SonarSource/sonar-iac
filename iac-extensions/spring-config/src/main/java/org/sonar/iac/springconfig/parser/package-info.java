@@ -17,26 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.plugin;
-
-import java.util.List;
-import org.sonar.api.Plugin;
-
-public final class SpringConfigExtension {
-  public static final String SENSOR_NAME = "Java Config Sensor";
-  public static final String LANGUAGE_KEY = "java";
-  public static final String LANGUAGE_NAME = "Java";
-  public static final String REPOSITORY_KEY = "javaconfig";
-
-  private SpringConfigExtension() {
-  }
-
-  public static void define(Plugin.Context context) {
-    context.addExtensions(List.of(
-      SpringConfigSensor.class,
-      SpringConfigRulesDefinition.class,
-      SpringConfigSettings.class));
-
-    context.addExtensions(SpringConfigSettings.getGeneralProperties());
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.springconfig.parser;

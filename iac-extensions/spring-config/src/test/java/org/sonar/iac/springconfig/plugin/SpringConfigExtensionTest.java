@@ -34,7 +34,7 @@ class SpringConfigExtensionTest {
     var runtime = SonarRuntimeImpl.forSonarQube(Version.create(10, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     var context = new Plugin.Context(runtime);
     SpringConfigExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(4);
+    assertThat(context.getExtensions()).hasSize(5);
   }
 
 }
