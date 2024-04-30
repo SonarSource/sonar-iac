@@ -41,6 +41,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 import org.sonar.iac.springconfig.parser.SpringConfigParser;
 
 import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.SENSOR_NAME;
@@ -57,6 +58,7 @@ public class SpringConfigSensor extends IacSensor {
     // That's why the sensor is hardcoding key and name and not providing a `Language` object.
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, null);
     checks = checkFactory.create(SpringConfigExtension.REPOSITORY_KEY);
+    checks.addAnnotatedChecks(SpringConfigCheckList.checks());
   }
 
   @Override

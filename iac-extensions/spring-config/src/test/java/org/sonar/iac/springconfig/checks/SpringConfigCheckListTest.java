@@ -17,30 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.plugin;
+package org.sonar.iac.springconfig.checks;
 
 import java.util.List;
-import org.sonar.api.SonarRuntime;
-import org.sonar.iac.common.extension.IacRulesDefinition;
-import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
+import org.junit.jupiter.api.Test;
 
-public class SpringConfigRulesDefinition extends IacRulesDefinition {
-  protected SpringConfigRulesDefinition(SonarRuntime runtime) {
-    super(runtime);
-  }
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
+// TODO: SONARIAC-1448, SONARIAC-1449
+// Extend AbstractCheckListTest when two mandatory checks are implemented
+class SpringConfigCheckListTest {
   protected List<Class<?>> checks() {
     return SpringConfigCheckList.checks();
   }
 
-  @Override
-  protected String ruleRepositoryKey() {
-    return SpringConfigExtension.REPOSITORY_KEY;
-  }
-
-  @Override
-  public String languageKey() {
-    return SpringConfigExtension.LANGUAGE_KEY;
+  @Test
+  void testChecksAreEmpty() {
+    // Remove this test once this class extends AbstractCheckListTest
+    assertThat(checks()).isEmpty();
   }
 }
