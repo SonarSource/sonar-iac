@@ -91,10 +91,10 @@ def whitesource_api_env():
     Values are fetched from the Sonar Vault.
 
     :return: a dictionary with the following keys:
-        - WS_API_KEY
+        - WS_APIKEY
     """
     return {
-        "WS_API_KEY": "VAULT[development/kv/data/mend data.apikey]"
+        "WS_APIKEY": "VAULT[development/kv/data/mend data.apikey]"
     }
 
 
