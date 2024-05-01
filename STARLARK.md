@@ -249,9 +249,9 @@ load(".cirrus/modules/housekeeping.star", "housekeeping_all_tasks")
 
 
 def main(ctx):
-    conf = {}
-    re_builtins_conf = load_features(ctx)
-    merge_dict(conf, re_builtins_tasks)
+    conf = dict()
+    re_builtins = load_features(ctx)
+    merge_dict(conf, re_builtins)
     merge_dict(conf, base_all_tasks())
     merge_dict(conf, build_all_tasks())
     merge_dict(conf, deploy_all_tasks())
