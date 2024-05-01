@@ -85,7 +85,10 @@ def project_version_cache():
     return {
         "folder": "$PROJECT_VERSION_CACHE_DIR",
         "fingerprint_script": "echo $BUILD_NUMBER",
-        "populate_script": "mkdir -p \"$PROJECT_VERSION_CACHE_DIR\"\ntouch \"$PROJECT_VERSION_CACHE_DIR\"/evaluated_project_version.txt\n",
+        "populate_script": [
+            'mkdir -p "$PROJECT_VERSION_CACHE_DIR"',
+            'touch "$PROJECT_VERSION_CACHE_DIR"/evaluated_project_version.txt'
+        ],
         "reupload_on_changes": "true"
     }
 
