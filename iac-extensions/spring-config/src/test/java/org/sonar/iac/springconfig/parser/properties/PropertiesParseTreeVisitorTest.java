@@ -19,10 +19,16 @@
  */
 package org.sonar.iac.springconfig.parser.properties;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.springconfig.tree.api.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.sonar.iac.springconfig.SpringConfigAssertions.assertThat;
 import static org.sonar.iac.springconfig.parser.properties.PropertiesTestUtils.createPropertiesFileContext;
 
@@ -95,6 +101,144 @@ class PropertiesParseTreeVisitorTest {
     assertThat(comment.value()).isEqualTo("# database init");
     assertThat(comment.contentText()).isEqualTo(" database init");
     assertThat(comment.textRange()).hasRange(1, 0, 1, 14);
+  }
+
+  @Test
+  void shouldReadCommentsAndTuples() {
+    var code = """
+      # comment 1
+      foo=bar
+      ! comment 2
+      bar\fbaz
+      ! comment 3""";
+
+    var file = parseProperties(code);
+
+    var comment1 = file.profiles().get(0).comments().get(0);
+    assertThat(comment1.value()).isEqualTo("# comment 1");
+    assertThat(comment1.contentText()).isEqualTo(" comment 1");
+    assertThat(comment1.textRange()).hasRange(1, 0, 1, 10);
+
+    var comment2 = file.profiles().get(0).comments().get(1);
+    assertThat(comment2.value()).isEqualTo("! comment 2");
+    assertThat(comment2.contentText()).isEqualTo(" comment 2");
+    assertThat(comment2.textRange()).hasRange(3, 0, 3, 10);
+
+    var comment3 = file.profiles().get(0).comments().get(2);
+    assertThat(comment3.value()).isEqualTo("! comment 3");
+    assertThat(comment3.contentText()).isEqualTo(" comment 3");
+    assertThat(comment3.textRange()).hasRange(5, 0, 5, 10);
+
+    var tuple1 = file.profiles().get(0).properties().get(0);
+    assertThat(tuple1.key().value().value()).isEqualTo("foo");
+    assertThat(tuple1.key().textRange()).hasRange(2, 0, 2, 2);
+    assertThat(tuple1.value().value().value()).isEqualTo("bar");
+    assertThat(tuple1.value().textRange()).hasRange(2, 4, 2, 6);
+
+    var tuple2 = file.profiles().get(0).properties().get(1);
+    assertThat(tuple2.key().value().value()).isEqualTo("bar");
+    assertThat(tuple2.key().textRange()).hasRange(4, 0, 4, 2);
+    assertThat(tuple2.value().value().value()).isEqualTo("baz");
+    assertThat(tuple2.value().textRange()).hasRange(4, 4, 4, 6);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"#---", "!---"})
+  void shouldReadTwoProfiles(String profileSeparator) {
+    var code = """
+      # comment 1
+      foo = bar
+      %s
+      ! comment 2
+      foo = baz""".formatted(profileSeparator);
+
+    var file = parseProperties(code);
+
+    var profile1 = file.profiles().get(0);
+    var comment1 = profile1.comments().get(0);
+    assertThat(comment1.value()).isEqualTo("# comment 1");
+    assertThat(comment1.contentText()).isEqualTo(" comment 1");
+    assertThat(comment1.textRange()).hasRange(1, 0, 1, 10);
+
+    var tuple1 = profile1.properties().get(0);
+    assertThat(tuple1.key().value().value()).isEqualTo("foo");
+    assertThat(tuple1.key().textRange()).hasRange(2, 0, 2, 2);
+    assertThat(tuple1.value().value().value()).isEqualTo("bar");
+    assertThat(tuple1.value().textRange()).hasRange(2, 6, 2, 8);
+
+    assertThat(profile1.comments()).hasSize(1);
+    assertThat(profile1.properties()).hasSize(1);
+
+    var profile2 = file.profiles().get(1);
+    var comment2 = profile2.comments().get(0);
+    assertThat(comment2.value()).isEqualTo(profileSeparator);
+    assertThat(comment2.contentText()).isEqualTo("---");
+    assertThat(comment2.textRange()).hasRange(3, 0, 3, 3);
+
+    var comment3 = profile2.comments().get(1);
+    assertThat(comment3.value()).isEqualTo("! comment 2");
+    assertThat(comment3.contentText()).isEqualTo(" comment 2");
+    assertThat(comment3.textRange()).hasRange(4, 0, 4, 10);
+
+    var tuple2 = profile1.properties().get(0);
+    assertThat(tuple2.key().value().value()).isEqualTo("foo");
+    assertThat(tuple2.key().textRange()).hasRange(2, 0, 2, 2);
+    assertThat(tuple2.value().value().value()).isEqualTo("bar");
+    assertThat(tuple2.value().textRange()).hasRange(2, 6, 2, 8);
+
+    assertThat(profile2.comments()).hasSize(2);
+    assertThat(profile2.properties()).hasSize(1);
+    assertThat(file.profiles()).hasSize(2);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"#----", "!----", "# ---", "! ---", "#--", "!--", "#+++", "!+++"})
+  void shouldReadOneProfile(String notProfileSeparator) {
+    var code = """
+      # comment 1
+      foo = bar
+      %s
+      ! comment 2
+      foo = baz""".formatted(notProfileSeparator);
+
+    var file = parseProperties(code);
+
+    assertThat(file.profiles()).hasSize(1);
+  }
+
+  static Stream<Arguments> shouldReadProfileName() {
+    return Stream.of(
+      arguments("spring.profile=profile1", "profile1"),
+      arguments("spring.config.active.on-profile=dev & qa", "dev & qa"),
+      arguments("spring.profile=profile1\nspring.config.active.on-profile=profile2", "profile1 profile2"),
+      arguments("#comment", ""));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldReadProfileName(String properties, String expectedProfileName) {
+    var code = """
+      %s
+      foo=bar""".formatted(properties);
+
+    var file = parseProperties(code);
+
+    assertThat(file.profiles().get(0).name()).isEqualTo(expectedProfileName);
+  }
+
+  @ParameterizedTest
+  @MethodSource("shouldReadProfileName")
+  void shouldReadProfileNameInSecondProfile(String properties, String expectedProfileName) {
+    var code = """
+      database=h2
+      #---
+      %s
+      foo=bar""".formatted(properties);
+
+    var file = parseProperties(code);
+
+    assertThat(file.profiles().get(0).name()).isEmpty();
+    assertThat(file.profiles().get(1).name()).isEqualTo(expectedProfileName);
   }
 
   private File parseProperties(String code) {

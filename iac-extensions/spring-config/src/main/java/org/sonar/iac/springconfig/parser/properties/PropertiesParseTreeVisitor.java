@@ -21,11 +21,13 @@ package org.sonar.iac.springconfig.parser.properties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.springconfig.tree.api.Profile;
 import org.sonar.iac.springconfig.tree.api.Scalar;
 import org.sonar.iac.springconfig.tree.api.SpringConfig;
 import org.sonar.iac.springconfig.tree.api.Tuple;
@@ -37,11 +39,14 @@ import org.sonar.iac.springconfig.tree.impl.TupleImpl;
 
 public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<SpringConfig> {
 
+  private static final List<String> PROFILE_NAME_PROPERTIES = List.of("spring.profile", "spring.config.active.on-profile");
+
   @Override
   public SpringConfig visitPropertiesFile(PropertiesParser.PropertiesFileContext ctx) {
     super.visitPropertiesFile(ctx);
     var properties = new ArrayList<Tuple>();
     var comments = new ArrayList<Comment>();
+    var profiles = new ArrayList<Profile>();
     for (PropertiesParser.RowContext row : ctx.row()) {
       if (row.line() != null) {
         var keyScalar = createKeyScalar(row);
@@ -52,10 +57,18 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
         var commentContext = row.comment().commentStartAndText();
         var value = commentContext.getText();
         var contentText = commentContext.commentText().getText();
+        if ("---".equals(contentText)) {
+          var profile = new ProfileImpl(properties, comments, profileName(properties), true);
+          profiles.add(profile);
+          properties = new ArrayList<>();
+          comments = new ArrayList<>();
+        }
         comments.add(new CommentImpl(value, contentText, textRange(commentContext)));
       }
     }
-    return new FileImpl(List.of(new ProfileImpl(properties, comments, "", true)));
+    var profile = new ProfileImpl(properties, comments, profileName(properties), true);
+    profiles.add(profile);
+    return new FileImpl(profiles);
   }
 
   private static Scalar createKeyScalar(PropertiesParser.RowContext row) {
@@ -72,6 +85,14 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
       valueScalar = new ScalarImpl(new SyntaxTokenImpl(valueText, textRange(valueContext)));
     }
     return valueScalar;
+  }
+
+  private static String profileName(List<Tuple> properties) {
+    return properties.stream()
+      .filter(tuple -> PROFILE_NAME_PROPERTIES.contains(tuple.key().value().value()))
+      .filter(tuple -> tuple.value() != null)
+      .map(tuple -> tuple.value().value().value())
+      .collect(Collectors.joining(" "));
   }
 
   private static TextRange textRange(ParserRuleContext ctx) {
