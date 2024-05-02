@@ -51,6 +51,22 @@ class PropertiesParseTreeVisitorTest {
   }
 
   @Test
+  void shouldReadSimplePropertyWithColonAsDelimiter() {
+    var code = "database : h2";
+
+    var file = parseProperties(code);
+
+    var databaseKeyValue = file.profiles().get(0).properties().get(0);
+    assertThat(databaseKeyValue.key().value().value()).isEqualTo("database");
+    assertThat(databaseKeyValue.key().textRange()).hasRange(1, 0, 1, 7);
+    assertThat(databaseKeyValue.key().value().textRange()).hasRange(1, 0, 1, 7);
+
+    assertThat(databaseKeyValue.value().value().value()).isEqualTo("h2");
+    assertThat(databaseKeyValue.value().textRange()).hasRange(1, 11, 1, 12);
+    assertThat(databaseKeyValue.value().value().textRange()).hasRange(1, 11, 1, 12);
+  }
+
+  @Test
   void shouldReadPropertyWithoutValue() {
     var code = "foo";
 
@@ -142,6 +158,27 @@ class PropertiesParseTreeVisitorTest {
     assertThat(tuple2.value().textRange()).hasRange(4, 4, 4, 6);
   }
 
+  @Test
+  void shouldReadKeyWithArray() {
+    var code = """
+      my.servers[0]=dev.example.com
+      my.servers[1]=another.example.com""";
+
+    var file = parseProperties(code);
+
+    var tuple1 = file.profiles().get(0).properties().get(0);
+    assertThat(tuple1.key().value().value()).isEqualTo("my.servers[0]");
+    assertThat(tuple1.key().textRange()).hasRange(1, 0, 1, 12);
+    assertThat(tuple1.value().value().value()).isEqualTo("dev.example.com");
+    assertThat(tuple1.value().textRange()).hasRange(1, 14, 1, 28);
+
+    var tuple2 = file.profiles().get(0).properties().get(1);
+    assertThat(tuple2.key().value().value()).isEqualTo("my.servers[1]");
+    assertThat(tuple2.key().textRange()).hasRange(2, 0, 2, 12);
+    assertThat(tuple2.value().value().value()).isEqualTo("another.example.com");
+    assertThat(tuple2.value().textRange()).hasRange(2, 14, 2, 32);
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {"#---", "!---"})
   void shouldReadTwoProfiles(String profileSeparator) {
@@ -208,9 +245,9 @@ class PropertiesParseTreeVisitorTest {
 
   static Stream<Arguments> shouldReadProfileName() {
     return Stream.of(
-      arguments("spring.profile=profile1", "profile1"),
+      arguments("spring.profiles.active=profile1", "profile1"),
       arguments("spring.config.active.on-profile=dev & qa", "dev & qa"),
-      arguments("spring.profile=profile1\nspring.config.active.on-profile=profile2", "profile1 profile2"),
+      arguments("spring.profiles.active=profile1\nspring.config.active.on-profile=profile2", "profile1 profile2"),
       arguments("#comment", ""));
   }
 

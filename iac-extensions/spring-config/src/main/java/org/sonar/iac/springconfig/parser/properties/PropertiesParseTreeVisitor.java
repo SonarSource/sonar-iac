@@ -39,7 +39,7 @@ import org.sonar.iac.springconfig.tree.impl.TupleImpl;
 
 public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<SpringConfig> {
 
-  private static final List<String> PROFILE_NAME_PROPERTIES = List.of("spring.profile", "spring.config.active.on-profile");
+  private static final List<String> PROFILE_NAME_PROPERTIES = List.of("spring.profiles.active", "spring.config.active.on-profile");
 
   @Override
   public SpringConfig visitPropertiesFile(PropertiesParser.PropertiesFileContext ctx) {
@@ -54,16 +54,14 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
         properties.add(new TupleImpl(keyScalar, valueScalar));
       }
       if (row.comment() != null) {
-        var commentContext = row.comment().commentStartAndText();
-        var value = commentContext.getText();
-        var contentText = commentContext.commentText().getText();
-        if ("---".equals(contentText)) {
+        var comment = createComment(row);
+        if ("---".equals(comment.contentText())) {
           var profile = new ProfileImpl(properties, comments, profileName(properties), true);
           profiles.add(profile);
           properties = new ArrayList<>();
           comments = new ArrayList<>();
         }
-        comments.add(new CommentImpl(value, contentText, textRange(commentContext)));
+        comments.add(comment);
       }
     }
     var profile = new ProfileImpl(properties, comments, profileName(properties), true);
@@ -85,6 +83,13 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
       valueScalar = new ScalarImpl(new SyntaxTokenImpl(valueText, textRange(valueContext)));
     }
     return valueScalar;
+  }
+
+  private static Comment createComment(PropertiesParser.RowContext row) {
+    var commentContext = row.comment().commentStartAndText();
+    var value = commentContext.getText();
+    var contentText = commentContext.commentText().getText();
+    return new CommentImpl(value, contentText, textRange(commentContext));
   }
 
   private static String profileName(List<Tuple> properties) {
