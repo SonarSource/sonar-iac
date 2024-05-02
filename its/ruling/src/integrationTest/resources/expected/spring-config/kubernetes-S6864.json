@@ -1,0 +1,45 @@
+{
+"spring-config-project:sources/spring-config/baeldung-tutorials/kubernetes-modules/k8s-admission-controller/src/test/k8s/nginx.yaml": [
+20
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/kubernetes-modules/k8s-intro/src/k8s/create-http-server.yml": [
+30,
+55
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/kubernetes-modules/k8s-java-heap-dump/src/k8s/prime-deploy.yaml": [
+7
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/kubernetes-modules/k8s-operator/k8s/deptrack-controller.yaml": [
+30
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/kubernetes-modules/k8s-operator/src/main/resources/templates/frontend-deployment.yaml": [
+19
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/kubernetes-modules/kubernetes-spring/serviceDeployment.yaml": [
+21
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-guide/client-service/client-service-deployment.yaml": [
+29
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-guide/travel-agency-service/mongo-deployment.yaml": [
+33
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-guide/travel-agency-service/travel-agency-deployment.yaml": [
+29
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-minikube/object-configurations/backend-deployment.yaml": [
+31
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-minikube/object-configurations/frontend-deployment.yaml": [
+29
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-selfhealing/object-configurations/liveness-example-k8s-template.yaml": [
+30
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-selfhealing/object-configurations/readiness-example-k8s-template.yaml": [
+30
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-vault/src/main/k8s/vault-csi-example.yaml": [
+35
+]
+}

@@ -43,3 +43,6 @@
 [submodule "its/sources/azureresourcemanager/azure-docs-bicep-samples"]
 	path = its/sources/azureresourcemanager/azure-docs-bicep-samples
 	url = https://github.com/azure/azure-docs-bicep-samples.git
+[submodule "its/sources/spring-config/baeldung-tutorials"]
+	path = its/sources/spring-config/baeldung-tutorials
+	url = https://github.com/eugenp/tutorials
