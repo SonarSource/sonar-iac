@@ -26,7 +26,6 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -53,7 +52,7 @@ class IacRulingTest {
   private static final String SCANNER_VERSION = "5.0.1.3006";
 
   @RegisterExtension
-  static OrchestratorExtension orchestrator = OrchestratorExtension.builderEnv()
+  private static final OrchestratorExtension orchestrator = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardFilename(new File("../../sonar-iac-plugin/build/libs"), "sonar-iac-plugin-*-all.jar"))
@@ -72,7 +71,7 @@ class IacRulingTest {
 
   @BeforeAll
   public static void setUp() throws IOException {
-    LANGUAGES.forEach(language -> {
+    LANGUAGES.forEach((String language) -> {
       ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
       File languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
       orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
@@ -137,6 +136,15 @@ class IacRulingTest {
     runRulingTest("azureresourcemanager", properties);
   }
 
+  @Test
+  void testSpringConfig() throws IOException {
+    var properties = Map.of(
+      "sonar.inclusions", "sources/spring-config/**/*.properties,sources/spring-config/**/*.yml,sources/spring-config/**/*.yaml",
+      // Java analysis would require compilation, and we don't need it here.
+      "sonar.exclusions", "sources/spring-config/**/*.java");
+    runRulingTest("spring-config", properties);
+  }
+
   @Disabled("This test is only a helper to diagnose failures on the local system")
   @Test
   void testLocal() throws IOException {
@@ -172,7 +180,7 @@ class IacRulingTest {
 
     orchestrator.executeBuild(build);
 
-    var litsDifference = new String(Files.readAllBytes(LITS_DIFFERENCES_FILE.toPath()), StandardCharsets.UTF_8);
+    var litsDifference = Files.readString(LITS_DIFFERENCES_FILE.toPath());
     assertThat(litsDifference).isEmpty();
   }
 
