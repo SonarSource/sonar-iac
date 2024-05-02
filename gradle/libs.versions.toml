@@ -5,7 +5,7 @@ sonar-commons = "2.9.0.2753"
 sonar-orchestrator = "4.9.0.1920"
 junit = "5.10.2"
 assertj = "3.25.3"
-mockito = "4.11.0"
+mockito = "5.11.0"
 slf4j = "2.0.13"
 sonar-lint = "9.8.0.76914"
 sslr = "1.24.0.633"
@@ -33,7 +33,6 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
 jfrog-buildinfo-gradle = { module = "org.jfrog.buildinfo:build-info-extractor-gradle", version.ref = "jfrog-gradle" }
 sonar-lint = { module = "org.sonarsource.sonarlint.core:sonarlint-core", version.ref = "sonar-lint" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
