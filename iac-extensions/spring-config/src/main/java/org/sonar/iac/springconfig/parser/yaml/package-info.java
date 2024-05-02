@@ -17,27 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml;
-
-import java.util.List;
-import org.snakeyaml.engine.v2.nodes.Node;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-
-public class YamlParser implements IacYamlParser<FileTree> {
-
-  private final IacYamlConverter<FileTree, YamlTree> converter;
-
-  public YamlParser() {
-    this(new YamlConverter());
-  }
-
-  public YamlParser(IacYamlConverter<FileTree, YamlTree> converter) {
-    this.converter = converter;
-  }
-
-  @Override
-  public FileTree convertWithConverter(List<Node> nodes) {
-    return converter.convertFile(nodes);
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.springconfig.parser.yaml;

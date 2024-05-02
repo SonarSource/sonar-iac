@@ -246,8 +246,8 @@ class PropertiesParseTreeVisitorTest {
   static Stream<Arguments> shouldReadProfileName() {
     return Stream.of(
       arguments("spring.profiles.active=profile1", "profile1"),
-      arguments("spring.config.active.on-profile=dev & qa", "dev & qa"),
-      arguments("spring.profiles.active=profile1\nspring.config.active.on-profile=profile2", "profile1 profile2"),
+      arguments("spring.config.activate.on-profile=dev & qa", "dev & qa"),
+      arguments("spring.profiles.active=profile1\nspring.config.activate.on-profile=profile2", "profile1 profile2"),
       arguments("#comment", ""));
   }
 

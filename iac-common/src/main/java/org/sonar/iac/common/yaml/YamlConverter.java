@@ -21,10 +21,7 @@ package org.sonar.iac.common.yaml;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
-import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
@@ -43,20 +40,9 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
 
-public class YamlConverter {
+public class YamlConverter implements IacYamlConverter<FileTree, YamlTree> {
 
-  private final Map<Class<?>, Function<Node, YamlTree>> converters = Map.of(
-    MappingNode.class, node -> convertMapping((MappingNode) node),
-    ScalarNode.class, node -> convertScalar((ScalarNode) node),
-    SequenceNode.class, node -> convertSequence((SequenceNode) node));
-
-  public YamlTree convert(Node node) {
-    if (node.isRecursive()) {
-      throw new ParserException("Recursive node found", node.getStartMark());
-    }
-    return converters.get(node.getClass()).apply(node);
-  }
-
+  @Override
   public FileTree convertFile(List<Node> nodes) {
     if (nodes.isEmpty()) {
       throw new ParseException("Unexpected empty nodes list while converting file", null, null);
@@ -73,7 +59,8 @@ public class YamlConverter {
     return new FileTreeImpl(documents, metadata);
   }
 
-  protected YamlTree convertMapping(MappingNode mappingNode) {
+  @Override
+  public YamlTree convertMapping(MappingNode mappingNode) {
     List<TupleTree> elements = new ArrayList<>();
 
     for (NodeTuple elementNode : mappingNode.getValue()) {
@@ -83,17 +70,21 @@ public class YamlConverter {
     return new MappingTreeImpl(elements, YamlTreeMetadata.fromNode(mappingNode));
   }
 
-  protected YamlTree convertScalar(ScalarNode scalarNode) {
-    return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), YamlTreeMetadata.fromNode(scalarNode));
+  @Override
+  public YamlTree convertScalar(ScalarNode scalarNode) {
+    return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()),
+      YamlTreeMetadata.fromNode(scalarNode));
   }
 
-  protected TupleTree convertTuple(NodeTuple tuple) {
+  @Override
+  public TupleTree convertTuple(NodeTuple tuple) {
     YamlTree key = convert(tuple.getKeyNode());
     YamlTree value = convert(tuple.getValueNode());
     return new TupleTreeImpl(key, value, YamlTreeMetadata.fromNodes("TUPLE", tuple.getKeyNode(), tuple.getValueNode()));
   }
 
-  protected YamlTree convertSequence(SequenceNode sequenceNode) {
+  @Override
+  public YamlTree convertSequence(SequenceNode sequenceNode) {
     List<YamlTree> elements = new ArrayList<>();
 
     for (Node elementNode : sequenceNode.getValue()) {

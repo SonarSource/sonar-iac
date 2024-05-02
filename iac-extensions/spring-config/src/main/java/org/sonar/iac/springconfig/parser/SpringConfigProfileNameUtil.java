@@ -17,27 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml;
+package org.sonar.iac.springconfig.parser;
 
+import java.util.Collection;
 import java.util.List;
-import org.snakeyaml.engine.v2.nodes.Node;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.common.yaml.tree.YamlTree;
+import java.util.stream.Collectors;
+import org.sonar.iac.springconfig.tree.api.Tuple;
 
-public class YamlParser implements IacYamlParser<FileTree> {
+public final class SpringConfigProfileNameUtil {
+  private static final List<String> PROFILE_NAME_PROPERTIES = List.of("spring.profiles.active", "spring.config.activate.on-profile");
 
-  private final IacYamlConverter<FileTree, YamlTree> converter;
-
-  public YamlParser() {
-    this(new YamlConverter());
+  private SpringConfigProfileNameUtil() {
   }
 
-  public YamlParser(IacYamlConverter<FileTree, YamlTree> converter) {
-    this.converter = converter;
-  }
-
-  @Override
-  public FileTree convertWithConverter(List<Node> nodes) {
-    return converter.convertFile(nodes);
+  public static String profileName(Collection<Tuple> properties) {
+    return properties.stream()
+      .filter(tuple -> PROFILE_NAME_PROPERTIES.contains(tuple.key().value().value()))
+      .filter(tuple -> tuple.value() != null)
+      .map(tuple -> tuple.value().value().value())
+      .collect(Collectors.joining(" "));
   }
 }
