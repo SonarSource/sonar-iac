@@ -23,12 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.springconfig.parser.properties.PropertiesTestUtils.createPropertiesFileContext;
 
 class PropertiesParserBaseVisitorTest {
 
@@ -806,11 +805,7 @@ class PropertiesParserBaseVisitorTest {
   }
 
   private void parseProperties(String code) {
-    var inputCode = CharStreams.fromString(code);
-    var propertiesLexer = new PropertiesLexer(inputCode);
-    var commonTokenStream = new CommonTokenStream(propertiesLexer);
-    var parser = new PropertiesParser(commonTokenStream);
-    var propertiesFileContext = parser.propertiesFile();
+    var propertiesFileContext = createPropertiesFileContext(code);
 
     visitor.visitPropertiesFile(propertiesFileContext);
     visitorTextRanges.visitPropertiesFile(propertiesFileContext);

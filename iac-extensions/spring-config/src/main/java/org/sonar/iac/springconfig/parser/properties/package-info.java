@@ -17,40 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.tree.impl;
-
-import java.util.Arrays;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.springconfig.tree.api.Scalar;
-import org.sonar.iac.springconfig.tree.api.Tuple;
-
-public class TupleImpl extends AbstractSpringConfigImpl implements Tuple {
-  private final Scalar key;
-
-  @Nullable
-  private final Scalar value;
-
-  public TupleImpl(Scalar key, @Nullable Scalar value) {
-    this.key = key;
-    this.value = value;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Arrays.asList(key, value);
-  }
-
-  @Override
-  public Scalar key() {
-    return key;
-  }
-
-  @Override
-  @CheckForNull
-  public Scalar value() {
-    return value;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.springconfig.parser.properties;
