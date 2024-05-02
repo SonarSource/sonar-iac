@@ -19,18 +19,29 @@
  */
 package org.sonar.iac.springconfig.parser.properties;
 
+import javax.annotation.Nullable;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.springconfig.tree.api.SpringConfig;
 
-public class PropertiesTestUtils {
+public class SpringConfigPropertiesParser implements TreeParser<Tree> {
 
-  public static PropertiesParser.PropertiesFileContext createPropertiesFileContext(String code) {
-    var inputCode = CharStreams.fromString(code);
+  @Override
+  public SpringConfig parse(String source, @Nullable InputFileContext inputFileContext) {
+    var inputCode = CharStreams.fromString(source);
     var propertiesLexer = new PropertiesLexer(inputCode);
     var commonTokenStream = new CommonTokenStream(propertiesLexer);
     var parser = new PropertiesParser(commonTokenStream);
-    var listener = new ErrorListener(null);
+
+    var listener = new ErrorListener(inputFileContext);
+    parser.removeErrorListeners();
     parser.addErrorListener(listener);
-    return parser.propertiesFile();
+
+    var propertiesFileContext = parser.propertiesFile();
+    var visitor = new PropertiesParseTreeVisitor();
+    return visitor.visitPropertiesFile(propertiesFileContext);
   }
 }

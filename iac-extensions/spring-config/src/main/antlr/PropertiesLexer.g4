@@ -4,7 +4,7 @@ COMMENT   : [!#] -> pushMode(VALUE_MODE);
 NEWLINE   : [\r\n\u2028\u2029]+;
 DELIMITER : [ ]* [:=\t\f ] [ ]* -> pushMode(VALUE_MODE);
 SLASH     : '\\' -> more, pushMode(INSIDE);
-CHARACTER : ~ [!#:=\r\n\u2028\u2029];
+CHARACTER : ~ [:=\r\n\u2028\u2029];
 
 mode INSIDE;
 

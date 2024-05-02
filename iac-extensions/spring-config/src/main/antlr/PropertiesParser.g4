@@ -5,7 +5,7 @@ options {
 }
 
 propertiesFile
-    : row*
+    : row* EOF
     ;
 
 row
@@ -27,7 +27,7 @@ eol
     ;
 
 commentText
-    : CHARACTER+
+    : CHARACTER*
     ;
 
 commentStartAndText

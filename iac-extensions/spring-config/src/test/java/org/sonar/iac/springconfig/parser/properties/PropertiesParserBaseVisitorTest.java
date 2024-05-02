@@ -25,8 +25,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.sonar.iac.springconfig.parser.properties.PropertiesTestUtils.createPropertiesFileContext;
 
 class PropertiesParserBaseVisitorTest {
@@ -41,7 +43,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo=bar<EOF>",
+      "visitPropertiesFile foo=bar<EOF><EOF>",
       "visitRow foo=bar<EOF>",
       "visitLine foo=bar<EOF>",
       "visitKey foo",
@@ -56,7 +58,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo:bar<EOF>",
+      "visitPropertiesFile foo:bar<EOF><EOF>",
       "visitRow foo:bar<EOF>",
       "visitLine foo:bar<EOF>",
       "visitKey foo",
@@ -71,7 +73,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo bar<EOF>",
+      "visitPropertiesFile foo bar<EOF><EOF>",
       "visitRow foo bar<EOF>",
       "visitLine foo bar<EOF>",
       "visitKey foo",
@@ -86,7 +88,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo\\tbar<EOF>",
+      "visitPropertiesFile foo\\tbar<EOF><EOF>",
       "visitRow foo\\tbar<EOF>",
       "visitLine foo\\tbar<EOF>",
       "visitKey foo",
@@ -101,7 +103,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo\\fbar<EOF>",
+      "visitPropertiesFile foo\\fbar<EOF><EOF>",
       "visitRow foo\\fbar<EOF>",
       "visitLine foo\\fbar<EOF>",
       "visitKey foo",
@@ -119,7 +121,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile # example comment\\nfoo=bar\\n#comment at the end<EOF>",
+      "visitPropertiesFile # example comment\\nfoo=bar\\n#comment at the end<EOF><EOF>",
       "visitRow # example comment\\n",
       "visitComment # example comment\\n",
       "visitCommentStartAndText # example comment",
@@ -147,7 +149,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile ! also a comment\\nfoo=bar\\n! also comment at the end<EOF>",
+      "visitPropertiesFile ! also a comment\\nfoo=bar\\n! also comment at the end<EOF><EOF>",
       "visitRow ! also a comment\\n",
       "visitComment ! also a comment\\n",
       "visitCommentStartAndText ! also a comment",
@@ -172,7 +174,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile spring.activemq.broker-url=tcp://127.0.0.1:61616<EOF>",
+      "visitPropertiesFile spring.activemq.broker-url=tcp://127.0.0.1:61616<EOF><EOF>",
       "visitRow spring.activemq.broker-url=tcp://127.0.0.1:61616<EOF>",
       "visitLine spring.activemq.broker-url=tcp://127.0.0.1:61616<EOF>",
       "visitKey spring.activemq.broker-url",
@@ -187,7 +189,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile logging.pattern.console=%d{mm:ss.SSS} %-5p [%-31t] [%-54logger{0}] %marker%m%ex{full} - %logger - %F:%L%n<EOF>",
+      "visitPropertiesFile logging.pattern.console=%d{mm:ss.SSS} %-5p [%-31t] [%-54logger{0}] %marker%m%ex{full} - %logger - %F:%L%n<EOF><EOF>",
       "visitRow logging.pattern.console=%d{mm:ss.SSS} %-5p [%-31t] [%-54logger{0}] %marker%m%ex{full} - %logger - %F:%L%n<EOF>",
       "visitLine logging.pattern.console=%d{mm:ss.SSS} %-5p [%-31t] [%-54logger{0}] %marker%m%ex{full} - %logger - %F:%L%n<EOF>",
       "visitKey logging.pattern.console",
@@ -205,7 +207,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo=bar\\n# foo=bar\\nfoo=bar # foo2=bar2<EOF>",
+      "visitPropertiesFile foo=bar\\n# foo=bar\\nfoo=bar # foo2=bar2<EOF><EOF>",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
       "visitKey foo",
@@ -232,7 +234,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile mail.defaultRecipients[0]=admin@mail.com\\nmail.defaultRecipients[1]=owner@mail.com<EOF>",
+      "visitPropertiesFile mail.defaultRecipients[0]=admin@mail.com\\nmail.defaultRecipients[1]=owner@mail.com<EOF><EOF>",
       "visitRow mail.defaultRecipients[0]=admin@mail.com\\n",
       "visitLine mail.defaultRecipients[0]=admin@mail.com\\n",
       "visitKey mail.defaultRecipients[0]",
@@ -255,7 +257,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo=bar\\n\\nbar=foo<EOF>",
+      "visitPropertiesFile foo=bar\\n\\nbar=foo<EOF><EOF>",
       "visitRow foo=bar\\n\\n",
       "visitLine foo=bar\\n\\n",
       "visitKey foo",
@@ -275,7 +277,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo1=bar1\\rfoo2=bar2\\r\\r\\rfoo3=bar3\\r",
+      "visitPropertiesFile foo1=bar1\\rfoo2=bar2\\r\\r\\rfoo3=bar3\\r<EOF>",
       "visitRow foo1=bar1\\r",
       "visitLine foo1=bar1\\r",
       "visitKey foo1",
@@ -300,7 +302,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo1=bar1\\r\\nfoo2=bar2\\r\\n\\r\\n\\r\\nfoo3=bar3\\r\\n",
+      "visitPropertiesFile foo1=bar1\\r\\nfoo2=bar2\\r\\n\\r\\n\\r\\nfoo3=bar3\\r\\n<EOF>",
       "visitRow foo1=bar1\\r\\n",
       "visitLine foo1=bar1\\r\\n",
       "visitKey foo1",
@@ -325,7 +327,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo1=bar1\\u2028foo2=bar2\\u2028\\u2028\\u2028foo3=bar3\\u2028",
+      "visitPropertiesFile foo1=bar1\\u2028foo2=bar2\\u2028\\u2028\\u2028foo3=bar3\\u2028<EOF>",
       "visitRow foo1=bar1\\u2028",
       "visitLine foo1=bar1\\u2028",
       "visitKey foo1",
@@ -350,7 +352,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo1=bar1\\u2029foo2=bar2\\u2029\\u2029\\u2029foo3=bar3\\u2029",
+      "visitPropertiesFile foo1=bar1\\u2029foo2=bar2\\u2029\\u2029\\u2029foo3=bar3\\u2029<EOF>",
       "visitRow foo1=bar1\\u2029",
       "visitLine foo1=bar1\\u2029",
       "visitKey foo1",
@@ -378,7 +380,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile #comment 1 ! # : =\\n!comment 2 # aa\\nfoo2=bar2<EOF>",
+      "visitPropertiesFile #comment 1 ! # : =\\n!comment 2 # aa\\nfoo2=bar2<EOF><EOF>",
       "visitRow #comment 1 ! # : =\\n",
       "visitComment #comment 1 ! # : =\\n",
       "visitCommentStartAndText #comment 1 ! # : =",
@@ -397,6 +399,28 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
+  void shouldParseEmptyComment() {
+    var code = """
+      #
+      foo=bar""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile #\\nfoo=bar<EOF><EOF>",
+      "visitRow #\\n",
+      "visitComment #\\n",
+      "visitCommentStartAndText #",
+      "visitCommentText ",
+      "visitEol \\n",
+      "visitRow foo=bar<EOF>",
+      "visitLine foo=bar<EOF>",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol <EOF>");
+  }
+
+  @Test
   void shouldParseNewLinesCommentsLF() {
     var code = """
       #comment 1
@@ -410,7 +434,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile #comment 1\\n!comment 2\\nfoo=bar\\n#\\n!\\nfoo2=bar2\\n!comment 5<EOF>",
+      "visitPropertiesFile #comment 1\\n!comment 2\\nfoo=bar\\n#\\n!\\nfoo2=bar2\\n!comment 5<EOF><EOF>",
       "visitRow #comment 1\\n",
       "visitComment #comment 1\\n",
       "visitCommentStartAndText #comment 1",
@@ -431,13 +455,14 @@ class PropertiesParserBaseVisitorTest {
       "visitCommentStartAndText #",
       "visitCommentText ",
       "visitEol \\n",
-      "visitRow !\\nfoo2=",
-      "visitComment !\\nfoo2=",
-      "visitCommentStartAndText !\\nfoo2",
-      "visitCommentText \\nfoo2",
-      "visitEol =",
-      "visitRow bar2\\n",
-      "visitLine bar2\\n",
+      "visitRow !\\n",
+      "visitComment !\\n",
+      "visitCommentStartAndText !",
+      "visitCommentText ",
+      "visitEol \\n",
+      "visitRow foo2=bar2\\n",
+      "visitLine foo2=bar2\\n",
+      "visitKey foo2",
       "visitKey bar2",
       "visitEol \\n",
       "visitRow !comment 5<EOF>",
@@ -454,7 +479,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile #comment 1\\r!comment 2\\rfoo=bar\\r#\\r!\\rfoo2=bar2\\r!comment 5<EOF>",
+      "visitPropertiesFile #comment 1\\r!comment 2\\rfoo=bar\\r#\\r!\\rfoo2=bar2\\r!comment 5<EOF><EOF>",
       "visitRow #comment 1\\r",
       "visitComment #comment 1\\r",
       "visitCommentStartAndText #comment 1",
@@ -475,13 +500,14 @@ class PropertiesParserBaseVisitorTest {
       "visitCommentStartAndText #",
       "visitCommentText ",
       "visitEol \\r",
-      "visitRow !\\rfoo2=",
-      "visitComment !\\rfoo2=",
-      "visitCommentStartAndText !\\rfoo2",
-      "visitCommentText \\rfoo2",
-      "visitEol =",
-      "visitRow bar2\\r",
-      "visitLine bar2\\r",
+      "visitRow !\\r",
+      "visitComment !\\r",
+      "visitCommentStartAndText !",
+      "visitCommentText ",
+      "visitEol \\r",
+      "visitRow foo2=bar2\\r",
+      "visitLine foo2=bar2\\r",
+      "visitKey foo2",
       "visitKey bar2",
       "visitEol \\r",
       "visitRow !comment 5<EOF>",
@@ -498,7 +524,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile #comment 1\\r\\n!comment 2\\r\\nfoo=bar\\r\\n#\\r\\n!\\r\\nfoo2=bar2\\r\\n!comment 5<EOF>",
+      "visitPropertiesFile #comment 1\\r\\n!comment 2\\r\\nfoo=bar\\r\\n#\\r\\n!\\r\\nfoo2=bar2\\r\\n!comment 5<EOF><EOF>",
       "visitRow #comment 1\\r\\n",
       "visitComment #comment 1\\r\\n",
       "visitCommentStartAndText #comment 1",
@@ -519,13 +545,14 @@ class PropertiesParserBaseVisitorTest {
       "visitCommentStartAndText #",
       "visitCommentText ",
       "visitEol \\r\\n",
-      "visitRow !\\r\\nfoo2=",
-      "visitComment !\\r\\nfoo2=",
-      "visitCommentStartAndText !\\r\\nfoo2",
-      "visitCommentText \\r\\nfoo2",
-      "visitEol =",
-      "visitRow bar2\\r\\n",
-      "visitLine bar2\\r\\n",
+      "visitRow !\\r\\n",
+      "visitComment !\\r\\n",
+      "visitCommentStartAndText !",
+      "visitCommentText ",
+      "visitEol \\r\\n",
+      "visitRow foo2=bar2\\r\\n",
+      "visitLine foo2=bar2\\r\\n",
+      "visitKey foo2",
       "visitKey bar2",
       "visitEol \\r\\n",
       "visitRow !comment 5<EOF>",
@@ -542,9 +569,23 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo<EOF>",
+      "visitPropertiesFile foo<EOF><EOF>",
       "visitRow foo<EOF>",
       "visitLine foo<EOF>",
+      "visitKey foo",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseKeyEmptyValue() {
+    var code = "foo=";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo=<EOF><EOF>",
+      "visitRow foo=<EOF>",
+      "visitLine foo=<EOF>",
       "visitKey foo",
       "visitEol <EOF>");
   }
@@ -556,7 +597,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo=\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9<EOF>",
+      "visitPropertiesFile foo=\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9<EOF><EOF>",
       "visitRow foo=\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9<EOF>",
       "visitLine foo=\u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9<EOF>",
       "visitKey foo",
@@ -571,7 +612,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9=bar<EOF>",
+      "visitPropertiesFile \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9=bar<EOF><EOF>",
       "visitRow \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9=bar<EOF>",
       "visitLine \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9=bar<EOF>",
       "visitKey \u00FC\u00F6\u00E4\u0105\u0107\u0119\u0411\u0413\u0414\u00E0\u00E8\u00F9",
@@ -589,7 +630,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo1 = bar1\\nfoo2= bar2\\nfoo3 =bar3<EOF>",
+      "visitPropertiesFile foo1 = bar1\\nfoo2= bar2\\nfoo3 =bar3<EOF><EOF>",
       "visitRow foo1 = bar1\\n",
       "visitLine foo1 = bar1\\n",
       "visitKey foo1",
@@ -616,7 +657,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile duplicateKey=first\\nduplicateKey=second<EOF>",
+      "visitPropertiesFile duplicateKey=first\\nduplicateKey=second<EOF><EOF>",
       "visitRow duplicateKey=first\\n",
       "visitLine duplicateKey=first\\n",
       "visitKey duplicateKey",
@@ -636,7 +677,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF>",
+      "visitPropertiesFile delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF><EOF>",
       "visitRow delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF>",
       "visitLine delimiterCharacters\\:\\=\\ = This is the value for the key \"delimiterCharacters\\:\\=\\ \"<EOF>",
       "visitKey delimiterCharacters\\:\\=\\ ",
@@ -653,7 +694,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile multiline=This line continues<EOF>",
+      "visitPropertiesFile multiline=This line continues<EOF><EOF>",
       "visitRow multiline=This line continues<EOF>",
       "visitLine multiline=This line continues<EOF>",
       "visitKey multiline",
@@ -668,7 +709,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile path=c:\\wiki\\templates<EOF>",
+      "visitPropertiesFile path=c:\\wiki\\templates<EOF><EOF>",
       "visitRow path=c:\\wiki\\templates<EOF>",
       "visitLine path=c:\\wiki\\templates<EOF>",
       "visitKey path",
@@ -683,7 +724,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile evenKey=This is on one line\\\\<EOF>",
+      "visitPropertiesFile evenKey=This is on one line\\\\<EOF><EOF>",
       "visitRow evenKey=This is on one line\\\\<EOF>",
       "visitLine evenKey=This is on one line\\\\<EOF>",
       "visitKey evenKey",
@@ -700,7 +741,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile oddKey=This is line one and\\\\# This is line two<EOF>",
+      "visitPropertiesFile oddKey=This is line one and\\\\# This is line two<EOF><EOF>",
       "visitRow oddKey=This is line one and\\\\# This is line two<EOF>",
       "visitLine oddKey=This is line one and\\\\# This is line two<EOF>",
       "visitKey oddKey",
@@ -717,7 +758,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile welcome = Welcome to Wikipedia!<EOF>",
+      "visitPropertiesFile welcome = Welcome to Wikipedia!<EOF><EOF>",
       "visitRow welcome = Welcome to Wikipedia!<EOF>",
       "visitLine welcome = Welcome to Wikipedia!<EOF>",
       "visitKey welcome",
@@ -732,7 +773,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile valueWithEscapes=This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
+      "visitPropertiesFile valueWithEscapes=This is a newline\\n and a carriage return\\r and a tab\\t.<EOF><EOF>",
       "visitRow valueWithEscapes=This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
       "visitLine valueWithEscapes=This is a newline\\n and a carriage return\\r and a tab\\t.<EOF>",
       "visitKey valueWithEscapes",
@@ -754,7 +795,7 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitorTextRanges.visited()).containsExactly(
-      "visitPropertiesFile # comment 1\\nfoo1 = bar1\\n!comment2\\nfoo2=bar2\\nfoo3 =multilinevalue\\nfoo4=valueUnicode\u00FC\u00F6<EOF>",
+      "visitPropertiesFile # comment 1\\nfoo1 = bar1\\n!comment2\\nfoo2=bar2\\nfoo3 =multilinevalue\\nfoo4=valueUnicode\u00FC\u00F6<EOF><EOF>",
       "visitRow # comment 1\\n",
       "visitComment # comment 1\\n",
       "visitCommentStartAndText # comment 1 [1:0/1:10] StartIndex: 0",
@@ -798,10 +839,21 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
+  void shouldThrowExceptionForEmptyKey() {
+    var code = "=abc";
+
+    var exception = catchException(() -> parseProperties(code));
+
+    assertThat(exception)
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, CHARACTER} at null:1:1");
+  }
+
+  @Test
   void shouldParseEmptyString() {
     var code = "";
     parseProperties(code);
-    assertThat(visitor.visited()).containsExactly("visitPropertiesFile ");
+    assertThat(visitor.visited()).containsExactly("visitPropertiesFile <EOF>");
   }
 
   private void parseProperties(String code) {
