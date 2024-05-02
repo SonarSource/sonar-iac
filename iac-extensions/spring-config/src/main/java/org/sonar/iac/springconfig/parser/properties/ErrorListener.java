@@ -23,12 +23,15 @@ import javax.annotation.Nullable;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class ErrorListener extends BaseErrorListener {
+  private static final Logger LOG = LoggerFactory.getLogger(ErrorListener.class);
 
   @Nullable
   private InputFileContext inputFileContext;
@@ -40,6 +43,8 @@ public class ErrorListener extends BaseErrorListener {
   @Override
   public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
     TextPointer textPointer = new BasicTextPointer(line, charPositionInLine);
-    throw ParseException.createParseException("Cannot parse, " + msg, inputFileContext, textPointer);
+    var message = "Cannot parse, " + msg;
+    LOG.debug(message, e);
+    throw ParseException.createParseException(message, inputFileContext, textPointer);
   }
 }

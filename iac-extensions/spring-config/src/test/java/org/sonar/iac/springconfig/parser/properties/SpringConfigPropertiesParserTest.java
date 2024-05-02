@@ -20,6 +20,9 @@
 package org.sonar.iac.springconfig.parser.properties;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -29,6 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 
 class SpringConfigPropertiesParserTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @Test
   void shouldParseExampleFile() {
@@ -56,5 +62,7 @@ class SpringConfigPropertiesParserTest {
     assertThat(exception)
       .isInstanceOf(ParseException.class)
       .hasMessage("Cannot parse, mismatched input '!' expecting {<EOF>, NEWLINE, DELIMITER} at dir1/dir2/foo.properties:1:4");
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Cannot parse, mismatched input '!' expecting {<EOF>, NEWLINE, DELIMITER}");
   }
 }
