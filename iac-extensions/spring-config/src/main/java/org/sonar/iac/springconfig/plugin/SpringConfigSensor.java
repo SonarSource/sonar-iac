@@ -86,7 +86,7 @@ public class SpringConfigSensor extends IacSensor {
   }
 
   @Override
-  protected TreeParser<Tree> treeParser() {
+  protected TreeParser<? extends Tree> treeParser() {
     return new SpringConfigParser();
   }
 
