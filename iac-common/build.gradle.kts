@@ -14,10 +14,6 @@ dependencies {
     api(libs.minimaljson)
     api(libs.snakeyaml)
 
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.assertj.core)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.sonar.plugin.api.test.fixtures)
     testImplementation(libs.sonar.analyzer.test.commons)
 
     testFixturesImplementation(libs.junit.jupiter)
