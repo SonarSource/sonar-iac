@@ -65,7 +65,7 @@ public class Verifier {
     // utility class
   }
 
-  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check) {
+  public static void verify(TreeParser<? extends Tree> parser, Path path, IacCheck check) {
     verify(parser, path, check, TestContext::new);
   }
 
@@ -73,7 +73,7 @@ public class Verifier {
     verify(root, path, check, TestContext::new);
   }
 
-  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
+  public static void verify(TreeParser<? extends Tree> parser, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
     verify(root, path, check, contextSupplier);
   }
@@ -81,7 +81,7 @@ public class Verifier {
   /**
    * This method should only be used if "Noncompliant" comments in the code cannot be used to verify the issues.
    */
-  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Issue... expectedIssues) {
+  public static void verify(TreeParser<? extends Tree> parser, Path path, IacCheck check, Issue... expectedIssues) {
     Tree root = parse(parser, path);
     verify(root, path, check, expectedIssues);
   }
@@ -111,24 +111,24 @@ public class Verifier {
     }
   }
 
-  public static void verify(TreeParser<Tree> parser, String content, IacCheck check) {
+  public static void verify(TreeParser<? extends Tree> parser, String content, IacCheck check) {
     var tempFile = contentToTmp(content);
     verify(parser, tempFile.toPath(), check);
   }
 
-  public static void verify(TreeParser<Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
+  public static void verify(TreeParser<? extends Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
     Tree root = parser.parse(content, null);
     var tempFile = contentToTmp(null);
     var actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
-  public static void verifyNoIssue(TreeParser<Tree> parser, String content, IacCheck check) {
+  public static void verifyNoIssue(TreeParser<? extends Tree> parser, String content, IacCheck check) {
     var tempFile = contentToTmp(content);
     verifyNoIssue(parser, tempFile.toPath(), check, TestContext::new);
   }
 
-  public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {
+  public static void verifyNoIssue(TreeParser<? extends Tree> parser, Path path, IacCheck check) {
     verifyNoIssue(parser, path, check, TestContext::new);
   }
 
@@ -136,7 +136,7 @@ public class Verifier {
     verifyNoIssue(root, path, check, TestContext::new);
   }
 
-  public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check,
+  public static void verifyNoIssue(TreeParser<? extends Tree> parser, Path path, IacCheck check,
     Function<MultiFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
     verifyNoIssue(root, path, check, contextSupplier);
@@ -154,12 +154,12 @@ public class Verifier {
     return ctx.raisedIssues;
   }
 
-  public static Tree parse(TreeParser<Tree> parser, Path path) {
+  public static Tree parse(TreeParser<? extends Tree> parser, Path path) {
     var testFileContent = readFile(path);
     return parse(parser, testFileContent, null);
   }
 
-  public static Tree parse(TreeParser<Tree> parser, String content, @Nullable InputFileContext inputFileContext) {
+  public static Tree parse(TreeParser<? extends Tree> parser, String content, @Nullable InputFileContext inputFileContext) {
     return parser.parse(content, inputFileContext);
   }
 

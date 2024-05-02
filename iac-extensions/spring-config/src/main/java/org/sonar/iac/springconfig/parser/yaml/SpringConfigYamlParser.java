@@ -39,7 +39,7 @@ public class SpringConfigYamlParser implements IacYamlParser<File> {
   }
 
   @Override
-  public File convertWithConverter(List<Node> nodes) {
+  public File convert(List<Node> nodes) {
     return converter.convertFile(nodes);
   }
 }

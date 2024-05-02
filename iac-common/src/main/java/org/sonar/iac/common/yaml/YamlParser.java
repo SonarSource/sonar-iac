@@ -37,7 +37,7 @@ public class YamlParser implements IacYamlParser<FileTree> {
   }
 
   @Override
-  public FileTree convertWithConverter(List<Node> nodes) {
+  public FileTree convert(List<Node> nodes) {
     return converter.convertFile(nodes);
   }
 }

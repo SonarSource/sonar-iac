@@ -42,7 +42,7 @@ import org.sonar.iac.springconfig.tree.api.Tuple;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -60,8 +60,9 @@ class SpringConfigYamlParserTest {
 
   @Test
   void shouldParseEmptyFile() {
-    Exception exception = assertThrows(ParseException.class, () -> parser.parse("", inputFileContext));
-    assertThat(exception.getMessage()).isEqualTo("Unexpected empty nodes list while converting file");
+    assertThatThrownBy(() -> parser.parse("", inputFileContext))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Unexpected empty nodes list while converting file");
   }
 
   @Test
@@ -71,12 +72,12 @@ class SpringConfigYamlParserTest {
 
   @Test
   void shouldFailOnRecursion() {
-    Exception exception = assertThrows(ParserException.class, () -> parser.parse("some_key: &some_anchor\n  sub_key: *some_anchor",
-      inputFileContext));
-    assertThat(exception.getMessage()).isEqualTo("Recursive node found\n" +
-      " in reader, line 1, column 11:\n" +
-      "    some_key: &some_anchor\n" +
-      "              ^\n");
+    assertThatThrownBy(() -> parser.parse("some_key: &some_anchor\n  sub_key: *some_anchor", inputFileContext))
+      .isInstanceOf(ParserException.class)
+      .hasMessage("Recursive node found\n" +
+        " in reader, line 1, column 11:\n" +
+        "    some_key: &some_anchor\n" +
+        "              ^\n");
   }
 
   @Test

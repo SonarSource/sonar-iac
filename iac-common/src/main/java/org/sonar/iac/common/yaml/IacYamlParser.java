@@ -33,9 +33,9 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
-public interface IacYamlParser<T extends Tree> extends TreeParser<Tree> {
+public interface IacYamlParser<T extends Tree> extends TreeParser<T> {
 
-  T convertWithConverter(List<Node> nodes);
+  T convert(List<Node> nodes);
 
   default T parse(String source, @Nullable InputFileContext inputFileContext) {
     var settings = LoadSettings.builder().setParseComments(shouldParseComments(inputFileContext)).build();
@@ -45,7 +45,7 @@ public interface IacYamlParser<T extends Tree> extends TreeParser<Tree> {
     var composer = new Composer(settings, parser);
     var nodes = composerNodes(composer);
 
-    return convertWithConverter(nodes);
+    return convert(nodes);
   }
 
   private static List<Node> composerNodes(Composer composer) {

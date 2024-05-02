@@ -24,10 +24,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -86,7 +89,7 @@ public abstract class IacSensor implements Sensor {
     return language.getKey();
   }
 
-  protected abstract TreeParser<Tree> treeParser();
+  protected abstract TreeParser<? extends Tree> treeParser();
 
   protected abstract String repositoryKey();
 
@@ -153,10 +156,15 @@ public abstract class IacSensor implements Sensor {
     return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 
-  protected ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause) {
+  public ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause) {
     TextPointer position = null;
     if (cause instanceof RecognitionException recognitionException) {
       position = inputFileContext.newPointer(recognitionException.getLine(), 0);
+    } else if (cause instanceof MarkedYamlEngineException markedException) {
+      Optional<Mark> problemMark = markedException.getProblemMark();
+      if (problemMark.isPresent()) {
+        position = inputFileContext.newPointer(problemMark.get().getLine() + 1, 0);
+      }
     }
     return createGeneralParseException(action, inputFileContext.inputFile, cause, position);
   }
@@ -179,11 +187,11 @@ public abstract class IacSensor implements Sensor {
 
   private class Analyzer {
 
-    private final TreeParser<Tree> parser;
+    private final TreeParser<? extends Tree> parser;
     private final List<TreeVisitor<InputFileContext>> visitors;
     private final DurationStatistics statistics;
 
-    public Analyzer(TreeParser<Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
+    public Analyzer(TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
       this.parser = parser;
       this.visitors = visitors;
       this.statistics = statistics;

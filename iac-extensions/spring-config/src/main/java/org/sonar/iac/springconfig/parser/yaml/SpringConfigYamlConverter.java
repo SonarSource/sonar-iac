@@ -87,11 +87,9 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
   @Override
   public Stream<TupleBuilder> convertScalar(ScalarNode scalarNode) {
     TextRange range = YamlTreeMetadata.Builder.range(scalarNode);
-    var tuple = new TupleBuilder();
-    tuple
-      .addKeyTextRange(range)
-      .addValue(scalarNode.getValue())
-      .addValueTextRange(range);
+    var tuple = new TupleBuilder()
+      .withValue(scalarNode.getValue())
+      .withValueTextRange(range);
     return Stream.of(tuple);
   }
 
@@ -110,7 +108,7 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
     return convert(tuple.getValueNode())
       .map((TupleBuilder childTuple) -> {
         if (valueIsScalar) {
-          return childTuple.addKeyTextRange(YamlTreeMetadata.Builder.range(tuple.getKeyNode()));
+          return childTuple.withKeyTextRange(YamlTreeMetadata.Builder.range(tuple.getKeyNode()));
         }
         return childTuple;
       })
@@ -136,22 +134,27 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
     private String value;
     private TextRange valueTextRange;
 
-    public TupleBuilder addKeyTextRange(TextRange keyTextRange) {
+    public TupleBuilder withKeyTextRange(TextRange keyTextRange) {
       this.keyTextRange = keyTextRange;
       return this;
     }
 
-    public TupleBuilder addValue(String value) {
+    public TupleBuilder withValue(String value) {
       this.value = value;
       return this;
     }
 
-    public TupleBuilder addValueTextRange(TextRange valueTextRange) {
+    public TupleBuilder withValueTextRange(TextRange valueTextRange) {
       this.valueTextRange = valueTextRange;
       return this;
     }
 
     public Tuple build() {
+      if (keyTextRange == null) {
+        // in case the value is a scalar and direct child of a sequence, the keyTextRange is not set
+        // in this case, we set the keyTextRange the same as the valueTextRange
+        keyTextRange = valueTextRange;
+      }
       var keyToken = new SyntaxTokenImpl(key, keyTextRange);
       var valueToken = new SyntaxTokenImpl(value, valueTextRange);
       return new TupleImpl(new ScalarImpl(keyToken), new ScalarImpl(valueToken));
@@ -160,6 +163,7 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
     public TupleBuilder prefixKeyDelimited(String prefix, Class<? extends Node> followingNodeType) {
       var formatString = "%s.%s";
       if (followingNodeType == ScalarNode.class || followingNodeType == SequenceNode.class) {
+        // In case the following node type is a scalar, the key is empty and we don't need the delimiter
         formatString = "%s%s";
       }
       key = formatString.formatted(prefix, key);
