@@ -53,7 +53,7 @@ public class CloudformationSensor extends YamlSensor {
   }
 
   @Override
-  protected TreeParser<Tree> treeParser() {
+  protected TreeParser<? extends Tree> treeParser() {
     return new CloudformationParser();
   }
 

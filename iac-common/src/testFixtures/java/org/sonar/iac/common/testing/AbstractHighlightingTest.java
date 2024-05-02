@@ -39,12 +39,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractHighlightingTest {
 
   protected final SyntaxHighlightingVisitor highlightingVisitor;
-  private final TreeParser<Tree> parser;
+  private final TreeParser<? extends Tree> parser;
   protected SensorContextTester sensorContext;
   private DefaultInputFile inputFile;
   private String code;
 
-  protected AbstractHighlightingTest(SyntaxHighlightingVisitor highlightingVisitor, TreeParser<Tree> parser) {
+  protected AbstractHighlightingTest(SyntaxHighlightingVisitor highlightingVisitor, TreeParser<? extends Tree> parser) {
     this.highlightingVisitor = highlightingVisitor;
     this.parser = parser;
   }

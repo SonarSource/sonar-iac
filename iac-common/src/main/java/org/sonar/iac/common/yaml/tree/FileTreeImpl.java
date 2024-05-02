@@ -26,13 +26,11 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class FileTreeImpl extends YamlTreeImpl implements FileTree {
   private final List<YamlTree> documents;
-  private final Template template;
 
-  public FileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata, Template template) {
+  public FileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata) {
     // A file on its own has no comments. They will be attached to the root node.
     super(metadata);
     this.documents = documents;
-    this.template = template;
   }
 
   @Override
@@ -43,11 +41,6 @@ public class FileTreeImpl extends YamlTreeImpl implements FileTree {
   @Override
   public List<Tree> children() {
     return new ArrayList<>(documents);
-  }
-
-  @Override
-  public Template template() {
-    return template;
   }
 
   @Override

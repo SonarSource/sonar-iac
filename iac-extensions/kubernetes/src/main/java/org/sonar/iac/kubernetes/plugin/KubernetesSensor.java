@@ -115,7 +115,7 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   @Override
-  protected TreeParser<Tree> treeParser() {
+  protected TreeParser<? extends Tree> treeParser() {
     return new KubernetesParser(helmProcessor, kubernetesParserStatistics);
   }
 

@@ -141,7 +141,7 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree buildEmptyTree() {
-    return super.parse("{}", null, FileTree.Template.HELM);
+    return super.parse("{}", null);
   }
 
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
@@ -149,11 +149,11 @@ public class KubernetesParser extends YamlParser {
 
     if (evaluatedAndCleanedSource.isBlank()) {
       LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
-      return super.parse("{}", null, FileTree.Template.HELM);
+      return super.parse("{}", null);
     }
 
     return KubernetesFileTreeImpl.fromFileTree(
-      super.parse(evaluatedAndCleanedSource, inputFileContext, FileTree.Template.HELM),
+      super.parse(evaluatedAndCleanedSource, inputFileContext),
       inputFileContext.getGoTemplateTree());
   }
 

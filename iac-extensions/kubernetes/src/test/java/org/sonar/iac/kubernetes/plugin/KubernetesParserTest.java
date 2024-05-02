@@ -90,7 +90,6 @@ class KubernetesParserTest {
 
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isEmpty();
-    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("Helm content detected in file '/chart/templates/foo.yaml'",
@@ -102,7 +101,6 @@ class KubernetesParserTest {
     FileTree file = parser.parse("foo: {{ .Value.var }}", null);
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isEmpty();
-    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("No InputFileContext provided, skipping processing of Helm file");
@@ -113,7 +111,6 @@ class KubernetesParserTest {
     FileTree file = parser.parse("foo: {bar: 1234}", inputFileContext);
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isNotEmpty();
-    assertThat(file.template()).isEqualTo(FileTree.Template.NONE);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).isEmpty();
@@ -208,7 +205,6 @@ class KubernetesParserTest {
     FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
 
     assertThat(file.documents().get(0).children()).hasSize(4);
-    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
   }
 
   @Test
@@ -223,7 +219,6 @@ class KubernetesParserTest {
     FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
 
     assertThat(file.documents().get(0).children()).hasSize(4);
-    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
   }
 
   @Test
@@ -238,7 +233,6 @@ class KubernetesParserTest {
     FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
 
     assertThat(file.documents().get(0).children()).hasSize(4);
-    assertThat(file.template()).isEqualTo(FileTree.Template.HELM);
   }
 
   @Test
@@ -469,16 +463,6 @@ class KubernetesParserTest {
       .isInstanceOf(ParseException.class);
   }
 
-  @Test
-  void shouldParseValuesYamlFileWithoutHelmContentAsSimpleKubernetesFile() {
-    when(inputFile.toString()).thenReturn("chart/values.yaml");
-    when(inputFile.filename()).thenReturn("values.yaml");
-
-    var actual = parser.parse("foo: bar", inputFileContext);
-
-    assertThat(actual.template()).isEqualTo(FileTree.Template.NONE);
-  }
-
   @ParameterizedTest
   // filename, inChartRoot, expectedReturn
   @CsvSource({
@@ -559,7 +543,6 @@ class KubernetesParserTest {
 
   private void assertEmptyFileTree(FileTree fileTree) {
     SoftAssertions.assertSoftly(softly -> {
-      softly.assertThat(fileTree.template()).isEqualTo(FileTree.Template.HELM);
       softly.assertThat(fileTree.metadata().textRange()).hasToString("[1:0/1:2]");
       softly.assertThat(fileTree.documents()).hasSize(1);
       softly.assertThat(fileTree.documents().get(0)).isInstanceOf(MappingTree.class);

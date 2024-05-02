@@ -33,13 +33,13 @@ public class KubernetesFileTreeImpl extends FileTreeImpl implements KubernetesFi
   @Nullable
   private final GoTemplateTree goTemplateAst;
 
-  public KubernetesFileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata, Template template, @Nullable GoTemplateTree goTemplateAst) {
-    super(documents, metadata, template);
+  public KubernetesFileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata, @Nullable GoTemplateTree goTemplateAst) {
+    super(documents, metadata);
     this.goTemplateAst = goTemplateAst;
   }
 
   public static KubernetesFileTreeImpl fromFileTree(FileTree fileTree, @Nullable GoTemplateTree goTemplateAst) {
-    return new KubernetesFileTreeImpl(fileTree.documents(), fileTree.metadata(), fileTree.template(), goTemplateAst);
+    return new KubernetesFileTreeImpl(fileTree.documents(), fileTree.metadata(), goTemplateAst);
   }
 
   @Override

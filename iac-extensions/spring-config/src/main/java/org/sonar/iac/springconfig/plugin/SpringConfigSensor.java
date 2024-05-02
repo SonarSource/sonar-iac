@@ -50,10 +50,13 @@ public class SpringConfigSensor extends IacSensor {
   private static final Set<String> EXCLUDED_PROFILES = Set.of("dev", "test");
   private final Checks<IacCheck> checks;
 
-  public SpringConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, CheckFactory checkFactory) {
-    // The Java language is registered by the sonar-java plugin. However, for the sensor we only need language key and name, and don't need to
+  public SpringConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
+    CheckFactory checkFactory) {
+    // The Java language is registered by the sonar-java plugin. However, for the sensor we only need language key and name, and don't
+    // need to
     // rely on the SQ extension.
-    // Mechanisms of dependency injection between SQ and SL can differ, and the `org.sonar.plugins.java.Java` language is available only in the
+    // Mechanisms of dependency injection between SQ and SL can differ, and the `org.sonar.plugins.java.Java` language is available only
+    // in the
     // `sonar-java` plugin, so it's not possible to inject it here.
     // That's why the sensor is hardcoding key and name and not providing a `Language` object.
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, null);

@@ -43,7 +43,7 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 public abstract class AbstractMetricsTest {
 
   protected NoSonarFilter noSonarFilter = mock(NoSonarFilter.class);
-  protected TreeParser<Tree> parser;
+  protected TreeParser<? extends Tree> parser;
   protected String language;
   protected MetricsVisitor visitor;
   protected SensorContextTester sensorContext;
@@ -66,7 +66,7 @@ public abstract class AbstractMetricsTest {
 
   protected abstract String languageKey();
 
-  protected abstract TreeParser<Tree> treeParser();
+  protected abstract TreeParser<? extends Tree> treeParser();
 
   protected abstract MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory);
 

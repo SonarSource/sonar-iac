@@ -46,7 +46,6 @@ class FileTreeImplTest extends YamlTreeTest {
     assertThat(tree.toHighlight())
       .hasRange(1, 0, 1, 4)
       .isEqualTo(tree.documents().get(0).textRange());
-    assertThat(tree.template()).isEqualTo(FileTree.Template.NONE);
   }
 
   @Test
@@ -89,11 +88,5 @@ class FileTreeImplTest extends YamlTreeTest {
       # comment
       """);
     assertThat(file.metadata().comments()).isNotEmpty();
-  }
-
-  @Test
-  void shouldParseFileWithTemplate() {
-    FileTree tree = parse("a: b", FileTree.Template.HELM);
-    assertThat(tree.template()).isEqualTo(FileTree.Template.HELM);
   }
 }

@@ -19,13 +19,12 @@
  */
 package org.sonar.iac.common.yaml;
 
-import org.snakeyaml.engine.v2.exceptions.Mark;
-import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -37,19 +36,12 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
-import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
 
 public abstract class YamlSensor extends IacSensor {
 
@@ -74,7 +66,7 @@ public abstract class YamlSensor extends IacSensor {
   }
 
   @Override
-  protected TreeParser<Tree> treeParser() {
+  protected TreeParser<? extends Tree> treeParser() {
     return new YamlParser();
   }
 
@@ -90,23 +82,11 @@ public abstract class YamlSensor extends IacSensor {
   }
 
   @Override
-  protected ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause) {
-    if (cause instanceof MarkedYamlEngineException markedException) {
-      Optional<Mark> problemMark = markedException.getProblemMark();
-      TextPointer position = null;
-      if (problemMark.isPresent()) {
-        position = inputFileContext.newPointer(problemMark.get().getLine() + 1, 0);
-      }
-      return createGeneralParseException(action, inputFileContext.inputFile, cause, position);
-    }
-    return super.toParseException(action, inputFileContext, cause);
-  }
-
-  @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     FileSystem fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(fileSystem.predicates().and(
-      fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY), fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
+      fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY),
+        fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
       fileSystem.predicates().hasType(InputFile.Type.MAIN)),
       customFilePredicate(sensorContext));
   }

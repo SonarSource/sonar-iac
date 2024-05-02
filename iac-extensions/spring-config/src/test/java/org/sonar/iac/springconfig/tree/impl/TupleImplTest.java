@@ -26,7 +26,7 @@ import org.sonar.iac.common.testing.TextRangeAssert;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class TupleTreeImplTest {
+class TupleImplTest {
 
   @Test
   void constructorShouldFunctionCorrectly() {

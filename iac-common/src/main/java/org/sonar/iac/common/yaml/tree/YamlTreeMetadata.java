@@ -125,7 +125,7 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
       return mark.getPointer();
     }
 
-    private static TextRange range(Node node) {
+    public static TextRange range(Node node) {
       return range(node.getStartMark().orElse(null), node.getEndMark().orElse(null));
     }
 
@@ -146,7 +146,7 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
       }
     }
 
-    private static List<Comment> comments(Node node) {
+    public static List<Comment> comments(Node node) {
       // For now we group all comments together. This might change, once we have a reason to separate them.
       List<Comment> comments = new ArrayList<>(comments(node.getBlockComments()));
       comments.addAll(comments(node.getInLineComments()));

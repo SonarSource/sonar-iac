@@ -45,7 +45,7 @@ import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.Builder.tag;
 public class CloudformationConverter extends YamlConverter {
 
   @Override
-  protected YamlTree convertMapping(MappingNode mappingNode) {
+  public YamlTree convertMapping(MappingNode mappingNode) {
     List<TupleTree> elements = new ArrayList<>();
 
     if (mappingNode.getValue().size() == 1 && mappingNode.getValue().get(0).getKeyNode() instanceof ScalarNode) {
@@ -79,7 +79,7 @@ public class CloudformationConverter extends YamlConverter {
   }
 
   @Override
-  protected YamlTree convertScalar(ScalarNode scalarNode) {
+  public YamlTree convertScalar(ScalarNode scalarNode) {
     FunctionCallTree functionCallFromScalar = convertScalarToFunctionCall(scalarNode);
     if (functionCallFromScalar != null) {
       return functionCallFromScalar;
@@ -88,7 +88,7 @@ public class CloudformationConverter extends YamlConverter {
   }
 
   @Override
-  protected YamlTree convertSequence(SequenceNode sequenceNode) {
+  public YamlTree convertSequence(SequenceNode sequenceNode) {
     List<YamlTree> elements = new ArrayList<>();
 
     for (Node elementNode : sequenceNode.getValue()) {

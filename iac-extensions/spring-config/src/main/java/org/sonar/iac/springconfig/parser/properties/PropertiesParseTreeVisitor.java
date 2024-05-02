@@ -20,8 +20,6 @@
 package org.sonar.iac.springconfig.parser.properties;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
@@ -37,9 +35,9 @@ import org.sonar.iac.springconfig.tree.impl.ScalarImpl;
 import org.sonar.iac.springconfig.tree.impl.SyntaxTokenImpl;
 import org.sonar.iac.springconfig.tree.impl.TupleImpl;
 
-public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<SpringConfig> {
+import static org.sonar.iac.springconfig.parser.SpringConfigProfileNameUtil.profileName;
 
-  private static final List<String> PROFILE_NAME_PROPERTIES = List.of("spring.profiles.active", "spring.config.active.on-profile");
+public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<SpringConfig> {
 
   @Override
   public SpringConfig visitPropertiesFile(PropertiesParser.PropertiesFileContext ctx) {
@@ -90,14 +88,6 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
     var value = commentContext.getText();
     var contentText = commentContext.commentText().getText();
     return new CommentImpl(value, contentText, textRange(commentContext));
-  }
-
-  private static String profileName(List<Tuple> properties) {
-    return properties.stream()
-      .filter(tuple -> PROFILE_NAME_PROPERTIES.contains(tuple.key().value().value()))
-      .filter(tuple -> tuple.value() != null)
-      .map(tuple -> tuple.value().value().value())
-      .collect(Collectors.joining(" "));
   }
 
   private static TextRange textRange(ParserRuleContext ctx) {
