@@ -28,10 +28,10 @@ public final class ExceptionUtils {
     // Utility class
   }
 
-  public static String getStackTrace(Exception e) {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw, true);
-    e.printStackTrace(pw);
-    return sw.getBuffer().toString();
+  public static String getStackTrace(Throwable e) {
+    var stringWriter = new StringWriter();
+    var printWriter = new PrintWriter(stringWriter, true);
+    e.printStackTrace(printWriter);
+    return stringWriter.getBuffer().toString();
   }
 }
