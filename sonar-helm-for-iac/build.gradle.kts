@@ -19,11 +19,16 @@ val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
 
 // CI - run the build of go code and protobuf with protoc and local make.sh/make.bat script
 if (isCi) {
-    tasks.register<Exec>("compileProtobufGo") {
+    val compileProtobufGoTask = tasks.register<Exec>("compileProtobufGo") {
         description = "Compile the Go protobuf."
         group = "build"
 
-        inputs.files("template-evaluation.proto", "ast.proto")
+        inputs.files(
+            "template-evaluation.proto",
+            "ast.proto",
+            // Version of protobuf is declared in go.mod
+            "go.mod",
+        )
         outputs.files("src/org.sonar.iac.helm/template_evaluation.pb.go", "src/org.sonar.iac.helm/ast.pb.go")
         outputs.cacheIf { true }
 
@@ -42,6 +47,7 @@ if (isCi) {
     tasks.register<Exec>("compileGoCode") {
         description = "Compile the go code for the local system."
         group = "build"
+        dependsOn(compileProtobufGoTask)
 
         inputs.property("GO_CROSS_COMPILE", System.getenv("GO_CROSS_COMPILE") ?: "0")
         inputs.files(fileTree(projectDir).matching {
