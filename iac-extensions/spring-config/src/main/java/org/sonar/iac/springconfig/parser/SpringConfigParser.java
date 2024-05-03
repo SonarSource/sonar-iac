@@ -24,10 +24,12 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.springconfig.parser.properties.SpringConfigPropertiesParser;
 import org.sonar.iac.springconfig.parser.yaml.SpringConfigYamlParser;
 import org.sonar.iac.springconfig.tree.api.SpringConfig;
+
+import static org.sonar.iac.springconfig.plugin.SpringConfigSensor.isPropertiesFile;
+import static org.sonar.iac.springconfig.plugin.SpringConfigSensor.isYamlFile;
 
 public class SpringConfigParser implements TreeParser<Tree> {
 
@@ -44,13 +46,5 @@ public class SpringConfigParser implements TreeParser<Tree> {
       }
     }
     throw ParseException.createParseException("Unsupported file extension", inputFileContext, null);
-  }
-
-  private static boolean isYamlFile(InputFileContext inputFileContext) {
-    return YamlLanguage.KEY.equals(inputFileContext.inputFile.language());
-  }
-
-  private static boolean isPropertiesFile(InputFileContext inputFileContext) {
-    return inputFileContext.inputFile.filename().endsWith(".properties");
   }
 }

@@ -41,6 +41,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 import org.sonar.iac.springconfig.parser.SpringConfigParser;
 
@@ -135,5 +136,13 @@ public class SpringConfigSensor extends IacSensor {
       }
       return true;
     }
+  }
+
+  public static boolean isYamlFile(InputFileContext inputFileContext) {
+    return YamlLanguage.KEY.equals(inputFileContext.inputFile.language());
+  }
+
+  public static boolean isPropertiesFile(InputFileContext inputFileContext) {
+    return inputFileContext.inputFile.filename().endsWith(".properties");
   }
 }

@@ -22,11 +22,14 @@ package org.sonar.iac.springconfig.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.common.yaml.YamlLanguage;
+import org.sonar.iac.springconfig.parser.properties.SpringConfigPropertiesParser;
 import org.sonar.iac.springconfig.tree.api.File;
 import org.sonar.iac.springconfig.tree.api.SpringConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
@@ -53,9 +56,18 @@ class SpringConfigParserTest {
 
   @Test
   void shouldThrowParseExceptionOnEmptyYamlFile() {
+    // the parser itself fails on an empty yaml file
+    // in an actual analysis empty files are never parsed because we filter them beforehand
     assertThatThrownBy(() -> parser.parse("", inputFileYamlContext))
       .isInstanceOf(ParseException.class)
       .hasMessage("Unexpected empty nodes list while converting file");
+  }
+
+  @Test
+  void shouldThrowParseExceptionOnPropertiesFile() {
+    assertThatThrownBy(() -> parser.parse("foo!=bar", inputFilePropertiesContext))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Cannot parse, mismatched input '!' expecting {<EOF>, NEWLINE, DELIMITER} at dir1/dir2/application.properties:1:4");
   }
 
   @Test
