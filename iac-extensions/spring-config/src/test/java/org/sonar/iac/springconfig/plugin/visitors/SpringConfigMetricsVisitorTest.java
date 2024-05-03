@@ -61,11 +61,14 @@ class SpringConfigMetricsVisitorTest extends AbstractMetricsTest {
         sonar.projectKey=sonar-iac
         sonar.projectName=sonar-iac
         # Comment 2
+        #---
+        spring.profiles.active=profile2
+        ! comment in another format
         """,
       "application.properties");
 
-    assertThat(visitor.linesOfCode()).containsExactly(2, 5, 6);
-    assertThat(visitor.commentLines()).containsExactly(1, 7);
+    assertThat(visitor.linesOfCode()).containsExactly(2, 5, 6, 9);
+    assertThat(visitor.commentLines()).containsExactly(1, 7, 8, 10);
     assertThat(visitor.noSonarLines()).isEmpty();
   }
 
@@ -83,6 +86,7 @@ class SpringConfigMetricsVisitorTest extends AbstractMetricsTest {
             url: jdbc:mysql://127.0.0.1:3306/example-database
             driver-class-name: com.mysql.jdbc.Driver
             username: root
+
             password:
         # cache
           cache:
@@ -90,8 +94,8 @@ class SpringConfigMetricsVisitorTest extends AbstractMetricsTest {
         """,
       "application.yml");
 
-    assertThat(visitor.linesOfCode()).containsExactly(2, 4, 5, 6, 7, 8, 10, 11);
-    assertThat(visitor.commentLines()).containsExactly(1, 3, 9);
+    assertThat(visitor.linesOfCode()).containsExactly(2, 4, 5, 6, 7, 9, 11, 12);
+    assertThat(visitor.commentLines()).containsExactly(1, 3, 10);
     assertThat(visitor.noSonarLines()).isEmpty();
   }
 }

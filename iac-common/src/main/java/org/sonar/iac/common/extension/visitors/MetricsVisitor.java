@@ -86,7 +86,7 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
     }
   }
 
-  private static boolean isBlank(String line) {
+  protected boolean isBlank(String line) {
     return line.chars().noneMatch(Character::isLetterOrDigit);
   }
 

@@ -35,7 +35,8 @@ public class SpringConfigMetricsVisitor extends YamlMetricsVisitor {
 
   @Override
   protected boolean acceptFileForLoc(InputFileContext inputFileContext) {
-    // YAML files should be processed line-by-line; properties files will be handled by a visitor
+    // YAML files should be processed by YamlMetricsVisitor; it will process them line-by-line.
+    // Properties files will be handled by this visitor using languageSpecificMetrics() call.
     return !isPropertiesFile(inputFileContext);
   }
 
@@ -43,5 +44,11 @@ public class SpringConfigMetricsVisitor extends YamlMetricsVisitor {
   protected void languageSpecificMetrics() {
     register(SyntaxToken.class, defaultMetricsVisitor());
     register(Profile.class, (ctx, tree) -> addCommentLines(tree.comments()));
+  }
+
+  @Override
+  protected boolean isBlank(String line) {
+    // additionally, treat profile separators in properties files as valid comment lines
+    return super.isBlank(line) && !"---".equals(line);
   }
 }
