@@ -19,18 +19,32 @@
  */
 package org.sonar.iac.springconfig.parser;
 
-import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.springconfig.parser.properties.SpringConfigPropertiesParser;
+import org.sonar.iac.springconfig.parser.yaml.SpringConfigYamlParser;
 import org.sonar.iac.springconfig.tree.api.SpringConfig;
-import org.sonar.iac.springconfig.tree.impl.FileImpl;
+
+import static org.sonar.iac.springconfig.plugin.SpringConfigSensor.isPropertiesFile;
+import static org.sonar.iac.springconfig.plugin.SpringConfigSensor.isYamlFile;
 
 public class SpringConfigParser implements TreeParser<Tree> {
+
+  private static final SpringConfigYamlParser YAML_PARSER = new SpringConfigYamlParser();
+  private static final SpringConfigPropertiesParser PROPERTIES_PARSER = new SpringConfigPropertiesParser();
+
   @Override
   public SpringConfig parse(String source, @Nullable InputFileContext inputFileContext) {
-    // TODO: SONARIAC-1446 Implement "SpringConfigParser"
-    return new FileImpl(List.of());
+    if (inputFileContext != null) {
+      if (isYamlFile(inputFileContext)) {
+        return YAML_PARSER.parse(source, inputFileContext);
+      } else if (isPropertiesFile(inputFileContext)) {
+        return PROPERTIES_PARSER.parse(source, inputFileContext);
+      }
+    }
+    throw ParseException.createParseException("Unsupported file extension", inputFileContext, null);
   }
 }

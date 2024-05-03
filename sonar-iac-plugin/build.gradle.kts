@@ -80,11 +80,11 @@ tasks.shadowJar {
         val maxSize: Long
         val isCrossCompile: Boolean = System.getenv("GO_CROSS_COMPILE")?.equals("1") ?: true
         if (isCrossCompile) {
-            minSize = 16_000_000
-            maxSize = 17_000_000
+            minSize = 16_500_000
+            maxSize = 17_500_000
         } else {
-            minSize = 7_000_000
-            maxSize = 8_000_000
+            minSize = 7_500_000
+            maxSize = 8_500_000
         }
         val jarFile = tasks.shadowJar.get().archiveFile.get().asFile
         enforceJarSize(jarFile, minSize, maxSize)
