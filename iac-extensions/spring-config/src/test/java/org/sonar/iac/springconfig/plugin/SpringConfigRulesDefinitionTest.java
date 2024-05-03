@@ -26,6 +26,7 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +39,7 @@ class SpringConfigRulesDefinitionTest {
     assertThat(repository.name()).isEqualTo("Sonar");
     assertThat(repository.language()).isEqualTo("java");
     assertThat(repository.key()).isEqualTo("javaconfig");
-    assertThat(repository.rules()).isEmpty();
+    assertThat(repository.rules()).hasSize(SpringConfigCheckList.checks().size());
   }
 
   private static RulesDefinition.Repository javaconfigRuleRepository(int major, int minor) {

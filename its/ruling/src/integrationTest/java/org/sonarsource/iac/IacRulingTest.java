@@ -23,13 +23,13 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
-import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
@@ -60,7 +60,7 @@ class IacRulingTest {
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))
     .build();
 
-  private static final boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
+  private static final boolean KEEP_SONARQUBE_RUNNING = "true".equals(System.getProperty("keepSonarqubeRunning"));
 
   private static final Set<String> LANGUAGES = Set.of(
     "terraform",
@@ -68,15 +68,18 @@ class IacRulingTest {
     "kubernetes",
     "docker",
     "azureresourcemanager");
+  private static final String SONAR_INCLUSIONS_PROPERTY = "sonar.inclusions";
 
   @BeforeAll
   public static void setUp() throws IOException {
     LANGUAGES.forEach((String language) -> {
       ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-      File languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
+      var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
       orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
     });
-    orchestrator.getServer().restoreProfile(ResourceLocation.create("/no_rules-java.xml"));
+    var languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
+    var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "java", "javaconfig", languageRulesConfiguration, Collections.emptySet());
+    orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
 
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
   }
@@ -84,16 +87,16 @@ class IacRulingTest {
   @Test
   void testTerraform() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/terraform/**/*.tf, ruling/src/integrationTest/resources/sources/terraform/**/*.tf");
+    properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/terraform/**/*.tf, ruling/src/integrationTest/resources/sources/terraform/**/*.tf");
     runRulingTest("terraform", properties);
   }
 
   @Test
   void testCloudformation() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/cloudformation/**/*.json, ruling/src/integrationTest/resources/sources/cloudformation/**/*.json," +
-      "sources/cloudformation/**/*.yaml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yaml," +
-      "sources/cloudformation/**/*.yml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yml,");
+    properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/cloudformation/**/*.json, ruling/src/integrationTest/resources/sources/cloudformation/**/*.json," +
+                                              "sources/cloudformation/**/*.yaml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yaml," +
+                                              "sources/cloudformation/**/*.yml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
     runRulingTest("cloudformation", properties);
   }
@@ -101,7 +104,7 @@ class IacRulingTest {
   @Test
   void testKubernetes() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions",
+    properties.put(SONAR_INCLUSIONS_PROPERTY,
       // when required, scope can be increased to include more files (e.g. resources)
       "sources/kubernetes/**/*.yaml," +
         "sources/kubernetes/**/*.yml," +
@@ -116,7 +119,7 @@ class IacRulingTest {
   @Test
   void testKubernetesCrossFile() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions",
+    properties.put(SONAR_INCLUSIONS_PROPERTY,
       "ruling/src/integrationTest/resources/sources/kubernetes_cross_file/**");
     runRulingTest("kubernetes_cross_file", properties);
   }
@@ -124,22 +127,35 @@ class IacRulingTest {
   @Test
   void testDocker() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/docker/**/Dockerfile*, ruling/src/integrationTest/resources/sources/docker/**/**");
+    properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/docker/**/Dockerfile*, ruling/src/integrationTest/resources/sources/docker/**/**");
     runRulingTest("docker", properties);
   }
 
   @Test
   void testArm() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/azureresourcemanager/**/*.json, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.json," +
-      "sources/azureresourcemanager/**/*.bicep, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.bicep");
+    properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/azureresourcemanager/**/*.json, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.json," +
+                                              "sources/azureresourcemanager/**/*.bicep, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.bicep");
     runRulingTest("azureresourcemanager", properties);
   }
 
   @Test
   void testSpringConfig() throws IOException {
+    var springProperties = "sources/spring-config/**/*.properties";
+    var springYml = "sources/spring-config/**/*.yml";
+    var springYaml = "sources/spring-config/**/*.yaml";
+    var resourcesPath = "ruling/src/integrationTest/resources/";
+    var inclusions = String.join(",", List.of(
+      springProperties,
+      springYml,
+      springYaml,
+      resourcesPath + springProperties,
+      resourcesPath + springYml,
+      resourcesPath + springYaml));
     var properties = Map.of(
-      "sonar.inclusions", "sources/spring-config/**/*.properties,sources/spring-config/**/*.yml,sources/spring-config/**/*.yaml",
+      SONAR_INCLUSIONS_PROPERTY, inclusions,
+      // include all files for analysis
+      "sonar.java.springconfig.file.patterns", inclusions,
       // Java analysis would require compilation, and we don't need it here.
       "sonar.exclusions", "sources/spring-config/**/*.java");
     runRulingTest("spring-config", properties);
@@ -186,7 +202,7 @@ class IacRulingTest {
 
   @AfterAll
   public static void after() throws InterruptedException {
-    if (keepSonarqubeRunning) {
+    if (KEEP_SONARQUBE_RUNNING) {
       // keep server running, use CTRL-C to stop it
       Thread.sleep(Long.MAX_VALUE);
     }

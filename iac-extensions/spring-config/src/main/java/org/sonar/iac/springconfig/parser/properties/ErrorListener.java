@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.extension.BasicTextPointer;
+import org.sonar.iac.common.extension.ExceptionUtils;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
@@ -41,10 +42,21 @@ public class ErrorListener extends BaseErrorListener {
   }
 
   @Override
-  public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+  public void syntaxError(
+    Recognizer<?, ?> recognizer,
+    Object offendingSymbol,
+    int line,
+    int charPositionInLine,
+    String msg,
+    @Nullable RecognitionException e) {
+
     TextPointer textPointer = new BasicTextPointer(line, charPositionInLine);
     var message = "Cannot parse, " + msg;
-    LOG.debug(message, e);
+    LOG.debug(message);
+    if (e != null) {
+      var stackTrace = ExceptionUtils.getStackTrace(e);
+      LOG.debug(stackTrace);
+    }
     throw ParseException.createParseException(message, inputFileContext, textPointer);
   }
 }

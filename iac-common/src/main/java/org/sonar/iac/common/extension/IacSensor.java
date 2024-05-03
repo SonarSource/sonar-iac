@@ -21,8 +21,6 @@ package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -49,6 +47,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
+import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
 import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
 
 public abstract class IacSensor implements Sensor {
@@ -264,13 +263,6 @@ public abstract class IacSensor implements Sensor {
       }
       String stackTrace = getStackTrace(e);
       LOG.debug(stackTrace);
-    }
-
-    private String getStackTrace(ParseException e) {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw, true);
-      e.printStackTrace(pw);
-      return sw.getBuffer().toString();
     }
   }
 }
