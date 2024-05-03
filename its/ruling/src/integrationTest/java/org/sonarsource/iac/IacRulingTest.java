@@ -95,8 +95,8 @@ class IacRulingTest {
   void testCloudformation() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/cloudformation/**/*.json, ruling/src/integrationTest/resources/sources/cloudformation/**/*.json," +
-                                              "sources/cloudformation/**/*.yaml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yaml," +
-                                              "sources/cloudformation/**/*.yml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yml,");
+      "sources/cloudformation/**/*.yaml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yaml," +
+      "sources/cloudformation/**/*.yml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
     runRulingTest("cloudformation", properties);
   }
@@ -135,7 +135,7 @@ class IacRulingTest {
   void testArm() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/azureresourcemanager/**/*.json, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.json," +
-                                              "sources/azureresourcemanager/**/*.bicep, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.bicep");
+      "sources/azureresourcemanager/**/*.bicep, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.bicep");
     runRulingTest("azureresourcemanager", properties);
   }
 
