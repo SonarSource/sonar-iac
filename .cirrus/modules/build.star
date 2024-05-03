@@ -46,7 +46,7 @@ def build_script():
 
 def check_go_generated_code_script():
     return [
-        "echo Checking if any files are uncommitted in the Go code (this may happen to the generated code)",
+        "echo 'Checking if any files are uncommitted in the Go code (this may happen to the generated code)'",
         "git diff --exit-code --name-only -- sonar-helm-for-iac/"
     ]
 
