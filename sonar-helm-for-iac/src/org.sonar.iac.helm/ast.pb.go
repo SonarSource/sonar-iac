@@ -682,7 +682,7 @@ func (x *CommandNode) GetArgs() []*anypb.Any {
 }
 
 // CommentNode holds a comment.
-// By default, comments are not added into the AST. To change this, a field `Mode` which can be set on a parser.
+// Insertion of these nodes into the AST is toggleable by the parser mode and is enabled by default in `SonarSource/go`.
 type CommentNode struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
