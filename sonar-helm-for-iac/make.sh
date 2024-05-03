@@ -4,7 +4,7 @@ set -euox pipefail
 readonly GO_VERSION="${GO_VERSION:-1.21.8}"
 readonly DEFAULT_GO_BINARY_DIRECTORY="${GOPATH:=${HOME}/go}/bin"
 readonly DEFAULT_GO_BINARY="${DEFAULT_GO_BINARY_DIRECTORY}/go"
-readonly PROTOBUF_GO_VERSION="${PROTOBUF_GO_VERSION:-1.33.0}"
+readonly PROTOBUF_GO_VERSION="${PROTOBUF_GO_VERSION:-1.34.0}"
 
 is_go_binary_the_expected_version() {
   if [[ "${#}" -ne 2 ]]; then

@@ -4,7 +4,7 @@ FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
 ARG GO_VERSION
 ARG PROTOC_VERSION
 ARG MUSL_VERSION=1.2.4
-ARG PROTOBUF_GO_VERSION=1.33.0
+ARG PROTOBUF_GO_VERSION=1.34.0
 
 USER root
 # Install gcc, Go, protoc and musl.
