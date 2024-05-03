@@ -48,8 +48,8 @@ class MeasuresTest extends TestBase {
 
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
 
-    final String fileKey = projectKey + ":" + file;
-    SoftAssertions softly = new SoftAssertions();
+    final var fileKey = projectKey + ":" + file;
+    var softly = new SoftAssertions();
     softly.assertThat(getMeasureAsInt(fileKey, "ncloc")).describedAs("ncloc").isEqualTo(expectedNcloc);
     softly.assertThat(getMeasureAsInt(fileKey, "comment_lines")).describedAs("comment_lines").isEqualTo(expectedCommentLines);
     softly.assertThat(getMeasure(fileKey, "ncloc_data").getValue()).describedAs("ncloc_data").isEqualTo(expectedNclocData);
@@ -58,7 +58,7 @@ class MeasuresTest extends TestBase {
 
   @Test
   void testTerraformMeasures() {
-    final String projectKey = "terraformMeasures";
+    final var projectKey = "terraformMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "terraform"));
 
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(2);
@@ -66,7 +66,7 @@ class MeasuresTest extends TestBase {
     final String emptyFile = projectKey + ":empty.tf";
     final String file1 = projectKey + ":file1.tf";
 
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
 
     softly.assertThat(getMeasure(emptyFile, "ncloc")).isNull();
     softly.assertThat(getMeasureAsInt(file1, "ncloc")).isEqualTo(14);
@@ -82,7 +82,7 @@ class MeasuresTest extends TestBase {
 
   @Test
   void testYamlMeasures() {
-    final String projectKey = "yamlMeasures";
+    final var projectKey = "yamlMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "yaml"));
 
     // should be null, since YAML language doesn't publish files by default, only if they are analyzed by a sensor
@@ -91,11 +91,26 @@ class MeasuresTest extends TestBase {
 
   @Test
   void testJsonMeasures() {
-    final String projectKey = "jsonMeasures";
+    final var projectKey = "jsonMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "json"));
 
     // should be null, since JSON language doesn't publish files by default, only if they are analyzed by a sensor
     assertThat(getMeasureAsInt(projectKey, "files")).isNull();
   }
 
+  @Test
+  void testSpringConfigMeasures() {
+    var projectKey = "springConfigMeasures";
+    var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY, "java", "springconfig-its");
+
+    ORCHESTRATOR.executeBuild(sonarScanner);
+
+    var softly = new SoftAssertions();
+    softly.assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(3);
+    softly.assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(17);
+    softly.assertThat(getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(4);
+    softly.assertThat(getMeasure(projectKey, "src/main/resources/application.properties", "ncloc_data").getValue()).isEqualTo("1=1;3=1;5=1;6=1");
+    softly.assertThat(getMeasure(projectKey, "src/main/resources/application.yaml", "ncloc_data").getValue()).isEqualTo("1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;10=1");
+    softly.assertAll();
+  }
 }

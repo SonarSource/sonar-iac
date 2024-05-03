@@ -24,6 +24,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,17 +61,20 @@ public abstract class TestBase {
   static final AtomicInteger REQUESTED_ORCHESTRATORS_KEY = new AtomicInteger();
   public static final FileLocation IAC_PLUGIN_LOCATION = FileLocation.byWildcardFilename(new File("../../sonar-iac-plugin/build/libs"), "sonar-iac-plugin-*-all.jar");
   public static boolean KEEP_ORCHESTRATOR_RUNNING = "true".equals(System.getenv(KEEP_ORCHESTRATOR_RUNNING_ENV));
+  private static final String JAVA_VERSION = "7.34.0.35958";
 
   public static Orchestrator ORCHESTRATOR = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(IAC_PLUGIN_LOCATION)
+    .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", JAVA_VERSION))
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/nosonar-terraform.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/aws-provider-terraform.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-docker.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-json.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-yaml.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-cloudformation.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/java-springconfig.xml"))
     .build();
 
   @BeforeAll
@@ -174,7 +178,7 @@ public abstract class TestBase {
   private static void assertAnalyzerLogs(String logs) {
     List<String> lines = new ArrayList<>(Arrays.asList(logs.split("[\r\n]+")));
 
-    assertThat(lines).hasSizeBetween(25, 170);
+    assertThat(lines).hasSizeBetween(25, 190);
 
     Set<String> allowedStrings = Set.of(
       "INFO: ",

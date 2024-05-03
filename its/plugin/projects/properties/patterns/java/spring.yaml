@@ -1,0 +1,10 @@
+server:
+  port: 4330
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+server:
+  # This is a comment
+  port: 4331

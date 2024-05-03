@@ -126,11 +126,28 @@ class PropertiesTest extends TestBase {
     assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNcloc);
   }
 
+  @ParameterizedTest
+  @CsvSource(delimiter = ';', value = {
+    "springConfigCustomPattern; application*.properties,config*.properties,*.yaml; 5; 13",
+    "springConfigCustomPropertiesPattern; application*.properties,config*.properties; 4; 4",
+    "springConfigExcludeBoot; config*.properties; 2; 2",
+    "springCustomYaml; *.yaml; 1; 9",
+  })
+  void testSpringConfigPatterns(String projectKey, String patterns, int expectedFiles, int expectedNCloc) {
+    var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + "patterns", "java", "springconfig-its");
+    sonarScanner.setProperty("sonar.java.springconfig.file.patterns", patterns);
+
+    ORCHESTRATOR.executeBuild(sonarScanner);
+
+    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
+    assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNCloc);
+  }
+
   private void executeBuildAndAssertMetric(
     String projectKey, String language,
     String propertySuffix, String propertyValue,
     String metricKey, int expectedResultOfMetric) {
-    SonarScanner sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + propertySuffix + "/", language);
+    var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + propertySuffix + "/", language, null);
     if (propertyValue != null) {
       if (propertyValue.isEmpty()) {
         // TODO: https://sonarsource.atlassian.net/browse/SONARIAC-1322
