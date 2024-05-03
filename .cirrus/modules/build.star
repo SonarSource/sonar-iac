@@ -40,14 +40,10 @@ def build_script():
         "source cirrus-env BUILD",
         "source .cirrus/use-gradle-wrapper.sh",
         "regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}",
+        "echo 'Checking if any files are uncommitted in the Go code (this may happen to the generated code)'",
+        "git diff --exit-code --name-only -- sonar-helm-for-iac/",
         "source set_gradle_build_version ${BUILD_NUMBER}",
         "echo export PROJECT_VERSION=${PROJECT_VERSION} >> ~/.profile"
-    ]
-
-def check_go_generated_code_script():
-    return [
-        "echo 'Checking if any files are uncommitted in the Go code (this may happen to the generated code)'",
-        "git diff --exit-code --name-only -- sonar-helm-for-iac/"
     ]
 
 def build_env():
@@ -68,7 +64,6 @@ def build_task():
             "project_version_cache": project_version_cache(),
             "gradle_cache": gradle_cache(),
             "build_script": build_script(),
-            "check_go_generated_code_script": check_go_generated_code_script(),
             "cleanup_gradle_script": cleanup_gradle_script(),
             "on_success": profile_report_artifacts(),
             "store_project_version_script": store_project_version_script()
