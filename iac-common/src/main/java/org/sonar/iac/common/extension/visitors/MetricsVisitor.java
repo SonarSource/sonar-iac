@@ -87,7 +87,7 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
   }
 
   protected boolean hasContent(String commentLine) {
-    return commentLine.chars().noneMatch(Character::isLetterOrDigit);
+    return commentLine.chars().anyMatch(Character::isLetterOrDigit);
   }
 
   private static void saveMetric(InputFileContext ctx, Metric<Integer> metric, Integer value) {
