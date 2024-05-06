@@ -29,7 +29,10 @@
     "OWASP Top 10 2021": [],
     "PCI DSS 3.2": [],
     "PCI DSS 4.0": [],
-    "ASVS 4.0": []
+    "ASVS 4.0": [],
+    "STIG ASD 2023-06-08": [
+      "V-222430"
+    ]
   },
   "quickfix": "unknown"
 }

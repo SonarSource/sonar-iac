@@ -19,6 +19,9 @@
   "securityStandards": {
     "CWE": [
       732
+    ],
+    "STIG ASD 2023-06-08": [
+      "V-222430"
     ]
   },
   "defaultSeverity": "Critical",
