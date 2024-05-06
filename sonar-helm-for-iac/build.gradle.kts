@@ -29,7 +29,7 @@ if (isCi) {
             // Version of protobuf is declared in go.mod
             "go.mod",
         )
-        outputs.dir("src/org.sonar.iac.helm")
+        outputs.files("src/org.sonar.iac.helm/template_evaluation.pb.go")
         outputs.cacheIf { true }
 
         commandLine("protoc", "-I=${project.projectDir}", "-I=${System.getProperty("user.home")}/go/protobuf/include",
