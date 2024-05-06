@@ -54,14 +54,17 @@ public final class SpringConfigVerifier {
   }
 
   private static InputFileContext createContextForFile(String filename) {
-    var file = IacTestUtils.inputFile(filename, BASE_DIR);
+    var language = "";
+    if (filename.endsWith(".yaml") || filename.endsWith(".yml")) {
+      language = "yaml";
+    }
+    var file = IacTestUtils.inputFile(filename, language);
     sensorContext.fileSystem().add(file);
     return new InputFileContext(sensorContext, file);
   }
 
   private static Tree parseSpringConfig(Path path) {
-    var filename = path.getFileName().toString();
-    var ctx = createContextForFile(filename);
+    var ctx = createContextForFile(path.toAbsolutePath().toString());
     var content = readContent(path);
 
     return Verifier.parse(PARSER, content, ctx);

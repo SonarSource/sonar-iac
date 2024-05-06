@@ -1,4 +1,4 @@
-/*
+ /*
  * SonarQube IaC Plugin
  * Copyright (C) 2021-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -19,17 +19,15 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.iac.springconfig.utils.SpringConfigVerifier;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
-  }
+class SpringConfigToDoCommentCheckTest {
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      ParsingErrorCheck.class,
-      ToDoCommentCheck.class);
+  @Test
+  void testToDoComments() {
+    SpringConfigVerifier.verify("ToDoCommentCheck/TodoCheck.properties", new ToDoCommentCheck());
+    SpringConfigVerifier.verify("ToDoCommentCheck/TodoCheck.yaml", new ToDoCommentCheck());
   }
 }
