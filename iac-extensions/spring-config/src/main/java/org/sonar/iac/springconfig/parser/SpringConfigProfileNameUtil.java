@@ -35,6 +35,7 @@ public final class SpringConfigProfileNameUtil {
       .filter(tuple -> tuple.value() != null)
       .map(tuple -> tuple.value().value().value())
       .reduce((first, second) -> second)
+      .map(String::trim)
       .orElse(null);
 
     if (definedProfileName != null) {
@@ -45,6 +46,7 @@ public final class SpringConfigProfileNameUtil {
       .filter(tuple -> tuple.value() != null)
       .map(tuple -> tuple.value().value().value())
       .reduce((first, second) -> second)
+      .map(String::trim)
       .orElse("default");
   }
 }
