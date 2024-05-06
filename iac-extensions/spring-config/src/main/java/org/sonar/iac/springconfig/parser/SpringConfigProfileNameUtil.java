@@ -21,7 +21,6 @@ package org.sonar.iac.springconfig.parser;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.springconfig.tree.api.Tuple;
 
 public final class SpringConfigProfileNameUtil {
@@ -31,10 +30,23 @@ public final class SpringConfigProfileNameUtil {
   }
 
   public static String profileName(Collection<Tuple> properties) {
-    return properties.stream()
+    String definedProfileName = properties.stream()
       .filter(tuple -> PROFILE_NAME_PROPERTIES.contains(tuple.key().value().value()))
       .filter(tuple -> tuple.value() != null)
       .map(tuple -> tuple.value().value().value())
-      .collect(Collectors.joining(" "));
+      .reduce((first, second) -> second)
+      .map(String::trim)
+      .orElse(null);
+
+    if (definedProfileName != null) {
+      return definedProfileName;
+    }
+    return properties.stream()
+      .filter(tuple -> "spring.profiles.default".equals(tuple.key().value().value()))
+      .filter(tuple -> tuple.value() != null)
+      .map(tuple -> tuple.value().value().value())
+      .reduce((first, second) -> second)
+      .map(String::trim)
+      .orElse("default");
   }
 }

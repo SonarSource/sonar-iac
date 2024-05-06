@@ -295,7 +295,7 @@ class SpringConfigYamlParserTest {
   static Stream<Arguments> shouldParseProfileName() {
     return Stream.of(
       Arguments.of("""
-        a: b""", ""),
+        a: b""", "default"),
       Arguments.of("""
         spring:
           profiles:
@@ -311,18 +311,32 @@ class SpringConfigYamlParserTest {
             activate:
              on-profile: profileName1
           profiles:
-            active: profileName2""", "profileName1 profileName2"),
+            active: profileName2""", "profileName2"),
       Arguments.of("""
         spring:
           profiles:
             active: profileName1
           config:
             activate:
-             on-profile: profileName2""", "profileName1 profileName2"),
+             on-profile: profileName2""", "profileName2"),
       Arguments.of("""
         spring:
           profiles:
-            active: production & test""", "production & test"));
+            active: production & test""", "production & test"),
+      Arguments.of("""
+        spring:
+          profiles:
+            active: profileName1
+            active: profileName2""", "profileName2"),
+      Arguments.of("""
+        spring:
+          profiles:
+            default: profileName1""", "profileName1"),
+      Arguments.of("""
+        spring:
+          profiles:
+            default: profileName1
+            active: profileName2""", "profileName2"));
   }
 
   @ParameterizedTest

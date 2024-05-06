@@ -247,8 +247,16 @@ class PropertiesParseTreeVisitorTest {
     return Stream.of(
       arguments("spring.profiles.active=profile1", "profile1"),
       arguments("spring.config.activate.on-profile=dev & qa", "dev & qa"),
-      arguments("spring.profiles.active=profile1\nspring.config.activate.on-profile=profile2", "profile1 profile2"),
-      arguments("#comment", ""));
+      arguments("spring.profiles.active=profile1 \nspring.config.activate.on-profile=profile2", "profile2"),
+      arguments("spring.profiles.active=profile1 \nspring.profiles.active=profile2", "profile2"),
+      arguments("spring.profiles.default=profile1 \nspring.profiles.active=profile2", "profile2"),
+      arguments("spring.config.activate.on-profile=profile1 \nspring.profiles.active=profile2\n", "profile2"),
+      arguments("spring.profiles.active=profile1 \nspring.config.activate.on-profile=profile2 \nspring.profiles.default=newDefaultProfile", "profile2"),
+      arguments("spring.profiles.active=profile1 \nspring.profiles.default=newDefaultProfile \nspring.config.activate.on-profile=profile2", "profile2"),
+      arguments("spring.profiles.default=newDefaultProfile \nspring.config.activate.on-profile=profile1 \nspring.profiles.active=profile2", "profile2"),
+      arguments("spring.profiles.default=newDefaultProfile \nfoo.bar=fooBar", "newDefaultProfile"),
+      arguments("spring.profiles.default=profile1", "profile1"),
+      arguments("#comment", "default"));
   }
 
   @ParameterizedTest
@@ -274,7 +282,7 @@ class PropertiesParseTreeVisitorTest {
 
     var file = parseProperties(code);
 
-    assertThat(file.profiles().get(0).name()).isEmpty();
+    assertThat(file.profiles().get(0).name()).isEqualTo("default");
     assertThat(file.profiles().get(1).name()).isEqualTo(expectedProfileName);
   }
 
