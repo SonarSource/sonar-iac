@@ -47,8 +47,8 @@ public class SpringConfigMetricsVisitor extends YamlMetricsVisitor {
   }
 
   @Override
-  protected boolean isBlank(String line) {
+  protected boolean hasContent(String commentLine) {
     // additionally, treat profile separators in properties files as valid comment lines
-    return super.isBlank(line) && !"---".equals(line);
+    return super.hasContent(commentLine) || "---".equals(commentLine);
   }
 }
