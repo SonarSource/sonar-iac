@@ -1,6 +1,12 @@
 name: rule-metadata-update
 on:
   workflow_dispatch:
+    inputs:
+      target_branch:
+        description: The target branch for the PR (defaults to master)
+        required: false
+        type: string
+        default: master
 
 jobs:
   rule-metadata-update:
@@ -29,6 +35,6 @@ jobs:
           author: ${{ github.actor }} <${{ github.actor }}>
           commit-message: Update rule metadata
           title: Update rule metadata
-          base: master
+          base: ${{ github.event.inputs.target_branch }}
           branch: bot/rule-metadata-update
           branch-suffix: timestamp
