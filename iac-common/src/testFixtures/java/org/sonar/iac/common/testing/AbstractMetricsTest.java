@@ -75,13 +75,17 @@ public abstract class AbstractMetricsTest {
   }
 
   protected MetricsVisitor scan(String code) {
-    inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, "file").getName())
+    return scan(code, "file");
+  }
+
+  protected MetricsVisitor scan(String code, String filename) {
+    inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, filename).getName())
       .setCharset(StandardCharsets.UTF_8)
       .setLanguage(language)
       .setContents(code)
       .build();
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
-    visitor.scan(ctx, parser.parse(code, null));
+    visitor.scan(ctx, parser.parse(code, ctx));
     return visitor;
   }
 }

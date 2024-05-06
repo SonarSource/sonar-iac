@@ -17,12 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.tree.api;
-
-import org.sonar.iac.common.api.tree.IacToken;
-
-/**
- * Represents a token in a Spring configuration file.
- */
-public interface SyntaxToken extends SpringConfig, IacToken {
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.springconfig.tree.utils;

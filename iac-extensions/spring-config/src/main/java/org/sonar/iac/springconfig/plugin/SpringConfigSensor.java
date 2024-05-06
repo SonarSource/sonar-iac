@@ -44,6 +44,8 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 import org.sonar.iac.springconfig.parser.SpringConfigParser;
+import org.sonar.iac.springconfig.plugin.visitors.SpringConfigHighlightingVisitor;
+import org.sonar.iac.springconfig.plugin.visitors.SpringConfigMetricsVisitor;
 
 import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.SENSOR_NAME;
 
@@ -104,9 +106,10 @@ public class SpringConfigSensor extends IacSensor {
 
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-    // TODO: SONARIAC-1437 Implement metrics and highlighting visitors for .properties files
     return List.of(
-      new ChecksVisitor(checks, statistics));
+      new ChecksVisitor(checks, statistics),
+      new SpringConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter),
+      new SpringConfigHighlightingVisitor());
   }
 
   @Override

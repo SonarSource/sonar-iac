@@ -78,7 +78,7 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
       for (String line : lines) {
         if (line.contains(NOSONAR_PREFIX)) {
           noSonarLines.add(currentLine);
-        } else if (!isBlank(line)) {
+        } else if (hasContent(line)) {
           commentLines.add(currentLine);
         }
         currentLine++;
@@ -86,8 +86,8 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
     }
   }
 
-  private static boolean isBlank(String line) {
-    return line.chars().noneMatch(Character::isLetterOrDigit);
+  protected boolean hasContent(String commentLine) {
+    return commentLine.chars().anyMatch(Character::isLetterOrDigit);
   }
 
   private static void saveMetric(InputFileContext ctx, Metric<Integer> metric, Integer value) {

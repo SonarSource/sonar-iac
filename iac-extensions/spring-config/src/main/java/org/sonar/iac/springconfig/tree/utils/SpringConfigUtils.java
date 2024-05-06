@@ -17,12 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.tree.api;
+package org.sonar.iac.springconfig.tree.utils;
 
-import org.sonar.iac.common.api.tree.IacToken;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.springconfig.tree.api.Scalar;
+import org.sonar.iac.springconfig.tree.api.SyntaxToken;
+import org.sonar.iac.springconfig.tree.api.Tuple;
 
-/**
- * Represents a token in a Spring configuration file.
- */
-public interface SyntaxToken extends SpringConfig, IacToken {
+public final class SpringConfigUtils {
+  private SpringConfigUtils() {
+  }
+
+  @CheckForNull
+  public static String getStringValue(Tuple tuple) {
+    return Optional.ofNullable(tuple.value())
+      .map(Scalar::value)
+      .map(SyntaxToken::value)
+      .orElse(null);
+  }
 }

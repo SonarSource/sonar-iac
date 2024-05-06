@@ -95,6 +95,7 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
       ctx.start.getLine(),
       ctx.start.getCharPositionInLine(),
       ctx.stop.getLine(),
-      ctx.stop.getCharPositionInLine());
+      // ANTLR treats the end as the position of the last character, while for us it should be the next index.
+      ctx.stop.getCharPositionInLine() + 1);
   }
 }
