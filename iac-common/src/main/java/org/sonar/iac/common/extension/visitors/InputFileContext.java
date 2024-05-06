@@ -112,7 +112,14 @@ public class InputFileContext extends TreeContext {
       .onFile(inputFile);
 
     if (location != null) {
-      TextPointer pointerLocation = inputFile.newPointer(location.line(), location.lineOffset());
+      TextPointer pointerLocation = null;
+      try {
+        pointerLocation = inputFile.newPointer(location.line(), location.lineOffset());
+      } catch (IllegalArgumentException e) {
+        LOG.debug("Error when creating valid line offset of pointer, fallback to beginning of the file.", e);
+        // to be always on safe side
+        pointerLocation = inputFile.newPointer(1, 0);
+      }
       error.at(pointerLocation);
     }
 

@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.springconfig.checks;
+package org.sonar.iac.common.extension;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+public final class ExceptionUtils {
+
+  private ExceptionUtils() {
+    // Utility class
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      ParsingErrorCheck.class);
+  public static String getStackTrace(Throwable e) {
+    var stringWriter = new StringWriter();
+    var printWriter = new PrintWriter(stringWriter, true);
+    e.printStackTrace(printWriter);
+    return stringWriter.getBuffer().toString();
   }
 }

@@ -21,10 +21,11 @@ package org.sonar.iac.springconfig.checks;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.checks.ParsingErrorCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// TODO: SONARIAC-1448, SONARIAC-1449
+// TODO: SONARIAC-1449
 // Extend AbstractCheckListTest when two mandatory checks are implemented
 class SpringConfigCheckListTest {
   protected List<Class<?>> checks() {
@@ -34,6 +35,6 @@ class SpringConfigCheckListTest {
   @Test
   void testChecksAreEmpty() {
     // Remove this test once this class extends AbstractCheckListTest
-    assertThat(checks()).isEmpty();
+    assertThat(checks()).containsExactly(ParsingErrorCheck.class);
   }
 }
