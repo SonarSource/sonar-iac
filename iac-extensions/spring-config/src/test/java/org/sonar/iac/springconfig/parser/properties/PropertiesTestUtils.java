@@ -26,7 +26,7 @@ public class PropertiesTestUtils {
 
   public static PropertiesParser.PropertiesFileContext createPropertiesFileContext(String code) {
     var inputCode = CharStreams.fromString(code);
-    var propertiesLexer = new PropertiesLexer(inputCode);
+    var propertiesLexer = new PropertiesLexer(inputCode, true);
     var commonTokenStream = new CommonTokenStream(propertiesLexer);
     var parser = new PropertiesParser(commonTokenStream);
     var listener = new ErrorListener(null);

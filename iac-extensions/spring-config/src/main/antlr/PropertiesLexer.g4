@@ -1,5 +1,12 @@
 lexer grammar PropertiesLexer;
 
+@members {
+public PropertiesLexer(CharStream input, boolean crLexerCostructor) {
+  super(input);
+  _interp = new CRLexerATNSimulator(this, _ATN, _decisionToDFA, _sharedContextCache);
+}
+}
+
 COMMENT   : [!#] -> pushMode(VALUE_MODE);
 NEWLINE   : [\r\n\u2028\u2029]+;
 DELIMITER : [ ]* [:=\t\f ] [ ]* -> pushMode(VALUE_MODE);

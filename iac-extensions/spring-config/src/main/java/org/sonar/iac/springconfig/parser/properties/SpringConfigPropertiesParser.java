@@ -32,7 +32,7 @@ public class SpringConfigPropertiesParser implements TreeParser<Tree> {
   @Override
   public SpringConfig parse(String source, @Nullable InputFileContext inputFileContext) {
     var inputCode = CharStreams.fromString(source);
-    var propertiesLexer = new PropertiesLexer(inputCode);
+    var propertiesLexer = new PropertiesLexer(inputCode, true);
     var commonTokenStream = new CommonTokenStream(propertiesLexer);
     var parser = new PropertiesParser(commonTokenStream);
 

@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -48,7 +49,7 @@ import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 class InputFileContextTest {
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   private static final TextRange INVALID_RANGE = range(1, 2, 0, 1);
   private static final TextRange EMPTY_RANGE = range(1, 1, 1, 1);
@@ -199,5 +200,12 @@ class InputFileContextTest {
     List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).primaryLocation().textRange()).hasRange(1, 0, 1, 1);
+  }
+
+  @Test
+  void shouldFallbackToBeginOfTheFileWhenInvalidLocation() {
+    inputFileContext.reportAnalysisError("Error message", new DefaultTextPointer(5, 10));
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("Error when creating valid line offset of pointer, fallback to beginning of the file.");
   }
 }

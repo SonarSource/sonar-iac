@@ -839,6 +839,56 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
+  void shouldVerifyTextRangesWhenCR() {
+    var code = "# comment 1\rfoo1 = bar1\r!comment2\rfoo2=bar2\rfoo3 =value\rfoo4=valueUnicode\u00FC\u00F6";
+
+    parseProperties(code);
+
+    assertThat(visitorTextRanges.visited()).containsExactly(
+      "visitPropertiesFile # comment 1\\rfoo1 = bar1\\r!comment2\\rfoo2=bar2\\rfoo3 =value\\rfoo4=valueUnicodeüö<EOF><EOF>",
+      "visitRow # comment 1\\r",
+      "visitComment # comment 1\\r",
+      "visitCommentStartAndText # comment 1 [1:0/1:10] StartIndex: 0",
+      "visitCommentStartAndText # comment 1",
+      "visitCommentText  comment 1",
+      "visitEol \\r",
+      "visitRow foo1 = bar1\\r",
+      "visitLine foo1 = bar1\\r",
+      "visitKey foo1 [2:0/2:3] StartIndex: 12",
+      "visitKey foo1",
+      "visitKey bar1 [2:7/2:10] StartIndex: 19",
+      "visitKey bar1",
+      "visitEol \\r",
+      "visitRow !comment2\\r",
+      "visitComment !comment2\\r",
+      "visitCommentStartAndText !comment2 [3:0/3:8] StartIndex: 24",
+      "visitCommentStartAndText !comment2",
+      "visitCommentText comment2",
+      "visitEol \\r",
+      "visitRow foo2=bar2\\r",
+      "visitLine foo2=bar2\\r",
+      "visitKey foo2 [4:0/4:3] StartIndex: 34",
+      "visitKey foo2",
+      "visitKey bar2 [4:5/4:8] StartIndex: 39",
+      "visitKey bar2",
+      "visitEol \\r",
+      "visitRow foo3 =value\\r",
+      "visitLine foo3 =value\\r",
+      "visitKey foo3 [5:0/5:3] StartIndex: 44",
+      "visitKey foo3",
+      "visitKey value [5:6/5:10] StartIndex: 50",
+      "visitKey value",
+      "visitEol \\r",
+      "visitRow foo4=valueUnicodeüö<EOF>",
+      "visitLine foo4=valueUnicodeüö<EOF>",
+      "visitKey foo4 [6:0/6:3] StartIndex: 56",
+      "visitKey foo4",
+      "visitKey valueUnicodeüö [6:5/6:18] StartIndex: 61",
+      "visitKey valueUnicodeüö",
+      "visitEol <EOF>");
+  }
+
+  @Test
   void shouldThrowExceptionForEmptyKey() {
     var code = "=abc";
 
