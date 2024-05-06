@@ -10,7 +10,8 @@ load(
     "mkdir_orchestrator_home_script",
 )
 
-QA_GRADLE_TASK = ":its:plugin:integrationTest"
+QA_PLUGIN_GRADLE_TASK = ":its:plugin:integrationTest"
+QA_RULING_GRADLE_TASK = ":its:ruling:integrationTest"
 QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
 
 
@@ -67,7 +68,7 @@ def run_its_script():
 
 def qa_plugin_env():
     return {
-        "GRADLE_TASK": QA_GRADLE_TASK,
+        "GRADLE_TASK": QA_PLUGIN_GRADLE_TASK,
         "matrix": [
             {"SQ_VERSION": QA_QUBE_LATEST_RELEASE},
             {"SQ_VERSION": "DEV"},
@@ -87,7 +88,7 @@ def qa_plugin_task():
 
 def qa_ruling_env():
     return {
-        "GRADLE_TASK": QA_GRADLE_TASK,
+        "GRADLE_TASK": QA_RULING_GRADLE_TASK,
         "SQ_VERSION": QA_QUBE_LATEST_RELEASE
     }
 

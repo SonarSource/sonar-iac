@@ -142,8 +142,8 @@ class IacRulingTest {
   @Test
   void testSpringConfig() throws IOException {
     var springProperties = "sources/spring-config/**/*.properties";
-    var springYml = "sources/spring-config/**/*.yml";
-    var springYaml = "sources/spring-config/**/*.yaml";
+    var springYml = "sources/spring-config/**/application*.yml";
+    var springYaml = "sources/spring-config/**/application*.yaml";
     var resourcesPath = "ruling/src/integrationTest/resources/";
     var inclusions = String.join(",", List.of(
       springProperties,
