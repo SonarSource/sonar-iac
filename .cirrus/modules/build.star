@@ -41,7 +41,6 @@ def build_script():
         "source .cirrus/use-gradle-wrapper.sh",
         "regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}",
         "echo 'Checking if any files are uncommitted in the Go code (this may happen to the generated code)'",
-        "git diff -- sonar-helm-for-iac/",
         "git diff --exit-code --name-only -- sonar-helm-for-iac/",
         "source set_gradle_build_version ${BUILD_NUMBER}",
         "echo export PROJECT_VERSION=${PROJECT_VERSION} >> ~/.profile"
