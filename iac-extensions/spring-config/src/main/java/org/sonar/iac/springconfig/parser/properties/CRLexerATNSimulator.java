@@ -35,18 +35,22 @@ import org.antlr.v4.runtime.dfa.DFA;
  * https://github.com/antlr/antlr4/pull/2519#issuecomment-1008069063
  */
 public class CRLexerATNSimulator extends LexerATNSimulator {
+
+  private static final int CURRENT_CHAR_TO_CONSUME = 1;
+  private static final int NEXT_CHAR_TO_CONSUME = 2;
+
   public CRLexerATNSimulator(Lexer recog, ATN atn, DFA[] dfas, PredictionContextCache sharedContextCache) {
     super(recog, atn, dfas, sharedContextCache);
   }
 
   @Override
   public void consume(CharStream input) {
-    int curChar = input.LA(1);
+    int curChar = input.LA(CURRENT_CHAR_TO_CONSUME);
     if (curChar == '\n') {
       line++;
       charPositionInLine = 0;
     } else if (curChar == '\r') {
-      int nextChar = input.LA(2);
+      int nextChar = input.LA(NEXT_CHAR_TO_CONSUME);
       if (nextChar != '\n') {
         line++;
         charPositionInLine = 0;
