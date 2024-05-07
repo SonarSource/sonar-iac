@@ -20,6 +20,7 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.build.SonarScanner;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -33,7 +34,7 @@ class PropertiesTest extends TestBase {
 
   @Test
   void testTerraformCustomFileSuffixes() {
-    executeBuildAndAssertMetric("terraformCustomFileSuffixes", "terraform", "suffixes", ".terra", "files", 1);
+    executeBuildAndAssertMetric("terraformCustomFileSuffixes", "terraform", "suffixes", "sonar.terraform.file.suffixes", ".terra", null, 1, 5);
   }
 
   @ParameterizedTest
@@ -48,62 +49,62 @@ class PropertiesTest extends TestBase {
 
   @ParameterizedTest
   @CsvSource({
-    "cloudformationDefaultIdentifier, cloudformation, AWSTemplateFormatVersion, 5",
-    "cloudformationCustomIdentifier, cloudformation, CustomIdentifier, 3",
-    "cloudformationEmptyIdentifier, cloudformation, '', 8"
+    "cloudformationDefaultIdentifier, AWSTemplateFormatVersion, 3, 5",
+    "cloudformationCustomIdentifier, CustomIdentifier, 1, 3",
+    "cloudformationEmptyIdentifier, '', 4, 8"
   })
-  void testCloudformationIdentifier(String projectKey, String language, String identifier, int expectedNcloc) {
-    executeBuildAndAssertMetric(projectKey, language, "identifier", identifier, "ncloc", expectedNcloc);
+  void testCloudformationIdentifier(String projectKey, String identifier, int expectedFiles, int expectedNcloc) {
+    executeBuildAndAssertMetric(projectKey, "cloudformation", "identifier", "sonar.cloudformation.file.identifier", identifier, null, expectedFiles, expectedNcloc);
   }
 
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
-    "dockerCustomFilenamePatternsDefaultValue;  Dockerfile,*.dockerfile; 4",
+    "dockerCustomFilenamePatternsDefaultValue;  Dockerfile,*.dockerfile; 4; 4",
     // Empty property defaults to default value
-    "dockerCustomFilenamePatternsNoPropertyDefined;; 4",
-    "dockerCustomFilenamePatternsEmpty; ''; 4",
-    "dockerCustomFilenamePatternsWithEmptyValueInside; Dockerfile,  ,*.dockerfile; 4",
+    "dockerCustomFilenamePatternsNoPropertyDefined;; 4; 4",
+    "dockerCustomFilenamePatternsEmpty; ''; 4; 4",
+    "dockerCustomFilenamePatternsWithEmptyValueInside; Dockerfile,  ,*.dockerfile; 4; 4",
     // Dockerfile.* are scanned by default and can't be disabled at the moment
-    "dockerCustomFilenamePatternsWithOneElement; customFilename; 2",
-    "dockerCustomFilenamePatterns;  Dockerfile,*.dockerfile,*.suffix,customFilename; 6"
+    "dockerCustomFilenamePatternsWithOneElement; customFilename; 2; 2",
+    "dockerCustomFilenamePatterns;  Dockerfile,*.dockerfile,*.suffix,customFilename; 6; 6"
   })
-  void testDockerFilenamePatterns(String projectKey, String patterns, int expectedFiles) {
-    executeBuildAndAssertMetric(projectKey, "docker", "patterns", patterns, "files", expectedFiles);
+  void testDockerFilenamePatterns(String projectKey, String patterns, int expectedFiles, int expectedNcloc) {
+    executeBuildAndAssertMetric(projectKey, "docker", "patterns", "sonar.docker.file.patterns", patterns, null, expectedFiles, expectedNcloc);
   }
 
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
-    "jsonDefaultSuffixNoProvidedProperty; json;; 9",
-    "jsonDefaultSuffixEmptyPropertyValue; json; ''; 9",
-    "jsonCustomSuffix; json; .jsn; 9",
-    "jsonExtendedSuffix; json; .json,.jsn; 18"
+    "jsonDefaultSuffixNoProvidedProperty; ; 1; 9",
+    "jsonDefaultSuffixEmptyPropertyValue; ''; 1; 9",
+    "jsonCustomSuffix; .jsn; 1; 9",
+    "jsonExtendedSuffix; .json,.jsn; 2; 18"
   })
-  void testJsonSuffix(String projectKey, String language, String suffixes, int expectedNcloc) {
+  void testJsonSuffix(String projectKey, String suffixes, int expectedFiles, int expectedNcloc) {
     // Since json language itself wouldn't publish files, we analyze json files that get picked up by cloudformation sensor
-    executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
+    executeBuildAndAssertMetric(projectKey, "json", "suffixes", "sonar.json.file.suffixes", suffixes, null, expectedFiles, expectedNcloc);
   }
 
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
-    "yamlDefaultSuffixNoProvidedProperty; yaml;; 10",
-    "yamlDefaultSuffixEmptyPropertyValue; yaml; ''; 10",
-    "yamlCustomSuffix; yaml; .rml; 5",
-    "yamlExtendedSuffix; yaml; .yml,.yaml,.rml; 15"
+    "yamlDefaultSuffixNoProvidedProperty; ; 2; 10",
+    "yamlDefaultSuffixEmptyPropertyValue; ''; 2; 10",
+    "yamlCustomSuffix; .rml; 1; 5",
+    "yamlExtendedSuffix; .yml,.yaml,.rml; 3; 15"
   })
-  void testYamlSuffix(String projectKey, String language, String suffixes, int expectedNcloc) {
+  void testYamlSuffix(String projectKey, String suffixes, int expectedFiles, int expectedNcloc) {
     // Since yaml language itself wouldn't publish files, we analyze yaml files that get picked up by cloudformation sensor
-    executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
+    executeBuildAndAssertMetric(projectKey, "yaml", "suffixes", "sonar.yaml.file.suffixes", suffixes, null, expectedFiles, expectedNcloc);
   }
 
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
-    "armDefaultSuffixNoProvidedProperty; azureresourcemanager;; 22",
-    "armDefaultSuffixEmptyPropertyValue; azureresourcemanager; ''; 22",
-    "armCustomSuffix; azureresourcemanager; .bicep; 22",
-    "armExtendedSuffix; azureresourcemanager; .bicep,.tricep; 44"
+    "armDefaultSuffixNoProvidedProperty; ; 1; 22",
+    "armDefaultSuffixEmptyPropertyValue; ''; 1; 22",
+    "armCustomSuffix; .bicep; 1; 22",
+    "armExtendedSuffix; .bicep,.tricep; 2; 44"
   })
-  void testArmSuffix(String projectKey, String language, String suffixes, int expectedNcloc) {
-    executeBuildAndAssertMetric(projectKey, language, "suffixes", suffixes, "ncloc", expectedNcloc);
+  void testArmSuffix(String projectKey, String suffixes, int expectedFiles, int expectedNcloc) {
+    executeBuildAndAssertMetric(projectKey, "azureresourcemanager", "suffixes", "sonar.azureresourcemanager.file.suffixes", suffixes, null, expectedFiles, expectedNcloc);
   }
 
   // The active property will always win over the deprecated one if set
@@ -134,29 +135,27 @@ class PropertiesTest extends TestBase {
     "springCustomYaml; *.yaml; 1; 9",
   })
   void testSpringConfigPatterns(String projectKey, String patterns, int expectedFiles, int expectedNCloc) {
-    var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + "patterns", "java", "springconfig-its");
-    sonarScanner.setProperty("sonar.java.springconfig.file.patterns", patterns);
-
-    ORCHESTRATOR.executeBuild(sonarScanner);
-
-    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
-    assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNCloc);
+    executeBuildAndAssertMetric(projectKey, "java", "patterns", "sonar.java.springconfig.file.patterns", patterns, "springconfig-its", expectedFiles, expectedNCloc);
   }
 
   private void executeBuildAndAssertMetric(
-    String projectKey, String language,
-    String propertySuffix, String propertyValue,
-    String metricKey, int expectedResultOfMetric) {
-    var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + propertySuffix + "/", language, null);
+    String projectKey, String language, String subDir,
+    String property, String propertyValue,
+    @Nullable String profileName,
+    int expectedFiles, int expectedNcloc) {
+    var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + subDir + "/", language, profileName);
     if (propertyValue != null) {
       if (propertyValue.isEmpty()) {
         // TODO: https://sonarsource.atlassian.net/browse/SONARIAC-1322
         throw new TestAbortedException("Empty property value is not working with 10.4");
       }
-      sonarScanner.setProperty("sonar." + language + ".file." + propertySuffix, propertyValue);
+      sonarScanner.setProperty(property, propertyValue);
     }
+
     ORCHESTRATOR.executeBuild(sonarScanner);
-    assertThat(getMeasureAsInt(projectKey, metricKey)).isEqualTo(expectedResultOfMetric);
+
+    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
+    assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNcloc);
   }
 
   private void checkTerraformAwsProviderVersion(String projectKey, String version, int expectedHotspots) {

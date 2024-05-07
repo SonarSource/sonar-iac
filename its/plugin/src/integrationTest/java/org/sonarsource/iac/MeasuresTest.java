@@ -48,7 +48,7 @@ class MeasuresTest extends TestBase {
 
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
 
-    final var fileKey = projectKey + ":" + file;
+    var fileKey = projectKey + ":" + file;
     var softly = new SoftAssertions();
     softly.assertThat(getMeasureAsInt(fileKey, "ncloc")).describedAs("ncloc").isEqualTo(expectedNcloc);
     softly.assertThat(getMeasureAsInt(fileKey, "comment_lines")).describedAs("comment_lines").isEqualTo(expectedCommentLines);
@@ -58,13 +58,13 @@ class MeasuresTest extends TestBase {
 
   @Test
   void testTerraformMeasures() {
-    final var projectKey = "terraformMeasures";
+    var projectKey = "terraformMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "terraform"));
 
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(2);
 
-    final String emptyFile = projectKey + ":empty.tf";
-    final String file1 = projectKey + ":file1.tf";
+    String emptyFile = projectKey + ":empty.tf";
+    String file1 = projectKey + ":file1.tf";
 
     var softly = new SoftAssertions();
 
@@ -82,7 +82,7 @@ class MeasuresTest extends TestBase {
 
   @Test
   void testYamlMeasures() {
-    final var projectKey = "yamlMeasures";
+    var projectKey = "yamlMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "yaml"));
 
     // should be null, since YAML language doesn't publish files by default, only if they are analyzed by a sensor
@@ -91,7 +91,7 @@ class MeasuresTest extends TestBase {
 
   @Test
   void testJsonMeasures() {
-    final var projectKey = "jsonMeasures";
+    var projectKey = "jsonMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "json"));
 
     // should be null, since JSON language doesn't publish files by default, only if they are analyzed by a sensor
