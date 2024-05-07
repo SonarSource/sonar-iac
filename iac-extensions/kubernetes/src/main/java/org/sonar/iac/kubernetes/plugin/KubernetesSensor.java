@@ -149,31 +149,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    return predicates.or(yamlK8sOrHelmFilePredicate(sensorContext), tplHelmFilePredicate(sensorContext));
-  }
-
-  private static FilePredicate yamlK8sOrHelmFilePredicate(SensorContext sensorContext) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    var helmTemplatePredicate = predicates.and(
-      predicates.matchesPathPattern("**/templates/**"),
-      new HelmProjectMemberPredicate(sensorContext));
-    var valuesYamlOrChartYamlPredicate = predicates.and(
-      predicates.matchesPathPatterns(new String[] {"**/values.yaml", "**/values.yml", "**/Chart.yaml"}),
-      new HelmProjectMemberPredicate(sensorContext));
-    return predicates.and(
-      predicates.hasLanguage(YAML_LANGUAGE_KEY),
-      predicates.or(
-        new KubernetesFilePredicate(),
-        helmTemplatePredicate,
-        valuesYamlOrChartYamlPredicate));
-  }
-
-  private static FilePredicate tplHelmFilePredicate(SensorContext sensorContext) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    return predicates.and(
-      predicates.matchesPathPattern("**/templates/*.tpl"),
-      new HelmProjectMemberPredicate(sensorContext));
+    return new KubernetesOrHelmFilePredicate(sensorContext);
   }
 
   @Override

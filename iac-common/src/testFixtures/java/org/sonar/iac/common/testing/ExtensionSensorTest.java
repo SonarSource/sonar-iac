@@ -77,9 +77,8 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
     // Test logging
     assertThat(logTester.logs(Level.ERROR)).hasSize(1);
-    String errorMessage = "Cannot parse '%s:1:1'";
     assertThat(logTester.logs(Level.ERROR).get(0))
-      .startsWith(String.format(errorMessage, inputFile));
+      .startsWith("Cannot parse '%s:1:1'".formatted(inputFile));
 
     verifyDebugMessages(logTester.logs(Level.DEBUG));
   }

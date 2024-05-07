@@ -33,6 +33,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.cloudformation.plugin.CloudformationSensor;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
@@ -42,6 +43,7 @@ import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlLanguage;
+import org.sonar.iac.kubernetes.plugin.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 import org.sonar.iac.springconfig.parser.SpringConfigParser;
 import org.sonar.iac.springconfig.plugin.visitors.SpringConfigHighlightingVisitor;
@@ -111,7 +113,8 @@ public class SpringConfigSensor extends IacSensor {
     var patterns = getFilePatterns(config);
     return fileSystem.predicates().and(
       fileSystem.predicates().matchesPathPatterns(patterns),
-      new ProfileNameFilePredicate());
+      new ProfileNameFilePredicate(),
+      notHandledByAnotherSensor(sensorContext));
   }
 
   @Override
@@ -136,6 +139,16 @@ public class SpringConfigSensor extends IacSensor {
       patterns = SpringConfigSettings.FILE_PATTERNS_DEFAULT_VALUE.split(",");
     }
     return patterns;
+  }
+
+  private static FilePredicate notHandledByAnotherSensor(SensorContext sensorContext) {
+    // We don't have a good criterion to match Spring YAML files, so at least we do not want to overlap with YAML files analyzed by
+    // other sensors: CloudFormation and Kubernetes.
+    var fileSystem = sensorContext.fileSystem();
+    return fileSystem.predicates().not(
+      fileSystem.predicates().or(
+        new KubernetesOrHelmFilePredicate(sensorContext),
+        new CloudformationSensor.CloudFormationFilePredicate(sensorContext)));
   }
 
   private static class ProfileNameFilePredicate implements FilePredicate {
