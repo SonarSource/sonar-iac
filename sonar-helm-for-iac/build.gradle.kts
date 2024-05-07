@@ -29,8 +29,10 @@ if (isCi) {
             // Version of protobuf is declared in go.mod
             "go.mod",
         )
-        // Workaround: use a file to make Gradle cache the task. It will be rerun if inputs change.
-        outputs.files("src/org.sonar.iac.helm/generated.metadata")
+        // Workaround: use a fixed file to make Gradle cache the task.
+        // Gradle does not cache tasks that do not have outputs. However, it seems it doesn't cache the generated files well
+        // (even if git shows no difference; maybe timestamps change?). The task will be re-run whenever inputs change.
+        outputs.files("src/org.sonar.iac.helm/generated")
         outputs.cacheIf { true }
 
         commandLine("protoc", "-I=${project.projectDir}", "-I=${System.getProperty("user.home")}/go/protobuf/include",
@@ -52,10 +54,7 @@ if (isCi) {
     tasks.register<Exec>("compileGoCode") {
         description = "Compile the go code for the local system."
         group = "build"
-        if (!DefaultNativePlatform.getCurrentOperatingSystem().isWindows) {
-            // For Windows CI, we can rely on cached results from the previous step.
-            dependsOn(compileProtobufGoTask)
-        }
+        dependsOn(compileProtobufGoTask)
 
         inputs.property("GO_CROSS_COMPILE", System.getenv("GO_CROSS_COMPILE") ?: "0")
         inputs.files(fileTree(projectDir).matching {
