@@ -610,7 +610,7 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
-  void shouldParseKeyThatContainsHashAndEmptyValue() {
+  void shouldParseKeyThatContainsHashAndSomeValue() {
     var code = "foo#=bar";
 
     parseProperties(code);
