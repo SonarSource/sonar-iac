@@ -4,7 +4,7 @@
   <language>java</language>
   <rules>
     <rule>
-      <repositoryKey>javaconfig</repositoryKey>
+      <repositoryKey>java</repositoryKey>
       <key>S2260</key>
       <priority>INFO</priority>
     </rule>
