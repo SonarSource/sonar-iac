@@ -73,15 +73,20 @@ class IacRulingTest {
   @BeforeAll
   public static void setUp() throws IOException {
     LANGUAGES.forEach((String language) -> {
-      ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-      var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
-      orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
+      activeAllRulesFor(language, language);
     });
-    var languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-    var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "java", "javaconfig", languageRulesConfiguration, Collections.emptySet());
-    orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
+    activeAllRulesFor("java", "javaconfig");
+
+    // This way we only activate rules S1135 and S2260 from the java repository, other rules are not needed
+    orchestrator.getServer().restoreProfile(FileLocation.of("src/integrationTest/resources/java-rules.xml"));
 
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
+  }
+
+  private static void activeAllRulesFor(String language, String repository) {
+    ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
+    var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, repository, languageRulesConfiguration, Collections.emptySet());
+    orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
   }
 
   @Test
@@ -144,20 +149,16 @@ class IacRulingTest {
     var springProperties = "sources/spring-config/**/*.properties";
     var springYml = "sources/spring-config/**/application*.yml";
     var springYaml = "sources/spring-config/**/application*.yaml";
-    var resourcesPath = "ruling/src/integrationTest/resources/";
+    var resourcesPath = "ruling/src/integrationTest/resources/sources/spring-config/**";
     var inclusions = String.join(",", List.of(
       springProperties,
       springYml,
       springYaml,
-      resourcesPath + springProperties,
-      resourcesPath + springYml,
-      resourcesPath + springYaml));
+      resourcesPath));
     var properties = Map.of(
       SONAR_INCLUSIONS_PROPERTY, inclusions,
       // include all files for analysis
-      "sonar.java.springconfig.file.patterns", inclusions,
-      // Java analysis would require compilation, and we don't need it here.
-      "sonar.exclusions", "sources/spring-config/**/*.java");
+      "sonar.java.springconfig.file.patterns", inclusions);
     runRulingTest("spring-config", properties);
   }
 

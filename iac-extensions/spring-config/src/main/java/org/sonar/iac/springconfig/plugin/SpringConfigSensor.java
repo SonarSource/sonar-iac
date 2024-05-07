@@ -47,11 +47,14 @@ import org.sonar.iac.springconfig.parser.SpringConfigParser;
 import org.sonar.iac.springconfig.plugin.visitors.SpringConfigHighlightingVisitor;
 import org.sonar.iac.springconfig.plugin.visitors.SpringConfigMetricsVisitor;
 
+import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.JAVA_CONFIG_REPOSITORY_KEY;
+import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.JAVA_REPOSITORY_KEY;
 import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.SENSOR_NAME;
 
 public class SpringConfigSensor extends IacSensor {
   private static final Set<String> EXCLUDED_PROFILES = Set.of("dev", "test");
-  private final Checks<IacCheck> checks;
+  private final Checks<IacCheck> springConfigChecks;
+  private final Checks<IacCheck> javaChecks;
 
   public SpringConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
     CheckFactory checkFactory) {
@@ -63,18 +66,25 @@ public class SpringConfigSensor extends IacSensor {
     // `sonar-java` plugin, so it's not possible to inject it here.
     // That's why the sensor is hardcoding key and name and not providing a `Language` object.
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, null);
-    checks = checkFactory.create(SpringConfigExtension.REPOSITORY_KEY);
-    checks.addAnnotatedChecks(SpringConfigCheckList.checks());
+
+    // Will instantiate all active javaConfig rules that are also in SpringConfigCheckList.javaConfigChecks()
+    springConfigChecks = checkFactory.create(SpringConfigExtension.JAVA_CONFIG_REPOSITORY_KEY);
+    springConfigChecks.addAnnotatedChecks(SpringConfigCheckList.javaConfigChecks());
+
+    // Will instantiate all active java rules that are also in SpringConfigCheckList.javaChecks()
+    javaChecks = checkFactory.create(SpringConfigExtension.JAVA_REPOSITORY_KEY);
+    javaChecks.addAnnotatedChecks(SpringConfigCheckList.javaChecks());
   }
 
   @Override
   protected String languageName() {
-    return "Java";
+    return SpringConfigExtension.LANGUAGE_NAME;
   }
 
   @Override
   protected String repositoryKey() {
-    return SpringConfigExtension.REPOSITORY_KEY;
+    // Set to "java" repository, as it's only used for reporting parsing issues in this sensor
+    return SpringConfigExtension.JAVA_REPOSITORY_KEY;
   }
 
   @Override
@@ -82,7 +92,7 @@ public class SpringConfigSensor extends IacSensor {
     // Do not define the sensor only on Java language, because Spring configuration files are not assigned to it.
     descriptor
       .name(SENSOR_NAME)
-      .createIssuesForRuleRepositories(repositoryKey());
+      .createIssuesForRuleRepositories(JAVA_REPOSITORY_KEY, JAVA_CONFIG_REPOSITORY_KEY);
 
     // The sensor shouldn't call `processFilesIndependently()`, because if a default Spring profile is defined in another file,
     // it should still be loaded.
@@ -107,7 +117,8 @@ public class SpringConfigSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     return List.of(
-      new ChecksVisitor(checks, statistics),
+      new ChecksVisitor(javaChecks, statistics),
+      new ChecksVisitor(springConfigChecks, statistics),
       new SpringConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter),
       new SpringConfigHighlightingVisitor());
   }

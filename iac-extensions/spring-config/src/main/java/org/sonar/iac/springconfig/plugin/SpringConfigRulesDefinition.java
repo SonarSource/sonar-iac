@@ -31,12 +31,12 @@ public class SpringConfigRulesDefinition extends IacRulesDefinition {
 
   @Override
   protected List<Class<?>> checks() {
-    return SpringConfigCheckList.checks();
+    return SpringConfigCheckList.javaConfigChecks();
   }
 
   @Override
   protected String ruleRepositoryKey() {
-    return SpringConfigExtension.REPOSITORY_KEY;
+    return SpringConfigExtension.JAVA_CONFIG_REPOSITORY_KEY;
   }
 
   @Override

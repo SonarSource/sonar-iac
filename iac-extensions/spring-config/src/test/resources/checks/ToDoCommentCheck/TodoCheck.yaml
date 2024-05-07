@@ -1,0 +1,24 @@
+# Noncompliant@+1
+# TODO fix me
+foo1: bar1
+
+# Noncompliant@+1
+#TODO fix me
+foo2: bar2
+
+# Noncompliant@+1
+#TODOfix
+foo3: bar3
+
+# Noncompliant@+1
+foo4: bar4 # TODO fix me
+
+# Noncompliant@+1
+foo5: bar5 #TODO fix me
+
+# Noncompliant@+1
+foo6: bar6 #TODOfix
+
+# todo is compliant
+foo7: bar7
+

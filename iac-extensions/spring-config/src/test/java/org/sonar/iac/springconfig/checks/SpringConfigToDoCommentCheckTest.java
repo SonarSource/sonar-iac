@@ -19,20 +19,19 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.iac.common.testing.AbstractCheckListTest;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.iac.springconfig.utils.SpringConfigVerifier;
 
-class SpringConfigCheckListTest extends AbstractCheckListTest {
-  protected List<Class<?>> checks() {
-    ArrayList<Class<?>> checks = new ArrayList<>(SpringConfigCheckList.javaConfigChecks());
-    checks.addAll(SpringConfigCheckList.javaChecks());
-    return checks;
+class SpringConfigToDoCommentCheckTest {
+
+  @Test
+  void shouldRaiseOnToDoCommentsInPropertiesFile() {
+    SpringConfigVerifier.verify("ToDoCommentCheck/TodoCheck.properties", new ToDoCommentCheck());
   }
 
-  @Override
-  protected File checkClassDir() {
-    return new File("src/main/java/org/sonar/iac/springconfig/checks/");
+  @Test
+  void shouldRaiseOnToDoCommentsInYamlFile() {
+    SpringConfigVerifier.verify("ToDoCommentCheck/TodoCheck.yaml", new ToDoCommentCheck());
   }
 }

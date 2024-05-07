@@ -21,13 +21,19 @@ package org.sonar.iac.springconfig.checks;
 
 import java.util.List;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 public final class SpringConfigCheckList {
   private SpringConfigCheckList() {
   }
 
-  public static List<Class<?>> checks() {
+  public static List<Class<?>> javaChecks() {
     return List.of(
-      ParsingErrorCheck.class);
+      ParsingErrorCheck.class,
+      ToDoCommentCheck.class);
+  }
+
+  public static List<Class<?>> javaConfigChecks() {
+    return List.of();
   }
 }
