@@ -28,4 +28,14 @@ project(":sonar-helm-for-iac") {
     }
 }
 
+listOf(":its:plugin", ":its:ruling").forEach { path ->
+    project(path) {
+        sonar {
+            properties {
+                property("sonar.tests", "src/integrationTest")
+            }
+        }
+    }
+}
+
 tasks.artifactoryPublish { skip = true }
