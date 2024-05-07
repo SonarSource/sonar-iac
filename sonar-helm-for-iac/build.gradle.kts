@@ -55,7 +55,10 @@ if (isCi) {
     tasks.register<Exec>("compileGoCode") {
         description = "Compile the go code for the local system."
         group = "build"
-        dependsOn(compileProtobufGoTask)
+        if (!DefaultNativePlatform.getCurrentOperatingSystem().isWindows) {
+            // For Windows CI, we can rely on cached results from the previous step.
+            dependsOn(compileProtobufGoTask)
+        }
 
         inputs.property("GO_CROSS_COMPILE", System.getenv("GO_CROSS_COMPILE") ?: "0")
         inputs.files(fileTree(projectDir).matching {
