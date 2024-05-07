@@ -5,7 +5,7 @@ options {
 }
 
 propertiesFile
-    : row* EOF
+    : (LEADING_SPACING row)? row* EOF
     ;
 
 row
