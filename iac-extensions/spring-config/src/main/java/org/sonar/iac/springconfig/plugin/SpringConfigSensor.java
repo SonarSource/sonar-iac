@@ -67,9 +67,11 @@ public class SpringConfigSensor extends IacSensor {
     // That's why the sensor is hardcoding key and name and not providing a `Language` object.
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, null);
 
+    // Will instantiate all active javaConfig rules that are also in SpringConfigCheckList.javaConfigChecks()
     springConfigChecks = checkFactory.create(SpringConfigExtension.JAVA_CONFIG_REPOSITORY_KEY);
     springConfigChecks.addAnnotatedChecks(SpringConfigCheckList.javaConfigChecks());
 
+    // Will instantiate all active java rules that are also in SpringConfigCheckList.javaChecks()
     javaChecks = checkFactory.create(SpringConfigExtension.JAVA_REPOSITORY_KEY);
     javaChecks.addAnnotatedChecks(SpringConfigCheckList.javaChecks());
   }

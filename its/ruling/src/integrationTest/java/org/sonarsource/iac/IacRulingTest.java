@@ -73,17 +73,20 @@ class IacRulingTest {
   @BeforeAll
   public static void setUp() throws IOException {
     LANGUAGES.forEach((String language) -> {
-      ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-      var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
-      orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
+      activeAllRulesFor(language, language);
     });
-    var languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-    var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "java", "javaconfig", languageRulesConfiguration, Collections.emptySet());
-    orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
+    activeAllRulesFor("java", "javaconfig");
 
+    // This way we only activate rules S1135 and S2260 from the java repository, other rules are not needed
     orchestrator.getServer().restoreProfile(FileLocation.of("src/integrationTest/resources/java-rules.xml"));
 
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
+  }
+
+  private static void activeAllRulesFor(String language, String repository) {
+    ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
+    var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, repository, languageRulesConfiguration, Collections.emptySet());
+    orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
   }
 
   @Test
@@ -155,9 +158,7 @@ class IacRulingTest {
     var properties = Map.of(
       SONAR_INCLUSIONS_PROPERTY, inclusions,
       // include all files for analysis
-      "sonar.java.springconfig.file.patterns", inclusions,
-      // Java analysis would require compilation, and we don't need it here.
-      "sonar.exclusions", "sources/spring-config/**/*.java");
+      "sonar.java.springconfig.file.patterns", inclusions);
     runRulingTest("spring-config", properties);
   }
 
@@ -192,7 +193,6 @@ class IacRulingTest {
       .setProperty("sonar.scm.disabled", "true")
       .setProperty("sonar.internal.analysis.failFast", "true")
       .setProperty("sonar.project", project)
-      // .setEnvironmentVariable("SONAR_SCANNER_DEBUG_OPTS", "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")
       .setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx1024m");
 
     orchestrator.executeBuild(build);
