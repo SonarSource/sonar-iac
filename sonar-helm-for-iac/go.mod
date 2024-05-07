@@ -9,7 +9,7 @@ require (
 	github.com/samber/mo v1.11.0
 	github.com/sonarsource/go/src v1.21.8-7
 	github.com/stretchr/testify v1.8.4
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.34.1
 	sigs.k8s.io/yaml v1.3.0
 )
 
