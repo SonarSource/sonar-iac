@@ -116,6 +116,28 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
+  void shouldParseKeyValueWithLeadingSpaces() {
+    var code = """
+      # comment
+         foo=bar""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile # comment\\nfoo=bar<EOF><EOF>",
+      "visitRow # comment\\n",
+      "visitComment # comment\\n",
+      "visitCommentStartAndText # comment",
+      "visitCommentText  comment",
+      "visitEol \\n",
+      "visitRow foo=bar<EOF>",
+      "visitLine foo=bar<EOF>",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol <EOF>");
+  }
+
+  @Test
   void shouldParseSimpleExpressionWithComments() {
     var code = """
       # example comment

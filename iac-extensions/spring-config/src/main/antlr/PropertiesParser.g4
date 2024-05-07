@@ -35,5 +35,5 @@ commentStartAndText
     ;
 
 comment
-    : LEADING_SPACING? commentStartAndText eol
+    : commentStartAndText eol
     ;
