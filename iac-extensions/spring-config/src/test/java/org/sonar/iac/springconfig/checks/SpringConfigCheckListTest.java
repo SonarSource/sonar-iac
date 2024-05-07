@@ -20,12 +20,15 @@
 package org.sonar.iac.springconfig.checks;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.testing.AbstractCheckListTest;
 
 class SpringConfigCheckListTest extends AbstractCheckListTest {
   protected List<Class<?>> checks() {
-    return SpringConfigCheckList.checks();
+    ArrayList<Class<?>> checks = new ArrayList<>(SpringConfigCheckList.javaConfigChecks());
+    checks.addAll(SpringConfigCheckList.javaChecks());
+    return checks;
   }
 
   @Override

@@ -55,9 +55,11 @@ public abstract class AbstractSensorTest {
   protected static final NoSonarFilter noSonarFilter = Mockito.mock(NoSonarFilter.class);
 
   protected static final Version VERSION_8_9 = Version.create(8, 9);
-  protected static final SonarRuntime SONAR_RUNTIME_8_9 = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.DEVELOPER);
+  protected static final SonarRuntime SONAR_RUNTIME_8_9 = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER,
+    SonarEdition.DEVELOPER);
   private static final Version VERSION_10_0 = Version.create(10, 0);
-  protected static final SonarRuntime SONAR_RUNTIME_10_0 = SonarRuntimeImpl.forSonarQube(VERSION_10_0, SonarQubeSide.SCANNER, SonarEdition.DEVELOPER);
+  protected static final SonarRuntime SONAR_RUNTIME_10_0 = SonarRuntimeImpl.forSonarQube(VERSION_10_0, SonarQubeSide.SCANNER,
+    SonarEdition.DEVELOPER);
 
   @TempDir
   protected File baseDir;

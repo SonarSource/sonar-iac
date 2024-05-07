@@ -54,11 +54,11 @@ public final class SpringConfigVerifier {
   }
 
   private static InputFileContext createContextForFile(String filename) {
-    var language = "";
+    String language = null;
     if (filename.endsWith(".yaml") || filename.endsWith(".yml")) {
       language = "yaml";
     }
-    var file = IacTestUtils.inputFile(filename, language);
+    var file = IacTestUtils.inputFile(filename, BASE_DIR, language);
     sensorContext.fileSystem().add(file);
     return new InputFileContext(sensorContext, file);
   }

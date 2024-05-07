@@ -39,7 +39,7 @@ class SpringConfigRulesDefinitionTest {
     assertThat(repository.name()).isEqualTo("Sonar");
     assertThat(repository.language()).isEqualTo("java");
     assertThat(repository.key()).isEqualTo("javaconfig");
-    assertThat(repository.rules()).hasSize(SpringConfigCheckList.checks().size());
+    assertThat(repository.rules()).hasSize(SpringConfigCheckList.javaConfigChecks().size());
   }
 
   private static RulesDefinition.Repository javaconfigRuleRepository(int major, int minor) {
@@ -47,7 +47,7 @@ class SpringConfigRulesDefinitionTest {
     var rulesDefinition = new SpringConfigRulesDefinition(sonarRuntime);
     var context = new RulesDefinition.Context();
     rulesDefinition.define(context);
-    return context.repository(SpringConfigExtension.REPOSITORY_KEY);
+    return context.repository(SpringConfigExtension.JAVA_CONFIG_REPOSITORY_KEY);
   }
 
 }

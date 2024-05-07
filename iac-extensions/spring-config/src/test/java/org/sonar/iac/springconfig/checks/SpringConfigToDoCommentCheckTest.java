@@ -26,8 +26,12 @@ import org.sonar.iac.springconfig.utils.SpringConfigVerifier;
 class SpringConfigToDoCommentCheckTest {
 
   @Test
-  void testToDoComments() {
+  void shouldRaiseOnToDoCommentsInPropertiesFile() {
     SpringConfigVerifier.verify("ToDoCommentCheck/TodoCheck.properties", new ToDoCommentCheck());
+  }
+
+  @Test
+  void shouldRaiseOnToDoCommentsInYamlFile() {
     SpringConfigVerifier.verify("ToDoCommentCheck/TodoCheck.yaml", new ToDoCommentCheck());
   }
 }

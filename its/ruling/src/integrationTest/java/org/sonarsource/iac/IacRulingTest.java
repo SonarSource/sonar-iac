@@ -81,6 +81,8 @@ class IacRulingTest {
     var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "java", "javaconfig", languageRulesConfiguration, Collections.emptySet());
     orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
 
+    orchestrator.getServer().restoreProfile(FileLocation.of("src/integrationTest/resources/java-rules.xml"));
+
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
   }
 
@@ -144,14 +146,12 @@ class IacRulingTest {
     var springProperties = "sources/spring-config/**/*.properties";
     var springYml = "sources/spring-config/**/application*.yml";
     var springYaml = "sources/spring-config/**/application*.yaml";
-    var resourcesPath = "ruling/src/integrationTest/resources/";
+    var resourcesPath = "ruling/src/integrationTest/resources/sources/spring-config/**";
     var inclusions = String.join(",", List.of(
       springProperties,
       springYml,
       springYaml,
-      resourcesPath + springProperties,
-      resourcesPath + springYml,
-      resourcesPath + springYaml));
+      resourcesPath));
     var properties = Map.of(
       SONAR_INCLUSIONS_PROPERTY, inclusions,
       // include all files for analysis
@@ -192,6 +192,7 @@ class IacRulingTest {
       .setProperty("sonar.scm.disabled", "true")
       .setProperty("sonar.internal.analysis.failFast", "true")
       .setProperty("sonar.project", project)
+      // .setEnvironmentVariable("SONAR_SCANNER_DEBUG_OPTS", "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")
       .setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx1024m");
 
     orchestrator.executeBuild(build);

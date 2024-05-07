@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.opentest4j.TestAbortedException;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,12 +32,15 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
+import org.sonar.iac.common.yaml.YamlLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class SpringConfigSensorTest extends ExtensionSensorTest {
+  private static final String PATH_PREFIX = "src/main/resources/";
+
   @Override
   protected String getActivationSettingKey() {
     return SpringConfigSettings.ACTIVATION_KEY;
@@ -53,29 +55,33 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
       checkFactory);
   }
 
+  // This property determines the repository key for all rules created in the AbstractSensorTest.checkFactory method
+  // It's set to the "java" repository to be able to register the ParsingError Rule
+  // In case there is a need to initialize checks from the "javaconfig" repository, the AbstractSensorTest.checkFactory method
+  // needs to be changed to support RuleKey's.
   @Override
   protected String repositoryKey() {
-    return SpringConfigExtension.REPOSITORY_KEY;
+    return SpringConfigExtension.JAVA_REPOSITORY_KEY;
   }
 
   @Override
   protected String fileLanguageKey() {
-    return SpringConfigExtension.LANGUAGE_KEY;
+    return YamlLanguage.KEY;
   }
 
   @Override
   protected InputFile emptyFile() {
-    return inputFile("application.properties", "");
+    return inputFile(PATH_PREFIX + "application.properties", "");
   }
 
   @Override
   protected InputFile fileWithParsingError() {
-    throw new TestAbortedException("TODO SONARIAC-1448 S2260: Java parsing failure");
+    return inputFile(PATH_PREFIX + "application.yaml", "\"a'");
   }
 
   @Override
   protected InputFile validFile() {
-    return inputFile("application.properties",
+    return inputFile(PATH_PREFIX + "application.properties",
       // language=properties
       """
         foo.bar=baz
@@ -84,7 +90,21 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    String message1 = "while scanning a quoted scalar\n" +
+      " in reader, line 1, column 1:\n" +
+      "    \"a'\n" +
+      "    ^\n" +
+      "found unexpected end of stream\n" +
+      " in reader, line 1, column 4:\n" +
+      "    \"a'\n" +
+      "       ^\n";
+
+    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'src/main/resources/application.yaml:1:1'" +
+      System.lineSeparator() +
+      "\tat org.sonar.iac.common";
+    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(1)).startsWith(message2);
   }
 
   @Test
@@ -99,7 +119,7 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
   @Test
   void shouldReturnVisitors() {
     var sensor = (SpringConfigSensor) sensor(checkFactory());
-    assertThat(sensor.visitors(context, null)).hasSize(3);
+    assertThat(sensor.visitors(context, null)).hasSize(4);
   }
 
   @ParameterizedTest
@@ -156,15 +176,6 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
   }
 
   private InputFile emptyFileInResources(String filename) {
-    return inputFile("src/main/resources/" + filename, filename);
+    return inputFile(PATH_PREFIX + filename, filename);
   }
-
-  // ---
-  // the following overrides should be removed after corresponding features are implemented in the new extension:
-  @Override
-  @Test
-  protected void shouldRaiseIssueWhenFileCorrupted() {
-    throw new TestAbortedException("TODO SONARIAC-1448 S2260: Java parsing failure");
-  }
-  // ---
 }

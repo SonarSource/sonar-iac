@@ -62,6 +62,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo(PARSING_ERROR_RULE_KEY);
+    assertThat(issue.ruleKey().repository()).as("A parsing error must be raised").isEqualTo(repositoryKey());
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("A parsing error occurred in this file.");
