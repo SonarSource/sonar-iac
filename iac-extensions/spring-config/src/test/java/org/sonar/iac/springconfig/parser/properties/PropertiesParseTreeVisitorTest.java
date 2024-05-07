@@ -115,7 +115,7 @@ class PropertiesParseTreeVisitorTest {
 
     var comment = file.profiles().get(0).comments().get(0);
     assertThat(comment.value()).isEqualTo("# database init");
-    assertThat(comment.contentText()).isEqualTo("database init");
+    assertThat(comment.contentText()).isEqualTo(" database init");
     assertThat(comment.textRange()).hasRange(1, 0, 1, 15);
   }
 
@@ -132,17 +132,17 @@ class PropertiesParseTreeVisitorTest {
 
     var comment1 = file.profiles().get(0).comments().get(0);
     assertThat(comment1.value()).isEqualTo("# comment 1");
-    assertThat(comment1.contentText()).isEqualTo("comment 1");
+    assertThat(comment1.contentText()).isEqualTo(" comment 1");
     assertThat(comment1.textRange()).hasRange(1, 0, 1, 11);
 
     var comment2 = file.profiles().get(0).comments().get(1);
     assertThat(comment2.value()).isEqualTo("! comment 2");
-    assertThat(comment2.contentText()).isEqualTo("comment 2");
+    assertThat(comment2.contentText()).isEqualTo(" comment 2");
     assertThat(comment2.textRange()).hasRange(3, 0, 3, 11);
 
     var comment3 = file.profiles().get(0).comments().get(2);
     assertThat(comment3.value()).isEqualTo("! comment 3");
-    assertThat(comment3.contentText()).isEqualTo("comment 3");
+    assertThat(comment3.contentText()).isEqualTo(" comment 3");
     assertThat(comment3.textRange()).hasRange(5, 0, 5, 11);
 
     var tuple1 = file.profiles().get(0).properties().get(0);
@@ -194,7 +194,7 @@ class PropertiesParseTreeVisitorTest {
     var profile1 = file.profiles().get(0);
     var comment1 = profile1.comments().get(0);
     assertThat(comment1.value()).isEqualTo("# comment 1");
-    assertThat(comment1.contentText()).isEqualTo("comment 1");
+    assertThat(comment1.contentText()).isEqualTo(" comment 1");
     assertThat(comment1.textRange()).hasRange(1, 0, 1, 11);
 
     var tuple1 = profile1.properties().get(0);
@@ -214,7 +214,7 @@ class PropertiesParseTreeVisitorTest {
 
     var comment3 = profile2.comments().get(1);
     assertThat(comment3.value()).isEqualTo("! comment 2");
-    assertThat(comment3.contentText()).isEqualTo("comment 2");
+    assertThat(comment3.contentText()).isEqualTo(" comment 2");
     assertThat(comment3.textRange()).hasRange(4, 0, 4, 11);
 
     var tuple2 = profile1.properties().get(0);

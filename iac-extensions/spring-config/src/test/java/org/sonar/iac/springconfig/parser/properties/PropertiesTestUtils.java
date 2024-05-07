@@ -32,13 +32,10 @@ public class PropertiesTestUtils {
     var commonTokenStream = new CommonTokenStream(propertiesLexer);
     var parser = new PropertiesParser(commonTokenStream);
 
-    // change the value for debugging tokens
-    var debug = false;
-    if (debug) {
-      commonTokenStream.fill();
-      for (Token token : commonTokenStream.getTokens()) {
-        System.out.println(((CommonToken) token).toString(parser));
-      }
+    // printing tokens for debugging
+    commonTokenStream.fill();
+    for (Token token : commonTokenStream.getTokens()) {
+      System.out.println(((CommonToken) token).toString(parser));
     }
 
     var listener = new ErrorListener(null);

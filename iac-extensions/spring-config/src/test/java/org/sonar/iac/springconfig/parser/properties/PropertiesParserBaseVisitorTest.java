@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
 
@@ -127,7 +129,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow # example comment\\n",
       "visitComment # example comment\\n",
       "visitCommentStartAndText # example comment",
-      "visitCommentText example comment",
+      "visitCommentText  example comment",
       "visitEol \\n",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
@@ -155,7 +157,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow ! also a comment\\n",
       "visitComment ! also a comment\\n",
       "visitCommentStartAndText ! also a comment",
-      "visitCommentText also a comment",
+      "visitCommentText  also a comment",
       "visitEol \\n",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
@@ -165,7 +167,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow ! also comment at the end<EOF>",
       "visitComment ! also comment at the end<EOF>",
       "visitCommentStartAndText ! also comment at the end",
-      "visitCommentText also comment at the end",
+      "visitCommentText  also comment at the end",
       "visitEol <EOF>");
   }
 
@@ -187,7 +189,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow # comment<EOF>",
       "visitComment # comment<EOF>",
       "visitCommentStartAndText # comment",
-      "visitCommentText comment",
+      "visitCommentText  comment",
       "visitEol <EOF>");
   }
 
@@ -240,7 +242,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow # foo1=bar1\\n",
       "visitComment # foo1=bar1\\n",
       "visitCommentStartAndText # foo1=bar1",
-      "visitCommentText foo1=bar1",
+      "visitCommentText  foo1=bar1",
       "visitEol \\n",
       "visitRow foo2=bar2 # foo3=bar3<EOF>",
       "visitLine foo2=bar2 # foo3=bar3<EOF>",
@@ -587,6 +589,21 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
+  void shouldParseCommentContainsEquals() {
+    var code = "#a=b#";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile #a=b#<EOF><EOF>",
+      "visitRow #a=b#<EOF>",
+      "visitComment #a=b#<EOF>",
+      "visitCommentStartAndText #a=b#",
+      "visitCommentText a=b#",
+      "visitEol <EOF>");
+  }
+
+  @Test
   void shouldParseKeyWithoutValue() {
     var code = "foo";
 
@@ -617,8 +634,15 @@ class PropertiesParserBaseVisitorTest {
   @ParameterizedTest
   @CsvSource({"foo#,foo#",
     "foo#=,foo#",
+    "foo#:,foo#",
+    "foo# ,foo#",
+    "foo#\t,foo#",
+    "foo#\f,foo#",
     "foo!,foo!",
-    "foo!=,foo!"
+    "foo!=,foo!",
+    "foo! ,foo!",
+    "foo!\t,foo!",
+    "foo!\f,foo!",
   })
   void shouldParseKeyThatContainsCommentIndicator(String code, String key) {
     parseProperties(code);
@@ -631,16 +655,22 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
-  @Test
-  void shouldParseKeyThatContainsHashAndSomeValue() {
-    var code = "foo#=bar";
+  @ParameterizedTest
+  @ValueSource(strings = {"=", " =", "= ", " = ",
+    ":", " :", ": ", " : ",
+    "\t", " \t", "\t ", " \t ",
+    "\f", " \f", "\f ", " \f ",
+    " ", "  "})
+  void shouldParseKeyThatContainsHashAndSomeValue(String delimiter) {
+    var code = "foo#%sbar".formatted(delimiter);
 
     parseProperties(code);
 
+    var printableDelimiter = printable(delimiter);
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo#=bar<EOF><EOF>",
-      "visitRow foo#=bar<EOF>",
-      "visitLine foo#=bar<EOF>",
+      "visitPropertiesFile foo#%sbar<EOF><EOF>".formatted(printableDelimiter),
+      "visitRow foo#%sbar<EOF>".formatted(printableDelimiter),
+      "visitLine foo#%sbar<EOF>".formatted(printableDelimiter),
       "visitKey foo#",
       "visitKey bar",
       "visitEol <EOF>");
@@ -856,7 +886,7 @@ class PropertiesParserBaseVisitorTest {
       "visitComment # comment 1\\n",
       "visitCommentStartAndText # comment 1 [1:0/1:10] StartIndex: 0",
       "visitCommentStartAndText # comment 1",
-      "visitCommentText comment 1",
+      "visitCommentText  comment 1",
       "visitEol \\n",
       "visitRow foo1 = bar1\\n",
       "visitLine foo1 = bar1\\n",
@@ -906,7 +936,7 @@ class PropertiesParserBaseVisitorTest {
       "visitComment # comment 1\\r",
       "visitCommentStartAndText # comment 1 [1:0/1:10] StartIndex: 0",
       "visitCommentStartAndText # comment 1",
-      "visitCommentText comment 1",
+      "visitCommentText  comment 1",
       "visitEol \\r",
       "visitRow foo1 = bar1\\r",
       "visitLine foo1 = bar1\\r",
@@ -1004,6 +1034,16 @@ class PropertiesParserBaseVisitorTest {
       "visitEol \\n");
   }
 
+  private static String printable(String input) {
+    return input.replace("\r\n", "\\r\\n")
+      .replace("\r", "\\r")
+      .replace("\n", "\\n")
+      .replace("\t", "\\t")
+      .replace("\f", "\\f")
+      .replace("\u2028", "\\u2028")
+      .replace("\u2029", "\\u2029");
+  }
+
   static class TestVisitor extends PropertiesParserBaseVisitor<Void> {
 
     protected List<String> visited = new ArrayList<>();
@@ -1057,14 +1097,8 @@ class PropertiesParserBaseVisitorTest {
     }
 
     protected static String printText(ParseTree ctx) {
-      return ctx.getText()
-        .replace("\r\n", "\\r\\n")
-        .replace("\r", "\\r")
-        .replace("\n", "\\n")
-        .replace("\t", "\\t")
-        .replace("\f", "\\f")
-        .replace("\u2028", "\\u2028")
-        .replace("\u2029", "\\u2029");
+      return printable(ctx.getText());
+
     }
 
     public List<String> visited() {

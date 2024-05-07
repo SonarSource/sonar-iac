@@ -7,7 +7,7 @@ public PropertiesLexer(CharStream input, boolean crLexerCostructor) {
 }
 }
 
-COMMENT         : [!#] [ ]* -> pushMode(COMMENT_MODE);
+COMMENT         : [!#] -> pushMode(COMMENT_MODE);
 LEADING_SPACING : {this.getCharPositionInLine() == 0}? [ \t\f\r\n\u2028\u2029]+ -> channel(HIDDEN);
 NEWLINE         : [\r\n\u2028\u2029]+;
 DELIMITER       : [ ]* [:=\t\f ] [ ]* -> pushMode(VALUE_MODE);
@@ -17,7 +17,7 @@ CHARACTER       : ~ [:=\r\n\u2028\u2029];
 mode COMMENT_MODE;
 
 COMMENT_NEW_LINE  : [\r\n\u2028\u2029]+      -> type(NEWLINE), popMode;
-COMMENT_DELIMITER : [:=]                     -> type(DELIMITER), popMode;
+COMMENT_DELIMITER : [ ]* [:=\t\f ] [ ]*      -> type(DELIMITER), popMode;
 COMMENT_CHAR      : ~ [:=\r\n\u2028\u2029]   -> type(CHARACTER);
 
 mode INSIDE;

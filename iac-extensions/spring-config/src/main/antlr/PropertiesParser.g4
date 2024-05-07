@@ -27,7 +27,7 @@ eol
     ;
 
 commentText
-    : (CHARACTER|DELIMITER)*
+    : (CHARACTER|DELIMITER|COMMENT)*
     ;
 
 commentStartAndText
