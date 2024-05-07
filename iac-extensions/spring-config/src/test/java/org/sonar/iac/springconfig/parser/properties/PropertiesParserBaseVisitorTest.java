@@ -127,7 +127,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow # example comment\\n",
       "visitComment # example comment\\n",
       "visitCommentStartAndText # example comment",
-      "visitCommentText  example comment",
+      "visitCommentText example comment",
       "visitEol \\n",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
@@ -155,7 +155,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow ! also a comment\\n",
       "visitComment ! also a comment\\n",
       "visitCommentStartAndText ! also a comment",
-      "visitCommentText  also a comment",
+      "visitCommentText also a comment",
       "visitEol \\n",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
@@ -165,7 +165,29 @@ class PropertiesParserBaseVisitorTest {
       "visitRow ! also comment at the end<EOF>",
       "visitComment ! also comment at the end<EOF>",
       "visitCommentStartAndText ! also comment at the end",
-      "visitCommentText  also comment at the end",
+      "visitCommentText also comment at the end",
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseCommentWithLeadingSpaces() {
+    var code = """
+      foo=bar
+         # comment""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo=bar\\n# comment<EOF><EOF>",
+      "visitRow foo=bar\\n",
+      "visitLine foo=bar\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\n",
+      "visitRow # comment<EOF>",
+      "visitComment # comment<EOF>",
+      "visitCommentStartAndText # comment",
+      "visitCommentText comment",
       "visitEol <EOF>");
   }
 
@@ -218,7 +240,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow # foo1=bar1\\n",
       "visitComment # foo1=bar1\\n",
       "visitCommentStartAndText # foo1=bar1",
-      "visitCommentText  foo1=bar1",
+      "visitCommentText foo1=bar1",
       "visitEol \\n",
       "visitRow foo2=bar2 # foo3=bar3<EOF>",
       "visitLine foo2=bar2 # foo3=bar3<EOF>",
@@ -829,12 +851,12 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitorTextRanges.visited()).containsExactly(
-      "visitPropertiesFile # comment 1\\nfoo1 = bar1\\n!comment2\\nfoo2=bar2\\nfoo3 =multilinevalue\\nfoo4=valueUnicode\u00FC\u00F6<EOF><EOF>",
+      "visitPropertiesFile # comment 1\\nfoo1 = bar1\\n!comment2\\nfoo2=bar2\\nfoo3 =multilinevalue\\nfoo4=valueUnicodeüö<EOF><EOF>",
       "visitRow # comment 1\\n",
       "visitComment # comment 1\\n",
       "visitCommentStartAndText # comment 1 [1:0/1:10] StartIndex: 0",
       "visitCommentStartAndText # comment 1",
-      "visitCommentText  comment 1",
+      "visitCommentText comment 1",
       "visitEol \\n",
       "visitRow foo1 = bar1\\n",
       "visitLine foo1 = bar1\\n",
@@ -863,12 +885,12 @@ class PropertiesParserBaseVisitorTest {
       "visitKey multilinevalue [5:6/6:4] StartIndex: 50",
       "visitKey multilinevalue",
       "visitEol \\n",
-      "visitRow foo4=valueUnicode\u00FC\u00F6<EOF>",
-      "visitLine foo4=valueUnicode\u00FC\u00F6<EOF>",
+      "visitRow foo4=valueUnicodeüö<EOF>",
+      "visitLine foo4=valueUnicodeüö<EOF>",
       "visitKey foo4 [7:0/7:3] StartIndex: 67",
       "visitKey foo4",
-      "visitKey valueUnicode\u00FC\u00F6 [7:5/7:18] StartIndex: 72",
-      "visitKey valueUnicode\u00FC\u00F6",
+      "visitKey valueUnicodeüö [7:5/7:18] StartIndex: 72",
+      "visitKey valueUnicodeüö",
       "visitEol <EOF>");
   }
 
@@ -884,7 +906,7 @@ class PropertiesParserBaseVisitorTest {
       "visitComment # comment 1\\r",
       "visitCommentStartAndText # comment 1 [1:0/1:10] StartIndex: 0",
       "visitCommentStartAndText # comment 1",
-      "visitCommentText  comment 1",
+      "visitCommentText comment 1",
       "visitEol \\r",
       "visitRow foo1 = bar1\\r",
       "visitLine foo1 = bar1\\r",

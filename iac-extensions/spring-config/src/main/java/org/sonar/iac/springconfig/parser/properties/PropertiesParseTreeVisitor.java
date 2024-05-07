@@ -53,7 +53,7 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
       }
       if (row.comment() != null) {
         var comment = createComment(row);
-        if ("---".equals(comment.contentText())) {
+        if (comment.value().equals("#---") || comment.value().equals("!---")) {
           var profile = new ProfileImpl(properties, comments, profileName(properties), true);
           profiles.add(profile);
           properties = new ArrayList<>();
