@@ -7,20 +7,5 @@
 ],
 "spring-config-project:ruling/src/integrationTest/resources/sources/spring-config/parsingErrorCR.properties": [
 3
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/patterns-modules/enterprise-patterns/src/main/resources/log4j.properties": [
-11
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/security-modules/cas/cas-server/gradle.properties": [
-34
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bootstrap/gateway-2/src/main/resources/introduction-application.properties": [
-4
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-gateway/src/main/resources/introduction-application.properties": [
-4
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/spring-core-2/src/main/resources/log4j2.properties": [
-11
 ]
 }

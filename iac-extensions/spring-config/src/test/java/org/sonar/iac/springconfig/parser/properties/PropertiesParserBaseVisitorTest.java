@@ -896,7 +896,7 @@ class PropertiesParserBaseVisitorTest {
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, NEWLINE, CHARACTER} at null:1:1");
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, LEADING_SPACING, CHARACTER} at null:1:1");
   }
 
   @Test
@@ -923,7 +923,24 @@ class PropertiesParserBaseVisitorTest {
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile \\nfoo=bar\\n<EOF>",
+      "visitPropertiesFile foo=bar\\n<EOF>",
+      "visitRow foo=bar\\n",
+      "visitLine foo=bar\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\n");
+  }
+
+  @Test
+  void shouldParseFileStartingWithWhitespace() {
+    var code = """
+          foo=bar
+      """;
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo=bar\\n<EOF>",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
       "visitKey foo",
