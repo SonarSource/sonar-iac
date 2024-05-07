@@ -20,7 +20,9 @@
 package org.sonar.iac.springconfig.parser.properties;
 
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
 
 public class PropertiesTestUtils {
 
@@ -29,6 +31,16 @@ public class PropertiesTestUtils {
     var propertiesLexer = new PropertiesLexer(inputCode, true);
     var commonTokenStream = new CommonTokenStream(propertiesLexer);
     var parser = new PropertiesParser(commonTokenStream);
+
+    // change the value for debugging tokens
+    var debug = false;
+    if (debug) {
+      commonTokenStream.fill();
+      for (Token token : commonTokenStream.getTokens()) {
+        System.out.println(((CommonToken) token).toString(parser));
+      }
+    }
+
     var listener = new ErrorListener(null);
     parser.addErrorListener(listener);
     return parser.propertiesFile();

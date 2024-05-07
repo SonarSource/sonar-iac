@@ -9,8 +9,8 @@ propertiesFile
     ;
 
 row
-    : comment
-    | line
+    : line
+    | comment
     ;
 
 line

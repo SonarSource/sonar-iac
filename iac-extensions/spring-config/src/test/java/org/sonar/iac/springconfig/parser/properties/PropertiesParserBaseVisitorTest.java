@@ -24,6 +24,8 @@ import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
 
@@ -201,27 +203,27 @@ class PropertiesParserBaseVisitorTest {
   void shouldParseTrailingCommentsAsValue() {
     var code = """
       foo=bar
-      # foo=bar
-      foo=bar # foo2=bar2""";
+      # foo1=bar1
+      foo2=bar2 # foo3=bar3""";
 
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo=bar\\n# foo=bar\\nfoo=bar # foo2=bar2<EOF><EOF>",
+      "visitPropertiesFile foo=bar\\n# foo1=bar1\\nfoo2=bar2 # foo3=bar3<EOF><EOF>",
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
       "visitKey foo",
       "visitKey bar",
       "visitEol \\n",
-      "visitRow # foo=bar\\n",
-      "visitComment # foo=bar\\n",
-      "visitCommentStartAndText # foo=bar",
-      "visitCommentText  foo=bar",
+      "visitRow # foo1=bar1\\n",
+      "visitComment # foo1=bar1\\n",
+      "visitCommentStartAndText # foo1=bar1",
+      "visitCommentText  foo1=bar1",
       "visitEol \\n",
-      "visitRow foo=bar # foo2=bar2<EOF>",
-      "visitLine foo=bar # foo2=bar2<EOF>",
-      "visitKey foo",
-      "visitKey bar # foo2=bar2",
+      "visitRow foo2=bar2 # foo3=bar3<EOF>",
+      "visitLine foo2=bar2 # foo3=bar3<EOF>",
+      "visitKey foo2",
+      "visitKey bar2 # foo3=bar3",
       "visitEol <EOF>");
   }
 
@@ -587,6 +589,38 @@ class PropertiesParserBaseVisitorTest {
       "visitRow foo=<EOF>",
       "visitLine foo=<EOF>",
       "visitKey foo",
+      "visitEol <EOF>");
+  }
+
+  @ParameterizedTest
+  @CsvSource({"foo#,foo#",
+    "foo#=,foo#",
+    "foo!,foo!",
+    "foo!=,foo!"
+  })
+  void shouldParseKeyThatContainsCommentIndicator(String code, String key) {
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile %s<EOF><EOF>".formatted(code),
+      "visitRow %s<EOF>".formatted(code),
+      "visitLine %s<EOF>".formatted(code),
+      "visitKey %s".formatted(key),
+      "visitEol <EOF>");
+  }
+
+  @Test
+  void shouldParseKeyThatContainsHashAndEmptyValue() {
+    var code = "foo#=bar";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo#=bar<EOF><EOF>",
+      "visitRow foo#=bar<EOF>",
+      "visitLine foo#=bar<EOF>",
+      "visitKey foo#",
+      "visitKey bar",
       "visitEol <EOF>");
   }
 
