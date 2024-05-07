@@ -8,38 +8,11 @@
 "spring-config-project:ruling/src/integrationTest/resources/sources/spring-config/parsingErrorCR.properties": [
 3
 ],
-"spring-config-project:sources/spring-config/baeldung-tutorials/core-java-modules/core-java-serialization/src/main/resources/log4jstructuraldp.properties": [
-1
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/core-java-modules/core-java-serialization/src/test/resources/log4jstructuraldp.properties": [
-1
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/core-java-modules/core-java-uuid/src/main/resources/log4jstructuraldp.properties": [
-1
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/core-java-modules/core-java-uuid/src/test/resources/log4jstructuraldp.properties": [
-1
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/jaxb/src/main/resources/log4jstructuraldp.properties": [
-1
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/microservices-modules/saga-pattern/src/main/resources/application.properties": [
-1
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/patterns-modules/design-patterns-structural/src/main/resources/log4jstructuraldp.properties": [
-1
-],
 "spring-config-project:sources/spring-config/baeldung-tutorials/patterns-modules/enterprise-patterns/src/main/resources/log4j.properties": [
 11
 ],
-"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-enterprise-2/src/main/resources/application.properties": [
-1
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-enterprise/src/main/resources/application.properties": [
-1
-],
 "spring-config-project:sources/spring-config/baeldung-tutorials/security-modules/cas/cas-server/gradle.properties": [
-1
+34
 ],
 "spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bootstrap/gateway-2/src/main/resources/introduction-application.properties": [
 4
@@ -49,11 +22,5 @@
 ],
 "spring-config-project:sources/spring-config/baeldung-tutorials/spring-core-2/src/main/resources/log4j2.properties": [
 11
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-3/src/main/resources/application-logging.properties": [
-1
-],
-"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-3/src/main/resources/application-tls.properties": [
-1
 ]
 }
