@@ -46,7 +46,7 @@ def qa_task(env):
     return {
         "only_if": is_sonarsource_qa(),
         "depends_on": "build",
-        "eks_container": base_image_container_builder(),
+        "eks_container": base_image_container_builder(memory="9G"),
         "env": env,
         "gradle_cache": gradle_cache(),
         "set_orchestrator_home_script": set_orchestrator_home_script(),

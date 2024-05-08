@@ -51,9 +51,9 @@ class SpringConfigPropertiesParserTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenKeyContainsExclamationMark() {
+  void shouldThrowExceptionWhenEmptyKey() {
     var code = """
-      foo!=bar""";
+      =bar""";
     var parser = new SpringConfigPropertiesParser();
     InputFileContext inputFileContext = IacTestUtils.createInputFileContextMock("foo.properties");
 
@@ -61,8 +61,8 @@ class SpringConfigPropertiesParserTest {
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, mismatched input '!' expecting {<EOF>, NEWLINE, DELIMITER} at dir1/dir2/foo.properties:1:4");
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, LEADING_SPACING, CHARACTER} at dir1/dir2/foo.properties:1:1");
     assertThat(logTester.logs(Level.DEBUG)).contains(
-      "Cannot parse, mismatched input '!' expecting {<EOF>, NEWLINE, DELIMITER}");
+      "Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, LEADING_SPACING, CHARACTER}");
   }
 }
