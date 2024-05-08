@@ -43,7 +43,7 @@ import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlLanguage;
-import org.sonar.iac.kubernetes.plugin.KubernetesOrHelmFilePredicate;
+import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 import org.sonar.iac.springconfig.parser.SpringConfigParser;
 import org.sonar.iac.springconfig.plugin.visitors.SpringConfigHighlightingVisitor;
@@ -114,7 +114,7 @@ public class SpringConfigSensor extends IacSensor {
     return fileSystem.predicates().and(
       fileSystem.predicates().matchesPathPatterns(patterns),
       new ProfileNameFilePredicate(),
-      notHandledByAnotherSensor(sensorContext));
+      notMatchedByAnotherYamlSensor(sensorContext));
   }
 
   @Override
@@ -141,7 +141,7 @@ public class SpringConfigSensor extends IacSensor {
     return patterns;
   }
 
-  private static FilePredicate notHandledByAnotherSensor(SensorContext sensorContext) {
+  private static FilePredicate notMatchedByAnotherYamlSensor(SensorContext sensorContext) {
     // We don't have a good criterion to match Spring YAML files, so at least we do not want to overlap with YAML files analyzed by
     // other sensors: CloudFormation and Kubernetes.
     var fileSystem = sensorContext.fileSystem();

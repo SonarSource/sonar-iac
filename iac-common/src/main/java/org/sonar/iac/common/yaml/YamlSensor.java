@@ -47,7 +47,7 @@ public abstract class YamlSensor extends IacSensor {
 
   protected static final String JSON_LANGUAGE_KEY = "json";
   public static final String YAML_LANGUAGE_KEY = "yaml";
-  protected static final String FILE_SEPARATOR = "---";
+  public static final String FILE_SEPARATOR = "---";
 
   protected final Checks<IacCheck> checks;
 

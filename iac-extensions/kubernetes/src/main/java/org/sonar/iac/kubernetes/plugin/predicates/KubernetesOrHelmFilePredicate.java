@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.plugin;
+package org.sonar.iac.kubernetes.plugin.predicates;
 
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -44,14 +44,14 @@ public class KubernetesOrHelmFilePredicate implements FilePredicate {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
     var helmTemplatePredicate = predicates.and(
       predicates.matchesPathPattern("**/templates/**"),
-      new KubernetesSensor.HelmProjectMemberPredicate(sensorContext));
+      new HelmProjectMemberPredicate(sensorContext));
     var valuesYamlOrChartYamlPredicate = predicates.and(
       predicates.matchesPathPatterns(new String[] {"**/values.yaml", "**/values.yml", "**/Chart.yaml"}),
-      new KubernetesSensor.HelmProjectMemberPredicate(sensorContext));
+      new HelmProjectMemberPredicate(sensorContext));
     return predicates.and(
       predicates.hasLanguage(YAML_LANGUAGE_KEY),
       predicates.or(
-        new KubernetesSensor.KubernetesFilePredicate(),
+        new KubernetesFilePredicate(),
         helmTemplatePredicate,
         valuesYamlOrChartYamlPredicate));
   }
@@ -60,6 +60,6 @@ public class KubernetesOrHelmFilePredicate implements FilePredicate {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
     return predicates.and(
       predicates.matchesPathPattern("**/templates/*.tpl"),
-      new KubernetesSensor.HelmProjectMemberPredicate(sensorContext));
+      new HelmProjectMemberPredicate(sensorContext));
   }
 }
