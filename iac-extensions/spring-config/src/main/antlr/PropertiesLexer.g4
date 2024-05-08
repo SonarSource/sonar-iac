@@ -31,18 +31,20 @@ LEADING_SPACING       : [ \t\f\r\n\u2028\u2029]* -> channel(HIDDEN), pushMode(CO
 mode CONTENT;
 
 COMMENT         : [!#] -> pushMode(COMMENT_MODE);
+CHARACTER       : ~ [!# :=\t\f] -> pushMode(KEY_MODE);
 NEWLINE         : [\r\n\u2028\u2029]+ -> popMode, pushMode(DEFAULT_MODE);
 DELIMITER       : [ ]* [:=\t\f ] [ ]* -> pushMode(VALUE_MODE);
-SLASH           : '\\' -> more, pushMode(INSIDE);
-CHARACTER       : ~ [:=\r\n\u2028\u2029];
+
+mode KEY_MODE;
+
+KEY_DELIMITER   : [ ]* [:=\t\f ] [ ]* -> type(DELIMITER), popMode, popMode, pushMode(VALUE_MODE);
+KEY_SLASH       : '\\' -> more, pushMode(INSIDE);
+KEY_CHARACTER   : ~ [ :=\r\n\u2028\u2029] -> type(CHARACTER);
 
 mode COMMENT_MODE;
 
-COMMENT_NEW_LINE  : [\r\n\u2028\u2029]+      -> type(NEWLINE), popMode, pushMode(DEFAULT_MODE);
-// Delimiter is required to match property keys containning # or ! characters. Such keys are valid and we shouldn't treat the rest of the line as a comment.
-// However, currently once we encounter a # or ! character, we jump to the COMMENT_MODE. Hence delimiter is defined here once again.
-COMMENT_DELIMITER : [ ]* [:=\t\f ] [ ]*      -> type(DELIMITER);
-COMMENT_CHAR      : ~ [:=\r\n\u2028\u2029]   -> type(CHARACTER);
+COMMENT_NEW_LINE  : [\r\n\u2028\u2029]+    -> type(NEWLINE), popMode, popMode, pushMode(DEFAULT_MODE);
+COMMENT_CHAR      : ~ [\r\n\u2028\u2029]   -> type(CHARACTER);
 
 mode INSIDE;
 

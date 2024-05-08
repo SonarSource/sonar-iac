@@ -37,7 +37,7 @@ line
     ;
 
 key
-    : CHARACTER (CHARACTER|COMMENT)*
+    : CHARACTER+
     ;
 
 eol
