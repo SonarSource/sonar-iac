@@ -21,6 +21,7 @@ package org.sonar.iac.cloudformation.plugin;
 
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
@@ -59,7 +60,7 @@ public class CloudformationSensor extends YamlSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
-    return new FileIdentificationPredicate(sensorContext.config().get(CloudformationSettings.FILE_IDENTIFIER_KEY).orElse(""));
+    return new CloudFormationFilePredicate(sensorContext);
   }
 
   @Override
@@ -76,5 +77,18 @@ public class CloudformationSensor extends YamlSensor {
   @Override
   protected String getActivationSettingKey() {
     return CloudformationSettings.ACTIVATION_KEY;
+  }
+
+  public static class CloudFormationFilePredicate implements FilePredicate {
+    private final FilePredicate delegate;
+
+    public CloudFormationFilePredicate(SensorContext sensorContext) {
+      this.delegate = new FileIdentificationPredicate(sensorContext.config().get(CloudformationSettings.FILE_IDENTIFIER_KEY).orElse(""));
+    }
+
+    @Override
+    public boolean apply(InputFile inputFile) {
+      return delegate.apply(inputFile);
+    }
   }
 }

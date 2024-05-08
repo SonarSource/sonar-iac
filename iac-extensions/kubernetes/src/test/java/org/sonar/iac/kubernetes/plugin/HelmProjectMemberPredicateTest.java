@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.testing.IacTestUtils;
+import org.sonar.iac.kubernetes.plugin.predicates.HelmProjectMemberPredicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +43,7 @@ class HelmProjectMemberPredicateTest {
   void shouldDetectFilesInHelmProject(String filePath, boolean shouldMatch) {
     InputFile templateFile = IacTestUtils.inputFile(filePath, "yaml");
 
-    FilePredicate filePredicate = new KubernetesSensor.HelmProjectMemberPredicate(context);
+    FilePredicate filePredicate = new HelmProjectMemberPredicate(context);
     assertThat(filePredicate.apply(templateFile)).isEqualTo(shouldMatch);
   }
 }

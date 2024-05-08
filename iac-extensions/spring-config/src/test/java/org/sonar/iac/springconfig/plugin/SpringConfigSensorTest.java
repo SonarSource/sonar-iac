@@ -21,6 +21,7 @@ package org.sonar.iac.springconfig.plugin;
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -90,21 +91,30 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
-    String message1 = "while scanning a quoted scalar\n" +
-      " in reader, line 1, column 1:\n" +
-      "    \"a'\n" +
-      "    ^\n" +
-      "found unexpected end of stream\n" +
-      " in reader, line 1, column 4:\n" +
-      "    \"a'\n" +
-      "       ^\n";
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(4);
+    String message1 = """
+      while scanning a quoted scalar
+       in reader, line 1, column 1:
+          "a'
+          ^
+      found unexpected end of stream
+       in reader, line 1, column 4:
+          "a'
+             ^
+      """;
 
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'src/main/resources/application.yaml:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
-    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(message1);
-    assertThat(logTester.logs(Level.DEBUG).get(1)).startsWith(message2);
+    assertThat(logTester.logs(Level.DEBUG).get(2)).isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(3)).startsWith(message2);
+  }
+
+  @BeforeEach
+  void setUp() {
+    context.settings().setProperty(
+      "sonar.cloudformation.file.identifier",
+      "AWSTemplateFormatVersion");
   }
 
   @Test

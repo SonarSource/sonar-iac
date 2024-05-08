@@ -19,13 +19,9 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
@@ -48,6 +44,7 @@ import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
+import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
@@ -149,31 +146,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    return predicates.or(yamlK8sOrHelmFilePredicate(sensorContext), tplHelmFilePredicate(sensorContext));
-  }
-
-  private static FilePredicate yamlK8sOrHelmFilePredicate(SensorContext sensorContext) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    var helmTemplatePredicate = predicates.and(
-      predicates.matchesPathPattern("**/templates/**"),
-      new HelmProjectMemberPredicate(sensorContext));
-    var valuesYamlOrChartYamlPredicate = predicates.and(
-      predicates.matchesPathPatterns(new String[] {"**/values.yaml", "**/values.yml", "**/Chart.yaml"}),
-      new HelmProjectMemberPredicate(sensorContext));
-    return predicates.and(
-      predicates.hasLanguage(YAML_LANGUAGE_KEY),
-      predicates.or(
-        new KubernetesFilePredicate(),
-        helmTemplatePredicate,
-        valuesYamlOrChartYamlPredicate));
-  }
-
-  private static FilePredicate tplHelmFilePredicate(SensorContext sensorContext) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    return predicates.and(
-      predicates.matchesPathPattern("**/templates/*.tpl"),
-      new HelmProjectMemberPredicate(sensorContext));
+    return new KubernetesOrHelmFilePredicate(sensorContext);
   }
 
   @Override
@@ -198,66 +171,8 @@ public class KubernetesSensor extends YamlSensor {
     return isNotSonarLintContext && isHelmAnalysisEnabled && isHelmEvaluatorExecutableAvailable;
   }
 
-  static class KubernetesFilePredicate implements FilePredicate {
-
-    private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
-
-    // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
-    private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata");
-    private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
-    private static final int DEFAULT_BUFFER_SIZE = 8192;
-
-    @Override
-    public boolean apply(InputFile inputFile) {
-      return hasKubernetesObjectStructure(inputFile);
-    }
-
-    private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
-      var identifierCount = 0;
-      var hasExpectedIdentifier = false;
-      try (var bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
-        // Only firs 8k bytes is read to avoid slow execution for big one-line files
-        byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
-        var text = new String(bytes, inputFile.charset());
-        String[] lines = LINE_TERMINATOR.split(text);
-        for (String line : lines) {
-          if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
-            identifierCount++;
-          } else if (FILE_SEPARATOR.equals(line)) {
-            identifierCount = 0;
-          }
-          if (identifierCount == IDENTIFIER.size()) {
-            hasExpectedIdentifier = true;
-          }
-        }
-      } catch (IOException e) {
-        LOG.error("Unable to read file: {}.", inputFile);
-        LOG.error(e.getMessage());
-      }
-
-      if (hasExpectedIdentifier) {
-        return true;
-      } else {
-        LOG.debug("File without Kubernetes identifier: {}", inputFile);
-        return false;
-      }
-    }
-  }
-
   void setHelmProcessorForTesting(HelmProcessor helmProcessor) {
     this.helmProcessor = helmProcessor;
   }
 
-  static class HelmProjectMemberPredicate implements FilePredicate {
-    private final SensorContext sensorContext;
-
-    HelmProjectMemberPredicate(SensorContext sensorContext) {
-      this.sensorContext = sensorContext;
-    }
-
-    @Override
-    public boolean apply(InputFile inputFile) {
-      return HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem()) != null;
-    }
-  }
 }

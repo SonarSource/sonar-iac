@@ -11,6 +11,9 @@ dependencies {
 
     api(project(":iac-common"))
 
+    compileOnly(project(":iac-extensions:cloudformation"))
+    compileOnly(project(":iac-extensions:kubernetes"))
+
     implementation(libs.antlr4.runtime)
 
     testImplementation(libs.junit.jupiter)
@@ -35,4 +38,8 @@ tasks.generateGrammarSource {
 
 tasks.sourcesJar {
     dependsOn(tasks.generateGrammarSource)
+}
+
+configurations.testImplementation.configure {
+    extendsFrom(configurations.compileOnly.get())
 }
