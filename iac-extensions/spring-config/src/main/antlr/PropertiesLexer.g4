@@ -17,7 +17,7 @@ CHARACTER       : ~ [:=\r\n\u2028\u2029];
 mode COMMENT_MODE;
 
 COMMENT_NEW_LINE  : [\r\n\u2028\u2029]+      -> type(NEWLINE), popMode;
-COMMENT_DELIMITER : [ ]* [:=\t\f ] [ ]*      -> type(DELIMITER), popMode;
+COMMENT_DELIMITER : [ ]* [:=\t\f ] [ ]*      -> type(DELIMITER);
 COMMENT_CHAR      : ~ [:=\r\n\u2028\u2029]   -> type(CHARACTER);
 
 mode INSIDE;
