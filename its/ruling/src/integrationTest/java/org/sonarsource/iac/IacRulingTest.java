@@ -76,11 +76,7 @@ class IacRulingTest {
   @BeforeAll
   public static void setUp() throws IOException {
     LANGUAGES.forEach((String language) -> activeAllRulesFor(language, language));
-    LANGUAGES.forEach((String language) -> {
-      activeAllRulesFor(language, language);
-    });
 
-    activeAllRulesFor("java", "javaconfig");
     activateSpringConfigJavaRulesProfile();
 
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));

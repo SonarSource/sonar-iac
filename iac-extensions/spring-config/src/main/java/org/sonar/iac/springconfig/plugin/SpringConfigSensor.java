@@ -71,7 +71,7 @@ public class SpringConfigSensor extends IacSensor {
     // We don't create our own repository, as we want to raise all rules in the "java" repository for now
     // If in the future there is the need to raise rules in a separate repository, we can create a new repository and add the rules there,
     // basically reverting SONARIAC-1469
-    checks = checkFactory.create(repositoryKey());
+    checks = checkFactory.create(SpringConfigExtension.JAVA_REPOSITORY_KEY);
     checks.addAnnotatedChecks(SpringConfigCheckList.checks());
   }
 
