@@ -31,12 +31,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,21 +75,12 @@ class IacRulingTest {
 
   @BeforeAll
   public static void setUp() throws IOException {
-    LANGUAGES.forEach((String language) -> {
-      activeAllRulesFor(language, language);
-    });
-    activeAllRulesFor("java", "javaconfig");
+    LANGUAGES.forEach((String language) -> activeAllRulesFor(language, language));
 
-    // This way we only activate rules S1135 and S2260 from the java repository, other rules are not needed
-    orchestrator.getServer().restoreProfile(FileLocation.of("src/integrationTest/resources/java-rules.xml"));
+    activeAllRulesFor("java", "javaconfig");
+    activateSpringConfigJavaRulesProfile();
 
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
-  }
-
-  private static void activeAllRulesFor(String language, String repository) {
-    ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-    var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, repository, languageRulesConfiguration, Collections.emptySet());
-    orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
   }
 
   @Test
@@ -99,7 +93,8 @@ class IacRulingTest {
   @Test
   void testCloudformation() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/cloudformation/**/*.json, ruling/src/integrationTest/resources/sources/cloudformation/**/*.json," +
+    properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/cloudformation/**/*.json, " +
+      "ruling/src/integrationTest/resources/sources/cloudformation/**/*.json," +
       "sources/cloudformation/**/*.yaml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yaml," +
       "sources/cloudformation/**/*.yml, ruling/src/integrationTest/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
@@ -139,7 +134,8 @@ class IacRulingTest {
   @Test
   void testArm() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/azureresourcemanager/**/*.json, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.json," +
+    properties.put(SONAR_INCLUSIONS_PROPERTY, "sources/azureresourcemanager/**/*.json, " +
+      "ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.json," +
       "sources/azureresourcemanager/**/*.bicep, ruling/src/integrationTest/resources/sources/azureresourcemanager/**/*.bicep");
     runRulingTest("azureresourcemanager", properties);
   }
@@ -207,5 +203,48 @@ class IacRulingTest {
       // keep server running, use CTRL-C to stop it
       Thread.sleep(Long.MAX_VALUE);
     }
+  }
+
+  private static void activeAllRulesFor(String language, String repository) {
+    ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
+    var languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, repository,
+      languageRulesConfiguration, Collections.emptySet());
+    orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
+  }
+
+  private static void activateSpringConfigJavaRulesProfile() throws IOException {
+    StringBuilder sb = new StringBuilder()
+      .append("<profile>\n")
+      .append("  <name>rules</name>\n")
+      .append("  <language>java</language>\n")
+      .append("  <rules>\n");
+
+    SpringConfigCheckList.javaChecks().stream()
+      .map(IacRulingTest::annotatedRuleKey)
+      .filter(Objects::nonNull)
+      .forEach(ruleKey -> sb.append("    <rule>\n")
+        .append("      <repositoryKey>java</repositoryKey>\n")
+        .append("      <key>").append(ruleKey).append("</key>\n")
+        .append("      <priority>INFO</priority>\n")
+        .append("    </rule>\n"));
+
+    sb.append("  </rules>\n")
+      .append("</profile>");
+
+    String profile = sb.toString();
+
+    File file = File.createTempFile("javaProfile", ".xml");
+    Files.write(file.toPath(), profile.getBytes());
+    orchestrator.getServer().restoreProfile(FileLocation.of(file));
+    Files.delete(file.toPath());
+  }
+
+  private static String annotatedRuleKey(Object annotatedClassOrObject) {
+    String key = null;
+    org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClassOrObject, org.sonar.check.Rule.class);
+    if (ruleAnnotation != null) {
+      key = ruleAnnotation.key();
+    }
+    return key;
   }
 }
