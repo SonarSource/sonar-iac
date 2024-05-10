@@ -51,17 +51,16 @@ public class WeakSSLProtocolCheck implements IacCheck {
 
   private static void checkProfile(CheckContext ctx, Profile profile) {
     Map<String, List<Tuple>> sensitiveTuples = new HashMap<>();
-    SENSITIVE_KEYS.forEach(key -> sensitiveTuples.put(key, new ArrayList<>()));
 
     for (Tuple tuple : profile.properties()) {
       var matcher = SENSITIVE_KEYS_PATTERN.matcher(tuple.key().value().value());
       if (matcher.matches() && hasSensitiveValue(tuple)) {
         String key = matcher.group("key");
-        sensitiveTuples.get(key).add(tuple);
+        sensitiveTuples.computeIfAbsent(key, k -> new ArrayList<>()).add(tuple);
       }
     }
 
-    SENSITIVE_KEYS.forEach(sensitiveKey -> reportSensitiveTuples(ctx, sensitiveTuples.get(sensitiveKey)));
+    sensitiveTuples.forEach((key, value) -> reportSensitiveTuples(ctx, value));
   }
 
   private static boolean hasSensitiveValue(Tuple tuple) {
