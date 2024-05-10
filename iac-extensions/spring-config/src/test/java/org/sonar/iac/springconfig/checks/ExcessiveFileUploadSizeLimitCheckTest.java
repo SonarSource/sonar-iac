@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.springconfig.checks;
 
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -37,10 +38,19 @@ class ExcessiveFileUploadSizeLimitCheckTest {
     SpringConfigVerifier.verify("ExcessiveFileUploadSizeLimitCheck/ExcessiveFileUploadSizeLimitCheck.yaml", new ExcessiveFileUploadSizeLimitCheck());
   }
 
+  @Test
+  void shouldDetectSensitiveValueInPropertiesWithCustomLimit() {
+    ExcessiveFileUploadSizeLimitCheck check = new ExcessiveFileUploadSizeLimitCheck();
+    check.fileUploadSizeLimit = 1024 * 1024; // 1MB
+    SpringConfigVerifier.verify("ExcessiveFileUploadSizeLimitCheck/ExcessiveFileUploadSizeLimitCheck-customRuleProperty.properties", check);
+  }
+
   @ParameterizedTest
-  @CsvSource({
+  @CsvSource(value = {
     "1, 1",
+    "1B, 1",
     "1024, 1024",
+    "1024B, 1024",
     "1KB, 1024",
     "1MB, 1048576",
     "1GB, 1073741824",
@@ -48,8 +58,12 @@ class ExcessiveFileUploadSizeLimitCheckTest {
     "5MB, 5242880",
     "256MB, 268435456",
     "1TB, 1099511627776",
-  })
-  void shouldParseSizeSpecifiers(String value, long expected) {
+    "1 byte, null",
+    "1 B, null",
+    "kilobyte, null",
+    "1PB, null",
+  }, nullValues = "null")
+  void shouldParseSizeSpecifiers(String value, @Nullable Long expected) {
     assertThat(ExcessiveFileUploadSizeLimitCheck.sizeBytes(value)).isEqualTo(expected);
   }
 }

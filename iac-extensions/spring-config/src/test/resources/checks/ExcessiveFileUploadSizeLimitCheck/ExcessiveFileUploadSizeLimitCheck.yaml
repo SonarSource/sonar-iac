@@ -15,3 +15,11 @@ spring:
       max-request-size: 2048
 unrelated:
   property: 9000000
+
+---
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB

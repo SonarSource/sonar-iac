@@ -22,6 +22,8 @@ package org.sonar.iac.springconfig.checks;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -38,7 +40,11 @@ public class ExcessiveFileUploadSizeLimitCheck implements IacCheck {
     "spring.servlet.multipart.max-file-size",
     "spring.servlet.multipart.max-request-size");
   private static final long MULTIPLIER = 1024;
-  private static final int SUFFIX_LENGTH = 2;
+  private static final Pattern DATA_SIZE_PATTERN = Pattern.compile("^(?<value>[+\\-]?\\d+)(?<suffix>[a-zA-Z]{0,2})$");
+  private static final long BYTES_IN_KB = MULTIPLIER;
+  private static final long BYTES_IN_MB = BYTES_IN_KB * MULTIPLIER;
+  private static final long BYTES_IN_GB = BYTES_IN_MB * MULTIPLIER;
+  private static final long BYTES_IN_TB = BYTES_IN_GB * MULTIPLIER;
 
   // size in bytes, taken from `ExcessiveContentRequestCheck` in sonar-java
   private static final long DEFAULT_LIMIT = 8_388_608;
@@ -62,27 +68,35 @@ public class ExcessiveFileUploadSizeLimitCheck implements IacCheck {
         return;
       }
 
-      var value = sizeBytes(valueString);
-      if (value > fileUploadSizeLimit) {
-        checkContext.reportIssue(tuple, MESSAGE_FORMAT.formatted(value, fileUploadSizeLimit));
+      var valueBytes = sizeBytes(valueString);
+      if (valueBytes != null && valueBytes > fileUploadSizeLimit) {
+        checkContext.reportIssue(tuple, MESSAGE_FORMAT.formatted(valueBytes, fileUploadSizeLimit));
       }
     }
   }
 
-  static long sizeBytes(String input) {
+  /**
+   * Parses a string representing data size similarly to
+   * <a href=https://github.com/spring-projects/spring-framework/blob/main/spring-core/src/main/java/org/springframework/util/unit/DataSize.java>Spring's DataSize</a>.
+   */
+  @CheckForNull
+  static Long sizeBytes(String input) {
     var normalized = input.toLowerCase(Locale.ROOT);
-    var suffix = "";
-    var value = normalized;
-    if (normalized.length() > SUFFIX_LENGTH) {
-      suffix = normalized.substring(normalized.length() - SUFFIX_LENGTH);
-      value = normalized.substring(0, normalized.length() - SUFFIX_LENGTH);
+
+    var matcher = DATA_SIZE_PATTERN.matcher(normalized);
+
+    if (matcher.matches()) {
+      var suffix = matcher.group("suffix");
+      var value = matcher.group("value");
+      return switch (suffix) {
+        case "b", "" -> Long.parseLong(value);
+        case "kb" -> Long.parseLong(value) * BYTES_IN_KB;
+        case "mb" -> Long.parseLong(value) * BYTES_IN_MB;
+        case "gb" -> Long.parseLong(value) * BYTES_IN_GB;
+        case "tb" -> Long.parseLong(value) * BYTES_IN_TB;
+        default -> null;
+      };
     }
-    return switch (suffix) {
-      case "kb", "kilobytes", "ofkilobytes" -> Long.parseLong(value) * MULTIPLIER;
-      case "mb", "megabytes", "ofmegabytes" -> Long.parseLong(value) * MULTIPLIER * MULTIPLIER;
-      case "gb", "gigabytes", "ofgigabytes" -> Long.parseLong(value) * MULTIPLIER * MULTIPLIER * MULTIPLIER;
-      case "tb", "terabytes", "ofterabytes" -> Long.parseLong(value) * MULTIPLIER * MULTIPLIER * MULTIPLIER * MULTIPLIER;
-      default -> Long.parseLong(normalized);
-    };
+    return null;
   }
 }
