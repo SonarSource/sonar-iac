@@ -27,13 +27,9 @@ public final class SpringConfigCheckList {
   private SpringConfigCheckList() {
   }
 
-  public static List<Class<?>> javaChecks() {
+  public static List<Class<?>> checks() {
     return List.of(
       ParsingErrorCheck.class,
       ToDoCommentCheck.class);
-  }
-
-  public static List<Class<?>> javaConfigChecks() {
-    return List.of();
   }
 }

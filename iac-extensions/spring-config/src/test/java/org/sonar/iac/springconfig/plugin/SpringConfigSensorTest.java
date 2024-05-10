@@ -58,8 +58,6 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
 
   // This property determines the repository key for all rules created in the AbstractSensorTest.checkFactory method
   // It's set to the "java" repository to be able to register the ParsingError Rule
-  // In case there is a need to initialize checks from the "javaconfig" repository, the AbstractSensorTest.checkFactory method
-  // needs to be changed to support RuleKey's.
   @Override
   protected String repositoryKey() {
     return SpringConfigExtension.JAVA_REPOSITORY_KEY;
@@ -129,7 +127,7 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
   @Test
   void shouldReturnVisitors() {
     var sensor = (SpringConfigSensor) sensor(checkFactory());
-    assertThat(sensor.visitors(context, null)).hasSize(4);
+    assertThat(sensor.visitors(context, null)).hasSize(3);
   }
 
   @ParameterizedTest
