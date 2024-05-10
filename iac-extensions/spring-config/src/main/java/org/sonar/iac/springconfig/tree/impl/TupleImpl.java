@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.springconfig.tree.impl;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -40,7 +40,12 @@ public class TupleImpl extends AbstractSpringConfigImpl implements Tuple {
 
   @Override
   public List<Tree> children() {
-    return Arrays.asList(key, value);
+    List<Tree> children = new ArrayList<>();
+    children.add(key);
+    if (value != null) {
+      children.add(value);
+    }
+    return children;
   }
 
   @Override

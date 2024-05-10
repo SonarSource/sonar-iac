@@ -19,18 +19,22 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.springconfig.utils.SpringConfigVerifier;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+class WeakSSLProtocolCheckTest {
+
+  IacCheck check = new WeakSSLProtocolCheck();
+
+  @Test
+  void shouldRaiseInPropertiesFile() {
+    SpringConfigVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.properties", check);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      ParsingErrorCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Test
+  void shouldRaiseInYamlFile() {
+    SpringConfigVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.yaml", check);
   }
+
 }

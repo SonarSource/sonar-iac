@@ -29,6 +29,7 @@ import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.springconfig.tree.api.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.catchException;
 
 class SpringConfigPropertiesParserTest {
@@ -61,8 +62,24 @@ class SpringConfigPropertiesParserTest {
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, LEADING_SPACING, CHARACTER} at dir1/dir2/foo.properties:1:1");
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, LEADING_SPACING, CHARACTER} at dir1/dir2/foo" +
+        ".properties:1:1");
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, LEADING_SPACING, CHARACTER}");
+  }
+
+  @Test
+  void shouldParsePropertyWithoutValue() {
+    var code = """
+      foo=""";
+    var parser = new SpringConfigPropertiesParser();
+    InputFileContext inputFileContext = IacTestUtils.createInputFileContextMock("foo.properties");
+
+    var tree = (File) parser.parse(code, inputFileContext);
+
+    var tuple = tree.profiles().get(0).properties().get(0);
+    assertThat(tuple.key().value().value()).isEqualTo("foo");
+    assertThat(tuple.value()).isNull();
+    assertThatNoException().isThrownBy(tuple::textRange);
   }
 }

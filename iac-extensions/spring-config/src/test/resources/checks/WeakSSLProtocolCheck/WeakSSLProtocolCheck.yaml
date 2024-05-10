@@ -1,0 +1,84 @@
+server:
+  port: 8080
+  ssl:
+    enabled: true
+    enabled-protocols: [TLSv1.1] # Noncompliant
+#                       ^^^^^^^
+    key-store: "classpath:keystore.p12"
+    key-store-password: "password"
+
+spring:
+  ssl:
+    bundle:
+      jks:
+        server:
+          options:
+            enabled-protocols: [TLSv1.1] # Noncompliant
+#                               ^^^^^^^
+          key:
+            alias: "secure-service"
+          keystore:
+            location: "classpath:keystore.p12"
+            password: "password"
+            type: "PKCS12"
+
+---
+server:
+  ssl:
+    enabled-protocols: [TLSv1.1, foo, TLSv1.0] # Noncompliant
+#                       ^^^^^^^       ^^^^^^^< 1{{Other weak protocol.}}
+
+spring:
+  ssl:
+    bundle:
+      jks:
+        server:
+          options:
+            enabled-protocols: [TLSv1.1, foo, TLSv1.0] # Noncompliant
+#                               ^^^^^^^       ^^^^^^^< 1{{Other weak protocol.}}
+
+---
+server:
+  ssl:
+    enabled-protocols:
+      - TLSv1.1 # Noncompliant{{Change this code to use a stronger protocol.}}
+#       ^^^^^^^
+      - foo
+      - TLSv1.0f # compliant because it is not a valid protocol
+      - TLSv1.2 # compliant
+      - TLSv1.0
+#       ^^^^^^^< 1{{Other weak protocol.}}
+      - TLSv1.0
+#       ^^^^^^^< 2{{Other weak protocol.}}
+
+spring:
+  ssl:
+    bundle:
+      jks:
+        server:
+          options:
+            enabled-protocols:
+              - TLSv1.1 # Noncompliant{{Change this code to use a stronger protocol.}}
+#               ^^^^^^^
+              - foo
+              - TLSv1.0
+#               ^^^^^^^< 1{{Other weak protocol.}}
+
+---
+server:
+  ssl:
+    enabledProtocols: [TLSv1.1, foo, TLSv1.0] # compliant as name of key doesn't match
+---
+server:
+  ssl:
+    enabled-protocols:
+      suffix: [TLSv1.1, foo, TLSv1.0] # compliant as name of key doesn't match
+
+---
+server:
+  ssl:
+    enabled-protocols[0]: [TLSv1.1, foo, TLSv1.0] # compliant as name of key doesn't match
+---
+server:
+  ssl:
+    enabled-protocols[0]:
