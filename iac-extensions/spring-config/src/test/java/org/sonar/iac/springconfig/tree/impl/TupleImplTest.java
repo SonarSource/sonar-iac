@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 class TupleImplTest {
 
@@ -49,15 +49,17 @@ class TupleImplTest {
   }
 
   @Test
-  void constructorTestWhenNull() {
-    TupleImpl tupleTree = new TupleImpl(null, null);
+  void constructorTestWhenValueNull() {
+    SyntaxTokenImpl keySyntaxToken = new SyntaxTokenImpl("keySyntaxToken", TextRanges.range(1, 3, 1, 7));
+    ScalarImpl keyScalar = new ScalarImpl(keySyntaxToken);
+    TupleImpl tupleTree = new TupleImpl(keyScalar, null);
 
-    assertThat(tupleTree.key()).isNull();
+    assertThat(tupleTree.key()).isEqualTo(keyScalar);
     assertThat(tupleTree.value()).isNull();
 
-    assertThat(tupleTree.children()).hasSize(2);
-    assertThat(tupleTree.children()).containsOnlyNulls();
+    assertThat(tupleTree.children()).hasSize(1);
+    assertThat(tupleTree.children()).containsExactly(keyScalar);
 
-    assertThatThrownBy(tupleTree::textRange).isInstanceOf(NullPointerException.class);
+    assertThatNoException().isThrownBy(tupleTree::textRange);
   }
 }
