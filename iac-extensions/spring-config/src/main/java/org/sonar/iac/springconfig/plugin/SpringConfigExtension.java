@@ -26,7 +26,6 @@ public final class SpringConfigExtension {
   public static final String SENSOR_NAME = "Java Config Sensor";
   public static final String LANGUAGE_KEY = "java";
   public static final String LANGUAGE_NAME = "Java";
-  public static final String JAVA_CONFIG_REPOSITORY_KEY = "javaconfig";
   public static final String JAVA_REPOSITORY_KEY = "java";
 
   private SpringConfigExtension() {
@@ -35,7 +34,6 @@ public final class SpringConfigExtension {
   public static void define(Plugin.Context context) {
     context.addExtensions(List.of(
       SpringConfigSensor.class,
-      SpringConfigRulesDefinition.class,
       SpringConfigSettings.class));
 
     context.addExtensions(SpringConfigSettings.getGeneralProperties());

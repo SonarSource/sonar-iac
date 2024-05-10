@@ -49,14 +49,12 @@ import org.sonar.iac.springconfig.parser.SpringConfigParser;
 import org.sonar.iac.springconfig.plugin.visitors.SpringConfigHighlightingVisitor;
 import org.sonar.iac.springconfig.plugin.visitors.SpringConfigMetricsVisitor;
 
-import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.JAVA_CONFIG_REPOSITORY_KEY;
 import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.JAVA_REPOSITORY_KEY;
 import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.SENSOR_NAME;
 
 public class SpringConfigSensor extends IacSensor {
   private static final Set<String> EXCLUDED_PROFILES = Set.of("dev", "test");
-  private final Checks<IacCheck> springConfigChecks;
-  private final Checks<IacCheck> javaChecks;
+  private final Checks<IacCheck> checks;
 
   public SpringConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
     CheckFactory checkFactory) {
@@ -69,13 +67,12 @@ public class SpringConfigSensor extends IacSensor {
     // That's why the sensor is hardcoding key and name and not providing a `Language` object.
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, null);
 
-    // Will instantiate all active javaConfig rules that are also in SpringConfigCheckList.javaConfigChecks()
-    springConfigChecks = checkFactory.create(SpringConfigExtension.JAVA_CONFIG_REPOSITORY_KEY);
-    springConfigChecks.addAnnotatedChecks(SpringConfigCheckList.javaConfigChecks());
-
-    // Will instantiate all active java rules that are also in SpringConfigCheckList.javaChecks()
-    javaChecks = checkFactory.create(SpringConfigExtension.JAVA_REPOSITORY_KEY);
-    javaChecks.addAnnotatedChecks(SpringConfigCheckList.javaChecks());
+    // Will instantiate all active java rules that are also in SpringConfigCheckList.checks()
+    // We don't create our own repository, as we want to raise all rules in the "java" repository for now
+    // If in the future there is the need to raise rules in a separate repository, we can create a new repository and add the rules there,
+    // basically reverting SONARIAC-1469
+    checks = checkFactory.create(SpringConfigExtension.JAVA_REPOSITORY_KEY);
+    checks.addAnnotatedChecks(SpringConfigCheckList.checks());
   }
 
   @Override
@@ -94,7 +91,7 @@ public class SpringConfigSensor extends IacSensor {
     // Do not define the sensor only on Java language, because Spring configuration files are not assigned to it.
     descriptor
       .name(SENSOR_NAME)
-      .createIssuesForRuleRepositories(JAVA_REPOSITORY_KEY, JAVA_CONFIG_REPOSITORY_KEY);
+      .createIssuesForRuleRepositories(JAVA_REPOSITORY_KEY);
 
     // The sensor shouldn't call `processFilesIndependently()`, because if a default Spring profile is defined in another file,
     // it should still be loaded.
@@ -120,8 +117,7 @@ public class SpringConfigSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     return List.of(
-      new ChecksVisitor(javaChecks, statistics),
-      new ChecksVisitor(springConfigChecks, statistics),
+      new ChecksVisitor(checks, statistics),
       new SpringConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter),
       new SpringConfigHighlightingVisitor());
   }

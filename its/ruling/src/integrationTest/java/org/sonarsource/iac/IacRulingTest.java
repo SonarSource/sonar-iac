@@ -77,7 +77,6 @@ class IacRulingTest {
   public static void setUp() throws IOException {
     LANGUAGES.forEach((String language) -> activeAllRulesFor(language, language));
 
-    activeAllRulesFor("java", "javaconfig");
     activateSpringConfigJavaRulesProfile();
 
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
@@ -219,7 +218,7 @@ class IacRulingTest {
       .append("  <language>java</language>\n")
       .append("  <rules>\n");
 
-    SpringConfigCheckList.javaChecks().stream()
+    SpringConfigCheckList.checks().stream()
       .map(IacRulingTest::annotatedRuleKey)
       .filter(Objects::nonNull)
       .forEach(ruleKey -> sb.append("    <rule>\n")

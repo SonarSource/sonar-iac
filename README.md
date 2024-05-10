@@ -94,7 +94,6 @@ Update all rule descriptions for a specific language.
 ./gradlew ruleApiUpdateDocker
 ./gradlew ruleApiUpdateKubernetes
 ./gradlew ruleApiUpdateTerraform
-./gradlew ruleApiUpdateSpringConfig
 ```
 
 #### Generate new rule description
@@ -106,7 +105,6 @@ To fetch static files for a rule SXXXX from RSPEC for one of the language, execu
 ./gradlew ruleApiUpdateRuleDocker -Prule=SXXXX
 ./gradlew ruleApiUpdateRuleKubernetes -Prule=SXXXX
 ./gradlew ruleApiUpdateRuleTerraform -Prule=SXXXX
-./gradlew ruleApiUpdateRuleSpringConfig -Prule=SXXXX
 
 ```
 
