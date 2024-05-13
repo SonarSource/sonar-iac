@@ -21,34 +21,24 @@ package org.sonar.iac.springconfig.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.springconfig.tree.api.Scalar;
-import org.sonar.iac.springconfig.tree.api.SyntaxToken;
 import org.sonar.iac.springconfig.tree.api.Tuple;
 
-import java.util.Optional;
+import java.util.Set;
 
 @Rule(key = "S3330")
-public class MisconfiguredHttpOnlyCookieFlagCheck implements IacCheck {
-  private static final String MESSAGE = "Make sure creating this cookie with \"HttpOnly\" flag set to false is safe.";
+public class MisconfiguredHttpOnlyCookieFlagCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure disabling the \"HttpOnly\" flag of this cookie is safe here.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.http-only");
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(Tuple.class, MisconfiguredHttpOnlyCookieFlagCheck::checkCookieValue);
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
-  private static void checkCookieValue(CheckContext checkContext, Tuple tuple) {
-    var key = tuple.key().value().value();
-    if ("server.servlet.session.cookie.http-only".equals(key)) {
-      var valueString = Optional.ofNullable(tuple.value())
-        .map(Scalar::value)
-        .map(SyntaxToken::value)
-        .orElse(null);
-
-      if ("false".equalsIgnoreCase(valueString)) {
-        checkContext.reportIssue(tuple, MESSAGE);
-      }
+  @Override
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if ("false".equalsIgnoreCase(value)) {
+      ctx.reportIssue(tuple, MESSAGE);
     }
   }
 }
