@@ -19,21 +19,21 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.springconfig.utils.SpringConfigVerifier;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+class DebugFeatureEnabledCheckTest {
+
+  private static final IacCheck CHECK = new DebugFeatureEnabledCheck();
+
+  @Test
+  void shouldDetectSensitiveValueInProperties() {
+    SpringConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.properties", CHECK);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      DebugFeatureEnabledCheck.class,
-      ExcessiveFileUploadSizeLimitCheck.class,
-      ParsingErrorCheck.class,
-      SecureCookieCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Test
+  void shouldDetectSensitiveValueInYaml() {
+    SpringConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.yaml", CHECK);
   }
 }

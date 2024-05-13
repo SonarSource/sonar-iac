@@ -19,21 +19,26 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import java.util.Locale;
+import java.util.Set;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.springconfig.tree.api.Tuple;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+@Rule(key = "S4507")
+public class DebugFeatureEnabledCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("debug");
+
+  @Override
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      DebugFeatureEnabledCheck.class,
-      ExcessiveFileUploadSizeLimitCheck.class,
-      ParsingErrorCheck.class,
-      SecureCookieCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Override
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if ("true".equals(value.toLowerCase(Locale.ROOT))) {
+      ctx.reportIssue(tuple, MESSAGE);
+    }
   }
 }
