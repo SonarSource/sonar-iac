@@ -1,0 +1,26 @@
+debug: true # Noncompliant {{Make sure this debug feature is deactivated before delivering the code in production.}}
+#^[sc=0;ec=12]
+---
+
+debug: tRue # Noncompliant
+
+---
+
+debug: "true" # Noncompliant
+
+---
+debug: false
+
+
+---
+debug: 5
+
+---
+
+otherkey.debug: true
+
+---
+
+debug.otherKey: true
+
+Debug: true

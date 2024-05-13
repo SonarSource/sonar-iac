@@ -29,6 +29,7 @@ public final class SpringConfigCheckList {
 
   public static List<Class<?>> checks() {
     return List.of(
+      DebugFeatureEnabledCheck.class,
       ExcessiveFileUploadSizeLimitCheck.class,
       ParsingErrorCheck.class,
       SecureCookieCheck.class,

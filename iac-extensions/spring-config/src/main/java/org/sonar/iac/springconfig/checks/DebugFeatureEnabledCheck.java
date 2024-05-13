@@ -24,10 +24,10 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.springconfig.tree.api.Tuple;
 
-@Rule(key = "S2092")
-public class SecureCookieCheck extends AbstractSensitiveKeyCheck {
-  private static final String MESSAGE = "Make sure disabling the \"secure\" flag of this cookie is safe here.";
-  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.secure");
+@Rule(key = "S4507")
+public class DebugFeatureEnabledCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("debug");
 
   @Override
   protected Set<String> sensitiveKeys() {
@@ -36,7 +36,7 @@ public class SecureCookieCheck extends AbstractSensitiveKeyCheck {
 
   @Override
   protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if ("false".equalsIgnoreCase(value)) {
+    if ("true".equalsIgnoreCase(value)) {
       ctx.reportIssue(tuple, MESSAGE);
     }
   }

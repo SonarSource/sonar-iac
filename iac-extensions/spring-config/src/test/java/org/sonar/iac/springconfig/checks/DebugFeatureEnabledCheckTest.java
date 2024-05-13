@@ -19,25 +19,21 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.Set;
-import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.springconfig.tree.api.Tuple;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.springconfig.utils.SpringConfigVerifier;
 
-@Rule(key = "S2092")
-public class SecureCookieCheck extends AbstractSensitiveKeyCheck {
-  private static final String MESSAGE = "Make sure disabling the \"secure\" flag of this cookie is safe here.";
-  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.secure");
+class DebugFeatureEnabledCheckTest {
 
-  @Override
-  protected Set<String> sensitiveKeys() {
-    return SENSITIVE_KEYS;
+  private static final IacCheck CHECK = new DebugFeatureEnabledCheck();
+
+  @Test
+  void shouldDetectSensitiveValueInProperties() {
+    SpringConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.properties", CHECK);
   }
 
-  @Override
-  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if ("false".equalsIgnoreCase(value)) {
-      ctx.reportIssue(tuple, MESSAGE);
-    }
+  @Test
+  void shouldDetectSensitiveValueInYaml() {
+    SpringConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.yaml", CHECK);
   }
 }
