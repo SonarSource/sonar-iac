@@ -1,0 +1,249 @@
+{
+"spring-config-project:sources/spring-config/baeldung-tutorials/jackson-modules/jackson-annotations/src/test/resources/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/jhipster-6/bookstore-monolith/src/main/resources/config/application-tls.yml": [
+13
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/jhipster-modules/jhipster-uaa/gateway/src/main/resources/config/application-tls.yml": [
+13
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/jhipster-modules/jhipster-uaa/quotes/src/main/resources/config/application-tls.yml": [
+13
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/jhipster-modules/jhipster-uaa/uaa/src/main/resources/config/application-tls.yml": [
+13
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/libraries-data-db/src/main/resources/application.yml": [
+10
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/messaging-modules/postgres-notify/src/test/resources/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/microservices-modules/saga-pattern/src/main/resources/application.properties": [
+32
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/patterns-modules/axon/src/main/resources/application-mongo.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/patterns-modules/ddd/src/main/resources/ddd-layers.properties": [
+6
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/patterns-modules/ddd/src/test/resources/ddd-layers-test.properties": [
+6
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/blaze-persistence/src/main/resources/application.properties": [
+8
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/r2dbc/src/main/resources/application.yml": [
+7
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/r2dbc/src/test/resources/application.yml": [
+16,
+27
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-boot-mysql/src/main/resources/application.yml": [
+40
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-boot-persistence-2/src/main/resources/application-oracle-pooling-basic.properties": [
+6
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-boot-persistence-3/src/test/resources/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-boot-persistence-4/src/test/resources/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-boot-persistence-h2/src/main/resources/application.yaml": [
+11
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-boot-persistence-mongodb/src/main/resources/connection.via.properties/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-boot-persistence/src/test/resources/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jdbc/src/main/resources/application-jdbcintro.properties": [
+6
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-enterprise-2/src/test/resources/com/baeldung/namingstrategy/quoted-lower-case-naming-strategy-on-postgres.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-enterprise-2/src/test/resources/com/baeldung/namingstrategy/quoted-upper-case-naming-strategy-on-postgres.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-enterprise-2/src/test/resources/com/baeldung/namingstrategy/spring-physical-naming-strategy-on-postgres.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-enterprise-2/src/test/resources/com/baeldung/namingstrategy/unquoted-lower-case-naming-strategy-on-postgres.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-enterprise-2/src/test/resources/com/baeldung/namingstrategy/unquoted-upper-case-naming-strategy-on-postgres.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-enterprise/src/main/resources/persistence-multiple-db-boot.properties": [
+7
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-repo-2/src/main/resources/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-jpa-repo-4/src/main/resources/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-neo4j/src/main/resources/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-data-yugabytedb/src/main/resources/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-jdbc-2/src/main/resources/jdbcclient/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-jdbc/src/main/resources/com/baeldung/spring/jdbc/batch/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-jdbc/src/main/resources/com/baeldung/spring/jdbc/replacedeprecated/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/persistence-modules/spring-jdbc/src/main/resources/com/baeldung/spring/jdbc/template/guide/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/quarkus-modules/quarkus-vs-springboot/spring-project/src/main/resources/application.properties": [
+4
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/security-modules/cas/cas-server/src/main/resources/application.yml": [
+7
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-admin/spring-boot-admin-client/src/main/resources/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-admin/spring-boot-admin-server/src/main/resources/application.properties": [
+4
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-aws/src/main/resources/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-bootstrap/src/main/resources/application-local.properties": [
+11
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-cli/src/main/resources/application.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-data-2/src/test/resources/application.properties": [
+9
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-data-3/src/main/resources/application.properties": [
+4
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-data-3/src/test/resources/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-groovy/src/main/resources/application.properties": [
+4
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-libraries-3/src/main/resources/application.yml": [
+22
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-properties-3/src/main/resources/application-multidocument-integration.properties": [
+1
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-properties-3/src/main/resources/application.properties": [
+9,
+17,
+26
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-properties-3/src/main/resources/application.yml": [
+17
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-runtime/src/main/resources/application-logging.properties": [
+7
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-runtime/src/test/resources/application-integrationtest.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-security/src/main/resources/application-authz.properties": [
+1
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-testing/src/main/resources/application.properties": [
+7
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-testing/src/test/resources/application-integrationtest.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-boot-modules/spring-boot-testing/src/test/resources/application.properties": [
+6
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bus/spring-cloud-bus-client/src/main/resources/application.yml": [
+13
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bus/spring-cloud-bus-server/src/main/resources/application.properties": [
+5,
+9
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-config/spring-cloud-config-server/src/main/resources/application.properties": [
+5
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-gateway/src/main/resources/application-resource-server.yml": [
+10
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-gateway/src/main/resources/quotes-application.properties": [
+9
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-kafka-2/src/main/resources/application-ssl.yml": [
+8,
+10
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-reactive-modules/spring-reactive-oauth/src/main/resources/webclient-auth-code-client-application.properties": [
+10
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-reactive-modules/spring-webflux-amqp/src/main/resources/application.yml": [
+6
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-remoting-modules/remoting-amqp/remoting-amqp-client/src/main/resources/application.properties": [
+10
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-remoting-modules/remoting-amqp/remoting-amqp-server/src/main/resources/application.properties": [
+10
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-2/src/main/resources/application-customlogouthandler.properties": [
+3
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-2/src/main/resources/application-mysql.properties": [
+4
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-2/src/main/resources/application-postgre.properties": [
+4
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-2/src/main/resources/application-ssl.properties": [
+12
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-2/src/test/resources/customlogouthandler/application.properties": [
+4
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-3/src/main/resources/application-httpfirewall.properties": [
+2
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-boot-3/src/main/resources/application-tls.properties": [
+11
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-x509/spring-security-web-x509-basic-auth/src/main/resources/application.properties": [
+2,
+4,
+8
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-security-modules/spring-security-web-x509/spring-security-web-x509-client-auth/src/main/resources/application.properties": [
+2,
+4,
+8,
+10
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-web-modules/spring-mvc-basics-2/src/main/resources/application.properties": [
+7
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-web-modules/spring-resttemplate-3/src/main/resources/application-ssl.properties": [
+12
+],
+"spring-config-project:sources/spring-config/baeldung-tutorials/spring-web-modules/spring-thymeleaf-3/src/main/resources/application.properties": [
+4
+]
+}
