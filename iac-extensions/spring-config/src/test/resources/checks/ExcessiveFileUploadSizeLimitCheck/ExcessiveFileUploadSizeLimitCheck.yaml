@@ -11,6 +11,14 @@ spring:
 spring:
   servlet:
     multipart:
+      max-file-size: 9000KB # Noncompliant
+      max-request-size: 9MB # Noncompliant
+
+---
+
+spring:
+  servlet:
+    multipart:
       max-file-size: 2048
       max-request-size: 2048
 unrelated:
