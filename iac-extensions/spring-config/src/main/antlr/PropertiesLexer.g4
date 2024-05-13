@@ -19,6 +19,7 @@
  */
 lexer grammar PropertiesLexer;
 
+// Adds support for CR as line terminator into the generated Java code
 @members {
 public PropertiesLexer(CharStream input, boolean crLexerCostructor) {
   super(input);
@@ -26,24 +27,20 @@ public PropertiesLexer(CharStream input, boolean crLexerCostructor) {
 }
 }
 
-LEADING_SPACING       : [ \t\f\r\n\u2028\u2029]* -> channel(HIDDEN), pushMode(CONTENT);
-
-mode CONTENT;
-
 COMMENT         : [!#] -> pushMode(COMMENT_MODE);
-CHARACTER       : ~ [!# :=\t\f] -> pushMode(KEY_MODE);
-NEWLINE         : [\r\n\u2028\u2029]+ -> popMode, pushMode(DEFAULT_MODE);
+NEWLINE         : [ \t\f\r\n\u2028\u2029]+ -> channel(HIDDEN);
 DELIMITER       : [ ]* [:=\t\f ] [ ]* -> pushMode(VALUE_MODE);
+CHARACTER       : ~ [!#:=\t\f ] -> pushMode(KEY_MODE);
 
 mode KEY_MODE;
 
-KEY_DELIMITER   : [ ]* [:=\t\f ] [ ]* -> type(DELIMITER), popMode, popMode, pushMode(VALUE_MODE);
+KEY_DELIMITER   : [ ]* [:=\t\f ] [ ]* -> type(DELIMITER), popMode, pushMode(VALUE_MODE);
 KEY_SLASH       : '\\' -> more, pushMode(INSIDE);
-KEY_CHARACTER   : ~ [ :=\r\n\u2028\u2029] -> type(CHARACTER);
+KEY_CHARACTER   : ~ [ :=\t\f\r\n\u2028\u2029] -> type(CHARACTER);
 
 mode COMMENT_MODE;
 
-COMMENT_NEW_LINE  : [\r\n\u2028\u2029]+    -> type(NEWLINE), popMode, popMode, pushMode(DEFAULT_MODE);
+COMMENT_NEW_LINE  : [\r\n\u2028\u2029]+    -> type(NEWLINE), popMode;
 COMMENT_CHAR      : ~ [\r\n\u2028\u2029]   -> type(CHARACTER);
 
 mode INSIDE;
@@ -58,6 +55,6 @@ IGNORE_SPACE : [ ]+   -> channel(HIDDEN), popMode;
 
 mode VALUE_MODE;
 
-VALUE_TERM      : [\r\n\u2028\u2029]+    -> type(NEWLINE), popMode, pushMode(DEFAULT_MODE);
+VALUE_TERM      : [\r\n\u2028\u2029]+    -> type(NEWLINE), popMode;
 VALUE_SLASH     : '\\'                   -> more, pushMode(INSIDE);
 VALUE_CHARACTER : ~ [\r\n\u2028\u2029]   -> type(CHARACTER);

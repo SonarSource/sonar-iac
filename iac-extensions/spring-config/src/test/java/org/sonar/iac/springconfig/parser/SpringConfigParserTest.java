@@ -22,14 +22,10 @@ package org.sonar.iac.springconfig.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.common.yaml.YamlLanguage;
-import org.sonar.iac.springconfig.parser.properties.SpringConfigPropertiesParser;
 import org.sonar.iac.springconfig.tree.api.File;
-import org.sonar.iac.springconfig.tree.api.SpringConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
@@ -67,7 +63,7 @@ class SpringConfigParserTest {
   void shouldThrowParseExceptionOnPropertiesFile() {
     assertThatThrownBy(() -> parser.parse("=bar", inputFilePropertiesContext))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, LEADING_SPACING, CHARACTER} at dir1/dir2/application.properties:1:1");
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, NEWLINE, CHARACTER} at dir1/dir2/application.properties:1:1");
   }
 
   @Test

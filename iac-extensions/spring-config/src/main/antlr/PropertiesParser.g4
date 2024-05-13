@@ -24,7 +24,7 @@ options {
 }
 
 propertiesFile
-    : LEADING_SPACING? (LEADING_SPACING? row)* EOF
+    : NEWLINE? (row NEWLINE?)* EOF
     ;
 
 row
@@ -46,7 +46,7 @@ eol
     ;
 
 commentText
-    : (CHARACTER|DELIMITER|COMMENT)*
+    : CHARACTER*
     ;
 
 commentStartAndText
