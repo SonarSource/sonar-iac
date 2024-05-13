@@ -46,7 +46,7 @@ public class MisconfiguredHttpOnlyCookieFlagCheck implements IacCheck {
         .map(SyntaxToken::value)
         .orElse(null);
 
-      if ("false".equals(valueString)) {
+      if ("false".equalsIgnoreCase(valueString)) {
         checkContext.reportIssue(tuple, MESSAGE);
       }
     }

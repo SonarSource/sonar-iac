@@ -11,6 +11,14 @@ server:
   servlet:
     session:
       cookie:
+        http-only: FALSE # Noncompliant
+
+---
+
+server:
+  servlet:
+    session:
+      cookie:
         http-only: true
 
 ---
