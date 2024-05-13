@@ -37,7 +37,7 @@ public abstract class AbstractSensitiveKeyCheck implements IacCheck {
 
   protected abstract Set<String> sensitiveKeys();
 
-  protected abstract void reportOnSensitiveValue(CheckContext ctx, Tuple tuple, String value);
+  protected abstract void checkValue(CheckContext ctx, Tuple tuple, String value);
 
   private void checkTuple(CheckContext ctx, Tuple tuple) {
     var key = tuple.key().value().value();
@@ -51,7 +51,7 @@ public abstract class AbstractSensitiveKeyCheck implements IacCheck {
         return;
       }
 
-      reportOnSensitiveValue(ctx, tuple, valueString);
+      checkValue(ctx, tuple, valueString);
     }
   }
 }

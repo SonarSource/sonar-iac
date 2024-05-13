@@ -53,7 +53,7 @@ public class ExcessiveFileUploadSizeLimitCheck extends AbstractSensitiveKeyCheck
   }
 
   @Override
-  protected void reportOnSensitiveValue(CheckContext ctx, Tuple tuple, String value) {
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
     var valueBytes = sizeBytes(value);
     if (valueBytes != null && valueBytes > fileUploadSizeLimit) {
       ctx.reportIssue(tuple, MESSAGE_FORMAT.formatted(valueBytes, fileUploadSizeLimit));

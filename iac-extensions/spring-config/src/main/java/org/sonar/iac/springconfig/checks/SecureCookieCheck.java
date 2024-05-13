@@ -36,7 +36,7 @@ public class SecureCookieCheck extends AbstractSensitiveKeyCheck {
   }
 
   @Override
-  protected void reportOnSensitiveValue(CheckContext ctx, Tuple tuple, String value) {
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
     if ("false".equals(value.toLowerCase(Locale.ROOT))) {
       ctx.reportIssue(tuple, MESSAGE);
     }
