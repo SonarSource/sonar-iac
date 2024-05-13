@@ -20,6 +20,7 @@
 package org.sonar.iac.springconfig.checks;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.springconfig.tree.api.Tuple;
@@ -97,6 +98,7 @@ public class HardcodedSecretsCheck extends AbstractSensitiveKeyCheck {
     "management.signalfx.metrics.export.access-token",
     "management.wavefront.api-token",
     "spring.devtools.remote.secret");
+  private static final Pattern VARIABLE = Pattern.compile("\\$\\{[^}]+}");
 
   @Override
   protected Set<String> sensitiveKeys() {
@@ -111,6 +113,6 @@ public class HardcodedSecretsCheck extends AbstractSensitiveKeyCheck {
   }
 
   private static boolean isHardcoded(String value) {
-    return !(value.isEmpty() || (value.startsWith("${") && value.endsWith("}")));
+    return !(value.isEmpty() || VARIABLE.matcher(value).find());
   }
 }
