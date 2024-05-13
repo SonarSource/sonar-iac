@@ -1,0 +1,55 @@
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false # Noncompliant {{Make sure disabling the "secure" flag of this cookie is safe here.}}
+#       ^^^^^^^^^^^^^
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true # compliant
+
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: unrelated # compliant
+
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: fAlSe # Noncompliant
+#       ^^^^^^^^^^^^^
+
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: "false" # Noncompliant
+#       ^^^^^^^^^^^^^^^
+
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: 5
+
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        unsecure: false

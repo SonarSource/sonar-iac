@@ -19,24 +19,20 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.springconfig.tree.api.Scalar;
-import org.sonar.iac.springconfig.tree.api.SyntaxToken;
 import org.sonar.iac.springconfig.tree.api.Tuple;
 
 @Rule(key = "S5693")
-public class ExcessiveFileUploadSizeLimitCheck implements IacCheck {
-  private static final String MESSAGE_FORMAT = "The content length limit of %s bytes is greater than the defined limit of %d; make sure it is safe here.";
-  private static final List<String> SENSITIVE_KEYS = List.of(
+public class ExcessiveFileUploadSizeLimitCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE_FORMAT = "The content length limit of %s bytes is greater than the defined limit of %d; make sure " +
+    "it is safe here.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of(
     "spring.servlet.multipart.max-file-size",
     "spring.servlet.multipart.max-request-size");
   private static final long MULTIPLIER = 1024;
@@ -52,26 +48,15 @@ public class ExcessiveFileUploadSizeLimitCheck implements IacCheck {
   public long fileUploadSizeLimit = DEFAULT_LIMIT;
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(Tuple.class, this::checkFileUploadSizeLimit);
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
-  private void checkFileUploadSizeLimit(CheckContext checkContext, Tuple tuple) {
-    var key = tuple.key().value().value();
-    if (SENSITIVE_KEYS.contains(key)) {
-      var valueString = Optional.ofNullable(tuple.value())
-        .map(Scalar::value)
-        .map(SyntaxToken::value)
-        .orElse(null);
-
-      if (valueString == null) {
-        return;
-      }
-
-      var valueBytes = sizeBytes(valueString);
-      if (valueBytes != null && valueBytes > fileUploadSizeLimit) {
-        checkContext.reportIssue(tuple, MESSAGE_FORMAT.formatted(valueBytes, fileUploadSizeLimit));
-      }
+  @Override
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    var valueBytes = sizeBytes(value);
+    if (valueBytes != null && valueBytes > fileUploadSizeLimit) {
+      ctx.reportIssue(tuple, MESSAGE_FORMAT.formatted(valueBytes, fileUploadSizeLimit));
     }
   }
 

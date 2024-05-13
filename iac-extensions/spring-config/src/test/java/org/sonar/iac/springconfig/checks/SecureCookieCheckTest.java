@@ -19,20 +19,21 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.springconfig.utils.SpringConfigVerifier;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+class SecureCookieCheckTest {
+
+  private static final IacCheck CHECK = new SecureCookieCheck();
+
+  @Test
+  void shouldDetectSensitiveValueInProperties() {
+    SpringConfigVerifier.verify("SecureCookieCheck/SecureCookieCheck.properties", CHECK);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      ExcessiveFileUploadSizeLimitCheck.class,
-      ParsingErrorCheck.class,
-      SecureCookieCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Test
+  void shouldDetectSensitiveValueInYaml() {
+    SpringConfigVerifier.verify("SecureCookieCheck/SecureCookieCheck.yaml", CHECK);
   }
 }

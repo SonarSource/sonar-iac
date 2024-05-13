@@ -1,0 +1,12 @@
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
