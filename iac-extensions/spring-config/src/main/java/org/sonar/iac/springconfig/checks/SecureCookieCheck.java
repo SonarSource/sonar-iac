@@ -19,20 +19,26 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import java.util.Locale;
+import java.util.Set;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.springconfig.tree.api.Tuple;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+@Rule(key = "S2092")
+public class SecureCookieCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure disabling the \"secure\" flag of this cookie is safe here.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.secure");
+
+  @Override
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      ExcessiveFileUploadSizeLimitCheck.class,
-      ParsingErrorCheck.class,
-      SecureCookieCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Override
+  protected void reportOnSensitiveValue(CheckContext ctx, Tuple tuple, String value) {
+    if ("false".equals(value.toLowerCase(Locale.ROOT))) {
+      ctx.reportIssue(tuple, MESSAGE);
+    }
   }
 }
