@@ -19,23 +19,26 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.springconfig.tree.api.Tuple;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+import java.util.Set;
+
+@Rule(key = "S3330")
+public class MisconfiguredHttpOnlyCookieFlagCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure disabling the \"HttpOnly\" flag of this cookie is safe here.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.http-only");
+
+  @Override
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      DebugFeatureEnabledCheck.class,
-      ExcessiveFileUploadSizeLimitCheck.class,
-      HardcodedSecretsCheck.class,
-      MisconfiguredHttpOnlyCookieFlagCheck.class,
-      ParsingErrorCheck.class,
-      SecureCookieCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Override
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if ("false".equalsIgnoreCase(value)) {
+      ctx.reportIssue(tuple, MESSAGE);
+    }
   }
 }

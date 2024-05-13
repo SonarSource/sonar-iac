@@ -1,0 +1,34 @@
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: false # Noncompliant {{Make sure disabling the "HttpOnly" flag of this cookie is safe here.}}
+#       ^^^^^^^^^^^^^^^^
+
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: FALSE # Noncompliant
+
+---
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+
+---
+
+http-only: true
+
+---
+
+other:
+  servlet:
+    session:
+      cookie:
+        http-only: true
