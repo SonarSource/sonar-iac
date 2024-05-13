@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.Locale;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -37,7 +36,7 @@ public class DebugFeatureEnabledCheck extends AbstractSensitiveKeyCheck {
 
   @Override
   protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if ("true".equals(value.toLowerCase(Locale.ROOT))) {
+    if ("true".equalsIgnoreCase(value)) {
       ctx.reportIssue(tuple, MESSAGE);
     }
   }

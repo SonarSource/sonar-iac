@@ -22,3 +22,5 @@ otherkey.debug: true
 ---
 
 debug.otherKey: true
+
+Debug: true
