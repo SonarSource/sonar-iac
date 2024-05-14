@@ -121,7 +121,7 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
       .range(0, sequenceNode.getValue().size())
       .mapToObj(index -> {
         var node = sequenceNode.getValue().get(index);
-        var keyPrefix = "[%d]".formatted(index);
+        var keyPrefix = "[" + index + "]";
         return convert(node)
           .map((TupleBuilder childTuple) -> childTuple.prefixKeyDelimited(keyPrefix, node.getClass()));
       })
@@ -129,7 +129,7 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
   }
 
   public static class TupleBuilder {
-    private String key = "";
+    private final List<String> keyInReverse = new ArrayList<>();
     private TextRange keyTextRange;
     private String value;
     private TextRange valueTextRange;
@@ -155,18 +155,27 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
         // in this case, we set the keyTextRange the same as the valueTextRange
         keyTextRange = valueTextRange;
       }
-      var keyToken = new SyntaxTokenImpl(key, keyTextRange);
+      var keyToken = new SyntaxTokenImpl(buildKey(), keyTextRange);
       var valueToken = new SyntaxTokenImpl(value, valueTextRange);
       return new TupleImpl(new ScalarImpl(keyToken), new ScalarImpl(valueToken));
     }
 
-    public TupleBuilder prefixKeyDelimited(String prefix, Class<? extends Node> followingNodeType) {
-      var formatString = "%s.%s";
-      if (followingNodeType == ScalarNode.class || followingNodeType == SequenceNode.class) {
-        // In case the following node type is a scalar, the key is empty and we don't need the delimiter
-        formatString = "%s%s";
+    public String buildKey() {
+      var sb = new StringBuilder();
+
+      for (int i = keyInReverse.size() - 1; i >= 0; i--) {
+        sb.append(keyInReverse.get(i));
       }
-      key = formatString.formatted(prefix, key);
+
+      return sb.toString();
+    }
+
+    public TupleBuilder prefixKeyDelimited(String prefix, Class<? extends Node> followingNodeType) {
+      // In case the following node type is a scalar, the key is empty and we don't need the delimiter
+      if (followingNodeType != ScalarNode.class && followingNodeType != SequenceNode.class) {
+        keyInReverse.add(".");
+      }
+      keyInReverse.add(prefix);
       return this;
     }
   }

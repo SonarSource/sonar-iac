@@ -19,14 +19,13 @@
  */
 package org.sonar.iac.springconfig.checks;
 
-import java.util.Optional;
 import java.util.Set;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.springconfig.tree.api.Scalar;
-import org.sonar.iac.springconfig.tree.api.SyntaxToken;
 import org.sonar.iac.springconfig.tree.api.Tuple;
+
+import static org.sonar.iac.springconfig.tree.utils.SpringConfigUtils.getStringValue;
 
 public abstract class AbstractSensitiveKeyCheck implements IacCheck {
 
@@ -42,16 +41,11 @@ public abstract class AbstractSensitiveKeyCheck implements IacCheck {
   private void checkTuple(CheckContext ctx, Tuple tuple) {
     var key = tuple.key().value().value();
     if (sensitiveKeys().contains(key)) {
-      var valueString = Optional.ofNullable(tuple.value())
-        .map(Scalar::value)
-        .map(SyntaxToken::value)
-        .orElse(null);
+      var valueString = getStringValue(tuple);
 
-      if (valueString == null) {
-        return;
+      if (valueString != null) {
+        checkValue(ctx, tuple, valueString);
       }
-
-      checkValue(ctx, tuple, valueString);
     }
   }
 }

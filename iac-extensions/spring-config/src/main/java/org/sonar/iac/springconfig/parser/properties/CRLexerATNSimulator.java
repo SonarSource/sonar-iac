@@ -27,10 +27,10 @@ import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.dfa.DFA;
 
 /**
- * The ANTLR does not handle correctly locations when input contains CR (carriage return - \r) as a line separator.
- * The \r\n is handle correctly.
+ * ANTLR does not handle correctly locations when the input contains CR (carriage return - \r) as a line separator.
+ * The \r\n is handled correctly.
  * The \r as line separator is rare, but it should be supported.
- * This class fix the behaviour.
+ * This class fixes the behaviour.
  * The ANTLR author opinion:
  * https://github.com/antlr/antlr4/pull/2519#issuecomment-1008069063
  */
