@@ -129,7 +129,7 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
   }
 
   public static class TupleBuilder {
-    private final List<String> keyInReverse = new ArrayList<>();
+    private final List<String> keysReversed = new ArrayList<>();
     private TextRange keyTextRange;
     private String value;
     private TextRange valueTextRange;
@@ -155,16 +155,16 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
         // in this case, we set the keyTextRange the same as the valueTextRange
         keyTextRange = valueTextRange;
       }
-      var keyToken = new SyntaxTokenImpl(buildKey(), keyTextRange);
+      var keyToken = new SyntaxTokenImpl(buildKey(keysReversed), keyTextRange);
       var valueToken = new SyntaxTokenImpl(value, valueTextRange);
       return new TupleImpl(new ScalarImpl(keyToken), new ScalarImpl(valueToken));
     }
 
-    public String buildKey() {
+    private static String buildKey(List<String> keysReversed) {
       var sb = new StringBuilder();
 
-      for (int i = keyInReverse.size() - 1; i >= 0; i--) {
-        sb.append(keyInReverse.get(i));
+      for (int i = keysReversed.size() - 1; i >= 0; i--) {
+        sb.append(keysReversed.get(i));
       }
 
       return sb.toString();
@@ -173,9 +173,9 @@ public class SpringConfigYamlConverter implements IacYamlConverter<File, Stream<
     public TupleBuilder prefixKeyDelimited(String prefix, Class<? extends Node> followingNodeType) {
       // In case the following node type is a scalar, the key is empty and we don't need the delimiter
       if (followingNodeType != ScalarNode.class && followingNodeType != SequenceNode.class) {
-        keyInReverse.add(".");
+        keysReversed.add(".");
       }
-      keyInReverse.add(prefix);
+      keysReversed.add(prefix);
       return this;
     }
   }
