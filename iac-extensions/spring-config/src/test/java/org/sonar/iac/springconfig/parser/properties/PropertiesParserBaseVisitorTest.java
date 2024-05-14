@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -1004,7 +1003,7 @@ class PropertiesParserBaseVisitorTest {
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, LEADING_SPACING, CHARACTER} at null:1:1");
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, WHITESPACE, CHARACTER} at null:1:1");
   }
 
   @Test
@@ -1054,6 +1053,23 @@ class PropertiesParserBaseVisitorTest {
       "visitKey foo",
       "visitKey bar",
       "visitEol \\n");
+  }
+
+  @Test
+  void shouldParseMultilineKey() {
+    var code = """
+      multiline\\
+          key=This is multiline key value""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile multilinekey=This is multiline key value<EOF><EOF>",
+      "visitRow multilinekey=This is multiline key value<EOF>",
+      "visitLine multilinekey=This is multiline key value<EOF>",
+      "visitKey multilinekey",
+      "visitKey This is multiline key value",
+      "visitEol <EOF>");
   }
 
   private static String printable(String input) {

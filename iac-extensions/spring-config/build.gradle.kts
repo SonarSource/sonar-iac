@@ -43,3 +43,10 @@ tasks.sourcesJar {
 configurations.testImplementation.configure {
     extendsFrom(configurations.compileOnly.get())
 }
+
+spotless {
+    antlr4 {
+        target("src/main/antlr/**/*.g4")
+        licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
+    }
+}
