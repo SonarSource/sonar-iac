@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SpringConfigYamlPreprocessorTest {
   @Test
   void shouldKeepValidYaml() {
+    // language=yaml
     var code = """
       foo:
         bar: baz
@@ -33,6 +34,12 @@ class SpringConfigYamlPreprocessorTest {
       ---
       # block comment after
       foo: bar
+      --- foo: bar # inline comment
+      --- !foo bar
+      --- >
+        foo
+      --- |
+        foo
       """;
     assertEquals(code, new SpringConfigYamlPreprocessor().preprocess(code));
   }

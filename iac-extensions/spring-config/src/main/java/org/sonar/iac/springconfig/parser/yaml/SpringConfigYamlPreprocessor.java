@@ -19,23 +19,34 @@
  */
 package org.sonar.iac.springconfig.parser.yaml;
 
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SpringConfigYamlPreprocessor {
+  private static final Pattern LINE_SEPARATORS = Pattern.compile("(\n|\r|\r\n|\u2028|\u2029)");
   private static final String DOCUMENT_BREAK = "---";
   private static final int DOCUMENT_BREAK_LENGTH = DOCUMENT_BREAK.length();
 
   public String preprocess(String source) {
-    return Stream.of(source.split("\n", -1))
+    var lines = LINE_SEPARATORS.split(source, -1);
+
+    if (Stream.of(lines).noneMatch(SpringConfigYamlPreprocessor::containsInlineCommentAfterDocumentBreak)) {
+      return source;
+    }
+
+    return Stream.of(lines)
       .map(SpringConfigYamlPreprocessor::removeInlineCommentAfterDocumentBreak)
       .collect(Collectors.joining("\n"));
   }
 
+  private static boolean containsInlineCommentAfterDocumentBreak(String line) {
+    return line.startsWith(DOCUMENT_BREAK);
+  }
+
   private static String removeInlineCommentAfterDocumentBreak(String line) {
-    var trimmed = line.trim();
-    if (trimmed.startsWith(DOCUMENT_BREAK)) {
-      var textAfterBreak = trimmed.substring(DOCUMENT_BREAK_LENGTH).trim();
+    if (line.startsWith(DOCUMENT_BREAK)) {
+      var textAfterBreak = line.substring(DOCUMENT_BREAK_LENGTH).trim();
       if (textAfterBreak.startsWith("#")) {
         return line.substring(0, line.indexOf(DOCUMENT_BREAK) + DOCUMENT_BREAK_LENGTH);
       }
