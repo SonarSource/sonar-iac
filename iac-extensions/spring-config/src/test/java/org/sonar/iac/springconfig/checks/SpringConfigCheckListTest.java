@@ -20,7 +20,6 @@
 package org.sonar.iac.springconfig.checks;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.testing.AbstractCheckListTest;
 
