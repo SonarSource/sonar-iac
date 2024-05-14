@@ -24,7 +24,7 @@ options {
 }
 
 propertiesFile
-    : NEWLINE? (row NEWLINE?)* EOF
+    : WHITESPACE? row* EOF
     ;
 
 row
@@ -41,18 +41,18 @@ key
     ;
 
 eol
-    : NEWLINE+
+    : WHITESPACE+
     | EOF
     ;
 
-commentText
-    : CHARACTER*
+comment
+    : commentStartAndText eol
     ;
 
 commentStartAndText
     : COMMENT commentText
     ;
 
-comment
-    : commentStartAndText eol
+commentText
+    : CHARACTER*
     ;

@@ -1003,7 +1003,7 @@ class PropertiesParserBaseVisitorTest {
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, NEWLINE, CHARACTER} at null:1:1");
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, WHITESPACE, CHARACTER} at null:1:1");
   }
 
   @Test
@@ -1053,6 +1053,23 @@ class PropertiesParserBaseVisitorTest {
       "visitKey foo",
       "visitKey bar",
       "visitEol \\n");
+  }
+
+  @Test
+  void shouldParseMultilineKey() {
+    var code = """
+      multiline\\
+          key=This is multiline key value""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile multilinekey=This is multiline key value<EOF><EOF>",
+      "visitRow multilinekey=This is multiline key value<EOF>",
+      "visitLine multilinekey=This is multiline key value<EOF>",
+      "visitKey multilinekey",
+      "visitKey This is multiline key value",
+      "visitEol <EOF>");
   }
 
   private static String printable(String input) {

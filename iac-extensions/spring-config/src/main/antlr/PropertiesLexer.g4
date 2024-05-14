@@ -28,7 +28,7 @@ public PropertiesLexer(CharStream input, boolean crLexerCostructor) {
 }
 
 COMMENT         : [!#] -> pushMode(COMMENT_MODE);
-NEWLINE         : [ \t\f\r\n\u2028\u2029]+ -> channel(HIDDEN);
+WHITESPACE         : [ \t\f\r\n\u2028\u2029]+ -> channel(HIDDEN);
 DELIMITER       : [ ]* [:=\t\f ] [ ]* -> pushMode(VALUE_MODE);
 CHARACTER       : ~ [!#:=\t\f ] -> pushMode(KEY_MODE);
 
@@ -40,7 +40,7 @@ KEY_CHARACTER   : ~ [ :=\t\f\r\n\u2028\u2029] -> type(CHARACTER);
 
 mode COMMENT_MODE;
 
-COMMENT_NEW_LINE  : [\r\n\u2028\u2029]+    -> type(NEWLINE), popMode;
+COMMENT_NEW_LINE  : [\r\n\u2028\u2029]+    -> type(WHITESPACE), popMode;
 COMMENT_CHAR      : ~ [\r\n\u2028\u2029]   -> type(CHARACTER);
 
 mode INSIDE;
@@ -55,6 +55,6 @@ IGNORE_SPACE : [ ]+   -> channel(HIDDEN), popMode;
 
 mode VALUE_MODE;
 
-VALUE_TERM      : [\r\n\u2028\u2029]+    -> type(NEWLINE), popMode;
+VALUE_TERM      : [\r\n\u2028\u2029]+    -> type(WHITESPACE), popMode;
 VALUE_SLASH     : '\\'                   -> more, pushMode(INSIDE);
 VALUE_CHARACTER : ~ [\r\n\u2028\u2029]   -> type(CHARACTER);
