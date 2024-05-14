@@ -21,7 +21,10 @@ package org.sonar.iac.common.yaml;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
+import org.snakeyaml.engine.v2.exceptions.ScannerException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
@@ -29,6 +32,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,9 +70,44 @@ class YamlParserTest {
   @Test
   void parse_recursion() {
     Exception exception = assertThrows(ParserException.class, () -> parser.parse("some_key: &some_anchor\n  sub_key: *some_anchor", inputFileContext));
-    assertThat(exception.getMessage()).isEqualTo("Recursive node found\n" +
-      " in reader, line 1, column 11:\n" +
-      "    some_key: &some_anchor\n" +
-      "              ^\n");
+    assertThat(exception.getMessage()).isEqualTo("""
+      Recursive node found
+       in reader, line 1, column 11:
+          some_key: &some_anchor
+                    ^
+      """);
+  }
+
+  @Test
+  void testSnakeyamlSucceeding() {
+    // language=yaml
+    var validYaml = """
+      foo:
+        bar: baz
+      # block comment before
+      ---
+      # block comment after
+      foo: bar
+      --- !foo bar
+      --- >
+        foo
+      --- |
+        foo
+      """;
+
+    assertThatNoException().isThrownBy(() -> parser.parse(validYaml, inputFileContext));
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+    // language=yaml
+    strings = {
+      "--- ###",
+      "--- foo ###",
+      "--- foo: bar ###",
+    })
+  void testSnakeyamlFailing(String input) {
+    assertThatThrownBy(() -> parser.parse(input, inputFileContext))
+      .isOfAnyClassIn(ParserException.class, ScannerException.class, ClassCastException.class);
   }
 }

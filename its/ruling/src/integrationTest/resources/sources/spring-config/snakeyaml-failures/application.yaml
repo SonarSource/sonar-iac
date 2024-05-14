@@ -1,0 +1,14 @@
+# This file demonstrates a limitation of snakeyaml-engine:
+# comment after --- on line 10 will lead scanner to a crash.
+# To work around the issue, the preprocessor removes the comment,
+# however we lose the information to raise an S1135 finding.
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/exampledb
+
+--- # profile with credentials for the DB; TODO this will not raise S1135
+spring:
+  datasource:
+    user: root
+    password: root
