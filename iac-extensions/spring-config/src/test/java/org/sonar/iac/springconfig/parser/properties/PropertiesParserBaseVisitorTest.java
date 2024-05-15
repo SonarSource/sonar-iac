@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.springconfig.parser.properties;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -639,6 +642,33 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
+  void shouldParseKeyWithoutValueAfterAnotherKeyValuePair() {
+    var code = """
+      foo1=bar1
+      foo2
+      foo3=bar3""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo1=bar1\\nfoo2\\nfoo3=bar3<EOF><EOF>",
+      "visitRow foo1=bar1\\n",
+      "visitLine foo1=bar1\\n",
+      "visitKey foo1",
+      "visitKey bar1",
+      "visitEol \\n",
+      "visitRow foo2\\n",
+      "visitLine foo2\\n",
+      "visitKey foo2",
+      "visitEol \\n",
+      "visitRow foo3=bar3<EOF>",
+      "visitLine foo3=bar3<EOF>",
+      "visitKey foo3",
+      "visitKey bar3",
+      "visitEol <EOF>");
+  }
+
+  @Test
   void shouldParseKeyEmptyValue() {
     var code = "foo=";
 
@@ -1014,10 +1044,21 @@ class PropertiesParserBaseVisitorTest {
   }
 
   private void parseProperties(String code) {
-    var propertiesFileContext = createPropertiesFileContext(code);
+    String stdErrOutput = "";
+    try (var outputStream = new ByteArrayOutputStream(); var printStream = new PrintStream(outputStream)) {
+      System.setErr(printStream);
 
-    visitor.visitPropertiesFile(propertiesFileContext);
-    visitorTextRanges.visitPropertiesFile(propertiesFileContext);
+      var propertiesFileContext = createPropertiesFileContext(code);
+      stdErrOutput = outputStream.toString();
+
+      visitor.visitPropertiesFile(propertiesFileContext);
+      visitorTextRanges.visitPropertiesFile(propertiesFileContext);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    if (!stdErrOutput.isBlank()) {
+      throw new RuntimeException("Found output in standard err:\n" + stdErrOutput);
+    }
   }
 
   @Test
