@@ -2,6 +2,10 @@
 # DevInfra modules
 load("github.com/SonarSource/cirrus-modules@v2", "load_features")
 # Modules
+load(
+    "github.com/SonarSource/cirrus-modules/cloud-native/helper.star@analysis/master",
+    "merge_dict"
+)
 load(".cirrus/modules/env.star", "env")
 load(
     ".cirrus/modules/build.star",
@@ -16,14 +20,6 @@ load(
     "qa_ruling_task"
 )
 load(".cirrus/modules/promote.star", "promote_task")
-
-
-def merge_dict(target, source):
-    for key in source.keys():
-        if target.get(key) == None:
-            target.update({key: source[key]})
-        else:
-            target[key].update(source[key])
 
 
 def main(ctx):
