@@ -68,4 +68,29 @@ class SpringConfigYamlPreprocessorTest {
       """;
     assertEquals(expected, new SpringConfigYamlPreprocessor().preprocess(code));
   }
+
+  @Test
+  void shouldTransformMavenSubstitutions() {
+    // language=yaml
+    var code = """
+      foo: @maven.property@
+      foo2: @maven.property@-suffix
+      foo3: '@maven.property@'
+      bar: prefix-@maven.property@-suffix
+      baz: |
+        @maven.property@
+      """;
+    // language=yaml
+    var expected = """
+      foo: 'maven.property'
+      foo2: 'maven.property'-suffix
+      foo3: '@maven.property@'
+      bar: prefix-@maven.property@-suffix
+      baz: |
+        @maven.property@
+      """;
+    var preprocessor = new SpringConfigYamlPreprocessor();
+
+    assertEquals(expected, preprocessor.preprocess(code));
+  }
 }

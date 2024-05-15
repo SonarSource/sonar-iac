@@ -21,7 +21,9 @@ package org.sonar.iac.springconfig.parser.yaml;
 
 import java.util.List;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.snakeyaml.engine.v2.nodes.Node;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.IacYamlConverter;
 import org.sonar.iac.common.yaml.IacYamlParser;
 import org.sonar.iac.springconfig.tree.api.File;
@@ -29,6 +31,7 @@ import org.sonar.iac.springconfig.tree.api.File;
 public class SpringConfigYamlParser implements IacYamlParser<File> {
 
   private final IacYamlConverter<File, Stream<SpringConfigYamlConverter.TupleBuilder>> converter;
+  private final SpringConfigYamlPreprocessor preprocessor = new SpringConfigYamlPreprocessor();
 
   public SpringConfigYamlParser() {
     this(new SpringConfigYamlConverter());
@@ -36,6 +39,11 @@ public class SpringConfigYamlParser implements IacYamlParser<File> {
 
   public SpringConfigYamlParser(IacYamlConverter<File, Stream<SpringConfigYamlConverter.TupleBuilder>> converter) {
     this.converter = converter;
+  }
+
+  @Override
+  public File parse(String source, @Nullable InputFileContext inputFileContext) {
+    return IacYamlParser.super.parse(preprocessor.preprocess(source), inputFileContext);
   }
 
   @Override

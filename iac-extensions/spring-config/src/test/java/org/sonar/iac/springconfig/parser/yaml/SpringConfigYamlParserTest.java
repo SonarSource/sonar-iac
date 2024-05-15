@@ -381,4 +381,15 @@ class SpringConfigYamlParserTest {
     Profile profile = file.profiles().get(1);
     assertThat(profile.name()).isEqualTo(expectedProfileName);
   }
+
+  @Test
+  void shouldAdjustMavenSubstitutions() {
+    var code = "foo: @maven.property@";
+
+    var file = (File) parser.parse(code, inputFileContext);
+
+    var scalar = file.profiles().get(0).properties().get(0).value();
+    assertThat(scalar.value().value()).isEqualTo("maven.property");
+    TextRangeAssert.assertThat(scalar.textRange()).hasRange(1, 5, 1, 21);
+  }
 }

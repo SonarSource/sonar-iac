@@ -26,7 +26,6 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.springconfig.parser.properties.SpringConfigPropertiesParser;
 import org.sonar.iac.springconfig.parser.yaml.SpringConfigYamlParser;
-import org.sonar.iac.springconfig.parser.yaml.SpringConfigYamlPreprocessor;
 import org.sonar.iac.springconfig.tree.api.SpringConfig;
 
 import static org.sonar.iac.springconfig.plugin.SpringConfigSensor.isPropertiesFile;
@@ -35,16 +34,13 @@ import static org.sonar.iac.springconfig.plugin.SpringConfigSensor.isYamlFile;
 public class SpringConfigParser implements TreeParser<Tree> {
 
   private static final SpringConfigYamlParser YAML_PARSER = new SpringConfigYamlParser();
-  private static final SpringConfigYamlPreprocessor YAML_PREPROCESSOR = new SpringConfigYamlPreprocessor();
   private static final SpringConfigPropertiesParser PROPERTIES_PARSER = new SpringConfigPropertiesParser();
 
   @Override
   public SpringConfig parse(String source, @Nullable InputFileContext inputFileContext) {
     if (inputFileContext != null) {
       if (isYamlFile(inputFileContext)) {
-        return YAML_PARSER.parse(
-          YAML_PREPROCESSOR.preprocess(source),
-          inputFileContext);
+        return YAML_PARSER.parse(source, inputFileContext);
       } else if (isPropertiesFile(inputFileContext)) {
         return PROPERTIES_PARSER.parse(source, inputFileContext);
       }

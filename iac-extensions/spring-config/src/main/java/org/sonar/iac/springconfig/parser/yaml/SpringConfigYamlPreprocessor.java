@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.springconfig.parser.yaml;
 
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,21 +28,21 @@ public class SpringConfigYamlPreprocessor {
   private static final Pattern LINE_SEPARATORS = Pattern.compile("(\n|\r|\r\n|\u2028|\u2029)");
   private static final String DOCUMENT_BREAK = "---";
   private static final int DOCUMENT_BREAK_LENGTH = DOCUMENT_BREAK.length();
+  private static final Pattern MAVEN_VARIABLE_AT_TOKEN_START = Pattern.compile("([^:]++:\\p{javaWhitespace}*)@(?<name>[^@]++)@(.*+)");
+  private static final Predicate<String> containsInlineCommentAfterDocumentBreak = line -> line.startsWith(DOCUMENT_BREAK);
+  private static final Predicate<String> containsMavenVariableAtTokenStart = line -> MAVEN_VARIABLE_AT_TOKEN_START.matcher(line).matches();
 
   public String preprocess(String source) {
     var lines = LINE_SEPARATORS.split(source, -1);
 
-    if (Stream.of(lines).noneMatch(SpringConfigYamlPreprocessor::containsInlineCommentAfterDocumentBreak)) {
+    if (Stream.of(lines).noneMatch(containsInlineCommentAfterDocumentBreak.or(containsMavenVariableAtTokenStart))) {
       return source;
     }
 
     return Stream.of(lines)
       .map(SpringConfigYamlPreprocessor::removeInlineCommentAfterDocumentBreak)
+      .map(SpringConfigYamlPreprocessor::transformMavenSubstitutions)
       .collect(Collectors.joining("\n"));
-  }
-
-  private static boolean containsInlineCommentAfterDocumentBreak(String line) {
-    return line.startsWith(DOCUMENT_BREAK);
   }
 
   private static String removeInlineCommentAfterDocumentBreak(String line) {
@@ -52,5 +53,13 @@ public class SpringConfigYamlPreprocessor {
       }
     }
     return line;
+  }
+
+  /**
+   * Surround Maven variable substitution in quotes instead of '@' to avoid parsing issues.
+   * We don't resolve these variables, so we shouldn't lose information by doing this.
+   */
+  private static String transformMavenSubstitutions(String line) {
+    return MAVEN_VARIABLE_AT_TOKEN_START.matcher(line).replaceAll("$1'${name}'$3");
   }
 }

@@ -19,25 +19,7 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
-import java.util.Objects;
-
-public class TextPointer implements Comparable<TextPointer> {
-
-  private final int line;
-  private final int lineOffset;
-
-  public TextPointer(int line, int lineOffset) {
-    this.line = line;
-    this.lineOffset = lineOffset;
-  }
-
-  public int line() {
-    return line;
-  }
-
-  public int lineOffset() {
-    return lineOffset;
-  }
+public record TextPointer(int line, int lineOffset) implements Comparable<TextPointer> {
 
   @Override
   public int compareTo(TextPointer other) {
@@ -47,20 +29,4 @@ public class TextPointer implements Comparable<TextPointer> {
     return Integer.compare(this.line, other.line());
   }
 
-  @Override
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (other == null || getClass() != other.getClass()) {
-      return false;
-    }
-    TextPointer otherPointer = (TextPointer) other;
-    return line == otherPointer.line && lineOffset == otherPointer.lineOffset;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(line, lineOffset);
-  }
 }

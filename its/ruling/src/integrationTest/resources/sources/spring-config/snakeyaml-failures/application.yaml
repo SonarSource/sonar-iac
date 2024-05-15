@@ -12,3 +12,14 @@ spring:
   datasource:
     user: root
     password: root
+
+---
+
+info:
+  app:
+    name: ${spring.application.name}
+    # If not preprocessed, this line would make snakeyaml crash
+    encoding: @project.build.sourceEncoding@
+    java:
+      source: @java.version@
+      target: @java.version@
