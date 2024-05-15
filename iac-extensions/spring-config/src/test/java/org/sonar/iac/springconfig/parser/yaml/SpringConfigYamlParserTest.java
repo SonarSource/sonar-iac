@@ -383,7 +383,7 @@ class SpringConfigYamlParserTest {
   }
 
   @Test
-  void shouldAdjustMavenSubstitutions() {
+  void shouldAdjustMavenVariables() {
     var code = "foo: @maven.property@";
 
     var file = (File) parser.parse(code, inputFileContext);
@@ -391,5 +391,21 @@ class SpringConfigYamlParserTest {
     var scalar = file.profiles().get(0).properties().get(0).value();
     assertThat(scalar.value().value()).isEqualTo("maven.property");
     TextRangeAssert.assertThat(scalar.textRange()).hasRange(1, 5, 1, 21);
+  }
+
+  @Test
+  void shouldNotFailOnMavenVariables() {
+    // language=yaml
+    var code = """
+      foo: @maven.property@
+      foo2: @maven.property@-suffix
+      foo3: '@maven.property@'
+      bar: prefix-@maven.property@-suffix
+      bar2: prefix-@maven.property1@-@maven.property2@-suffix
+      baz: |
+        @maven.property@
+      """;
+
+    assertThatNoException().isThrownBy(() -> parser.parse(code, inputFileContext));
   }
 }

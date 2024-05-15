@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SpringConfigYamlPreprocessor {
-  private static final Pattern LINE_SEPARATORS = Pattern.compile("(\n|\r|\r\n|\u2028|\u2029)");
+  private static final Pattern LINE_SEPARATORS = Pattern.compile("(\r\n|\n|\r|\u2028|\u2029)");
   private static final String DOCUMENT_BREAK = "---";
   private static final int DOCUMENT_BREAK_LENGTH = DOCUMENT_BREAK.length();
   private static final Pattern MAVEN_VARIABLE_AT_TOKEN_START = Pattern.compile("([^:]++:\\p{javaWhitespace}*)@(?<name>[^@]++)@(.*+)");
@@ -60,6 +60,6 @@ public class SpringConfigYamlPreprocessor {
    * We don't resolve these variables, so we shouldn't lose information by doing this.
    */
   private static String transformMavenSubstitutions(String line) {
-    return MAVEN_VARIABLE_AT_TOKEN_START.matcher(line).replaceAll("$1'${name}'$3");
+    return MAVEN_VARIABLE_AT_TOKEN_START.matcher(line).replaceAll("$1'${name}$3'");
   }
 }
