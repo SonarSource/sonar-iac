@@ -20,8 +20,10 @@
 package org.sonar.iac.springconfig.parser.yaml;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class SpringConfigYamlPreprocessorTest {
   @Test
@@ -41,7 +43,8 @@ class SpringConfigYamlPreprocessorTest {
       --- |
         foo
       """;
-    assertEquals(code, new SpringConfigYamlPreprocessor().preprocess(code));
+
+    assertThat(new SpringConfigYamlPreprocessor().preprocess(code)).isEqualTo(code);
   }
 
   @Test
@@ -66,6 +69,48 @@ class SpringConfigYamlPreprocessorTest {
       --- baz: qux # comment
       ---
       """;
-    assertEquals(expected, new SpringConfigYamlPreprocessor().preprocess(code));
+    assertThat(new SpringConfigYamlPreprocessor().preprocess(code)).isEqualTo(expected);
+  }
+
+  @Test
+  void shouldTransformMavenSubstitutions() {
+    // language=yaml
+    var code = """
+      foo: @maven.property@
+      foo2: @maven.property@-suffix
+      foo3: '@maven.property@'
+      bar: prefix-@maven.property@-suffix
+      bar2: prefix-@maven.property1@-@maven.property2@-suffix
+      baz: |
+        @maven.property@
+      """;
+    // language=yaml
+    var expected = """
+      foo: 'maven.property'
+      foo2: 'maven.property-suffix'
+      foo3: '@maven.property@'
+      bar: prefix-@maven.property@-suffix
+      bar2: prefix-@maven.property1@-@maven.property2@-suffix
+      baz: |
+        @maven.property@
+      """;
+    var preprocessor = new SpringConfigYamlPreprocessor();
+
+    assertThat(preprocessor.preprocess(code)).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"\n", "\r", "\r\n", "\u2028", "\u2029"})
+  void shouldTransformFilesWithDifferentLineTerminators(String lineTerminator) {
+    var code = "foo: bar" + lineTerminator +
+      "--- ###" + lineTerminator +
+      "bar: foo" + lineTerminator;
+    var expected = """
+      foo: bar
+      ---
+      bar: foo
+      """;
+
+    assertThat(new SpringConfigYamlPreprocessor().preprocess(code)).isEqualTo(expected);
   }
 }
