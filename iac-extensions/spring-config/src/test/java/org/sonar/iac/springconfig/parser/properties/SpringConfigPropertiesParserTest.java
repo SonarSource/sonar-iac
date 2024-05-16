@@ -62,10 +62,9 @@ class SpringConfigPropertiesParserTest {
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, WHITESPACE, CHARACTER} at dir1/dir2/foo" +
-        ".properties:1:1");
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, CHARACTER} at dir1/dir2/foo.properties:1:1");
     assertThat(logTester.logs(Level.DEBUG)).contains(
-      "Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, WHITESPACE, CHARACTER}");
+      "Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, CHARACTER}");
   }
 
   @Test
