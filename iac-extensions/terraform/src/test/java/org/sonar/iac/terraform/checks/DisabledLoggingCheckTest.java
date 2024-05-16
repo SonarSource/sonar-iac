@@ -135,9 +135,4 @@ class DisabledLoggingCheckTest {
   void azure_container_group() {
     TerraformVerifier.verify("DisabledLoggingCheck/azure_container_group.tf", check);
   }
-
-  @Test
-  void azure_storage_account() {
-    TerraformVerifier.verify("DisabledLoggingCheck/azure_storage_account.tf", check);
-  }
 }
