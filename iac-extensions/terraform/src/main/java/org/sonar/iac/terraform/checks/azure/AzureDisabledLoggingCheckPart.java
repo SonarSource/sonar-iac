@@ -19,13 +19,9 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
-import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
-import org.sonar.iac.terraform.checks.utils.ExpressionPredicate;
-import org.sonar.iac.terraform.symbols.AttributeSymbol;
-import org.sonar.iac.terraform.symbols.ResourceSymbol;
-
 import java.util.List;
-import java.util.stream.Stream;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
@@ -49,9 +45,6 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     register("azurerm_container_group",
       resource -> resource.block("diagnostic")
         .reportIfAbsent("This resource does not have diagnostic logs enabled. Make sure it is safe here."));
-
-    register("azurerm_storage_account",
-      AzureDisabledLoggingCheckPart::checkStorageAccount);
   }
 
   private static void checkAppService(ResourceSymbol resource) {
@@ -86,33 +79,5 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     } else if (isApplicationLogDisabled) {
       applicationLogs.report("Make sure that deactivating application logs is safe here.");
     }
-  }
-
-  private static void checkStorageAccount(ResourceSymbol resource) {
-    if (resource.attribute("account_kind").is(ExpressionPredicate.equalTo("BlobStorage"))) {
-      return;
-    }
-
-    var logging = resource.block("queue_properties")
-      .reportIfAbsent("Make sure that omitting to log is safe here.")
-      .block("logging")
-      .reportIfAbsent("Make sure that omitting to log is safe here.");
-
-    List<AttributeSymbol> disabled = Stream.of("delete", "read", "write")
-      .map(logging::attribute)
-      .filter(setting -> setting.is(isFalse()))
-      .toList();
-
-    long disabledLoggings = disabled.size();
-
-    if (disabledLoggings == 3) {
-      logging.report("Make sure that disabling logging is safe here.");
-      return;
-    } else if (disabledLoggings == 2) {
-      logging.report("Make sure that partially enabling logging is safe here.");
-      return;
-    }
-
-    disabled.forEach(setting -> setting.report("Make sure that partially enabling logging is safe here."));
   }
 }
