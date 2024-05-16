@@ -65,6 +65,9 @@
       "matchPackagePatterns": [
         "*"
       ],
+      "excludePackageNames": [
+        "go"
+      ],
       "matchUpdateTypes": [
         "minor",
         "patch"
