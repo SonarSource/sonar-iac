@@ -1043,24 +1043,6 @@ class PropertiesParserBaseVisitorTest {
     assertThat(visitor.visited()).containsExactly("visitPropertiesFile <EOF>");
   }
 
-  private void parseProperties(String code) {
-    String stdErrOutput = "";
-    try (var outputStream = new ByteArrayOutputStream(); var printStream = new PrintStream(outputStream)) {
-      System.setErr(printStream);
-
-      var propertiesFileContext = createPropertiesFileContext(code);
-      stdErrOutput = outputStream.toString();
-
-      visitor.visitPropertiesFile(propertiesFileContext);
-      visitorTextRanges.visitPropertiesFile(propertiesFileContext);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    if (!stdErrOutput.isBlank()) {
-      throw new RuntimeException("Found output in standard err:\n" + stdErrOutput);
-    }
-  }
-
   @Test
   void shouldParseFileStartingWithNewline() {
     var code = """
@@ -1111,6 +1093,24 @@ class PropertiesParserBaseVisitorTest {
       "visitKey multilinekey",
       "visitKey This is multiline key value",
       "visitEol <EOF>");
+  }
+
+  private void parseProperties(String code) {
+    String stdErrOutput = "";
+    try (var outputStream = new ByteArrayOutputStream(); var printStream = new PrintStream(outputStream)) {
+      System.setErr(printStream);
+
+      var propertiesFileContext = createPropertiesFileContext(code);
+      stdErrOutput = outputStream.toString();
+
+      visitor.visitPropertiesFile(propertiesFileContext);
+      visitorTextRanges.visitPropertiesFile(propertiesFileContext);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    if (!stdErrOutput.isEmpty()) {
+      throw new RuntimeException("Found output in standard err:\n" + stdErrOutput);
+    }
   }
 
   private static String printable(String input) {
