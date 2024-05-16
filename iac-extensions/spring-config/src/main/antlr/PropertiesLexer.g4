@@ -27,15 +27,16 @@ public PropertiesLexer(CharStream input, boolean crLexerCostructor) {
 }
 }
 
-COMMENT         : [!#] -> pushMode(COMMENT_MODE);
-WHITESPACE         : [ \t\f\r\n\u2028\u2029]+ -> channel(HIDDEN);
-DELIMITER       : [ ]* [:=\t\f ] [ ]* -> pushMode(VALUE_MODE);
-CHARACTER       : ~ [!#:=\t\f ] -> pushMode(KEY_MODE);
+COMMENT         : [!#]                     -> pushMode(COMMENT_MODE);
+WHITESPACE      : [ \t\f\r\n\u2028\u2029]+ -> channel(HIDDEN);
+DELIMITER       : [ ]* [:=\t\f ] [ ]*      -> pushMode(VALUE_MODE);
+CHARACTER       : ~ [!#:=\t\f ]            -> pushMode(KEY_MODE);
 
 mode KEY_MODE;
 
-KEY_DELIMITER   : [ ]* [:=\t\f ] [ ]* -> type(DELIMITER), popMode, pushMode(VALUE_MODE);
-KEY_SLASH       : '\\' -> more, pushMode(INSIDE);
+KEY_DELIMITER   : [ ]* [:=\t\f ] [ ]*         -> type(DELIMITER), popMode, pushMode(VALUE_MODE);
+KEY_TERM        : [\r\n\u2028\u2029]+         -> type(WHITESPACE), popMode;
+KEY_SLASH       : '\\'                        -> more, pushMode(INSIDE);
 KEY_CHARACTER   : ~ [ :=\t\f\r\n\u2028\u2029] -> type(CHARACTER);
 
 mode COMMENT_MODE;
@@ -50,7 +51,7 @@ SLASH_JOINT     : '\r'? '\n' -> channel(HIDDEN), pushMode(IGNORE_LEADING_SPACES)
 
 mode IGNORE_LEADING_SPACES;
 
-NOT_SPACE    : ~[ ]  -> type(CHARACTER), popMode;
+NOT_SPACE    : ~[ ]   -> type(CHARACTER), popMode;
 IGNORE_SPACE : [ ]+   -> channel(HIDDEN), popMode;
 
 mode VALUE_MODE;
