@@ -24,37 +24,42 @@ import org.junit.jupiter.api.Test;
 class WeakSSLProtocolCheckTest {
 
   @Test
-  void aws_api_gateway_name() {
+  void testAwsApiGatewayName() {
     TerraformVerifier.verify("WeakSSLProtocolCheck/aws_api_gateway_name.tf", new WeakSSLProtocolCheck());
   }
 
   @Test
-  void aws_api_gatewayv2_name() {
+  void testAwsApiGatewayv2Name() {
     TerraformVerifier.verify("WeakSSLProtocolCheck/aws_api_gatewayv2_name.tf", new WeakSSLProtocolCheck());
   }
 
   @Test
-  void aws_elasticsearch_domain() {
+  void testAwsElasticsearchDomain() {
     TerraformVerifier.verify("WeakSSLProtocolCheck/aws_elasticsearch_domain.tf", new WeakSSLProtocolCheck());
   }
 
   @Test
-  void azure_mysql_server() {
+  void testAzureMysqlServer() {
     TerraformVerifier.verify("WeakSSLProtocolCheck/azure_mysql_server.tf", new WeakSSLProtocolCheck());
   }
 
   @Test
-  void azure_postgresql_server() {
+  void testAzureMssqlServer() {
+    TerraformVerifier.verify("WeakSSLProtocolCheck/azure_mssql_server.tf", new WeakSSLProtocolCheck());
+  }
+
+  @Test
+  void testAzurePostgresqlServer() {
     TerraformVerifier.verify("WeakSSLProtocolCheck/azure_postgresql_server.tf", new WeakSSLProtocolCheck());
   }
 
   @Test
-  void azure_storage_account() {
+  void testAzureStorageAccount() {
     TerraformVerifier.verify("WeakSSLProtocolCheck/azure_storage_account.tf", new WeakSSLProtocolCheck());
   }
 
   @Test
-  void gcp_compute_ssl_policy() {
+  void testGcpComputeSslPolicy() {
     TerraformVerifier.verify("WeakSSLProtocolCheck/gcp_compute_ssl_policy.tf", new WeakSSLProtocolCheck());
   }
 }
