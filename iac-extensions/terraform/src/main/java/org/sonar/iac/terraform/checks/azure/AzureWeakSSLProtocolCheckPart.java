@@ -19,10 +19,11 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
-import java.util.List;
-import java.util.function.Consumer;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.OMITTING_WEAK_SSL_MESSAGE;
 import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.WEAK_SSL_MESSAGE;
@@ -37,11 +38,19 @@ public class AzureWeakSSLProtocolCheckPart extends AbstractNewResourceCheck {
 
     register("azurerm_storage_account",
       checkSSLProtocol("min_tls_version"));
+
+    register(List.of("azurerm_mssql_server"),
+      checkSSLProtocolIgnoreAbsent("minimum_tls_version"));
   }
 
-  private Consumer<ResourceSymbol> checkSSLProtocol(String protocolAttribute) {
+  private static Consumer<ResourceSymbol> checkSSLProtocol(String protocolAttribute) {
     return resource -> resource.attribute(protocolAttribute)
       .reportIf(notEqualTo("TLS1_2"), WEAK_SSL_MESSAGE)
       .reportIfAbsent(OMITTING_WEAK_SSL_MESSAGE);
+  }
+
+  private static Consumer<ResourceSymbol> checkSSLProtocolIgnoreAbsent(String protocolAttribute) {
+    return resource -> resource.attribute(protocolAttribute)
+      .reportIf(notEqualTo("1.2"), WEAK_SSL_MESSAGE);
   }
 }
