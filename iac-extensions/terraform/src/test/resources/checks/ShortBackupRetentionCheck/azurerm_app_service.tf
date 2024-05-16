@@ -49,6 +49,18 @@ resource "azurerm_app_service" "s6364-as-c" {
   }
 }
 
+resource "azurerm_app_service" "s6364-as-c-dynamic" {
+  backup {
+    enabled = true
+    dynamic "schedule" {
+      for_each = var.schedule
+      content {
+        retention_period_in_days = 7
+      }
+    }
+  }
+}
+
 
 resource "non_azurerm_app_service" "s6364-as-cov" {
 }

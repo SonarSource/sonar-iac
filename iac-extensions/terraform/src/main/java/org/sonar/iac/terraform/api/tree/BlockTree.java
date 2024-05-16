@@ -28,4 +28,6 @@ public interface BlockTree extends HasProperties, StatementTree {
   List<LabelTree> labels();
 
   BodyTree value();
+
+  boolean isDynamic();
 }

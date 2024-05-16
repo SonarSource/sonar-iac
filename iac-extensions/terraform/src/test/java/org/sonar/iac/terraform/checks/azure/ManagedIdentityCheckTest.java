@@ -25,13 +25,17 @@ import org.sonar.iac.terraform.checks.TerraformVerifier;
 class ManagedIdentityCheckTest {
 
   @Test
-  void test_managed_identity() {
+  void testManagedIdentity() {
     TerraformVerifier.verify("Azure/ManagedIdentityCheck/managed_identity.tf", new ManagedIdentityCheck());
   }
 
   @Test
-  void test_data_factory() {
+  void testDataFactory() {
     TerraformVerifier.verify("Azure/ManagedIdentityCheck/data_factory.tf", new ManagedIdentityCheck());
   }
 
+  @Test
+  void shouldNotRaiseWithDynamicBlock() {
+    TerraformVerifier.verifyNoIssue("Azure/ManagedIdentityCheck/dynamic_block.tf", new ManagedIdentityCheck());
+  }
 }

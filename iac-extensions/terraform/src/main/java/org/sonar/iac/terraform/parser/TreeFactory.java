@@ -85,20 +85,28 @@ public class TreeFactory {
     return new FileTreeImpl(statements.or(Collections.emptyList()), eof);
   }
 
-  public BlockTree block(SyntaxToken type,
+  public BlockTree block(
+    Optional<SyntaxToken> dynamic,
+    SyntaxToken type,
     Optional<List<LabelTree>> labels,
     SyntaxToken openBrace,
     SyntaxToken newline,
     Optional<List<StatementTree>> statements,
     SyntaxToken closeBrace) {
     BodyTree body = new BodyTreeImpl(openBrace, newline, statements.or(Collections.emptyList()), closeBrace);
-    return new BlockTreeImpl(type, labels.orNull(), body, Kind.BLOCK);
+    return new BlockTreeImpl(dynamic.orNull(), type, labels.orNull(), body, Kind.BLOCK);
   }
 
-  public BlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
+  public BlockTree oneLineBlock(
+    Optional<SyntaxToken> dynamic,
+    SyntaxToken type,
+    Optional<List<LabelTree>> labels,
+    SyntaxToken openBrace,
+    Optional<AttributeTree> attribute,
+    SyntaxToken closeBrace) {
     List<StatementTree> statements = attribute.isPresent() ? Collections.singletonList(attribute.get()) : Collections.emptyList();
     BodyTree body = new BodyTreeImpl(openBrace, null, statements, closeBrace);
-    return new BlockTreeImpl(type, labels.orNull(), body, Kind.ONE_LINE_BLOCK);
+    return new BlockTreeImpl(dynamic.orNull(), type, labels.orNull(), body, Kind.ONE_LINE_BLOCK);
   }
 
   public LabelTree label(SyntaxToken token) {
@@ -241,6 +249,10 @@ public class TreeFactory {
     }
 
     return new SeparatedTreesImpl<>(elements, separators);
+  }
+
+  public SyntaxToken quotedIdentifier(SyntaxToken openQuote, SyntaxToken identifier, SyntaxToken closingQuote) {
+    return identifier;
   }
 
   private static <T extends TerraformTree> SeparatedTreesImpl<T> separatedTrees(

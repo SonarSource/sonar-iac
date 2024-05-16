@@ -47,6 +47,7 @@ import org.sonar.iac.terraform.tree.impl.SeparatedTreesImpl;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.iac.terraform.tree.impl.VariableExprTreeImpl;
 
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.terraform.TestTreeBuilders.SyntaxTokenBuilder.token;
 
 public class TestTreeBuilders {
@@ -57,7 +58,7 @@ public class TestTreeBuilders {
     }
 
     public static SyntaxToken token(String value) {
-      return new SyntaxTokenImpl(value, null, Collections.emptyList());
+      return new SyntaxTokenImpl(value, range(1, 0, value), Collections.emptyList());
     }
   }
 
@@ -95,7 +96,7 @@ public class TestTreeBuilders {
 
     public BlockTree build() {
       BodyTree body = new BodyTreeImpl(token("{"), token("\n"), statements, token("}"));
-      return new BlockTreeImpl(key, labels, body, TerraformTree.Kind.BLOCK);
+      return new BlockTreeImpl(null, key, labels, body, TerraformTree.Kind.BLOCK);
     }
   }
 

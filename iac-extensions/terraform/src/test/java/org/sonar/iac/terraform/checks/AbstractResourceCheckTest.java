@@ -24,7 +24,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +38,7 @@ class AbstractResourceCheckTest {
     "Resource, false",
     "data, false"
   })
-  void test_isResource(String type, boolean isS3Bucket) {
+  void testIsResource(String type, boolean isS3Bucket) {
     BlockTree blockTree = block()
       .key(type)
       .build();
@@ -52,8 +51,9 @@ class AbstractResourceCheckTest {
     "\"not_a_bucket\", false",
     "aws_s3_bucket, true"
   })
-  void test_isS3Bucket(String label, boolean isS3Bucket) {
+  void testIsS3Bucket(String label, boolean isS3Bucket) {
     BlockTree blockTree = block()
+      .key("resource")
       .labels(label(label))
       .build();
     assertThat(AbstractResourceCheck.isS3Bucket(blockTree)).isEqualTo(isS3Bucket);
@@ -65,7 +65,7 @@ class AbstractResourceCheckTest {
     "resource, \"not_a_bucket\", false",
     "date, \"aws_s3_bucket\", false"
   })
-  void test_isS3Bucket(String type, String label, boolean isS3Bucket) {
+  void testIsS3Bucket(String type, String label, boolean isS3Bucket) {
     BlockTree blockTree = block()
       .key(type)
       .labels(label(label))

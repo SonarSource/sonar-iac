@@ -25,22 +25,22 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checkdsl.ContextualTree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 public class BlockSymbol extends ContextualTree<BlockSymbol, BlockTree> {
 
-  protected BlockSymbol(CheckContext ctx, BlockTree tree, String name, BlockSymbol parent) {
+  protected BlockSymbol(CheckContext ctx, @Nullable BlockTree tree, String name, @Nullable BlockSymbol parent) {
     super(ctx, tree, name, parent);
   }
 
-  public static BlockSymbol fromPresent(CheckContext ctx, BlockTree tree, BlockSymbol parent) {
+  public static BlockSymbol fromPresent(CheckContext ctx, BlockTree tree, @Nullable BlockSymbol parent) {
     return new BlockSymbol(ctx, tree, tree.key().value(), parent);
   }
 
-  public static BlockSymbol fromAbsent(CheckContext ctx, String name, BlockSymbol parent) {
+  public static BlockSymbol fromAbsent(CheckContext ctx, String name, @Nullable BlockSymbol parent) {
     return new BlockSymbol(ctx, null, name, parent);
   }
 
