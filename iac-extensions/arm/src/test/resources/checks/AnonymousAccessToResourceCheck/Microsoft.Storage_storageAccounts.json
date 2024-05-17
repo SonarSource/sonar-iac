@@ -5,7 +5,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
-      "name": "Sensitive - `allowBlobPublicAccess` is unset"
+      "name": "Compliant - `allowBlobPublicAccess` is unset"
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -36,7 +36,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
-      "name": "Sensitive - `allowBlobPublicAccess` is unset, `publicAccess` mode is set to `Blob`",
+      "name": "Compliant - `allowBlobPublicAccess` is unset, `publicAccess` mode is set to `Blob`",
       "resources": [
         {
           "type": "blobServices/containers",

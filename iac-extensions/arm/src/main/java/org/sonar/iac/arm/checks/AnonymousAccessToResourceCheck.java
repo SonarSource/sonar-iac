@@ -99,8 +99,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
 
   private static void checkStorageAccounts(ContextualResource resource) {
     resource.property("allowBlobPublicAccess")
-      .reportIf(CheckUtils.isTrue(), STORAGE_ANONYMOUS_ACCESS_MESSAGE)
-      .reportIfAbsent(STORAGE_ANONYMOUS_ACCESS_MESSAGE);
+      .reportIf(CheckUtils.isTrue(), STORAGE_ANONYMOUS_ACCESS_MESSAGE);
   }
 
   private static void checkStorageAccountContainers(ContextualResource resource) {
