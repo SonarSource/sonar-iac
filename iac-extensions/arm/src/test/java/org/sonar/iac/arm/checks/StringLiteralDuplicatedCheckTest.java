@@ -20,7 +20,11 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.sonar.iac.arm.checks.StringLiteralDuplicatedCheck.FORMAT_STRING;
 import static org.sonar.iac.common.testing.Verifier.issue;
 import static org.sonar.iac.common.testing.Verifier.secondary;
 
@@ -36,7 +40,8 @@ class StringLiteralDuplicatedCheckTest {
         secondary(22, 23, 22, 42, "Duplication."),
         secondary(23, 22, 23, 41, "Duplication."),
         secondary(24, 20, 24, 39, "Duplication."),
-        secondary(25, 26, 25, 45, "Duplication.")));
+        secondary(25, 26, 25, 45, "Duplication.")),
+      issue(213, 20, 213, 29, "Define a variable instead of duplicating this literal \"{0}-{1}\" 5 times."));
   }
 
   @Test
@@ -56,4 +61,16 @@ class StringLiteralDuplicatedCheckTest {
     BicepVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.bicep", check);
   }
 
+  @ParameterizedTest
+  @CsvSource(value = {
+    "{0}; true",
+    "{0}{1}; true",
+    "{0}-{1}; false",
+    "{0,-12}{1,8}{2,12}{1,8}{2,12}{3,14}; true",
+    "{0,10:G}: {0,10:X}; false",
+    "{0,10:G}{0,10:X}; true",
+  }, delimiter = ';')
+  void shouldMatchArmFormatStrings(String input, boolean shouldMatch) {
+    assertThat(FORMAT_STRING.matcher(input).matches()).isEqualTo(shouldMatch);
+  }
 }

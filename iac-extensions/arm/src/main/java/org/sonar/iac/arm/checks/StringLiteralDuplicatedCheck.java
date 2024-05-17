@@ -48,6 +48,7 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
   private static final String SECONDARY_MESSAGE = "Duplication.";
   private static final Pattern ALLOWED_DUPLICATED_LITERALS = Pattern.compile("(?U)^[\\p{L}_][.\\-\\w]+$");
   private static final Pattern ALLOWED_VERSION_NUMBER = Pattern.compile("^\\d++[.-]\\d++[.-]\\d++[.-]*\\d*+$");
+  protected static final Pattern FORMAT_STRING = Pattern.compile("(\\{\\d++(,-?\\d*)?(:[^}]+)?})++");
 
   public static final int THRESHOLD_DEFAULT = 5;
   public static final int MINIMAL_LITERAL_LENGTH_DEFAULT = 5;
@@ -103,7 +104,8 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
         || isTypeProperty(stringLiteral)
         || isEscapedFunction(stringLiteral)
         || ALLOWED_DUPLICATED_LITERALS.matcher(value).matches()
-        || ALLOWED_VERSION_NUMBER.matcher(value).matches();
+        || ALLOWED_VERSION_NUMBER.matcher(value).matches()
+        || FORMAT_STRING.matcher(value).matches();
     }
 
     private static boolean isResourceTypeAndApiVersionField(StringLiteral stringLiteral) {

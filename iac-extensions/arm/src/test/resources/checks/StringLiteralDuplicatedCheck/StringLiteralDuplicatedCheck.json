@@ -194,6 +194,28 @@
         "func6": "[[variables('SentinelConnectionName') for coverage",
         "func7": "[variables('SentinelConnectionName') for coverage]"
       }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "do not report on format strings",
+      "properties": {
+        "format11": "{0}",
+        "format12": "{0}",
+        "format13": "{0}",
+        "format14": "{0}",
+        "format15": "{0}",
+        "format21": "{0}{1}",
+        "format22": "{0}{1}",
+        "format23": "{0}{1}",
+        "format24": "{0}{1}",
+        "format25": "{0}{1}",
+        "format31": "{0}-{1}",
+        "format32": "{0}-{1}",
+        "format33": "{0}-{1}",
+        "format34": "{0}-{1}",
+        "format35": "{0}-{1}"
+      }
     }
   ]
 }
