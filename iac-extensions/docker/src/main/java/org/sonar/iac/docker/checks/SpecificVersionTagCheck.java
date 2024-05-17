@@ -54,6 +54,10 @@ public class SpecificVersionTagCheck implements IacCheck {
     }
     String fullImageName = resolvedImage.value();
 
+    if ("scratch".equals(fullImageName)) {
+      return;
+    }
+
     if (hasSensitiveVersionTag(fullImageName) && !encounteredAlias.contains(fullImageName)) {
       ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE);
     }

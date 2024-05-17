@@ -2,21 +2,6 @@
 "docker-project:ruling/src/integrationTest/resources/sources/docker/S6473/Dockerfile.6473": [
 1
 ],
-"docker-project:ruling/src/integrationTest/resources/sources/docker/S6573/S6573.dockerfile": [
-1
-],
-"docker-project:sources/docker/awesome-compose/nginx-golang-mysql/backend/Dockerfile": [
-39
-],
-"docker-project:sources/docker/awesome-compose/nginx-golang-postgres/backend/Dockerfile": [
-39
-],
-"docker-project:sources/docker/awesome-compose/nginx-golang/backend/Dockerfile": [
-39
-],
-"docker-project:sources/docker/awesome-compose/traefik-golang/backend/Dockerfile": [
-25
-],
 "docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu16.04_host_phusion/Dockerfile": [
 1
 ],
