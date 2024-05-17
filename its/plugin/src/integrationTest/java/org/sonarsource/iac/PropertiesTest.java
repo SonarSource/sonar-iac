@@ -20,11 +20,11 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.build.SonarScanner;
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.opentest4j.TestAbortedException;
+
+import javax.annotation.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,7 +62,8 @@ class PropertiesTest extends TestBase {
     "dockerCustomFilenamePatternsDefaultValue;  Dockerfile,*.dockerfile; 4; 4",
     // Empty property defaults to default value
     "dockerCustomFilenamePatternsNoPropertyDefined;; 4; 4",
-    "dockerCustomFilenamePatternsEmpty; ''; 4; 4",
+    // Dockerfile.* are scanned by default, so even with empty patterns we still find one dockerfile
+    "dockerCustomFilenamePatternsEmpty; ''; 1; 1",
     "dockerCustomFilenamePatternsWithEmptyValueInside; Dockerfile,  ,*.dockerfile; 4; 4",
     // Dockerfile.* are scanned by default and can't be disabled at the moment
     "dockerCustomFilenamePatternsWithOneElement; customFilename; 2; 2",
@@ -75,11 +76,11 @@ class PropertiesTest extends TestBase {
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
     "jsonDefaultSuffixNoProvidedProperty; ; 1; 9",
-    "jsonDefaultSuffixEmptyPropertyValue; ''; 1; 9",
+    "jsonDefaultSuffixEmptyPropertyValue; '';;",
     "jsonCustomSuffix; .jsn; 1; 9",
     "jsonExtendedSuffix; .json,.jsn; 2; 18"
   })
-  void testJsonSuffix(String projectKey, String suffixes, int expectedFiles, int expectedNcloc) {
+  void testJsonSuffix(String projectKey, String suffixes, Integer expectedFiles, Integer expectedNcloc) {
     // Since json language itself wouldn't publish files, we analyze json files that get picked up by cloudformation sensor
     executeBuildAndAssertMetric(projectKey, "json", "suffixes", "sonar.json.file.suffixes", suffixes, null, expectedFiles, expectedNcloc);
   }
@@ -87,11 +88,11 @@ class PropertiesTest extends TestBase {
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
     "yamlDefaultSuffixNoProvidedProperty; ; 2; 10",
-    "yamlDefaultSuffixEmptyPropertyValue; ''; 2; 10",
+    "yamlDefaultSuffixEmptyPropertyValue; '';;",
     "yamlCustomSuffix; .rml; 1; 5",
     "yamlExtendedSuffix; .yml,.yaml,.rml; 3; 15"
   })
-  void testYamlSuffix(String projectKey, String suffixes, int expectedFiles, int expectedNcloc) {
+  void testYamlSuffix(String projectKey, String suffixes, Integer expectedFiles, Integer expectedNcloc) {
     // Since yaml language itself wouldn't publish files, we analyze yaml files that get picked up by cloudformation sensor
     executeBuildAndAssertMetric(projectKey, "yaml", "suffixes", "sonar.yaml.file.suffixes", suffixes, null, expectedFiles, expectedNcloc);
   }
@@ -99,11 +100,11 @@ class PropertiesTest extends TestBase {
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
     "armDefaultSuffixNoProvidedProperty; ; 1; 22",
-    "armDefaultSuffixEmptyPropertyValue; ''; 1; 22",
+    "armDefaultSuffixEmptyPropertyValue; '';;",
     "armCustomSuffix; .bicep; 1; 22",
     "armExtendedSuffix; .bicep,.tricep; 2; 44"
   })
-  void testArmSuffix(String projectKey, String suffixes, int expectedFiles, int expectedNcloc) {
+  void testArmSuffix(String projectKey, String suffixes, Integer expectedFiles, Integer expectedNcloc) {
     executeBuildAndAssertMetric(projectKey, "azureresourcemanager", "suffixes", "sonar.azureresourcemanager.file.suffixes", suffixes, null, expectedFiles, expectedNcloc);
   }
 
@@ -142,13 +143,9 @@ class PropertiesTest extends TestBase {
     String projectKey, String language, String subDir,
     String property, String propertyValue,
     @Nullable String profileName,
-    int expectedFiles, int expectedNcloc) {
+    Integer expectedFiles, Integer expectedNcloc) {
     var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + subDir + "/", language, profileName);
     if (propertyValue != null) {
-      if (propertyValue.isEmpty()) {
-        // TODO SONARIAC-1322
-        throw new TestAbortedException("Empty property value is not working with 10.4");
-      }
       sonarScanner.setProperty(property, propertyValue);
     }
 
