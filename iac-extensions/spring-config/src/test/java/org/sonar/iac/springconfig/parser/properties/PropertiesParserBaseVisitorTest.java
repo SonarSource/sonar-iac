@@ -1033,7 +1033,7 @@ class PropertiesParserBaseVisitorTest {
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, WHITESPACE, CHARACTER} at null:1:1");
+      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, CHARACTER} at null:1:1");
   }
 
   @Test

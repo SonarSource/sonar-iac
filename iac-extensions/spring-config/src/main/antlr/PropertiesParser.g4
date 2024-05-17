@@ -24,7 +24,7 @@ options {
 }
 
 propertiesFile
-    : WHITESPACE? row* EOF
+    : row* EOF
     ;
 
 row

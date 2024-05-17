@@ -21,7 +21,7 @@ lexer grammar PropertiesLexer;
 
 // Adds support for CR as line terminator into the generated Java code
 @members {
-public PropertiesLexer(CharStream input, boolean crLexerCostructor) {
+public PropertiesLexer(CharStream input, boolean crLexerConstructor) {
   super(input);
   _interp = new CRLexerATNSimulator(this, _ATN, _decisionToDFA, _sharedContextCache);
 }
