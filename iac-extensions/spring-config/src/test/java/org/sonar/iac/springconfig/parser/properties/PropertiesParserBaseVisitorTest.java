@@ -35,6 +35,8 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.springconfig.parser.properties.PropertiesTestUtils.createPropertiesFileContext;
 
+// Supress Format strings should be used correctly as this tests checks different new line separators
+@SuppressWarnings("java:S3457")
 class PropertiesParserBaseVisitorTest {
 
   TestVisitor visitor = new TestVisitor();
