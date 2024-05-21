@@ -28,6 +28,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.lessThan;
@@ -36,7 +37,8 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualT
 @Rule(key = "S6413")
 public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
 
-  private static final String MESSAGE = "Make sure that defining a short log retention duration is safe here.";
+  private static final String SHORT_RETENTION_MESSAGE = "Make sure that defining a short log retention duration is safe here.";
+  private static final String DISABLING_MESSAGE_FORMAT = "Make sure that disabling %s is safe here.";
   private static final int FALLBACK_DEFAULT = 30;
   private static final int MIN_DEFAULT = 14;
 
@@ -51,12 +53,12 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
       "google_logging_billing_account_bucket_config",
       "google_logging_organization_bucket_config",
       "google_logging_folder_bucket_config"),
-      resource -> {
+      (ResourceSymbol resource) -> {
         AttributeSymbol retention = resource.attribute("retention_days")
-          .reportIf(lessThanMinimumOrFallback(), MESSAGE);
+          .reportIf(lessThanMinimumOrFallback(), SHORT_RETENTION_MESSAGE);
 
         if (retention.isAbsent() && FALLBACK_DEFAULT < minimumLogRetentionDays) {
-          resource.report(MESSAGE);
+          resource.report(SHORT_RETENTION_MESSAGE);
         }
       });
 
@@ -64,7 +66,7 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
       resource -> resource.consume(this::checkRetentionInDays));
 
     register("azurerm_app_service",
-      resource -> {
+      (ResourceSymbol resource) -> {
         var logs = resource.block("logs");
         Set.of(logs.block("http_logs").block("azure_blob_storage"),
           logs.block("http_logs").block("file_system"),
@@ -73,30 +75,40 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
       });
 
     register("azurerm_firewall_policy",
-      resource -> resource.block("insights")
-        .consume(this::checkRetentionInDays));
+      (ResourceSymbol resource) -> {
+        var message = DISABLING_MESSAGE_FORMAT.formatted("insights");
+        var insights = resource.block("insights");
+        var insightsEnabled = insights.attribute("enabled");
+
+        insights.reportIfAbsent(message);
+        insightsEnabled.reportIf(isFalse(), message);
+
+        if (insights.isPresent() && !insightsEnabled.is(isFalse())) {
+          checkRetentionInDays(insights);
+        }
+      });
 
     register(Set.of("azurerm_monitor_log_profile", "azurerm_network_watcher_flow_log"),
-      resource -> {
+      (ResourceSymbol resource) -> {
         var retentionPolicy = resource.block("retention_policy");
         var enabled = retentionPolicy.attribute("enabled");
         if (enabled.is(isFalse())) {
-          enabled.report("Make sure that disabling retention policy is safe here.");
+          enabled.report(DISABLING_MESSAGE_FORMAT.formatted("retention policy"));
           return;
         }
         retentionPolicy.attribute("days")
-          .reportIf(lessThanMinimumButNotZero(), MESSAGE);
+          .reportIf(lessThanMinimumButNotZero(), SHORT_RETENTION_MESSAGE);
       });
 
     register(List.of("azurerm_sql_server", "azurerm_mysql_server", "azurerm_postgresql_server"),
       resource -> resource.block("threat_detection_policy")
         .attribute("retention_days")
-        .reportIf(lessThanMinimumButNotZero(), MESSAGE));
+        .reportIf(lessThanMinimumButNotZero(), SHORT_RETENTION_MESSAGE));
   }
 
   private void checkRetentionInDays(BlockSymbol block) {
     block.attribute("retention_in_days")
-      .reportIf(lessThanMinimumButNotZero(), MESSAGE);
+      .reportIf(lessThanMinimumButNotZero(), SHORT_RETENTION_MESSAGE);
   }
 
   private Predicate<ExpressionTree> lessThanMinimumButNotZero() {
