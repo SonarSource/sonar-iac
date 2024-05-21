@@ -67,7 +67,8 @@ class AnonymousAccessToResourceCheckTest {
       issue(15, 8, 15, 37, "Make sure that authorizing potential anonymous access is safe here."),
       issue(31, 12, 31, 34, "Make sure that authorizing potential anonymous access is safe here."),
       issue(46, 12, 46, 34, "Make sure that authorizing potential anonymous access is safe here."),
-      issue(56, 8, 56, 30, "Make sure that authorizing potential anonymous access is safe here."));
+      issue(56, 8, 56, 30, "Make sure that authorizing potential anonymous access is safe here."),
+      issue(60, 14, 60, 49, "Make sure that authorizing potential anonymous access is safe here."));
   }
 
   @Test

@@ -102,3 +102,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         }
     }
 }
+
+// Compliant -- `allowBlobPublicAccess` is not set with a newer API version
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'example'
+  properties: {}
+}

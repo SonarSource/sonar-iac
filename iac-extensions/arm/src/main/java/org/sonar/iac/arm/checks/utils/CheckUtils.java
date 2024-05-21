@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.checks.utils;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.function.Predicate;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -35,6 +36,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import static org.sonar.iac.arm.tree.ArmTreeUtils.retrieveIdentifierOrExpression;
 
 public final class CheckUtils {
+  private static final int VERSION_FORMAT_LENGTH = "YYYY-MM-DD".length();
 
   private CheckUtils() {
     // utils class
@@ -129,5 +131,14 @@ public final class CheckUtils {
       }
     }
     return null;
+  }
+
+  public static Predicate<Expression> isVersionGreaterOrEqualThan(String version) {
+    // Usually, ARM versions are in the format "YYYY-MM-DD", so comparing them lexicographically yields the correct result.
+    // They can also have a suffix like `-preview`; for these versions we assume they are not greater than the same version without the suffix.
+    var comparator = Comparator.<String, String>comparing(v -> v.substring(0, VERSION_FORMAT_LENGTH)).reversed()
+      .thenComparingInt(String::length).reversed();
+
+    return expr -> TextUtils.matchesValue(expr, v -> v.length() >= VERSION_FORMAT_LENGTH && comparator.compare(v, version) >= 0).isTrue();
   }
 }
