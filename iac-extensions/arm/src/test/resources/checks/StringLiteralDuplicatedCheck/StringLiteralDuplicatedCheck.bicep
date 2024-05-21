@@ -54,3 +54,24 @@ resource storageAccount 'Microsoft.Storage/storageAccounts' = {
   }
 }
 
+// Compliant: module paths cannot be variables
+module moduleName_one '../dosomething.bicep' = {}
+module moduleName_two '../dosomething.bicep' = {}
+module moduleName_tree '../dosomething.bicep' = {}
+module moduleName_four '../dosomething.bicep' = {}
+module moduleName_five '../dosomething.bicep' = {}
+module moduleName_five '../dosomething.bicep' = {}
+
+module moduleName_one 'dosomething.bicep' = {}
+module moduleName_two 'dosomething.bicep' = {}
+module moduleName_tree 'dosomething.bicep' = {}
+module moduleName_four 'dosomething.bicep' = {}
+module moduleName_five 'dosomething.bicep' = {}
+module moduleName_five 'dosomething.bicep' = {}
+
+module moduleName_one 'dir/dosomething.bicep' = {}
+module moduleName_two 'dir/dosomething.bicep' = {}
+module moduleName_tree 'dir/dosomething.bicep' = {}
+module moduleName_four 'dir/dosomething.bicep' = {}
+module moduleName_five 'dir/dosomething.bicep' = {}
+module moduleName_five 'dir/dosomething.bicep' = {}

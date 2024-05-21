@@ -26,7 +26,9 @@ import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.testing.IacCommonAssertions;
 
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -59,10 +61,11 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseDeclarationCorrectly() {
     ModuleDeclaration tree = (ModuleDeclaration) createParser(BicepLexicalGrammar.MODULE_DECLARATION).parse(
-      code("@batchSize(4) ",
-        "module stgModule '../storageAccount.bicep' = {",
-        "  name: 'storageDeploy'",
-        "}"));
+      """
+        @batchSize(4)
+        module stgModule '../storageAccount.bicep' = {
+          name: 'storageDeploy'
+        }""");
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ModuleDeclaration.class);
@@ -71,6 +74,8 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
     softly.assertThat(tree.children()).hasSize(6);
     softly.assertThat(tree.children().get(5)).isInstanceOf(Expression.class);
     softly.assertThat(tree.declaratedName().value()).isEqualTo("stgModule");
+    softly.assertThat(tree.value()).isInstanceOf(ObjectExpression.class);
+    softly.assertThat(tree.type()).extracting(TextTree::value).isEqualTo("../storageAccount.bicep");
     IacCommonAssertions.assertThat(tree.type().textRange()).hasRange(2, 17, 2, 42);
     IacCommonAssertions.assertThat(tree.value().textRange()).hasRange(2, 45, 4, 1);
     softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
