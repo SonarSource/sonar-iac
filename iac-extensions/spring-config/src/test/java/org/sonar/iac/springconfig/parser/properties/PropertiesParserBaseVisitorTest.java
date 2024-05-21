@@ -820,11 +820,11 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
-  @Test
-  void shouldParseMultilineValue() {
+  @ParameterizedTest
+  @ValueSource(strings = {"\n", "\r", "\r\n", "\u2028", "\u2029"})
+  void shouldParseMultilineValue(String newLine) {
     var code = """
-      multiline=This line \\
-      continues""";
+      multiline=This line \\%scontinues""".formatted(newLine);
 
     parseProperties(code);
 
@@ -1034,8 +1034,7 @@ class PropertiesParserBaseVisitorTest {
       "visitRow =abc<EOF>",
       "visitInvalidLine =abc<EOF>",
       "visitKey abc",
-      "visitEol <EOF>"
-    );
+      "visitEol <EOF>");
   }
 
   @Test
@@ -1062,8 +1061,7 @@ class PropertiesParserBaseVisitorTest {
       "visitLine foo2=bar2<EOF>",
       "visitKey foo2",
       "visitKey bar2",
-      "visitEol <EOF>"
-    );
+      "visitEol <EOF>");
   }
 
   @ParameterizedTest
@@ -1092,8 +1090,7 @@ class PropertiesParserBaseVisitorTest {
       "visitLine foo2=bar2<EOF>",
       "visitKey foo2",
       "visitKey bar2",
-      "visitEol <EOF>"
-    );
+      "visitEol <EOF>");
   }
 
   @Test
