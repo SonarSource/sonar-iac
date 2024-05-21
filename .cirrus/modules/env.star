@@ -115,18 +115,6 @@ def gradle_env():
     }
     return gradle_base | gradle_signing_env()
 
-def gradle_opts_windows_env():
-    """
-    Provides an environment variables to work with Gradle on Windows.
-    The following default values are provided:
-    - GRADLE_OPTS_WINDOWS: -Xmx6G
-
-    :return: a dictionary with the following keys:
-        - GRADLE_OPTS_WINDOWS
-    """
-    return {
-        "GRADLE_OPTS_WINDOWS": "-Xmx6G"
-    }
 
 def go_env():
     """
@@ -198,7 +186,6 @@ def env():
     vars = artifactory_env()
     vars |= cirrus_env()
     vars |= gradle_env()
-    vars |= gradle_opts_windows_env()
     vars |= go_env()
     vars |= project_version_env()
     return {"env": vars}
