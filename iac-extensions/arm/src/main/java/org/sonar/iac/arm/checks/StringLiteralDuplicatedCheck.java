@@ -32,6 +32,7 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -46,6 +47,7 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
 
   private static final String MESSAGE = "Define a variable instead of duplicating this literal \"%s\" %d times.";
   private static final String SECONDARY_MESSAGE = "Duplication.";
+  // Matches "literals with only letters, numbers, underscores, hyphens and periods" as per RSPEC
   private static final Pattern ALLOWED_DUPLICATED_LITERALS = Pattern.compile("(?U)^[\\p{L}_][.\\-\\w]+$");
   private static final Pattern ALLOWED_VERSION_NUMBER = Pattern.compile("^\\d++[.-]\\d++[.-]\\d++[.-]*\\d*+$");
   /**
@@ -108,6 +110,7 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
         || isSchemaProperty(stringLiteral)
         || isTypeProperty(stringLiteral)
         || isEscapedFunction(stringLiteral)
+        || isModulePath(stringLiteral)
         || ALLOWED_DUPLICATED_LITERALS.matcher(value).matches()
         || ALLOWED_VERSION_NUMBER.matcher(value).matches()
         || FORMAT_STRING.matcher(value).matches();
@@ -154,6 +157,11 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
     private boolean isEscapedFunction(StringLiteral stringLiteral) {
       var value = stringLiteral.value();
       return value.startsWith("[[") && value.endsWith("]");
+    }
+
+    private static boolean isModulePath(StringLiteral stringLiteral) {
+      return stringLiteral.parent() instanceof ModuleDeclaration moduleDeclaration &&
+        moduleDeclaration.type().equals(stringLiteral);
     }
 
     private void reportDuplicates(CheckContext ctx) {
