@@ -31,10 +31,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchException;
 import static org.sonar.iac.springconfig.parser.properties.PropertiesTestUtils.createPropertiesFileContext;
 
 class PropertiesParserBaseVisitorTest {
@@ -1026,14 +1024,76 @@ class PropertiesParserBaseVisitorTest {
   }
 
   @Test
-  void shouldThrowExceptionForEmptyKey() {
+  void shouldParseEmptyKey() {
     var code = "=abc";
 
-    var exception = catchException(() -> parseProperties(code));
+    parseProperties(code);
 
-    assertThat(exception)
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, CHARACTER} at null:1:1");
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile =abc<EOF><EOF>",
+      "visitRow =abc<EOF>",
+      "visitInvalidLine =abc<EOF>",
+      "visitKey abc",
+      "visitEol <EOF>"
+    );
+  }
+
+  @Test
+  void shouldParseEmptyKeyBetweenOtherKeys() {
+    var code = """
+      foo=bar
+      =abc
+      foo2=bar2""";
+
+    parseProperties(code);
+
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo=bar\\n=abc\\nfoo2=bar2<EOF><EOF>",
+      "visitRow foo=bar\\n",
+      "visitLine foo=bar\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\n",
+      "visitRow =abc\\n",
+      "visitInvalidLine =abc\\n",
+      "visitKey abc",
+      "visitEol \\n",
+      "visitRow foo2=bar2<EOF>",
+      "visitLine foo2=bar2<EOF>",
+      "visitKey foo2",
+      "visitKey bar2",
+      "visitEol <EOF>"
+    );
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"=", ":"})
+  void shouldParseLineContainingDelimiterBetweenOtherKeys(String delimiter) {
+    var code = """
+      foo=bar
+      %sabc
+      foo2=bar2""".formatted(delimiter);
+
+    parseProperties(code);
+
+    var printableDelimiter = printable(delimiter);
+    assertThat(visitor.visited()).containsExactly(
+      "visitPropertiesFile foo=bar\\n%sabc\\nfoo2=bar2<EOF><EOF>".formatted(printableDelimiter),
+      "visitRow foo=bar\\n",
+      "visitLine foo=bar\\n",
+      "visitKey foo",
+      "visitKey bar",
+      "visitEol \\n",
+      "visitRow %sabc\\n".formatted(printableDelimiter),
+      "visitInvalidLine %sabc\\n".formatted(printableDelimiter),
+      "visitKey abc",
+      "visitEol \\n",
+      "visitRow foo2=bar2<EOF>",
+      "visitLine foo2=bar2<EOF>",
+      "visitKey foo2",
+      "visitKey bar2",
+      "visitEol <EOF>"
+    );
   }
 
   @Test
@@ -1173,6 +1233,12 @@ class PropertiesParserBaseVisitorTest {
     public Void visitCommentStartAndText(PropertiesParser.CommentStartAndTextContext ctx) {
       visited.add("visitCommentStartAndText " + printText(ctx));
       return super.visitCommentStartAndText(ctx);
+    }
+
+    @Override
+    public Void visitInvalidLine(PropertiesParser.InvalidLineContext ctx) {
+      visited.add("visitInvalidLine " + printText(ctx));
+      return super.visitInvalidLine(ctx);
     }
 
     protected static String printText(ParseTree ctx) {

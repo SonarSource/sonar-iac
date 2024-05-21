@@ -60,13 +60,6 @@ class SpringConfigParserTest {
   }
 
   @Test
-  void shouldThrowParseExceptionOnPropertiesFile() {
-    assertThatThrownBy(() -> parser.parse("=bar", inputFilePropertiesContext))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, CHARACTER} at dir1/dir2/application.properties:1:1");
-  }
-
-  @Test
   void shouldThrowExceptionWithWrongExtension() {
     assertThatThrownBy(() -> parser.parse("", createInputFileContextMock("foo.ext")))
       .isInstanceOf(ParseException.class)
