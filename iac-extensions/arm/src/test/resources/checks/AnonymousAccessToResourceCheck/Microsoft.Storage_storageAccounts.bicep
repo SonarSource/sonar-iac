@@ -1,3 +1,4 @@
+// Noncompliant@+1 {{Make sure that authorizing potential anonymous access is safe here.}}
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: 'example'
     properties: {}
@@ -30,6 +31,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     }
 }
 
+// Noncompliant@+1 {{Make sure that authorizing potential anonymous access is safe here.}}
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: 'example'
 
@@ -52,6 +54,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts/blobServices/containe
   }
 }
 
+// Noncompliant@+1 {{Make sure that authorizing potential anonymous access is safe here.}}
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'example'
   parent: storageAccount
@@ -60,6 +63,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
+// Noncompliant@+1 {{Make sure that authorizing potential anonymous access is safe here.}}
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'example'
   properties: {

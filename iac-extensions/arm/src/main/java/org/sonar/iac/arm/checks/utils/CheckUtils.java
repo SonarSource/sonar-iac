@@ -133,7 +133,7 @@ public final class CheckUtils {
     return null;
   }
 
-  public static Predicate<Expression> isVersionGreaterOrEqualThan(String version) {
+  public static Predicate<Expression> isVersionNewerOrEqualThan(String version) {
     // Usually, ARM versions are in the format "YYYY-MM-DD", so comparing them lexicographically yields the correct result.
     // They can also have a suffix like `-preview`; for these versions we assume they are not greater than the same version without the suffix.
     var comparator = Comparator.<String, String>comparing(v -> v.substring(0, VERSION_FORMAT_LENGTH)).reversed()

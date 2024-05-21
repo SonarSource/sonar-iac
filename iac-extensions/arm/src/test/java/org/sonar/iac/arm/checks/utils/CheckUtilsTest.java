@@ -46,7 +46,7 @@ class CheckUtilsTest {
   void shouldCompareVersions(String version, String targetVersion, boolean shouldBeGreaterThanTarget) {
     var expression = new StringLiteralImpl(
       new SyntaxTokenImpl('"' + version + '"', null, List.of()));
-    var predicate = CheckUtils.isVersionGreaterOrEqualThan(targetVersion);
+    var predicate = CheckUtils.isVersionNewerOrEqualThan(targetVersion);
 
     Assertions.assertThat(predicate.test(expression)).isEqualTo(shouldBeGreaterThanTarget);
   }

@@ -46,7 +46,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static final String DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",
     "Presto", "RestService", "Spark", "Web");
-  private static final Predicate<Expression> VERSION_DENIES_BLOB_PUBLIC_ACCESS_BY_DEFAULT = CheckUtils.isVersionGreaterOrEqualThan("2023-01-01");
+  private static final Predicate<Expression> VERSION_DENIES_BLOB_PUBLIC_ACCESS_BY_DEFAULT = CheckUtils.isVersionNewerOrEqualThan("2023-01-01");
 
   @Override
   protected void registerResourceConsumer() {
