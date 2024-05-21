@@ -44,7 +44,10 @@ class RequiredTest {
   }
 
   @AfterAll
-  static void cleanup() throws IOException {
+  static void cleanup() throws IOException, InterruptedException {
+    // https://stackoverflow.com/questions/64090643/java-nio-file-accessdeniedexception-while-trying-to-delete-a-renamed-directoryu
+    System.gc();
+    Thread.sleep(1000);
     // workaround for Windows due to https://github.com/junit-team/junit5/issues/2811
     FileUtils.deleteDirectory(tempDir);
   }
