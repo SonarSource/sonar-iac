@@ -75,4 +75,8 @@ public final class CheckUtils {
       }
     };
   }
+
+  public static boolean isScratchImage(String imageName) {
+    return "scratch".equals(imageName);
+  }
 }

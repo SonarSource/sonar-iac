@@ -36,6 +36,8 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
+import static org.sonar.iac.docker.checks.utils.CheckUtils.isScratchImage;
+
 @Rule(key = "S6471")
 public class PrivilegedUserCheck implements IacCheck {
 
@@ -138,10 +140,6 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   // All possible image use cases
-  private static boolean isScratchImage(String imageName) {
-    return "scratch".equals(imageName);
-  }
-
   private static boolean isUnsafeImage(String imageName) {
     return UNSAFE_IMAGES.contains(imageName);
   }
