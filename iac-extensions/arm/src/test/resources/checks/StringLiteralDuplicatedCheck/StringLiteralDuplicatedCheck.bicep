@@ -55,39 +55,23 @@ resource storageAccount 'Microsoft.Storage/storageAccounts' = {
 }
 
 // Compliant: module paths cannot be variables
-module moduleName_one '../dosomething.bicep' = {
-  name: 'deployName_one'
-  params: {
-    argument: 'test1'
-  }
-}
-module moduleName_two '../dosomething.bicep' = {
-  name: 'deployName_two'
-  params: {
-    argument: 'test2'
-  }
-}
-module moduleName_tree '../dosomething.bicep' = {
-  name: 'deployName_tree'
-  params: {
-    argument: 'test3'
-  }
-}
-module moduleName_four '../dosomething.bicep' = {
-  name: 'deployName_four'
-  params: {
-    argument: 'test4'
-  }
-}
-module moduleName_five '../dosomething.bicep' = {
-  name: 'deployName_five'
-  params: {
-    argument: 'test5'
-  }
-}
-module moduleName_five '../dosomething.bicep' = {
-  name: 'deployName_six'
-  params: {
-    argument: 'test6'
-  }
-}
+module moduleName_one '../dosomething.bicep' = {}
+module moduleName_two '../dosomething.bicep' = {}
+module moduleName_tree '../dosomething.bicep' = {}
+module moduleName_four '../dosomething.bicep' = {}
+module moduleName_five '../dosomething.bicep' = {}
+module moduleName_five '../dosomething.bicep' = {}
+
+module moduleName_one 'dosomething.bicep' = {}
+module moduleName_two 'dosomething.bicep' = {}
+module moduleName_tree 'dosomething.bicep' = {}
+module moduleName_four 'dosomething.bicep' = {}
+module moduleName_five 'dosomething.bicep' = {}
+module moduleName_five 'dosomething.bicep' = {}
+
+module moduleName_one 'dir/dosomething.bicep' = {}
+module moduleName_two 'dir/dosomething.bicep' = {}
+module moduleName_tree 'dir/dosomething.bicep' = {}
+module moduleName_four 'dir/dosomething.bicep' = {}
+module moduleName_five 'dir/dosomething.bicep' = {}
+module moduleName_five 'dir/dosomething.bicep' = {}
