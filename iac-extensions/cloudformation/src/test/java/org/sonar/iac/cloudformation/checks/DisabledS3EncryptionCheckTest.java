@@ -28,7 +28,7 @@ class DisabledS3EncryptionCheckTest {
 
   @Test
   void test_yaml() {
-    CloudformationVerifier.verify("DisabledS3EncryptionCheck/test.yaml", new DisabledS3EncryptionCheck());
+    CloudformationVerifier.verify("DisabledS3EncryptionCheck/DisabledS3EncryptionCheck.yaml", new DisabledS3EncryptionCheck());
   }
 
   @Test

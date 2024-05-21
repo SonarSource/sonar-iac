@@ -4,14 +4,18 @@
 13,
 21,
 29,
-37
+37,
+45,
+49
 ],
 "cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6252.yaml": [
 4,
 10,
 15,
 22,
-28
+28,
+34,
+38
 ],
 "cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6270.json": [
 5
@@ -24,6 +28,9 @@
 ],
 "cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6273.yaml": [
 7
+],
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/lambda_build_with_submodules/templates/test.template.yaml": [
+3
 ],
 "cloudformation-project:sources/cloudformation/taskcat/tests/data/retain-resources/test.template.yaml": [
 26,
