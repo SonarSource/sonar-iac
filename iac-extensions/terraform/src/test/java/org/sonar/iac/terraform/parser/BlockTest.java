@@ -44,6 +44,9 @@ class BlockTest {
       .matches("""
         dynamic a "label" {
         }""")
+      .matches("""
+        dynamic "a" label {
+        }""")
       .notMatches("a{}")
       .notMatches("a")
       .notMatches("");
@@ -68,7 +71,26 @@ class BlockTest {
   }
 
   @Test
-  void testDynamicBlock() {
+  void testBlockDetailed() {
+    var code = """
+      a "label" {
+        b = value.b
+      }
+      """;
+
+    Assertions.assertThat(HclLexicalGrammar.BLOCK)
+      .extracting(parser -> parser.parse(code))
+      .isNotNull()
+      .satisfies(tree -> {
+        var blockTree = (BlockTree) tree;
+        org.assertj.core.api.Assertions.assertThat(blockTree.isDynamic()).isFalse();
+        org.assertj.core.api.Assertions.assertThat(blockTree.key().value()).isEqualTo("a");
+        TextRangeAssert.assertThat(blockTree.key().textRange()).hasRange(1, 0, 1, 1);
+      });
+  }
+
+  @Test
+  void testDynamicBlockDetailed() {
     var code = """
       dynamic "a" {
         for_each = var.a
