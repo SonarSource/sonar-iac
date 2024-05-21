@@ -31,6 +31,10 @@ import (
 
 var END_TOKEN = []byte("END\n")
 
+// The bigger input buffer prevent the flacky error: "error reading content: strconv.Atoi", see SONARIAC-1392
+// The default is 64 * 1024
+var INPUT_BUFFER_SIZE = 1024 * 1024 * 1024
+
 type InputReader interface {
 	// ReadInput
 	// Reads from the given scanner expecting the following format:
@@ -143,5 +147,7 @@ func ScanLinesIncludeNewLine(data []byte, atEOF bool) (advance int, token []byte
 func CreateScanner(reader io.Reader) *bufio.Scanner {
 	scanner := bufio.NewScanner(reader)
 	scanner.Split(ScanLinesIncludeNewLine)
+	buf := make([]byte, INPUT_BUFFER_SIZE)
+	scanner.Buffer(buf, INPUT_BUFFER_SIZE)
 	return scanner
 }
