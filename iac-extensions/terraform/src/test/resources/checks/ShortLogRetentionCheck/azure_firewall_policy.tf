@@ -21,7 +21,17 @@ resource "azurerm_firewall_policy" "s6413-fp-c3" {
   }
 }
 
-resource "azurerm_firewall_policy" "s6413-fp-c3" {
+# Noncompliant@+1 {{Make sure that disabling insights is safe here.}}
+resource "azurerm_firewall_policy" "s6413-fp-nc2" {
+#        ^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+
+resource "azurerm_firewall_policy" "s6413-fp-nc3" {
+  insights {
+    enabled = false # Noncompliant {{Make sure that disabling insights is safe here.}}
+#   ^^^^^^^^^^^^^^^
+    retention_in_days = 30
+  }
 }
 
 
