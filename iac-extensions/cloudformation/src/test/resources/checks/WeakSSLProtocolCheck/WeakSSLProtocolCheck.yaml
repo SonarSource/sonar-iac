@@ -7,8 +7,7 @@ Resources:
       #               ^^^^^^^^^
 
   NoSecurityPolicyV1:
-    Type: AWS::ApiGateway::DomainName # Noncompliant {{Set "SecurityPolicy" to disable support of older TLS versions.}}
-    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Type: AWS::ApiGateway::DomainName # Compliant, defaults to TLS 1.2
     Properties:
       Foo: Bar
 
@@ -37,19 +36,11 @@ Resources:
   NoSecurityPolicyV2:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
-      DomainNameConfigurations: # Noncompliant {{Set "SecurityPolicy" to disable support of older TLS versions.}}
-    # ^^^^^^^^^^^^^^^^^^^^^^^^
+      DomainNameConfigurations: # Compliant, security policy defaults to TLS 1.2
         - Foo: Bar
 
-  WrongSyntaxForSecurityPolicy:
-    Type: AWS::ApiGatewayV2::DomainName
-    Properties:
-      DomainNameConfigurations: # Noncompliant {{Set "SecurityPolicy" to disable support of older TLS versions.}}
-        SecurityPolicy: "TLS_1_2"
-
   DomainNameConfiguration:
-    Type: AWS::ApiGatewayV2::DomainName # Noncompliant {{Set "DomainNameConfigurations.SecurityPolicy" to disable support of older TLS versions.}}
-    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Type: AWS::ApiGatewayV2::DomainName # Compliant, security policy defaults to TLS 1.2
     Properties:
       Foo: Bar
 
