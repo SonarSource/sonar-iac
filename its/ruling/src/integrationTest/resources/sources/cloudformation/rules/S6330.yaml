@@ -4,6 +4,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
      "DisplayName": "unencrypted_queue"
+     SqsManagedSseEnabled: false
 
   EncryptedQueue:
     Type: AWS::SQS::Queue

@@ -20,14 +20,16 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6330")
 public class UnencryptedSqsQueueCheck extends AbstractNewResourceCheck {
+  private static final String MESSAGE = "Setting \"SqsManagedSseEnabled\" to \"false\" disables SQS queues encryption. Make sure it is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
     register("aws_sqs_queue",
-      resource -> resource.attribute("kms_master_key_id")
-        .reportIfAbsent("Omitting \"kms_master_key_id\" disables SQS queues encryption. Make sure it is safe here."));
+      resource -> resource.attribute("sqs_managed_sse_enabled")
+        .reportIf(TextUtils::isValueFalse, MESSAGE));
   }
 }

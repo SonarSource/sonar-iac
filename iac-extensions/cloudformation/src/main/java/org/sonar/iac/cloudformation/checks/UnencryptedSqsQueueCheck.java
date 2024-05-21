@@ -22,16 +22,19 @@ package org.sonar.iac.cloudformation.checks;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6330")
 public class UnencryptedSqsQueueCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Omitting \"KmsMasterKeyId\" disables SQS queues encryption. Make sure it is safe here.";
+  private static final String MESSAGE = "Setting \"SqsManagedSseEnabled\" to \"false\" disables SQS queues encryption. Make sure it is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
-    if (resource.isType("AWS::SQS::Queue") && PropertyUtils.isMissing(resource.properties(), "KmsMasterKeyId")) {
-      ctx.reportIssue(resource.type(), MESSAGE);
+    if (resource.isType("AWS::SQS::Queue")) {
+      PropertyUtils.get(resource.properties(), "SqsManagedSseEnabled")
+        .filter(property -> TextUtils.isValueFalse(property.value()))
+        .ifPresent(property -> ctx.reportIssue(property, MESSAGE));
     }
   }
 

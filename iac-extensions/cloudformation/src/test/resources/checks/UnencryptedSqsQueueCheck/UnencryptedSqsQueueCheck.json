@@ -5,20 +5,28 @@
       "Type": "AWS::SQS::Queue",
       "Properties": {
         "DisplayName": "unencrypted_queue",
-        "Other": false
+        "SqsManagedSseEnabled": false
       }
     },
     "NotebookEncrypted": {
       "Type": "AWS::SQS::Queue",
       "Properties": {
         "Other": "yolo",
-        "DisplayName": "encrypted_queue",
+        "DisplayName": "encrypted_queue_kms",
         "KmsMasterKeyId": {
           "Fn::GetAtt": [
             "TestKey",
             "KeyId"
           ]
         }
+      }
+    },
+    "NotebookEncrypted": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "Other": "yolo",
+        "DisplayName": "encrypted_queue_sqs",
+        "SqsManagedSseEnabled": true
       }
     },
     "OtherResource1": {

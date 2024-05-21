@@ -28,14 +28,14 @@ class UnencryptedSqsQueueCheckTest {
 
   @Test
   void test_yaml() {
-    CloudformationVerifier.verify("UnencryptedSqsQueueCheck/test.yaml", new UnencryptedSqsQueueCheck());
+    CloudformationVerifier.verify("UnencryptedSqsQueueCheck/UnencryptedSqsQueueCheck.yaml", new UnencryptedSqsQueueCheck());
   }
 
   @Test
   void test_json() {
-    CloudformationVerifier.verify("UnencryptedSqsQueueCheck/test.json", new UnencryptedSqsQueueCheck(),
-      new Verifier.Issue(range(5, 14, 5, 31),
-        "Omitting \"KmsMasterKeyId\" disables SQS queues encryption. Make sure it is safe here."));
+    CloudformationVerifier.verify("UnencryptedSqsQueueCheck/UnencryptedSqsQueueCheck.json", new UnencryptedSqsQueueCheck(),
+      new Verifier.Issue(range(8, 8, 8, 37),
+        "Setting \"SqsManagedSseEnabled\" to \"false\" disables SQS queues encryption. Make sure it is safe here."));
   }
 
 }

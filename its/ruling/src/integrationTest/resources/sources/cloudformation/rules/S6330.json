@@ -5,7 +5,7 @@
       "Type": "AWS::SQS::Queue",
       "Properties": {
         "DisplayName": "unencrypted_queue",
-        "Other": false
+        "SqsManagedSseEnabled": false
       }
     },
     "NotebookEncrypted": {
