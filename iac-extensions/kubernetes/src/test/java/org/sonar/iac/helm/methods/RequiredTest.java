@@ -19,19 +19,15 @@
  */
 package org.sonar.iac.helm.methods;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.impl.utils.DefaultTempFolder;
-import org.sonar.iac.helm.HelmEvaluator;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.impl.utils.DefaultTempFolder;
+import org.sonar.iac.helm.HelmEvaluator;
 
 class RequiredTest {
   @TempDir
@@ -43,14 +39,6 @@ class RequiredTest {
   void setUp() throws IOException {
     this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(tempDir, false));
     this.helmEvaluator.initialize();
-  }
-
-  // The build on Windows has sometimes problems when removing temp dir
-  // https://github.com/junit-team/junit5/issues/2811#issuecomment-2084917705
-  @AfterEach
-  @EnabledOnOs(OS.WINDOWS)
-  void cleanUp() {
-    System.gc();
   }
 
   @Test

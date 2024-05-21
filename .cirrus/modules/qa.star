@@ -21,7 +21,7 @@ def qa_win_script():
         "choco install protoc --version ${PROTOC_VERSION}.0",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "source cirrus-env CI",
-        "./gradlew ${GRADLE_COMMON_FLAGS} test"
+        "./gradlew ${GRADLE_COMMON_FLAGS} ${GRADLE_WINDOWS_FLAGS} test"
     ]
 
 
