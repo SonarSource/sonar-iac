@@ -30,6 +30,8 @@ import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 
+import static org.sonar.iac.docker.checks.utils.CheckUtils.isScratchImage;
+
 @Rule(key = "S6596")
 public class SpecificVersionTagCheck implements IacCheck {
 
@@ -53,6 +55,10 @@ public class SpecificVersionTagCheck implements IacCheck {
       return;
     }
     String fullImageName = resolvedImage.value();
+
+    if (isScratchImage(fullImageName)) {
+      return;
+    }
 
     if (hasSensitiveVersionTag(fullImageName) && !encounteredAlias.contains(fullImageName)) {
       ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE);
