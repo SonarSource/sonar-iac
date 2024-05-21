@@ -50,23 +50,18 @@ public class SpecificVersionTagCheck implements IacCheck {
   }
 
   private static void checkFromInstruction(CheckContext ctx, FromInstruction fromInstruction, Set<String> encounteredAlias) {
+    var resolvedImage = ArgumentResolution.of(fromInstruction.image());
+    if (resolvedImage.isResolved()) {
+      String fullImageName = resolvedImage.value();
+
+      if (!isScratchImage(fullImageName) && hasSensitiveVersionTag(fullImageName) && !encounteredAlias.contains(fullImageName)) {
+        ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE);
+      }
+    }
+
     var alias = fromInstruction.alias();
     if (alias != null) {
       encounteredAlias.add(alias.alias().value());
-    }
-
-    var resolvedImage = ArgumentResolution.of(fromInstruction.image());
-    if (resolvedImage.isUnresolved()) {
-      return;
-    }
-    String fullImageName = resolvedImage.value();
-
-    if (isScratchImage(fullImageName)) {
-      return;
-    }
-
-    if (hasSensitiveVersionTag(fullImageName) && !encounteredAlias.contains(fullImageName)) {
-      ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE);
     }
   }
 
