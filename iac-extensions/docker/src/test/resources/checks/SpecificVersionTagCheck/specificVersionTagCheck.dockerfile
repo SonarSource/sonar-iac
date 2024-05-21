@@ -83,3 +83,6 @@ FROM foo:
 # Compliant: scratch is a special image that cannot have tag/digest
 FROM scratch
 FROM scratch:1.2.3
+
+FROM ${UNRESOLVED} as myBase
+FROM myBase
