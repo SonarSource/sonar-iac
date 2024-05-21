@@ -51,12 +51,14 @@ public class PackageInstallationCacheCheck implements IacCheck {
   private static final Predicate<String> isFlag = s -> s.startsWith("-");
   private static final Predicate<String> flagWithNecessaryRmOptions = isFlag.and(containsROrF);
   private static final Predicate<String> flagWithoutContainingNecessaryFlags = isFlag.and(not(flagWithNecessaryRmOptions));
+  private static final Predicate<String> packageName = s -> !s.contains("/") && !s.endsWith(".deb") && !s.endsWith(".apk");
 
   private static final CommandDetector APK_ADD = CommandDetector.builder()
     .with("apk")
     .withAnyFlagExcept("--no-cache")
     .with("add")
     .withAnyFlagExcept("--no-cache")
+    .with(packageName)
     .build();
 
   private static final CommandDetector APK_CLEAN = buildCleanCacheDetector(Set.of("apk"));
@@ -66,6 +68,7 @@ public class PackageInstallationCacheCheck implements IacCheck {
     .withAnyFlag()
     .with("install")
     .withAnyFlag()
+    .with(packageName)
     .build();
 
   private static final CommandDetector APT_CLEAN = buildCleanCacheDetector(APT_COMMANDS);
