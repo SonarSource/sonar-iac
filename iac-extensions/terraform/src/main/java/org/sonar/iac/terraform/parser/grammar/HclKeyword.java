@@ -27,7 +27,8 @@ public enum HclKeyword implements GrammarRuleKey {
   ELSE("else"),
   END_IF("endif"),
   END_FOR("endfor"),
-  IN("in");
+  IN("in"),
+  DYNAMIC("dynamic");
 
   private final String value;
 

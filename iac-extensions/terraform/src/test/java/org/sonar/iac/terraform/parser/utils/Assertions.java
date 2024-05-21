@@ -24,7 +24,7 @@ import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
-import org.fest.assertions.GenericAssert;
+import org.assertj.core.api.ObjectAssert;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclNodeBuilder;
@@ -58,10 +58,10 @@ public class Assertions {
       rule));
   }
 
-  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<TerraformTree>> {
+  public static class ParserAssert extends ObjectAssert<ActionParser<TerraformTree>> {
 
     public ParserAssert(ActionParser<TerraformTree> actual) {
-      super(ParserAssert.class, actual);
+      super(actual);
     }
 
     private void parseTillEof(String input) {

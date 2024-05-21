@@ -21,11 +21,13 @@ package org.sonar.iac.terraform.tree.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 public class LabelTreeImpl extends TerraformTreeImpl implements LabelTree {
+  private static final Pattern ENCLOSING_QUOTE = Pattern.compile("(^\")|(\"$)");
   private final SyntaxToken token;
 
   public LabelTreeImpl(SyntaxToken token) {
@@ -40,7 +42,7 @@ public class LabelTreeImpl extends TerraformTreeImpl implements LabelTree {
   @Override
   public String value() {
     // Terraform allows labels to be quoted or unquoted. The meaning however is the same.
-    return token.value().replaceAll("(^\")|(\"$)", "");
+    return ENCLOSING_QUOTE.matcher(token.value()).replaceAll("");
   }
 
   @Override

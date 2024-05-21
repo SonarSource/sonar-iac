@@ -28,5 +28,16 @@ resource "aws_api_gateway_stage" "safe_tracing_and_access_log" {
   }
 }
 
+resource "aws_api_gateway_stage" "safe_tracing_and_dynamic_access_log" {
+  xray_tracing_enabled = true
+  dynamic "access_log_settings" {
+    for_each = var.access_log_settings
+    content {
+      destination_arn = ""
+      format          = ""
+    }
+  }
+}
+
 resource "non_aws_api_gateway_stage" "for_coverage" {
 }

@@ -16,6 +16,15 @@ resource "azurerm_api_management" "compliant" {
   }
 }
 
+resource "azurerm_api_management" "compliant_dynamic" {
+  dynamic sign_in {
+    for_each = var.sign_in
+    content {
+      enabled = true
+    }
+  }
+}
+
 resource "other_resource" "coverage" {
   sign_in {
     enabled = false

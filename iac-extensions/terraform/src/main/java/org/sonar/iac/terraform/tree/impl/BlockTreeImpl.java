@@ -30,15 +30,20 @@ import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.StatementTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
+import static java.util.Objects.requireNonNullElse;
+
 public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
+  @Nullable
+  private final SyntaxToken dynamicKeyword;
   private final SyntaxToken key;
   private final List<LabelTree> labels;
   private final BodyTree body;
-  private Kind kind;
+  private final Kind kind;
 
-  public BlockTreeImpl(SyntaxToken key, @Nullable List<LabelTree> labels, BodyTree body, Kind kind) {
+  public BlockTreeImpl(@Nullable SyntaxToken dynamic, SyntaxToken key, @Nullable List<LabelTree> labels, BodyTree body, Kind kind) {
+    this.dynamicKeyword = dynamic;
     this.key = key;
-    this.labels = labels != null ? labels : Collections.emptyList();
+    this.labels = requireNonNullElse(labels, Collections.emptyList());
     this.body = body;
     this.kind = kind;
   }
@@ -61,6 +66,11 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   @Override
   public BodyTree value() {
     return body;
+  }
+
+  @Override
+  public boolean isDynamic() {
+    return dynamicKeyword != null;
   }
 
   @Override

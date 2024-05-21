@@ -95,7 +95,7 @@ public class TestTreeBuilders {
 
     public BlockTree build() {
       BodyTree body = new BodyTreeImpl(token("{"), token("\n"), statements, token("}"));
-      return new BlockTreeImpl(key, labels, body, TerraformTree.Kind.BLOCK);
+      return new BlockTreeImpl(null, key, labels, body, TerraformTree.Kind.BLOCK);
     }
   }
 

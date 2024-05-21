@@ -64,7 +64,10 @@ public class HclGrammar {
 
   public BlockTree BLOCK() {
     return b.<BlockTree>nonterminal(HclLexicalGrammar.BLOCK).is(
-      f.block(b.token(HclLexicalGrammar.IDENTIFIER),
+      f.block(
+        b.optional(b.token(HclKeyword.DYNAMIC)),
+        b.firstOf(
+          b.token(HclLexicalGrammar.IDENTIFIER), f.quotedIdentifier(b.token(Punctuator.DOUBLE_QUOTE), b.token(HclLexicalGrammar.IDENTIFIER), b.token(Punctuator.DOUBLE_QUOTE))),
         b.zeroOrMore(LABEL()),
         b.token(Punctuator.LCURLYBRACE),
         b.token(HclLexicalGrammar.NEWLINE),
@@ -74,7 +77,10 @@ public class HclGrammar {
 
   public BlockTree ONE_LINE_BLOCK() {
     return b.<BlockTree>nonterminal(HclLexicalGrammar.ONE_LINE_BLOCK).is(
-      f.oneLineBlock(b.token(HclLexicalGrammar.IDENTIFIER),
+      f.oneLineBlock(
+        b.optional(b.token(HclKeyword.DYNAMIC)),
+        b.firstOf(
+          b.token(HclLexicalGrammar.IDENTIFIER), f.quotedIdentifier(b.token(Punctuator.DOUBLE_QUOTE), b.token(HclLexicalGrammar.IDENTIFIER), b.token(Punctuator.DOUBLE_QUOTE))),
         b.zeroOrMore(LABEL()),
         b.token(Punctuator.LCURLYBRACE),
         b.optional(ATTRIBUTE()),
