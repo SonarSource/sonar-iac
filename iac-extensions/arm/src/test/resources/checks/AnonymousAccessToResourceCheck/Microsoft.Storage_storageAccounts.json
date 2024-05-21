@@ -59,6 +59,11 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
+      "name": "Sensitive - `allowBlobPublicAccess` is unset with old API version"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
       "name": "Compliant",
       "properties": {
         "allowBlobPublicAccess": false
@@ -79,6 +84,11 @@
           "properties": {}
         }
       ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "Compliant - `allowBlobPublicAccess` is unset with a newer API version"
     }
   ]
 }

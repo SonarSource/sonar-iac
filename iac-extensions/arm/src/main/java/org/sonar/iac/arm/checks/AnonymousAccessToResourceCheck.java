@@ -20,10 +20,12 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.List;
+import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.checks.utils.CheckUtils;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.inCollection;
@@ -44,6 +46,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static final String DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",
     "Presto", "RestService", "Spark", "Web");
+  private static final Predicate<Expression> VERSION_DENIES_BLOB_PUBLIC_ACCESS_BY_DEFAULT = CheckUtils.isVersionNewerOrEqualThan("2023-01-01");
 
   @Override
   protected void registerResourceConsumer() {
@@ -98,8 +101,12 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkStorageAccounts(ContextualResource resource) {
-    resource.property("allowBlobPublicAccess")
-      .reportIf(CheckUtils.isTrue(), STORAGE_ANONYMOUS_ACCESS_MESSAGE);
+    var allowBlobPublicAccess = resource.property("allowBlobPublicAccess");
+    allowBlobPublicAccess.reportIf(CheckUtils.isTrue(), STORAGE_ANONYMOUS_ACCESS_MESSAGE);
+
+    if (!VERSION_DENIES_BLOB_PUBLIC_ACCESS_BY_DEFAULT.test(resource.version)) {
+      allowBlobPublicAccess.reportIfAbsent(STORAGE_ANONYMOUS_ACCESS_MESSAGE);
+    }
   }
 
   private static void checkStorageAccountContainers(ContextualResource resource) {
