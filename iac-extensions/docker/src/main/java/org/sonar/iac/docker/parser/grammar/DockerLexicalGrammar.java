@@ -170,7 +170,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(STRING_WITH_ENCAPS_VAR_CHARACTERS).is(b.regexp(DockerLexicalConstant.STRING_WITH_ENCAPS_VAR_CHARACTERS));
     b.rule(UNQUOTED_VARIABLE_MODIFIER).is(b.regexp(DockerLexicalConstant.UNQUOTED_VARIABLE_MODIFIER));
 
-    // TODO : those elements will be removed in the next grammar progressively
+    // TODO SONARIAC-1478: those elements will be removed in the next grammar progressively
     b.rule(STRING_LITERAL).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL_OLD));
 
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));

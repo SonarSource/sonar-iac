@@ -19,6 +19,14 @@
  */
 package org.sonar.iac.docker.checks.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Predicate;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -31,15 +39,6 @@ import org.sonar.iac.docker.checks.utils.command.PredicateContext.Status;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Predicate;
 
 import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.splitCommands;
 
@@ -266,8 +265,7 @@ public class CommandDetector {
     }
 
     /**
-     * TODO: After <a href="https://sonarsource.atlassian.net/browse/SONARIAC-1088">SONARIAC-1088</a> may become redundant
-     * as CommandDetector will be capable of more complex matching
+     * TODO SONARIAC-1088: This may become redundant as CommandDetector will be capable of more complex matching
      */
     @SuppressWarnings("java:S1135")
     public List<ArgumentResolution> getResolvedArguments() {

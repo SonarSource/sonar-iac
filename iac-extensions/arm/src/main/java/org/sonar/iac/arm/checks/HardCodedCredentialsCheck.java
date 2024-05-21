@@ -62,7 +62,7 @@ public class HardCodedCredentialsCheck implements IacCheck {
     }
   }
 
-  /** TODO <a href="https://sonarsource.atlassian.net/browse/SONARIAC-1420">SONARIAC-1420</a>: S6437 should raise when credential is not defined via parameter */
+  /** TODO SONARIAC-1420: S6437 should raise when credential is not defined via parameter */
   private static boolean isHardcoded(Tree tree) {
     return TextUtils.matchesValue(tree, String::isBlank).isFalse();
   }

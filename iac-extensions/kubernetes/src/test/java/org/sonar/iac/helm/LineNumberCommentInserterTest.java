@@ -50,7 +50,7 @@ class LineNumberCommentInserterTest {
       "          containerPort: 80\n" +
       "          protocol: TCP\n" +
       "      securityContext:\n" +
-      "        allowPrivilegeEscalation: true # TODO SONARIAC-1130 Parse a Helm file containing loops without crash";
+      "        allowPrivilegeEscalation: true # comment";
     String expected = "apiVersion: v1 #1\n" +
       "kind: Pod #2\n" +
       "metadata: #3\n" +
@@ -70,7 +70,7 @@ class LineNumberCommentInserterTest {
       "          containerPort: 80 #17\n" +
       "          protocol: TCP #18\n" +
       "      securityContext: #19\n" +
-      "        allowPrivilegeEscalation: true # TODO SONARIAC-1130 Parse a Helm file containing loops without crash #20";
+      "        allowPrivilegeEscalation: true # comment #20";
     checkHelmProcessing(code, expected);
   }
 

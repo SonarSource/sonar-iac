@@ -32,6 +32,4 @@ class ArgumentResolutionIncludingUnresolvedArgumentsPredicateTest {
     assertThat(predicate.hasType(CommandPredicate.Type.MATCH)).isTrue();
     assertThat(predicate.hasType(CommandPredicate.Type.NO_MATCH)).isFalse();
   }
-
-  // TODO more tests?
 }
