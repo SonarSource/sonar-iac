@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -26,8 +27,6 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
-
-import java.util.Optional;
 
 @Rule(key = "S4423")
 public class WeakSSLProtocolCheck extends AbstractResourceCheck {
@@ -52,14 +51,12 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
 
   private static void checkApiGatewayDomainV2(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), "DomainNameConfigurations", TupleTree.class)
-      .ifPresentOrElse(policy -> checkDomainNameConfiguration(ctx, policy),
-        () -> reportResource(ctx, resource, omittingMessage("DomainNameConfigurations.SecurityPolicy")));
+      .ifPresent(policy -> checkDomainNameConfiguration(ctx, policy));
   }
 
   private static void checkApiGatewayDomain(CheckContext ctx, Resource resource) {
     PropertyUtils.value(resource.properties(), SECURITY_POLICY_KEY)
-      .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
-        () -> reportResource(ctx, resource, omittingMessage(SECURITY_POLICY_KEY)));
+      .ifPresent(policy -> checkSecurityPolicy(ctx, policy));
   }
 
   private static void checkSearchDomain(CheckContext ctx, Resource resource) {
@@ -72,8 +69,6 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
     if (config.value() instanceof SequenceTree sequenceTree && configSequenceContainsSecurityPolicy(sequenceTree)) {
       getSecurityPolicyFromConfigSequence(sequenceTree)
         .ifPresent(policy -> checkSecurityPolicy(ctx, policy));
-    } else {
-      ctx.reportIssue(config.key(), omittingMessage(SECURITY_POLICY_KEY));
     }
   }
 

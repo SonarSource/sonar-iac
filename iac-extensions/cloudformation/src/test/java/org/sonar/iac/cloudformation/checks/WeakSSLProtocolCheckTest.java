@@ -25,6 +25,6 @@ class WeakSSLProtocolCheckTest {
 
   @Test
   void test_yaml() {
-    CloudformationVerifier.verify("WeakSSLProtocolCheck/test.yaml", new WeakSSLProtocolCheck());
+    CloudformationVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.yaml", new WeakSSLProtocolCheck());
   }
 }
