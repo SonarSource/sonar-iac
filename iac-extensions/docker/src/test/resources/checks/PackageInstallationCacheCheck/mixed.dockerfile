@@ -46,9 +46,19 @@ RUN aptitude install nginx && apt-get clean
 RUN apk add nginx.deb
 RUN apt-get install wget.deb
 RUN apk add wget.deb
+RUN apk add nginx.apk
+RUN apt-get install wget.apk
+RUN apk add wget.apk
 RUN apk add ./nginx.other
 RUN apt-get install ./wget.other
 RUN apk add ./wget.other
+
+# Noncompliant@+1
+RUN apk add nginx.other
+# Noncompliant@+1
+RUN apt-get install wget.other
+# Noncompliant@+1
+RUN apk add wget.other
 
 # Compliant - no package name / filepath provided
 RUN apk add
