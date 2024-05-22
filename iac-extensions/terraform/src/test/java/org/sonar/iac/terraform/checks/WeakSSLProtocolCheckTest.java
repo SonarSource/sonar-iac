@@ -39,8 +39,13 @@ class WeakSSLProtocolCheckTest {
   }
 
   @Test
-  void testAzureMysqlServer() {
-    TerraformVerifier.verify("WeakSSLProtocolCheck/azure_mysql_server.tf", new WeakSSLProtocolCheck());
+  void testAzureMysqlServerAzurermV2() {
+    TerraformVerifier.verifyWithProviderVersion("WeakSSLProtocolCheck/azure_mysql_server.tf", new WeakSSLProtocolCheck(), "2.99.0");
+  }
+
+  @Test
+  void testAzureMysqlServerAzurermV3() {
+    TerraformVerifier.verifyWithProviderVersion("WeakSSLProtocolCheck/azure_mysql_server_v3.tf", new WeakSSLProtocolCheck(), "3.10.0");
   }
 
   @Test
@@ -49,13 +54,23 @@ class WeakSSLProtocolCheckTest {
   }
 
   @Test
-  void testAzurePostgresqlServer() {
-    TerraformVerifier.verify("WeakSSLProtocolCheck/azure_postgresql_server.tf", new WeakSSLProtocolCheck());
+  void testAzurePostgresqlServerAzurermV2() {
+    TerraformVerifier.verifyWithProviderVersion("WeakSSLProtocolCheck/azure_postgresql_server.tf", new WeakSSLProtocolCheck(), "2.99.0");
   }
 
   @Test
-  void testAzureStorageAccount() {
-    TerraformVerifier.verify("WeakSSLProtocolCheck/azure_storage_account.tf", new WeakSSLProtocolCheck());
+  void testAzurePostgresqlServerAzurermV3() {
+    TerraformVerifier.verifyWithProviderVersion("WeakSSLProtocolCheck/azure_postgresql_server_v3.tf", new WeakSSLProtocolCheck(), "3.10.0");
+  }
+
+  @Test
+  void testAzureStorageAccountAzurermV2() {
+    TerraformVerifier.verifyWithProviderVersion("WeakSSLProtocolCheck/azure_storage_account.tf", new WeakSSLProtocolCheck(), "2.99.0");
+  }
+
+  @Test
+  void testAzureStorageAccountAzurermV3() {
+    TerraformVerifier.verifyWithProviderVersion("WeakSSLProtocolCheck/azure_storage_account_v3.tf", new WeakSSLProtocolCheck(), "3.10.0");
   }
 
   @Test
