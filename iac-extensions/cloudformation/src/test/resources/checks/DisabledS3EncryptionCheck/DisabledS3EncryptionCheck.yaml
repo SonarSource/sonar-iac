@@ -13,8 +13,15 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
+  BucketWithSomePropertiesSet:
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Omitting "BucketEncryption" disables server-side encryption. Make sure it is safe here.}}
+    Properties:
+      Foo: "Bar"
   BucketWithNoPropertiesSet:
-    Type: 'AWS::S3::Bucket'
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Omitting "BucketEncryption" disables server-side encryption. Make sure it is safe here.}}
+  BucketWithPropertiesAsNotMap:
+    Type: 'AWS::S3::Bucket' # Compliant, because this is invalid configuration which we don't report
+    Properties: "not a map"
   NoBucket:
     Type: 'Not a Bucket'
     Properties:

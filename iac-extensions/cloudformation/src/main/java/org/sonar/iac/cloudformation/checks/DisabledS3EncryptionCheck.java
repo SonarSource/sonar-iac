@@ -20,9 +20,9 @@
 package org.sonar.iac.cloudformation.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.yaml.tree.MappingTree;
 
 @Rule(key = "S6245")
 public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
@@ -36,6 +36,9 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
   }
 
   private static boolean isBucketEncrypted(AbstractResourceCheck.Resource resource) {
-    return !(resource.properties() instanceof MappingTree) || PropertyUtils.value(resource.properties(), "BucketEncryption").isPresent();
+    var properties = resource.properties();
+    // If properties is not a MappingTree, it is not a valid configuration, so we skip it.
+    boolean shouldSkip = properties != null && !(properties instanceof MappingTree);
+    return shouldSkip || PropertyUtils.value(properties, "BucketEncryption").isPresent();
   }
 }
