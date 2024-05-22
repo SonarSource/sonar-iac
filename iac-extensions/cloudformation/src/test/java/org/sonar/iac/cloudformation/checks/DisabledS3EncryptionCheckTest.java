@@ -27,13 +27,13 @@ import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 class DisabledS3EncryptionCheckTest {
 
   @Test
-  void test_yaml() {
+  void shouldCheckYaml() {
     CloudformationVerifier.verify("DisabledS3EncryptionCheck/DisabledS3EncryptionCheck.yaml", new DisabledS3EncryptionCheck());
   }
 
   @Test
-  void test_json() {
-    CloudformationVerifier.verify("DisabledS3EncryptionCheck/test.json", new DisabledS3EncryptionCheck(),
+  void shouldCheckJson() {
+    CloudformationVerifier.verify("DisabledS3EncryptionCheck/DisabledS3EncryptionCheck.json", new DisabledS3EncryptionCheck(),
       new Verifier.Issue(range(5, 14, 5, 31),
         "Omitting \"BucketEncryption\" disables server-side encryption. Make sure it is safe here."));
   }
