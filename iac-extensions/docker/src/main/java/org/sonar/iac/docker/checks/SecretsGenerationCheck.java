@@ -62,12 +62,66 @@ public class SecretsGenerationCheck implements IacCheck {
     .withOptionalRepeating(arg -> true)
     .build();
 
-  private static final Set<String> SENSITIVE_OPENSSL_SUBCOMMANDS = Set.of("req", "genrsa", "rsa", "gendsa", "ec", "ecparam", "x509", "genpkey", "pkey");
-
-  private static final CommandDetector SENSITIVE_OPENSSL_COMMANDS = CommandDetector.builder()
+  /**
+   * Sensitive command: {@code openssl genrsa} or {@code openssl gendsa} or {@code openssl genpkey} with any option.
+   */
+  private static final CommandDetector OPENSSL_GEN_DETECTOR = CommandDetector.builder()
     .with("openssl")
-    .with(SENSITIVE_OPENSSL_SUBCOMMANDS)
-    // every flag or argument that comes after a MATCH of the sensitive subcommand should be flagged as well
+    .with(List.of("genrsa", "gendsa", "genpkey"))
+    .withOptionalRepeating(arg -> true)
+    .build();
+
+  private static final Set<String> SENSITIVE_OPENSSL_REQ_OPTION = Set.of("-passout", "-passin", "-new", "-newkey", "-key", "-CAkey");
+  /**
+   * Sensitive command: {@code openssl req} with any option defined in {@link #SENSITIVE_OPENSSL_REQ_OPTION}.
+   */
+  private static final CommandDetector OPENSSL_REQ_DETECTOR = CommandDetector.builder()
+    .with("openssl")
+    .with("req")
+    .withOptionalRepeatingExcept(SENSITIVE_OPENSSL_REQ_OPTION)
+    .with(SENSITIVE_OPENSSL_REQ_OPTION)
+    .withOptionalRepeating(arg -> true)
+    .build();
+
+  private static final Set<String> COMPLIANT_OPENSSL_RSA_OPTION = Set.of("-pubin", "-RSAPublicKey_in");
+  /**
+   * Sensitive command: {@code openssl rsa} with any option except the ones defined in {@link #COMPLIANT_OPENSSL_RSA_OPTION}.
+   */
+  private static final CommandDetector OPENSSL_RSA_DETECTOR = CommandDetector.builder()
+    .with("openssl")
+    .with("rsa")
+    .withAnyFlagExcept(COMPLIANT_OPENSSL_RSA_OPTION)
+    .build();
+
+  /**
+   * Sensitive command: {@code openssl ec} or {@code openssl key} with any option except {@code -pubin}.
+   */
+  private static final CommandDetector OPENSSL_EC_OR_PKEY_DETECTOR = CommandDetector.builder()
+    .with("openssl")
+    .with(List.of("ec", "pkey"))
+    .withAnyFlagExcept("-pubin")
+    .build();
+
+  /**
+   * Sensitive command: {@code openssl ecparams} or {@code openssl dsaparams} with option {@code -genkey}.
+   */
+  private static final CommandDetector OPENSSL_ECPARAMS_OR_DSAPARAM_DETECTOR = CommandDetector.builder()
+    .with("openssl")
+    .with(List.of("ecparams", "dsaparam"))
+    .withOptionalRepeatingExcept("-genkey")
+    .with("-genkey")
+    .withOptionalRepeating(arg -> true)
+    .build();
+
+  private static final Set<String> SENSITIVE_OPENSSL_X509_OPTION = Set.of("-key", "-signkey", "-CAkey");
+  /**
+   * Sensitive command: {@code openssl x509} with any option defined in {@link #SENSITIVE_OPENSSL_X509_OPTION}.
+   */
+  private static final CommandDetector OPENSSL_X509_DETECTOR = CommandDetector.builder()
+    .with("openssl")
+    .with("x509")
+    .withOptionalRepeatingExcept(SENSITIVE_OPENSSL_X509_OPTION)
+    .with(SENSITIVE_OPENSSL_X509_OPTION)
     .withOptionalRepeating(arg -> true)
     .build();
 
@@ -135,7 +189,12 @@ public class SecretsGenerationCheck implements IacCheck {
   private static final Set<CommandDetector> DETECTORS_THAT_STORE_SECRETS = Set.of(
     SSH_DETECTOR,
     KEYTOOL_DETECTOR,
-    SENSITIVE_OPENSSL_COMMANDS,
+    OPENSSL_GEN_DETECTOR,
+    OPENSSL_REQ_DETECTOR,
+    OPENSSL_RSA_DETECTOR,
+    OPENSSL_EC_OR_PKEY_DETECTOR,
+    OPENSSL_ECPARAMS_OR_DSAPARAM_DETECTOR,
+    OPENSSL_X509_DETECTOR,
     X11VNC_STOREPASSWD_FLAG);
 
   private static final Set<CommandDetector> DETECTORS_THAT_HAVE_SECRETS_IN_CMD = Set.of(
