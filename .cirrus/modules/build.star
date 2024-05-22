@@ -5,10 +5,17 @@ load(
     "whitesource_api_env"
 )
 
-load("conditions.star", "is_main_branch", "is_sonarsource_qa")
-load("platform.star", "custom_image_container_builder")
 load(
-    "cache.star",
+    "github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master",
+    "is_main_branch",
+    "is_branch_qa_eligible"
+)
+load(
+    "github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master",
+"custom_image_container_builder"
+)
+load(
+    "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
     "gradle_cache",
     "cleanup_gradle_script",
     "orchestrator_cache",
@@ -88,7 +95,7 @@ def build_test_env():
 def build_test_analyze_task():
     return {
         "build_test_analyze_task": {
-            "only_if": is_sonarsource_qa(),
+            "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "env": build_test_env(),
             "eks_container": custom_image_container_builder(cpu=6, memory="6G"),
@@ -119,7 +126,7 @@ def whitesource_script():
 def sca_scan_task():
     return {
         "sca_scan_task": {
-            "only_if": is_main_branch(),
+            "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "env": whitesource_api_env(),
             "eks_container": custom_image_container_builder(),

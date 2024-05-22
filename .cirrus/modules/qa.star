@@ -1,8 +1,8 @@
-load("platform.star", "base_image_container_builder", "ec2_instance_builder")
-load("conditions.star", "is_sonarsource_qa")
+load("github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master", "base_image_container_builder", "ec2_instance_builder")
+load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master", "is_branch_qa_eligible")
 load("build.star", "profile_report_artifacts")
 load(
-    "cache.star",
+    "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
     "gradle_cache",
     "cleanup_gradle_script",
     "orchestrator_cache",
@@ -28,7 +28,7 @@ def qa_win_script():
 def qa_os_win_task():
     return {
         "qa_os_win_task": {
-            "only_if": is_sonarsource_qa(),
+            "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "ec2_instance": ec2_instance_builder(),
             "gradle_cache": gradle_cache(),
@@ -44,7 +44,7 @@ def qa_os_win_task():
 
 def qa_task(env):
     return {
-        "only_if": is_sonarsource_qa(),
+        "only_if": is_branch_qa_eligible(),
         "depends_on": "build",
         "eks_container": base_image_container_builder(memory="9G"),
         "env": env,
