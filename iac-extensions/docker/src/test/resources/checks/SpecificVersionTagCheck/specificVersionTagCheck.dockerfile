@@ -83,3 +83,15 @@ FROM foo:
 # Compliant: scratch is a special image that cannot have tag/digest
 FROM scratch
 FROM scratch:1.2.3
+
+# Compliant, unresolved myBase reference should not raise an issue, could lead to a FP
+FROM ${UNRESOLVED} as myBase
+FROM myBase
+
+# Sensitive, we should raise an issue here
+# Noncompliant@+1
+FROM myBaseWithoutTag as myBaseWithoutTag
+
+# Compliant
+FROM myBaseWithTag:1.1 as myBaseWithTag
+
