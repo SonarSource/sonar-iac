@@ -25,6 +25,8 @@ RUN openssl req -random1 -passout other
 # Noncompliant@+1
 RUN openssl req -random1 -passin
 # Noncompliant@+1
+RUN openssl req -random1 -passout
+# Noncompliant@+1
 RUN openssl req -random1 -new
 # Noncompliant@+1
 RUN openssl req -random1 -newkey
@@ -42,6 +44,9 @@ RUN openssl rsa -random1
 #   ^^^^^^^^^^^^^^^^^^^^
 RUN openssl rsa -random1 -pubin
 RUN openssl rsa -random1 -RSAPublicKey_in
+RUN openssl rsa -pubin
+RUN openssl rsa -pubin -random1
+RUN openssl rsa -pubin -random1 && other command
 
 
 ## openssl ec/pkey
