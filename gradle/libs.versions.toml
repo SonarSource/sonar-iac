@@ -16,7 +16,7 @@ sonar-scanner-gradle = "5.0.0.4638"
 jfrog-gradle = "4.33.20"
 spotless-gradle = "6.25.0"
 blowdryer-gradle = "1.7.1"
-google-protobuf = "3.25.3"
+google-protobuf = "4.26.1"
 apache-commons-lang = "2.6"
 antlr4 = "4.13.1"
 
