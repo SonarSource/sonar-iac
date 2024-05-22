@@ -15,6 +15,7 @@ NOTE:
     - [Starlark capabilities](#starlark-capabilities)
     - [Module loading](#module-loading)
     - [Builtins](#builtins)
+      - [About dictionaries](#about-dictionaries)
     - [Starlark is no Python](#starlark-is-no-python)
 - [Design patterns](#design-patterns)
     - [Introduction](#introduction)
@@ -24,10 +25,12 @@ NOTE:
 - [Comments](#comments)
 - [Formatting](#formatting)
 - [Namings](#namings)
+    - [Modules](#modules)
     - [Env variables](#env-variables)
-    - [Factories](#factories)
+    - [Builders](#builders)
     - [Scripts](#scripts)
     - [Task definitions](#task-definitions)
+    - [Conditions](#conditions)
 - [Modules](#modules)
     - [By domain partitioning](#by-domain-partitioning)
     - [By pipeline activity partitioning](#by-pipeline-activity-partitioning)
@@ -72,15 +75,18 @@ Local from the file system: the module lives as a .star file in the same reposit
 Remote from Git: a Git URL is provided with the name of the Starlark file and the branch or tag or commit id
 
 Local example:
-
 ```Python
 load(".ci/notify-slack.star", "notify_slack")
 ```
 
-Remote example (where v2 is a branch name of the repo cirrus-modules):
-
+Remote example where v2 is a branch name of the repo cirrus-modules:
 ```Python
 load("github.com/SonarSource/cirrus-modules@v2", "load_features")
+```
+
+Remote example loading Cloud Native squad shared library:
+```Python
+load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master", "sonarcloud_env")
 ```
 
 There is another way to load a building block locally: by using another built-in function fs.read we can also load YAML
@@ -94,11 +100,40 @@ Strictly speaking, a module is written in Starlark.
 Starlark, in Cirrus, comes with builtins provided by Cirrus and by the language itself.
 
 The most prevalent seem to be:
-
 - `load`
 - `fs`
 - `env`
 - `yaml`
+
+#### About dictionaries
+
+Please note that we use Starlark dictionaries massively when defining pipelines.
+
+Starlark offers useful functions to manipulate dictionaries like `update` and `|` operator.
+
+To update a dictionary with another one, we can use the `update` function:
+```Python
+dict1 = {"a": 1, "b": 2}
+dict2 = {"c": 1, "d": 2}
+dict1.update(dict2)
+# dict1 is now {"a": 1, "b": 2, "c": 1, "d": 2}
+```
+
+It's also possible to use the `|` operator which return a new dictionary:
+```Python
+dict1 = {"a": 1, "b": 2}
+dict2 = {"c": 1, "d": 2}
+dict3 = dict1 | dict2
+# dict3 is now {"a": 1, "b": 2, "c": 1, "d": 2}
+```
+
+To merge dictionaries, use the `merge_dict` function in the `cirrus-modules` repository `helper.star` module:
+```Python
+dict1 = {"a": {"b": 1}}
+dict2 = {"a": {"c": 2}}
+merge_dict(dict1, dict2)
+# dict1 is now {"a": {"b": 1, "c": 2}}
+```
 
 ### Starlark is no Python
 
@@ -238,7 +273,6 @@ This is also closely related to the “Separation of concern” principle.
 This pattern can also be applied to a shared module.
 
 `.cirrus.star` content:
-
 ```Python
 load("github.com/SonarSource/cirrus-modules@v2", "load_features")
 load(".cirrus/modules/base.star", "base_all_tasks")
@@ -250,8 +284,8 @@ load(".cirrus/modules/housekeeping.star", "housekeeping_all_tasks")
 
 def main(ctx):
     conf = dict()
-    re_builtins = load_features(ctx)
-    merge_dict(conf, re_builtins)
+    devinfra_builtins = load_features(ctx)
+    merge_dict(conf, devinfra_builtins)
     merge_dict(conf, base_all_tasks())
     merge_dict(conf, build_all_tasks())
     merge_dict(conf, deploy_all_tasks())
@@ -261,7 +295,6 @@ def main(ctx):
 ```
 
 `base.star` content:
-
 ```Python
 load(
     "common.star",
@@ -302,6 +335,19 @@ def base_all_tasks():
 ```
 
 ## Namings
+
+### Modules
+
+In order to bring consistency modules can be named after typical CI domains:
+- env: everything related to the environment CI tasks need to know about
+- conditions: everything related to only_if section of tasks 
+- build: everything related to the build tasks
+- QA: everything related to the QA tasks
+- promote: everything related to the promote tasks
+- deploy: everything related to the deploy (in the Cloud) tasks
+- helper: everything that doesn't fit in the other domains but is useful to the pipelines
+
+Naming modules consistently facilitate the alignment with shared libraries because they follow the same naming conventions.
 
 ### Env variables
 
@@ -483,7 +529,6 @@ That's why governance of shared code must be carefully considered as it is commo
 leading to local optimizations that ignore the broader impact.
 
 Effective governance requires answering questions about:
-
 - ownership
 - change management
 - stakeholder needs

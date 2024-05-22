@@ -1,4 +1,7 @@
-load("env.star", "promotion_env")
+load(
+    "github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master",
+    "promotion_env",
+)
 load("platform.star", "base_image_container_builder")
 load("cache.star", "project_version_cache")
 load("conditions.star", "is_sonarsource_qa")

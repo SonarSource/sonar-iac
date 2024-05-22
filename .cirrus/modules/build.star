@@ -1,10 +1,10 @@
 load(
-    "env.star",
-    "env",
+    "github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master",
     "pgp_signing_env",
     "sonarcloud_env",
     "whitesource_api_env"
 )
+
 load("conditions.star", "is_main_branch", "is_sonarsource_qa")
 load("platform.star", "custom_image_container_builder")
 load(
