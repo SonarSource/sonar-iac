@@ -32,6 +32,9 @@ RUN curl -foo -L -foo --proto "=foobar" https://redirecttoinsecure.example.com
 # Noncompliant@+1
 RUN curl --proto "=foobar" -foo -L -foo https://redirecttoinsecure.example.com
 
+# Noncompliant@+1
+RUN curl --tlsv1.2 -sSf -L https://might-redirect.example.com/install.sh
+
 RUN curl -L --proto "=foobar" http://redirecttoinsecure.example.com
 
 RUN curl --proto -L "=foobar" http://redirecttoinsecure.example.com

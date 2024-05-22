@@ -42,6 +42,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final String WGET_MESSAGE = "Not disabling redirects might allow for redirections to insecure websites. Make sure it is safe here.";
   private static final String CURL_COMMAND = "curl";
   private static final String PROTO_FLAG = "--proto";
+  private static final String WGET_NO_REDIRECT_FLAG = "--max-redirect=0";
   private static final Set<String> REDIRECTION_FLAGS = Set.of("-L", "--location");
   private static final Set<String> SENSITIVE_FLAGS = Set.of("-L", "--location", PROTO_FLAG);
   private static final Predicate<String> EQUALS_PROTO_FLAG_OPTION = equalsIgnoreQuotes("=https");
@@ -50,26 +51,26 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
 
   // common predicates of detectors
   private static final CommandDetector.Builder REDIRECTION_PREDICATES = CommandDetector.builder()
-    .withOptional(OPTIONAL_OTHER_FLAGS)
+    .withOptionalRepeating(OPTIONAL_OTHER_FLAGS)
     .with(REDIRECTION_FLAGS)
-    .withOptional(OPTIONAL_OTHER_FLAGS);
+    .withOptionalRepeating(OPTIONAL_OTHER_FLAGS);
 
   private static final CommandDetector.Builder PROTO_FLAG_MISSING_OPTION_PREDICATES = CommandDetector.builder()
-    .withOptional(OPTIONAL_OTHER_FLAGS)
+    .withOptionalRepeating(OPTIONAL_OTHER_FLAGS)
     .with(PROTO_FLAG)
     .notWith(EQUALS_PROTO_FLAG_OPTION)
-    .withOptional(OPTIONAL_OTHER_FLAGS);
+    .withOptionalRepeating(OPTIONAL_OTHER_FLAGS);
 
   private static final CommandDetector.Builder PROTO_FLAG_MISSING_PREDICATES = CommandDetector.builder()
-    .withOptional(OPTIONAL_OTHER_FLAGS)
+    .withOptionalRepeating(OPTIONAL_OTHER_FLAGS)
     .notWith(PROTO_FLAG::equals)
-    .withOptional(OPTIONAL_OTHER_FLAGS);
+    .withOptionalRepeating(OPTIONAL_OTHER_FLAGS);
 
   private static final CommandDetector.Builder PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES = CommandDetector.builder()
-    .withOptional(OPTIONAL_OTHER_FLAGS)
+    .withOptionalRepeating(OPTIONAL_OTHER_FLAGS)
     .with(PROTO_FLAG)
     .with(not(EQUALS_PROTO_FLAG_OPTION))
-    .withOptional(OPTIONAL_OTHER_FLAGS);
+    .withOptionalRepeating(OPTIONAL_OTHER_FLAGS);
 
   // actual detectors
   // matching "curl -L --proto https://redirecttoinsecure.example.com"
@@ -112,10 +113,12 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(SENSITIVE_HTTPS_URL_BEGINNING)
     .build();
 
+  // For wget, arguments can be both before and after the URL, unless there is `--` before the URL.
   private static final CommandDetector WGET_DETECTOR = CommandDetector.builder()
     .with("wget")
+    .withAnyFlagExcept(WGET_NO_REDIRECT_FLAG)
     .with(SENSITIVE_HTTPS_URL_BEGINNING)
-    .withAnyFlagExcept("--max-redirect=0")
+    .withAnyFlagExcept(WGET_NO_REDIRECT_FLAG)
     .build();
 
   private static final Set<CommandDetector> SENSITIVE_CURL_COMMAND_DETECTORS = Set.of(

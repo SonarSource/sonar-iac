@@ -32,5 +32,22 @@ RUN wget ${OPENSSL3_URL}
 # Noncompliant@+1
 RUN wget ${OPENSSL3_URL_2}
 
+# Noncompliant@+1
+RUN wget --secure-protocol=TLSv1_2 -q -O - https://might-redirect.example.com/install.sh
+# Noncompliant@+1
+RUN wget --secure-protocol=TLSv1_2 https://might-redirect.example.com/install.sh -q -O -
+# Noncompliant@+1
+RUN wget --secure-protocol=TLSv1_2 -q -O - -- https://might-redirect.example.com/install.sh
+
+RUN wget --max-redirect=0 --secure-protocol=TLSv1_2 -q -O - https://might-redirect.example.com/install.sh
+RUN wget --secure-protocol=TLSv1_2 -q -O -  --max-redirect=0 https://might-redirect.example.com/install.sh
+RUN wget --secure-protocol=TLSv1_2 https://might-redirect.example.com/install.sh -q -O - --max-redirect=0
+RUN wget --secure-protocol=TLSv1_2 https://might-redirect.example.com/install.sh --max-redirect=0 -q -O -
+RUN wget --secure-protocol=TLSv1_2 -q -O - --max-redirect=0 -- https://might-redirect.example.com/install.sh
+
+# This is technically a FN, because a flag after `--` will be treated as a file name and have no effect. However, this is most probably a
+# user error, that we should not report.
+RUN wget --secure-protocol=TLSv1_2 -q -O - -- https://might-redirect.example.com/install.sh --max-redirect=0
+
 RUN foobar
 
