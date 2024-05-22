@@ -25,7 +25,7 @@ class UnencryptedSqsQueueCheckTest {
 
   @Test
   void test() {
-    TerraformVerifier.verify("UnencryptedSqsQueueCheck/test.tf", new UnencryptedSqsQueueCheck());
+    TerraformVerifier.verify("UnencryptedSqsQueueCheck/UnencryptedSqsQueueCheck.tf", new UnencryptedSqsQueueCheck());
   }
 
 }

@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  UnencryptedQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+     DisplayName: "unencrypted_queue"
+     SqsManagedSseEnabled: false # Noncompliant {{Setting "SqsManagedSseEnabled" to "false" disables SQS queues encryption. Make sure it is safe here.}}
+#    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  EncryptedQueueKms:
+    Type: AWS::SQS::Queue
+    Properties:
+      DisplayName: "encrypted_queue"
+      KmsMasterKeyId:
+        Fn::GetAtt:
+          - TestKey
+          - KeyId
+
+  EncryptedQueueSse:
+    Type: AWS::SQS::Queue
+    Properties:
+      DisplayName: "encrypted_queue"
+      SqsManagedSseEnabled: true
+
+  EncryptedQueueDefault:
+    Type: AWS::SQS::Queue
+    Properties:
+      DisplayName: "encrypted_queue"
+
+  EncryptedQueueSseAndKms:
+    Type: AWS::SQS::Queue
+    Properties:
+      DisplayName: "encrypted_queue"
+      SqsManagedSseEnabled: false
+      KmsMasterKeyId:
+        Fn::GetAtt:
+          - TestKey
+          - KeyId
+
+  OtherResource1:
+    Type: AWS::EC2::Volume
+    Properties:
+      Encrypted: true
+
+  OtherResource2:
+    Type: unknown

@@ -1,8 +1,8 @@
 {
 "cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6330.json": [
-5
+8
 ],
 "cloudformation-project:ruling/src/integrationTest/resources/sources/cloudformation/rules/S6330.yaml": [
-4
+7
 ]
 }
