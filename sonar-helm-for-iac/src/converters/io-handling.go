@@ -21,6 +21,7 @@ package converters
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/samber/mo"
 	"io"
@@ -45,6 +46,8 @@ type InputReader interface {
 	// END
 	ReadInput(scanner *bufio.Scanner) (string, Files, error)
 }
+
+var stdinReader InputReader = StdinReader{}
 
 type StdinReader struct{}
 
@@ -150,4 +153,28 @@ func CreateScanner(reader io.Reader) *bufio.Scanner {
 	buf := make([]byte, INPUT_BUFFER_SIZE)
 	scanner.Buffer(buf, INPUT_BUFFER_SIZE)
 	return scanner
+}
+
+func ReadAndValidateSources() (*TemplateSources, error) {
+	scanner := CreateScanner(os.Stdin)
+	templateName, sources, err := stdinReader.ReadInput(scanner)
+	if err != nil {
+		return nil, fmt.Errorf("error reading content: %w", err)
+	}
+	if err = validateInput(sources); err != nil {
+		return nil, fmt.Errorf("error validating content: %w", err)
+	}
+
+	return NewTemplateSourcesFromRawSources(templateName, sources), nil
+}
+
+func validateInput(sources Files) error {
+	if len(sources) == 0 {
+		return errors.New("no input received")
+	}
+	return nil
+}
+
+func NewTemplateSourcesFromRawSources(templateName string, rawSources Files) *TemplateSources {
+	return NewTemplateSources(templateName, rawSources)
 }

@@ -27,6 +27,15 @@ import (
 	"testing"
 )
 
+type InputReaderMock struct {
+	Name     string
+	Contents Files
+}
+
+func (i *InputReaderMock) ReadInput(*bufio.Scanner) (string, Files, error) {
+	return i.Name, i.Contents, nil
+}
+
 func Test_read_with_empty_input(t *testing.T) {
 	scanner := bufio.NewScanner(strings.NewReader(""))
 	stdinReader := StdinReader{}
@@ -182,4 +191,58 @@ func Test_read_wrong_format(t *testing.T) {
 
 	assert.Nil(t, contents)
 	assert.EqualError(t, err, "strconv.Atoi: parsing \"NOTaNUMBER\": invalid syntax")
+}
+
+func Test_no_file_provided(t *testing.T) {
+	err := validateInput(Files{})
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "no input received", err.Error())
+}
+
+func Test_only_one_file_provided(t *testing.T) {
+	err := validateInput(Files{
+		"a.yaml": []byte("apiVersion: v1"),
+	})
+
+	assert.NoError(t, err)
+}
+
+func Test_two_files_provided(t *testing.T) {
+	stdinReader = &InputReaderMock{
+		Name: "a.yaml",
+		Contents: Files{
+			"templates/a.yaml": []byte("apiVersion: v1"),
+			"values.yaml":      []byte("foo: bar"),
+		},
+	}
+
+	_, err := ReadAndValidateSources()
+
+	// verify that method does not crash and this code is reached
+	assert.Nil(t, err)
+}
+
+func Test_template_struct_from_2_sources(t *testing.T) {
+	sources := Files{
+		"templates/a.yaml": []byte("apiVersion: v1"),
+		"values.yaml":      []byte("foo: bar"),
+	}
+
+	templateSources := NewTemplateSourcesFromRawSources("a.yaml", sources)
+
+	assert.Equal(t, 2, templateSources.NumSources())
+}
+
+func Test_template_struct_from_3_sources(t *testing.T) {
+	sources := Files{
+		"templates/a.yaml": []byte("apiVersion: v1"),
+		"_helpers.tpl":     []byte("{{/* comment */}}"),
+		"values.yaml":      []byte("foo: bar"),
+	}
+
+	templateSources := NewTemplateSourcesFromRawSources("a.yaml", sources)
+
+	assert.Equal(t, 3, templateSources.NumSources())
+	assert.Equal(t, "foo: bar", templateSources.Values())
 }

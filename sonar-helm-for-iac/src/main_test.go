@@ -19,7 +19,6 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/converters"
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
@@ -29,15 +28,6 @@ import (
 	"os/exec"
 	"testing"
 )
-
-type InputReaderMock struct {
-	Name     string
-	Contents converters.Files
-}
-
-func (i *InputReaderMock) ReadInput(*bufio.Scanner) (string, converters.Files, error) {
-	return i.Name, i.Contents, nil
-}
 
 type FailingProtobufSerializer struct{}
 
@@ -49,21 +39,6 @@ var DefaultChartYaml = []byte(`
 name: test-project
 apiVersion: v3
 `)
-
-func Test_no_file_provided(t *testing.T) {
-	err := validateInput(converters.Files{})
-
-	assert.NotNil(t, err)
-	assert.Equal(t, "no input received", err.Error())
-}
-
-func Test_only_one_file_provided(t *testing.T) {
-	err := validateInput(converters.Files{
-		"a.yaml": []byte("apiVersion: v1"),
-	})
-
-	assert.NoError(t, err)
-}
 
 func Test_exit_code_with_serialization_error(t *testing.T) {
 	if os.Getenv("BE_CRASHER") == "1" {
@@ -82,21 +57,6 @@ func Test_exit_code_with_serialization_error(t *testing.T) {
 	var e *exec.ExitError
 	errors.As(err, &e)
 	assert.Equal(t, 1, e.ExitCode())
-}
-
-func Test_two_files_provided(t *testing.T) {
-	stdinReader = &InputReaderMock{
-		Name: "a.yaml",
-		Contents: converters.Files{
-			"templates/a.yaml": []byte("apiVersion: v1"),
-			"values.yaml":      []byte("foo: bar"),
-		},
-	}
-
-	main()
-
-	// verify that main does not crash and this code is reached
-	assert.Nil(t, nil)
 }
 
 func Test_evaluate_simple_template(t *testing.T) {
@@ -555,30 +515,6 @@ protocol: UDP
 
 	assert.NoError(t, result.Error)
 	assert.Equal(t, expected, result.Template)
-}
-
-func Test_template_struct_from_2_sources(t *testing.T) {
-	sources := converters.Files{
-		"templates/a.yaml": []byte("apiVersion: v1"),
-		"values.yaml":      []byte("foo: bar"),
-	}
-
-	templateSources := NewTemplateSourcesFromRawSources("a.yaml", sources)
-
-	assert.Equal(t, 2, templateSources.NumSources())
-}
-
-func Test_template_struct_from_3_sources(t *testing.T) {
-	sources := converters.Files{
-		"templates/a.yaml": []byte("apiVersion: v1"),
-		"_helpers.tpl":     []byte("{{/* comment */}}"),
-		"values.yaml":      []byte("foo: bar"),
-	}
-
-	templateSources := NewTemplateSourcesFromRawSources("a.yaml", sources)
-
-	assert.Equal(t, 3, templateSources.NumSources())
-	assert.Equal(t, "foo: bar", templateSources.Values())
 }
 
 func Test_evaluate_template_files_function(t *testing.T) {

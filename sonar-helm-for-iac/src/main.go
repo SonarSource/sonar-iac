@@ -19,7 +19,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/converters"
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
@@ -29,16 +28,11 @@ import (
 	"strings"
 )
 
-var stdinReader converters.InputReader = converters.StdinReader{}
 var converter converters.Converter = &converters.DefaultConverter{}
 var serializer converters.Serializer = converters.ProtobufSerializer{}
 
-func NewTemplateSourcesFromRawSources(templateName string, rawSources converters.Files) *converters.TemplateSources {
-	return converters.NewTemplateSources(templateName, rawSources)
-}
-
 func main() {
-	templateSources, processingError := readAndValidateSources()
+	templateSources, processingError := converters.ReadAndValidateSources()
 
 	evaluatedTemplate := ""
 	var ast *pbstructs.Tree
@@ -58,26 +52,6 @@ func main() {
 	}
 	fmt.Fprintf(os.Stderr, "Writing %d bytes to stdout\n", len(result))
 	os.Stdout.Write(result)
-}
-
-func readAndValidateSources() (*converters.TemplateSources, error) {
-	scanner := converters.CreateScanner(os.Stdin)
-	templateName, sources, err := stdinReader.ReadInput(scanner)
-	if err != nil {
-		return nil, fmt.Errorf("error reading content: %w", err)
-	}
-	if err = validateInput(sources); err != nil {
-		return nil, fmt.Errorf("error validating content: %w", err)
-	}
-
-	return NewTemplateSourcesFromRawSources(templateName, sources), nil
-}
-
-func validateInput(sources converters.Files) error {
-	if len(sources) == 0 {
-		return errors.New("no input received")
-	}
-	return nil
 }
 
 type EvaluationResult struct {
