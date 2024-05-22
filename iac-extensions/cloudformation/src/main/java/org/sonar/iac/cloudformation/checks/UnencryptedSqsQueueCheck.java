@@ -32,6 +32,10 @@ public class UnencryptedSqsQueueCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (resource.isType("AWS::SQS::Queue")) {
+      if (PropertyUtils.has(resource.properties(), "KmsMasterKeyId").isTrue()) {
+        return;
+      }
+
       PropertyUtils.get(resource.properties(), "SqsManagedSseEnabled")
         .filter(property -> TextUtils.isValueFalse(property.value()))
         .ifPresent(property -> ctx.reportIssue(property, MESSAGE));

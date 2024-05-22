@@ -27,12 +27,12 @@ import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 class UnencryptedSqsQueueCheckTest {
 
   @Test
-  void test_yaml() {
+  void shouldCheckYaml() {
     CloudformationVerifier.verify("UnencryptedSqsQueueCheck/UnencryptedSqsQueueCheck.yaml", new UnencryptedSqsQueueCheck());
   }
 
   @Test
-  void test_json() {
+  void shouldCheckJson() {
     CloudformationVerifier.verify("UnencryptedSqsQueueCheck/UnencryptedSqsQueueCheck.json", new UnencryptedSqsQueueCheck(),
       new Verifier.Issue(range(8, 8, 8, 37),
         "Setting \"SqsManagedSseEnabled\" to \"false\" disables SQS queues encryption. Make sure it is safe here."));

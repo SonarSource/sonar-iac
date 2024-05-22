@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 @Rule(key = "S6330")
 public class UnencryptedSqsQueueCheck extends AbstractNewResourceCheck {
@@ -28,8 +29,15 @@ public class UnencryptedSqsQueueCheck extends AbstractNewResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("aws_sqs_queue",
-      resource -> resource.attribute("sqs_managed_sse_enabled")
-        .reportIf(TextUtils::isValueFalse, MESSAGE));
+    register("aws_sqs_queue", UnencryptedSqsQueueCheck::checkSqsQueue);
+  }
+
+  private static void checkSqsQueue(ResourceSymbol resource) {
+    if (resource.attribute("kms_master_key_id").isPresent()) {
+      return;
+    }
+
+    resource.attribute("sqs_managed_sse_enabled")
+      .reportIf(TextUtils::isValueFalse, MESSAGE);
   }
 }
