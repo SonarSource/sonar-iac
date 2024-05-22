@@ -96,29 +96,30 @@ public class HelmEvaluator {
   void writeTemplateAndDependencies(Process process, String name, String content, Map<String, String> templateDependencies) throws IOException {
     try (var out = process.getOutputStream()) {
       writeFileToProcess(out, name, content);
+      out.write(intTo4Bytes(templateDependencies.size()));
       for (var filenameToFileContent : templateDependencies.entrySet()) {
         writeFileToProcess(out, filenameToFileContent.getKey(), filenameToFileContent.getValue());
       }
-      writeStringAsBytes(out, "END\n");
     }
   }
 
-  // Suppress java:S3457 - Format strings should be used correctly.
-  // Here \n (instead of %n) needs to be used as it is expected on Go site
-  @SuppressWarnings("java:S3457")
   private static void writeFileToProcess(OutputStream out, String fileName, String content) throws IOException {
-    // The Go app expect always \n after file name and number of lines.
-    // There is no need of any normalization in file content
-    writeStringAsBytes(out, "%s\n".formatted(fileName));
-    writeStringAsBytes(out, "%d\n".formatted(content.lines().count()));
-    if (!content.endsWith("\n")) {
-      content += "\n";
-    }
-    writeStringAsBytes(out, content);
+    var fileNameBytes = fileName.getBytes(StandardCharsets.UTF_8);
+    var filenameLength = intTo4Bytes(fileNameBytes.length);
+    out.write(filenameLength);
+    out.write(fileNameBytes);
+    var contentBytes = content.getBytes(StandardCharsets.UTF_8);
+    out.write(intTo4Bytes(contentBytes.length));
+    out.write(contentBytes);
   }
 
-  private static void writeStringAsBytes(OutputStream out, String content) throws IOException {
-    out.write(content.getBytes(StandardCharsets.UTF_8));
+  private static byte[] intTo4Bytes(int number) {
+    var array = new byte[4];
+    array[0] = (byte) (Math.floor(number / (Math.pow(2, 24))));
+    array[1] = (byte) (Math.floor(number / (Math.pow(2, 16))));
+    array[2] = (byte) (Math.floor(number / (Math.pow(2, 8))));
+    array[3] = (byte) (Math.floor(number % (Math.pow(2, 8))));
+    return array;
   }
 
   private static void monitorProcess(Process process) {

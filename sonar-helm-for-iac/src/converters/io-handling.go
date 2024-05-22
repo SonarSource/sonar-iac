@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"github.com/samber/mo"
 	"io"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -51,6 +52,73 @@ var stdinReader InputReader = StdinReader{}
 
 type StdinReader struct{}
 
+func ReadInput2(input *os.File) (string, Files, error) {
+	templateName, contentBytes, err := readSingleFile(input)
+
+	contents := Files{}
+	contents[templateName] = contentBytes
+
+	numberOfFiles, err := readByteAsInt(input)
+	if err != nil {
+		return "", nil, err
+	}
+
+	for i := 0; i < numberOfFiles; i++ {
+		filename, content, err := readSingleFile(input)
+		if err != nil {
+			return "", nil, err
+		}
+		contents[filename] = content
+	}
+
+	return templateName, contents, err
+}
+
+func readSingleFile(input *os.File) (string, []byte, error) {
+	filenameLength, err := readByteAsInt(input)
+	if err != nil {
+		return "", nil, err
+	}
+
+	filenameBytes := make([]byte, filenameLength)
+	_, err = input.Read(filenameBytes)
+	if err != nil {
+		return "", nil, err
+	}
+	filename := string(filenameBytes[:])
+
+	contentLength, err := readByteAsInt(input)
+	if err != nil {
+		return "", nil, err
+	}
+
+	contentBytes := make([]byte, contentLength)
+	fmt.Fprintf(os.Stderr, "Reading %d bytes of file %s from stdin\n", contentLength, filename)
+	_, err = input.Read(contentBytes)
+	if err != nil {
+		return "", nil, err
+	}
+	return filename, contentBytes, nil
+}
+
+func readByteAsInt(input *os.File) (int, error) {
+	numberBytes := make([]byte, 4)
+	_, err := input.Read(numberBytes)
+	if err != nil {
+		//TODO better error handling
+		fmt.Fprintf(os.Stderr, "ReadInput2 error 1")
+		return 0, err
+	}
+	number := (int(numberBytes[0]))*int(math.Pow(2, 24)) +
+		(int(numberBytes[1]))*int(math.Pow(2, 16)) +
+		(int(numberBytes[2]))*int(math.Pow(2, 8)) +
+		(int(numberBytes[3]))
+		//TODO remove later
+	fmt.Fprintf(os.Stderr, "ReadInput2 readByteAsInt %d\n", number)
+	return number, nil
+}
+
+// TODO remove function
 func (s StdinReader) ReadInput(scanner *bufio.Scanner) (string, Files, error) {
 	contents := Files{}
 	firstLine, err := s.readInput(scanner, 1)
@@ -155,9 +223,9 @@ func CreateScanner(reader io.Reader) *bufio.Scanner {
 	return scanner
 }
 
+// TODO add is.Stdin as parameter for testing
 func ReadAndValidateSources() (*TemplateSources, error) {
-	scanner := CreateScanner(os.Stdin)
-	templateName, sources, err := stdinReader.ReadInput(scanner)
+	templateName, sources, err := ReadInput2(os.Stdin)
 	if err != nil {
 		return nil, fmt.Errorf("error reading content: %w", err)
 	}
