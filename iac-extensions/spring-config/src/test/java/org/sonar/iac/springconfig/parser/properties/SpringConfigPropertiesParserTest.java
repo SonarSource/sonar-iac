@@ -23,14 +23,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.springconfig.tree.api.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.catchException;
 
 class SpringConfigPropertiesParserTest {
 
@@ -49,22 +47,6 @@ class SpringConfigPropertiesParserTest {
     var tuple = tree.profiles().get(0).properties().get(0);
     assertThat(tuple.key().value().value()).isEqualTo("foo");
     assertThat(tuple.value().value().value()).isEqualTo("bar");
-  }
-
-  @Test
-  void shouldThrowExceptionWhenEmptyKey() {
-    var code = """
-      =bar""";
-    var parser = new SpringConfigPropertiesParser();
-    InputFileContext inputFileContext = IacTestUtils.createInputFileContextMock("foo.properties");
-
-    var exception = catchException(() -> parser.parse(code, inputFileContext));
-
-    assertThat(exception)
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, CHARACTER} at dir1/dir2/foo.properties:1:1");
-    assertThat(logTester.logs(Level.DEBUG)).contains(
-      "Cannot parse, extraneous input '=' expecting {<EOF>, COMMENT, CHARACTER}");
   }
 
   @Test

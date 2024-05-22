@@ -30,6 +30,7 @@ propertiesFile
 row
     : comment
     | line
+    | invalidLine
     ;
 
 line
@@ -43,6 +44,12 @@ key
 eol
     : WHITESPACE+
     | EOF
+    ;
+
+// The lines that starts from delimiter doesn't make much sense but Spring accept such entries without any error.
+// This is a separate rule because we don't want to insert such lines into the AST in the visitor from the regular visitLine method.
+invalidLine
+    : DELIMITER value = key? eol
     ;
 
 comment
