@@ -1039,25 +1039,25 @@ class PropertiesParserBaseVisitorTest {
       "visitEol <EOF>");
   }
 
-  @Test
-  void shouldParseEmptyKeyBetweenOtherKeys() {
+  @ParameterizedTest
+  @ValueSource(strings = {"=", ":", " = ", " =", "= ", " : ", " :", ": "})
+  void shouldParseSingleEqualsBetweenOtherKeys(String delimiter) {
     var code = """
       foo=bar
-      =abc
-      foo2=bar2""";
+      %s
+      foo2=bar2""".formatted(delimiter);
 
     parseProperties(code);
 
     assertThat(visitor.visited()).containsExactly(
-      "visitPropertiesFile foo=bar\\n=abc\\nfoo2=bar2<EOF><EOF>",
+      "visitPropertiesFile foo=bar\\n%s\\nfoo2=bar2<EOF><EOF>".formatted(delimiter),
       "visitRow foo=bar\\n",
       "visitLine foo=bar\\n",
       "visitKey foo",
       "visitKey bar",
       "visitEol \\n",
-      "visitRow =abc\\n",
-      "visitInvalidLine =abc\\n",
-      "visitKey abc",
+      "visitRow %s\\n".formatted(delimiter),
+      "visitInvalidLine %s\\n".formatted(delimiter),
       "visitEol \\n",
       "visitRow foo2=bar2<EOF>",
       "visitLine foo2=bar2<EOF>",

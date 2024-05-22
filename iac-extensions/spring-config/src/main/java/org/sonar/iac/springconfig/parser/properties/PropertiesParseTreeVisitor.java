@@ -75,8 +75,8 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<Spri
 
   private static Scalar createValueScalar(PropertiesParser.RowContext row) {
     Scalar valueScalar = null;
-    if (row.line().key().size() == 2) {
-      var valueContext = row.line().key().get(1);
+    var valueContext = row.line().value;
+    if (valueContext != null) {
       var valueText = valueContext.getText();
       valueScalar = new ScalarImpl(new SyntaxTokenImpl(valueText, textRange(valueContext)));
     }

@@ -46,9 +46,10 @@ eol
     | EOF
     ;
 
-// The lines that starts from delimiter doesn't make much sense but Spring accept such entries without any error
+// The lines that starts from delimiter doesn't make much sense but Spring accept such entries without any error.
+// This is a separate rule because we don't want to insert such lines into the AST in the visitor from the regular visitLine method.
 invalidLine
-    : DELIMITER key? eol
+    : DELIMITER value = key? eol
     ;
 
 comment
