@@ -44,10 +44,10 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.Instruction;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
@@ -152,7 +152,7 @@ public class DockerGrammar {
       f.maintainer(b.token(DockerKeyword.MAINTAINER), ARGUMENTS()));
   }
 
-  // TODO get rid of this method or even rename the method and token grammar because it will only remain for MAINTAINER
+  // TODO SONARIAC-1479: get rid of this method or even rename the method and token grammar because it will only remain for MAINTAINER
   public List<SyntaxToken> ARGUMENTS() {
     return b.<List<SyntaxToken>>nonterminal(DockerLexicalGrammar.ARGUMENTS).is(
       b.oneOrMore(

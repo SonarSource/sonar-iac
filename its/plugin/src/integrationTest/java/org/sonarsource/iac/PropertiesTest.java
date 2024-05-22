@@ -146,7 +146,7 @@ class PropertiesTest extends TestBase {
     var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + subDir + "/", language, profileName);
     if (propertyValue != null) {
       if (propertyValue.isEmpty()) {
-        // TODO: https://sonarsource.atlassian.net/browse/SONARIAC-1322
+        // TODO SONARIAC-1322
         throw new TestAbortedException("Empty property value is not working with 10.4");
       }
       sonarScanner.setProperty(property, propertyValue);

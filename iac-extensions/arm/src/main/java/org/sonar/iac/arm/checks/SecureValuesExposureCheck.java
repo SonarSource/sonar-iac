@@ -19,6 +19,11 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualArray;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
@@ -33,12 +38,6 @@ import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.TextUtils;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.sonar.iac.arm.tree.ArmTreeUtils.containsParameterReference;
 
@@ -77,7 +76,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
   }
 
   static Stream<Expression> extractPropertyValuesFromTemplate(ContextualArray resources) {
-    // TODO: traversal of resources in nested templates can be improved after https://sonarsource.atlassian.net/browse/SONARIAC-1058
+    // TODO SONARIAC-1058: traversal of resources in nested templates can be improved after they are properly supported
     return resources.objects()
       .filter(ContextualTree::isPresent)
       .flatMap(ContextualObject::allPropertiesFlattened)
@@ -91,7 +90,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
   }
 
   private static Map<String, ParameterDeclaration> getSensitiveParameters(ContextualResource resource) {
-    // TODO: after SONARIAC-1034 use symbol table instead of accessing parameters through `FILE`
+    // TODO SONARIAC-1034: use symbol table instead of accessing parameters through `FILE`
     File file = (File) ArmTreeUtils.getRootNode(resource.tree);
 
     return ArmTreeUtils.getParametersByNames(file)
