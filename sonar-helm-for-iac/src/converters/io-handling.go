@@ -44,7 +44,7 @@ func ReadInput(input *os.File) (string, Files, error) {
 	contents := Files{}
 	contents[templateName] = contentBytes
 
-	numberOfFiles, err := readByteAsInt(input)
+	numberOfFiles, err := readBytesAsInt(input)
 	if err != nil {
 		return "", nil, err
 	}
@@ -61,7 +61,7 @@ func ReadInput(input *os.File) (string, Files, error) {
 }
 
 func readSingleFile(input *os.File) (string, []byte, error) {
-	filenameLength, err := readByteAsInt(input)
+	filenameLength, err := readBytesAsInt(input)
 	if err != nil {
 		return "", nil, err
 	}
@@ -73,7 +73,7 @@ func readSingleFile(input *os.File) (string, []byte, error) {
 
 	filename := string(filenameBytes[:])
 
-	contentLength, err := readByteAsInt(input)
+	contentLength, err := readBytesAsInt(input)
 	if err != nil {
 		return "", nil, err
 	}

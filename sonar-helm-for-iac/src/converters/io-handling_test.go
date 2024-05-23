@@ -237,7 +237,7 @@ func Test_read_byte_as_int(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x55\x34"))
 	output.Close()
-	number, err := readByteAsInt(input)
+	number, err := readBytesAsInt(input)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 21812, number)
