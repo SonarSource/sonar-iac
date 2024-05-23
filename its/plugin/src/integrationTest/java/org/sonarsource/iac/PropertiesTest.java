@@ -143,7 +143,7 @@ class PropertiesTest extends TestBase {
     String projectKey, String language, String subDir,
     String property, String propertyValue,
     @Nullable String profileName,
-    Integer expectedFiles, Integer expectedNcloc) {
+    @Nullable Integer expectedFiles, @Nullable Integer expectedNcloc) {
     var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY + subDir + "/", language, profileName);
     if (propertyValue != null) {
       sonarScanner.setProperty(property, propertyValue);
