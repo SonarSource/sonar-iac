@@ -32,7 +32,7 @@ var converter converters.Converter = &converters.DefaultConverter{}
 var serializer converters.Serializer = converters.ProtobufSerializer{}
 
 func main() {
-	templateSources, processingError := converters.ReadAndValidateSources()
+	templateSources, processingError := converters.ReadAndValidateSources(os.Stdin)
 
 	evaluatedTemplate := ""
 	var ast *pbstructs.Tree

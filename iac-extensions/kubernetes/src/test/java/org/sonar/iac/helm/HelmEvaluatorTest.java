@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
@@ -156,5 +157,22 @@ class HelmEvaluatorTest {
       Map.of("values.yaml", "container:\n  port: 8080\n\n", "Chart.yaml", "name: foo\n\n"));
 
     Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "0,00 00 00 00",
+    "1,00 00 00 01",
+    "10,00 00 00 0A",
+    "255,00 00 00 FF",
+    "256,00 00 01 00",
+    "21812,00 00 55 34",
+    "65535,00 00 FF FF",
+    "65536,00 01 00 00",
+    Integer.MAX_VALUE + ",7F FF FF FF"})
+  void shouldConvertIntToBytes(int number, String expected) {
+    var bytes = HelmEvaluator.intTo4Bytes(number);
+    var asText = "%02X %02X %02X %02X".formatted(bytes[0], bytes[1], bytes[2], bytes[3]);
+    Assertions.assertThat(asText).isEqualTo(expected);
   }
 }

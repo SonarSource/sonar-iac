@@ -19,178 +19,168 @@
 package converters
 
 import (
-	"bufio"
-	"errors"
 	"github.com/stretchr/testify/assert"
-	"io"
+	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
-type InputReaderMock struct {
-	Name     string
-	Contents Files
+func Test_read_single_template(t *testing.T) {
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x0Dtemplate.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00"))
+	templateName, contents, err := ReadInput(input)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "template.yaml", templateName)
+	assert.Equal(t, 1, len(contents))
+	assert.Equal(t, "apiVersion: v1", contents.Get("template.yaml"))
 }
 
-func (i *InputReaderMock) ReadInput(*bufio.Scanner) (string, Files, error) {
-	return i.Name, i.Contents, nil
+func Test_read_long_template_name(t *testing.T) {
+	filename := strings.Repeat("/very/long/path", 100) + "/template.yaml"
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x05\xEA" + filename + "\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00"))
+	templateName, contents, err := ReadInput(input)
+
+	assert.NoError(t, err)
+	assert.Equal(t, filename, templateName)
+	assert.Equal(t, 1, len(contents))
+	assert.Equal(t, "apiVersion: v1", contents.Get(filename))
+}
+
+func Test_read_template_and_empty_values(t *testing.T) {
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x00"))
+	templateName, contents, err := ReadInput(input)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "foo.yaml", templateName)
+	assert.Equal(t, 2, len(contents))
+	assert.Equal(t, "apiVersion: v1", contents.Get("foo.yaml"))
+	assert.Equal(t, "", contents.Get("values.yaml"))
 }
 
 func Test_read_with_empty_input(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader(""))
-	stdinReader := StdinReader{}
-	_, contents, _ := stdinReader.ReadInput(scanner)
+	timeout := time.After(1 * time.Second)
+	done := make(chan bool)
+	go func() {
+		input, output, _ := os.Pipe()
+		output.Write([]byte(""))
+		ReadInput(input)
+		done <- true
+	}()
 
-	assert.Equal(t, 0, len(contents))
-}
-
-func Test_read_with_end_marker(t *testing.T) {
-	scanner := bufio.NewScanner(strings.NewReader("END"))
-	stdinReader := StdinReader{}
-	_, contents, _ := stdinReader.ReadInput(scanner)
-
-	assert.Equal(t, 0, len(contents))
+	select {
+	case <-done:
+		t.Fatal("It should be timeout for empty input")
+	case <-timeout:
+	}
 }
 
 func Test_read_n_lines_from_input(t *testing.T) {
-	text := "line1\nline2\nline3"
-	expected := "line1\nline2\n"
-	scanner := CreateScanner(strings.NewReader(text))
-	stdinReader := StdinReader{}
-	lines, _ := stdinReader.readInput(scanner, 2)
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
+		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x11line1\nline2\nline3"))
+	_, contents, err := ReadInput(input)
 
-	assert.Equal(t, []byte(expected), lines)
-}
-
-func Test_read_all_lines_from_input(t *testing.T) {
-	scanner := CreateScanner(strings.NewReader("line1\nline2\nline3"))
-	stdinReader := StdinReader{}
-	lines, _ := stdinReader.readInput(scanner, -1)
-
-	assert.Equal(t, []byte("line1\nline2\nline3"), lines)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(contents))
+	assert.Equal(t, "line1\nline2\nline3", contents.Get("values.yaml"))
 }
 
 func Test_read_all_lines_from_input_different_new_lines(t *testing.T) {
-	text := "line1\r\nline2\nline3\rline4\u2028line5\u2029line6"
-	scanner := CreateScanner(strings.NewReader(text))
-	stdinReader := StdinReader{}
-	lines, _ := stdinReader.readInput(scanner, len(text))
+	// the \u2028 character uses 3 bytes
+	content := "line1\r\nline2\nline3\rline4\u2028line5\u2029line6"
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
+		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x28" + content))
+	_, contents, err := ReadInput(input)
 
-	assert.Equal(t, []byte(text), lines)
-}
-
-func Test_read_all_lines_from_input_different_new_lines2(t *testing.T) {
-	text := "line1\u2028line2"
-	scanner := CreateScanner(strings.NewReader(text))
-	stdinReader := StdinReader{}
-	lines, _ := stdinReader.readInput(scanner, len(text))
-
-	assert.Equal(t, []byte(text), lines)
-}
-
-func Test_read_one_file(t *testing.T) {
-	scanner := CreateScanner(strings.NewReader("file1\n2\nline1\nline2\nEND\n"))
-	stdinReader := StdinReader{}
-	_, contents, _ := stdinReader.ReadInput(scanner)
-
-	assert.Equal(t, 1, len(contents))
-	assert.Contains(t, contents, "file1")
-	assert.Equal(t, []byte("line1\nline2\n"), contents["file1"])
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(contents))
+	assert.Equal(t, content, contents.Get("values.yaml"))
 }
 
 func Test_read_one_file_with_trailing_newline(t *testing.T) {
-	scanner := CreateScanner(strings.NewReader("file1\n2\nline1\n \nEND\n"))
-	stdinReader := StdinReader{}
-	_, contents, _ := stdinReader.ReadInput(scanner)
+	content := "line1\n"
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
+		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x06" + content))
+	_, contents, err := ReadInput(input)
 
-	assert.Equal(t, 1, len(contents))
-	assert.Contains(t, contents, "file1")
-	assert.Equal(t, []byte("line1\n \n"), contents["file1"])
-}
-
-func Test_read_two_files(t *testing.T) {
-	scanner := CreateScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nEND\n"))
-	stdinReader := StdinReader{}
-	_, contents, _ := stdinReader.ReadInput(scanner)
-
+	assert.NoError(t, err)
 	assert.Equal(t, 2, len(contents))
-	assert.Contains(t, contents, "file1")
-	assert.Equal(t, []byte("line1\nline2\n"), contents["file1"])
-	assert.Contains(t, contents, "file2")
-	assert.Equal(t, "line3\n", string(contents["file2"]))
+	assert.Equal(t, content, contents.Get("values.yaml"))
 }
 
 func Test_read_three_files(t *testing.T) {
-	scanner := CreateScanner(strings.NewReader("file1\n2\nline1\nline2\nfile2\n1\nline3\nfile3\n1\nline4\nEND\n"))
-	stdinReader := StdinReader{}
-	_, contents, _ := stdinReader.ReadInput(scanner)
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x03" +
+		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x0Bline1\nline2" +
+		"\x00\x00\x00\x12templates/foo.yaml\x00\x00\x00\x05line3" +
+		"\x00\x00\x00\x16templates/_helpers.tpl\x00\x00\x00\x08\nline4\r\n"))
+	_, contents, err := ReadInput(input)
 
-	assert.Equal(t, 3, len(contents))
-	assert.Contains(t, contents, "file1")
-	assert.Equal(t, []byte("line1\nline2\n"), contents["file1"])
-	assert.Contains(t, contents, "file2")
-	assert.Equal(t, "line3\n", string(contents["file2"]))
-	assert.Contains(t, contents, "file3")
-	assert.Equal(t, "line4\n", string(contents["file3"]))
-}
-
-func Test_read_zero_length(t *testing.T) {
-	scanner := CreateScanner(strings.NewReader("file1\n0\n\nEND\n"))
-	stdinReader := StdinReader{}
-	_, contents, err := stdinReader.ReadInput(scanner)
-
-	assert.Equal(t, 1, len(contents))
-	assert.Contains(t, contents, "file1")
-	assert.Equal(t, []byte(""), contents["file1"])
-	assert.Nil(t, err)
-}
-
-type ReaderWithError struct {
-	numCalled int
-	input     []any
-}
-
-func NewReaderWithError(input []any) *ReaderWithError {
-	return &ReaderWithError{
-		numCalled: 0,
-		input:     input,
-	}
-}
-
-func (r *ReaderWithError) Read(p []byte) (int, error) {
-	defer func() {
-		r.numCalled = r.numCalled + 1
-	}()
-	if str, ok := r.input[r.numCalled].(string); ok {
-		return strings.NewReader(str).Read(p)
-	} else {
-		return 0, r.input[r.numCalled].(error)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, 4, len(contents))
+	assert.Equal(t, "line1\nline2", contents.Get("values.yaml"))
+	assert.Equal(t, "line3", contents.Get("templates/foo.yaml"))
+	assert.Equal(t, "\nline4\r\n", contents.Get("templates/_helpers.tpl"))
 }
 
 func Test_read_error_handling(t *testing.T) {
-	scanner := bufio.NewScanner(NewReaderWithError([]any{io.ErrUnexpectedEOF}))
-	stdinReader := StdinReader{}
-	_, _, err := stdinReader.ReadInput(scanner)
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00"))
+	output.Close()
+	_, _, err := ReadInput(input)
 
-	assert.EqualError(t, err, "unexpected EOF")
+	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 1", err.Error())
 }
 
 func Test_read_error_handling_2(t *testing.T) {
-	scanner := bufio.NewScanner(NewReaderWithError([]any{"file1\n", errors.New("test read error")}))
-	stdinReader := StdinReader{}
-	_, _, err := stdinReader.ReadInput(scanner)
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x11foo"))
+	output.Close()
+	_, _, err := ReadInput(input)
 
-	assert.EqualError(t, err, "test read error")
+	assert.Equal(t, "Error reading from stdin, expecting to read 17 bytes, but got 3", err.Error())
 }
 
-func Test_read_wrong_format(t *testing.T) {
-	scanner := CreateScanner(strings.NewReader("file1\nNOTaNUMBER\n\nEND"))
-	stdinReader := StdinReader{}
-	_, contents, err := stdinReader.ReadInput(scanner)
+func Test_read_error_handling_3(t *testing.T) {
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00"))
+	output.Close()
+	_, _, err := ReadInput(input)
 
-	assert.Nil(t, contents)
-	assert.EqualError(t, err, "strconv.Atoi: parsing \"NOTaNUMBER\": invalid syntax")
+	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 2", err.Error())
+}
+
+func Test_read_error_handling_4(t *testing.T) {
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersi"))
+	output.Close()
+	_, _, err := ReadInput(input)
+
+	assert.Equal(t, "Error reading from stdin, expecting to read 14 bytes, but got 8", err.Error())
+}
+
+func Test_read_error_handling_5(t *testing.T) {
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00"))
+	output.Close()
+	_, _, err := ReadInput(input)
+
+	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 1", err.Error())
+}
+
+func Test_read_error_handling_6(t *testing.T) {
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x03"))
+	output.Close()
+	_, _, err := ReadInput(input)
+
+	assert.Equal(t, "Error reading from stdin, error: EOF", err.Error())
 }
 
 func Test_no_file_provided(t *testing.T) {
@@ -208,21 +198,16 @@ func Test_only_one_file_provided(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// TODO fix it
-//func Test_two_files_provided(t *testing.T) {
-//	stdinReader = &InputReaderMock{
-//		Name: "a.yaml",
-//		Contents: Files{
-//			"templates/a.yaml": []byte("apiVersion: v1"),
-//			"values.yaml":      []byte("foo: bar"),
-//		},
-//	}
-//
-//	_, err := ReadAndValidateSources()
-//
-//	// verify that method does not crash and this code is reached
-//	assert.Nil(t, err)
-//}
+func Test_two_files_provided(t *testing.T) {
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x00\x10templates/a.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
+		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x08foo: bar"))
+
+	_, err := ReadAndValidateSources(input)
+
+	// verify that method does not crash and this code is reached
+	assert.Nil(t, err)
+}
 
 func Test_template_struct_from_2_sources(t *testing.T) {
 	sources := Files{
@@ -246,4 +231,14 @@ func Test_template_struct_from_3_sources(t *testing.T) {
 
 	assert.Equal(t, 3, templateSources.NumSources())
 	assert.Equal(t, "foo: bar", templateSources.Values())
+}
+
+func Test_read_byte_as_int(t *testing.T) {
+	input, output, _ := os.Pipe()
+	output.Write([]byte("\x00\x00\x55\x34"))
+	output.Close()
+	number, err := readByteAsInt(input)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 21812, number)
 }

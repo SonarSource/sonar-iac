@@ -113,12 +113,12 @@ public class HelmEvaluator {
     out.write(contentBytes);
   }
 
-  private static byte[] intTo4Bytes(int number) {
+  static byte[] intTo4Bytes(int number) {
     var array = new byte[4];
-    array[0] = (byte) (Math.floor(number / (Math.pow(2, 24))));
-    array[1] = (byte) (Math.floor(number / (Math.pow(2, 16))));
-    array[2] = (byte) (Math.floor(number / (Math.pow(2, 8))));
-    array[3] = (byte) (Math.floor(number % (Math.pow(2, 8))));
+    array[0] = (byte) (number >> 24);
+    array[1] = (byte) (number >> 16);
+    array[2] = (byte) (number >> 8);
+    array[3] = (byte) number;
     return array;
   }
 
