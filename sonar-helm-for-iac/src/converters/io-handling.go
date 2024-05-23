@@ -108,7 +108,7 @@ func readBytes(input *os.File, contentLength int) ([]byte, int, error) {
 	return contentBytes, sum, nil
 }
 
-func readByteAsInt(input *os.File) (int, error) {
+func readBytesAsInt(input *os.File) (int, error) {
 	numberBytes := make([]byte, 4)
 	numberOfBytesRead, err := input.Read(numberBytes)
 	if err != nil {
