@@ -41,7 +41,7 @@ ENV GO_CROSS_COMPILE=1
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v${PROTOBUF_GO_VERSION}
 
-ENTRYPOINT protoc -I=${PWD} -I=/opt/protoc/include --go_out=${PWD}/src template-evaluation.proto && \
+ENTRYPOINT protoc -I=${PWD}/proto -I=/opt/protoc/include --go_out=${PWD}/src template-evaluation.proto && \
   ./make.sh clean && \
   ./make.sh build && \
   ./make.sh test
