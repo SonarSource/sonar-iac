@@ -19,13 +19,17 @@
  */
 package org.sonar.iac.docker.checks.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.Argument;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.DockerAssertions.assertThat;
+import static org.sonar.iac.docker.checks.utils.CommandDetectorTest.buildArgument;
 import static org.sonar.iac.docker.checks.utils.CommandDetectorTest.buildArgumentList;
 
 class ArgumentResolutionSplitterTest {
@@ -67,5 +71,25 @@ class ArgumentResolutionSplitterTest {
     assertThat(commands.get(0).get(1)).hasValue("\"* * * * * umask 007; $APP_ROOT_PATH/bin/magento\"");
     assertThat(commands).hasSize(1);
     assertThat(commandsWithSeparators.separators()).isEmpty();
+  }
+
+  @Test
+  void shouldPreserveRangesOfOriginalArguments() {
+    var arguments = new ArrayList<Argument>();
+    arguments.add(buildArgument("echo", TextRanges.range(1, 0, 1, "echo".length())));
+    // as if arg2 vas `$VAR; echo` before resolution
+    arguments.add(buildArgument("resolvedArgumentValue; echo", TextRanges.range(1, 5, 1, 14)));
+    var argumentResolutions = arguments.stream()
+      .map(ArgumentResolution::of)
+      .toList();
+
+    SeparatedList<List<ArgumentResolution>, String> commandsWithSeparators = ArgumentResolutionSplitter.splitCommands(argumentResolutions);
+
+    List<List<ArgumentResolution>> commands = commandsWithSeparators.elements();
+    assertThat(commands).hasSize(2);
+    var command = commands.get(0);
+    assertThat(command).hasSize(2);
+    assertThat(command.get(1).argument().textRange()).hasRange(1, 5, 1, 14);
+    assertThat(command.get(1).value()).isEqualTo("resolvedArgumentValue");
   }
 }

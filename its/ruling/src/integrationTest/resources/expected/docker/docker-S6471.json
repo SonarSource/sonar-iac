@@ -14,6 +14,9 @@
 "docker-project:ruling/src/integrationTest/resources/sources/docker/filename/Foo.dockerfile": [
 1
 ],
+"docker-project:ruling/src/integrationTest/resources/sources/docker/parsingError/SONARIAC-1485.dockerfile": [
+1
+],
 "docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile": [
 12
 ],

@@ -53,3 +53,8 @@ RUN wget --secure-protocol=TLSv1_2 -q -O - -- https://might-redirect.example.com
 
 RUN foobar
 
+ENV BDBVER db-4.8.30.NC
+# Noncompliant@+1{{Not disabling redirects might allow for redirections to insecure websites. Make sure it is safe here.}}
+RUN wget --quiet https://download.oracle.com/berkeley-db/$BDBVER.tar.gz; \
+        echo "Done"
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^@-1

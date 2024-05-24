@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.docker.DockerAssertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -183,14 +184,19 @@ class CommandDetectorTest {
     List<ArgumentResolution> arguments = new ArrayList<>();
     int offset = 0;
     for (String str : strs) {
-      Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, range(1, offset, str), List.of()))));
-      arg.expressions().forEach(e -> e.setParent(arg));
-      ArgumentList shellForm = new ShellFormImpl(List.of(arg));
-      arg.setParent(shellForm);
+      Argument arg = buildArgument(str, range(1, offset, str));
       offset += str.length() + 1;
       arguments.add(ArgumentResolution.ofWithoutStrippingQuotes(arg));
     }
     return arguments;
+  }
+
+  static Argument buildArgument(String str, TextRange range) {
+    Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, range, List.of()))));
+    arg.expressions().forEach(e -> e.setParent(arg));
+    ArgumentList shellForm = new ShellFormImpl(List.of(arg));
+    arg.setParent(shellForm);
+    return arg;
   }
 
   void assertDetectedCommands(List<ArgumentResolution> resolvedArguments, String... commandList) {
