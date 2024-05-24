@@ -52,13 +52,6 @@ Resources:
     Properties:
       SecurityPolicy: "TLS_1_0"  # Noncompliant
 </pre>
-<p>The ApiGatewayV2 uses a weak TLS version by default:</p>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-AWSTemplateFormatVersion: '2010-09-09'
-Resources:
-  CustomApi: # Noncompliant
-    Type: AWS::ApiGatewayV2::DomainName
-</pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 AWSTemplateFormatVersion: '2010-09-09'
@@ -67,15 +60,6 @@ Resources:
     Type: AWS::ApiGateway::DomainName
     Properties:
       SecurityPolicy: "TLS_1_2"
-</pre>
-<pre data-diff-id="2" data-diff-type="compliant">
-AWSTemplateFormatVersion: '2010-09-09'
-Resources:
-  CustomApi:
-    Type: AWS::ApiGatewayV2::DomainName
-    Properties:
-      DomainNameConfigurations:
-        - SecurityPolicy: "TLS_1_2"
 </pre>
 <h3>How does this work?</h3>
 <p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic

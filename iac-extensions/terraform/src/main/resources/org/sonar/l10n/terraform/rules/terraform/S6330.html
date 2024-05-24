@@ -13,8 +13,9 @@ further modifications to the application are necessary.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue">aws_sqs_queue</a>:</p>
 <pre>
-resource "aws_sqs_queue" "queue" {  # Sensitive, encryption disabled by default
+resource "aws_sqs_queue" "queue" {
   name = "sqs-unencrypted"
+  sqs_managed_sse_enabled = false # Sensitive, encryption disabled
 }
 </pre>
 <h2>Compliant Solution</h2>
@@ -22,7 +23,7 @@ resource "aws_sqs_queue" "queue" {  # Sensitive, encryption disabled by default
 <pre>
 resource "aws_sqs_queue" "queue" {
   name = "sqs-encrypted"
-  kms_master_key_id = aws_kms_key.enc_key.key_id
+  sqs_managed_sse_enabled = true
 }
 </pre>
 <h2>See</h2>
