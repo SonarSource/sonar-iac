@@ -107,7 +107,16 @@ public final class ArgumentResolutionSplitter {
 
   private static ArgumentResolution buildSubArgument(ArgumentResolution resolvedArgument, String firstCommand, int offsetShift) {
     var argumentRange = resolvedArgument.argument().textRange();
-    SyntaxToken token = new SyntaxTokenImpl(firstCommand, range(argumentRange.start().line(), argumentRange.start().lineOffset() + offsetShift, firstCommand),
+
+    // This is a workaround for the cases when after variable resolution offset becomes too big. See SONARIAC-1485.
+    // At this point, we can't reliably backtrack which parts of the argument value were resolved from variables.
+    // To highlight only a part of a long command, we use the length of the first command, if available, falling back to highlighting
+    // everything.
+    int endOffset = Math.min(argumentRange.start().lineOffset() + firstCommand.length(), argumentRange.end().lineOffset()) + offsetShift;
+
+    SyntaxToken token = new SyntaxTokenImpl(
+      firstCommand,
+      range(argumentRange.start().line(), argumentRange.start().lineOffset() + offsetShift, argumentRange.end().line(), endOffset),
       Collections.emptyList());
     var literal = new LiteralImpl(token);
     token.setParent(literal);
