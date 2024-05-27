@@ -126,7 +126,7 @@ def whitesource_script():
 def sca_scan_task():
     return {
         "sca_scan_task": {
-            "only_if": is_branch_qa_eligible(),
+            "only_if": is_main_branch(),
             "depends_on": "build",
             "env": whitesource_api_env(),
             "eks_container": custom_image_container_builder(),
