@@ -15,10 +15,11 @@ further modifications to the application are necessary.</p>
 <pre>
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  Queue:  # Sensitive, encryption disabled by default
+  Queue:
     Type: AWS::SQS::Queue
     Properties:
       DisplayName: "unencrypted_queue"
+      SqsManagedSseEnabled: false # Sensitive, encryption disabled
 </pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-sqs-queues.html">AWS::SQS::Queue</a>:</p>
@@ -29,10 +30,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       DisplayName: "encrypted_queue"
-      KmsMasterKeyId:
-        Fn::GetAtt:
-          - TestKey
-          - KeyId
+      SqsManagedSseEnabled: true
 </pre>
 <h2>See</h2>
 <ul>
