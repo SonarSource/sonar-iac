@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.22.4
+ARG GO_VERSION=1.21.8
 ARG BUILD_ENV=dev
 
 FROM golang:${GO_VERSION}-bookworm AS dev_image
