@@ -18,7 +18,7 @@ QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
 
 def qa_win_script():
     return [
-        "choco install golang --ignoredetectedreboot -v -y --version ${GO_VERSION} -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
+        "choco install golang --ignoredetectedreboot -v -y --version ${GO_VERSION} -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD} || xcopy 'C:\\ProgramData\\chocolatey\\logs\\chocolatey.log' 'C:\\Windows\\SystemTemp\\cirrus-ci-build'",
         "choco install protoc -v -y --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "source cirrus-env CI",
@@ -36,6 +36,11 @@ def qa_os_win_task():
             "gradle_cache": gradle_cache(),
             "build_script": qa_win_script(),
             "on_success": profile_report_artifacts(),
+            "always": {
+                "choco_artifacts": {
+                    "path": "C:\\Windows\\SystemTemp\\cirrus-ci-build\\chocolatey.log"
+                }
+            }
         }
     }
 
