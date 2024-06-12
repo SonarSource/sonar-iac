@@ -1,6 +1,6 @@
 module github.com/SonarSource/sonar-iac/sonar-helm-for-iac
 
-go 1.21.8
+go 1.22.4
 
 require (
 	github.com/BurntSushi/toml v1.3.2
