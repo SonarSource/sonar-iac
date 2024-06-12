@@ -1,5 +1,6 @@
 load("github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master", "base_image_container_builder", "ec2_instance_builder")
 load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master", "is_branch_qa_eligible")
+load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master", "artifactory_reader_env")
 load("build.star", "profile_report_artifacts")
 load(
     "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
@@ -17,8 +18,8 @@ QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
 
 def qa_win_script():
     return [
-        "choco install golang --version ${GO_VERSION}",
-        "choco install protoc --version ${PROTOC_VERSION}.0",
+        "choco install golang --version ${GO_VERSION} -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
+        "choco install protoc --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "source cirrus-env CI",
         "./gradlew ${GRADLE_COMMON_FLAGS} test"
@@ -31,6 +32,7 @@ def qa_os_win_task():
             "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "ec2_instance": ec2_instance_builder(),
+            "env": artifactory_reader_env(),
             "gradle_cache": gradle_cache(),
             "build_script": qa_win_script(),
             "on_success": profile_report_artifacts(),
