@@ -38,7 +38,7 @@ def qa_os_win_task():
             "on_success": profile_report_artifacts(),
             "always": {
                 "choco_artifacts": {
-                    "path": "C:\ProgramData\chocolatey\logs\chocolatey.log"
+                    "path": "C:\\ProgramData\\chocolatey\\logs\\chocolatey.log"
                 }
             }
         }
