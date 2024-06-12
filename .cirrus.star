@@ -27,10 +27,5 @@ def main(ctx):
     merge_dict(conf, load_features(ctx))
     merge_dict(conf, env())
     merge_dict(conf, build_task())
-    merge_dict(conf, build_test_analyze_task())
     merge_dict(conf, qa_os_win_task())
-    merge_dict(conf, sca_scan_task())
-    merge_dict(conf, qa_plugin_task())
-    merge_dict(conf, qa_ruling_task())
-    merge_dict(conf, promote_task())
     return conf
