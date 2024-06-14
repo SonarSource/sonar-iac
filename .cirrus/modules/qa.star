@@ -18,6 +18,7 @@ QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
 
 def qa_win_script():
     return [
+        "whoami",
         "choco install golang --use-system-powershell -d --usepackagecodes -v -y --version ${GO_VERSION} -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD} || xcopy 'C:\\ProgramData\\chocolatey\\logs\\chocolatey.log' 'C:\\Windows\\SystemTemp\\cirrus-ci-build'",
         "choco install protoc -y --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
