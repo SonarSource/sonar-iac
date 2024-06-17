@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
@@ -33,6 +31,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -43,10 +42,12 @@ import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
-import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
@@ -130,8 +131,8 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   @Override
-  protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
-    return new HelmInputFileContext(sensorContext, inputFile);
+  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+    return new KubernetesAnalyzer(repositoryKey(), treeParser(), visitors(sensorContext, statistics), statistics);
   }
 
   private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {

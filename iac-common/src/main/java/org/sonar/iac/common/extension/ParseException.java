@@ -19,8 +19,12 @@
  */
 package org.sonar.iac.common.extension;
 
+import com.sonar.sslr.api.RecognitionException;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -40,6 +44,19 @@ public class ParseException extends RuntimeException {
       return new ParseException(message + " at " + filenameAndPosition(inputFileContext.inputFile, position), position, null);
     }
     return new ParseException(message + " at " + filenameAndPosition(null, position), position, null);
+  }
+
+  public static ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause) {
+    TextPointer position = null;
+    if (cause instanceof RecognitionException recognitionException) {
+      position = inputFileContext.newPointer(recognitionException.getLine(), 0);
+    } else if (cause instanceof MarkedYamlEngineException markedException) {
+      Optional<Mark> problemMark = markedException.getProblemMark();
+      if (problemMark.isPresent()) {
+        position = inputFileContext.newPointer(problemMark.get().getLine() + 1, 0);
+      }
+    }
+    return createGeneralParseException(action, inputFileContext.inputFile, cause, position);
   }
 
   private static String filenameAndPosition(@Nullable InputFile inputFile, @Nullable TextPointer position) {
