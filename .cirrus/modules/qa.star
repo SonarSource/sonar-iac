@@ -19,13 +19,14 @@ QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
 def qa_win_script():
     return [
         "whoami",
-        "eval $(powershell -NonInteractive -Command '(new-object System.Net.WebClient).DownloadFile(\"https://golang.org/dl/go1.21.7.windows-386.msi\",\"C:\\golang.msi\")')",
-        "msiexec.exe /quiet /qn /norestart /i \"C:\\golang.msi\"",
+        "eval $(powershell -NonInteractive -Command '(new-object System.Net.WebClient).DownloadFile(\"https://golang.org/dl/go1.21.7.windows-386.zip\",\"C:\\golang.zip\")')",
+        "eval $(powershell -NonInteractive -Command 'Expand-Archive -Path C:\\golang.zip -DestinationPath C:\\go')",
+        "powershell -NonInteractive -Command 'setx PATH \"$env:path;C:\\go\\go\\bin\"'",
         "choco install protoc -y --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "powershell gci env:Path",
         "echo !path!",
-        "go -version",
+        "go version",
         "source cirrus-env CI",
         "./gradlew ${GRADLE_COMMON_FLAGS} test"
     ]
