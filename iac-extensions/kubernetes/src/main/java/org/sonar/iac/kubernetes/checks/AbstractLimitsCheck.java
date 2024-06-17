@@ -23,7 +23,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
-import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
@@ -38,12 +37,10 @@ public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck 
   }
 
   void reportMissingLimit(BlockObject container) {
-    if (((KubernetesCheckContext) container.ctx).projectContext().hasNoLimitRange()) {
-      container.block("resources").block("limits")
-        .attribute(getLimitAttributeKey())
-        .reportIfAbsent(getFirstChildElement(container), getMessage())
-        .reportIfValue(isSet().negate(), getMessage());
-    }
+    container.block("resources").block("limits")
+      .attribute(getLimitAttributeKey())
+      .reportIfAbsent(getFirstChildElement(container), getMessage())
+      .reportIfValue(isSet().negate(), getMessage());
   }
 
   @Nullable

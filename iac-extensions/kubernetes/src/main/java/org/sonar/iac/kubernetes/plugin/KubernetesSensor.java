@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -76,29 +74,6 @@ public class KubernetesSensor extends YamlSensor {
     } else {
       LOG.debug("Skipping initialization of Helm processor");
     }
-  }
-
-  void checkExistingLimitRange(List<InputFile> inputFiles) {
-    for (InputFile inputFile : inputFiles) {
-      try {
-        if (inputFile.contents().contains("LimitRange")) {
-          LOG.debug("LimitRange detected, related rules will be suppressed");
-          projectContextBuilder.setLimitRange(Trilean.TRUE);
-          return;
-        }
-      } catch (IOException e) {
-        LOG.debug("IOException while detecting LimitRange, related rules will be suppressed");
-        projectContextBuilder.setLimitRange(Trilean.UNKNOWN);
-        return;
-      }
-    }
-  }
-
-  @Override
-  protected List<InputFile> inputFiles(SensorContext sensorContext) {
-    var inputFiles = super.inputFiles(sensorContext);
-    checkExistingLimitRange(inputFiles);
-    return inputFiles;
   }
 
   @Override

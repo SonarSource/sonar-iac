@@ -19,26 +19,8 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.checks.Trilean;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 class ProjectContextTest {
 
-  @Test
-  void contextShouldProvideInfoAboutLimitRange() {
-    var ctx = ProjectContext.builder().build();
-    assertThat(ctx.hasNoLimitRange()).isTrue();
-
-    ctx = ProjectContext.builder().setLimitRange(Trilean.FALSE).build();
-    assertThat(ctx.hasNoLimitRange()).isTrue();
-
-    ctx = ProjectContext.builder().setLimitRange(Trilean.TRUE).build();
-    assertThat(ctx.hasNoLimitRange()).isFalse();
-
-    ctx = ProjectContext.builder().setLimitRange(Trilean.UNKNOWN).build();
-    assertThat(ctx.hasNoLimitRange()).isFalse();
-  }
+  // No tests here yet
 
 }

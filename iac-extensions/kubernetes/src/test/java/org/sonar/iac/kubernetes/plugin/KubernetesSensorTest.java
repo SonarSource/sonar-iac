@@ -59,7 +59,6 @@ import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -320,7 +319,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldParseHelmAndRaiseIssueNullLocation() {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5";
-    var helmProcessor = Mockito.mock(HelmProcessor.class);
+    var helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var issueRaiser = new RaiseIssue("Issue");
@@ -395,13 +394,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     IssueLocation issueLocation = flow.locations().get(0);
     assertThat(issueLocation.message()).isEqualTo(message);
     assertThat(issueLocation.textRange()).hasRange(startLine, startLineOffset, endLine, endLineOffset);
-  }
-
-  private HelmProcessor mockHelmProcessor(Map<String, String> inputToOutput) {
-    HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.process(anyString(), any())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(0).toString(), ""));
-    return helmProcessor;
   }
 
   /**
@@ -480,32 +472,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(valuesFile)).isTrue();
   }
 
-  @Test
-  void shouldSetProjectContextProperlyWhenLimitRangeExists() {
-    var sensor = sensor();
-    sensor.checkExistingLimitRange(List.of(inputFile("LimitRange")));
-    assertThat(logTester.logs(Level.DEBUG)).contains("LimitRange detected, related rules will be suppressed");
-    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isFalse();
-  }
-
-  @Test
-  void shouldSetProjectContextProperlyWhenLimitRangeDoesNotExist() {
-    var sensor = sensor();
-    sensor.checkExistingLimitRange(List.of(inputFile("LimitNoRange")));
-    assertThat(logTester.logs(Level.DEBUG)).doesNotContain("LimitRange detected, related rules will be suppressed");
-    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isTrue();
-  }
-
-  @Test
-  void shouldSetProjectContextProperlyWhenIOException() throws IOException {
-    var sensor = sensor();
-    var inputFile = mock(InputFile.class);
-    when(inputFile.contents()).thenThrow(new IOException());
-    sensor.checkExistingLimitRange(List.of(inputFile));
-    assertThat(logTester.logs(Level.DEBUG)).contains("IOException while detecting LimitRange, related rules will be suppressed");
-    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isFalse();
-  }
-
   private void assertNotSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }
@@ -542,7 +508,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(), Mockito.mock(HelmEvaluator.class));
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(), mock(HelmEvaluator.class));
   }
 
   protected KubernetesSensor sensor(HelmProcessor helmProcessor, CheckFactory checkFactory) {
@@ -578,10 +544,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    String message1 = "mapping values are not allowed here\n" +
-      " in reader, line 1, column 5:\n" +
-      "    a: b: c\n" +
-      "        ^\n";
+    String message1 = """
+      mapping values are not allowed here
+       in reader, line 1, column 5:
+          a: b: c
+              ^
+      """;
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'templates/k8.yaml:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
@@ -605,6 +573,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       checkFactory(sonarLintContext, rules),
       noSonarFilter,
       new KubernetesLanguage(),
-      Mockito.mock(HelmEvaluator.class));
+      mock(HelmEvaluator.class));
   }
 }
