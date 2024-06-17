@@ -20,7 +20,7 @@ def qa_win_script():
     return [
         "whoami",
         "eval $(powershell -NonInteractive -Command '(new-object System.Net.WebClient).DownloadFile(\"https://golang.org/dl/go1.21.7.windows-386.msi\",\"C:\\golang.msi\")')",
-        "msiexec.exe /i C:\\golang.msi /quiet'",
+        "msiexec.exe /i C:\\golang.msi /quiet",
         "choco install protoc -y --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "powershell gci env:Path",
