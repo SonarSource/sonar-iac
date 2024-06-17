@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.common.extension;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -30,6 +27,10 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
 
@@ -45,7 +46,7 @@ public class Analyzer {
   public Analyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
     this.repositoryKey = repositoryKey;
     this.parser = parser;
-    this.visitors = visitors;
+    this.visitors = Collections.unmodifiableList(visitors);
     this.statistics = statistics;
   }
 

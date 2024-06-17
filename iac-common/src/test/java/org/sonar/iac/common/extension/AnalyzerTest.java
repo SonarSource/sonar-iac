@@ -197,8 +197,8 @@ class AnalyzerTest {
   }
 
   TreeParser parser() {
-    TreeParser parser = mock(TreeParser.class);
-    when(parser.parse(anyString(), any(InputFileContext.class))).thenReturn(mock(Tree.class));
-    return parser;
+    TreeParser treeParser = mock(TreeParser.class);
+    when(treeParser.parse(anyString(), any(InputFileContext.class))).thenReturn(mock(Tree.class));
+    return treeParser;
   }
 }
