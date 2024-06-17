@@ -19,25 +19,17 @@
  */
 package org.sonar.iac.common.yaml;
 
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.snakeyaml.engine.v2.exceptions.Mark;
-import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.extension.DurationStatistics;
-import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
@@ -45,9 +37,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -76,96 +66,6 @@ class YamlSensorTest extends AbstractSensorTest {
   void shouldNotReturnHighlightingAndMetricsVisitorsInSonarLintContext() {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, mock(DurationStatistics.class));
     assertThat(visitors).doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class);
-  }
-
-  @Test
-  void toParseException_with_MarkedYamlEngineException() {
-    MarkedYamlEngineException yamlEngineException = mock(MarkedYamlEngineException.class);
-    when(yamlEngineException.getProblemMark()).thenReturn(Optional.of(new Mark("mark", 1, 1, 1, new int[0], 1)));
-    when(yamlEngineException.getMessage()).thenReturn("message");
-
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("TestFile");
-    when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
-    var inputFileContext = new InputFileContext(null, inputFile);
-
-    ParseException e = sensor().toParseException("action", inputFileContext, yamlEngineException);
-    assertThat(e)
-      .hasMessage("Cannot action 'TestFile:1:1'")
-      .extracting(ParseException::getPosition)
-      .isEqualTo(new DefaultTextPointer(1, 0));
-  }
-
-  @Test
-  void toParseException_with_MarkedYamlEngineException_and_without_marker() {
-    MarkedYamlEngineException yamlEngineException = mock(MarkedYamlEngineException.class);
-    when(yamlEngineException.getProblemMark()).thenReturn(Optional.empty());
-    when(yamlEngineException.getMessage()).thenReturn("message");
-
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("TestFile");
-    var inputFileContext = new InputFileContext(null, inputFile);
-
-    ParseException e = sensor().toParseException("action", inputFileContext, yamlEngineException);
-    assertThat(e)
-      .hasMessage("Cannot action 'TestFile'")
-      .extracting(ParseException::getPosition)
-      .isNull();
-  }
-
-  @Test
-  void toParseException_with_other_exception() {
-    Exception exception = mock(Exception.class);
-    when(exception.getMessage()).thenReturn("message");
-
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("TestFile");
-    when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
-    var inputFileContext = new InputFileContext(null, inputFile);
-
-    ParseException e = sensor().toParseException("action", inputFileContext, exception);
-    assertThat(e)
-      .hasMessage("Cannot action 'TestFile'")
-      .extracting(ParseException::getPosition)
-      .isNull();
-  }
-
-  @Test
-  void toParseException_NullInputFile() {
-    Exception exception = mock(Exception.class);
-    when(exception.getMessage()).thenReturn("message");
-
-    ParseException e = sensor().toParseException("action", new InputFileContext(null, null), exception);
-    assertThat(e)
-      .hasMessage("Cannot action 'null'")
-      .extracting(ParseException::getPosition)
-      .isNull();
-  }
-
-  @Test
-  void shouldThrowExceptionWhenFailFastIsTrue() {
-    MarkedYamlEngineException yamlEngineException = mock(MarkedYamlEngineException.class);
-    when(yamlEngineException.getProblemMark()).thenReturn(Optional.of(new Mark("mark", 1, 1, 1, new int[0], 1)));
-    when(yamlEngineException.getMessage()).thenReturn("message");
-
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("TestFile");
-    when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
-    var sensorContext = createSensorContextFailFast();
-    var inputFileContext = new InputFileContext(sensorContext, inputFile);
-    when(inputFile.newPointer(anyInt(), anyInt())).thenThrow(IllegalArgumentException.class);
-
-    var e = catchException(() -> sensor().toParseException("action", inputFileContext, yamlEngineException));
-    assertThat(e)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Unable to create new pointer for TestFile position 2:0");
-  }
-
-  private static SensorContext createSensorContextFailFast() {
-    var context = SensorContextTester.create(Paths.get("."));
-    var config = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
-    context.setSettings(config);
-    return context;
   }
 
   @Test
