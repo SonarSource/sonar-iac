@@ -41,7 +41,7 @@
       "managers": [
         "github-actions"
       ],
-      "matchUpdateTypes": ["pin"],
+      "matchUpdateTypes": ["pin", "rollback"],
       "enabled": false
     },
     {
