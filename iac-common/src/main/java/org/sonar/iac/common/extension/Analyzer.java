@@ -36,7 +36,6 @@ import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
 public class Analyzer {
 
   private static final Logger LOG = LoggerFactory.getLogger(Analyzer.class);
-  private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
 
   private final String repositoryKey;
   private final TreeParser<? extends Tree> parser;
@@ -72,7 +71,7 @@ public class Analyzer {
   }
 
   private void analyseFile(InputFileContext inputFileContext) {
-    InputFile inputFile = inputFileContext.inputFile;
+    var inputFile = inputFileContext.inputFile;
     String content;
     try {
       content = inputFile.contents();
@@ -80,7 +79,7 @@ public class Analyzer {
       throw ParseException.toParseException("read", inputFileContext, e);
     }
 
-    if (EMPTY_FILE_CONTENT_PATTERN.matcher(content).matches()) {
+    if (content.isBlank()) {
       return;
     }
 
