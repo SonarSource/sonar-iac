@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.common.checks;
 
-import org.sonar.iac.common.api.tree.TextTree;
-import org.sonar.iac.common.api.tree.Tree;
-
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.Tree;
 
 public class TextUtils {
 
@@ -68,6 +67,15 @@ public class TextUtils {
 
   public static boolean isValueFalse(@Nullable Tree tree) {
     return isValue(tree, "false").isTrue();
+  }
+
+  public static Trilean trileanFromTextTree(TextTree tree) {
+    var value = Boolean.parseBoolean(tree.value());
+    if (value) {
+      return Trilean.TRUE;
+    } else {
+      return Trilean.FALSE;
+    }
   }
 
 }

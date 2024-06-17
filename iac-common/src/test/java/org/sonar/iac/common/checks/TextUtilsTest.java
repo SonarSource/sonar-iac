@@ -20,6 +20,8 @@
 package org.sonar.iac.common.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
@@ -74,4 +76,15 @@ class TextUtilsTest {
     assertThat(TextUtils.isValueFalse(null)).isFalse();
   }
 
+  @ParameterizedTest
+  @CsvSource(value = {
+    "true, TRUE",
+    "false, FALSE",
+    "foobar, FALSE",
+    "null, FALSE"
+  }, nullValues = "null")
+  void shouldConvertTextTreeToTrilean(String text, Trilean expected) {
+    var trilean = TextUtils.trileanFromTextTree(text(text));
+    assertThat(trilean).isEqualTo(expected);
+  }
 }
