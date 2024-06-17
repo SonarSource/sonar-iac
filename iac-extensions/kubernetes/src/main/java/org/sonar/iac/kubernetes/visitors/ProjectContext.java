@@ -19,20 +19,12 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import org.sonar.iac.common.checks.Trilean;
-
 /**
  * Data class to provide information about the project. This allows to share cross-file knowledge to the individual checks.
  */
 public final class ProjectContext {
 
-  private Trilean hasLimitRange = Trilean.FALSE;
-
   private ProjectContext() {
-  }
-
-  public boolean hasNoLimitRange() {
-    return hasLimitRange.isFalse();
   }
 
   public static Builder builder() {
@@ -45,11 +37,6 @@ public final class ProjectContext {
 
     public Builder() {
       this.ctx = new ProjectContext();
-    }
-
-    public Builder setLimitRange(Trilean hasLimitRange) {
-      ctx.hasLimitRange = hasLimitRange;
-      return this;
     }
 
     public ProjectContext build() {

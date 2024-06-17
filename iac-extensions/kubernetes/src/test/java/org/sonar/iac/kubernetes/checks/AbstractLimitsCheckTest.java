@@ -25,7 +25,6 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.MappingTree;
@@ -33,10 +32,7 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.getFirstChildElement;
 
@@ -60,20 +56,6 @@ class AbstractLimitsCheckTest {
     BlockObject block = BlockObject.fromAbsent(checkContext, "a");
     HasTextRange firstChildElement = getFirstChildElement(block);
     assertThat(firstChildElement).isNull();
-  }
-
-  @Test
-  void shouldNotReportLimitIssueWhenProjectHasNoLimitRange() {
-    var projectContext = ProjectContext.builder().setLimitRange(Trilean.FALSE).build();
-    var checkContext = checkContextAfterReportMissingLimit(projectContext);
-    verify(checkContext).reportIssue(ABSENT_TEXT_RANGE, MESSAGE);
-  }
-
-  @Test
-  void shouldNotReportLimitIssueWhenProjectHasLimitRange() {
-    var projectContext = ProjectContext.builder().setLimitRange(Trilean.TRUE).build();
-    var checkContext = checkContextAfterReportMissingLimit(projectContext);
-    verify(checkContext, never()).reportIssue((TextRange) any(), any());
   }
 
   CheckContext checkContextAfterReportMissingLimit(ProjectContext projectContext) {

@@ -59,7 +59,6 @@ import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -397,13 +396,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(issueLocation.textRange()).hasRange(startLine, startLineOffset, endLine, endLineOffset);
   }
 
-  private HelmProcessor mockHelmProcessor(Map<String, String> inputToOutput) {
-    HelmProcessor helmProcessor = mock(HelmProcessor.class);
-    when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.process(anyString(), any())).thenAnswer(input -> inputToOutput.getOrDefault(input.getArgument(0).toString(), ""));
-    return helmProcessor;
-  }
-
   /**
    * When identifying whether an input file is a Kubernetes file, various identifiers are retrieved from the file.
    * In order not to spend too much time on this verification in large files, it is only applied to the first 8kb.
@@ -480,32 +472,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(valuesFile)).isTrue();
   }
 
-  @Test
-  void shouldSetProjectContextProperlyWhenLimitRangeExists() {
-    var sensor = sensor();
-    sensor.checkExistingLimitRange(List.of(inputFile("LimitRange")));
-    assertThat(logTester.logs(Level.DEBUG)).contains("LimitRange detected, related rules will be suppressed");
-    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isFalse();
-  }
-
-  @Test
-  void shouldSetProjectContextProperlyWhenLimitRangeDoesNotExist() {
-    var sensor = sensor();
-    sensor.checkExistingLimitRange(List.of(inputFile("LimitNoRange")));
-    assertThat(logTester.logs(Level.DEBUG)).doesNotContain("LimitRange detected, related rules will be suppressed");
-    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isTrue();
-  }
-
-  @Test
-  void shouldSetProjectContextProperlyWhenIOException() throws IOException {
-    var sensor = sensor();
-    var inputFile = mock(InputFile.class);
-    when(inputFile.contents()).thenThrow(new IOException());
-    sensor.checkExistingLimitRange(List.of(inputFile));
-    assertThat(logTester.logs(Level.DEBUG)).contains("IOException while detecting LimitRange, related rules will be suppressed");
-    assertThat(sensor.projectContextBuilder.build().hasNoLimitRange()).isFalse();
-  }
-
   private void assertNotSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }
@@ -578,10 +544,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    String message1 = "mapping values are not allowed here\n" +
-      " in reader, line 1, column 5:\n" +
-      "    a: b: c\n" +
-      "        ^\n";
+    String message1 = """
+      mapping values are not allowed here
+       in reader, line 1, column 5:
+          a: b: c
+              ^
+      """;
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'templates/k8.yaml:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
