@@ -319,7 +319,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldParseHelmAndRaiseIssueNullLocation() {
     String originalSourceCode = K8_IDENTIFIERS + "{{ some helm code }}";
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #5";
-    var helmProcessor = Mockito.mock(HelmProcessor.class);
+    var helmProcessor = mock(HelmProcessor.class);
     when(helmProcessor.processHelmTemplate(eq(originalSourceCode), any())).thenReturn(transformedSourceCode);
 
     var issueRaiser = new RaiseIssue("Issue");
@@ -508,7 +508,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(), Mockito.mock(HelmEvaluator.class));
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(), mock(HelmEvaluator.class));
   }
 
   protected KubernetesSensor sensor(HelmProcessor helmProcessor, CheckFactory checkFactory) {
@@ -573,6 +573,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       checkFactory(sonarLintContext, rules),
       noSonarFilter,
       new KubernetesLanguage(),
-      Mockito.mock(HelmEvaluator.class));
+      mock(HelmEvaluator.class));
   }
 }

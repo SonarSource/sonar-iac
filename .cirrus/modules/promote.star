@@ -32,7 +32,8 @@ def promote_task():
             "depends_on": [
                 "build",
                 "build_test_analyze",
-                "qa_os_win",
+                #  Fixme: qa_win is broken because of chocolatey authentication
+                # "qa_os_win",
                 "qa_ruling",
                 "qa_plugin"
             ],
