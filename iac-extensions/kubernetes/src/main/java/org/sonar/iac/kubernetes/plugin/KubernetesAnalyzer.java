@@ -21,10 +21,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -34,13 +31,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
-import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
-import org.sonar.iac.kubernetes.visitors.LocationShifter;
-
-import javax.annotation.Nullable;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
@@ -69,10 +60,16 @@ public class KubernetesAnalyzer extends Analyzer {
 
   @Override
   public Tree parse(String content, @Nullable InputFileContext inputFileContext) {
-    if (!hasHelmContent(content)) {
-      return kubernetesParserStatistics.recordPureKubernetesFile(() -> parser.parse(content, inputFileContext));
-    } else {
-      return kubernetesParserStatistics.recordHelmFile(() -> helmParser.parseHelmFile(content, (HelmInputFileContext) inputFileContext));
+    try {
+      if (!hasHelmContent(content)) {
+        return kubernetesParserStatistics.recordPureKubernetesFile(() -> parser.parse(content, inputFileContext));
+      } else {
+        return kubernetesParserStatistics.recordHelmFile(() -> helmParser.parseHelmFile(content, (HelmInputFileContext) inputFileContext));
+      }
+    } catch (ParseException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw ParseException.toParseException("parse", inputFileContext, e);
     }
   }
 
