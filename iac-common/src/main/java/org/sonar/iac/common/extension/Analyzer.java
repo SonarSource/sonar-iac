@@ -78,7 +78,7 @@ public class Analyzer {
       return;
     }
 
-    Tree tree = statistics.time("Parse", () -> parse(inputFileContext, content));
+    Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
 
     visit(inputFileContext, tree);
   }
@@ -97,7 +97,7 @@ public class Analyzer {
     return content;
   }
 
-  public Tree parse(@Nullable InputFileContext inputFileContext, String content) {
+  public Tree parse(String content, @Nullable InputFileContext inputFileContext) {
     try {
       return parser.parse(content, inputFileContext);
     } catch (ParseException e) {

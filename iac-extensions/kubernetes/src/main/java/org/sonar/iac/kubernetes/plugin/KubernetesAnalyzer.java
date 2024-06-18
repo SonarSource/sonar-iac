@@ -69,7 +69,7 @@ public class KubernetesAnalyzer extends Analyzer {
   }
 
   @Override
-  public Tree parse(@Nullable InputFileContext inputFileContext, String content) {
+  public Tree parse(String content, @Nullable InputFileContext inputFileContext) {
     if (!hasHelmContent(content)) {
       return kubernetesParserStatistics.recordPureKubernetesFile(() -> parser.parse(content, inputFileContext));
     } else {

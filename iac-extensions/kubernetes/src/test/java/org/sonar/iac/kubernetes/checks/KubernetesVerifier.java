@@ -200,7 +200,7 @@ public class KubernetesVerifier {
     }
 
     static Tree parse(String content, HelmInputFileContext inputFileContext) {
-      return kubernetesAnalyzer.parse(inputFileContext, content);
+      return kubernetesAnalyzer.parse(content, inputFileContext);
     }
 
     private static HelmInputFileContext prepareHelmContext(String templateFileName) {
