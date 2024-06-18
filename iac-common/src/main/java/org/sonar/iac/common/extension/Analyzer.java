@@ -58,7 +58,7 @@ public class Analyzer {
       }
       var inputFileContext = createInputFileContext(sensorContext, inputFile);
       try {
-        analyseFile(sensorContext, inputFileContext);
+        analyseFile(inputFileContext);
       } catch (ParseException e) {
         logParsingError(e);
         inputFileContext.reportParseError(repositoryKey, e.getPosition());
@@ -72,13 +72,13 @@ public class Analyzer {
     return new InputFileContext(sensorContext, inputFile);
   }
 
-  private void analyseFile(SensorContext sensorContext, InputFileContext inputFileContext) {
+  private void analyseFile(InputFileContext inputFileContext) {
     var content = readContent(inputFileContext);
     if (content == null) {
       return;
     }
 
-    Tree tree = statistics.time("Parse", () -> parse(inputFileContext, content));
+    Tree tree = statistics.time("Parse", () -> parse( inputFileContext, content));
 
     visit(inputFileContext, tree);
   }
