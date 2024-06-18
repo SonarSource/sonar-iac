@@ -56,7 +56,8 @@ public class KubernetesAnalyzer extends Analyzer {
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics;
 
-  public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics, HelmProcessor helmProcessor, KubernetesParserStatistics kubernetesParserStatistics) {
+  public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics,
+    HelmProcessor helmProcessor, KubernetesParserStatistics kubernetesParserStatistics) {
     super(repositoryKey, parser, visitors, statistics);
     this.helmProcessor = helmProcessor;
     this.kubernetesParserStatistics = kubernetesParserStatistics;

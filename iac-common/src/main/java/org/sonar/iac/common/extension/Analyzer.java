@@ -78,7 +78,7 @@ public class Analyzer {
       return;
     }
 
-    Tree tree = statistics.time("Parse", () -> parse( inputFileContext, content));
+    Tree tree = statistics.time("Parse", () -> parse(inputFileContext, content));
 
     visit(inputFileContext, tree);
   }
