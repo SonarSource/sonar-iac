@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.common.extension;
 
-import java.util.List;
-import java.util.stream.StreamSupport;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -33,10 +31,12 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.Version;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
+
+import java.util.List;
+import java.util.stream.StreamSupport;
 
 public abstract class IacSensor implements Sensor {
 

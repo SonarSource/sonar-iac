@@ -79,14 +79,14 @@ class AnalyzerTest {
   }
 
   @Test
-  void shouldParseEmptyFile() throws IOException {
+  void shouldParseEmptyFile() {
     Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
     List<InputFile> files = List.of(emptyFile);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
   }
 
   @Test
-  void shouldFailWhenCancelled() throws IOException {
+  void shouldFailWhenCancelled() {
     Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
     List<InputFile> files = List.of(emptyFile);
     context.setCancelled(true);
@@ -107,7 +107,7 @@ class AnalyzerTest {
   }
 
   @Test
-  void shouldReportOnParseException() throws IOException {
+  void shouldReportOnParseException() {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new ParseException("Custom parse exception", null, null));
     Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
     List<InputFile> files = List.of(fileWithContent);
@@ -120,7 +120,7 @@ class AnalyzerTest {
   }
 
   @Test
-  void shouldReportOnRuntimeException() throws IOException {
+  void shouldReportOnRuntimeException() {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new RuntimeException("Custom runtime exception"));
     Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
     List<InputFile> files = List.of(fileWithContent);
@@ -134,7 +134,7 @@ class AnalyzerTest {
   }
 
   @Test
-  void shouldReportErrorOnVisitorScanException() throws IOException {
+  void shouldReportErrorOnVisitorScanException() {
     TreeVisitor<InputFileContext> visitorFail = mock(TreeVisitor.class);
     doThrow(new RuntimeException("Exception when scan mock"))
       .when(visitorFail).scan(any(InputFileContext.class), any(Tree.class));
@@ -146,7 +146,7 @@ class AnalyzerTest {
   }
 
   @Test
-  void shouldReportIllegalStateExceptionWhenFailFastIsTrue() throws IOException {
+  void shouldReportIllegalStateExceptionWhenFailFastIsTrue() {
     TreeVisitor<InputFileContext> visitorFail = mock(TreeVisitor.class);
     doThrow(new RuntimeException("Exception when scan mock"))
       .when(visitorFail).scan(any(InputFileContext.class), any(Tree.class));
@@ -163,7 +163,7 @@ class AnalyzerTest {
   }
 
   @Test
-  void shouldParseAndVisitWithSuccess() throws IOException {
+  void shouldParseAndVisitWithSuccess() {
     TreeVisitor<InputFileContext> visitor = mock(TreeVisitor.class);
     Analyzer analyzer = new Analyzer("iac", parser, List.of(visitor), durationStatistics);
     List<InputFile> files = List.of(fileWithContent);

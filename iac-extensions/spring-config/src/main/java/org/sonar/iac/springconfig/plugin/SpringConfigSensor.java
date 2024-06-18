@@ -19,10 +19,6 @@
  */
 package org.sonar.iac.springconfig.plugin;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,21 +31,23 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.plugin.CloudformationSensor;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
-import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlLanguage;
-import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 import org.sonar.iac.springconfig.parser.SpringConfigParser;
 import org.sonar.iac.springconfig.plugin.visitors.SpringConfigHighlightingVisitor;
 import org.sonar.iac.springconfig.plugin.visitors.SpringConfigMetricsVisitor;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.JAVA_REPOSITORY_KEY;
 import static org.sonar.iac.springconfig.plugin.SpringConfigExtension.SENSOR_NAME;
