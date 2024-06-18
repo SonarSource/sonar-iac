@@ -84,6 +84,22 @@ class ProjectResourceFactoryTest {
   }
 
   @Test
+  void shouldReturnNullIfServiceAccountHasNoName() {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        namespace: my-namespace
+      """;
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var serviceAccount = ProjectResourceFactory.createServiceAccount(tree);
+
+    assertThat(serviceAccount).isNull();
+  }
+
+  @Test
   void shouldCreateMemoryLimit() {
     // language=yaml
     var code = """
@@ -182,6 +198,27 @@ class ProjectResourceFactoryTest {
     assertThat(podLimit.maxLimitRequestRatioMap()).isEmpty();
     assertThat(podLimit.max()).isEmpty();
     assertThat(podLimit.min()).isEmpty();
+  }
+
+  @Test
+  void shouldPutEmptyMapIfLimitItemIsNotMapping() {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: LimitRange
+      metadata:
+        name: name constraint
+      spec:
+        limits:
+        - default: 0.5
+          type: Container
+      """;
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var limitRange = (LimitRange) ProjectResourceFactory.createLimitRange(tree);
+
+    var limit = limitRange.limits().get(0);
+    assertThat(limit.defaultMap()).isEmpty();
   }
 
   @Test
