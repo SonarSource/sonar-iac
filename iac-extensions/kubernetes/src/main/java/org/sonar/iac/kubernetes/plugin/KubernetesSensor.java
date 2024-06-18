@@ -127,7 +127,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new KubernetesAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics, helmProcessor, kubernetesParserStatistics);
+    return new KubernetesAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics, new HelmParser(helmProcessor), kubernetesParserStatistics);
   }
 
   void setHelmProcessorForTesting(HelmProcessor helmProcessor) {

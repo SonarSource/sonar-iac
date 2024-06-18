@@ -73,8 +73,9 @@ class KubernetesAnalyzerTest {
   private final HelmInputFileContext inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
   private final FileSystem fileSystem = mock(FileSystem.class);
   private final HelmProcessor helmProcessor = mock(HelmProcessor.class);
+  private final HelmParser helmParser = new HelmParser(helmProcessor);
   private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)),
-    helmProcessor, new KubernetesParserStatistics());
+    helmParser, new KubernetesParserStatistics());
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -94,7 +95,8 @@ class KubernetesAnalyzerTest {
     when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
 
     var processor = new TestHelmProcessor(evaluated);
-    KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)), processor,
+    var helmParser = new HelmParser(processor);
+    KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)), helmParser,
       new KubernetesParserStatistics());
     return (FileTree) analyzer.parse(originalCode, inputFileContext);
   }
@@ -482,7 +484,7 @@ class KubernetesAnalyzerTest {
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.toString()).thenReturn(filename);
 
-    assertThat(KubernetesAnalyzer.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(HelmParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm values file detected, skipping parsing " + filename);
     } else {
@@ -505,7 +507,7 @@ class KubernetesAnalyzerTest {
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.toString()).thenReturn(filename);
 
-    assertThat(KubernetesAnalyzer.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(HelmParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm Chart.yaml file detected, skipping parsing " + filename);
     } else {
@@ -524,7 +526,7 @@ class KubernetesAnalyzerTest {
     when(inputFile.toString()).thenReturn(filename);
     when(inputFile.filename()).thenReturn(filename);
 
-    assertThat(KubernetesAnalyzer.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(HelmParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm tpl file detected, skipping parsing " + filename);
     } else {

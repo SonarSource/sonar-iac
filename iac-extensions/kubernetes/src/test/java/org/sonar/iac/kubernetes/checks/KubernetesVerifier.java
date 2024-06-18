@@ -40,6 +40,7 @@ import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.kubernetes.plugin.HelmParser;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesAnalyzer;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
@@ -134,6 +135,7 @@ public class KubernetesVerifier {
       HelmFileSystem helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
       HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
       helmProcessor.initialize();
+      HelmParser helmParser = new HelmParser(helmProcessor);
       temporaryDirectory.deleteOnExit();
 
       List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
@@ -145,7 +147,7 @@ public class KubernetesVerifier {
         new YamlParser(),
         visitors,
         durationStatistics,
-        helmProcessor,
+        helmParser,
         new KubernetesParserStatistics());
     }
 
