@@ -83,7 +83,7 @@ class HelmParserTest {
 
   @Test
   void shouldRemoveEmptyLinesAfterEvaluation() throws IOException {
-    //language=yaml
+    // language=yaml
     String evaluated = """
       apiVersion: apps/v1 #1
       kind: StatefulSet #2
@@ -109,7 +109,7 @@ class HelmParserTest {
 
   @Test
   void shouldNotCrashOnNewDocumentAfterEvaluation() throws IOException {
-    //language=yaml
+    // language=yaml
     var evaluated = """
       --- #5
       apiVersion: v1 #6
@@ -124,7 +124,7 @@ class HelmParserTest {
 
   @Test
   void shouldRemoveLineNumberCommentForNewDocumentAtEndAfterEvaluation() throws IOException {
-    //language=yaml
+    // language=yaml
     var evaluated = """
       apiVersion: v1 #6
       kind: Pod #7
