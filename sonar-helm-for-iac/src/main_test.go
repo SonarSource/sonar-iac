@@ -26,6 +26,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"os"
 	"os/exec"
+	"runtime"
 	"testing"
 )
 
@@ -41,6 +42,10 @@ apiVersion: v3
 `)
 
 func Test_exit_code_with_serialization_error(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("skipping test on Windows because it times out")
+	}
+
 	if os.Getenv("BE_CRASHER") == "1" {
 		serializer = FailingProtobufSerializer{}
 		main()

@@ -16,7 +16,7 @@ EXIT /B 0
 
 :generate_test_report
 SET CGO_ENABLED=0
-CALL go test ./src/... -json > build/test-report.json
+CALL go test ./src/... -timeout 5s -json > build/test-report.json
 EXIT /B 0
 
 :go_install_check

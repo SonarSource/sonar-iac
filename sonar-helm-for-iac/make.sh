@@ -140,7 +140,7 @@ generate_test_report() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
   # Test
-  CGO_ENABLED=0 bash -c "${path_to_binary} test ./src/... -coverprofile=build/test-coverage.out -json > build/test-report.json"
+  CGO_ENABLED=0 bash -c "${path_to_binary} test ./src/... -timeout 5s -coverprofile=build/test-coverage.out -json > build/test-report.json"
 }
 
 
