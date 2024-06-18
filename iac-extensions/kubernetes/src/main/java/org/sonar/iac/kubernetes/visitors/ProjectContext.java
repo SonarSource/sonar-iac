@@ -19,9 +19,11 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.iac.kubernetes.model.ProjectResource;
@@ -35,15 +37,23 @@ public final class ProjectContext {
   private ProjectContext() {
   }
 
-  public Set<ProjectResource> getProjectResource(String namespace, String path, Class<? extends ProjectResource> clazz) {
+  /**
+   * Get all resources of a given {@code clazz} in a given {@code namespace} and that are accessible to a file with the given {@code path}.
+   * This means that the resources can be in the same file, or in the same directory, or in the descendant directories, but not in the ancestor directories.
+   */
+  public Set<ProjectResource> getProjectResources(String namespace, String path, Class<? extends ProjectResource> clazz) {
     if (projectResourcePerNamespacePerPath.containsKey(namespace)) {
       var resourcesPerPath = projectResourcePerNamespacePerPath.get(namespace);
-      if (resourcesPerPath.containsKey(path)) {
-        var resources = resourcesPerPath.get(path);
-        return resources.stream()
-          .filter(clazz::isInstance)
-          .collect(Collectors.toSet());
-      }
+
+      var basePath = Optional.ofNullable(Path.of(path).getParent())
+        .map(Path::toString)
+        .orElse("");
+
+      return resourcesPerPath.entrySet().stream()
+        .filter(entry -> basePath.isEmpty() || Path.of(entry.getKey()).startsWith(basePath))
+        .flatMap(entry -> entry.getValue().stream())
+        .filter(clazz::isInstance)
+        .collect(Collectors.toSet());
     }
     return Set.of();
   }

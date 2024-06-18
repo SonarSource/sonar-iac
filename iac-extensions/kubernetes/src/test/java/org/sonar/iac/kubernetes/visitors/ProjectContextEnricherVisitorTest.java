@@ -69,7 +69,7 @@ class ProjectContextEnricherVisitorTest {
 
     var projectContext = projectContextBuilder.build();
     verify(projectContextBuilder, times(1)).addResource(anyString(), anyString(), any());
-    assertThat(projectContext.getProjectResource("my-namespace", "file:///dir1/dir2/test.yaml", ServiceAccount.class)).isNotEmpty();
-    assertThat(projectContext.getProjectResource("my-namespace", "file:///dir1/dir2/test.yaml", LimitRange.class)).isEmpty();
+    assertThat(projectContext.getProjectResources("my-namespace", "file:///dir1/dir2/test.yaml", ServiceAccount.class)).isNotEmpty();
+    assertThat(projectContext.getProjectResources("my-namespace", "file:///dir1/dir2/test.yaml", LimitRange.class)).isEmpty();
   }
 }
