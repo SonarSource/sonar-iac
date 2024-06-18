@@ -8,7 +8,7 @@ on:
     # Inputs the workflow accepts.
     inputs:
       version:
-        description: Used to specify the version to check (Using Sonar org format major.minor.patch.build_number)
+        description: Optional; Used to specify the version to check, otherwise pulls the latest master version from artifactory.
         required: false
 
 jobs:

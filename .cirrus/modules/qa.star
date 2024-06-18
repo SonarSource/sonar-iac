@@ -1,5 +1,6 @@
 load("github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master", "base_image_container_builder", "ec2_instance_builder")
 load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master", "is_branch_qa_eligible")
+load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master", "artifactory_reader_env")
 load("build.star", "profile_report_artifacts")
 load(
     "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
@@ -17,11 +18,14 @@ QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
 
 def qa_win_script():
     return [
-        "choco install golang --version ${GO_VERSION}",
-        "choco install protoc --version ${PROTOC_VERSION}.0",
+        "powershell -NonInteractive -Command '(new-object System.Net.WebClient).DownloadFile(\"https://golang.org/dl/go$env:GO_VERSION.windows-386.zip\",\"C:\\golang.zip\")'",
+        "eval $(powershell -NonInteractive -Command '(Get-FileHash C:\\golang.zip).Hash -eq \"872ac1c6ba1e23927a5cd60ce2e7a9e64cc6e5a550334c0fbcc785b4347d5f0d\"')",
+        "eval $(powershell -NonInteractive -Command 'Expand-Archive -Path C:\\golang.zip -DestinationPath C:\\')",
+        "powershell -NonInteractive -Command 'setx PATH \"$env:path;C:\\go\\bin\"'",
+        "choco install protoc -y --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "source cirrus-env CI",
-        "./gradlew ${GRADLE_COMMON_FLAGS} test"
+        "./gradlew ${GRADLE_COMMON_FLAGS} test -x :sonar-helm-for-iac:testGoCode"
     ]
 
 
@@ -31,6 +35,7 @@ def qa_os_win_task():
             "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "ec2_instance": ec2_instance_builder(),
+            "env": artifactory_reader_env(),
             "gradle_cache": gradle_cache(),
             "build_script": qa_win_script(),
             "on_success": profile_report_artifacts(),

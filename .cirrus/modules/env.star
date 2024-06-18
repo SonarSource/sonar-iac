@@ -10,7 +10,7 @@ def go_env():
     """
     Provides typical environment variables to work with Go.
     The following default values are provided:
-    - GO_VERSION: 1.21.7
+    - GO_VERSION: 1.21.8
     - GO_CROSS_COMPILE: 1
     - PROTOC_VERSION: 25.0
 
@@ -20,7 +20,7 @@ def go_env():
         - PROTOC_VERSION
     """
     return {
-        "GO_VERSION": "1.21.7",
+        "GO_VERSION": "1.21.8",
         "GO_CROSS_COMPILE": "1",
         "PROTOC_VERSION": "25.0",
     }
