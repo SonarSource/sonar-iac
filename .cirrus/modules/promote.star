@@ -31,11 +31,10 @@ def promote_task():
             "only_if": is_branch_qa_eligible(),
             "depends_on": [
                 "build",
-                # "build_test_analyze",
-                #  Fixme: qa_win is broken because of chocolatey authentication
+                "build_test_analyze",
                 "qa_os_win",
-                # "qa_ruling",
-                # "qa_plugin"
+                "qa_ruling",
+                "qa_plugin"
             ],
             "env": promote_env(),
             "eks_container": base_image_container_builder(cpu=1, memory="2G"),
