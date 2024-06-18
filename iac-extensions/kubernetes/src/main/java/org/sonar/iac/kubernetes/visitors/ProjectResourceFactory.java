@@ -47,18 +47,22 @@ public final class ProjectResourceFactory {
       return null;
     }
 
+    var name = PropertyUtils.value(tree, "metadata", MappingTree.class)
+      .flatMap(metadata -> PropertyUtils.value(metadata, "name"))
+      .map(ScalarTree.class::cast)
+      .map(ScalarTree::value);
+    if (name.isEmpty()) {
+      return null;
+    }
+
     var automountServiceAccountTokenTree = PropertyUtils.value(tree, "automountServiceAccountToken")
       .map(ScalarTree.class::cast);
     var automountServiceAccountToken = automountServiceAccountTokenTree
       .map(TextUtils::trileanFromTextTree)
       .orElse(Trilean.UNKNOWN);
-    var name = PropertyUtils.value(tree, "metadata", MappingTree.class)
-      .flatMap(metadata -> PropertyUtils.value(metadata, "name"))
-      .map(ScalarTree.class::cast)
-      .map(ScalarTree::value);
+    var valueLocation = automountServiceAccountTokenTree.map(HasTextRange::textRange).orElse(null);
 
-    return name.map(s -> new ServiceAccount(s, automountServiceAccountToken, automountServiceAccountTokenTree.map(HasTextRange::textRange).orElse(null)))
-      .orElse(null);
+    return new ServiceAccount(name.get(), automountServiceAccountToken, valueLocation);
   }
 
   @CheckForNull

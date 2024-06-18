@@ -19,11 +19,12 @@
  */
 package org.sonar.iac.kubernetes.model;
 
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.checks.Trilean;
 
 public record ServiceAccount(
   String name,
   Trilean automountServiceAccountToken,
-  TextRange valueLocation) implements ProjectResource {
+  @Nullable TextRange valueLocation) implements ProjectResource {
 }
