@@ -20,12 +20,6 @@
 package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
@@ -59,6 +53,13 @@ import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -505,8 +506,8 @@ class IacSensorTest extends AbstractSensorTest {
     }
 
     @Override
-    protected TreeParser<Tree> treeParser() {
-      return treeParser;
+    protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+      return new Analyzer(repositoryKey(), treeParser, visitors(sensorContext, statistics), statistics);
     }
 
     @Override

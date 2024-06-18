@@ -29,9 +29,9 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.Analyzer;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
-import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
@@ -54,11 +54,6 @@ public class CloudformationSensor extends YamlSensor {
   }
 
   @Override
-  protected TreeParser<? extends Tree> treeParser() {
-    return new CloudformationParser();
-  }
-
-  @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
     return new CloudFormationFilePredicate(sensorContext);
   }
@@ -77,6 +72,11 @@ public class CloudformationSensor extends YamlSensor {
   @Override
   protected String getActivationSettingKey() {
     return CloudformationSettings.ACTIVATION_KEY;
+  }
+
+  @Override
+  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+    return new Analyzer(repositoryKey(), new CloudformationParser(), visitors(sensorContext, statistics), statistics);
   }
 
   public static class CloudFormationFilePredicate implements FilePredicate {

@@ -74,7 +74,7 @@ public abstract class IacSensor implements Sensor {
     return language.getKey();
   }
 
-  protected abstract TreeParser<? extends Tree> treeParser();
+  protected abstract Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics);
 
   protected abstract String repositoryKey();
 
@@ -117,10 +117,6 @@ public abstract class IacSensor implements Sensor {
 
   protected void initContext(SensorContext sensorContext) {
     // do nothing by default
-  }
-
-  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new Analyzer(repositoryKey(), treeParser(), visitors(sensorContext, statistics), statistics);
   }
 
   protected List<InputFile> inputFiles(SensorContext sensorContext) {

@@ -34,6 +34,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.TreeParser;
@@ -66,8 +67,8 @@ public abstract class YamlSensor extends IacSensor {
   }
 
   @Override
-  protected TreeParser<? extends Tree> treeParser() {
-    return new YamlParser();
+  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+    return new Analyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics);
   }
 
   @Override

@@ -53,11 +53,6 @@ class YamlSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void treeParser() {
-    assertThat(sensor().treeParser()).isInstanceOf(YamlParser.class);
-  }
-
-  @Test
   void visitors() {
     assertThat(sensor().visitors(context, mock(DurationStatistics.class))).hasSize(3);
   }

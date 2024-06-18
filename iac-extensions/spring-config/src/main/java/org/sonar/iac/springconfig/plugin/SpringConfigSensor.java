@@ -36,6 +36,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.plugin.CloudformationSensor;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.TreeParser;
@@ -43,6 +44,7 @@ import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlLanguage;
+import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
 import org.sonar.iac.springconfig.parser.SpringConfigParser;
@@ -98,8 +100,8 @@ public class SpringConfigSensor extends IacSensor {
   }
 
   @Override
-  protected TreeParser<? extends Tree> treeParser() {
-    return new SpringConfigParser();
+  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+    return new Analyzer(repositoryKey(), new SpringConfigParser(), visitors(sensorContext, statistics), statistics);
   }
 
   @Override
