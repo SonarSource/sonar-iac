@@ -19,7 +19,7 @@ QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
 def qa_win_script():
     return [
         "powershell -NonInteractive -Command '(new-object System.Net.WebClient).DownloadFile(\"https://golang.org/dl/go$env:GO_VERSION.windows-386.zip\",\"C:\\golang.zip\")'",
-        "eval $(powershell -NonInteractive -Command '(Get-FileHash C:\\golang.zip).Hash -eq \"$env:GO_ZIP_CHECKSUM\"')",
+        "eval $(powershell -NonInteractive -Command '(Get-FileHash C:\\golang.zip).Hash -eq \"872ac1c6ba1e23927a5cd60ce2e7a9e64cc6e5a550334c0fbcc785b4347d5f0d\"')",
         "eval $(powershell -NonInteractive -Command 'Expand-Archive -Path C:\\golang.zip -DestinationPath C:\\')",
         "powershell -NonInteractive -Command 'setx PATH \"$env:path;C:\\go\\bin\"'",
         "choco install protoc -y --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",

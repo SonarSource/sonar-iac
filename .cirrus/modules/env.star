@@ -11,7 +11,6 @@ def go_env():
     Provides typical environment variables to work with Go.
     The following default values are provided:
     - GO_VERSION: 1.21.8
-    - GO_ZIP_CHECKSUM: 872ac1c6ba1e23927a5cd60ce2e7a9e64cc6e5a550334c0fbcc785b4347d5f0d
     - GO_CROSS_COMPILE: 1
     - PROTOC_VERSION: 25.0
 
@@ -22,7 +21,6 @@ def go_env():
     """
     return {
         "GO_VERSION": "1.21.8",
-        "GO_ZIP_CHECKSUM": "872ac1c6ba1e23927a5cd60ce2e7a9e64cc6e5a550334c0fbcc785b4347d5f0d",
         "GO_CROSS_COMPILE": "1",
         "PROTOC_VERSION": "25.0",
     }
