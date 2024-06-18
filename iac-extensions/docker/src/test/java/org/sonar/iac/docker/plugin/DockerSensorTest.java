@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
@@ -38,7 +36,9 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
-import org.sonar.iac.docker.parser.DockerParser;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,11 +51,6 @@ class DockerSensorTest extends ExtensionSensorTest {
     assertThat(descriptor.name()).isEqualTo("IaC Docker Sensor");
     assertThat(descriptor.languages()).isEmpty();
     assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
-  }
-
-  @Test
-  void shouldReturnDockerParser() {
-    assertThat(sensor().treeParser()).isInstanceOf(DockerParser.class);
   }
 
   @Test

@@ -19,16 +19,21 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
+import org.sonar.iac.common.extension.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
@@ -43,6 +48,9 @@ import static org.mockito.Mockito.when;
 
 class YamlSensorTest extends AbstractSensorTest {
 
+  @TempDir
+  private File sensorDir;
+
   @Test
   void describe() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
@@ -53,8 +61,10 @@ class YamlSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void treeParser() {
-    assertThat(sensor().treeParser()).isInstanceOf(YamlParser.class);
+  void analyzer() {
+    SensorContextTester sensorContextTester = SensorContextTester.create(sensorDir);
+    DurationStatistics durationStatistics = new DurationStatistics(mock(Configuration.class));
+    assertThat(sensor().createAnalyzer(sensorContextTester, durationStatistics)).isInstanceOf(Analyzer.class);
   }
 
   @Test

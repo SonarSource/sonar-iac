@@ -30,10 +30,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
-import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlSensor;
@@ -88,11 +86,6 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   @Override
-  protected TreeParser<? extends Tree> treeParser() {
-    return new KubernetesParser(helmProcessor, kubernetesParserStatistics);
-  }
-
-  @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     if (isNotSonarLintContext(sensorContext)) {
@@ -132,7 +125,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new KubernetesAnalyzer(repositoryKey(), treeParser(), visitors(sensorContext, statistics), statistics);
+    return new KubernetesAnalyzer(repositoryKey(), new KubernetesParser(helmProcessor, kubernetesParserStatistics), visitors(sensorContext, statistics), statistics);
   }
 
   private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {

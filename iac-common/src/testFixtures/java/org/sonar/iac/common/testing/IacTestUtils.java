@@ -75,6 +75,13 @@ public final class IacTestUtils {
       .build();
   }
 
+  public static InputFile invalidInputFile() throws IOException {
+    InputFile file = mock(InputFile.class);
+    when(file.contents()).thenThrow(new IOException("Invalid file mock"));
+    when(file.toString()).thenReturn("InvalidFile");
+    return file;
+  }
+
   public static void addFileToSensorContext(SensorContextTester context, Path baseDir, String fileName) {
     var inputFile = inputFile(fileName, baseDir);
     context.fileSystem().add(inputFile);
