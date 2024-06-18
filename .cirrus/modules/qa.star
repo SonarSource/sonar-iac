@@ -38,7 +38,11 @@ def qa_os_win_task():
             "env": artifactory_reader_env(),
             "gradle_cache": gradle_cache(),
             "build_script": qa_win_script(),
-            "on_success": profile_report_artifacts(),
+            "on_success": profile_report_artifacts() | {
+                "go_test_report_artifacts": {
+                    "path": "sonar-helm-for-iac/build/test-report.json",
+                }
+            }
         }
     }
 
