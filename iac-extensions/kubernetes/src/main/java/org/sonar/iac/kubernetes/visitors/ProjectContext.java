@@ -19,12 +19,33 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.sonar.iac.kubernetes.model.ProjectResource;
+
 /**
  * Data class to provide information about the project. This allows to share cross-file knowledge to the individual checks.
  */
 public final class ProjectContext {
+  private final Map<String, Map<String, Set<ProjectResource>>> projectResourcePerNamespacePerPath = new HashMap<>();
 
   private ProjectContext() {
+  }
+
+  public Set<ProjectResource> getProjectResource(String namespace, String path, Class<? extends ProjectResource> clazz) {
+    if (projectResourcePerNamespacePerPath.containsKey(namespace)) {
+      var resourcesPerPath = projectResourcePerNamespacePerPath.get(namespace);
+      if (resourcesPerPath.containsKey(path)) {
+        var resources = resourcesPerPath.get(path);
+        return resources.stream()
+          .filter(clazz::isInstance)
+          .collect(Collectors.toSet());
+      }
+    }
+    return Set.of();
   }
 
   public static Builder builder() {
@@ -37,6 +58,13 @@ public final class ProjectContext {
 
     public Builder() {
       this.ctx = new ProjectContext();
+    }
+
+    public Builder addResource(String namespace, String path, ProjectResource resource) {
+      ctx.projectResourcePerNamespacePerPath.computeIfAbsent(namespace, k -> new HashMap<>())
+        .computeIfAbsent(path, k -> new HashSet<>())
+        .add(resource);
+      return this;
     }
 
     public ProjectContext build() {

@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
@@ -45,9 +47,7 @@ import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
@@ -94,6 +94,7 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
+    visitors.add(new ProjectContextEnricherVisitor(projectContextBuilder));
     visitors.add(new KubernetesChecksVisitor(checks, statistics, projectContextBuilder.build()));
     return visitors;
   }

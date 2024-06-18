@@ -19,8 +19,38 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.kubernetes.model.LimitRange;
+import org.sonar.iac.kubernetes.model.ProjectResource;
+import org.sonar.iac.kubernetes.model.ServiceAccount;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 class ProjectContextTest {
 
-  // No tests here yet
+  @Test
+  void shouldCorrectlyStoreResourcesAndProvideAccess() {
+    var builder = ProjectContext.builder();
 
+    var resource1 = mock(ServiceAccount.class);
+    builder.addResource("namespace1", "path1", resource1);
+    var resource2 = mock(LimitRange.class);
+    builder.addResource("namespace1", "path1", resource2);
+    var resource3 = mock(ServiceAccount.class);
+    builder.addResource("namespace2", "path2", resource3);
+    var resource4 = mock(ServiceAccount.class);
+    builder.addResource("namespace2", "path2", resource4);
+    var ctx = builder.build();
+
+    assertThat(ctx.getProjectResource("namespace1", "path1", ServiceAccount.class)).containsExactly(resource1);
+    assertThat(ctx.getProjectResource("namespace1", "path1", LimitRange.class)).containsExactly(resource2);
+    assertThat(ctx.getProjectResource("namespace1", "path1", TestResource.class)).isEmpty();
+    assertThat(ctx.getProjectResource("namespace2", "path2", ServiceAccount.class)).containsExactlyInAnyOrder(resource3, resource4);
+    assertThat(ctx.getProjectResource("namespace1", "wrong-path", ServiceAccount.class)).isEmpty();
+    assertThat(ctx.getProjectResource("wrong-namespace", "random-path", ServiceAccount.class)).isEmpty();
+  }
+
+  private static class TestResource implements ProjectResource {
+  }
 }

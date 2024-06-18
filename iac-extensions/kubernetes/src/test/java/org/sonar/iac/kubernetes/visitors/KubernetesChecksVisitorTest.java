@@ -53,7 +53,7 @@ class KubernetesChecksVisitorTest {
   private static final ProjectContext PROJECT_CONTEXT = mock(ProjectContext.class);
   private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT);
   private KubernetesChecksVisitor.KubernetesContextAdapter context;
-  private Tree tree = mock(Tree.class);
+  private final Tree tree = mock(Tree.class);
 
   @BeforeEach
   void setUp() {

@@ -42,6 +42,19 @@ public final class ProjectResourceFactory {
   }
 
   @CheckForNull
+  public static ProjectResource createResource(MappingTree tree) {
+    var kind = PropertyUtils.value(tree, "kind")
+      .map(ScalarTree.class::cast)
+      .map(ScalarTree::value)
+      .orElse("");
+    return switch (kind) {
+      case "ServiceAccount" -> createServiceAccount(tree);
+      case "LimitRange" -> createLimitRange(tree);
+      default -> null;
+    };
+  }
+
+  @CheckForNull
   public static ProjectResource createServiceAccount(MappingTree tree) {
     if (!PropertyUtils.valueIs(tree, "kind", kind -> TextUtils.isValue(kind, "ServiceAccount").isTrue())) {
       return null;
