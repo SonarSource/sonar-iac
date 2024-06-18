@@ -20,8 +20,6 @@
 package org.sonar.iac.common.testing;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -99,11 +97,6 @@ public final class IacTestUtils {
     when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.language()).thenReturn(languageKey);
-    try {
-      when(inputFile.uri()).thenReturn(new URI("file:///dir1/dir2/" + filename));
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
     return inputFileContext;
   }
 }

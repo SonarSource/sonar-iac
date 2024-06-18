@@ -34,7 +34,7 @@ public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext>
   }
 
   private static void handleFileTree(InputFileContext ctx, FileTree fileTree, ProjectContext.Builder projectContextBuilder) {
-    var path = ctx.inputFile.uri().toString();
+    var uri = ctx.inputFile.uri();
     fileTree.documents().stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
@@ -44,7 +44,7 @@ public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext>
           return;
         }
         var namespace = getNamespace(mappingTree);
-        projectContextBuilder.addResource(namespace, path, resource);
+        projectContextBuilder.addResource(namespace, uri.toString(), resource);
       });
   }
 

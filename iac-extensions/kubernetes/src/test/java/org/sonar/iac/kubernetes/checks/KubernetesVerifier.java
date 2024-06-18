@@ -122,7 +122,7 @@ public class KubernetesVerifier {
     private static final SensorContextTester sensorContext = SensorContextTester.create(BASE_DIR.toAbsolutePath());
     private static final KubernetesAnalyzer kubernetesAnalyzer;
 
-    private static final ProjectContext PROJECT_CONTEXT = ProjectContext.builder().build();
+    private static final ProjectContext PROJECT_CONTEXT = ProjectContext.builder(sensorContext.fileSystem()).build();
 
     static {
       File temporaryDirectory;

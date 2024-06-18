@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,15 +27,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.iac.kubernetes.model.ProjectResource;
+
+import static org.sonar.iac.helm.HelmFileSystem.retrieveHelmProjectFolder;
 
 /**
  * Data class to provide information about the project. This allows to share cross-file knowledge to the individual checks.
  */
 public final class ProjectContext {
   private final Map<String, Map<String, Set<ProjectResource>>> projectResourcePerNamespacePerPath = new HashMap<>();
+  private final FileSystem fileSystem;
 
-  private ProjectContext() {
+  private ProjectContext(FileSystem fileSystem) {
+    this.fileSystem = fileSystem;
   }
 
   /**
@@ -45,12 +51,16 @@ public final class ProjectContext {
     if (projectResourcePerNamespacePerPath.containsKey(namespace)) {
       var resourcesPerPath = projectResourcePerNamespacePerPath.get(namespace);
 
-      var basePath = Optional.ofNullable(Path.of(path).getParent())
-        .map(Path::toString)
+      var filePath = Path.of(path);
+      var basePath = Optional.ofNullable(retrieveHelmProjectFolder(filePath, fileSystem))
+        .or(() -> Optional.ofNullable(filePath.getParent()))
+        .map(Path::normalize)
+        .map(Path::toUri)
+        .map(URI::toString)
         .orElse("");
 
       return resourcesPerPath.entrySet().stream()
-        .filter(entry -> basePath.isEmpty() || Path.of(entry.getKey()).startsWith(basePath))
+        .filter(entry -> basePath.isEmpty() || entry.getKey().startsWith(basePath))
         .flatMap(entry -> entry.getValue().stream())
         .filter(clazz::isInstance)
         .collect(Collectors.toSet());
@@ -58,21 +68,21 @@ public final class ProjectContext {
     return Set.of();
   }
 
-  public static Builder builder() {
-    return new Builder();
+  public static Builder builder(FileSystem fileSystem) {
+    return new Builder(fileSystem);
   }
 
   public static class Builder {
 
     private final ProjectContext ctx;
 
-    public Builder() {
-      this.ctx = new ProjectContext();
+    public Builder(FileSystem fileSystem) {
+      this.ctx = new ProjectContext(fileSystem);
     }
 
-    public Builder addResource(String namespace, String path, ProjectResource resource) {
+    public Builder addResource(String namespace, String uri, ProjectResource resource) {
       ctx.projectResourcePerNamespacePerPath.computeIfAbsent(namespace, k -> new HashMap<>())
-        .computeIfAbsent(path, k -> new HashSet<>())
+        .computeIfAbsent(uri, k -> new HashSet<>())
         .add(resource);
       return this;
     }

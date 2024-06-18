@@ -54,8 +54,6 @@ public class KubernetesSensor extends YamlSensor {
   private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
   private final HelmEvaluator helmEvaluator;
 
-  final ProjectContext.Builder projectContextBuilder = ProjectContext.builder();
-
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
@@ -89,6 +87,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+    var projectContextBuilder = ProjectContext.builder(sensorContext.fileSystem());
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     if (isNotSonarLintContext(sensorContext)) {
       visitors.add(new KubernetesHighlightingVisitor());
