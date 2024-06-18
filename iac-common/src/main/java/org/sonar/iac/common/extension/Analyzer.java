@@ -50,7 +50,7 @@ public class Analyzer {
     this.statistics = statistics;
   }
 
-  boolean analyseFiles(SensorContext sensorContext, List<InputFile> inputFiles, ProgressReport progressReport) {
+  public boolean analyseFiles(SensorContext sensorContext, List<InputFile> inputFiles, ProgressReport progressReport) {
     for (InputFile inputFile : inputFiles) {
       if (sensorContext.isCancelled()) {
         return false;
@@ -72,37 +72,50 @@ public class Analyzer {
   }
 
   private void analyseFile(InputFileContext inputFileContext) {
-    var inputFile = inputFileContext.inputFile;
+    var content = readContent(inputFileContext);
+    if (content == null) {
+      return;
+    }
+
+    Tree tree = statistics.time("Parse", () -> parse(inputFileContext, content));
+
+    visit(inputFileContext, tree);
+  }
+
+  private static String readContent(InputFileContext inputFileContext) {
     String content;
     try {
-      content = inputFile.contents();
+      content = inputFileContext.inputFile.contents();
     } catch (IOException | RuntimeException e) {
       throw ParseException.toParseException("read", inputFileContext, e);
     }
 
     if (content.isBlank()) {
-      return;
+      return null;
     }
+    return content;
+  }
 
-    Tree tree = statistics.time("Parse", () -> {
-      try {
-        return parser.parse(content, inputFileContext);
-      } catch (ParseException e) {
-        throw e;
-      } catch (RuntimeException e) {
-        throw ParseException.toParseException("parse", inputFileContext, e);
-      }
-    });
+  public Tree parse(InputFileContext inputFileContext, String content) {
+    try {
+      return parser.parse(content, inputFileContext);
+    } catch (ParseException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw ParseException.toParseException("parse", inputFileContext, e);
+    }
+  }
 
+  public void visit(InputFileContext inputFileContext, Tree tree) {
     for (TreeVisitor<InputFileContext> visitor : visitors) {
       try {
         String visitorId = visitor.getClass().getSimpleName();
         statistics.time(visitorId, () -> visitor.scan(inputFileContext, tree));
       } catch (RuntimeException e) {
         inputFileContext.reportAnalysisError(e.getMessage(), null);
-        LOG.error("Cannot analyse '{}': {}", inputFile, e.getMessage(), e);
+        LOG.error("Cannot analyse '{}': {}", inputFileContext.inputFile, e.getMessage(), e);
 
-        interruptOnFailFast(inputFileContext.sensorContext, inputFile, e);
+        interruptOnFailFast(inputFileContext.sensorContext, inputFileContext.inputFile, e);
       }
     }
   }
