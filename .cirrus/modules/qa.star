@@ -69,6 +69,7 @@ def run_its_script():
 def qa_plugin_env():
     return {
         "GRADLE_TASK": QA_PLUGIN_GRADLE_TASK,
+        "KEEP_ORCHESTRATOR_RUNNING": "true",
         "matrix": [
             {"SQ_VERSION": QA_QUBE_LATEST_RELEASE},
             {"SQ_VERSION": "DEV"},
@@ -89,7 +90,8 @@ def qa_plugin_task():
 def qa_ruling_env():
     return {
         "GRADLE_TASK": QA_RULING_GRADLE_TASK,
-        "SQ_VERSION": QA_QUBE_LATEST_RELEASE
+        "SQ_VERSION": QA_QUBE_LATEST_RELEASE,
+        "KEEP_ORCHESTRATOR_RUNNING": "true"
     }
 
 
