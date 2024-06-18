@@ -1,3 +1,4 @@
+Test
 Code Quality and Security for Infrastructure-as-Code
 ==========
 [![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonar-iac.svg?branch=master)](https://cirrus-ci.com/github/SonarSource/sonar-iac)
