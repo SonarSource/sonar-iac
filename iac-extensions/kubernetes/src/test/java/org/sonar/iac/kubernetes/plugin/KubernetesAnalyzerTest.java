@@ -426,6 +426,7 @@ class KubernetesAnalyzerTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Shifting YAML exception from [6:12] to [3:1]");
   }
+
   @Test
   void shouldSilentlyLogParseExceptionsForIncludedTemplates() {
     var code = "{{ include \"a-template-from-dependency\" . }}";
