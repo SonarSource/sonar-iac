@@ -19,19 +19,6 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +43,6 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesAnalyzer;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
-import org.sonar.iac.kubernetes.plugin.KubernetesParser;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
@@ -64,6 +50,20 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
@@ -110,7 +110,7 @@ public class KubernetesVerifier {
   private static boolean containsHelmContent(String templateFileName) {
     try {
       var content = Files.readString(BASE_DIR.resolve(templateFileName));
-      return KubernetesParser.hasHelmContent(content);
+      return KubernetesAnalyzer.hasHelmContent(content);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -142,9 +142,11 @@ public class KubernetesVerifier {
 
       kubernetesAnalyzer = new KubernetesAnalyzer(
         KubernetesExtension.REPOSITORY_KEY,
-        new KubernetesParser(helmProcessor, new KubernetesParserStatistics()),
+        new YamlParser(),
         visitors,
-        durationStatistics);
+        durationStatistics,
+        helmProcessor,
+        new KubernetesParserStatistics());
     }
 
     private HelmVerifier() {

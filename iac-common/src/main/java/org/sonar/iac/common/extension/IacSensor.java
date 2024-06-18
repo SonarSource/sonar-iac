@@ -137,7 +137,7 @@ public abstract class IacSensor implements Sensor {
     // Default is to do nothing. A child-sensor that does require importing external reports should override this.
   }
 
-  protected boolean isNotSonarLintContext(SensorContext sensorContext) {
+  public static boolean isNotSonarLintContext(SensorContext sensorContext) {
     return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 

@@ -32,8 +32,10 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.helm.HelmEvaluator;
@@ -64,6 +66,16 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .onlyOnLanguages(YAML_LANGUAGE_KEY)
+      .name("IaC " + language.getName() + " Sensor");
+
+    // Note: KubernetesSensor shouldn't call `descriptor.processesFilesIndependently()` or `super.describe(descriptor)`,
+    // otherwise Helm analysis won't receive all the files needed for template evaluation in PR analysis.
+  }
+
+  @Override
   protected void initContext(SensorContext sensorContext) {
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
@@ -73,16 +85,6 @@ public class KubernetesSensor extends YamlSensor {
     } else {
       LOG.debug("Skipping initialization of Helm processor");
     }
-  }
-
-  @Override
-  public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .onlyOnLanguages(YAML_LANGUAGE_KEY)
-      .name("IaC " + language.getName() + " Sensor");
-
-    // Note: KubernetesSensor shouldn't call `descriptor.processesFilesIndependently()` or `super.describe(descriptor)`,
-    // otherwise Helm analysis won't receive all the files needed for template evaluation in PR analysis.
   }
 
   @Override
@@ -125,11 +127,15 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new KubernetesAnalyzer(repositoryKey(), new KubernetesParser(helmProcessor, kubernetesParserStatistics), visitors(sensorContext, statistics), statistics);
+    return new KubernetesAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics, helmProcessor, kubernetesParserStatistics);
+  }
+
+  void setHelmProcessorForTesting(HelmProcessor helmProcessor) {
+    this.helmProcessor = helmProcessor;
   }
 
   private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
-    var isNotSonarLintContext = isNotSonarLintContext(sensorContext);
+    var isNotSonarLintContext = IacSensor.isNotSonarLintContext(sensorContext);
     boolean isHelmAnalysisEnabled = sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
     var isHelmEvaluatorExecutableAvailable = HelmProcessor.isHelmEvaluatorExecutableAvailable();
     LOG.debug("Checking conditions for enabling Helm analysis: isNotSonarLintContext={}, isHelmActivationFlagTrue={}, isHelmEvaluatorExecutableAvailable={}",
@@ -139,9 +145,4 @@ public class KubernetesSensor extends YamlSensor {
     }
     return isNotSonarLintContext && isHelmAnalysisEnabled && isHelmEvaluatorExecutableAvailable;
   }
-
-  void setHelmProcessorForTesting(HelmProcessor helmProcessor) {
-    this.helmProcessor = helmProcessor;
-  }
-
 }

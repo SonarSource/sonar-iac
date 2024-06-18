@@ -28,6 +28,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +40,7 @@ public class Analyzer {
   private static final Logger LOG = LoggerFactory.getLogger(Analyzer.class);
 
   private final String repositoryKey;
-  private final TreeParser<? extends Tree> parser;
+  protected final TreeParser<? extends Tree> parser;
   private final List<TreeVisitor<InputFileContext>> visitors;
   private final DurationStatistics statistics;
 
@@ -50,14 +51,14 @@ public class Analyzer {
     this.statistics = statistics;
   }
 
-  public boolean analyseFiles(SensorContext sensorContext, List<InputFile> inputFiles, ProgressReport progressReport) {
+  public boolean analyseFiles(SensorContext sensorContext, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
     for (InputFile inputFile : inputFiles) {
       if (sensorContext.isCancelled()) {
         return false;
       }
       var inputFileContext = createInputFileContext(sensorContext, inputFile);
       try {
-        analyseFile(inputFileContext);
+        analyseFile(sensorContext, inputFileContext);
       } catch (ParseException e) {
         logParsingError(e);
         inputFileContext.reportParseError(repositoryKey, e.getPosition());
@@ -71,7 +72,7 @@ public class Analyzer {
     return new InputFileContext(sensorContext, inputFile);
   }
 
-  private void analyseFile(InputFileContext inputFileContext) {
+  private void analyseFile(SensorContext sensorContext, InputFileContext inputFileContext) {
     var content = readContent(inputFileContext);
     if (content == null) {
       return;
@@ -96,7 +97,7 @@ public class Analyzer {
     return content;
   }
 
-  public Tree parse(InputFileContext inputFileContext, String content) {
+  public Tree parse(@Nullable InputFileContext inputFileContext, String content) {
     try {
       return parser.parse(content, inputFileContext);
     } catch (ParseException e) {

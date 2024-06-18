@@ -24,21 +24,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
-import org.sonar.iac.kubernetes.plugin.HelmProcessor;
-import org.sonar.iac.kubernetes.plugin.KubernetesParser;
-import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 class ProjectResourceFactoryTest {
-  private static final TreeParser<FileTree> PARSER = new KubernetesParser(
-    mock(HelmProcessor.class),
-    new KubernetesParserStatistics());
+  private static final TreeParser<FileTree> PARSER = new YamlParser();
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})

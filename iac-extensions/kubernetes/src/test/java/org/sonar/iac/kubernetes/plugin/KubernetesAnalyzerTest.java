@@ -1,58 +1,35 @@
-/*
- * SonarQube IaC Plugin
- * Copyright (C) 2021-2024 SonarSource SA
- * mailto:info AT sonarsource DOT com
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 package org.sonar.iac.kubernetes.plugin;
+
+import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.testing.TextRangeAssert;
+import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
+import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import javax.annotation.Nullable;
-import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mockito;
-import org.slf4j.event.Level;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.extension.BasicTextPointer;
-import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.testing.TextRangeAssert;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.helm.HelmFileSystem;
-import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
-import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
-import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
-import org.sonar.iac.kubernetes.visitors.LocationShifter;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -60,16 +37,14 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class KubernetesParserTest {
+class KubernetesAnalyzerTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final InputFile inputFile = mock(InputFile.class);
   private final SensorContext sensorContext = mock(SensorContext.class);
   private final HelmInputFileContext inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
-  private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
-  private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
-  private final KubernetesParser parser = new KubernetesParser(helmProcessor, kubernetesParserStatistics);
   private final FileSystem fileSystem = mock(FileSystem.class);
+  private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)), mock(HelmProcessor.class), new KubernetesParserStatistics());
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -82,75 +57,15 @@ class KubernetesParserTest {
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
   }
 
-  @Test
-  void testParsingWhenHelmContentIsDetectedAndEvaluatorNotInitialized() {
-    when(helmProcessor.processHelmTemplate(any(), any())).thenReturn("foo: bar");
+  private FileTree parseTemplate(String originalCode, String evaluated) throws IOException {
+    var valuesFile = mock(InputFile.class);
+    when(valuesFile.filename()).thenReturn("values.yaml");
+    when(valuesFile.contents()).thenReturn("foo: bar");
+    when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
 
-    FileTree file = parser.parse("foo: {{ .Value.var }}", inputFileContext);
-
-    assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).isEmpty();
-
-    var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file '/chart/templates/foo.yaml'",
-      "Helm evaluator is not initialized, skipping processing of Helm file /chart/templates/foo.yaml");
-  }
-
-  @Test
-  void testParsingWhenHelmContentIsDetectedNoInputFileContext() {
-    FileTree file = parser.parse("foo: {{ .Value.var }}", null);
-    assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).isEmpty();
-
-    var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("No InputFileContext provided, skipping processing of Helm file");
-  }
-
-  @Test
-  void testParsingWhenNoHelmContent() {
-    FileTree file = parser.parse("foo: {bar: 1234}", inputFileContext);
-    assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).isNotEmpty();
-
-    var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).isEmpty();
-  }
-
-  @Test
-  void shouldLoadValuesFile() throws IOException {
-    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
-      var valuesFile = mock(InputFile.class);
-      when(valuesFile.filename()).thenReturn("values.yaml");
-      when(valuesFile.contents()).thenReturn("foo: bar");
-      when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-
-      when(helmProcessor.process(any(), any())).thenReturn("foo: bar");
-      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-
-      FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
-
-      assertThat(file).isInstanceOf(KubernetesFileTree.class);
-      assertThat(file.documents()).hasSize(1);
-      assertThat(file.documents().get(0).children()).hasSize(1);
-
-      var logs = logTester.logs(Level.DEBUG);
-      assertThat(logs).contains("Helm content detected in file '/chart/templates/foo.yaml'");
-    }
-  }
-
-  @Test
-  void shouldNotEvaluateHelmWithoutValuesFile() {
-    try (var ignored = Mockito.mockStatic(HelmFileSystem.class)) {
-      when(helmProcessor.process(any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
-      when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-
-      assertThatThrownBy(() -> parser.parse("foo: {{ .Values.foo }}", inputFileContext))
-        .isInstanceOf(ParseException.class)
-        .hasMessage("Test Helm-related exception");
-
-      var logs = logTester.logs(Level.DEBUG);
-      assertThat(logs).contains("Helm content detected in file '/chart/templates/foo.yaml'");
-    }
+    var processor = new TestHelmProcessor(evaluated);
+    KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)), processor, new KubernetesParserStatistics());
+    return (FileTree) analyzer.parse(inputFileContext, originalCode);
   }
 
   @Test
@@ -184,7 +99,7 @@ class KubernetesParserTest {
     when(valuesFile.contents()).thenReturn("foo: bar");
     when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
     String evaluatedSource = code("#5");
-    FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+    FileTree file = (FileTree) analyzer.parse(inputFileContext, "foo: {{ .Values.foo }}");
 
     parseTemplate("foo: {{ .Values.foo }}", evaluatedSource);
     assertEmptyFileTree(file);
@@ -395,17 +310,6 @@ class KubernetesParserTest {
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 22);
   }
 
-  private FileTree parseTemplate(String originalCode, String evaluated) throws IOException {
-    var valuesFile = mock(InputFile.class);
-    when(valuesFile.filename()).thenReturn("values.yaml");
-    when(valuesFile.contents()).thenReturn("foo: bar");
-    when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-
-    var processor = new TestHelmProcessor(evaluated);
-    var parser = new KubernetesParser(processor, kubernetesParserStatistics);
-    return parser.parse(originalCode, inputFileContext);
-  }
-
   @Test
   void shouldShiftMarkedYamlExceptions() {
     var evaluated = code(
@@ -421,124 +325,6 @@ class KubernetesParserTest {
 
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Shifting YAML exception from [6:12] to [3:1]");
-  }
-
-  @Test
-  void shouldSilentlyLogParseExceptionsForIncludedTemplates() {
-    var code = "{{ include \"a-template-from-dependency\" . }}";
-
-    var valuesFile = mock(InputFile.class);
-    when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-    when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.process(any(), any())).thenThrow(
-      new ParseException("Failed to evaluate Helm file dummy.yaml: Template evaluation failed", new BasicTextPointer(1, 1),
-        "Evaluation error in Go library: template: dummy.yaml:10:11: executing \"dummy.yaml\" at <include \"a-template-from-dependency\" .>: error calling include: template: " +
-          "error calling include: template: no template \"a-template-from-dependency\" associated with template \"aggregatingTemplate\""));
-
-    assertThatCode(() -> parser.parse(code, inputFileContext))
-      .doesNotThrowAnyException();
-
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Helm file /chart/templates/foo.yaml requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file");
-  }
-
-  @ParameterizedTest
-  @CsvSource({
-    ",",
-    "Unknown error"
-  })
-  void shouldRethrowParseExceptionsWithDifferentDetails(@Nullable String details) {
-    var code = "{{ include \"a-template-from-dependency\" . }}";
-
-    var valuesFile = mock(InputFile.class);
-    when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-    when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
-    when(helmProcessor.process(any(), any())).thenThrow(
-      new ParseException(
-        "Failed to evaluate Helm file dummy.yaml: Template evaluation failed",
-        new BasicTextPointer(1, 1),
-        details));
-
-    assertThatThrownBy(() -> parser.parse(code, inputFileContext))
-      .isInstanceOf(ParseException.class);
-  }
-
-  @ParameterizedTest
-  // filename, inChartRoot, expectedReturn
-  @CsvSource({
-    "values.yaml, true, true",
-    "values.yaml, false, false",
-    "values.yml, true, true",
-    "values.yml, false, false",
-    "not_values.yaml, true, false",
-    "not_values.yaml, false, false"
-  })
-  void isValuesFileShouldReturnExpectedValue(String filename, boolean inChartRoot, boolean expectedReturn) {
-    when(inputFileContext.isInChartRootDirectory()).thenReturn(inChartRoot);
-    when(inputFile.filename()).thenReturn(filename);
-    when(inputFile.toString()).thenReturn(filename);
-
-    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
-    if (expectedReturn) {
-      assertThat(logTester.logs()).contains("Helm values file detected, skipping parsing " + filename);
-    } else {
-      assertThat(logTester.logs()).doesNotContain("Helm values file detected, skipping parsing " + filename);
-    }
-  }
-
-  @ParameterizedTest
-  // filename, inChartRoot, expectedReturn
-  @CsvSource({
-    "Chart.yaml, true, true",
-    "Chart.yaml, false, false",
-    "Chart.yml, true, false",
-    "Chart.yml, false, false",
-    "Not_Charts.yaml, true, false",
-    "Not_Charts.yaml, false, false"
-  })
-  void isChartFileShouldReturnExpectedValue(String filename, boolean inChartRoot, boolean expectedReturn) {
-    when(inputFileContext.isInChartRootDirectory()).thenReturn(inChartRoot);
-    when(inputFile.filename()).thenReturn(filename);
-    when(inputFile.toString()).thenReturn(filename);
-
-    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
-    if (expectedReturn) {
-      assertThat(logTester.logs()).contains("Helm Chart.yaml file detected, skipping parsing " + filename);
-    } else {
-      assertThat(logTester.logs()).doesNotContain("Helm Chart.yaml file detected, skipping parsing " + filename);
-    }
-  }
-
-  @ParameterizedTest
-  @CsvSource({
-    "_helpers.tpl, true",
-    "_helpers.yaml, false",
-    "_helpers.yml, false",
-    "_helpers.tpl.yaml, false",
-  })
-  void isTplFileShouldReturnExpectedValue(String filename, boolean expectedReturn) {
-    when(inputFile.toString()).thenReturn(filename);
-    when(inputFile.filename()).thenReturn(filename);
-
-    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
-    if (expectedReturn) {
-      assertThat(logTester.logs()).contains("Helm tpl file detected, skipping parsing " + filename);
-    } else {
-      assertThat(logTester.logs()).doesNotContain("Helm tpl file detected, skipping parsing " + filename);
-    }
-  }
-
-  @Test
-  void shouldSkipProcessingWhenInputFileContextIsNull() {
-    assertEmptyFileTree(parser.parse("foo: {{ .Values.foo }}", null));
-    assertThat(logTester.logs()).contains("No InputFileContext provided, skipping processing of Helm file");
-  }
-
-  @Test
-  void shouldSkipProcessingWhenInputFileIsInvalid() {
-    when(inputFile.filename()).thenReturn("_helpers.tpl");
-    assertEmptyFileTree(parser.parse("foo: {{ .Values.foo }}", inputFileContext));
-    assertThat(logTester.logs()).doesNotContain("Helm content detected in file _helpers.tpl");
   }
 
   private void assertEmptyFileTree(FileTree fileTree) {
