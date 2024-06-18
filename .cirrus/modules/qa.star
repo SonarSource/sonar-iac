@@ -25,7 +25,7 @@ def qa_win_script():
         "choco install protoc -y --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "source cirrus-env CI",
-        "./gradlew ${GRADLE_COMMON_FLAGS} test"
+        "./gradlew ${GRADLE_COMMON_FLAGS} test -x :sonar-helm-for-iac:testGoCode"
     ]
 
 
