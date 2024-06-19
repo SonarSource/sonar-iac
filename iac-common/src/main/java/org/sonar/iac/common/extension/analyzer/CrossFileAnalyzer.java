@@ -62,6 +62,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
         inputFileContext.reportParseError(repositoryKey, e.getPosition());
       }
 
+      // TODO SONARIAC-1511 Change the usage of ProgressReport do to proper reporting in cross file analysis
       progressReport.nextFile();
     }
 
