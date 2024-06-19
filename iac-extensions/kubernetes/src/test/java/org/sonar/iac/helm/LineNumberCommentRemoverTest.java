@@ -36,7 +36,9 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -54,7 +56,10 @@ class LineNumberCommentRemoverTest {
     when(inputFile.filename()).thenReturn("foo.yaml");
     when(inputFile.toString()).thenReturn("chart/templates/foo.yaml");
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
-    inputFileContext = new HelmInputFileContext(sensorContext, inputFile);
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("chart"));
+      inputFileContext = new HelmInputFileContext(sensorContext, inputFile);
+    }
   }
 
   @Test

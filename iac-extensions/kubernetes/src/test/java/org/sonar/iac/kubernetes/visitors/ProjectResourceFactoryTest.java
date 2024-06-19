@@ -48,7 +48,7 @@ class ProjectResourceFactoryTest {
       """.formatted(automountServiceAccountToken);
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var serviceAccount = (ServiceAccount) ProjectResourceFactory.createServiceAccount(tree);
+    var serviceAccount = (ServiceAccount) ProjectResourceFactory.createResource(tree);
 
     assertThat(serviceAccount).isNotNull();
     assertThat(serviceAccount.name()).isEqualTo("my-service-account");
@@ -71,7 +71,7 @@ class ProjectResourceFactoryTest {
       """;
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var serviceAccount = ProjectResourceFactory.createServiceAccount(tree);
+    var serviceAccount = ProjectResourceFactory.createResource(tree);
 
     assertThat(serviceAccount).isNotNull()
       .extracting("name", "automountServiceAccountToken")
@@ -89,7 +89,7 @@ class ProjectResourceFactoryTest {
       """;
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var serviceAccount = ProjectResourceFactory.createServiceAccount(tree);
+    var serviceAccount = ProjectResourceFactory.createResource(tree);
 
     assertThat(serviceAccount).isNull();
   }
@@ -118,7 +118,7 @@ class ProjectResourceFactoryTest {
       """;
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var memoryLimit = (LimitRange) ProjectResourceFactory.createLimitRange(tree);
+    var memoryLimit = (LimitRange) ProjectResourceFactory.createResource(tree);
 
     assertThat(memoryLimit).isNotNull();
     assertThat(memoryLimit.limits()).hasSize(1);
@@ -147,7 +147,7 @@ class ProjectResourceFactoryTest {
       """;
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var memoryLimit = (LimitRange) ProjectResourceFactory.createLimitRange(tree);
+    var memoryLimit = (LimitRange) ProjectResourceFactory.createResource(tree);
 
     var limit = memoryLimit.limits().get(0);
     assertThat(limit.defaultMap()).containsEntry("cpu", "0.5");
@@ -176,7 +176,7 @@ class ProjectResourceFactoryTest {
       """;
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var memoryLimit = (LimitRange) ProjectResourceFactory.createLimitRange(tree);
+    var memoryLimit = (LimitRange) ProjectResourceFactory.createResource(tree);
 
     assertThat(memoryLimit.limits()).hasSize(2);
 
@@ -210,7 +210,7 @@ class ProjectResourceFactoryTest {
       """;
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var limitRange = (LimitRange) ProjectResourceFactory.createLimitRange(tree);
+    var limitRange = (LimitRange) ProjectResourceFactory.createResource(tree);
 
     var limit = limitRange.limits().get(0);
     assertThat(limit.defaultMap()).isEmpty();
@@ -231,10 +231,10 @@ class ProjectResourceFactoryTest {
       """;
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var serviceAccount = ProjectResourceFactory.createServiceAccount(tree);
+    var serviceAccount = ProjectResourceFactory.createResource(tree);
     assertThat(serviceAccount).isNull();
 
-    var limitRange = ProjectResourceFactory.createLimitRange(tree);
+    var limitRange = ProjectResourceFactory.createResource(tree);
     assertThat(limitRange).isNull();
   }
 }

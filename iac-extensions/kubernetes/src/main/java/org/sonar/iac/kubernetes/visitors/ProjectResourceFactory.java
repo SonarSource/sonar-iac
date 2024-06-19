@@ -42,11 +42,20 @@ public final class ProjectResourceFactory {
   }
 
   @CheckForNull
-  public static ProjectResource createServiceAccount(MappingTree tree) {
-    if (!PropertyUtils.valueIs(tree, "kind", kind -> TextUtils.isValue(kind, "ServiceAccount").isTrue())) {
-      return null;
-    }
+  public static ProjectResource createResource(MappingTree tree) {
+    var kind = PropertyUtils.value(tree, "kind")
+      .map(ScalarTree.class::cast)
+      .map(ScalarTree::value)
+      .orElse("");
+    return switch (kind) {
+      case "ServiceAccount" -> createServiceAccount(tree);
+      case "LimitRange" -> createLimitRange(tree);
+      default -> null;
+    };
+  }
 
+  @CheckForNull
+  private static ProjectResource createServiceAccount(MappingTree tree) {
     var name = PropertyUtils.value(tree, "metadata", MappingTree.class)
       .flatMap(metadata -> PropertyUtils.value(metadata, "name"))
       .map(ScalarTree.class::cast)
@@ -66,11 +75,7 @@ public final class ProjectResourceFactory {
   }
 
   @CheckForNull
-  public static ProjectResource createLimitRange(MappingTree tree) {
-    if (!PropertyUtils.valueIs(tree, "kind", kind -> TextUtils.isValue(kind, "LimitRange").isTrue())) {
-      return null;
-    }
-
+  private static ProjectResource createLimitRange(MappingTree tree) {
     var limits = PropertyUtils.value(tree, "spec")
       .flatMap(it -> PropertyUtils.value(it, "limits"))
       .stream()

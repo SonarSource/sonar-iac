@@ -59,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +69,7 @@ class KubernetesAnalyzerTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final InputFile inputFile = mock(InputFile.class);
   private final SensorContext sensorContext = mock(SensorContext.class);
-  private final HelmInputFileContext inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+  private HelmInputFileContext inputFileContext;
   private final FileSystem fileSystem = mock(FileSystem.class);
   private final HelmProcessor helmProcessor = mock(HelmProcessor.class);
   private final HelmParser helmParser = new HelmParser(helmProcessor);
@@ -84,6 +85,11 @@ class KubernetesAnalyzerTest {
     when(inputFile.path()).thenReturn(Path.of("/chart/templates/foo.yaml"));
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
+
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+    }
   }
 
   private FileTree parseTemplate(String originalCode, String evaluated) throws IOException {
@@ -481,6 +487,18 @@ class KubernetesAnalyzerTest {
     when(inputFile.filename()).thenReturn("_helpers.tpl");
     assertEmptyFileTree((FileTree) analyzer.parse("foo: {{ .Values.foo }}", inputFileContext));
     assertThat(logTester.logs()).doesNotContain("Helm content detected in file _helpers.tpl");
+  }
+
+  @Test
+  void shouldSetHelmProjectDirectory() {
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+
+      var inputFileContext = analyzer.createInputFileContext(sensorContext, inputFile);
+
+      assertThat(inputFileContext).isInstanceOf(HelmInputFileContext.class);
+      assertThat(((HelmInputFileContext) inputFileContext).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
+    }
   }
 
   private void assertEmptyFileTree(FileTree fileTree) {

@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
@@ -41,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +52,7 @@ class HelmParserTest {
   private final InputFile inputFile = mock(InputFile.class);
 
   private final SensorContext sensorContext = mock(SensorContext.class);
-  private final HelmInputFileContext inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+  private HelmInputFileContext inputFileContext;
   private final FileSystem fileSystem = mock(FileSystem.class);
 
   @BeforeEach
@@ -61,6 +63,11 @@ class HelmParserTest {
     when(inputFile.filename()).thenReturn("foo.yaml");
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
+
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+    }
   }
 
   @Test

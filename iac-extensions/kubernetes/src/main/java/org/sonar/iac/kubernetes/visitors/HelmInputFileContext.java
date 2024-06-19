@@ -34,6 +34,8 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter.LinesShifting;
 
 public class HelmInputFileContext extends InputFileContext {
   @Nullable
+  private final Path helmProjectDirectory;
+  @Nullable
   private GoTemplateTree goTemplateTree;
   private Map<String, InputFile> additionalFiles = new HashMap<>();
   @Nullable
@@ -43,6 +45,7 @@ public class HelmInputFileContext extends InputFileContext {
 
   public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile) {
     super(sensorContext, inputFile);
+    this.helmProjectDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
   }
 
   public void setAdditionalFiles(Map<String, InputFile> additionalFiles) {
@@ -81,11 +84,16 @@ public class HelmInputFileContext extends InputFileContext {
   }
 
   public boolean isInChartRootDirectory() {
-    var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
-    return inputFile.path().getParent() != null && inputFile.path().getParent().equals(rootChartDirectory);
+    return inputFile.path().getParent() != null && inputFile.path().getParent().equals(helmProjectDirectory);
   }
 
   public LinesShifting sourceMap() {
     return linesShifting;
   }
+
+  @CheckForNull
+  public Path getHelmProjectDirectory() {
+    return helmProjectDirectory;
+  }
+
 }

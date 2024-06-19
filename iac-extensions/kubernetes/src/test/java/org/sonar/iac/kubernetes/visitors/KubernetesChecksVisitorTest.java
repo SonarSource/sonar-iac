@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.net.URI;
+import java.nio.file.Path;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,11 +38,13 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.HelmFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
@@ -53,7 +57,7 @@ class KubernetesChecksVisitorTest {
   private static final ProjectContext PROJECT_CONTEXT = mock(ProjectContext.class);
   private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT);
   private KubernetesChecksVisitor.KubernetesContextAdapter context;
-  private Tree tree = mock(Tree.class);
+  private final Tree tree = mock(Tree.class);
 
   @BeforeEach
   void setUp() {
@@ -109,9 +113,12 @@ class KubernetesChecksVisitorTest {
 
   public static HelmInputFileContext createInputFileContextMock(String filename) {
     var inputFile = mock(InputFile.class);
-    var inputFileContext = new HelmInputFileContext(mock(SensorContext.class), inputFile);
     when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
     when(inputFile.filename()).thenReturn(filename);
-    return inputFileContext;
+    when(inputFile.uri()).thenReturn(URI.create("file:///dir1/dir2/" + filename));
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
+      return new HelmInputFileContext(mock(SensorContext.class), inputFile);
+    }
   }
 }

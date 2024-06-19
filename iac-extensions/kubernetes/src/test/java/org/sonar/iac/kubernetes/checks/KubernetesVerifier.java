@@ -19,6 +19,19 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,20 +64,6 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;

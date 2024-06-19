@@ -38,6 +38,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
 import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
 import org.sonar.iac.helm.tree.impl.FieldNodeImpl;
@@ -48,10 +49,11 @@ import org.sonar.iac.helm.tree.impl.TextNodeImpl;
 import org.sonar.iac.helm.tree.utils.ValuePath;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
 
@@ -102,21 +104,21 @@ class SecondaryLocationLocatorTest {
     return Stream.of(
       Arguments.of("foo: bar", new ValuePath("foo"), 1, 5, 1, 8),
       Arguments.of("foo: bar", new ValuePath("Values", "foo"), 1, 5, 1, 8),
-      Arguments.of(code(
-        "foo:",
-        "  bar:",
-        "    baz: qux"), new ValuePath("foo", "bar", "baz"), 3, 9, 3, 12),
-      Arguments.of(code(
-        "foo: bar",
-        "baz: qux"),
+      Arguments.of("""
+        foo:
+          bar:
+            baz: qux""", new ValuePath("foo", "bar", "baz"), 3, 9, 3, 12),
+      Arguments.of("""
+        foo: bar
+        baz: qux""",
         new ValuePath("Values", "foo"), 1, 5, 1, 8),
-      Arguments.of(code(
-        "# header",
-        "",
-        "foo:",
-        "  bar:",
-        "    bqr: qux",
-        "    baz: true"), new ValuePath("foo", "bar", "baz"), 6, 9, 6, 13));
+      Arguments.of("""
+        # header
+
+        foo:
+          bar:
+            bqr: qux
+            baz: true""", new ValuePath("foo", "bar", "baz"), 6, 9, 6, 13));
   }
 
   @ParameterizedTest
@@ -130,13 +132,14 @@ class SecondaryLocationLocatorTest {
   static Stream<Arguments> shouldNotFindSecondaryLocation() {
     return Stream.of(
       Arguments.of("", new ValuePath("foo")),
-      Arguments.of(code(
-        "foo:",
-        "  bar:",
-        "    baz: qux"), new ValuePath("foo", "baz")),
-      Arguments.of(code("foo:",
-        "  bar:",
-        "    - baz: qux"), new ValuePath("foo", "bar", "baz")),
+      Arguments.of("""
+        foo:
+          bar:
+            baz: qux""", new ValuePath("foo", "baz")),
+      Arguments.of("""
+        foo:
+          bar:
+            - baz: qux""", new ValuePath("foo", "bar", "baz")),
       Arguments.of("foo: bar", new ValuePath("Chart", "Name")),
       Arguments.of("foo: bar", new ValuePath("Release", "Name")),
       Arguments.of("[1, 2] : foo", new ValuePath("Values", "bar")));
@@ -144,7 +147,7 @@ class SecondaryLocationLocatorTest {
 
   @Test
   void shouldReturnNullForMissingValuesFile() throws IOException {
-    var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), null);
+    var inputFileContext = inputFileContextWithTree();
     inputFileContext.setAdditionalFiles(Map.of());
 
     var textRange = SecondaryLocationLocator.toTextRangeInValuesFile(new ValuePath("foo"), inputFileContext);
@@ -154,7 +157,7 @@ class SecondaryLocationLocatorTest {
 
   @Test
   void shouldReturnEmptyForMissingValuesFile() {
-    var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), null);
+    var inputFileContext = inputFileContextWithTree();
     inputFileContext.setAdditionalFiles(Map.of());
 
     var secondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null);
@@ -197,7 +200,11 @@ class SecondaryLocationLocatorTest {
     var valuesFile = new TestInputFileBuilder("test", ".")
       .setContents("bar: baz")
       .build();
-    var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null));
+    HelmInputFileContext inputFileContext;
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
+      inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null));
+    }
     inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
 
     var fieldNode = new FieldNodeImpl(15, 11, List.of("Values", "bar"));
@@ -216,7 +223,13 @@ class SecondaryLocationLocatorTest {
     var valuesFile = new TestInputFileBuilder("test", ".")
       .setContents(valuesFileContent)
       .build();
-    var inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), null);
+    HelmInputFileContext inputFileContext;
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
+      var inputFile = mock(InputFile.class);
+      when(inputFile.uri()).thenReturn(Path.of("dir1/templates/something.yaml").toUri());
+      inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile);
+    }
     inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
 
     return SecondaryLocationLocator.toTextRangeInValuesFile(valuePath, inputFileContext);
