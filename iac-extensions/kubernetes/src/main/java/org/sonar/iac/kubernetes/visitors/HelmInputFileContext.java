@@ -28,11 +28,12 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.kubernetes.visitors.LocationShifter.LinesShifting;
 
 public class HelmInputFileContext extends InputFileContext {
+  @Nullable
+  private Path helmProjectDirectory;
   @Nullable
   private GoTemplateTree goTemplateTree;
   private Map<String, InputFile> additionalFiles = new HashMap<>();
@@ -81,11 +82,18 @@ public class HelmInputFileContext extends InputFileContext {
   }
 
   public boolean isInChartRootDirectory() {
-    var rootChartDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
-    return inputFile.path().getParent() != null && inputFile.path().getParent().equals(rootChartDirectory);
+    return inputFile.path().getParent() != null && inputFile.path().getParent().equals(helmProjectDirectory);
   }
 
   public LinesShifting sourceMap() {
     return linesShifting;
+  }
+
+  public Path getHelmProjectDirectory() {
+    return helmProjectDirectory;
+  }
+
+  public void setHelmProjectDirectory(Path helmProjectDirectory) {
+    this.helmProjectDirectory = helmProjectDirectory;
   }
 }

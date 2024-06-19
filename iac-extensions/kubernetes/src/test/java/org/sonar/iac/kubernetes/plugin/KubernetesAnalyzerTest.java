@@ -59,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -84,6 +85,7 @@ class KubernetesAnalyzerTest {
     when(inputFile.path()).thenReturn(Path.of("/chart/templates/foo.yaml"));
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
+    inputFileContext.setHelmProjectDirectory(Path.of("/chart"));
   }
 
   private FileTree parseTemplate(String originalCode, String evaluated) throws IOException {
@@ -481,6 +483,18 @@ class KubernetesAnalyzerTest {
     when(inputFile.filename()).thenReturn("_helpers.tpl");
     assertEmptyFileTree((FileTree) analyzer.parse("foo: {{ .Values.foo }}", inputFileContext));
     assertThat(logTester.logs()).doesNotContain("Helm content detected in file _helpers.tpl");
+  }
+
+  @Test
+  void shouldSetHelmProjectDirectory() {
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+
+      var ifc = analyzer.createInputFileContext(sensorContext, inputFile);
+
+      assertThat(ifc).isInstanceOf(HelmInputFileContext.class);
+      assertThat(((HelmInputFileContext) ifc).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
+    }
   }
 
   private void assertEmptyFileTree(FileTree fileTree) {

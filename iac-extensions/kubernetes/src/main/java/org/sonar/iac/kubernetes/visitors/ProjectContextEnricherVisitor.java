@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.nio.file.Path;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -34,7 +35,7 @@ public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext>
   }
 
   private static void handleFileTree(InputFileContext ctx, FileTree fileTree, ProjectContext.Builder projectContextBuilder) {
-    var uri = ctx.inputFile.uri();
+    var uri = Path.of(ctx.inputFile.uri()).normalize().toUri();
     fileTree.documents().stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
