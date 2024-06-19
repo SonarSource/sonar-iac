@@ -28,7 +28,7 @@ public class EphemeralStorageLimitCheck extends AbstractLimitCheck {
   private static final String KEY = "ephemeral-storage";
 
   @Override
-  String getResourceType() {
+  String getResourceName() {
     return KEY;
   }
 

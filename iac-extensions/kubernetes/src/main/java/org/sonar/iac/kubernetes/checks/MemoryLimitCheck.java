@@ -27,7 +27,7 @@ public class MemoryLimitCheck extends AbstractLimitCheck {
   private static final String KEY = "memory";
 
   @Override
-  String getResourceType() {
+  String getResourceName() {
     return KEY;
   }
 

@@ -37,8 +37,8 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
   }
 
   void reportMissingLimit(BlockObject container) {
-    container.block("resources").block(getResourceManagementType())
-      .attribute(getResourceType())
+    container.block("resources").block(getResourceManagementName())
+      .attribute(getResourceName())
       .reportIfAbsent(getFirstChildElement(container), getMessage())
       .reportIfValue(isSet().negate(), getMessage());
   }
@@ -51,9 +51,9 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
     return null;
   }
 
-  abstract String getResourceManagementType();
+  abstract String getResourceManagementName();
 
-  abstract String getResourceType();
+  abstract String getResourceName();
 
   abstract String getMessage();
 }

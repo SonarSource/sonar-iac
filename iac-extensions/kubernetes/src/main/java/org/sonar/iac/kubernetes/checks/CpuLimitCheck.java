@@ -27,7 +27,7 @@ public class CpuLimitCheck extends AbstractLimitCheck {
   private static final String KEY = "cpu";
 
   @Override
-  String getResourceType() {
+  String getResourceName() {
     return KEY;
   }
 

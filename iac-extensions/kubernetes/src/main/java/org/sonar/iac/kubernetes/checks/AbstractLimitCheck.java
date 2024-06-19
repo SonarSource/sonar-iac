@@ -23,11 +23,11 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
 
   private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
 
-  String getResourceManagementType() {
+  String getResourceManagementName() {
     return RESOURCE_MANAGEMENT_TYPE;
   }
 
-  abstract String getResourceType();
+  abstract String getResourceName();
 
   abstract String getMessage();
 }

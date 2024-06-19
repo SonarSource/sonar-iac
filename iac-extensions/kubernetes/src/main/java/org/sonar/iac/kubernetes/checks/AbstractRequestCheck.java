@@ -23,7 +23,7 @@ public abstract class AbstractRequestCheck extends AbstractResourceManagementChe
 
   private static final String RESOURCE_MANAGEMENT_TYPE = "requests";
 
-  String getResourceManagementType() {
+  String getResourceManagementName() {
     return RESOURCE_MANAGEMENT_TYPE;
   }
 }
