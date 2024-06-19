@@ -26,13 +26,15 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
@@ -108,17 +110,18 @@ class ProjectContextTest {
   }
 
   private static InputFileContext toInputFileContext(String path) {
-    var ifc = createInputFileContextMock(path);
-    when(ifc.inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
-    return ifc;
+    var inputFileContext = createInputFileContextMock(path);
+    when(inputFileContext.inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
+    return inputFileContext;
   }
 
   private static HelmInputFileContext toHelmInputFileContext(String path) {
     var inputFile = mock(InputFile.class);
-    var ifc = spy(new HelmInputFileContext(mock(SensorContext.class), inputFile));
-    when(ifc.inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
-    when(ifc.getHelmProjectDirectory()).thenReturn(BASE_DIR.resolve("path1"));
-    return ifc;
+    when(inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(BASE_DIR.resolve("path1"));
+      return new HelmInputFileContext(mock(SensorContext.class), inputFile);
+    }
   }
 
   private static class TestResource implements ProjectResource {

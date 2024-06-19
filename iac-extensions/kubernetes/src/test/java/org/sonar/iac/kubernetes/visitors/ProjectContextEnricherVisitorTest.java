@@ -77,8 +77,8 @@ class ProjectContextEnricherVisitorTest {
   }
 
   private static InputFileContext toInputFileContext(String path) {
-    var ifc = createInputFileContextMock(path);
-    when(ifc.inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
-    return ifc;
+    var inputFileContext = createInputFileContextMock(path);
+    when(inputFileContext.inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
+    return inputFileContext;
   }
 }

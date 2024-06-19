@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -56,6 +57,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 class HelmProcessorTest {
@@ -64,10 +66,18 @@ class HelmProcessorTest {
   @TempDir
   static Path tempDir;
   private final InputFile DEFAULT_INPUT_FILE = IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
-  private final HelmInputFileContext DEFAULT_INPUT_FILE_CONTEXT = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE);
+  private HelmInputFileContext DEFAULT_INPUT_FILE_CONTEXT;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+
+  @BeforeEach
+  void setUp() {
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(tempDir);
+      DEFAULT_INPUT_FILE_CONTEXT = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE);
+    }
+  }
 
   // -------------------------------------------------
   // ----------Test HelmProcessor.process-------------
@@ -205,12 +215,13 @@ class HelmProcessorTest {
   }
 
   @Test
-  void validateAndReadFilesShouldThrowExceptionIfMainFileNameContainsLineBreak() throws IOException {
+  void validateAndReadFilesShouldThrowExceptionIfMainFileNameContainsLineBreak() {
     var additionalFiles = Map.of("values.yaml", mock(InputFile.class));
     var inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn("file\n.yaml");
+    when(inputFile.uri()).thenReturn(URI.create("file:/file.yaml"));
     when(inputFile.toString()).thenReturn("file\n.yaml");
-    var inputFileContext = new HelmInputFileContext(mock(SensorContext.class), inputFile);
+    var inputFileContext = new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile);
     inputFileContext.setAdditionalFiles(additionalFiles);
 
     assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(inputFileContext))
@@ -241,8 +252,7 @@ class HelmProcessorTest {
     String content = "content";
     Map<String, String> templateDependencies = new HashMap<>();
 
-    var inputFile = mockInputFile("chart/templates/foo.yaml", content);
-    var inputFileContext = new HelmInputFileContext(mock(SensorContext.class), inputFile);
+    var inputFileContext = mockInputFileContext("chart/templates/foo.yaml", content);
     when(helmEvaluator.evaluateTemplate(any(), any(), anyMap())).thenReturn(templateEvaluationResult);
 
     assertDoesNotThrow(() -> {
@@ -287,7 +297,10 @@ class HelmProcessorTest {
 
   private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {
     var inputFile = mockInputFile(filename, content);
-    return new HelmInputFileContext(mock(SensorContext.class), inputFile);
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      return new HelmInputFileContext(mock(SensorContext.class), inputFile);
+    }
   }
 
   private static InputFile mockInputFile(String filename, String content) throws IOException {

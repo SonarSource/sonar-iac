@@ -41,16 +41,17 @@ public final class ProjectContext {
 
   /**
    * Get all resources of a given {@code clazz} in a given {@code namespace} and that are accessible to a file with the given {@code path}.
-   * This means that the resources can be in the same file, or in the same directory, or in the descendant directories, but not in the ancestor directories.
+   * This means that the resources can be in the same file, or in the same directory, or in the descendant directories, but not in the ancestor directories.<br/>
+   * If the file is part of a Helm project, all files inside the project are accessible. The location of the Chart.yaml serves as the root directory of the project.
    */
-  public Set<ProjectResource> getProjectResources(String namespace, InputFileContext ctx, Class<? extends ProjectResource> clazz) {
+  public Set<ProjectResource> getProjectResources(String namespace, InputFileContext inputFileContext, Class<? extends ProjectResource> clazz) {
     if (projectResourcePerNamespacePerPath.containsKey(namespace)) {
       var resourcesPerPath = projectResourcePerNamespacePerPath.get(namespace);
 
-      var basePath = Optional.of(ctx)
+      var basePath = Optional.of(inputFileContext)
         .filter(HelmInputFileContext.class::isInstance)
         .map(it -> ((HelmInputFileContext) it).getHelmProjectDirectory())
-        .or(() -> Optional.ofNullable(Path.of(ctx.inputFile.uri()).getParent()))
+        .or(() -> Optional.ofNullable(Path.of(inputFileContext.inputFile.uri()).getParent()))
         .map(Path::normalize)
         .map(Path::toUri)
         .map(URI::toString)

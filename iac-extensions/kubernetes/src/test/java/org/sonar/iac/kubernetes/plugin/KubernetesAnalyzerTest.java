@@ -69,7 +69,7 @@ class KubernetesAnalyzerTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final InputFile inputFile = mock(InputFile.class);
   private final SensorContext sensorContext = mock(SensorContext.class);
-  private final HelmInputFileContext inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+  private HelmInputFileContext inputFileContext;
   private final FileSystem fileSystem = mock(FileSystem.class);
   private final HelmProcessor helmProcessor = mock(HelmProcessor.class);
   private final HelmParser helmParser = new HelmParser(helmProcessor);
@@ -85,7 +85,11 @@ class KubernetesAnalyzerTest {
     when(inputFile.path()).thenReturn(Path.of("/chart/templates/foo.yaml"));
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
-    inputFileContext.setHelmProjectDirectory(Path.of("/chart"));
+
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+    }
   }
 
   private FileTree parseTemplate(String originalCode, String evaluated) throws IOException {
@@ -490,10 +494,10 @@ class KubernetesAnalyzerTest {
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
 
-      var ifc = analyzer.createInputFileContext(sensorContext, inputFile);
+      var inputFileContext = analyzer.createInputFileContext(sensorContext, inputFile);
 
-      assertThat(ifc).isInstanceOf(HelmInputFileContext.class);
-      assertThat(((HelmInputFileContext) ifc).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
+      assertThat(inputFileContext).isInstanceOf(HelmInputFileContext.class);
+      assertThat(((HelmInputFileContext) inputFileContext).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
     }
   }
 

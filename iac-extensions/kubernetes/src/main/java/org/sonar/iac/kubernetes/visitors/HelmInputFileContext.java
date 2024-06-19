@@ -28,12 +28,13 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.kubernetes.visitors.LocationShifter.LinesShifting;
 
 public class HelmInputFileContext extends InputFileContext {
   @Nullable
-  private Path helmProjectDirectory;
+  private final Path helmProjectDirectory;
   @Nullable
   private GoTemplateTree goTemplateTree;
   private Map<String, InputFile> additionalFiles = new HashMap<>();
@@ -44,6 +45,7 @@ public class HelmInputFileContext extends InputFileContext {
 
   public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile) {
     super(sensorContext, inputFile);
+    this.helmProjectDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
   }
 
   public void setAdditionalFiles(Map<String, InputFile> additionalFiles) {
@@ -89,11 +91,9 @@ public class HelmInputFileContext extends InputFileContext {
     return linesShifting;
   }
 
+  @CheckForNull
   public Path getHelmProjectDirectory() {
     return helmProjectDirectory;
   }
 
-  public void setHelmProjectDirectory(Path helmProjectDirectory) {
-    this.helmProjectDirectory = helmProjectDirectory;
-  }
 }

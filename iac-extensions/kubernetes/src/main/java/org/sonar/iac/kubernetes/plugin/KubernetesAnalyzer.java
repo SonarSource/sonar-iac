@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -32,7 +31,6 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
@@ -57,12 +55,7 @@ public class KubernetesAnalyzer extends Analyzer {
 
   @Override
   protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
-    var ifc = new HelmInputFileContext(sensorContext, inputFile);
-    var helmProjectDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
-    if (helmProjectDirectory != null) {
-      ifc.setHelmProjectDirectory(helmProjectDirectory);
-    }
-    return ifc;
+    return new HelmInputFileContext(sensorContext, inputFile);
   }
 
   @Override
