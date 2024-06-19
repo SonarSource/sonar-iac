@@ -1,0 +1,50 @@
+# This file duplicates `memory_limit_deployment.yaml` but adds a namespace to the deployment.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: with-global-limit
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: noncompliant_without_memory_limit
+          resources:
+            limits:
+              cpu: 200m
+
+        - name: noncompliant_without_limits
+          resources:
+            requests:
+              memory: 64Mi
+
+        - name: noncompliant_without_resources
+
+        - name: noncompliant_memory_limit_tilde
+          resources:
+            limits:
+              memory: "~"
+
+        - name: noncompliant_memory_limit_empty_brackets
+          resources:
+            limits:
+              memory: "[]"
+
+        - resources:
+            limits:
+              memory: "null"
+          name: noncompliant_memory_limit_null
+
+        - name: compliant_memory_limit # Compliant
+          resources:
+            limits:
+              memory: 100Mi

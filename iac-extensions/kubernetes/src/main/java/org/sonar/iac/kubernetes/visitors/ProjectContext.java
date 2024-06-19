@@ -44,7 +44,7 @@ public final class ProjectContext {
    * This means that the resources can be in the same file, or in the same directory, or in the descendant directories, but not in the ancestor directories.<br/>
    * If the file is part of a Helm project, all files inside the project are accessible. The location of the Chart.yaml serves as the root directory of the project.
    */
-  public Set<ProjectResource> getProjectResources(String namespace, InputFileContext inputFileContext, Class<? extends ProjectResource> clazz) {
+  public <T extends ProjectResource> Set<T> getProjectResources(String namespace, InputFileContext inputFileContext, Class<T> clazz) {
     if (projectResourcePerNamespacePerPath.containsKey(namespace)) {
       var resourcesPerPath = projectResourcePerNamespacePerPath.get(namespace);
 
@@ -61,6 +61,7 @@ public final class ProjectContext {
         .filter(entry -> entry.getKey().startsWith(basePath))
         .flatMap(entry -> entry.getValue().stream())
         .filter(clazz::isInstance)
+        .map(clazz::cast)
         .collect(Collectors.toSet());
     }
     return Set.of();

@@ -57,6 +57,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
   public class KubernetesContextAdapter extends ContextAdapter implements KubernetesCheckContext {
 
     private HelmInputFileContext currentCtx;
+
     private boolean shouldReportSecondaryInValues;
 
     public KubernetesContextAdapter(RuleKey ruleKey) {
@@ -66,6 +67,11 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     @Override
     public ProjectContext projectContext() {
       return projectContext;
+    }
+
+    @Override
+    public HelmInputFileContext currentCtx() {
+      return currentCtx;
     }
 
     @Override

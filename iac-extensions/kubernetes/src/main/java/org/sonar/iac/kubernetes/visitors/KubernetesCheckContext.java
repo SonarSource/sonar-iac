@@ -26,5 +26,7 @@ public interface KubernetesCheckContext extends CheckContext {
 
   void setShouldReportSecondaryInValues(boolean shouldReport);
 
+  HelmInputFileContext currentCtx();
+
   ProjectContext projectContext();
 }

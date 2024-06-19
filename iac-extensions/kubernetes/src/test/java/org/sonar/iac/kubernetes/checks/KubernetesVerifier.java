@@ -59,6 +59,7 @@ import org.sonar.iac.kubernetes.plugin.HelmParser;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesAnalyzer;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
+import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
@@ -70,6 +71,7 @@ import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
+import static org.sonar.iac.common.testing.Verifier.contentToTmp;
 
 public class KubernetesVerifier {
 
@@ -103,7 +105,9 @@ public class KubernetesVerifier {
    * Only usable for pure Kubernetes files
    */
   public static void verifyContent(String content, IacCheck check) {
-    Verifier.verify(PARSER, content, check);
+    var tempFile = contentToTmp(content);
+    var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(), KubernetesLanguage.NAME));
+    Verifier.verify(PARSER, tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, ProjectContext.builder().build()));
   }
 
   public static void verifyNoIssue(String templateFileName, IacCheck check, String... fileNames) {
@@ -246,6 +250,7 @@ public class KubernetesVerifier {
       this.projectContext = projectContext;
     }
 
+    @Override
     public HelmInputFileContext currentCtx() {
       return currentCtx;
     }

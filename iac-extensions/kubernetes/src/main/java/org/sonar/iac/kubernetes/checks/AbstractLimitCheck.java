@@ -19,12 +19,19 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck {
+import org.sonar.iac.kubernetes.model.LimitRange;
+
+public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
 
   private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
 
   String getResourceManagementName() {
     return RESOURCE_MANAGEMENT_TYPE;
+  }
+
+  @Override
+  Class<LimitRange> getGlobalResourceType() {
+    return LimitRange.class;
   }
 
   abstract String getResourceName();

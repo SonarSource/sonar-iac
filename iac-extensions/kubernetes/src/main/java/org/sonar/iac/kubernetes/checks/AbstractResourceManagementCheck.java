@@ -19,24 +19,55 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.kubernetes.model.ProjectResource;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
-public abstract class AbstractResourceManagementCheck extends AbstractKubernetesObjectCheck {
+public abstract class AbstractResourceManagementCheck<T extends ProjectResource> extends AbstractKubernetesObjectCheck {
   protected static final String KIND_POD = "Pod";
   protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
 
   @Override
-  void registerObjectCheck() {
-    register(KIND_POD, (BlockObject pod) -> pod.blocks("containers").forEach(this::reportMissingLimit));
-    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> obj.block("template").block("spec").blocks("containers").forEach(this::reportMissingLimit));
+  boolean shouldVisitWholeDocument() {
+    return true;
   }
 
-  void reportMissingLimit(BlockObject container) {
+  @Override
+  void registerObjectCheck() {
+    register(KIND_POD, document -> checkDocument(document, false));
+    register(KIND_WITH_TEMPLATE, document -> checkDocument(document, true));
+  }
+
+  private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
+    var namespace = Optional.ofNullable(document.block("metadata").attribute("namespace").tree)
+      .map(TupleTree::value)
+      .filter(ScalarTree.class::isInstance)
+      .map(ScalarTree.class::cast)
+      .map(ScalarTree::value)
+      .orElse("default");
+    var globalResources = getGlobalResources(document, namespace);
+
+    Stream<BlockObject> containers;
+    if (isKindWithTemplate) {
+      containers = document.block("spec").block("template").block("spec").blocks("containers");
+    } else {
+      containers = document.block("spec").blocks("containers");
+    }
+    containers.filter(container -> !hasLimitDefinedGlobally(globalResources))
+      .forEach(this::reportMissingLimit);
+  }
+
+  protected void reportMissingLimit(BlockObject container) {
     container.block("resources").block(getResourceManagementName())
       .attribute(getResourceName())
       .reportIfAbsent(getFirstChildElement(container), getMessage())
@@ -49,6 +80,19 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
       return blockObject.tree.elements().get(0).key();
     }
     return null;
+  }
+
+  private Collection<T> getGlobalResources(BlockObject document, String namespace) {
+    var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
+    var currentCtx = ((KubernetesCheckContext) document.ctx).currentCtx();
+    return projectContext.getProjectResources(namespace, currentCtx, getGlobalResourceType());
+  }
+
+  abstract Class<T> getGlobalResourceType();
+
+  // TODO: make abstract once its implemented for all subclasses
+  protected boolean hasLimitDefinedGlobally(Collection<T> globalResources) {
+    return false;
   }
 
   abstract String getResourceManagementName();

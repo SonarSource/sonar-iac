@@ -1,0 +1,46 @@
+# This file duplicates `memory_limit_pod.yaml` but adds a namespace to the pod.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: with-global-limit
+spec:
+  containers:
+    - name: noncompliant_without_memory_limit
+      image: nginx
+      resources:
+        limits:
+          cpu: 200m
+
+    - name: noncompliant_without_limits
+      image: nginx
+      resources:
+        requests:
+          memory: 64Mi
+
+    - name: noncompliant_without_resources
+      image: nginx
+
+    - name: noncompliant_memory_limit_tilde
+      image: nginx
+      resources:
+        limits:
+          memory: "~"
+
+    - name: noncompliant_memory_limit_empty_brackets
+      image: nginx
+      resources:
+        limits:
+          memory: "[]"
+
+    - image: nginx
+      name: noncompliant_memory_limit_null
+      resources:
+        limits:
+          memory: "null"
+
+    - name: compliant_memory_limit
+      image: nginx
+      resources:
+        limits:
+          memory: 100Mi
