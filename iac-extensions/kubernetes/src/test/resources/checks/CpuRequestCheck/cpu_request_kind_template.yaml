@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: ${type}
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: noncompliant_without_cpu_request # Noncompliant {{Specify a CPU request for this container.}}
+        # ^^^^
+          resources:
+            requests:
+              memory: 64Mi
+
+        - name: noncompliant_without_requests # Noncompliant
+        # ^^^^
+          resources:
+            limits:
+              cpu: 2
+
+        - name: noncompliant_without_resources # Noncompliant
+        # ^^^^
+
+        - name: noncompliant_cpu_request_tilde
+          resources:
+            requests:
+              cpu: "~" # Noncompliant
+                 # ^^^
+
+        - name: noncompliant_cpu_request_empty_brackets
+          resources:
+            requests:
+              cpu: "[]" # Noncompliant
+                 # ^^^^
+
+        - resources:
+            requests:
+              cpu: "null" # Noncompliant
+                 # ^^^^^^
+          name: noncompliant_cpu_request_null
+
+        - name: compliant_cpu_request # Compliant
+          resources:
+            requests:
+              cpu: 2
+
+        - name: compliant_cpu_request_2 # Compliant
+          resources:
+            requests:
+              cpu: "0.5"
