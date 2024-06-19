@@ -22,7 +22,7 @@ package org.sonar.iac.kubernetes.plugin;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.CrossFileAnalyzer;
+import org.sonar.iac.common.extension.analyzer.CrossFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;

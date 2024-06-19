@@ -29,7 +29,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
-import org.sonar.iac.common.extension.SingleFileAnalyzer;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;

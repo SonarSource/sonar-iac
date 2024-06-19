@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.extension;
+package org.sonar.iac.common.extension.analyzer;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -34,6 +34,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -70,5 +71,21 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     inOrder.verify(visitor1).scan(any(), eq(tree2));
     inOrder.verify(visitor2).scan(any(), eq(tree1));
     inOrder.verify(visitor2).scan(any(), eq(tree2));
+  }
+
+  @Test
+  void shouldAlsoBeCancellableDuringTheVisitingPart() {
+    TreeVisitor<InputFileContext> visitor1 = mock(TreeVisitor.class);
+    TreeVisitor<InputFileContext> visitor2 = mock(TreeVisitor.class);
+    doAnswer((invocation -> {
+      context.setCancelled(true);
+      return null;
+    })).when(visitor1).scan(any(), any());
+
+    List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2);
+    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, durationStatistics);
+
+    List<InputFile> files = List.of(fileWithContent);
+    assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
   }
 }

@@ -33,7 +33,7 @@ import org.sonar.iac.arm.checks.ArmCheckList;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.visitors.ArmHighlightingVisitor;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
-import org.sonar.iac.common.extension.SingleFileAnalyzer;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;

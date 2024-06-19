@@ -17,55 +17,68 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.extension;
+package org.sonar.iac.common.extension.analyzer;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SingleFileAnalyzer extends AbstractAnalyzer {
+public class CrossFileAnalyzer extends AbstractAnalyzer {
 
-  public SingleFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
+  public CrossFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
     super(repositoryKey, parser, visitors, statistics);
   }
 
   public boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, ProgressReport progressReport) {
-    for (InputFile inputFile : inputFiles) {
+    List<InputFileContext> inputFileContextList = inputFiles.stream()
+      .map(inputFile -> createInputFileContext(sensorContext, inputFile))
+      .toList();
+
+    // Parse files
+    List<FileWithAst> filesWithAst = new ArrayList<>();
+    for (InputFileContext inputFileContext : inputFileContextList) {
       if (sensorContext.isCancelled()) {
         return false;
       }
-      var inputFileContext = createInputFileContext(sensorContext, inputFile);
+
       try {
-        analyseFile(inputFileContext);
+        var content = readContent(inputFileContext);
+        if (content != null) {
+          Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
+          filesWithAst.add(new FileWithAst(inputFileContext, tree));
+        }
       } catch (ParseException e) {
         logParsingError(e);
         inputFileContext.reportParseError(repositoryKey, e.getPosition());
       }
+
       progressReport.nextFile();
     }
+
+    // Visit files
+    for (TreeVisitor<InputFileContext> visitor : visitors) {
+      for (FileWithAst fileWithAst : filesWithAst) {
+        if (sensorContext.isCancelled()) {
+          return false;
+        }
+
+        visit(visitor, fileWithAst.inputFileContext, fileWithAst.tree);
+      }
+    }
+
     return true;
   }
 
-  private void analyseFile(InputFileContext inputFileContext) {
-    var content = readContent(inputFileContext);
-    if (content == null) {
-      return;
-    }
-
-    Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
-
-    visit(inputFileContext, tree);
-  }
-
-  public void visit(InputFileContext inputFileContext, Tree tree) {
-    for (TreeVisitor<InputFileContext> visitor : visitors) {
-      visit(visitor, inputFileContext, tree);
-    }
+  private record FileWithAst(InputFileContext inputFileContext, Tree tree) {
   }
 }
