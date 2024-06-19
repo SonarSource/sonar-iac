@@ -23,7 +23,6 @@ def qa_win_script():
         "eval $(powershell -NonInteractive -Command '(Get-FileHash C:\\golang-dl\\golang-$env:GO_VERSION.zip).Hash -eq \"872ac1c6ba1e23927a5cd60ce2e7a9e64cc6e5a550334c0fbcc785b4347d5f0d\"')",
         "eval $(powershell -NonInteractive -Command 'Add-Type -Assembly \"System.IO.Compression.Filesystem\"; [System.IO.Compression.ZipFile]::ExtractToDirectory(\"C:\\golang-dl\\golang-$env:GO_VERSION.zip\", \"C:\\\")')",
         "powershell -NonInteractive -Command 'setx PATH \"$env:path;C:\\go\\bin\"'",
-        "choco install protoc -y --version ${PROTOC_VERSION}.0 -u ${ARTIFACTORY_PRIVATE_USERNAME} -p ${ARTIFACTORY_PRIVATE_PASSWORD}",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "source cirrus-env CI",
         "./gradlew ${GRADLE_COMMON_FLAGS} test"
