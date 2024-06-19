@@ -33,7 +33,7 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
-import org.sonar.iac.common.extension.Analyzer;
+import org.sonar.iac.common.extension.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
@@ -64,7 +64,7 @@ class YamlSensorTest extends AbstractSensorTest {
   void shouldCreateAnalyzer() {
     SensorContextTester sensorContextTester = SensorContextTester.create(sensorDir);
     DurationStatistics durationStatistics = new DurationStatistics(mock(Configuration.class));
-    assertThat(sensor().createAnalyzer(sensorContextTester, durationStatistics)).isInstanceOf(Analyzer.class);
+    assertThat(sensor().createAnalyzer(sensorContextTester, durationStatistics)).isInstanceOf(SingleFileAnalyzer.class);
   }
 
   @Test
