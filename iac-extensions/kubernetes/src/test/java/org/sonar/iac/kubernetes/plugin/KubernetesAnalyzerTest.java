@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.Collections;
 import javax.annotation.Nullable;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,16 +38,18 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.BasicTextPointer;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.testing.TextRangeAssert;
+import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.helm.HelmFileSystem;
-import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
@@ -58,18 +61,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class KubernetesParserTest {
+class KubernetesAnalyzerTest {
+
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final InputFile inputFile = mock(InputFile.class);
   private final SensorContext sensorContext = mock(SensorContext.class);
   private final HelmInputFileContext inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
-  private final HelmProcessor helmProcessor = Mockito.mock(HelmProcessor.class);
-  private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
-  private final KubernetesParser parser = new KubernetesParser(helmProcessor, kubernetesParserStatistics);
   private final FileSystem fileSystem = mock(FileSystem.class);
+  private final HelmProcessor helmProcessor = mock(HelmProcessor.class);
+  private final HelmParser helmParser = new HelmParser(helmProcessor);
+  private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)),
+    helmParser, new KubernetesParserStatistics());
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -82,11 +86,22 @@ class KubernetesParserTest {
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
   }
 
+  private FileTree parseTemplate(String originalCode, String evaluated) throws IOException {
+    var valuesFile = mock(InputFile.class);
+    when(valuesFile.filename()).thenReturn("values.yaml");
+    when(valuesFile.contents()).thenReturn("foo: bar");
+    when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
+
+    var processor = new TestHelmProcessor(evaluated);
+    var helmParserLocal = new HelmParser(processor);
+    KubernetesAnalyzer analyzerLocal = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)), helmParserLocal,
+      new KubernetesParserStatistics());
+    return (FileTree) analyzerLocal.parse(originalCode, inputFileContext);
+  }
+
   @Test
   void testParsingWhenHelmContentIsDetectedAndEvaluatorNotInitialized() {
-    when(helmProcessor.processHelmTemplate(any(), any())).thenReturn("foo: bar");
-
-    FileTree file = parser.parse("foo: {{ .Value.var }}", inputFileContext);
+    FileTree file = (FileTree) analyzer.parse("foo: {{ .Value.var }}", inputFileContext);
 
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isEmpty();
@@ -98,7 +113,7 @@ class KubernetesParserTest {
 
   @Test
   void testParsingWhenHelmContentIsDetectedNoInputFileContext() {
-    FileTree file = parser.parse("foo: {{ .Value.var }}", null);
+    FileTree file = (FileTree) analyzer.parse("foo: {{ .Value.var }}", null);
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isEmpty();
 
@@ -107,8 +122,15 @@ class KubernetesParserTest {
   }
 
   @Test
+  void parsingErrorWithoutFileContextShouldThrowProperParseException() {
+    assertThatThrownBy(() -> analyzer.parse("foo: invalid: file", null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Cannot parse 'null'");
+  }
+
+  @Test
   void testParsingWhenNoHelmContent() {
-    FileTree file = parser.parse("foo: {bar: 1234}", inputFileContext);
+    FileTree file = (FileTree) analyzer.parse("foo: {bar: 1234}", inputFileContext);
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isNotEmpty();
 
@@ -127,7 +149,7 @@ class KubernetesParserTest {
       when(helmProcessor.process(any(), any())).thenReturn("foo: bar");
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
 
-      FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+      FileTree file = (FileTree) analyzer.parse("foo: {{ .Values.foo }}", inputFileContext);
 
       assertThat(file).isInstanceOf(KubernetesFileTree.class);
       assertThat(file.documents()).hasSize(1);
@@ -144,7 +166,7 @@ class KubernetesParserTest {
       when(helmProcessor.process(any(), any())).thenThrow(new ParseException("Test Helm-related exception", null, null));
       when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
 
-      assertThatThrownBy(() -> parser.parse("foo: {{ .Values.foo }}", inputFileContext))
+      assertThatThrownBy(() -> analyzer.parse("foo: {{ .Values.foo }}", inputFileContext))
         .isInstanceOf(ParseException.class)
         .hasMessage("Test Helm-related exception");
 
@@ -154,37 +176,13 @@ class KubernetesParserTest {
   }
 
   @Test
-  void shouldRemoveEmptyLinesAfterEvaluation() throws IOException {
-    String evaluated = code("apiVersion: apps/v1 #1",
-      "kind: StatefulSet #2",
-      "metadata: #3",
-      "  name: helm-chart-sonarqube-dce-search #4",
-      "spec: #5",
-      "  livenessProbe: #6",
-      "    exec: #7",
-      "      command: #8",
-      "        - sh #9",
-      "        - -c #10",
-      "        #14",
-      "        - | #15",
-      "          bar #16 #17",
-      "    initialDelaySeconds: 60 #18",
-      "  #19");
-
-    FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
-
-    assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).hasSize(4);
-  }
-
-  @Test
   void shouldNotFailIfEmptyFileAfterEvaluation() throws IOException {
     var valuesFile = mock(InputFile.class);
     when(valuesFile.filename()).thenReturn("values.yaml");
     when(valuesFile.contents()).thenReturn("foo: bar");
     when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-    String evaluatedSource = code("#5");
-    FileTree file = parser.parse("foo: {{ .Values.foo }}", inputFileContext);
+    String evaluatedSource = "#5";
+    FileTree file = (FileTree) analyzer.parse("foo: {{ .Values.foo }}", inputFileContext);
 
     parseTemplate("foo: {{ .Values.foo }}", evaluatedSource);
     assertEmptyFileTree(file);
@@ -194,54 +192,14 @@ class KubernetesParserTest {
   }
 
   @Test
-  void shouldNotCrashOnNewDocumentAfterEvaluation() throws IOException {
-    var evaluated = code(
-      "--- #5",
-      "apiVersion: v1 #6",
-      "kind: Pod #7",
-      "metadata: #8",
-      "spec: #9");
-
-    FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
-
-    assertThat(file.documents().get(0).children()).hasSize(4);
-  }
-
-  @Test
-  void shouldRemoveLineNumberCommentForNewDocumentAtEndAfterEvaluation() throws IOException {
-    var evaluated = code(
-      "apiVersion: v1 #6",
-      "kind: Pod #7",
-      "metadata: #8",
-      "spec: #9",
-      "--- #12");
-
-    FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
-
-    assertThat(file.documents().get(0).children()).hasSize(4);
-  }
-
-  @Test
-  void shouldRemoveLineNumberCommentForEndDocumentAfterEvaluation() throws IOException {
-    var evaluated = code(
-      "apiVersion: v1 #6",
-      "kind: Pod #7",
-      "metadata: #8",
-      "spec: #9",
-      "... #10");
-
-    FileTree file = parseTemplate("{{ dummy helm }}", evaluated);
-
-    assertThat(file.documents().get(0).children()).hasSize(4);
-  }
-
-  @Test
   void shouldFindShiftedLocation() throws IOException {
-    String originalCode = code("test:",
-      "{{ helm code }}");
-    String evaluated = code("test: #1",
-      "- key1:value1 #2",
-      "- key2:value2 #2");
+    String originalCode = """
+      test:
+      {{ helm code }}""";
+    String evaluated = """
+      test: #1
+      - key1:value1 #2
+      - key2:value2 #2""";
 
     parseTemplate(originalCode, evaluated);
 
@@ -253,11 +211,13 @@ class KubernetesParserTest {
 
   @Test
   void shouldFindShiftedLocationWithExistingComment() throws IOException {
-    String originalCode = code("test:",
-      "{{ helm code }} # some comment");
-    String evaluated = code("test: #1",
-      "- key1:value1 #2",
-      "- key2:value2 # some comment #2");
+    String originalCode = """
+      test:
+      {{ helm code }} # some comment""";
+    String evaluated = """
+      test: #1
+      - key1:value1 #2
+      - key2:value2 # some comment #2""";
 
     parseTemplate(originalCode, evaluated);
 
@@ -269,15 +229,15 @@ class KubernetesParserTest {
 
   @Test
   void shouldFindShiftedLocationWhenMultipleLineNumbers() throws IOException {
-    String originalCode = code(
-      "foo:",
-      "{{- range .Values.capabilities }}",
-      "  - {{ . | quote }}",
-      "{{- end }}");
-    String evaluated = code(
-      "foo: #1 #2",
-      "  - \"SYS_ADMIN\" #3 #2",
-      "  - \"NET_ADMIN\" #3 #4");
+    String originalCode = """
+      foo:
+      {{- range .Values.capabilities }}
+        - {{ . | quote }}
+      {{- end }}""";
+    String evaluated = """
+      foo: #1 #2
+        - \"SYS_ADMIN\" #3 #2
+        - \"NET_ADMIN\" #3 #4""";
 
     parseTemplate(originalCode, evaluated);
 
@@ -289,12 +249,12 @@ class KubernetesParserTest {
 
   @Test
   void shouldFindShiftedLocationWhenCommentContainsHashNumber() throws IOException {
-    String originalCode = code(
-      "foo: {{ .Values.foo }} # fix in #123 issue",
-      "bar: {{ .Values.bar }} # fix in # 123 issue");
-    String evaluated = code(
-      "foo: foo # fix in #123 issue #1",
-      "bar: bar # fix in # 123 issue #2");
+    String originalCode = """
+      foo: {{ .Values.foo }} # fix in #123 issue
+      bar: {{ .Values.bar }} # fix in # 123 issue""";
+    String evaluated = """
+      foo: foo # fix in #123 issue #1
+      bar: bar # fix in # 123 issue #2""";
 
     parseTemplate(originalCode, evaluated);
 
@@ -306,11 +266,13 @@ class KubernetesParserTest {
 
   @Test
   void shouldHandleInvalidLineNumberComment() throws IOException {
-    String originalCode = code("test:",
-      "{{ helm code }} # some comment");
-    String evaluated = code("test: #1",
-      "- key1:value1 #a",
-      "- key1:value1 #some comment #b");
+    String originalCode = """
+      test:
+      {{ helm code }} # some comment""";
+    String evaluated = """
+      test: #1
+      - key1:value1 #a
+      - key1:value1 #some comment #b""";
 
     parseTemplate(originalCode, evaluated);
 
@@ -320,12 +282,14 @@ class KubernetesParserTest {
 
   @Test
   void shouldHandleWhenLineCommentIsMissingOrNotDetectedProperly() throws IOException {
-    String originalCode = code("test:",
-      "{{ helm code }}");
-    String evaluated = code("test: #1",
-      "- key1:value1",
-      "- key2:value2 #2",
-      "- key3:value3");
+    String originalCode = """
+      test:
+      {{ helm code }}""";
+    String evaluated = """
+      test: #1
+      - key1:value1
+      - key2:value2 #2
+      - key3:value3""";
 
     parseTemplate(originalCode, evaluated);
 
@@ -348,12 +312,14 @@ class KubernetesParserTest {
 
   @Test
   void shouldFindShiftedLocationFromRange() throws IOException {
-    String originalCode = code("test:",
-      "{{ ",
-      "  helm code",
-      "}}");
-    String evaluated = code("test: #1",
-      "  value #2:4");
+    String originalCode = """
+      test:
+      {{
+        helm code
+      }}""";
+    String evaluated = """
+      test: #1
+        value #2:4""";
 
     parseTemplate(originalCode, evaluated);
 
@@ -363,13 +329,15 @@ class KubernetesParserTest {
 
   @Test
   void shouldFindShiftedLocationFromRangeWithMultipleLines() throws IOException {
-    String originalCode = code("test:",
-      "{{ ",
-      "  helm code",
-      "}}");
-    String evaluated = code("test: #1",
-      "  - value1 #2:4",
-      "  - value2 #2:4");
+    String originalCode = """
+      test:
+      {{
+        helm code
+      }}""";
+    String evaluated = """
+      test: #1
+        - value1 #2:4
+        - value2 #2:4""";
 
     parseTemplate(originalCode, evaluated);
 
@@ -381,46 +349,20 @@ class KubernetesParserTest {
 
   @Test
   void shouldAddLastEmptyLine() throws IOException {
-    String originalCode = code("foo:",
-      "{{ print \"# a\\n# b\" }}",
-      "");
-    String evaluated = code("foo: #1",
-      "# a",
-      "# b #2",
-      "#3");
+    String originalCode = """
+      foo:
+      {{ print \"# a\\n# b\" }}
+      """;
+    String evaluated = """
+      foo: #1
+      # a
+      # b #2
+      #3""";
 
     parseTemplate(originalCode, evaluated);
 
     TextRange shiftedLocation1 = LocationShifter.computeShiftedLocation(inputFileContext, TextRanges.range(2, 1, 3, 6));
     TextRangeAssert.assertThat(shiftedLocation1).hasRange(2, 0, 2, 22);
-  }
-
-  private FileTree parseTemplate(String originalCode, String evaluated) throws IOException {
-    var valuesFile = mock(InputFile.class);
-    when(valuesFile.filename()).thenReturn("values.yaml");
-    when(valuesFile.contents()).thenReturn("foo: bar");
-    when(sensorContext.fileSystem().inputFile(any())).thenReturn(valuesFile);
-
-    var processor = new TestHelmProcessor(evaluated);
-    var parser = new KubernetesParser(processor, kubernetesParserStatistics);
-    return parser.parse(originalCode, inputFileContext);
-  }
-
-  @Test
-  void shouldShiftMarkedYamlExceptions() {
-    var evaluated = code(
-      "key: | #1",
-      "  .",
-      "  .",
-      "  .",
-      "  . #2",
-      "invalid-key #3");
-
-    assertThatThrownBy(() -> parseTemplate("dummy: {{ dummy }}", evaluated))
-      .isInstanceOf(ShiftedMarkedYamlEngineException.class);
-
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Shifting YAML exception from [6:12] to [3:1]");
   }
 
   @Test
@@ -435,7 +377,7 @@ class KubernetesParserTest {
         "Evaluation error in Go library: template: dummy.yaml:10:11: executing \"dummy.yaml\" at <include \"a-template-from-dependency\" .>: error calling include: template: " +
           "error calling include: template: no template \"a-template-from-dependency\" associated with template \"aggregatingTemplate\""));
 
-    assertThatCode(() -> parser.parse(code, inputFileContext))
+    assertThatCode(() -> analyzer.parse(code, inputFileContext))
       .doesNotThrowAnyException();
 
     assertThat(logTester.logs(Level.DEBUG))
@@ -459,7 +401,7 @@ class KubernetesParserTest {
         new BasicTextPointer(1, 1),
         details));
 
-    assertThatThrownBy(() -> parser.parse(code, inputFileContext))
+    assertThatThrownBy(() -> analyzer.parse(code, inputFileContext))
       .isInstanceOf(ParseException.class);
   }
 
@@ -478,7 +420,7 @@ class KubernetesParserTest {
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.toString()).thenReturn(filename);
 
-    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(HelmParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm values file detected, skipping parsing " + filename);
     } else {
@@ -501,7 +443,7 @@ class KubernetesParserTest {
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.toString()).thenReturn(filename);
 
-    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(HelmParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm Chart.yaml file detected, skipping parsing " + filename);
     } else {
@@ -520,7 +462,7 @@ class KubernetesParserTest {
     when(inputFile.toString()).thenReturn(filename);
     when(inputFile.filename()).thenReturn(filename);
 
-    assertThat(KubernetesParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
+    assertThat(HelmParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
     if (expectedReturn) {
       assertThat(logTester.logs()).contains("Helm tpl file detected, skipping parsing " + filename);
     } else {
@@ -530,14 +472,14 @@ class KubernetesParserTest {
 
   @Test
   void shouldSkipProcessingWhenInputFileContextIsNull() {
-    assertEmptyFileTree(parser.parse("foo: {{ .Values.foo }}", null));
+    assertEmptyFileTree((FileTree) analyzer.parse("foo: {{ .Values.foo }}", null));
     assertThat(logTester.logs()).contains("No InputFileContext provided, skipping processing of Helm file");
   }
 
   @Test
   void shouldSkipProcessingWhenInputFileIsInvalid() {
     when(inputFile.filename()).thenReturn("_helpers.tpl");
-    assertEmptyFileTree(parser.parse("foo: {{ .Values.foo }}", inputFileContext));
+    assertEmptyFileTree((FileTree) analyzer.parse("foo: {{ .Values.foo }}", inputFileContext));
     assertThat(logTester.logs()).doesNotContain("Helm content detected in file _helpers.tpl");
   }
 

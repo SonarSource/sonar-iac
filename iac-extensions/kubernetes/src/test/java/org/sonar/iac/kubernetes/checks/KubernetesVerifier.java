@@ -19,19 +19,6 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,21 +32,39 @@ import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.kubernetes.plugin.HelmParser;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
-import org.sonar.iac.kubernetes.plugin.KubernetesParser;
+import org.sonar.iac.kubernetes.plugin.KubernetesAnalyzer;
+import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
-import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
@@ -75,7 +80,8 @@ public class KubernetesVerifier {
       HelmVerifier.verify(templateFileName, check);
     } else {
       Verifier.verify(YAML_PARSER, BASE_DIR.resolve(templateFileName), check,
-        (multiFileVerifier) -> new KubernetesTestContext(multiFileVerifier, new HelmInputFileContext(HelmVerifier.sensorContext, inputFile(templateFileName, BASE_DIR))));
+        multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, new HelmInputFileContext(HelmVerifier.sensorContext,
+          inputFile(templateFileName, BASE_DIR))));
     }
   }
 
@@ -105,7 +111,7 @@ public class KubernetesVerifier {
   private static boolean containsHelmContent(String templateFileName) {
     try {
       var content = Files.readString(BASE_DIR.resolve(templateFileName));
-      return KubernetesParser.hasHelmContent(content);
+      return KubernetesAnalyzer.hasHelmContent(content);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -114,8 +120,7 @@ public class KubernetesVerifier {
   static class HelmVerifier extends Verifier {
 
     private static final SensorContextTester sensorContext = SensorContextTester.create(BASE_DIR.toAbsolutePath());
-    private static final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
-    private static final KubernetesParser KUBERNETES_PARSER;
+    private static final KubernetesAnalyzer kubernetesAnalyzer;
 
     private static final ProjectContext PROJECT_CONTEXT = ProjectContext.builder().build();
 
@@ -130,8 +135,20 @@ public class KubernetesVerifier {
       HelmFileSystem helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
       HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
       helmProcessor.initialize();
-      KUBERNETES_PARSER = new KubernetesParser(helmProcessor, kubernetesParserStatistics);
+      HelmParser helmParser = new HelmParser(helmProcessor);
       temporaryDirectory.deleteOnExit();
+
+      List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+
+      var durationStatistics = new DurationStatistics(HelmVerifier.sensorContext.config());
+
+      kubernetesAnalyzer = new KubernetesAnalyzer(
+        KubernetesExtension.REPOSITORY_KEY,
+        new YamlParser(),
+        visitors,
+        durationStatistics,
+        helmParser,
+        new KubernetesParserStatistics());
     }
 
     private HelmVerifier() {
@@ -159,7 +176,7 @@ public class KubernetesVerifier {
 
     protected static MultiFileVerifier runAnalysis(IacCheck check, HelmInputFileContext inputFileContext) {
       String content = retrieveContent(inputFileContext.inputFile);
-      Tree root = parse(KUBERNETES_PARSER, content, inputFileContext);
+      Tree root = parse(content, inputFileContext);
       MultiFileVerifier verifier = createVerifier(
         Path.of(inputFileContext.inputFile.uri()),
         root,
@@ -174,7 +191,7 @@ public class KubernetesVerifier {
       HelmInputFileContext inputFileContext,
       String content,
       Issue... expectedIssues) {
-      Tree root = parse(KUBERNETES_PARSER, content, inputFileContext);
+      Tree root = parse(content, inputFileContext);
       MultiFileVerifier verifier = createVerifier(
         Path.of(inputFileContext.inputFile.uri()),
         root,
@@ -182,6 +199,10 @@ public class KubernetesVerifier {
       KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext);
       List<Issue> issues = runAnalysis(testContext, check, root);
       compare(issues, Arrays.asList(expectedIssues));
+    }
+
+    static Tree parse(String content, HelmInputFileContext inputFileContext) {
+      return kubernetesAnalyzer.parse(content, inputFileContext);
     }
 
     private static HelmInputFileContext prepareHelmContext(String templateFileName) {

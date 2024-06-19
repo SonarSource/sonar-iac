@@ -19,13 +19,10 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
@@ -33,37 +30,19 @@ import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
-import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
+import javax.annotation.Nullable;
 
-public class KubernetesParser extends YamlParser {
-
-  private static final Logger LOG = LoggerFactory.getLogger(KubernetesParser.class);
-
-  private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
-  private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
-  private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
-  private static final String CODEFRESH_VARIABLES = "\\$\\{\\{[\\w\\s]+}}";
-  private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("(" +
-    String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
-
+public class HelmParser {
+  private static final Logger LOG = LoggerFactory.getLogger(HelmParser.class);
+  private YamlParser parser = new YamlParser();
+  @Nullable
   private final HelmProcessor helmProcessor;
-  private final KubernetesParserStatistics kubernetesParserStatistics;
 
-  public KubernetesParser(HelmProcessor helmProcessor, KubernetesParserStatistics kubernetesParserStatistics) {
+  public HelmParser(@Nullable HelmProcessor helmProcessor) {
     this.helmProcessor = helmProcessor;
-    this.kubernetesParserStatistics = kubernetesParserStatistics;
   }
 
-  @Override
-  public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    if (!hasHelmContent(source)) {
-      return kubernetesParserStatistics.recordPureKubernetesFile(() -> super.parse(source, inputFileContext));
-    } else {
-      return kubernetesParserStatistics.recordHelmFile(() -> parseHelmFile(source, (HelmInputFileContext) inputFileContext));
-    }
-  }
-
-  private FileTree parseHelmFile(String source, @Nullable HelmInputFileContext inputFileContext) {
+  public FileTree parseHelmFile(String source, @Nullable HelmInputFileContext inputFileContext) {
     if (inputFileContext == null) {
       LOG.debug("No InputFileContext provided, skipping processing of Helm file");
       return buildEmptyTree();
@@ -74,7 +53,7 @@ public class KubernetesParser extends YamlParser {
     }
 
     LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
-    if (!helmProcessor.isHelmEvaluatorInitialized()) {
+    if (helmProcessor == null || !helmProcessor.isHelmEvaluatorInitialized()) {
       LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
       return buildEmptyTree();
     }
@@ -98,6 +77,19 @@ public class KubernetesParser extends YamlParser {
       throw exception;
     }
     return result;
+  }
+
+  private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
+    var evaluatedAndCleanedSource = helmProcessor.process(source, inputFileContext);
+
+    if (evaluatedAndCleanedSource.isBlank()) {
+      LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
+      return buildEmptyTree();
+    }
+
+    return KubernetesFileTreeImpl.fromFileTree(
+      parser.parse(evaluatedAndCleanedSource, inputFileContext),
+      inputFileContext.getGoTemplateTree());
   }
 
   static boolean isInvalidHelmInputFile(HelmInputFileContext helmFileCtx) {
@@ -141,33 +133,6 @@ public class KubernetesParser extends YamlParser {
   }
 
   private FileTree buildEmptyTree() {
-    return super.parse("{}", null);
-  }
-
-  private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
-    var evaluatedAndCleanedSource = helmProcessor.process(source, inputFileContext);
-
-    if (evaluatedAndCleanedSource.isBlank()) {
-      LOG.debug("Blank evaluated file, skipping processing of Helm file {}", inputFileContext.inputFile);
-      return super.parse("{}", null);
-    }
-
-    return KubernetesFileTreeImpl.fromFileTree(
-      super.parse(evaluatedAndCleanedSource, inputFileContext),
-      inputFileContext.getGoTemplateTree());
-  }
-
-  public static boolean hasHelmContent(String text) {
-    String[] lines = splitLines(text);
-    for (String line : lines) {
-      if (hasHelmContentInLine(line)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public static boolean hasHelmContentInLine(String line) {
-    return line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find();
+    return parser.parse("{}", null);
   }
 }

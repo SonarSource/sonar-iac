@@ -32,7 +32,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.kubernetes.plugin.KubernetesParser;
+import org.sonar.iac.kubernetes.plugin.KubernetesAnalyzer;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
@@ -70,7 +70,7 @@ public class KubernetesHighlightingVisitor extends SyntaxHighlightingVisitor {
   }
 
   void highlightLine(String line, int lineNumber) {
-    if (KubernetesParser.hasHelmContentInLine(line)) {
+    if (KubernetesAnalyzer.hasHelmContentInLine(line)) {
       // don't highlight anything here yet
       return;
     }

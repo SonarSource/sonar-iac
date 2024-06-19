@@ -52,7 +52,7 @@ class YamlSensorTest extends AbstractSensorTest {
   private File sensorDir;
 
   @Test
-  void describe() {
+  void shouldVerifyDescribe() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor().describe(sensorDescriptor);
     assertThat(sensorDescriptor.languages()).hasSize(2);
@@ -61,14 +61,14 @@ class YamlSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void analyzer() {
+  void shouldCreateAnalyzer() {
     SensorContextTester sensorContextTester = SensorContextTester.create(sensorDir);
     DurationStatistics durationStatistics = new DurationStatistics(mock(Configuration.class));
     assertThat(sensor().createAnalyzer(sensorContextTester, durationStatistics)).isInstanceOf(Analyzer.class);
   }
 
   @Test
-  void visitors() {
+  void shouldCreateVisitors() {
     assertThat(sensor().visitors(context, mock(DurationStatistics.class))).hasSize(3);
   }
 
@@ -79,7 +79,7 @@ class YamlSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void mainFilePredicate() {
+  void shouldVerifyMainFilePredicate() {
     FilePredicate predicate = sensor().mainFilePredicate(context);
 
     InputFile mainYamlFile = file().setType(InputFile.Type.MAIN).setLanguage("yaml").build();

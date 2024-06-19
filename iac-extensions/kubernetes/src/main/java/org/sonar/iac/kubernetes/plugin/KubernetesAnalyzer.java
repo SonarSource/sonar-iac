@@ -20,23 +20,70 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.util.List;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
+import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
+
 public class KubernetesAnalyzer extends Analyzer {
-  public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
+  private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
+  private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
+  private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
+  private static final String CODEFRESH_VARIABLES = "\\$\\{\\{[\\w\\s]+}}";
+  private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("(" +
+    String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
+
+  private final HelmParser helmParser;
+  private final KubernetesParserStatistics kubernetesParserStatistics;
+
+  public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics,
+    HelmParser helmParser, KubernetesParserStatistics kubernetesParserStatistics) {
     super(repositoryKey, parser, visitors, statistics);
+    this.helmParser = helmParser;
+    this.kubernetesParserStatistics = kubernetesParserStatistics;
   }
 
   @Override
   protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
     return new HelmInputFileContext(sensorContext, inputFile);
+  }
+
+  @Override
+  public Tree parse(String content, @Nullable InputFileContext inputFileContext) {
+    try {
+      if (!hasHelmContent(content)) {
+        return kubernetesParserStatistics.recordPureKubernetesFile(() -> parser.parse(content, inputFileContext));
+      } else {
+        return kubernetesParserStatistics.recordHelmFile(() -> helmParser.parseHelmFile(content, (HelmInputFileContext) inputFileContext));
+      }
+    } catch (ParseException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw ParseException.toParseException("parse", inputFileContext, e);
+    }
+  }
+
+  public static boolean hasHelmContent(String text) {
+    String[] lines = splitLines(text);
+    for (String line : lines) {
+      if (hasHelmContentInLine(line)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean hasHelmContentInLine(String line) {
+    return line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find();
   }
 }

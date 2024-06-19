@@ -46,17 +46,20 @@ public class ParseException extends RuntimeException {
     return new ParseException(message + " at " + filenameAndPosition(null, position), position, null);
   }
 
-  public static ParseException toParseException(String action, InputFileContext inputFileContext, Exception cause) {
+  public static ParseException toParseException(String action, @Nullable InputFileContext inputFileContext, Exception cause) {
     TextPointer position = null;
-    if (cause instanceof RecognitionException recognitionException) {
-      position = inputFileContext.newPointer(recognitionException.getLine(), 0);
-    } else if (cause instanceof MarkedYamlEngineException markedException) {
-      Optional<Mark> problemMark = markedException.getProblemMark();
-      if (problemMark.isPresent()) {
-        position = inputFileContext.newPointer(problemMark.get().getLine() + 1, 0);
+    if (inputFileContext != null) {
+      if (cause instanceof RecognitionException recognitionException) {
+        position = inputFileContext.newPointer(recognitionException.getLine(), 0);
+      } else if (cause instanceof MarkedYamlEngineException markedException) {
+        Optional<Mark> problemMark = markedException.getProblemMark();
+        if (problemMark.isPresent()) {
+          position = inputFileContext.newPointer(problemMark.get().getLine() + 1, 0);
+        }
       }
     }
-    return createGeneralParseException(action, inputFileContext.inputFile, cause, position);
+    var inputFile = Optional.ofNullable(inputFileContext).map(ifc -> ifc.inputFile).orElse(null);
+    return createGeneralParseException(action, inputFile, cause, position);
   }
 
   private static String filenameAndPosition(@Nullable InputFile inputFile, @Nullable TextPointer position) {
