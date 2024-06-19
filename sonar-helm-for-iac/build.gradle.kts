@@ -27,6 +27,7 @@ protobuf {
 
 val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
 
+// Access the protoc executable located by the protobuf plugin
 val protobuf = extensions.getByType(ProtobufExtension::class)
 val toolsField = ProtobufExtension::class.java.getDeclaredField("tools").also { it.isAccessible = true }
 val tools = toolsField.get(extensions.getByType(ProtobufExtension::class)) as ToolsLocator

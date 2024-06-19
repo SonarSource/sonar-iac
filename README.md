@@ -53,7 +53,7 @@ Alternatively, execute Gradle task `ruleApiUpdate` to update rule metadata for a
 * Java 17
 * Go 1.21 and the following dependencies:
   * musl on Linux (`musl-gcc` should be present on `PATH`)
-  * protoc 26.1
+  * protoc 27.1 (only the standard includes like `any.proto` are required)
   * protoc-gen-go 1.34.1
 * Alternatively, Docker should be installed to perform the build of the Go part inside of a container
 
