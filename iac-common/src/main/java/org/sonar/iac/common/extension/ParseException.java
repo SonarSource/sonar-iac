@@ -58,7 +58,7 @@ public class ParseException extends RuntimeException {
         }
       }
     }
-    InputFile inputFile = Optional.ofNullable(inputFileContext).map(ifc -> ifc.inputFile).orElse(null);
+    var inputFile = Optional.ofNullable(inputFileContext).map(ifc -> ifc.inputFile).orElse(null);
     return createGeneralParseException(action, inputFile, cause, position);
   }
 
