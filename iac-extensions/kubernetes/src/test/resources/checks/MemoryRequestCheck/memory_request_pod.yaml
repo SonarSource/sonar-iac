@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: noncompliant_without_memory_request # Noncompliant {{Specify a memory request for this container.}}
+    # ^^^^
+      image: nginx
+      resources:
+        requests:
+          cpu: 200m
+
+    - name: noncompliant_without_requests # Noncompliant
+    # ^^^^
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
+
+    - name: noncompliant_without_resources # Noncompliant
+    # ^^^^
+      image: nginx
+
+    - name: noncompliant_memory_request_tilde
+      image: nginx
+      resources:
+        requests:
+          memory: "~" # Noncompliant
+                # ^^^
+
+    - name: noncompliant_memory_request_empty_brackets
+      image: nginx
+      resources:
+        requests:
+          memory: "[]" # Noncompliant
+                # ^^^^
+
+    - image: nginx
+      name: noncompliant_memory_request_null
+      resources:
+        requests:
+          memory: "null" # Noncompliant
+                # ^^^^^^
+
+    - name: compliant_memory_request # Compliant
+      image: nginx
+      resources:
+        requests:
+          memory: 100Mi

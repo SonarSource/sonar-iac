@@ -26,7 +26,7 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
-public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck {
+public abstract class AbstractResourceManagementCheck extends AbstractKubernetesObjectCheck {
   protected static final String KIND_POD = "Pod";
   protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
 
@@ -37,8 +37,8 @@ public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck 
   }
 
   void reportMissingLimit(BlockObject container) {
-    container.block("resources").block("limits")
-      .attribute(getLimitAttributeKey())
+    container.block("resources").block(getResourceManagementName())
+      .attribute(getResourceName())
       .reportIfAbsent(getFirstChildElement(container), getMessage())
       .reportIfValue(isSet().negate(), getMessage());
   }
@@ -51,7 +51,9 @@ public abstract class AbstractLimitsCheck extends AbstractKubernetesObjectCheck 
     return null;
   }
 
-  abstract String getLimitAttributeKey();
+  abstract String getResourceManagementName();
+
+  abstract String getResourceName();
 
   abstract String getMessage();
 }

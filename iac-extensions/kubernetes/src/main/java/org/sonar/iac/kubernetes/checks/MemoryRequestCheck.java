@@ -21,9 +21,9 @@ package org.sonar.iac.kubernetes.checks;
 
 import org.sonar.check.Rule;
 
-@Rule(key = "S6864")
-public class MemoryLimitCheck extends AbstractLimitCheck {
-  private static final String MESSAGE = "Specify a memory limit for this container.";
+@Rule(key = "S6873")
+public class MemoryRequestCheck extends AbstractRequestCheck {
+  private static final String MESSAGE = "Specify a memory request for this container.";
   private static final String KEY = "memory";
 
   @Override
