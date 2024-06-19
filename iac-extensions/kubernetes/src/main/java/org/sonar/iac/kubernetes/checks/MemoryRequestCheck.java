@@ -22,15 +22,9 @@ package org.sonar.iac.kubernetes.checks;
 import org.sonar.check.Rule;
 
 @Rule(key = "S6873")
-public class MemoryRequestCheck extends AbstractResourceManagementCheck {
+public class MemoryRequestCheck extends AbstractRequestCheck {
   private static final String MESSAGE = "Specify a memory request for this container.";
   private static final String KEY = "memory";
-  private static final String RESOURCE_MANAGEMENT_TYPE = "requests";
-
-  @Override
-  String getResourceManagementType() {
-    return RESOURCE_MANAGEMENT_TYPE;
-  }
 
   @Override
   String getResourceType() {

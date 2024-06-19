@@ -22,15 +22,9 @@ package org.sonar.iac.kubernetes.checks;
 import org.sonar.check.Rule;
 
 @Rule(key = "S6869")
-public class CpuLimitCheck extends AbstractResourceManagementCheck {
+public class CpuLimitCheck extends AbstractLimitCheck {
   private static final String MESSAGE = "Specify a CPU limit for this container.";
   private static final String KEY = "cpu";
-  private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
-
-  @Override
-  String getResourceManagementType() {
-    return RESOURCE_MANAGEMENT_TYPE;
-  }
 
   @Override
   String getResourceType() {
