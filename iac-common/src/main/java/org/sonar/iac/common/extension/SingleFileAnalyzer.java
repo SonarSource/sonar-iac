@@ -28,17 +28,10 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
-
 public class SingleFileAnalyzer extends AbstractAnalyzer {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SingleFileAnalyzer.class);
 
   public SingleFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
     super(repositoryKey, parser, visitors, statistics);

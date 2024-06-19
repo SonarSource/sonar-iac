@@ -26,7 +26,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonarsource.analyzer.commons.ProgressReport;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -44,7 +43,7 @@ public abstract class AbstractAnalyzer implements Analyzer {
   protected final List<TreeVisitor<InputFileContext>> visitors;
   protected final DurationStatistics statistics;
 
-  public AbstractAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
+  protected AbstractAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
     this.repositoryKey = repositoryKey;
     this.parser = parser;
     this.visitors = Collections.unmodifiableList(visitors);

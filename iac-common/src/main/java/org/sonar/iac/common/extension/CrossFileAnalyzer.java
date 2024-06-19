@@ -35,8 +35,6 @@ import java.util.Map;
 
 public class CrossFileAnalyzer extends AbstractAnalyzer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CrossFileAnalyzer.class);
-
   public CrossFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
     super(repositoryKey, parser, visitors, statistics);
   }

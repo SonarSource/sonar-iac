@@ -19,20 +19,20 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.util.List;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.CrossFileAnalyzer;
-import org.sonar.iac.common.extension.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
