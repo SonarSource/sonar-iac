@@ -50,7 +50,11 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     this.checksVisitor = checksVisitor;
   }
 
-  public boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, ProgressReport progressReport) {
+  public boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, String languageName) {
+    List<String> filenames = inputFiles.stream().map(InputFile::toString).toList();
+    var progressReportParser = new ProgressReport("Progress of the " + languageName + " parsing", PROGRESS_REPORT_PERIOD_MILLIS, "parsed");
+    progressReportParser.start(filenames);
+
     List<InputFileContext> inputFileContextList = inputFiles.stream()
       .map(inputFile -> createInputFileContext(sensorContext, inputFile))
       .toList();
@@ -59,6 +63,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     List<FileWithAst> filesWithAst = new ArrayList<>();
     for (InputFileContext inputFileContext : inputFileContextList) {
       if (sensorContext.isCancelled()) {
+        progressReportParser.cancel();
         return false;
       }
 
@@ -72,25 +77,35 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
         reportParseError(e, inputFileContext);
       }
 
-      // TODO SONARIAC-1511 Change the usage of ProgressReport do to proper reporting in cross file analysis
-      progressReport.nextFile();
+      progressReportParser.nextFile();
     }
+    progressReportParser.stop();
 
-    if (!applyVisitors(sensorContext, filesWithAst, visitors)) {
+    var progressReportVisitors = new ProgressReport("Progress of the " + languageName + " analysis",
+      PROGRESS_REPORT_PERIOD_MILLIS, "analyzed");
+    progressReportVisitors.start(filenames);
+    if (!applyVisitors(sensorContext, filesWithAst, visitors, progressReportVisitors)) {
       return false;
     }
 
-    return applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor));
+    var progressReportCheckVisitor = new ProgressReport("Progress of the " + languageName + " analysis",
+      PROGRESS_REPORT_PERIOD_MILLIS, "checked");
+    progressReportCheckVisitor.start(filenames);
+    return applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor), progressReportCheckVisitor);
   }
 
-  private boolean applyVisitors(SensorContext sensorContext, List<FileWithAst> filesWithAst, List<TreeVisitor<InputFileContext>> visitorsToBeApplied) {
+  private boolean applyVisitors(SensorContext sensorContext, List<FileWithAst> filesWithAst, List<TreeVisitor<InputFileContext>> visitorsToBeApplied, ProgressReport progressReport) {
+    // Visit files
     for (FileWithAst fileWithAst : filesWithAst) {
       if (sensorContext.isCancelled()) {
+        progressReport.cancel();
         return false;
       }
 
       visit(visitorsToBeApplied, fileWithAst.inputFileContext, fileWithAst.tree);
+      progressReport.nextFile();
     }
+    progressReport.stop();
     return true;
   }
 

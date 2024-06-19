@@ -39,6 +39,7 @@ import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
 
 public abstract class AbstractAnalyzer implements Analyzer {
 
+  protected static final long PROGRESS_REPORT_PERIOD_MILLIS = 10_000;
   private static final Logger LOG = LoggerFactory.getLogger(AbstractAnalyzer.class);
 
   private final String repositoryKey;

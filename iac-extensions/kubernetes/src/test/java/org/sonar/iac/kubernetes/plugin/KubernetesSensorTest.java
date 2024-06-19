@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -73,13 +74,13 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldParseYamlFileWithKubernetesIdentifiers() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(3);
   }
 
   @Test
   void shouldNotParseYamlFileWithHelmChartTemplate() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(3);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
@@ -91,7 +92,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     analyse(sensor,
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(3);
 
     var logs = logTester.logs();
     assertThat(logs)
@@ -112,7 +113,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     analyse(sensor,
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(3);
 
     var logs = logTester.logs();
     assertThat(logs)
@@ -125,7 +126,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     analyse(sonarLintContext, sonarLintSensor(),
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(1);
 
     var logs = logTester.logs();
     assertThat(logs)
@@ -142,7 +143,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     analyse(sonarLintContext, sonarLintSensor(),
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(1);
 
     var logs = logTester.logs();
     assertThat(logs)
@@ -158,7 +159,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       analyse(sensor,
         inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
         inputFile("values.yaml", "bar: var-value"));
-      assertOneSourceFileIsParsed();
+      assertOneSourceFileIsParsed(3);
 
       var logs = logTester.logs();
       assertThat(logs)
@@ -170,13 +171,13 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseYamlFileWithoutIdentifiers() {
     analyse(sensor(), inputFile(""));
-    assertNotSourceFileIsParsed();
+    assertNotSourceFileIsParsed(3);
   }
 
   @Test
   void shouldNotParseYamlFileWithIncompleteIdentifiers() {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\n"));
-    assertNotSourceFileIsParsed();
+    assertNotSourceFileIsParsed(3);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).hasSize(3);
@@ -188,7 +189,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldParseYamlFilesWithinSingleStream() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "---\n" + K8_IDENTIFIERS));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(3);
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
         "Helm files count: 0, parsed: 0, not parsed: 0");
@@ -197,7 +198,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldParseYamlFilesWithAtLeastOneDocumentWithIdentifiers() {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n---\n" + K8_IDENTIFIERS));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(3);
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
         "Helm files count: 0, parsed: 0, not parsed: 0");
@@ -226,7 +227,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseYamlFileWithHelmTemplateDirectives() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "{{ .Values.count }}"));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(3);
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
@@ -239,7 +240,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     analyse(sensor(), inputFile);
 
     assertThat(logTester.logs(Level.ERROR)).hasSize(2);
-    assertNotSourceFileIsParsed();
+    assertNotSourceFileIsParsed(3);
   }
 
   @ParameterizedTest
@@ -251,7 +252,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   })
   void shouldParseYamlFileWithHelmTemplateDirectives(String content) {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + content));
-    assertOneSourceFileIsParsed();
+    assertOneSourceFileIsParsed(3);
   }
 
   @ParameterizedTest
@@ -472,12 +473,34 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(valuesFile)).isTrue();
   }
 
-  private void assertNotSourceFileIsParsed() {
-    assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
+  private void assertNotSourceFileIsParsed(int visitorAmount) {
+    assertNSourceFileIsParsed(0, visitorAmount);
   }
 
-  private void assertOneSourceFileIsParsed() {
-    assertThat(logTester.logs(Level.INFO)).contains("1 source file to be analyzed");
+  private void assertOneSourceFileIsParsed(int visitorAmount) {
+    assertNSourceFileIsParsed(1, visitorAmount);
+  }
+
+  private void assertNSourceFileIsParsed(int fileQuantity, int visitorAmount) {
+    String file = pluralizeFile(fileQuantity);
+    String has = pluralizeHas(fileQuantity);
+    List<String> expectedLogs = new ArrayList<>();
+    expectedLogs.add(fileQuantity + " source " + file + " to be parsed");
+    expectedLogs.add(fileQuantity + "/" + fileQuantity + " source " + file + " " + has + " been parsed");
+    for (int i = 1; i <= visitorAmount; i++) {
+      String step = "(step " + i + "/" + visitorAmount + ")";
+      expectedLogs.add(fileQuantity + " source " + file + " to be analyzed " + step);
+      expectedLogs.add(fileQuantity + "/" + fileQuantity + " source " + file + " " + has + " been analyzed " + step);
+    }
+    assertThat(logTester.logs(Level.INFO)).contains(expectedLogs.toArray(new String[0]));
+  }
+
+  private static String pluralizeFile(long count) {
+    return count == 1L ? "file" : "files";
+  }
+
+  private static String pluralizeHas(long count) {
+    return count == 1L ? "has" : "have";
   }
 
   protected InputFile inputFile(String content) {

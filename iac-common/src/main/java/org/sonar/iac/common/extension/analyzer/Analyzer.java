@@ -26,5 +26,5 @@ import org.sonarsource.analyzer.commons.ProgressReport;
 import java.util.Collection;
 
 public interface Analyzer {
-  boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, ProgressReport progressReport);
+  boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, String languageName);
 }

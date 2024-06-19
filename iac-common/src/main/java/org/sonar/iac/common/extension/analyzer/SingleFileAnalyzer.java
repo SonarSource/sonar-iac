@@ -41,9 +41,14 @@ public class SingleFileAnalyzer extends AbstractAnalyzer {
     this.visitors = visitors;
   }
 
-  public boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, ProgressReport progressReport) {
+  public boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, String languageName) {
+    List<String> filenames = inputFiles.stream().map(InputFile::toString).toList();
+    var progressReport = new ProgressReport("Progress of the " + languageName + " analysis", PROGRESS_REPORT_PERIOD_MILLIS);
+    progressReport.start(filenames);
+
     for (InputFile inputFile : inputFiles) {
       if (sensorContext.isCancelled()) {
+        progressReport.cancel();
         return false;
       }
       var inputFileContext = createInputFileContext(sensorContext, inputFile);
@@ -54,6 +59,7 @@ public class SingleFileAnalyzer extends AbstractAnalyzer {
       }
       progressReport.nextFile();
     }
+    progressReport.stop();
     return true;
   }
 
