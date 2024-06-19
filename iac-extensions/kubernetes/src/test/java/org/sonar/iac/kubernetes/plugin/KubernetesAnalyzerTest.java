@@ -122,6 +122,13 @@ class KubernetesAnalyzerTest {
   }
 
   @Test
+  void parsingErrorWithoutFileContextShouldThrowProperParseException() {
+    assertThatThrownBy(() -> analyzer.parse("foo: invalid: file", null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Cannot parse 'null'");
+  }
+
+  @Test
   void testParsingWhenNoHelmContent() {
     FileTree file = (FileTree) analyzer.parse("foo: {bar: 1234}", inputFileContext);
     assertThat(file.documents()).hasSize(1);

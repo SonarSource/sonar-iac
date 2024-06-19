@@ -134,7 +134,7 @@ public class KubernetesSensor extends YamlSensor {
     this.helmProcessor = helmProcessor;
   }
 
-  private boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
+  private static boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
     var isNotSonarLintContext = IacSensor.isNotSonarLintContext(sensorContext);
     boolean isHelmAnalysisEnabled = sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
     var isHelmEvaluatorExecutableAvailable = HelmProcessor.isHelmEvaluatorExecutableAvailable();
