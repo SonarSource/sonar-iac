@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.common.extension;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -28,10 +26,9 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CrossFileAnalyzer extends AbstractAnalyzer {
 
@@ -45,7 +42,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
       .toList();
 
     // Parse files
-    Map<InputFileContext, Tree> filesToAst = new HashMap<>();
+    List<FileWithAst> filesWithAst = new ArrayList<>();
     for (InputFileContext inputFileContext : inputFileContextList) {
       if (sensorContext.isCancelled()) {
         return false;
@@ -55,7 +52,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
         var content = readContent(inputFileContext);
         if (content != null) {
           Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
-          filesToAst.put(inputFileContext, tree);
+          filesWithAst.add(new FileWithAst(inputFileContext, tree));
         }
       } catch (ParseException e) {
         logParsingError(e);
@@ -67,15 +64,18 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
 
     // Visit files
     for (TreeVisitor<InputFileContext> visitor : visitors) {
-      for (InputFileContext inputFileContext : inputFileContextList) {
+      for (FileWithAst fileWithAst : filesWithAst) {
         if (sensorContext.isCancelled()) {
           return false;
         }
 
-        visit(visitor, inputFileContext, filesToAst.get(inputFileContext));
+        visit(visitor, fileWithAst.inputFileContext, fileWithAst.tree);
       }
     }
 
     return true;
+  }
+
+  private record FileWithAst(InputFileContext inputFileContext, Tree tree) {
   }
 }
