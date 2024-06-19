@@ -21,11 +21,11 @@ package org.sonar.iac.kubernetes.checks;
 
 import org.sonar.check.Rule;
 
-@Rule(key = "S6864")
-public class MemoryLimitCheck extends AbstractResourceManagementCheck {
-  private static final String MESSAGE = "Specify a memory limit for this container.";
+@Rule(key = "S6873")
+public class MemoryRequestCheck extends AbstractResourceManagementCheck {
+  private static final String MESSAGE = "Specify a memory request for this container.";
   private static final String KEY = "memory";
-  private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
+  private static final String RESOURCE_MANAGEMENT_TYPE = "requests";
 
   @Override
   String getResourceManagementType() {

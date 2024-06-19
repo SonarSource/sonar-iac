@@ -28,9 +28,9 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.kubernetes.checks.AbstractLimitsCheck.getFirstChildElement;
+import static org.sonar.iac.kubernetes.checks.AbstractResourceManagementCheck.getFirstChildElement;
 
-class AbstractLimitsCheckTest {
+class AbstractResourceManagementCheckTest {
   static MappingTree CONTAINER_TREE;
 
   static {

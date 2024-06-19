@@ -19,26 +19,24 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import org.sonar.check.Rule;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-@Rule(key = "S6864")
-public class MemoryLimitCheck extends AbstractResourceManagementCheck {
-  private static final String MESSAGE = "Specify a memory limit for this container.";
-  private static final String KEY = "memory";
-  private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
+class MemoryRequestCheckTest {
+  IacCheck check = new MemoryRequestCheck();
 
-  @Override
-  String getResourceManagementType() {
-    return RESOURCE_MANAGEMENT_TYPE;
+  @Test
+  void testPodKind() {
+    KubernetesVerifier.verify("MemoryRequestCheck/memory_request_pod.yaml", check);
   }
 
-  @Override
-  String getResourceType() {
-    return KEY;
+  @Test
+  void testKindWithTemplate() {
+    KubernetesVerifier.verify("MemoryRequestCheck/memory_request_deployment.yaml", check);
   }
 
-  @Override
-  String getMessage() {
-    return MESSAGE;
+  @Test
+  void testPodKindForHelm() {
+    KubernetesVerifier.verify("MemoryRequestCheck/helm/templates/memory_request_deployment_helm.yaml", check);
   }
 }
