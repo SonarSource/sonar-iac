@@ -87,7 +87,7 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2);
     CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
 
-    List<InputFile> files = List.of(fileWithContent);
+    List<InputFile> files = List.of(fileWithContent, fileWithContent);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
   }
 
