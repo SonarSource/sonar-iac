@@ -94,7 +94,8 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     return applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor), progressReportCheckVisitor);
   }
 
-  private boolean applyVisitors(SensorContext sensorContext, List<FileWithAst> filesWithAst, List<TreeVisitor<InputFileContext>> visitorsToBeApplied, ProgressReport progressReport) {
+  private boolean applyVisitors(SensorContext sensorContext, List<FileWithAst> filesWithAst, List<TreeVisitor<InputFileContext>> visitorsToBeApplied,
+    ProgressReport progressReport) {
     // Visit files
     for (FileWithAst fileWithAst : filesWithAst) {
       if (sensorContext.isCancelled()) {
