@@ -64,7 +64,7 @@ class SingleFileAnalyzerTest extends AbstractAnalyzerTest {
     SingleFileAnalyzer analyzer = new SingleFileAnalyzer("iac", parser, visitors, durationStatistics);
 
     List<InputFile> files = List.of(file1, file2);
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isTrue();
 
     InOrder inOrder = Mockito.inOrder(parser, visitor1, visitor2, checksVisitor);
     inOrder.verify(parser).parse(eq("File 1 content"), any());

@@ -62,7 +62,7 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
 
     List<InputFile> files = List.of(file1, file2);
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isTrue();
 
     InOrder inOrder = Mockito.inOrder(parser, visitor1, visitor2, checksVisitor);
     inOrder.verify(parser).parse(eq("File 1 content"), any());
@@ -88,7 +88,7 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
 
     List<InputFile> files = List.of(fileWithContent, fileWithContent);
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isFalse();
   }
 
   @Test
@@ -103,6 +103,6 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
 
     List<InputFile> files = List.of(fileWithContent);
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isFalse();
   }
 }

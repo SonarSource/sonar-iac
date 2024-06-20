@@ -34,7 +34,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonarsource.analyzer.commons.ProgressReport;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -42,7 +41,6 @@ import java.util.stream.StreamSupport;
 public abstract class IacSensor implements Sensor {
 
   public static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
-  private static final long PROGRESS_REPORT_PERIOD_MILLIS = 10_000;
 
   protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
@@ -97,21 +95,8 @@ public abstract class IacSensor implements Sensor {
 
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     List<InputFile> inputFiles = inputFiles(sensorContext);
-    List<String> filenames = inputFiles.stream().map(InputFile::toString).toList();
-
-    var progressReport = new ProgressReport("Progress of the " + languageName() + " analysis", PROGRESS_REPORT_PERIOD_MILLIS);
-    progressReport.start(filenames);
-    boolean success = false;
     var analyzer = createAnalyzer(sensorContext, statistics);
-    try {
-      success = analyzer.analyseFiles(sensorContext, inputFiles, progressReport);
-    } finally {
-      if (success) {
-        progressReport.stop();
-      } else {
-        progressReport.cancel();
-      }
-    }
+    analyzer.analyseFiles(sensorContext, inputFiles, languageName());
     statistics.log();
     afterExecute();
   }

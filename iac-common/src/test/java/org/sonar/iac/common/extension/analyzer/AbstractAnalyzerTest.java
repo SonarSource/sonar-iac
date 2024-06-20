@@ -38,7 +38,6 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.IacTestUtils;
-import org.sonarsource.analyzer.commons.ProgressReport;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +61,6 @@ abstract class AbstractAnalyzerTest {
   protected SensorContextTester context;
   protected TreeParser parser;
   protected DurationStatistics durationStatistics;
-  protected ProgressReport progressReport;
 
   protected InputFile emptyFile;
   protected InputFile fileWithContent;
@@ -75,7 +73,6 @@ abstract class AbstractAnalyzerTest {
   void init() throws IOException {
     parser = parser();
     durationStatistics = new DurationStatistics(mock(Configuration.class));
-    progressReport = mock(ProgressReport.class);
     baseDir = tmpDir.toPath().toRealPath().resolve("test-project").toFile();
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
@@ -90,7 +87,7 @@ abstract class AbstractAnalyzerTest {
   void shouldParseEmptyFile() {
     Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(emptyFile);
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isTrue();
   }
 
   @Test
@@ -98,14 +95,14 @@ abstract class AbstractAnalyzerTest {
     Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(emptyFile);
     context.setCancelled(true);
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isFalse();
   }
 
   @Test
   void shouldReportParsingErrorOnInvalidFile() throws IOException {
     Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(IacTestUtils.invalidInputFile());
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isTrue();
     assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot read 'InvalidFile'");
 
     List<String> debugLogs = logTester.logs(Level.DEBUG);
@@ -119,7 +116,7 @@ abstract class AbstractAnalyzerTest {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new ParseException("Custom parse exception", null, null));
     Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
-    analyzer.analyseFiles(context, files, progressReport);
+    analyzer.analyseFiles(context, files, "iac");
 
     assertThat(logTester.logs(Level.ERROR)).containsExactly("Custom parse exception");
     List<String> debugLogs = logTester.logs(Level.DEBUG);
@@ -132,7 +129,7 @@ abstract class AbstractAnalyzerTest {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new RuntimeException("Custom runtime exception"));
     Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
-    analyzer.analyseFiles(context, files, progressReport);
+    analyzer.analyseFiles(context, files, "iac");
 
     assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot parse 'file.txt'");
     List<String> debugLogs = logTester.logs(Level.DEBUG);
@@ -148,7 +145,7 @@ abstract class AbstractAnalyzerTest {
       .when(visitorFail).scan(any(InputFileContext.class), any(Tree.class));
     Analyzer analyzer = analyzer(List.of(visitorFail), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
-    analyzer.analyseFiles(context, files, progressReport);
+    analyzer.analyseFiles(context, files, "iac");
 
     assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot analyse 'file.txt': Exception when scan mock");
   }
@@ -164,7 +161,7 @@ abstract class AbstractAnalyzerTest {
     settings.setProperty(IacSensor.FAIL_FAST_PROPERTY_NAME, true);
     context.setSettings(settings);
 
-    assertThatThrownBy(() -> analyzer.analyseFiles(context, files, progressReport))
+    assertThatThrownBy(() -> analyzer.analyseFiles(context, files, "iac"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Exception when analyzing 'file.txt'");
     assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot analyse 'file.txt': Exception when scan mock");
@@ -176,7 +173,7 @@ abstract class AbstractAnalyzerTest {
     Analyzer analyzer = analyzer(List.of(visitor), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
 
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isTrue();
   }
 
   TreeParser parser() {

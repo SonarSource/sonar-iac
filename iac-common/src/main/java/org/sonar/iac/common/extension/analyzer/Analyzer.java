@@ -21,10 +21,9 @@ package org.sonar.iac.common.extension.analyzer;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonarsource.analyzer.commons.ProgressReport;
 
 import java.util.Collection;
 
 public interface Analyzer {
-  boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, ProgressReport progressReport);
+  boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, String languageName);
 }

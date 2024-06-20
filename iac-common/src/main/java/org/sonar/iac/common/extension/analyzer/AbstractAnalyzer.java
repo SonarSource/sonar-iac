@@ -34,11 +34,13 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
 
 public abstract class AbstractAnalyzer implements Analyzer {
 
+  protected static final long PROGRESS_REPORT_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(10);
   private static final Logger LOG = LoggerFactory.getLogger(AbstractAnalyzer.class);
 
   private final String repositoryKey;

@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldParseYamlFileWithKubernetesIdentifiers() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS));
     assertOneSourceFileIsParsed();
+  }
+
+  @Test
+  void shouldParseMultipleYamlFileWithKubernetesIdentifiers() {
+    analyse(sensor(), inputFile("templates/file_1.yaml", K8_IDENTIFIERS), inputFile("templates/file_2.yaml", K8_IDENTIFIERS));
+    assertNSourceFileIsParsed(2);
   }
 
   @Test
@@ -473,11 +480,32 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   private void assertNotSourceFileIsParsed() {
-    assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
+    assertNSourceFileIsParsed(0);
   }
 
   private void assertOneSourceFileIsParsed() {
-    assertThat(logTester.logs(Level.INFO)).contains("1 source file to be analyzed");
+    assertNSourceFileIsParsed(1);
+  }
+
+  private void assertNSourceFileIsParsed(int fileQuantity) {
+    String file = pluralizeFile(fileQuantity);
+    String has = pluralizeHas(fileQuantity);
+    List<String> expectedLogs = new ArrayList<>();
+    expectedLogs.add(fileQuantity + " source " + file + " to be parsed");
+    expectedLogs.add(fileQuantity + "/" + fileQuantity + " source " + file + " " + has + " been parsed");
+    expectedLogs.add(fileQuantity + " source " + file + " to be analyzed");
+    expectedLogs.add(fileQuantity + "/" + fileQuantity + " source " + file + " " + has + " been analyzed");
+    expectedLogs.add(fileQuantity + " source " + file + " to be checked");
+    expectedLogs.add(fileQuantity + "/" + fileQuantity + " source " + file + " " + has + " been checked");
+    assertThat(logTester.logs(Level.INFO)).contains(expectedLogs.toArray(new String[0]));
+  }
+
+  private static String pluralizeFile(long count) {
+    return count == 1L ? "file" : "files";
+  }
+
+  private static String pluralizeHas(long count) {
+    return count == 1L ? "has" : "have";
   }
 
   protected InputFile inputFile(String content) {
