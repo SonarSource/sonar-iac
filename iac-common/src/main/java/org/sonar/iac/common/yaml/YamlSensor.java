@@ -67,11 +67,6 @@ public abstract class YamlSensor extends IacSensor {
   }
 
   @Override
-  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new SingleFileAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics);
-  }
-
-  @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     if (isNotSonarLintContext(sensorContext)) {

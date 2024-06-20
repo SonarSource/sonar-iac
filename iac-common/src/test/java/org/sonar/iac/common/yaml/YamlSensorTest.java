@@ -19,27 +19,25 @@
  */
 package org.sonar.iac.common.yaml;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
-import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.analyzer.Analyzer;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,9 +46,6 @@ import static org.mockito.Mockito.when;
 
 class YamlSensorTest extends AbstractSensorTest {
 
-  @TempDir
-  private File sensorDir;
-
   @Test
   void shouldVerifyDescribe() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
@@ -58,13 +53,6 @@ class YamlSensorTest extends AbstractSensorTest {
     assertThat(sensorDescriptor.languages()).hasSize(2);
     assertThat(sensorDescriptor.languages()).containsExactly("json", "yaml");
     assertThat(sensorDescriptor.name()).isEqualTo("IaC Yaml Sensor");
-  }
-
-  @Test
-  void shouldCreateAnalyzer() {
-    SensorContextTester sensorContextTester = SensorContextTester.create(sensorDir);
-    DurationStatistics durationStatistics = new DurationStatistics(mock(Configuration.class));
-    assertThat(sensor().createAnalyzer(sensorContextTester, durationStatistics)).isInstanceOf(SingleFileAnalyzer.class);
   }
 
   @Test
@@ -116,6 +104,11 @@ class YamlSensorTest extends AbstractSensorTest {
         FilePredicate customPredicate = mock(FilePredicate.class);
         when(customPredicate.apply(any())).thenReturn(true);
         return customPredicate;
+      }
+
+      @Override
+      protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+        return new SingleFileAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics);
       }
 
       @Override
