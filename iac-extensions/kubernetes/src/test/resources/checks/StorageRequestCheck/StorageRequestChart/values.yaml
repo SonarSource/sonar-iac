@@ -1,0 +1,5 @@
+container:
+  name: my-container
+  storage:
+    request: 100Mi
+    limit: 200Mi

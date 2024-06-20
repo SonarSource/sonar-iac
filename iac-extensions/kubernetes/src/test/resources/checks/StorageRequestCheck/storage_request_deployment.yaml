@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: ${type}
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: noncompliant_without_storage_request # Noncompliant {{Specify a storage request for this container.}}
+        # ^^^^
+          resources:
+            requests:
+              cpu: 200m
+
+        - name: noncompliant_without_requests # Noncompliant
+        # ^^^^
+          resources:
+            limits:
+              ephemeral-storage: 64Mi
+
+        - name: noncompliant_without_resources # Noncompliant
+        # ^^^^
+
+        - name: noncompliant_storage_request_tilde
+          resources:
+            requests:
+              ephemeral-storage: "~" # Noncompliant
+                               # ^^^
+
+        - name: noncompliant_storage_request_empty_brackets
+          resources:
+            requests:
+              ephemeral-storage: "[]" # Noncompliant
+                               # ^^^^
+
+        - resources:
+            requests:
+              ephemeral-storage: "null" # Noncompliant
+                               # ^^^^^^
+          name: noncompliant_storage_request_null
+
+        - name: compliant_storage_request # Compliant
+          resources:
+            requests:
+              ephemeral-storage: 100Mi

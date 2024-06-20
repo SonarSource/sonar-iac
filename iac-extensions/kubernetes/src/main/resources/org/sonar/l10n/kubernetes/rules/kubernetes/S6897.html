@@ -1,0 +1,59 @@
+<p>Ephemeral storage is a type of storage that is temporary and non-persistent, meaning it does not retain data once the process is terminated. In the
+context of Kubernetes, ephemeral storage is used for storing temporary files that a running container can write and read.</p>
+<h2>Why is this an issue?</h2>
+<p>Without a storage request, a container can potentially be scheduled on a node where there are not enough resources for it. This can lead to
+unpredictable behavior of the container and the node itself.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unpredictable Resource Allocation</h4>
+<p>Kubernetes doesn’t know how much of a particular resource to allocate to a container without defined requests. This can lead to unpredictable
+behavior, as the Kubernetes scheduler may not make optimal decisions about pod placement and resource contention management. For instance, a container
+might not get the resources it needs to function correctly, leading to performance issues or even failure of the container.</p>
+<h4>System Instability</h4>
+<p>In the worst-case scenario, if a container uses more resources than a node can handle (due to lack of defined requests), it can cause the node to
+run out of resources. This can lead to system instability, and in extreme cases, the node might crash, causing downtime for all containers running on
+that node.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>To avoid potential issues, specify a storage request for each container using ephemeral storage with
+<code>resources.requests.ephemeral-storage</code>.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web # Noncompliant
+      image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      resources:
+        requests:
+          ephemeral-storage: "2Gi"
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+</pre>
+<h3>How does this work?</h3>
+<p>You can set a request through the property <code>resources.requests.ephemeral-storage</code> of a container. Alternatively, you can set a default
+request for a namespace with <code>LimitRange</code>.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Kubernetes Documentation - <a
+  href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#setting-requests-and-limits-for-local-ephemeral-storage">Setting requests and limits for local ephemeral storage</a> </li>
+</ul>
+
