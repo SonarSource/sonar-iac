@@ -31,8 +31,6 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.extension.analyzer.Analyzer;
-import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
@@ -64,11 +62,6 @@ public abstract class YamlSensor extends IacSensor {
     descriptor
       .onlyOnLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY)
       .name("IaC " + language.getName() + " Sensor");
-  }
-
-  @Override
-  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new SingleFileAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics);
   }
 
   @Override
