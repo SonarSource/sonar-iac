@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,10 +56,10 @@ class RBACWildcardCheckTest {
       range(3, 8, 3, 11),
       "This value is used in a noncompliant part of a template",
       "RBACWildcardCheck/helm/values.yaml");
-    var expectedIssues = new Verifier.Issue[] {
+    var expectedIssues = List.of(
       new Verifier.Issue(range(11, 8, 11, 11)),
       new Verifier.Issue(range(14, 15, 14, 32),
-        "Do not use wildcards when defining RBAC permissions.", expectedSecondary)};
+        "Do not use wildcards when defining RBAC permissions.", expectedSecondary));
 
     KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check, expectedIssues);
   }

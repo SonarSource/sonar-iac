@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,7 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
+import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 
@@ -74,21 +76,27 @@ public class KubernetesVerifier {
   public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
   private static final YamlParser YAML_PARSER = new YamlParser();
 
-  public static void verify(String templateFileName, IacCheck check) {
+  public static void verify(String templateFileName, IacCheck check, String... fileNames) {
     if (containsHelmContent(templateFileName)) {
+      if (fileNames.length > 0) {
+        throw new IllegalArgumentException("For Helm projects, all project files will be discovered. Explicit input is not required.");
+      }
       HelmVerifier.verify(templateFileName, check);
     } else {
+      var projectContext = HelmVerifier.prepareProjectContext(new HelmInputFileContext(HelmVerifier.sensorContext, inputFile(templateFileName, BASE_DIR)), fileNames);
       Verifier.verify(YAML_PARSER, BASE_DIR.resolve(templateFileName), check,
-        multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, new HelmInputFileContext(HelmVerifier.sensorContext,
-          inputFile(templateFileName, BASE_DIR))));
+        multiFileVerifier -> new KubernetesTestContext(
+          multiFileVerifier,
+          new HelmInputFileContext(HelmVerifier.sensorContext, inputFile(templateFileName, BASE_DIR)),
+          projectContext));
     }
   }
 
-  public static void verify(String templateFileName, IacCheck check, Verifier.Issue... expectedIssues) {
+  public static void verify(String templateFileName, IacCheck check, Collection<Verifier.Issue> expectedIssues) {
     if (containsHelmContent(templateFileName)) {
-      HelmVerifier.verify(templateFileName, check, expectedIssues);
+      HelmVerifier.verify(templateFileName, check, expectedIssues.toArray(new Verifier.Issue[0]));
     } else {
-      Verifier.verify(YAML_PARSER, BASE_DIR.resolve(templateFileName), check, expectedIssues);
+      Verifier.verify(YAML_PARSER, BASE_DIR.resolve(templateFileName), check, expectedIssues.toArray(new Verifier.Issue[0]));
     }
   }
 
@@ -116,12 +124,13 @@ public class KubernetesVerifier {
     }
   }
 
+  /**
+   * Note: HelmVerifier extends Verifier to access the {@link Verifier#createVerifier(Path, Tree, BiConsumer)} method.
+   */
   static class HelmVerifier extends Verifier {
 
     private static final SensorContextTester sensorContext = SensorContextTester.create(BASE_DIR.toAbsolutePath());
     private static final KubernetesAnalyzer kubernetesAnalyzer;
-
-    private static final ProjectContext PROJECT_CONTEXT = ProjectContext.builder().build();
 
     static {
       File temporaryDirectory;
@@ -168,41 +177,47 @@ public class KubernetesVerifier {
     }
 
     public static void verify(String templateFileName, IacCheck check, Issue... expectedIssues) {
-      InputFile inputFile = inputFile(templateFileName, BASE_DIR);
-      String content = retrieveContent(inputFile);
       HelmInputFileContext inputFileContext = prepareHelmContext(templateFileName);
-      runAnalysisAndCompare(check, inputFileContext, content, expectedIssues);
+      runAnalysis(check, inputFileContext, expectedIssues);
     }
 
-    protected static MultiFileVerifier runAnalysis(IacCheck check, HelmInputFileContext inputFileContext) {
-      String content = retrieveContent(inputFileContext.inputFile);
+    protected static MultiFileVerifier runAnalysis(IacCheck check, HelmInputFileContext inputFileContext, Issue... expectedIssues) {
+      var content = retrieveContent(inputFileContext.inputFile);
       Tree root = parse(content, inputFileContext);
+
       MultiFileVerifier verifier = createVerifier(
         Path.of(inputFileContext.inputFile.uri()),
         root,
         commentsWithShiftedTextRangeVisitor(inputFileContext));
-      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext);
-      runAnalysis(testContext, check, root);
-      return verifier;
-    }
 
-    protected static void runAnalysisAndCompare(
-      IacCheck check,
-      HelmInputFileContext inputFileContext,
-      String content,
-      Issue... expectedIssues) {
-      Tree root = parse(content, inputFileContext);
-      MultiFileVerifier verifier = createVerifier(
-        Path.of(inputFileContext.inputFile.uri()),
-        root,
-        commentsWithShiftedTextRangeVisitor(inputFileContext));
-      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext);
+      var projectContext = prepareProjectContext(inputFileContext);
+      KubernetesTestContext testContext = new KubernetesTestContext(verifier, inputFileContext, projectContext);
+
       List<Issue> issues = runAnalysis(testContext, check, root);
-      compare(issues, Arrays.asList(expectedIssues));
+
+      if (expectedIssues.length > 0) {
+        compare(issues, Arrays.asList(expectedIssues));
+      }
+      return verifier;
     }
 
     static Tree parse(String content, HelmInputFileContext inputFileContext) {
       return kubernetesAnalyzer.parse(content, inputFileContext);
+    }
+
+    private static ProjectContext prepareProjectContext(HelmInputFileContext inputFileContext, String... additionalFiles) {
+      var projectContextBuilder = ProjectContext.builder();
+      var projectContextEnricherVisitor = new ProjectContextEnricherVisitor(projectContextBuilder);
+
+      Stream.concat(
+        inputFileContext.getAdditionalFiles().values().stream(),
+        Arrays.stream(additionalFiles).map(fileName -> inputFile(fileName, BASE_DIR)))
+        .map(additionalFile -> {
+          String additionalContent = retrieveContent(additionalFile);
+          return parse(additionalContent, new HelmInputFileContext(sensorContext, additionalFile));
+        }).forEach(tree -> projectContextEnricherVisitor.scan(inputFileContext, tree));
+
+      return projectContextBuilder.build();
     }
 
     private static HelmInputFileContext prepareHelmContext(String templateFileName) {
@@ -259,16 +274,23 @@ public class KubernetesVerifier {
 
   public static class KubernetesTestContext extends Verifier.TestContext implements KubernetesCheckContext {
     private final HelmInputFileContext currentCtx;
+
+    private final ProjectContext projectContext;
     private boolean shouldReportSecondaryInValues = true;
 
-    public KubernetesTestContext(MultiFileVerifier verifier, HelmInputFileContext currentCtx) {
+    public KubernetesTestContext(MultiFileVerifier verifier, HelmInputFileContext currentCtx, ProjectContext projectContext) {
       super(verifier);
       this.currentCtx = currentCtx;
+      this.projectContext = projectContext;
+    }
+
+    public HelmInputFileContext currentCtx() {
+      return currentCtx;
     }
 
     @Override
     public ProjectContext projectContext() {
-      return HelmVerifier.PROJECT_CONTEXT;
+      return projectContext;
     }
 
     @Override

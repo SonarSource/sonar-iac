@@ -79,7 +79,8 @@ public class Verifier {
   }
 
   /**
-   * This method should only be used if "Noncompliant" comments in the code cannot be used to verify the issues.
+   * This method should only be used if "Noncompliant" comments in the code cannot be used to verify the issues, e.g. in JSON,
+   * where comments are not supported.
    */
   public static void verify(TreeParser<? extends Tree> parser, Path path, IacCheck check, Issue... expectedIssues) {
     Tree root = parse(parser, path);

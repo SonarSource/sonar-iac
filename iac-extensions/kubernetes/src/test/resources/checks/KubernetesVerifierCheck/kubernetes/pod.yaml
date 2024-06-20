@@ -1,0 +1,11 @@
+# Noncompliant@+1 {{LimitRange is present}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: example
+      image: nginx:1.7.9
+      ports:
+        - containerPort: 80

@@ -24,16 +24,18 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class KubernetesVerifierTest {
 
-  private static final String PRIMARY_FILE_PATH = "KubernetesVerifierCheck/templates/pod.yaml";
+  private static final String PRIMARY_FILE_PATH = "KubernetesVerifierCheck/helm/templates/pod.yaml";
   private static final SecondaryLocation SECONDARY_IN_VALUES = new SecondaryLocation(
     range(2, 9, 2, 21),
     "in values file",
@@ -54,7 +56,15 @@ class KubernetesVerifierTest {
     List<SecondaryLocation> expectedSecondaryLocations = expectedSecondaryLocations();
 
     Verifier.Issue issue = new Verifier.Issue(expectedShiftedTextRangePrimaryIssue, PRIMARY_ISSUE_MESSAGE, expectedSecondaryLocations);
-    KubernetesVerifier.verify(PRIMARY_FILE_PATH, new ContainerNamePresentCheck(), issue);
+    KubernetesVerifier.verify(PRIMARY_FILE_PATH, new ContainerNamePresentCheck(), List.of(issue));
+  }
+
+  @Test
+  void shouldAccessOtherFilesForPureK8s() {
+    var baseDir = "KubernetesVerifierCheck/kubernetes/";
+
+    KubernetesVerifier.verify(baseDir + "pod.yaml", new ProjectResourceVisitedCheck(), baseDir + "limit-range.yaml");
+    // KubernetesVerifier.verifyNoIssue(baseDir + "pod.yaml", new ProjectResourceVisitedCheck());
   }
 
   private static List<SecondaryLocation> expectedSecondaryLocations() {
@@ -65,11 +75,10 @@ class KubernetesVerifierTest {
       shiftedTextRangeSecondaryInPrimaryFileWithFilePath,
       "In template file itself, filePath", PRIMARY_FILE_PATH);
 
-    List<SecondaryLocation> expectedSecondaryIssues = List.of(
+    return List.of(
       SECONDARY_IN_VALUES,
       expectedShiftedSecondaryInPrimaryFile,
       expectedShiftedSecondaryInPrimaryFileWithFilePath);
-    return expectedSecondaryIssues;
   }
 
   public static class ContainerNamePresentCheck extends AbstractKubernetesObjectCheck {
@@ -91,4 +100,19 @@ class KubernetesVerifierTest {
     }
   }
 
+  private static class ProjectResourceVisitedCheck extends AbstractKubernetesObjectCheck {
+    @Override
+    void registerObjectCheck() {
+      register("Pod", (BlockObject pod) -> {
+        var projectContext = ((KubernetesCheckContext) pod.ctx).projectContext();
+        var currentContext = ((KubernetesVerifier.KubernetesTestContext) pod.ctx).currentCtx();
+        var resources = projectContext.getProjectResources("default", currentContext, LimitRange.class);
+        if (!resources.isEmpty()) {
+          pod.ctx.reportIssue(
+            TextRanges.range(2, 0, 2, 10),
+            "LimitRange is present");
+        }
+      });
+    }
+  }
 }
