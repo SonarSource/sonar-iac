@@ -88,7 +88,7 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
 
     List<InputFile> files = List.of(fileWithContent, fileWithContent);
-    assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
+    assertThat(analyzer.analyseFiles(context, files, "iac")).isFalse();
   }
 
   @Test
