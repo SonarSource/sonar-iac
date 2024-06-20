@@ -34,7 +34,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.extension.Analyzer;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
@@ -101,8 +101,8 @@ public class DockerSensor extends IacSensor {
   }
 
   @Override
-  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new Analyzer(repositoryKey(), DockerParser.create(), visitors(sensorContext, statistics), statistics);
+  protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+    return new SingleFileAnalyzer(repositoryKey(), DockerParser.create(), visitors(sensorContext, statistics), statistics);
   }
 
   @Override

@@ -17,73 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.extension;
+package org.sonar.iac.common.extension.analyzer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonarsource.analyzer.commons.ProgressReport;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
 
-public class Analyzer {
+public abstract class AbstractAnalyzer implements Analyzer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Analyzer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractAnalyzer.class);
 
   private final String repositoryKey;
   protected final TreeParser<? extends Tree> parser;
-  private final List<TreeVisitor<InputFileContext>> visitors;
-  private final DurationStatistics statistics;
+  protected final DurationStatistics statistics;
 
-  public Analyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
+  protected AbstractAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, DurationStatistics statistics) {
     this.repositoryKey = repositoryKey;
     this.parser = parser;
-    this.visitors = Collections.unmodifiableList(visitors);
     this.statistics = statistics;
-  }
-
-  public boolean analyseFiles(SensorContext sensorContext, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
-    for (InputFile inputFile : inputFiles) {
-      if (sensorContext.isCancelled()) {
-        return false;
-      }
-      var inputFileContext = createInputFileContext(sensorContext, inputFile);
-      try {
-        analyseFile(inputFileContext);
-      } catch (ParseException e) {
-        logParsingError(e);
-        inputFileContext.reportParseError(repositoryKey, e.getPosition());
-      }
-      progressReport.nextFile();
-    }
-    return true;
   }
 
   protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
     return new InputFileContext(sensorContext, inputFile);
   }
 
-  private void analyseFile(InputFileContext inputFileContext) {
-    var content = readContent(inputFileContext);
-    if (content == null) {
-      return;
-    }
-
-    Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
-
-    visit(inputFileContext, tree);
-  }
-
-  private static String readContent(InputFileContext inputFileContext) {
+  protected static String readContent(InputFileContext inputFileContext) {
     String content;
     try {
       content = inputFileContext.inputFile.contents();
@@ -107,7 +79,7 @@ public class Analyzer {
     }
   }
 
-  public void visit(InputFileContext inputFileContext, Tree tree) {
+  protected void visit(List<TreeVisitor<InputFileContext>> visitors, InputFileContext inputFileContext, Tree tree) {
     for (TreeVisitor<InputFileContext> visitor : visitors) {
       try {
         String visitorId = visitor.getClass().getSimpleName();
@@ -115,16 +87,20 @@ public class Analyzer {
       } catch (RuntimeException e) {
         inputFileContext.reportAnalysisError(e.getMessage(), null);
         LOG.error("Cannot analyse '{}': {}", inputFileContext.inputFile, e.getMessage(), e);
-
         interruptOnFailFast(inputFileContext.sensorContext, inputFileContext.inputFile, e);
       }
     }
   }
 
-  private static void interruptOnFailFast(SensorContext context, InputFile inputFile, Exception e) {
+  protected static void interruptOnFailFast(SensorContext context, InputFile inputFile, Exception e) {
     if (IacSensor.isFailFast(context)) {
       throw new IllegalStateException("Exception when analyzing '" + inputFile + "'", e);
     }
+  }
+
+  protected void reportParseError(ParseException exception, InputFileContext inputFileContext) {
+    logParsingError(exception);
+    inputFileContext.reportParseError(repositoryKey, exception.getPosition());
   }
 
   private static void logParsingError(ParseException e) {

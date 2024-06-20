@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.extension;
+package org.sonar.iac.common.extension.analyzer;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +31,10 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -49,19 +53,20 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class AnalyzerTest {
+abstract class AbstractAnalyzerTest {
 
   @TempDir
-  private File tmpDir;
-  private File baseDir;
+  protected File tmpDir;
+  protected File baseDir;
 
-  private SensorContextTester context;
-  private TreeParser parser;
-  private DurationStatistics durationStatistics;
-  private ProgressReport progressReport;
+  protected SensorContextTester context;
+  protected TreeParser parser;
+  protected DurationStatistics durationStatistics;
+  protected ProgressReport progressReport;
 
-  private InputFile emptyFile;
-  private InputFile fileWithContent;
+  protected InputFile emptyFile;
+  protected InputFile fileWithContent;
+  protected TreeVisitor<InputFileContext> checksVisitor;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -76,18 +81,21 @@ class AnalyzerTest {
     context = SensorContextTester.create(baseDir);
     emptyFile = IacTestUtils.inputFile("empty.txt", baseDir.toPath(), "  ", null);
     fileWithContent = IacTestUtils.inputFile("file.txt", baseDir.toPath(), "Some content", null);
+    checksVisitor = mock(TreeVisitor.class);
   }
+
+  abstract Analyzer analyzer(List<TreeVisitor<InputFileContext>> visitors, TreeVisitor<InputFileContext> checksVisitor);
 
   @Test
   void shouldParseEmptyFile() {
-    Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(emptyFile);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
   }
 
   @Test
   void shouldFailWhenCancelled() {
-    Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(emptyFile);
     context.setCancelled(true);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
@@ -95,7 +103,7 @@ class AnalyzerTest {
 
   @Test
   void shouldReportParsingErrorOnInvalidFile() throws IOException {
-    Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(IacTestUtils.invalidInputFile());
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
     assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot read 'InvalidFile'");
@@ -109,7 +117,7 @@ class AnalyzerTest {
   @Test
   void shouldReportOnParseException() {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new ParseException("Custom parse exception", null, null));
-    Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, progressReport);
 
@@ -122,7 +130,7 @@ class AnalyzerTest {
   @Test
   void shouldReportOnRuntimeException() {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new RuntimeException("Custom runtime exception"));
-    Analyzer analyzer = new Analyzer("iac", parser, Collections.emptyList(), durationStatistics);
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, progressReport);
 
@@ -138,7 +146,7 @@ class AnalyzerTest {
     TreeVisitor<InputFileContext> visitorFail = mock(TreeVisitor.class);
     doThrow(new RuntimeException("Exception when scan mock"))
       .when(visitorFail).scan(any(InputFileContext.class), any(Tree.class));
-    Analyzer analyzer = new Analyzer("iac", parser, List.of(visitorFail), durationStatistics);
+    Analyzer analyzer = analyzer(List.of(visitorFail), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, progressReport);
 
@@ -150,7 +158,7 @@ class AnalyzerTest {
     TreeVisitor<InputFileContext> visitorFail = mock(TreeVisitor.class);
     doThrow(new RuntimeException("Exception when scan mock"))
       .when(visitorFail).scan(any(InputFileContext.class), any(Tree.class));
-    Analyzer analyzer = new Analyzer("iac", parser, List.of(visitorFail), durationStatistics);
+    Analyzer analyzer = analyzer(List.of(visitorFail), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
     MapSettings settings = new MapSettings();
     settings.setProperty(IacSensor.FAIL_FAST_PROPERTY_NAME, true);
@@ -165,7 +173,7 @@ class AnalyzerTest {
   @Test
   void shouldParseAndVisitWithSuccess() {
     TreeVisitor<InputFileContext> visitor = mock(TreeVisitor.class);
-    Analyzer analyzer = new Analyzer("iac", parser, List.of(visitor), durationStatistics);
+    Analyzer analyzer = analyzer(List.of(visitor), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
 
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();

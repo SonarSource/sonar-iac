@@ -147,7 +147,8 @@ public class KubernetesVerifier {
         visitors,
         durationStatistics,
         helmParser,
-        new KubernetesParserStatistics());
+        new KubernetesParserStatistics(),
+        new TreeVisitor<>());
     }
 
     private HelmVerifier() {

@@ -28,7 +28,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.extension.Analyzer;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -65,8 +65,8 @@ public class TerraformSensor extends IacSensor {
   }
 
   @Override
-  protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new Analyzer(repositoryKey(), new HclParser(), visitors(sensorContext, statistics), statistics);
+  protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+    return new SingleFileAnalyzer(repositoryKey(), new HclParser(), visitors(sensorContext, statistics), statistics);
   }
 
   @Override

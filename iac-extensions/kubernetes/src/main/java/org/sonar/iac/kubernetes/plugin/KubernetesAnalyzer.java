@@ -19,13 +19,10 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.util.List;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.Analyzer;
+import org.sonar.iac.common.extension.analyzer.CrossFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
@@ -33,9 +30,13 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
-public class KubernetesAnalyzer extends Analyzer {
+public class KubernetesAnalyzer extends CrossFileAnalyzer {
   private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
   private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
   private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
@@ -47,8 +48,8 @@ public class KubernetesAnalyzer extends Analyzer {
   private final KubernetesParserStatistics kubernetesParserStatistics;
 
   public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics,
-    HelmParser helmParser, KubernetesParserStatistics kubernetesParserStatistics) {
-    super(repositoryKey, parser, visitors, statistics);
+    HelmParser helmParser, KubernetesParserStatistics kubernetesParserStatistics, TreeVisitor<InputFileContext> checksVisitor) {
+    super(repositoryKey, parser, visitors, checksVisitor, statistics);
     this.helmParser = helmParser;
     this.kubernetesParserStatistics = kubernetesParserStatistics;
   }

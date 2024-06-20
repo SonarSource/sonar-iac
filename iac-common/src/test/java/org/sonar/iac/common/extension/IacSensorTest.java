@@ -49,6 +49,7 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -506,8 +507,8 @@ class IacSensorTest extends AbstractSensorTest {
     }
 
     @Override
-    protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-      return new Analyzer(repositoryKey(), treeParser, visitors(sensorContext, statistics), statistics);
+    protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
+      return new SingleFileAnalyzer(repositoryKey(), treeParser, visitors(sensorContext, statistics), statistics);
     }
 
     @Override
