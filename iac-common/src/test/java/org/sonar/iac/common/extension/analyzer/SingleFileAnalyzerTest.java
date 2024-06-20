@@ -29,6 +29,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +42,11 @@ import static org.mockito.Mockito.when;
 class SingleFileAnalyzerTest extends AbstractAnalyzerTest {
 
   @Override
-  Analyzer analyzer(List<TreeVisitor<InputFileContext>> visitors) {
-    return new SingleFileAnalyzer("iac", parser, visitors, durationStatistics);
+  Analyzer analyzer(List<TreeVisitor<InputFileContext>> visitors, TreeVisitor<InputFileContext> checksVisitor) {
+    List<TreeVisitor<InputFileContext>> allVisitors = new ArrayList<>();
+    allVisitors.addAll(visitors);
+    allVisitors.add(checksVisitor);
+    return new SingleFileAnalyzer("iac", parser, allVisitors, durationStatistics);
   }
 
   @Test
@@ -56,18 +60,20 @@ class SingleFileAnalyzerTest extends AbstractAnalyzerTest {
 
     TreeVisitor<InputFileContext> visitor1 = mock(TreeVisitor.class);
     TreeVisitor<InputFileContext> visitor2 = mock(TreeVisitor.class);
-    List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2);
+    List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2, checksVisitor);
     SingleFileAnalyzer analyzer = new SingleFileAnalyzer("iac", parser, visitors, durationStatistics);
 
     List<InputFile> files = List.of(file1, file2);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
 
-    InOrder inOrder = Mockito.inOrder(parser, visitor1, visitor2);
+    InOrder inOrder = Mockito.inOrder(parser, visitor1, visitor2, checksVisitor);
     inOrder.verify(parser).parse(eq("File 1 content"), any());
     inOrder.verify(visitor1).scan(any(), eq(tree1));
     inOrder.verify(visitor2).scan(any(), eq(tree1));
+    inOrder.verify(checksVisitor).scan(any(), eq(tree1));
     inOrder.verify(parser).parse(eq("File 2 content"), any());
     inOrder.verify(visitor1).scan(any(), eq(tree2));
     inOrder.verify(visitor2).scan(any(), eq(tree2));
+    inOrder.verify(checksVisitor).scan(any(), eq(tree2));
   }
 }

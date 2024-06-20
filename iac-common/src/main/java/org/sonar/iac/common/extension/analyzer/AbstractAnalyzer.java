@@ -33,7 +33,6 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
@@ -42,15 +41,13 @@ public abstract class AbstractAnalyzer implements Analyzer {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractAnalyzer.class);
 
-  protected final String repositoryKey;
+  private final String repositoryKey;
   protected final TreeParser<? extends Tree> parser;
-  protected final List<TreeVisitor<InputFileContext>> visitors;
   protected final DurationStatistics statistics;
 
-  protected AbstractAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
+  protected AbstractAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, DurationStatistics statistics) {
     this.repositoryKey = repositoryKey;
     this.parser = parser;
-    this.visitors = Collections.unmodifiableList(visitors);
     this.statistics = statistics;
   }
 
@@ -82,15 +79,16 @@ public abstract class AbstractAnalyzer implements Analyzer {
     }
   }
 
-  protected void visit(TreeVisitor<InputFileContext> visitor, InputFileContext inputFileContext, Tree tree) {
-    try {
-      String visitorId = visitor.getClass().getSimpleName();
-      statistics.time(visitorId, () -> visitor.scan(inputFileContext, tree));
-    } catch (RuntimeException e) {
-      inputFileContext.reportAnalysisError(e.getMessage(), null);
-      LOG.error("Cannot analyse '{}': {}", inputFileContext.inputFile, e.getMessage(), e);
-
-      interruptOnFailFast(inputFileContext.sensorContext, inputFileContext.inputFile, e);
+  protected void visit(List<TreeVisitor<InputFileContext>> visitors, InputFileContext inputFileContext, Tree tree) {
+    for (TreeVisitor<InputFileContext> visitor : visitors) {
+      try {
+        String visitorId = visitor.getClass().getSimpleName();
+        statistics.time(visitorId, () -> visitor.scan(inputFileContext, tree));
+      } catch (RuntimeException e) {
+        inputFileContext.reportAnalysisError(e.getMessage(), null);
+        LOG.error("Cannot analyse '{}': {}", inputFileContext.inputFile, e.getMessage(), e);
+        interruptOnFailFast(inputFileContext.sensorContext, inputFileContext.inputFile, e);
+      }
     }
   }
 
@@ -100,7 +98,12 @@ public abstract class AbstractAnalyzer implements Analyzer {
     }
   }
 
-  protected static void logParsingError(ParseException e) {
+  protected void reportParseError(ParseException exception, InputFileContext inputFileContext) {
+    logParsingError(exception);
+    inputFileContext.reportParseError(repositoryKey, exception.getPosition());
+  }
+
+  private static void logParsingError(ParseException e) {
     LOG.error(e.getMessage());
     String detailedMessage = e.getDetails();
     if (detailedMessage != null) {

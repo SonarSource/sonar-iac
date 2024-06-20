@@ -42,8 +42,8 @@ import static org.mockito.Mockito.when;
 class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
 
   @Override
-  Analyzer analyzer(List<TreeVisitor<InputFileContext>> visitors) {
-    return new CrossFileAnalyzer("iac", parser, visitors, durationStatistics);
+  Analyzer analyzer(List<TreeVisitor<InputFileContext>> visitors, TreeVisitor<InputFileContext> checksVisitor) {
+    return new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
   }
 
   @Test
@@ -59,18 +59,20 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     TreeVisitor<InputFileContext> visitor1 = mock(TreeVisitor.class);
     TreeVisitor<InputFileContext> visitor2 = mock(TreeVisitor.class);
     List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2);
-    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, durationStatistics);
+    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
 
     List<InputFile> files = List.of(file1, file2);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
 
-    InOrder inOrder = Mockito.inOrder(parser, visitor1, visitor2);
+    InOrder inOrder = Mockito.inOrder(parser, visitor1, visitor2, checksVisitor);
     inOrder.verify(parser).parse(eq("File 1 content"), any());
     inOrder.verify(parser).parse(eq("File 2 content"), any());
     inOrder.verify(visitor1).scan(any(), eq(tree1));
-    inOrder.verify(visitor1).scan(any(), eq(tree2));
     inOrder.verify(visitor2).scan(any(), eq(tree1));
+    inOrder.verify(visitor1).scan(any(), eq(tree2));
     inOrder.verify(visitor2).scan(any(), eq(tree2));
+    inOrder.verify(checksVisitor).scan(any(), eq(tree1));
+    inOrder.verify(checksVisitor).scan(any(), eq(tree2));
   }
 
   @Test
@@ -83,7 +85,22 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     })).when(visitor1).scan(any(), any());
 
     List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2);
-    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, durationStatistics);
+    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
+
+    List<InputFile> files = List.of(fileWithContent);
+    assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
+  }
+
+  @Test
+  void shouldAlsoBeCancellableDuringTheChecksVisitorPart() {
+    TreeVisitor<InputFileContext> visitor1 = mock(TreeVisitor.class);
+    doAnswer((invocation -> {
+      context.setCancelled(true);
+      return null;
+    })).when(visitor1).scan(any(), any());
+
+    List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1);
+    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
 
     List<InputFile> files = List.of(fileWithContent);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();

@@ -45,6 +45,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
@@ -74,7 +75,7 @@ class KubernetesAnalyzerTest {
   private final HelmProcessor helmProcessor = mock(HelmProcessor.class);
   private final HelmParser helmParser = new HelmParser(helmProcessor);
   private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)),
-    helmParser, new KubernetesParserStatistics());
+    helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class));
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -101,7 +102,7 @@ class KubernetesAnalyzerTest {
     var processor = new TestHelmProcessor(evaluated);
     var helmParserLocal = new HelmParser(processor);
     KubernetesAnalyzer analyzerLocal = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)), helmParserLocal,
-      new KubernetesParserStatistics());
+      new KubernetesParserStatistics(), mock(TreeVisitor.class));
     return (FileTree) analyzerLocal.parse(originalCode, inputFileContext);
   }
 

@@ -48,8 +48,8 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
   private final KubernetesParserStatistics kubernetesParserStatistics;
 
   public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics,
-    HelmParser helmParser, KubernetesParserStatistics kubernetesParserStatistics) {
-    super(repositoryKey, parser, visitors, statistics);
+    HelmParser helmParser, KubernetesParserStatistics kubernetesParserStatistics, TreeVisitor<InputFileContext> checksVisitor) {
+    super(repositoryKey, parser, visitors, checksVisitor, statistics);
     this.helmParser = helmParser;
     this.kubernetesParserStatistics = kubernetesParserStatistics;
   }

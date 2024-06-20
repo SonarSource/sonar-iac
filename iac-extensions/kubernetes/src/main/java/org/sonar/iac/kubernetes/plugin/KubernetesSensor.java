@@ -95,7 +95,6 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
     visitors.add(new ProjectContextEnricherVisitor(projectContextBuilder));
-    visitors.add(new KubernetesChecksVisitor(checks, statistics, projectContextBuilder.build()));
     return visitors;
   }
 
@@ -128,7 +127,8 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new KubernetesAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics, new HelmParser(helmProcessor), kubernetesParserStatistics);
+    return new KubernetesAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics, new HelmParser(helmProcessor),
+      kubernetesParserStatistics, new KubernetesChecksVisitor(checks, statistics, projectContextBuilder.build()));
   }
 
   void setHelmProcessorForTesting(HelmProcessor helmProcessor) {

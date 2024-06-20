@@ -34,8 +34,11 @@ import java.util.List;
 
 public class SingleFileAnalyzer extends AbstractAnalyzer {
 
+  private final List<TreeVisitor<InputFileContext>> visitors;
+
   public SingleFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
-    super(repositoryKey, parser, visitors, statistics);
+    super(repositoryKey, parser, statistics);
+    this.visitors = visitors;
   }
 
   public boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, ProgressReport progressReport) {
@@ -47,8 +50,7 @@ public class SingleFileAnalyzer extends AbstractAnalyzer {
       try {
         analyseFile(inputFileContext);
       } catch (ParseException e) {
-        logParsingError(e);
-        inputFileContext.reportParseError(repositoryKey, e.getPosition());
+        reportParseError(e, inputFileContext);
       }
       progressReport.nextFile();
     }
@@ -63,12 +65,6 @@ public class SingleFileAnalyzer extends AbstractAnalyzer {
 
     Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
 
-    visit(inputFileContext, tree);
-  }
-
-  public void visit(InputFileContext inputFileContext, Tree tree) {
-    for (TreeVisitor<InputFileContext> visitor : visitors) {
-      visit(visitor, inputFileContext, tree);
-    }
+    visit(visitors, inputFileContext, tree);
   }
 }

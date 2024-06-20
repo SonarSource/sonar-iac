@@ -66,6 +66,7 @@ abstract class AbstractAnalyzerTest {
 
   protected InputFile emptyFile;
   protected InputFile fileWithContent;
+  protected TreeVisitor<InputFileContext> checksVisitor;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -80,20 +81,21 @@ abstract class AbstractAnalyzerTest {
     context = SensorContextTester.create(baseDir);
     emptyFile = IacTestUtils.inputFile("empty.txt", baseDir.toPath(), "  ", null);
     fileWithContent = IacTestUtils.inputFile("file.txt", baseDir.toPath(), "Some content", null);
+    checksVisitor = mock(TreeVisitor.class);
   }
 
-  abstract Analyzer analyzer(List<TreeVisitor<InputFileContext>> visitors);
+  abstract Analyzer analyzer(List<TreeVisitor<InputFileContext>> visitors, TreeVisitor<InputFileContext> checksVisitor);
 
   @Test
   void shouldParseEmptyFile() {
-    Analyzer analyzer = analyzer(Collections.emptyList());
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(emptyFile);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
   }
 
   @Test
   void shouldFailWhenCancelled() {
-    Analyzer analyzer = analyzer(Collections.emptyList());
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(emptyFile);
     context.setCancelled(true);
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isFalse();
@@ -101,7 +103,7 @@ abstract class AbstractAnalyzerTest {
 
   @Test
   void shouldReportParsingErrorOnInvalidFile() throws IOException {
-    Analyzer analyzer = analyzer(Collections.emptyList());
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(IacTestUtils.invalidInputFile());
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();
     assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot read 'InvalidFile'");
@@ -115,7 +117,7 @@ abstract class AbstractAnalyzerTest {
   @Test
   void shouldReportOnParseException() {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new ParseException("Custom parse exception", null, null));
-    Analyzer analyzer = analyzer(Collections.emptyList());
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, progressReport);
 
@@ -128,7 +130,7 @@ abstract class AbstractAnalyzerTest {
   @Test
   void shouldReportOnRuntimeException() {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new RuntimeException("Custom runtime exception"));
-    Analyzer analyzer = analyzer(Collections.emptyList());
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, progressReport);
 
@@ -144,7 +146,7 @@ abstract class AbstractAnalyzerTest {
     TreeVisitor<InputFileContext> visitorFail = mock(TreeVisitor.class);
     doThrow(new RuntimeException("Exception when scan mock"))
       .when(visitorFail).scan(any(InputFileContext.class), any(Tree.class));
-    Analyzer analyzer = analyzer(List.of(visitorFail));
+    Analyzer analyzer = analyzer(List.of(visitorFail), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, progressReport);
 
@@ -156,7 +158,7 @@ abstract class AbstractAnalyzerTest {
     TreeVisitor<InputFileContext> visitorFail = mock(TreeVisitor.class);
     doThrow(new RuntimeException("Exception when scan mock"))
       .when(visitorFail).scan(any(InputFileContext.class), any(Tree.class));
-    Analyzer analyzer = analyzer(List.of(visitorFail));
+    Analyzer analyzer = analyzer(List.of(visitorFail), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
     MapSettings settings = new MapSettings();
     settings.setProperty(IacSensor.FAIL_FAST_PROPERTY_NAME, true);
@@ -171,7 +173,7 @@ abstract class AbstractAnalyzerTest {
   @Test
   void shouldParseAndVisitWithSuccess() {
     TreeVisitor<InputFileContext> visitor = mock(TreeVisitor.class);
-    Analyzer analyzer = analyzer(List.of(visitor));
+    Analyzer analyzer = analyzer(List.of(visitor), checksVisitor);
     List<InputFile> files = List.of(fileWithContent);
 
     assertThat(analyzer.analyseFiles(context, files, progressReport)).isTrue();

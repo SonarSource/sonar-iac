@@ -35,8 +35,19 @@ import java.util.List;
 
 public class CrossFileAnalyzer extends AbstractAnalyzer {
 
-  public CrossFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
-    super(repositoryKey, parser, visitors, statistics);
+  private final TreeVisitor<InputFileContext> checksVisitor;
+  private final List<TreeVisitor<InputFileContext>> visitors;
+
+  /**
+   * This version of the analyzer is allowing to perform cross-file analysis.
+   * It will apply the {@code parser.parse(...)} method to all files, then apply the {@code visitors} to each of them, and finally apply the provided {@code checksVisitor}.
+   * This implies to not provide the checks visitor in the {@code visitors} parameters but separately as the last parameter.
+   */
+  public CrossFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, TreeVisitor<InputFileContext> checksVisitor,
+    DurationStatistics statistics) {
+    super(repositoryKey, parser, statistics);
+    this.visitors = visitors;
+    this.checksVisitor = checksVisitor;
   }
 
   public boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, ProgressReport progressReport) {
@@ -58,8 +69,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
           filesWithAst.add(new FileWithAst(inputFileContext, tree));
         }
       } catch (ParseException e) {
-        logParsingError(e);
-        inputFileContext.reportParseError(repositoryKey, e.getPosition());
+        reportParseError(e, inputFileContext);
       }
 
       // TODO SONARIAC-1511 Change the usage of ProgressReport do to proper reporting in cross file analysis
@@ -67,14 +77,21 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     }
 
     // Visit files
-    for (TreeVisitor<InputFileContext> visitor : visitors) {
-      for (FileWithAst fileWithAst : filesWithAst) {
-        if (sensorContext.isCancelled()) {
-          return false;
-        }
-
-        visit(visitor, fileWithAst.inputFileContext, fileWithAst.tree);
+    for (FileWithAst fileWithAst : filesWithAst) {
+      if (sensorContext.isCancelled()) {
+        return false;
       }
+
+      visit(visitors, fileWithAst.inputFileContext, fileWithAst.tree);
+    }
+
+    // Apply check visitor
+    for (FileWithAst fileWithAst : filesWithAst) {
+      if (sensorContext.isCancelled()) {
+        return false;
+      }
+
+      visit(List.of(checksVisitor), fileWithAst.inputFileContext, fileWithAst.tree);
     }
 
     return true;
