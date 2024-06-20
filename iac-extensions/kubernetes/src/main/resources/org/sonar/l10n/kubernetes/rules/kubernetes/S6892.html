@@ -1,0 +1,60 @@
+<p>A CPU request is a configuration that sets the guaranteed amount of CPU cores that a container will be able to use. It is part of the resource
+management functionality of Kubernetes, which allows for the control and allocation of computational resources to containers.</p>
+<p>When a CPU request is set for a container, Kubernetes will only schedule it on a node that can give it that resource, thereby guaranteeing that the
+container can use the specified requested CPU cores.</p>
+<h2>Why is this an issue?</h2>
+<p>Without a CPU request, a container can potentially be scheduled on a node where there are not enough resources for it. This can lead to
+unpredictable behavior of the container and the node itself.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unpredictable Resource Allocation</h4>
+<p>Without defined requests, Kubernetes doesn’t know how much of a particular resource to allocate to a container. This can lead to unpredictable
+behavior, as the Kubernetes scheduler may not make optimal decisions about pod placement and resource contention management. For instance, a container
+might not get the resources it needs to function correctly, leading to performance issues or even failure of the container.</p>
+<h4>System Instability</h4>
+<p>In the worst-case scenario, if a container uses more resources than a node can handle (due to lack of defined requests), it can cause the node to
+run out of resources. In this case, Kubernetes may throttle its CPU usage. By setting a CPU request, Kubernetes will make sure that the container will
+get the requested CPU.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>To avoid potential issues specify a CPU request for each container with <code>resources.requests.cpu</code>.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web # Noncompliant
+      image: nginx
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      resources:
+        requests:
+          cpu: 0.5
+</pre>
+<h3>How does this work?</h3>
+<p>A request can be set through the property <code>resources.requests.cpu</code> of a container. Alternatively, a default request for a namespace can
+be set with <code>LimitRange</code>.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Kubernetes Documentation - <a href="https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/">Configure
+  Default CPU Requests and Limits for a Namespace</a> </li>
+</ul>
+<h3>Articles &amp; blog posts</h3>
+<ul>
+  <li> Google Cloud Blog - <a
+  href="https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-resource-requests-and-limits">Kubernetes best
+  practices: Resource requests and limits</a> </li>
+</ul>
+

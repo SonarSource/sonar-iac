@@ -27,27 +27,27 @@ import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
-class MemoryRequestCheckTest {
-  IacCheck check = new MemoryRequestCheck();
+class CpuRequestCheckTest {
+  IacCheck check = new CpuRequestCheck();
 
   static Stream<String> sensitiveKinds() {
     return Stream.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
   }
 
   @MethodSource("sensitiveKinds")
-  @ParameterizedTest(name = "[{index}] should check memory request for kind: \"{0}\"")
+  @ParameterizedTest(name = "[{index}] should check cpu request for kind: \"{0}\"")
   void testKindWithTemplate(String kind) {
-    String content = readTemplateAndReplace("MemoryRequestCheck/memory_request_kind_template.yaml", kind);
+    String content = readTemplateAndReplace("CpuRequestCheck/cpu_request_kind_template.yaml", kind);
     KubernetesVerifier.verifyContent(content, check);
   }
 
   @Test
   void testPodKind() {
-    KubernetesVerifier.verify("MemoryRequestCheck/memory_request_pod.yaml", check);
+    KubernetesVerifier.verify("CpuRequestCheck/cpu_request_pod.yaml", check);
   }
 
   @Test
   void testPodKindForHelm() {
-    KubernetesVerifier.verify("MemoryRequestCheck/helm/templates/memory_request_deployment_helm.yaml", check);
+    KubernetesVerifier.verify("CpuRequestCheck/helm/templates/cpu_request_helm.yaml", check);
   }
 }

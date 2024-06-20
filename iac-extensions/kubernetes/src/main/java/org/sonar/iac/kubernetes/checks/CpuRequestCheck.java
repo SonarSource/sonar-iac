@@ -19,34 +19,20 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.check.Rule;
 
-public final class KubernetesCheckList {
+@Rule(key = "S6892")
+public class CpuRequestCheck extends AbstractRequestCheck {
+  private static final String MESSAGE = "Specify a CPU request for this container.";
+  private static final String KEY = "cpu";
 
-  private KubernetesCheckList() {
+  @Override
+  String getResourceName() {
+    return KEY;
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      AutomountServiceAccountTokenCheck.class,
-      CapabilitiesCheck.class,
-      ClearTextProtocolsCheck.class,
-      CommandExecutionCheck.class,
-      ContainerPrivilegedModeCheck.class,
-      CpuLimitCheck.class,
-      CpuRequestCheck.class,
-      DockerSocketCheck.class,
-      EphemeralStorageLimitCheck.class,
-      ExposedAdministrationServicesCheck.class,
-      HostNamespacesCheck.class,
-      MemoryLimitCheck.class,
-      MemoryRequestCheck.class,
-      MountingFileSystemPathsCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegeEscalationCheck.class,
-      RBACWildcardCheck.class,
-      ToDoCommentCheck.class);
+  @Override
+  String getMessage() {
+    return MESSAGE;
   }
 }
