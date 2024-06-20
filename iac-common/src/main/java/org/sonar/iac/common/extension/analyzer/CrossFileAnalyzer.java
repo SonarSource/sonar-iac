@@ -76,24 +76,25 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
       progressReport.nextFile();
     }
 
-    // Visit files
+    if (!applyVisitors(sensorContext, filesWithAst, visitors)) {
+      return false;
+    }
+
+    if (!applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor))) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private boolean applyVisitors(SensorContext sensorContext, List<FileWithAst> filesWithAst, List<TreeVisitor<InputFileContext>> visitorsToBeApplied) {
     for (FileWithAst fileWithAst : filesWithAst) {
       if (sensorContext.isCancelled()) {
         return false;
       }
 
-      visit(visitors, fileWithAst.inputFileContext, fileWithAst.tree);
+      visit(visitorsToBeApplied, fileWithAst.inputFileContext, fileWithAst.tree);
     }
-
-    // Apply check visitor
-    for (FileWithAst fileWithAst : filesWithAst) {
-      if (sensorContext.isCancelled()) {
-        return false;
-      }
-
-      visit(List.of(checksVisitor), fileWithAst.inputFileContext, fileWithAst.tree);
-    }
-
     return true;
   }
 
