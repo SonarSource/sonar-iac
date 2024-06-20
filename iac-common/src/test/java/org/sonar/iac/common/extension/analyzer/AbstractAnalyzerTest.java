@@ -38,7 +38,6 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.IacTestUtils;
-import org.sonarsource.analyzer.commons.ProgressReport;
 
 import java.io.File;
 import java.io.IOException;

@@ -21,7 +21,6 @@ package org.sonar.iac.common.extension.analyzer;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonarsource.analyzer.commons.ProgressReport;
 
 import java.util.Collection;
 
