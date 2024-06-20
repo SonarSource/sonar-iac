@@ -46,6 +46,7 @@ public final class KubernetesCheckList {
       MountingFileSystemPathsCheck.class,
       ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class,
+      StorageRequestCheck.class,
       RBACWildcardCheck.class,
       ToDoCommentCheck.class);
   }

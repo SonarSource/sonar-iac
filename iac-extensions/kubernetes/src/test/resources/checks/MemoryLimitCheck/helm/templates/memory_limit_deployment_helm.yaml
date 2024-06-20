@@ -7,5 +7,6 @@ spec:
     - name: {{ .Values.container.name }} # Noncompliant
       image: nginx
       resources:
+        # The check expect "limit" to be specified here, so the container is Non-compliant
         requests:
           memory: {{ .Values.container.memory.requests }}
