@@ -80,11 +80,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
       return false;
     }
 
-    if (!applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor))) {
-      return false;
-    }
-
-    return true;
+    return applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor));
   }
 
   private boolean applyVisitors(SensorContext sensorContext, List<FileWithAst> filesWithAst, List<TreeVisitor<InputFileContext>> visitorsToBeApplied) {
