@@ -64,7 +64,6 @@ class KubernetesVerifierTest {
     var baseDir = "KubernetesVerifierCheck/kubernetes/";
 
     KubernetesVerifier.verify(baseDir + "pod.yaml", new ProjectResourceVisitedCheck(), baseDir + "limit-range.yaml");
-    // KubernetesVerifier.verifyNoIssue(baseDir + "pod.yaml", new ProjectResourceVisitedCheck());
   }
 
   private static List<SecondaryLocation> expectedSecondaryLocations() {

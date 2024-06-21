@@ -21,7 +21,6 @@ package org.sonar.iac.common.testing;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -59,9 +58,9 @@ import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class Verifier {
+public final class Verifier {
 
-  protected Verifier() {
+  private Verifier() {
     // utility class
   }
 
@@ -103,7 +102,7 @@ public class Verifier {
     try {
       tempFile = File.createTempFile("tmp-parser-", "");
       if (content != null) {
-        Files.write(tempFile.toPath(), content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+        Files.writeString(tempFile.toPath(), content, StandardOpenOption.WRITE);
       }
       tempFile.deleteOnExit();
       return tempFile;
@@ -122,6 +121,46 @@ public class Verifier {
     var tempFile = contentToTmp(null);
     var actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
+  }
+
+  public static void verify(
+    TreeParser<? extends Tree> parser,
+    InputFileContext inputFileContext,
+    IacCheck check,
+    Function<MultiFileVerifier, TestContext> contextSupplier,
+    BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
+    Tree root = parser.parse(readFile(inputFileContext.inputFile.path()), inputFileContext);
+    var tempFile = contentToTmp(null);
+    MultiFileVerifier verifier = createVerifier(tempFile.toPath(), root, commentsVisitor);
+    runAnalysis(contextSupplier.apply(verifier), check, root);
+    verifier.assertOneOrMoreIssues();
+  }
+
+  public static void verify(
+    TreeParser<? extends Tree> parser,
+    InputFileContext inputFileContext,
+    IacCheck check,
+    Function<MultiFileVerifier, TestContext> contextSupplier,
+    BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor,
+    List<Issue> expectedIssues) {
+    Tree root = parser.parse(readFile(inputFileContext.inputFile.path()), inputFileContext);
+    var tempFile = contentToTmp(null);
+    MultiFileVerifier verifier = createVerifier(tempFile.toPath(), root, commentsVisitor);
+    var actualIssues = runAnalysis(contextSupplier.apply(verifier), check, root);
+    compare(actualIssues, expectedIssues);
+  }
+
+  public static void verifyNoIssue(
+    TreeParser<? extends Tree> parser,
+    InputFileContext inputFileContext,
+    IacCheck check,
+    Function<MultiFileVerifier, TestContext> contextSupplier,
+    BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
+    Tree root = parser.parse(readFile(inputFileContext.inputFile.path()), inputFileContext);
+    var tempFile = contentToTmp(null);
+    MultiFileVerifier verifier = createVerifier(tempFile.toPath(), root, commentsVisitor);
+    runAnalysis(contextSupplier.apply(verifier), check, root);
+    verifier.assertNoIssues();
   }
 
   public static void verifyNoIssue(TreeParser<? extends Tree> parser, String content, IacCheck check) {
@@ -149,7 +188,7 @@ public class Verifier {
     compare(actualIssues, Collections.emptyList());
   }
 
-  protected static List<Issue> runAnalysis(TestContext ctx, IacCheck check, Tree root) {
+  private static List<Issue> runAnalysis(TestContext ctx, IacCheck check, Tree root) {
     check.initialize(ctx);
     ctx.scan(root);
     return ctx.raisedIssues;
@@ -168,7 +207,7 @@ public class Verifier {
     return createVerifier(path, root, commentsVisitor());
   }
 
-  protected static MultiFileVerifier createVerifier(Path path, Tree root, BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
+  private static MultiFileVerifier createVerifier(Path path, Tree root, BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
     var verifier = MultiFileVerifier.create(path, UTF_8);
     Map<Integer, Set<Comment>> commentsByLine = new HashMap<>();
     commentsVisitor.accept(root, commentsByLine);
@@ -182,7 +221,7 @@ public class Verifier {
     return verifier;
   }
 
-  private static BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor() {
+  public static BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor() {
     Set<TextRange> alreadyAdded = new HashSet<>();
     return (root, commentsByLine) -> (new TreeVisitor<>()).register(Tree.class,
       (ctx, tree) -> {
@@ -354,7 +393,7 @@ public class Verifier {
     }
   }
 
-  protected static void compare(List<Issue> actualIssues, List<Issue> expectedIssues) {
+  private static void compare(List<Issue> actualIssues, List<Issue> expectedIssues) {
     Map<TextRange, Tuple> map = new HashMap<>();
 
     for (Issue issue : actualIssues) {
