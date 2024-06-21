@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -70,6 +71,6 @@ class CapabilitiesCheckTest {
 
     KubernetesVerifier.verify("CapabilitiesCheck/CapabilitiesChart/templates/capabilities-pod-secondary.yaml",
       check,
-      issue1, issue2, issue3);
+      List.of(issue1, issue2, issue3));
   }
 }
