@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -85,16 +84,19 @@ public class KubernetesVerifier {
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
     var projectContext = prepareProjectContext(inputFileContext, fileNames);
-    Verifier.verify(PARSER, inputFileContext, check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext), commentsVisitor);
+    Verifier.verify(PARSER, inputFileContext, check,
+      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      commentsVisitor);
   }
 
-  public static void verify(String templateFileName, IacCheck check, Collection<Verifier.Issue> expectedIssues) {
+  public static void verify(String templateFileName, IacCheck check, List<Verifier.Issue> expectedIssues) {
     var initialization = initializeVerification(templateFileName);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
     var projectContext = prepareProjectContext(inputFileContext);
-    Verifier.verify(PARSER, inputFileContext, check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext), commentsVisitor,
-      expectedIssues.stream().toList());
+    Verifier.verify(PARSER, inputFileContext, check,
+      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      commentsVisitor, expectedIssues);
   }
 
   /**
@@ -109,7 +111,9 @@ public class KubernetesVerifier {
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
     var projectContext = prepareProjectContext(inputFileContext, fileNames);
-    Verifier.verifyNoIssue(PARSER, inputFileContext, check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext), commentsVisitor);
+    Verifier.verifyNoIssue(PARSER, inputFileContext, check,
+      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      commentsVisitor);
   }
 
   private static Tuple<HelmInputFileContext, BiConsumer<Tree, Map<Integer, Set<Comment>>>> initializeVerification(String templateFileName, String... fileNames) {
