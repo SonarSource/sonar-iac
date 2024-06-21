@@ -45,6 +45,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.YamlParser;
@@ -119,16 +120,6 @@ class KubernetesAnalyzerTest {
   }
 
   @Test
-  void testParsingWhenHelmContentIsDetectedNoInputFileContext() {
-    FileTree file = (FileTree) analyzer.parse("foo: {{ .Value.var }}", null);
-    assertThat(file.documents()).hasSize(1);
-    assertThat(file.documents().get(0).children()).isEmpty();
-
-    var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("No InputFileContext provided, skipping processing of Helm file");
-  }
-
-  @Test
   void parsingErrorWithoutFileContextShouldThrowProperParseException() {
     assertThatThrownBy(() -> analyzer.parse("foo: invalid: file", null))
       .isInstanceOf(ParseException.class)
@@ -136,8 +127,8 @@ class KubernetesAnalyzerTest {
   }
 
   @Test
-  void testParsingWhenNoHelmContent() {
-    FileTree file = (FileTree) analyzer.parse("foo: {bar: 1234}", inputFileContext);
+  void shouldParseAsPureK8sFileWhenNoNormalInputFileContext() {
+    FileTree file = (FileTree) analyzer.parse("foo: {bar: 1234}", new InputFileContext(sensorContext, inputFile));
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isNotEmpty();
 
@@ -478,12 +469,6 @@ class KubernetesAnalyzerTest {
   }
 
   @Test
-  void shouldSkipProcessingWhenInputFileContextIsNull() {
-    assertEmptyFileTree((FileTree) analyzer.parse("foo: {{ .Values.foo }}", null));
-    assertThat(logTester.logs()).contains("No InputFileContext provided, skipping processing of Helm file");
-  }
-
-  @Test
   void shouldSkipProcessingWhenInputFileIsInvalid() {
     when(inputFile.filename()).thenReturn("_helpers.tpl");
     assertEmptyFileTree((FileTree) analyzer.parse("foo: {{ .Values.foo }}", inputFileContext));
@@ -491,11 +476,15 @@ class KubernetesAnalyzerTest {
   }
 
   @Test
-  void shouldSetHelmProjectDirectory() {
+  void shouldSetHelmProjectDirectory() throws IOException, URISyntaxException {
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
 
-      var inputFileContext = analyzer.createInputFileContext(sensorContext, inputFile);
+      InputFile helmFile = mock(InputFile.class);
+      when(helmFile.contents()).thenReturn("foo: {{ .Values.foo }}");
+      when(helmFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(helmFile);
+      var inputFileContext = analyzer.createInputFileContext(sensorContext, helmFile);
 
       assertThat(inputFileContext).isInstanceOf(HelmInputFileContext.class);
       assertThat(((HelmInputFileContext) inputFileContext).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));

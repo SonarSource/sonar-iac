@@ -26,13 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 public final class HelmFileSystem {
   private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
@@ -42,10 +40,10 @@ public final class HelmFileSystem {
     this.fileSystem = fileSystem;
   }
 
-  public String getFileRelativePath(InputFileContext inputFileContext) {
+  public String getFileRelativePath(HelmInputFileContext inputFileContext) {
     var inputFile = inputFileContext.inputFile;
     var filePath = Path.of(inputFile.uri());
-    var chartRootDirectory = retrieveHelmProjectFolder(filePath, fileSystem);
+    var chartRootDirectory = inputFileContext.getHelmProjectDirectory();
     String fileRelativePath;
     if (chartRootDirectory == null) {
       fileRelativePath = inputFile.filename();
@@ -58,13 +56,13 @@ public final class HelmFileSystem {
   }
 
   // Ignore additional file pattern mentioned in .helmignore
-  public Map<String, InputFile> getRelatedHelmFiles(InputFile inputFile) {
-    var helmDirectoryPath = retrieveHelmProjectFolder(Path.of(inputFile.uri()));
+  public Map<String, InputFile> getRelatedHelmFiles(HelmInputFileContext inputFileContext) {
+    var helmDirectoryPath = inputFileContext.getHelmProjectDirectory();
     if (helmDirectoryPath == null) {
-      throw new ParseException("Failed to evaluate Helm file " + inputFile + ": Failed to resolve Helm project directory", null, null);
+      return Map.of();
     }
 
-    var additionalHelmFilesPredicate = additionalHelmDependenciesPredicate(inputFile, helmDirectoryPath);
+    var additionalHelmFilesPredicate = additionalHelmDependenciesPredicate(inputFileContext.inputFile, helmDirectoryPath);
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(additionalHelmFilesPredicate);
 
     Map<String, InputFile> result = new HashMap<>();
@@ -111,11 +109,6 @@ public final class HelmFileSystem {
       return null;
     }
     return helmProjectDirectoryPath;
-  }
-
-  @CheckForNull
-  public Path retrieveHelmProjectFolder(Path inputFilePath) {
-    return retrieveHelmProjectFolder(inputFilePath, fileSystem);
   }
 
   private static String resolveToInputFile(Path helmDirectoryPath, InputFile additionalFile) {

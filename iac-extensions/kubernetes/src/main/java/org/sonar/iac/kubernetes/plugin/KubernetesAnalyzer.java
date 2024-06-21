@@ -19,20 +19,20 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.analyzer.CrossFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.analyzer.CrossFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
-
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
 
@@ -47,7 +47,8 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
   private final HelmParser helmParser;
   private final KubernetesParserStatistics kubernetesParserStatistics;
 
-  public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics,
+  public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors,
+    DurationStatistics statistics,
     HelmParser helmParser, KubernetesParserStatistics kubernetesParserStatistics, TreeVisitor<InputFileContext> checksVisitor) {
     super(repositoryKey, parser, visitors, checksVisitor, statistics);
     this.helmParser = helmParser;
@@ -56,21 +57,34 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
 
   @Override
   protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
-    return new HelmInputFileContext(sensorContext, inputFile);
+    if (isHelmFile(inputFile)) {
+      return new HelmInputFileContext(sensorContext, inputFile);
+    }
+    return new InputFileContext(sensorContext, inputFile);
   }
 
   @Override
   public Tree parse(String content, @Nullable InputFileContext inputFileContext) {
     try {
-      if (!hasHelmContent(content)) {
-        return kubernetesParserStatistics.recordPureKubernetesFile(() -> parser.parse(content, inputFileContext));
+      if (inputFileContext instanceof HelmInputFileContext helmInputFileContext) {
+        return kubernetesParserStatistics.recordHelmFile(() -> helmParser.parseHelmFile(content, helmInputFileContext));
       } else {
-        return kubernetesParserStatistics.recordHelmFile(() -> helmParser.parseHelmFile(content, (HelmInputFileContext) inputFileContext));
+        return kubernetesParserStatistics.recordPureKubernetesFile(() -> parser.parse(content, inputFileContext));
       }
     } catch (ParseException e) {
       throw e;
     } catch (RuntimeException e) {
       throw ParseException.toParseException("parse", inputFileContext, e);
+    }
+  }
+
+  protected static boolean isHelmFile(InputFile inputFile) {
+    try {
+      return hasHelmContent(inputFile.contents());
+    } catch (IOException | RuntimeException e) {
+      // The purpose of this method is not to throw a parse exception but only to check if the file is a helm file
+      // The parse exception would be thrown at a later stage
+      return false;
     }
   }
 

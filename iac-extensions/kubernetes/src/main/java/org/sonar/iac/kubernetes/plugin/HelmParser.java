@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
@@ -26,15 +27,13 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
-import org.sonar.iac.kubernetes.tree.impl.KubernetesFileTreeImpl;
+import org.sonar.iac.kubernetes.tree.impl.HelmFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
-import javax.annotation.Nullable;
-
 public class HelmParser {
   private static final Logger LOG = LoggerFactory.getLogger(HelmParser.class);
-  private YamlParser parser = new YamlParser();
+  private final YamlParser parser = new YamlParser();
   @Nullable
   private final HelmProcessor helmProcessor;
 
@@ -42,19 +41,8 @@ public class HelmParser {
     this.helmProcessor = helmProcessor;
   }
 
-  public FileTree parseHelmFile(String source, @Nullable HelmInputFileContext inputFileContext) {
-    if (inputFileContext == null) {
-      LOG.debug("No InputFileContext provided, skipping processing of Helm file");
-      return buildEmptyTree();
-    }
-
-    if (isInvalidHelmInputFile(inputFileContext)) {
-      return buildEmptyTree();
-    }
-
-    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
-    if (helmProcessor == null || !helmProcessor.isHelmEvaluatorInitialized()) {
-      LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
+  public FileTree parseHelmFile(String source, HelmInputFileContext inputFileContext) {
+    if (!shouldProcess(inputFileContext)) {
       return buildEmptyTree();
     }
 
@@ -64,7 +52,8 @@ public class HelmParser {
     } catch (ParseException pe) {
       var details = pe.getDetails();
       if (details != null && details.contains("\" associated with template \"aggregatingTemplate\"")) {
-        LOG.debug("Helm file {} requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file", inputFileContext.inputFile);
+        LOG.debug("Helm file {} requires a named template that is missing; this feature is not yet supported, skipping processing of Helm" +
+          " file", inputFileContext.inputFile);
         result = buildEmptyTree();
       } else {
         throw pe;
@@ -79,6 +68,19 @@ public class HelmParser {
     return result;
   }
 
+  private boolean shouldProcess(HelmInputFileContext inputFileContext) {
+    if (isInvalidHelmInputFile(inputFileContext)) {
+      return false;
+    }
+
+    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
+    if (helmProcessor == null || !helmProcessor.isHelmEvaluatorInitialized()) {
+      LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
+      return false;
+    }
+    return true;
+  }
+
   private FileTree evaluateAndParseHelmFile(String source, HelmInputFileContext inputFileContext) {
     var evaluatedAndCleanedSource = helmProcessor.process(source, inputFileContext);
 
@@ -87,7 +89,7 @@ public class HelmParser {
       return buildEmptyTree();
     }
 
-    return KubernetesFileTreeImpl.fromFileTree(
+    return HelmFileTreeImpl.fromFileTree(
       parser.parse(evaluatedAndCleanedSource, inputFileContext),
       inputFileContext.getGoTemplateTree());
   }

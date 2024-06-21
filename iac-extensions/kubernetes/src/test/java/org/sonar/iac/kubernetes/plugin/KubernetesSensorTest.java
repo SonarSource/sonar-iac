@@ -73,19 +73,19 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldParseYamlFileWithKubernetesIdentifiers() {
-    analyse(sensor(), inputFile(K8_IDENTIFIERS));
+    analyze(sensor(), inputFile(K8_IDENTIFIERS));
     assertOneSourceFileIsParsed();
   }
 
   @Test
   void shouldParseMultipleYamlFileWithKubernetesIdentifiers() {
-    analyse(sensor(), inputFile("templates/file_1.yaml", K8_IDENTIFIERS), inputFile("templates/file_2.yaml", K8_IDENTIFIERS));
+    analyze(sensor(), inputFile("templates/file_1.yaml", K8_IDENTIFIERS), inputFile("templates/file_2.yaml", K8_IDENTIFIERS));
     assertNSourceFileIsParsed(2);
   }
 
   @Test
   void shouldNotParseYamlFileWithHelmChartTemplate() {
-    analyse(sensor(), inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
+    analyze(sensor(), inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
@@ -95,9 +95,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldParseYamlFileWithHelmChartTemplate() {
     var sensor = sensor();
-    analyse(sensor,
+    analyze(sensor,
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
-      inputFile("values.yaml", "bar: var-value"));
+      inputFile("values.yaml", "bar: var-value"),
+      inputFile("Chart.yaml", "name: foo"));
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs();
@@ -116,7 +117,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     settings.setProperty("sonar.kubernetes.internal.helm.enable", "false");
     context.setSettings(settings);
     var sensor = sensor();
-    analyse(sensor,
+    analyze(sensor,
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
     assertOneSourceFileIsParsed();
@@ -129,7 +130,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldNotParseYamlFileWithHelmChartTemplateInSonarLintContext() {
-    analyse(sonarLintContext, sonarLintSensor(),
+    analyze(sonarLintContext, sonarLintSensor(),
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
     assertOneSourceFileIsParsed();
@@ -146,7 +147,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     settings.setProperty(getActivationSettingKey(), true);
     settings.setProperty("sonar.kubernetes.internal.helm.enable", "false");
     sonarLintContext.setSettings(settings);
-    analyse(sonarLintContext, sonarLintSensor(),
+    analyze(sonarLintContext, sonarLintSensor(),
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
       inputFile("values.yaml", "bar: var-value"));
     assertOneSourceFileIsParsed();
@@ -162,7 +163,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     try (var ignored = Mockito.mockStatic(OperatingSystemUtils.class)) {
       when(OperatingSystemUtils.getCurrentPlatformIfSupported()).thenReturn(Optional.empty());
       var sensor = sensor();
-      analyse(sensor,
+      analyze(sensor,
         inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
         inputFile("values.yaml", "bar: var-value"));
       assertOneSourceFileIsParsed();
@@ -176,13 +177,13 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldNotParseYamlFileWithoutIdentifiers() {
-    analyse(sensor(), inputFile(""));
+    analyze(sensor(), inputFile(""));
     assertNotSourceFileIsParsed();
   }
 
   @Test
   void shouldNotParseYamlFileWithIncompleteIdentifiers() {
-    analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\n"));
+    analyze(sensor(), inputFile("apiVersion: ~\nkind: ~\n"));
     assertNotSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
@@ -194,7 +195,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldParseYamlFilesWithinSingleStream() {
-    analyse(sensor(), inputFile(K8_IDENTIFIERS + "---\n" + K8_IDENTIFIERS));
+    analyze(sensor(), inputFile(K8_IDENTIFIERS + "---\n" + K8_IDENTIFIERS));
     assertOneSourceFileIsParsed();
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
@@ -203,7 +204,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldParseYamlFilesWithAtLeastOneDocumentWithIdentifiers() {
-    analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n---\n" + K8_IDENTIFIERS));
+    analyze(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n---\n" + K8_IDENTIFIERS));
     assertOneSourceFileIsParsed();
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
@@ -212,7 +213,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldRaiseParsingIssueForYamlFileWithRecursiveAnchorReference() {
-    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFileWithIdentifiers("foo: &fooanchor\n" +
+    analyze(sensor(checkFactory(PARSING_ERROR_KEY)), inputFileWithIdentifiers("foo: &fooanchor\n" +
       " bar: *fooanchor"));
 
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -232,7 +233,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldNotParseYamlFileWithHelmTemplateDirectives() {
-    analyse(sensor(), inputFile(K8_IDENTIFIERS + "{{ .Values.count }}"));
+    analyze(sensor(),
+      inputFile(K8_IDENTIFIERS + "{{ .Values.count }}"));
     assertOneSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
@@ -243,7 +245,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldNotParseFileAndLogAndCatchIOException() throws IOException {
     InputFile inputFile = spy(inputFile(K8_IDENTIFIERS));
     when(inputFile.inputStream()).thenThrow(IOException.class);
-    analyse(sensor(), inputFile);
+    analyze(sensor(), inputFile);
 
     assertThat(logTester.logs(Level.ERROR)).hasSize(2);
     assertNotSourceFileIsParsed();
@@ -257,7 +259,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     "custom-label: {{MY_CUSTOM_LABEL}}"
   })
   void shouldParseYamlFileWithHelmTemplateDirectives(String content) {
-    analyse(sensor(), inputFile(K8_IDENTIFIERS + content));
+    analyze(sensor(), inputFile(K8_IDENTIFIERS + content));
     assertOneSourceFileIsParsed();
   }
 
@@ -268,7 +270,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String transformedSourceCode = K8_IDENTIFIERS + "test: produced_line #4\nIssue: Issue #4";
     HelmProcessor helmProcessor = new TestHelmProcessor(transformedSourceCode);
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
-    analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
+    analyze(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
@@ -292,9 +294,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldParseTwoHelmFileInARowAndNotMixShiftedLocation() {
     final String originalSourceCode1 = K8_IDENTIFIERS + "{{ long helm code on line 5 }}\n{{ long helm code on line 6 }}";
-    final String transformedSourceCode1 = K8_IDENTIFIERS + "new_5_1: compliant #4\nnew_5_2: non_compliant #4\nnew_6_1: compliant #5\nnew_6_2: compliant #5";
+    final String transformedSourceCode1 = K8_IDENTIFIERS + "new_5_1: compliant #4\nnew_5_2: non_compliant #4\nnew_6_1: compliant " +
+      "#5\nnew_6_2: compliant #5";
     final String originalSourceCode2 = K8_IDENTIFIERS + "{{ helm code on line 5 }}\n{{ helm code on line 6 }}";
-    final String transformedSourceCode2 = K8_IDENTIFIERS + "new_5_1: compliant #4\nnew_5_2: compliant #4\nnew_6_1: compliant #5\nnew_6_2: non_compliant #5";
+    final String transformedSourceCode2 = K8_IDENTIFIERS + "new_5_1: compliant #4\nnew_5_2: compliant #4\nnew_6_1: compliant #5\nnew_6_2:" +
+      " non_compliant #5";
 
     HelmProcessor helmProcessor = new TestHelmProcessor(Map.of(
       originalSourceCode1, transformedSourceCode1,
@@ -307,7 +311,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile inputFile1 = inputFile("file1.yaml", originalSourceCode1);
     InputFile inputFile2 = inputFile("file2.yaml", originalSourceCode2);
 
-    analyse(sensor, inputFile1, inputFile2);
+    analyze(sensor, inputFile1, inputFile2);
     assertThat(context.allIssues()).hasSize(2);
     Iterator<Issue> iterator = context.allIssues().iterator();
     Issue issue1 = iterator.next();
@@ -332,7 +336,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var issueRaiser = new RaiseIssue("Issue");
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
     var sensor = sensor(helmProcessor, checkFactory);
-    analyse(sensor, inputFile(originalSourceCode));
+    analyze(sensor, inputFile(originalSourceCode));
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
@@ -350,7 +354,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var secondaryLocation = new SecondaryLocation(TextRanges.range(6, 1, 6, 9), "Secondary message");
     var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocation(5, 1, 5, 5, "Primary message", secondaryLocation);
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
-    analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
+    analyze(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
@@ -380,7 +384,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var issueRaiser = new RaiseIssue.RaiseIssueOnSecondaryLocations(5, 1, 5, 5, "Primary message",
       List.of(secondaryLocation1, secondaryLocation2));
     CheckFactory checkFactory = mockCheckFactoryIssueOn(issueRaiser);
-    analyse(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
+    analyze(sensor(helmProcessor, checkFactory), inputFile(originalSourceCode));
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
@@ -396,7 +400,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertSecondaryLocation(flow2, 6, 0, 6, 23, "Secondary message 2");
   }
 
-  private void assertSecondaryLocation(Issue.Flow flow, int startLine, int startLineOffset, int endLine, int endLineOffset, String message) {
+  private void assertSecondaryLocation(Issue.Flow flow, int startLine, int startLineOffset, int endLine, int endLineOffset,
+    String message) {
     assertThat(flow.locations()).hasSize(1);
     IssueLocation issueLocation = flow.locations().get(0);
     assertThat(issueLocation.message()).isEqualTo(message);
@@ -424,7 +429,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile inputFile = inputFile("file1.tf", "test:val");
     context.setRuntime(sonarLintRuntime);
 
-    analyse(sensor(), inputFile);
+    analyze(sensor(), inputFile);
 
     // No highlighting and metrics in SonarLint
     assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
@@ -473,10 +478,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldDetectTplFile() {
     var context = SensorContextTester.create(Path.of("src/test/resources").toAbsolutePath());
-    InputFile valuesFile = IacTestUtils.inputFile("helm/templates/_helpers.tpl", (String) null);
+    InputFile tplFile = IacTestUtils.inputFile("helm/templates/_helpers.tpl", (String) null);
 
     FilePredicate filePredicate = sensor().customFilePredicate(context);
-    assertThat(filePredicate.apply(valuesFile)).isTrue();
+    assertThat(filePredicate.apply(tplFile)).isTrue();
   }
 
   private void assertNotSourceFileIsParsed() {
@@ -536,7 +541,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(), mock(HelmEvaluator.class));
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
+      mock(HelmEvaluator.class));
   }
 
   protected KubernetesSensor sensor(HelmProcessor helmProcessor, CheckFactory checkFactory) {
@@ -582,7 +588,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Checking conditions for enabling Helm analysis: isNotSonarLintContext=true, isHelmActivationFlagTrue=true, isHelmEvaluatorExecutableAvailable=true");
+      .isEqualTo("Checking conditions for enabling Helm analysis: isNotSonarLintContext=true, isHelmActivationFlagTrue=true, " +
+        "isHelmEvaluatorExecutableAvailable=true");
     assertThat(logTester.logs(Level.DEBUG).get(1))
       .isEqualTo("Initializing Helm processor");
     assertThat(logTester.logs(Level.DEBUG).get(2))

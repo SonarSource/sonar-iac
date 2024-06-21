@@ -48,7 +48,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
   @Test
   void emptyFileShouldRaiseNoIssue() {
-    analyse(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), emptyFile());
+    analyze(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), emptyFile());
     assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).isEmpty();
   }
@@ -56,7 +56,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
   @Test
   void shouldRaiseIssueOnParsingErrorWhenIssueActive() {
     InputFile inputFile = fileWithParsingError();
-    analyse(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), inputFile);
+    analyze(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), inputFile);
 
     // Test issue
     assertThat(context.allIssues()).hasSize(1);
@@ -85,7 +85,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
   @Test
   void shouldRaiseNoIssueOnParsingErrorWhenIssueInactive() {
-    analyse(sensor(checkFactory()), fileWithParsingError());
+    analyze(sensor(checkFactory()), fileWithParsingError());
     assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
@@ -96,7 +96,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     settings.setProperty(getActivationSettingKey(), false);
     context.setSettings(settings);
 
-    analyse(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), fileWithParsingError());
+    analyze(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), fileWithParsingError());
     assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).isEmpty();
   }
@@ -106,7 +106,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     InputFile inputFile = validFile();
     InputFile spyInputFile = spy(inputFile);
     when(spyInputFile.contents()).thenThrow(IOException.class);
-    analyse(spyInputFile);
+    analyze(spyInputFile);
 
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
     assertThat(analysisErrors).hasSize(1);

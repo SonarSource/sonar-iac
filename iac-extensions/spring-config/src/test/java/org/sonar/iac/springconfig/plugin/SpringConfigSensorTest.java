@@ -150,7 +150,7 @@ class SpringConfigSensorTest extends ExtensionSensorTest {
   @Test
   void shouldCorrectlyMatchFiles() {
     var sensor = (SpringConfigSensor) sensor(checkFactory());
-    analyse(sensor,
+    analyze(sensor,
       // should be included based on pattern matching
       emptyFileInResources("application.properties"),
       emptyFileInResources("application.yaml"),

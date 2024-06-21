@@ -100,7 +100,7 @@ class AbstractSensorTestTest {
 
   @Test
   void analyse_execute_sensor() {
-    SENSOR.analyse();
+    SENSOR.analyze();
     verify(sensor).execute(SENSOR.context);
   }
 
@@ -110,7 +110,7 @@ class AbstractSensorTestTest {
     String filename = "yolo.dummy";
 
     InputFile inputFile = SENSOR.inputFile(filename, content);
-    SENSOR.analyse(inputFile);
+    SENSOR.analyze(inputFile);
     assertThat(SENSOR.context.fileSystem().inputFiles()).contains(inputFile);
   }
 

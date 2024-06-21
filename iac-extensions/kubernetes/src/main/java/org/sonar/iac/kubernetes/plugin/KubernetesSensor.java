@@ -53,9 +53,7 @@ public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
   private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
   private final HelmEvaluator helmEvaluator;
-
-  final ProjectContext.Builder projectContextBuilder = ProjectContext.builder();
-
+  private final ProjectContext.Builder projectContextBuilder = ProjectContext.builder();
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 

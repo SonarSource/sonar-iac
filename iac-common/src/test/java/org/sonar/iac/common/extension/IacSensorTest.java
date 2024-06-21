@@ -109,7 +109,7 @@ class IacSensorTest extends AbstractSensorTest {
 
   @Test
   void testEmptyFile() {
-    analyse(sensor("S2260"), inputFile("emptyFile.iac", ""));
+    analyze(sensor("S2260"), inputFile("emptyFile.iac", ""));
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
@@ -118,7 +118,7 @@ class IacSensorTest extends AbstractSensorTest {
   @Test
   void testParsingErrorShouldRaiseAnIssueIfCheckRuleIsActivated() {
     InputFile inputFile = inputFile("file1.iac", "\n{}");
-    analyse(sensor("S2260"), inputFile);
+    analyze(sensor("S2260"), inputFile);
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
@@ -150,7 +150,7 @@ class IacSensorTest extends AbstractSensorTest {
 
   @Test
   void testParsingErrorShouldRaiseNoIssueIfCheckRuleIsDeactivated() {
-    analyse(inputFile("file1.iac", "\n{}"));
+    analyze(inputFile("file1.iac", "\n{}"));
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
@@ -164,7 +164,7 @@ class IacSensorTest extends AbstractSensorTest {
     InputFile inputFile = inputFile("fakeFile.iac", "\n{}");
     InputFile spyInputFile = spy(inputFile);
     when(spyInputFile.contents()).thenThrow(IOException.class);
-    analyse(spyInputFile);
+    analyze(spyInputFile);
 
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
     assertThat(analysisErrors).hasSize(1);
@@ -179,7 +179,7 @@ class IacSensorTest extends AbstractSensorTest {
   @Test
   void testCancellation() {
     context.setCancelled(true);
-    analyse(inputFile("file1.iac", "{}"));
+    analyze(inputFile("file1.iac", "{}"));
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
   }
@@ -196,7 +196,7 @@ class IacSensorTest extends AbstractSensorTest {
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
 
     InputFile inputFile = inputFile("file1.iac", "foo");
-    analyse(sensor(checkFactory), inputFile);
+    analyze(sensor(checkFactory), inputFile);
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
@@ -221,7 +221,7 @@ class IacSensorTest extends AbstractSensorTest {
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
 
     InputFile inputFile = inputFile("file1.iac", "foo");
-    analyse(sensor(checkFactory), inputFile);
+    analyze(sensor(checkFactory), inputFile);
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
@@ -251,7 +251,7 @@ class IacSensorTest extends AbstractSensorTest {
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
 
     InputFile inputFile = inputFile("file1.iac", "foo");
-    analyse(sensor(checkFactory), inputFile);
+    analyze(sensor(checkFactory), inputFile);
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
@@ -270,7 +270,7 @@ class IacSensorTest extends AbstractSensorTest {
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
 
     InputFile inputFile = inputFile("file1.iac", "foo");
-    analyse(sensor(checkFactory), inputFile);
+    analyze(sensor(checkFactory), inputFile);
 
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
     assertThat(analysisErrors).hasSize(1);
@@ -300,7 +300,7 @@ class IacSensorTest extends AbstractSensorTest {
       .setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
 
-    assertThatThrownBy(() -> analyse(sensor, inputFile))
+    assertThatThrownBy(() -> analyze(sensor, inputFile))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Exception when analyzing 'file1.iac'");
   }
@@ -311,7 +311,7 @@ class IacSensorTest extends AbstractSensorTest {
     settings.setProperty(getActivationSettingKey(), false);
     context.setSettings(settings);
     InputFile inputFile = inputFile("file1.iac", "\n{}");
-    analyse(sensor("S2260"), inputFile);
+    analyze(sensor("S2260"), inputFile);
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
@@ -327,7 +327,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
     InputFile inputFile = inputFile("file1.iac", "foo");
 
-    analyse(sensorParseException(checkFactory), inputFile);
+    analyze(sensorParseException(checkFactory), inputFile);
 
     assertThat(logTester.logs(Level.ERROR))
       .containsExactly("ParseException message");
@@ -350,7 +350,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
     InputFile inputFile = inputFile("file1.iac", "foo");
 
-    analyse(sensorRecognitionException(checkFactory), inputFile);
+    analyze(sensorRecognitionException(checkFactory), inputFile);
 
     assertThat(logTester.logs(Level.ERROR))
       .containsExactly("Cannot parse 'file1.iac:1:1'");
@@ -389,7 +389,7 @@ class IacSensorTest extends AbstractSensorTest {
       .setContents("bar")
       .build();
 
-    analyse(sensor(checkFactory), inputFile, secondaryFile);
+    analyze(sensor(checkFactory), inputFile, secondaryFile);
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
@@ -427,7 +427,7 @@ class IacSensorTest extends AbstractSensorTest {
     testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
     InputFile inputFile = inputFile("file1.iac", "foo");
 
-    analyse(sensor(checkFactory), inputFile);
+    analyze(sensor(checkFactory), inputFile);
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
