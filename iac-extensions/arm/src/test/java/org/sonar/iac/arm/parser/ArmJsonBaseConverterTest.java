@@ -75,7 +75,7 @@ class ArmJsonBaseConverterTest {
     ArmJsonBaseConverter converter = new ArmJsonBaseConverter(inputFileContext);
     SequenceTree tree = new SequenceTreeImpl(List.of(), yamlTreeMetadata);
 
-    ParseException exception = catchThrowableOfType(() -> converter.toIdentifier(tree), ParseException.class);
+    ParseException exception = catchThrowableOfType(ParseException.class, () -> converter.toIdentifier(tree));
 
     assertThat(exception)
       .hasMessageStartingWith("Couldn't convert 'org.sonar.iac.common.yaml.tree.SequenceTreeImpl@")
@@ -90,7 +90,7 @@ class ArmJsonBaseConverterTest {
     ArmJsonBaseConverter converter = new ArmJsonBaseConverter(inputFileContext);
     TupleTree tree = new TupleTreeImpl(new SequenceTreeImpl(List.of(), yamlTreeMetadata), new SequenceTreeImpl(List.of(), yamlTreeMetadata), yamlTreeMetadata);
 
-    ParseException exception = catchThrowableOfType(() -> converter.toExpression((YamlTree) tree), ParseException.class);
+    ParseException exception = catchThrowableOfType(ParseException.class, () -> converter.toExpression((YamlTree) tree));
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
