@@ -47,7 +47,6 @@ import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class OutputDeclarationImplTest {
@@ -113,13 +112,14 @@ class OutputDeclarationImplTest {
     "\"type\": \"code\", \"condition\":5"
   })
   void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      invalidPropertyType,
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "outputs": {
+          "myOutputValue": {
+      %s
+          }
+        }
+      }""".formatted(invalidPropertyType);
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
@@ -132,59 +132,62 @@ class OutputDeclarationImplTest {
     "\"type\": \"code\", \"copy\": { \"count\": {}}"
   })
   void shouldIgnoreOnInvalidPropertyValueType(String invalidPropertyType) {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      invalidPropertyType,
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "outputs": {
+          "myOutputValue": {
+      %s
+          }
+        }
+      }""".formatted(invalidPropertyType);
     OutputDeclaration output = (OutputDeclaration) ((File) parser.parse(code, null)).statements().get(0);
     assertThat(output.copyCount()).isNull();
   }
 
   @Test
   void shouldIgnoreNonOutputsFields() {
-    String code = code("{",
-      "  \"not-outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"condition\": \"my condition\",",
-      "      \"copy\": {",
-      "        \"count\": \"countValue\"",
-      "      },",
-      "      \"value\": \"my output value\"",
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "not-outputs": {
+          "myOutputValue": {
+            "type": "my type",
+            "condition": "my condition",
+            "copy": {
+              "count": "countValue"
+            },
+            "value": "my output value"
+          }
+        }
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).isEmpty();
   }
 
   @Test
   void shouldParseMultipleOutputs() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue1\": {",
-      "      \"type\": \"my type 1\",",
-      "      \"condition\": \"my condition 1\",",
-      "      \"copy\": {",
-      "        \"count\": \"countValue 1\",",
-      "        \"input\": \"inputValue 1\"",
-      "      },",
-      "      \"value\": \"my output value 1\"",
-      "    },",
-      "    \"myOutputValue2\": {",
-      "      \"type\": \"my type 2\",",
-      "      \"condition\": \"my condition 2\",",
-      "      \"copy\": {",
-      "        \"count\": \"countValue 2\",",
-      "        \"input\": \"inputValue 2\"",
-      "      },",
-      "      \"value\": \"my output value 2\"",
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "outputs": {
+          "myOutputValue1": {
+            "type": "my type 1",
+            "condition": "my condition 1",
+            "copy": {
+              "count": "countValue 1",
+              "input": "inputValue 1"
+            },
+            "value": "my output value 1"
+          },
+          "myOutputValue2": {
+            "type": "my type 2",
+            "condition": "my condition 2",
+            "copy": {
+              "count": "countValue 2",
+              "input": "inputValue 2"
+            },
+            "value": "my output value 2"
+          }
+        }
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(2);
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
@@ -211,14 +214,15 @@ class OutputDeclarationImplTest {
 
   @Test
   void shouldFailOnMissingMandatoryAttribute() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"value\": \"my output value\"",
-      "    }",
-      "  }",
-      "}");
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    String code = """
+      {
+        "outputs": {
+          "myOutputValue": {
+            "value": "my output value"
+          }
+        }
+      }""";
+    ParseException parseException = catchThrowableOfType(ParseException.class, () -> parser.parse(code, null));
     assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
@@ -227,14 +231,15 @@ class OutputDeclarationImplTest {
 
   @Test
   void shouldParseOutputWithMissingOptionalAttributes() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"value\": \"my output value\"",
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "outputs": {
+          "myOutputValue": {
+            "type": "my type",
+            "value": "my output value"
+          }
+        }
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
@@ -258,15 +263,16 @@ class OutputDeclarationImplTest {
 
   @Test
   void shouldFailOnInvalidOutputObject() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": [",
-      "      \"type\",",
-      "      \"value\"",
-      "    ]",
-      "  }",
-      "}");
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    String code = """
+      {
+        "outputs": {
+          "myOutputValue": [
+            "type",
+            "value"
+          ]
+        }
+      }""";
+    ParseException parseException = catchThrowableOfType(ParseException.class, () -> parser.parse(code, null));
     assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
@@ -275,16 +281,17 @@ class OutputDeclarationImplTest {
 
   @Test
   void shouldFailOnInvalidOutputObjectWithFilename() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": [",
-      "      \"type\",",
-      "      \"value\"",
-      "    ]",
-      "  }",
-      "}");
+    String code = """
+      {
+        "outputs": {
+          "myOutputValue": [
+            "type",
+            "value"
+          ]
+        }
+      }""";
     InputFileContext inputFileContext = createInputFileContextMock("foo.json");
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, inputFileContext), ParseException.class);
+    ParseException parseException = catchThrowableOfType(ParseException.class, () -> parser.parse(code, inputFileContext));
     assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
@@ -293,18 +300,19 @@ class OutputDeclarationImplTest {
 
   @Test
   void shouldParseOutputWithObjectAsInput() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"copy\": {",
-      "        \"input\": {",
-      "          \"foo\": \"bar\"",
-      "        }",
-      "      }",
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "outputs": {
+          "myOutputValue": {
+            "type": "my type",
+            "copy": {
+              "input": {
+                "foo": "bar"
+              }
+            }
+          }
+        }
+      }""";
     OutputDeclaration output = (OutputDeclaration) ((File) parser.parse(code, null)).statements().get(0);
     assertThat(output.copyInput()).isInstanceOf(ObjectExpression.class);
   }

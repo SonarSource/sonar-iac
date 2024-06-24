@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -180,7 +179,7 @@ class ResourceDeclarationImplTest {
     assertThat(resourceProperty2.key().value()).isEqualTo("resourceProperty2");
     assertThat(resourceProperty2.value()).asObjectExpression().containsKeyValue("obj", "random value");
 
-    List<String> allResourcePropertyKeys = resourceDeclaration.resourceProperties().stream().map(p -> p.key().value()).collect(Collectors.toList());
+    List<String> allResourcePropertyKeys = resourceDeclaration.resourceProperties().stream().map(p -> p.key().value()).toList();
     assertThat(allResourcePropertyKeys).containsExactly(
       "type",
       "apiVersion",
@@ -189,7 +188,7 @@ class ResourceDeclarationImplTest {
       "resourceProperty2",
       "properties");
 
-    List<String> allPropertyKeys = resourceDeclaration.properties().stream().map(p -> p.key().value()).collect(Collectors.toList());
+    List<String> allPropertyKeys = resourceDeclaration.properties().stream().map(p -> p.key().value()).toList();
     assertThat(allPropertyKeys).containsExactly("prop1");
 
     assertThat(resourceDeclaration.children()).hasSize(9);
@@ -215,7 +214,7 @@ class ResourceDeclarationImplTest {
         ]
       }""";
 
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    ParseException parseException = catchThrowableOfType(ParseException.class, () -> parser.parse(code, null));
     assertThat(parseException).hasMessage("Couldn't convert properties: expecting object of class 'SequenceTreeImpl' to implement " +
       "HasProperties at null:7:20");
     assertThat(parseException.getPosition().line()).isEqualTo(7);
@@ -241,7 +240,7 @@ class ResourceDeclarationImplTest {
           }
         ]
       }""".formatted(attributes);
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    ParseException parseException = catchThrowableOfType(ParseException.class, () -> parser.parse(code, null));
     assertThat(parseException).hasMessage("Missing mandatory attribute '" + errorMessageComponents + "' at null:3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
