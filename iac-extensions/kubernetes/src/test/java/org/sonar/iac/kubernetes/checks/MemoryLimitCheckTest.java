@@ -20,10 +20,10 @@
 package org.sonar.iac.kubernetes.checks;
 
 import javax.annotation.Nullable;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,15 +41,17 @@ class MemoryLimitCheckTest {
     KubernetesVerifier.verifyNoIssue("MemoryLimitCheck/memory_limit_pod_with_global_limit.yaml", check, "MemoryLimitCheck/limit_range.yaml");
   }
 
-  @Test
-  void testPodKindWithGlobalLimitWrongType() {
-    KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_pod.yaml", check, "MemoryLimitCheck/limit_range_default_namespace.yaml");
-  }
-
-  @Test
-  @DisplayName("Should raise issues when a limit exists in the same namespace (default) but for different resource")
-  void shouldRaiseForPodWithGlobalLimitForCpu() {
-    KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_pod.yaml", check, "MemoryLimitCheck/limit_range_cpu.yaml");
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "limit_range.yaml",
+    "limit_range_default_namespace.yaml",
+    "limit_range_cpu.yaml",
+    "limit_range_type_pvc.yaml",
+    "limit_range_type_fq.yaml",
+    "limit_range_other_limit.yaml",
+  })
+  void testPodKindWithNotMatchingGlobalLimit(String limitRangeFileName) {
+    KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_pod.yaml", check, "MemoryLimitCheck/%s".formatted(limitRangeFileName));
   }
 
   @Test
