@@ -87,6 +87,18 @@ class KubernetesChecksVisitorTest {
   }
 
   @Test
+  void shouldReturnCurrentInputFileContext() {
+    var checkContext = (KubernetesCheckContext) visitor.context(RuleKey.of("kubernetes", "S0000"));
+    assertThat(checkContext.inputFileContext()).isNull();
+    var inputFileContext = mockInputFileContext(false);
+
+    ((KubernetesChecksVisitor.KubernetesContextAdapter) checkContext).register(Tree.class, (ctx, node) -> {
+    });
+    visitor.scan(inputFileContext, tree);
+    assertThat(checkContext.inputFileContext()).isEqualTo(inputFileContext);
+  }
+
+  @Test
   void shouldReturnProjectContext() {
     KubernetesCheckContext checkContext = (KubernetesCheckContext) visitor.context(null);
     assertThat(checkContext.projectContext()).isEqualTo(PROJECT_CONTEXT);

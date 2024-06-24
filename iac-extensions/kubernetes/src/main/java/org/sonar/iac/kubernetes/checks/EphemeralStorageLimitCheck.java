@@ -28,6 +28,11 @@ public class EphemeralStorageLimitCheck extends AbstractLimitCheck {
   private static final String KEY = "ephemeral-storage";
 
   @Override
+  boolean shouldVisitWholeDocument() {
+    return false;
+  }
+
+  @Override
   String getResourceName() {
     return KEY;
   }

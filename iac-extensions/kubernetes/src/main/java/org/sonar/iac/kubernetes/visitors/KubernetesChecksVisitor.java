@@ -56,7 +56,8 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
   public class KubernetesContextAdapter extends ContextAdapter implements KubernetesCheckContext {
 
-    private HelmInputFileContext currentCtx;
+    private HelmInputFileContext inputFileContext;
+
     private boolean shouldReportSecondaryInValues;
 
     public KubernetesContextAdapter(RuleKey ruleKey) {
@@ -69,9 +70,14 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     }
 
     @Override
+    public HelmInputFileContext inputFileContext() {
+      return inputFileContext;
+    }
+
+    @Override
     public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
       KubernetesChecksVisitor.this.register(cls, statistics.time(ruleKey.rule(), (InputFileContext ctx, T tree) -> {
-        currentCtx = (HelmInputFileContext) ctx;
+        inputFileContext = (HelmInputFileContext) ctx;
         visitor.accept(this, tree);
       }));
     }
@@ -81,19 +87,19 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
       var shiftedTextRange = textRange;
       List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
       if (textRange != null) {
-        shiftedTextRange = LocationShifter.shiftLocation(currentCtx, textRange);
+        shiftedTextRange = LocationShifter.shiftLocation(inputFileContext, textRange);
 
-        boolean isReportingEnabled = currentCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
+        boolean isReportingEnabled = inputFileContext.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
         if (isReportingEnabled || shouldReportSecondaryInValues()) {
-          allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+          allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, shiftedTextRange);
         }
       }
       List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
-        .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
+        .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(inputFileContext, secondaryLocation))
         .toList();
 
       allSecondaryLocations.addAll(shiftedSecondaryLocations);
-      currentCtx.reportIssue(ruleKey, shiftedTextRange, message, allSecondaryLocations);
+      inputFileContext.reportIssue(ruleKey, shiftedTextRange, message, allSecondaryLocations);
     }
 
     @Override
