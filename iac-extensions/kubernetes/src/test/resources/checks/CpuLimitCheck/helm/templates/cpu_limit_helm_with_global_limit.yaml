@@ -1,0 +1,52 @@
+# This file duplicates `cpu_limit_helm.yaml` but with a namespace associated with a global limit range.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: ${namespace}
+spec:
+  containers:
+    - name: {{ .Values.container.name }}
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
+
+    - name: {{ .Values.container.name }}
+      image: nginx
+      resources:
+        requests:
+          cpu: 2
+
+    - name: {{ .Values.container.name }}
+      image: nginx
+
+    - name: {{ .Values.container.name }}
+      image: nginx
+      resources:
+        limits:
+          cpu: "~"
+
+    - name: {{ .Values.container.name }}
+      image: nginx
+      resources:
+        limits:
+          cpu: "[]"
+
+    - image: nginx
+      name: {{ .Values.container.name }}
+      resources:
+        limits:
+          cpu: "null"
+
+    - name: {{ .Values.container.name }}
+      image: nginx
+      resources:
+        limits:
+          cpu: 2
+
+    - name: {{ .Values.container.name }}
+      image: nginx
+      resources:
+        limits:
+          cpu: "0.5"

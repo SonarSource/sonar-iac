@@ -1,0 +1,52 @@
+# This file duplicates `cpu_limit_pod.yaml` but with a namespace associated with a global limit range.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: ${namespace}
+spec:
+  containers:
+    - name: compliant_without_cpu_limit
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
+
+    - name: compliant_without_limits
+      image: nginx
+      resources:
+        requests:
+          cpu: 2
+
+    - name: compliant_without_resources
+      image: nginx
+
+    - name: compliant_cpu_limit_tilde
+      image: nginx
+      resources:
+        limits:
+          cpu: "~"
+
+    - name: compliant_cpu_limit_empty_brackets
+      image: nginx
+      resources:
+        limits:
+          cpu: "[]"
+
+    - image: nginx
+      name: compliant_cpu_limit_null
+      resources:
+        limits:
+          cpu: "null"
+
+    - name: compliant_cpu_limit
+      image: nginx
+      resources:
+        limits:
+          cpu: 2
+
+    - name: compliant_cpu_limit_2
+      image: nginx
+      resources:
+        limits:
+          cpu: "0.5"

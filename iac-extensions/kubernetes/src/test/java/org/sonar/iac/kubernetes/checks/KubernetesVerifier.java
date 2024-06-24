@@ -89,9 +89,13 @@ public class KubernetesVerifier {
     var initialization = initializeVerification(templateFileName, fileNames);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    var projectContext = prepareProjectContext(inputFileContext, fileNames);
     Verifier.verify(PARSER, inputFileContext, check,
-      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      multiFileVerifier -> {
+        // Prepare project context inside this lambda so that it happens after parsing. HelmInputFileContext
+        // is fully initialized during parsing (i.e. additional files are discovered and added).
+        var projectContext = prepareProjectContext(inputFileContext, fileNames);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+      },
       commentsVisitor);
   }
 
@@ -99,9 +103,11 @@ public class KubernetesVerifier {
     var initialization = initializeVerification(templateFileName);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    var projectContext = prepareProjectContext(inputFileContext);
     Verifier.verify(PARSER, inputFileContext, check,
-      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      multiFileVerifier -> {
+        var projectContext = prepareProjectContext(inputFileContext);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+      },
       commentsVisitor, expectedIssues);
   }
 
@@ -130,9 +136,11 @@ public class KubernetesVerifier {
     var initialization = initializeVerification(templateFileName, fileNames);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    var projectContext = prepareProjectContext(inputFileContext, fileNames);
     Verifier.verifyNoIssue(PARSER, inputFileContext, check,
-      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      multiFileVerifier -> {
+        var projectContext = prepareProjectContext(inputFileContext, fileNames);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+      },
       commentsVisitor);
   }
 

@@ -1,0 +1,55 @@
+# This file duplicates `cpu_limit_deployment.yaml` but with a namespace associated with a global limit range.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: with-global-limit
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: compliant_without_cpu_limit
+          resources:
+            limits:
+              memory: 64Mi
+
+        - name: compliant_without_limits
+          resources:
+            requests:
+              cpu: 2
+
+        - name: compliant_without_resources
+
+        - name: compliant_cpu_limit_tilde
+          resources:
+            limits:
+              cpu: "~"
+
+        - name: compliant_cpu_limit_empty_brackets
+          resources:
+            limits:
+              cpu: "[]"
+
+        - resources:
+            limits:
+              cpu: "null"
+          name: noncompliant_cpu_limit_null
+
+        - name: compliant_cpu_limit
+          resources:
+            limits:
+              cpu: 2
+
+        - name: compliant_cpu_limit_2
+          resources:
+            limits:
+              cpu: "0.5"
