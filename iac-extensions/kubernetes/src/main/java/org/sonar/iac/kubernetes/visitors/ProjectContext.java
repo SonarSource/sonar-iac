@@ -40,7 +40,7 @@ public final class ProjectContext {
   }
 
   /**
-   * Get all resources of a given {@code clazz} in a given {@code namespace} and that are accessible to a file with the given {@code path}.
+   * Get all resources of a given {@code clazz} in a given {@code namespace} and that are accessible to a file in the given {@code inputFileContext}.
    * This means that the resources can be in the same file, or in the same directory, or in the descendant directories, but not in the ancestor directories.<br/>
    * If the file is part of a Helm project, all files inside the project are accessible. The location of the Chart.yaml serves as the root directory of the project.
    */

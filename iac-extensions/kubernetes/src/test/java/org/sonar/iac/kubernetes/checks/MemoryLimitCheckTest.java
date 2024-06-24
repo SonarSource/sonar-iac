@@ -19,9 +19,14 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.api.checks.IacCheck;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class MemoryLimitCheckTest {
   IacCheck check = new MemoryLimitCheck();
@@ -34,6 +39,11 @@ class MemoryLimitCheckTest {
   @Test
   void testPodKindWithGlobalLimit() {
     KubernetesVerifier.verifyNoIssue("MemoryLimitCheck/memory_limit_pod_with_global_limit.yaml", check, "MemoryLimitCheck/limit_range.yaml");
+  }
+
+  @Test
+  void testPodKindWithGlobalLimitWrongType() {
+    KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_pod.yaml", check, "MemoryLimitCheck/limit_range_default_namespace.yaml");
   }
 
   @Test
@@ -55,5 +65,21 @@ class MemoryLimitCheckTest {
   @Test
   void testPodKindForHelm() {
     KubernetesVerifier.verify("MemoryLimitCheck/helm/templates/memory_limit_deployment_helm.yaml", check);
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+    "1, true",
+    "1Gi, true",
+    "200M, true",
+    "1.5Gi, true",
+    "~, false",
+    "_, false",
+    "1.5, true",
+    "Gi, false",
+    "null, false",
+  }, emptyValue = "_", nullValues = "null")
+  void shouldDetectValidMemorySpecifiers(@Nullable String value, boolean shouldBeValid) {
+    assertThat(MemoryLimitCheck.isValidMemory(value)).isEqualTo(shouldBeValid);
   }
 }

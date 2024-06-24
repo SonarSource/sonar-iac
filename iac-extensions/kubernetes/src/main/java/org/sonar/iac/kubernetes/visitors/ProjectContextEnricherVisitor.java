@@ -28,7 +28,7 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 
 public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext> {
-  private static final String DEFAULT_NAMESPACE = "default";
+  private static final String DEFAULT_NAMESPACE = "";
 
   public ProjectContextEnricherVisitor(ProjectContext.Builder projectContextBuilder) {
     register(FileTree.class, (ctx, fileTree) -> handleFileTree(ctx, fileTree, projectContextBuilder));

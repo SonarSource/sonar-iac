@@ -17,24 +17,24 @@ spec:
         app: web
     spec:
       containers:
-        - name: noncompliant_without_memory_limit
+        - name: compliant_without_memory_limit
           resources:
             limits:
               cpu: 200m
 
-        - name: noncompliant_without_limits
+        - name: compliant_without_limits
           resources:
             requests:
               memory: 64Mi
 
-        - name: noncompliant_without_resources
+        - name: compliant_without_resources
 
-        - name: noncompliant_memory_limit_tilde
+        - name: compliant_memory_limit_tilde
           resources:
             limits:
               memory: "~"
 
-        - name: noncompliant_memory_limit_empty_brackets
+        - name: compliant_memory_limit_empty_brackets
           resources:
             limits:
               memory: "[]"
@@ -42,9 +42,9 @@ spec:
         - resources:
             limits:
               memory: "null"
-          name: noncompliant_memory_limit_null
+          name: compliant_memory_limit_null
 
-        - name: compliant_memory_limit # Compliant
+        - name: compliant_memory_limit
           resources:
             limits:
               memory: 100Mi

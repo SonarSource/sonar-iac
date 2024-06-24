@@ -6,35 +6,35 @@ metadata:
   namespace: with-global-limit
 spec:
   containers:
-    - name: noncompliant_without_memory_limit
+    - name: compliant_without_memory_limit
       image: nginx
       resources:
         limits:
           cpu: 200m
 
-    - name: noncompliant_without_limits
+    - name: compliant_without_limits
       image: nginx
       resources:
         requests:
           memory: 64Mi
 
-    - name: noncompliant_without_resources
+    - name: compliant_without_resources
       image: nginx
 
-    - name: noncompliant_memory_limit_tilde
+    - name: compliant_memory_limit_tilde
       image: nginx
       resources:
         limits:
           memory: "~"
 
-    - name: noncompliant_memory_limit_empty_brackets
+    - name: compliant_memory_limit_empty_brackets
       image: nginx
       resources:
         limits:
           memory: "[]"
 
     - image: nginx
-      name: noncompliant_memory_limit_null
+      name: compliant_memory_limit_null
       resources:
         limits:
           memory: "null"

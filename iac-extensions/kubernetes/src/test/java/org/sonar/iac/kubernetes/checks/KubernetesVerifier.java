@@ -251,7 +251,7 @@ public class KubernetesVerifier {
     }
 
     @Override
-    public HelmInputFileContext currentCtx() {
+    public HelmInputFileContext inputFileContext() {
       return currentCtx;
     }
 

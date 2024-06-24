@@ -49,12 +49,7 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
   }
 
   private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
-    var namespace = Optional.ofNullable(document.block("metadata").attribute("namespace").tree)
-      .map(TupleTree::value)
-      .filter(ScalarTree.class::isInstance)
-      .map(ScalarTree.class::cast)
-      .map(ScalarTree::value)
-      .orElse("default");
+    var namespace = getNamespace(document);
     var globalResources = getGlobalResources(document, namespace);
 
     Stream<BlockObject> containers;
@@ -84,8 +79,8 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
 
   private Collection<T> getGlobalResources(BlockObject document, String namespace) {
     var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
-    var currentCtx = ((KubernetesCheckContext) document.ctx).currentCtx();
-    return projectContext.getProjectResources(namespace, currentCtx, getGlobalResourceType());
+    var inputFileContext = ((KubernetesCheckContext) document.ctx).inputFileContext();
+    return projectContext.getProjectResources(namespace, inputFileContext, getGlobalResourceType());
   }
 
   abstract Class<T> getGlobalResourceType();
@@ -100,4 +95,18 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
   abstract String getResourceName();
 
   abstract String getMessage();
+
+  /**
+   * Retrieve the namespace of the document from the `metadata.namespace` attribute.<br/>
+   * If it is not set, the objects are installed in the namespace `default`. However, a namespace can be set during deployment using the
+   * `--namespace [custom-name]` flag. Because of that, an empty string is returned if the namespace is not set.
+   */
+  private static String getNamespace(BlockObject document) {
+    return Optional.ofNullable(document.block("metadata").attribute("namespace").tree)
+      .map(TupleTree::value)
+      .filter(ScalarTree.class::isInstance)
+      .map(ScalarTree.class::cast)
+      .map(ScalarTree::value)
+      .orElse("");
+  }
 }

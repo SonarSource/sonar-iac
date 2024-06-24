@@ -4,7 +4,7 @@ metadata:
   name: limit-range
   namespace: default
 spec:
-    limits:
+  limits:
     - type: Container
       default:
         cpu: "2"

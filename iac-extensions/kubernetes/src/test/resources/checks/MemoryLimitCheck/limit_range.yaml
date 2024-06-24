@@ -4,7 +4,10 @@ metadata:
   name: limit-range
   namespace: with-global-limit
 spec:
-    limits:
+  limits:
     - type: Container
       default:
         memory: 512Mi
+    - default:
+        memory:
+      type: Pod
