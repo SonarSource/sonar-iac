@@ -484,10 +484,10 @@ class KubernetesAnalyzerTest {
       when(helmFile.contents()).thenReturn("foo: {{ .Values.foo }}");
       when(helmFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(helmFile);
-      var inputFileContext = analyzer.createInputFileContext(sensorContext, helmFile);
+      var ctx = analyzer.createInputFileContext(sensorContext, helmFile);
 
-      assertThat(inputFileContext).isInstanceOf(HelmInputFileContext.class);
-      assertThat(((HelmInputFileContext) inputFileContext).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
+      assertThat(ctx).isInstanceOf(HelmInputFileContext.class);
+      assertThat(((HelmInputFileContext) ctx).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
     }
   }
 

@@ -101,7 +101,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
         allSecondaryLocations.addAll(shiftedSecondaryLocations);
         helmCtx.reportIssue(ruleKey, shiftedTextRange, message, allSecondaryLocations);
       } else {
-        super.reportIssue(textRange, message, secondaryLocations);
+        inputFileContext.reportIssue(ruleKey, textRange, message, secondaryLocations);
       }
     }
 

@@ -40,7 +40,7 @@ public final class HelmFileSystem {
     this.fileSystem = fileSystem;
   }
 
-  public String getFileRelativePath(HelmInputFileContext inputFileContext) {
+  public static String getFileRelativePath(HelmInputFileContext inputFileContext) {
     var inputFile = inputFileContext.inputFile;
     var filePath = Path.of(inputFile.uri());
     var chartRootDirectory = inputFileContext.getHelmProjectDirectory();
