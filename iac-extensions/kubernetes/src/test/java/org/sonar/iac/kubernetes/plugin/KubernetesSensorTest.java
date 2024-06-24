@@ -294,11 +294,17 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldParseTwoHelmFileInARowAndNotMixShiftedLocation() {
     final String originalSourceCode1 = K8_IDENTIFIERS + "{{ long helm code on line 5 }}\n{{ long helm code on line 6 }}";
-    final String transformedSourceCode1 = K8_IDENTIFIERS + "new_5_1: compliant #4\nnew_5_2: non_compliant #4\nnew_6_1: compliant " +
-      "#5\nnew_6_2: compliant #5";
+    final String transformedSourceCode1 = K8_IDENTIFIERS + """
+      new_5_1: compliant #4
+      new_5_2: non_compliant #4
+      new_6_1: compliant #5
+      new_6_2: compliant #5""";
     final String originalSourceCode2 = K8_IDENTIFIERS + "{{ helm code on line 5 }}\n{{ helm code on line 6 }}";
-    final String transformedSourceCode2 = K8_IDENTIFIERS + "new_5_1: compliant #4\nnew_5_2: compliant #4\nnew_6_1: compliant #5\nnew_6_2:" +
-      " non_compliant #5";
+    final String transformedSourceCode2 = K8_IDENTIFIERS + """
+      new_5_1: compliant #4
+      new_5_2: compliant #4
+      new_6_1: compliant #5
+      new_6_2: non_compliant #5""";
 
     HelmProcessor helmProcessor = new TestHelmProcessor(Map.of(
       originalSourceCode1, transformedSourceCode1,
