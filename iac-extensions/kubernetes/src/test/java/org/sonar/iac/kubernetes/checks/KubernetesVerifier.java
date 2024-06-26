@@ -182,8 +182,8 @@ public class KubernetesVerifier {
       additionalHelmProjectFiles = helmCtx.getAdditionalFiles().values().stream();
     }
     Stream.concat(
-        additionalHelmProjectFiles,
-        Arrays.stream(additionalFiles).map(fileName -> inputFile(fileName, BASE_DIR)))
+      additionalHelmProjectFiles,
+      Arrays.stream(additionalFiles).map(fileName -> inputFile(fileName, BASE_DIR)))
       .map(additionalFile -> {
         String additionalContent = retrieveContent(additionalFile);
         InputFileContext additionalInputFileContext;
