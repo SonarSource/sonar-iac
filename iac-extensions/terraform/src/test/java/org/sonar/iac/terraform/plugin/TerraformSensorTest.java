@@ -60,7 +60,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
       "resource \"aws_s3_bucket\" \"myawsbucket\" {\n" +
       "  tags = { \"anycompany:cost-center\" = \"\" }\n" +
       "}");
-    analyse(sensor("S6273"), inputFile);
+    analyze(sensor("S6273"), inputFile);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
@@ -83,7 +83,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
       "}");
     context.setRuntime(sonarLintRuntime);
 
-    analyse(sensor("S6273"), inputFile);
+    analyze(sensor("S6273"), inputFile);
     assertThat(context.allIssues()).hasSize(1);
 
     // No highlighting and metrics in SonarLint

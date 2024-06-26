@@ -56,8 +56,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
   public class KubernetesContextAdapter extends ContextAdapter implements KubernetesCheckContext {
 
-    private HelmInputFileContext inputFileContext;
-
+    private InputFileContext inputFileContext;
     private boolean shouldReportSecondaryInValues;
 
     public KubernetesContextAdapter(RuleKey ruleKey) {
@@ -70,36 +69,40 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     }
 
     @Override
-    public HelmInputFileContext inputFileContext() {
+    public InputFileContext inputFileContext() {
       return inputFileContext;
     }
 
     @Override
     public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
       KubernetesChecksVisitor.this.register(cls, statistics.time(ruleKey.rule(), (InputFileContext ctx, T tree) -> {
-        inputFileContext = (HelmInputFileContext) ctx;
+        inputFileContext = ctx;
         visitor.accept(this, tree);
       }));
     }
 
     @Override
     protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      var shiftedTextRange = textRange;
-      List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
-      if (textRange != null) {
-        shiftedTextRange = LocationShifter.shiftLocation(inputFileContext, textRange);
+      if (inputFileContext instanceof HelmInputFileContext helmCtx) {
+        var shiftedTextRange = textRange;
+        List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
+        if (textRange != null) {
+          shiftedTextRange = LocationShifter.shiftLocation(helmCtx, textRange);
 
-        boolean isReportingEnabled = inputFileContext.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
-        if (isReportingEnabled || shouldReportSecondaryInValues()) {
-          allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, shiftedTextRange);
+          boolean isReportingEnabled = helmCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
+          if (isReportingEnabled || shouldReportSecondaryInValues()) {
+            allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange);
+          }
         }
-      }
-      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
-        .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(inputFileContext, secondaryLocation))
-        .toList();
+        List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
+          .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(helmCtx, secondaryLocation))
+          .toList();
 
-      allSecondaryLocations.addAll(shiftedSecondaryLocations);
-      inputFileContext.reportIssue(ruleKey, shiftedTextRange, message, allSecondaryLocations);
+        allSecondaryLocations.addAll(shiftedSecondaryLocations);
+        helmCtx.reportIssue(ruleKey, shiftedTextRange, message, allSecondaryLocations);
+      } else {
+        inputFileContext.reportIssue(ruleKey, textRange, message, secondaryLocations);
+      }
     }
 
     @Override

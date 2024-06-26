@@ -66,7 +66,7 @@ class DockerSensorTest extends ExtensionSensorTest {
   @Test
   void shouldAnalyzeDockerfilesInSonarQube() {
     DockerSensor sensor = sensor();
-    analyse(sensor,
+    analyze(sensor,
       // should be included based on pattern matching
       inputFileWithoutAssociatedLanguage("Dockerfile.foo", ""),
       inputFileWithoutAssociatedLanguage("Dockerfile.foo.bar", ""),
@@ -95,7 +95,7 @@ class DockerSensorTest extends ExtensionSensorTest {
   void shouldAnalyzeDockerfilesInSonarLint() {
     DockerSensor sonarLintSensor = sonarLintSensor();
 
-    analyse(sonarLintContext, sonarLintSensor,
+    analyze(sonarLintContext, sonarLintSensor,
       // should be included based on pattern matching
       inputFileWithoutAssociatedLanguage("Dockerfile.foo", ""),
       inputFileWithoutAssociatedLanguage("Dockerfile.foo.bar", ""),

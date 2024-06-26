@@ -29,17 +29,17 @@ import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
 
-public class KubernetesFileTreeImpl extends FileTreeImpl implements KubernetesFileTree {
+public class HelmFileTreeImpl extends FileTreeImpl implements KubernetesFileTree {
   @Nullable
   private final GoTemplateTree goTemplateAst;
 
-  public KubernetesFileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata, @Nullable GoTemplateTree goTemplateAst) {
+  public HelmFileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata, @Nullable GoTemplateTree goTemplateAst) {
     super(documents, metadata);
     this.goTemplateAst = goTemplateAst;
   }
 
-  public static KubernetesFileTreeImpl fromFileTree(FileTree fileTree, @Nullable GoTemplateTree goTemplateAst) {
-    return new KubernetesFileTreeImpl(fileTree.documents(), fileTree.metadata(), goTemplateAst);
+  public static HelmFileTreeImpl fromFileTree(FileTree fileTree, @Nullable GoTemplateTree goTemplateAst) {
+    return new HelmFileTreeImpl(fileTree.documents(), fileTree.metadata(), goTemplateAst);
   }
 
   @Override

@@ -72,13 +72,20 @@ public class HelmProcessor {
   public String process(String source, HelmInputFileContext inputFileContext) {
     LocationShifter.readLinesSizes(source, inputFileContext);
     var evaluatedSource = processHelmTemplate(source, inputFileContext);
-    return evaluatedSource == null ? "" : cleanSource(evaluatedSource, inputFileContext);
+    if (evaluatedSource != null) {
+      return cleanSource(evaluatedSource, inputFileContext);
+    }
+    return "";
   }
 
   @CheckForNull
   String processHelmTemplate(String source, HelmInputFileContext inputFileContext) {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");
+    }
+    if (inputFileContext.getHelmProjectDirectory() == null) {
+      throw new ParseException("Failed to evaluate Helm file " + inputFileContext.inputFile + ": Failed to resolve Helm project " +
+        "directory", null, null);
     }
 
     var inputFile = inputFileContext.inputFile;
@@ -89,7 +96,7 @@ public class HelmProcessor {
 
     var sourceWithComments = addLineComments(source);
     inputFileContext.setSourceWithComments(sourceWithComments);
-    inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext.inputFile));
+    inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext));
     var fileContents = validateAndReadFiles(inputFileContext);
     var path = helmFilesystem.getFileRelativePath(inputFileContext);
     return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, fileContents);

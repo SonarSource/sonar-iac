@@ -39,7 +39,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Test
   void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
-    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("loop.yaml", "foo: &fooanchor\n" +
+    analyze(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("loop.yaml", "foo: &fooanchor\n" +
       " bar: *fooanchor"));
 
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -63,7 +63,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     settings.setProperty(getActivationSettingKey(), true);
     context.setSettings(settings);
 
-    analyse(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
+    analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
     assertThat(context.allIssues()).isEmpty();
 
     var logs = logTester.logs(Level.DEBUG);
@@ -79,7 +79,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     settings.setProperty(getActivationSettingKey(), true);
     context.setSettings(settings);
 
-    analyse(sensor("S2260"), inputFile("parserError.json", "\"myIdentifier'"));
+    analyze(sensor("S2260"), inputFile("parserError.json", "\"myIdentifier'"));
     assertThat(context.allIssues()).hasSize(1);
   }
 

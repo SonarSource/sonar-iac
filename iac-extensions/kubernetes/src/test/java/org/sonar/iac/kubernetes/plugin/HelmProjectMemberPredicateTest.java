@@ -25,10 +25,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.kubernetes.plugin.predicates.HelmProjectMemberPredicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
 class HelmProjectMemberPredicateTest {
   protected SensorContextTester context = SensorContextTester.create(Path.of("src/test/resources/").toAbsolutePath());
@@ -41,7 +41,7 @@ class HelmProjectMemberPredicateTest {
     "large_file_with_identifier.yaml,false",
   })
   void shouldDetectFilesInHelmProject(String filePath, boolean shouldMatch) {
-    InputFile templateFile = IacTestUtils.inputFile(filePath, "yaml");
+    InputFile templateFile = inputFile(filePath, "yaml");
 
     FilePredicate filePredicate = new HelmProjectMemberPredicate(context);
     assertThat(filePredicate.apply(templateFile)).isEqualTo(shouldMatch);

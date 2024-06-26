@@ -78,19 +78,19 @@ public abstract class AbstractSensorTest {
 
   protected abstract String getActivationSettingKey();
 
-  protected void analyse(InputFile... inputFiles) {
-    analyse(context, inputFiles);
+  protected void analyze(InputFile... inputFiles) {
+    analyze(context, inputFiles);
   }
 
-  protected void analyse(SensorContextTester sensorContext, InputFile... inputFiles) {
-    analyse(sensorContext, sensor(checkFactory(sensorContext)), inputFiles);
+  protected void analyze(SensorContextTester sensorContext, InputFile... inputFiles) {
+    analyze(sensorContext, sensor(checkFactory(sensorContext)), inputFiles);
   }
 
-  protected void analyse(Sensor sensor, InputFile... inputFiles) {
-    analyse(context, sensor, inputFiles);
+  protected void analyze(Sensor sensor, InputFile... inputFiles) {
+    analyze(context, sensor, inputFiles);
   }
 
-  protected void analyse(SensorContextTester sensorContext, Sensor sensor, InputFile... inputFiles) {
+  protected void analyze(SensorContextTester sensorContext, Sensor sensor, InputFile... inputFiles) {
     for (InputFile inputFile : inputFiles) {
       sensorContext.fileSystem().add(inputFile);
     }

@@ -20,13 +20,14 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public interface KubernetesCheckContext extends CheckContext {
   boolean shouldReportSecondaryInValues();
 
   void setShouldReportSecondaryInValues(boolean shouldReport);
 
-  HelmInputFileContext inputFileContext();
+  InputFileContext inputFileContext();
 
   ProjectContext projectContext();
 }

@@ -106,8 +106,10 @@ public class KubernetesVerifier {
    */
   public static void verifyContent(String content, IacCheck check) {
     var tempFile = contentToTmp(content);
-    var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(), KubernetesLanguage.NAME));
-    Verifier.verify(PARSER, tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, ProjectContext.builder().build()));
+    var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(),
+      KubernetesLanguage.NAME));
+    Verifier.verify(PARSER, tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext,
+      ProjectContext.builder().build()));
   }
 
   public static void verifyNoIssue(String templateFileName, IacCheck check, String... fileNames) {
@@ -120,7 +122,8 @@ public class KubernetesVerifier {
       commentsVisitor);
   }
 
-  private static Tuple<HelmInputFileContext, BiConsumer<Tree, Map<Integer, Set<Comment>>>> initializeVerification(String templateFileName, String... fileNames) {
+  private static Tuple<InputFileContext, BiConsumer<Tree, Map<Integer, Set<Comment>>>> initializeVerification(String templateFileName,
+    String... fileNames) {
     if (containsHelmContent(templateFileName)) {
       if (fileNames.length > 0) {
         throw new IllegalArgumentException("For Helm projects, all project files will be discovered. Explicit input is not required.");
@@ -128,7 +131,7 @@ public class KubernetesVerifier {
       var inputFileContext = HelmVerifier.prepareHelmContext(templateFileName);
       return new Tuple<>(inputFileContext, HelmVerifier.commentsWithShiftedTextRangeVisitor(inputFileContext));
     } else {
-      var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(templateFileName, BASE_DIR));
+      var inputFileContext = new InputFileContext(SENSOR_CONTEXT, inputFile(templateFileName, BASE_DIR));
       return new Tuple<>(inputFileContext, Verifier.commentsVisitor());
     }
   }
@@ -170,16 +173,26 @@ public class KubernetesVerifier {
       new TreeVisitor<>());
   }
 
-  private static ProjectContext prepareProjectContext(HelmInputFileContext inputFileContext, String... additionalFiles) {
+  private static ProjectContext prepareProjectContext(InputFileContext inputFileContext, String... additionalFiles) {
     var projectContextBuilder = ProjectContext.builder();
     var projectContextEnricherVisitor = new ProjectContextEnricherVisitor(projectContextBuilder);
 
+    Stream<InputFile> additionalHelmProjectFiles = Stream.empty();
+    if (inputFileContext instanceof HelmInputFileContext helmCtx) {
+      additionalHelmProjectFiles = helmCtx.getAdditionalFiles().values().stream();
+    }
     Stream.concat(
-      inputFileContext.getAdditionalFiles().values().stream(),
+      additionalHelmProjectFiles,
       Arrays.stream(additionalFiles).map(fileName -> inputFile(fileName, BASE_DIR)))
       .map(additionalFile -> {
         String additionalContent = retrieveContent(additionalFile);
-        return PARSER.parse(additionalContent, new HelmInputFileContext(SENSOR_CONTEXT, additionalFile));
+        InputFileContext additionalInputFileContext;
+        if (KubernetesAnalyzer.hasHelmContent(additionalContent)) {
+          additionalInputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, additionalFile);
+        } else {
+          additionalInputFileContext = new InputFileContext(SENSOR_CONTEXT, additionalFile);
+        }
+        return PARSER.parse(additionalContent, additionalInputFileContext);
       }).forEach(tree -> projectContextEnricherVisitor.scan(inputFileContext, tree));
 
     return projectContextBuilder.build();
@@ -239,20 +252,19 @@ public class KubernetesVerifier {
   }
 
   public static class KubernetesTestContext extends Verifier.TestContext implements KubernetesCheckContext {
-    private final HelmInputFileContext currentCtx;
-
+    private final InputFileContext inputFileContext;
     private final ProjectContext projectContext;
     private boolean shouldReportSecondaryInValues = true;
 
-    public KubernetesTestContext(MultiFileVerifier verifier, HelmInputFileContext currentCtx, ProjectContext projectContext) {
+    public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext inputFileContext, ProjectContext projectContext) {
       super(verifier);
-      this.currentCtx = currentCtx;
+      this.inputFileContext = inputFileContext;
       this.projectContext = projectContext;
     }
 
     @Override
-    public HelmInputFileContext inputFileContext() {
-      return currentCtx;
+    public InputFileContext inputFileContext() {
+      return inputFileContext;
     }
 
     @Override
@@ -262,19 +274,23 @@ public class KubernetesVerifier {
 
     @Override
     protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      var shiftedTextRange = LocationShifter.shiftLocation(currentCtx, textRange);
+      if (inputFileContext instanceof HelmInputFileContext helmCtx) {
+        var shiftedTextRange = LocationShifter.shiftLocation(helmCtx, textRange);
 
-      List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
-      if (shouldReportSecondaryInValues) {
-        allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(currentCtx, shiftedTextRange);
+        List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
+        if (shouldReportSecondaryInValues) {
+          allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange);
+        }
+        List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
+          .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(helmCtx, secondaryLocation))
+          .toList();
+
+        allSecondaryLocations.addAll(shiftedSecondaryLocations);
+
+        super.reportIssue(shiftedTextRange, message, allSecondaryLocations);
+      } else {
+        super.reportIssue(textRange, message, secondaryLocations);
       }
-      List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
-        .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(currentCtx, secondaryLocation))
-        .toList();
-
-      allSecondaryLocations.addAll(shiftedSecondaryLocations);
-
-      super.reportIssue(shiftedTextRange, message, allSecondaryLocations);
     }
 
     @Override
