@@ -24,15 +24,21 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
@@ -155,6 +161,25 @@ class HelmParserTest {
     FileTree file = parseTemplate(evaluated);
 
     assertThat(file.documents().get(0).children()).hasSize(4);
+  }
+
+  @MethodSource()
+  @ParameterizedTest
+  void shouldBuildEmptyTreeWhenParsing(InputFileContext ctx) {
+    var helmParserLocal = new HelmParser(null);
+    var fileTree = (FileTree) helmParserLocal.parse("", ctx);
+
+    assertThat(fileTree.documents()).hasSize(1);
+    assertThat(fileTree.documents().get(0).children()).isEmpty();
+    TextRangeAssert.assertThat(fileTree.textRange()).hasRange(1, 0, 1, 2);
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("No HelmInputFileContext provided, skipping processing of Helm file");
+  }
+
+  static Stream<Arguments> shouldBuildEmptyTreeWhenParsing() {
+    return Stream.of(
+      Arguments.of((HelmInputFileContext) null),
+      Arguments.of(new InputFileContext(null, null)));
   }
 
   private FileTree parseTemplate(String evaluated) throws IOException {

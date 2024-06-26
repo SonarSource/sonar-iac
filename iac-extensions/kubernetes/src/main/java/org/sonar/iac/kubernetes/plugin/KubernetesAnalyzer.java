@@ -66,11 +66,13 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
   @Override
   public Tree parse(String content, @Nullable InputFileContext inputFileContext) {
     try {
-      if (inputFileContext instanceof HelmInputFileContext helmInputFileContext) {
-        return kubernetesParserStatistics.recordHelmFile(() -> helmParser.parseHelmFile(content, helmInputFileContext));
+      TreeParser<? extends Tree> parserForCtx;
+      if (inputFileContext instanceof HelmInputFileContext) {
+        parserForCtx = helmParser;
       } else {
-        return kubernetesParserStatistics.recordPureKubernetesFile(() -> parser.parse(content, inputFileContext));
+        parserForCtx = parser;
       }
+      return kubernetesParserStatistics.recordFile(() -> parserForCtx.parse(content, inputFileContext), inputFileContext);
     } catch (ParseException e) {
       throw e;
     } catch (RuntimeException e) {

@@ -106,7 +106,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       .contains("Helm content detected in file 'templates/k8.yaml'")
       .contains("Initializing Helm processor")
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
-        "Helm files count: 1, parsed: 0, not parsed: 1")
+        "Helm files count: 1, parsed: 0, not parsed: 1; Kustomize file count: pure Kubernetes 0, Helm: 0")
       .doesNotContain("Skipping initialization of Helm processor");
   }
 
@@ -199,7 +199,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
-        "Helm files count: 0, parsed: 0, not parsed: 0");
+        "Helm files count: 0, parsed: 0, not parsed: 0; Kustomize file count: pure Kubernetes 0, Helm: 0");
   }
 
   @Test
@@ -208,7 +208,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertOneSourceFileIsParsed();
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
-        "Helm files count: 0, parsed: 0, not parsed: 0");
+        "Helm files count: 0, parsed: 0, not parsed: 0; Kustomize file count: pure Kubernetes 0, Helm: 0");
   }
 
   @Test
@@ -282,7 +282,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(issue.flows()).isEmpty();
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
-        "Helm files count: 1, parsed: 1, not parsed: 0");
+        "Helm files count: 1, parsed: 1, not parsed: 0; Kustomize file count: pure Kubernetes 0, Helm: 0");
   }
 
   private static Stream<RaiseIssue> provideRaiseIssue() {
@@ -329,7 +329,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(issue2.primaryLocation().textRange()).hasRange(4, 9, 4, 22);
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
-        "Helm files count: 2, parsed: 2, not parsed: 0");
+        "Helm files count: 2, parsed: 2, not parsed: 0; Kustomize file count: pure Kubernetes 0, Helm: 0");
   }
 
   @Test

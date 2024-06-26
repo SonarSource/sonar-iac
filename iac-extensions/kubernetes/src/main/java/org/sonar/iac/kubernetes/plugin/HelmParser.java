@@ -23,7 +23,10 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
@@ -31,7 +34,7 @@ import org.sonar.iac.kubernetes.tree.impl.HelmFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
-public class HelmParser {
+public class HelmParser implements TreeParser<Tree> {
   private static final Logger LOG = LoggerFactory.getLogger(HelmParser.class);
   private final YamlParser parser = new YamlParser();
   @Nullable
@@ -39,6 +42,15 @@ public class HelmParser {
 
   public HelmParser(@Nullable HelmProcessor helmProcessor) {
     this.helmProcessor = helmProcessor;
+  }
+
+  @Override
+  public Tree parse(String source, @Nullable InputFileContext inputFileContext) {
+    if (inputFileContext instanceof HelmInputFileContext helmInputFileContext) {
+      return parseHelmFile(source, helmInputFileContext);
+    }
+    LOG.debug("No HelmInputFileContext provided, skipping processing of Helm file");
+    return buildEmptyTree();
   }
 
   public FileTree parseHelmFile(String source, HelmInputFileContext inputFileContext) {
