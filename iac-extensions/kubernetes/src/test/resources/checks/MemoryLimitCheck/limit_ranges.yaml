@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  namespace: with-global-limit
+spec:
+  limits:
+    - type: Container
+      default:
+        memory: 512Mi
+    - default:
+        memory:
+      type: Pod
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  namespace: with-type-pvc
+spec:
+  limits:
+    - type: PersistentVolumeClaim
+      max:
+        storage: 1Gi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  namespace: with-resource-cpu
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "2"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  namespace: with-fq-type-name
+spec:
+  limits:
+    - type: with-global-limit.example
+      max:
+        memory: 1Gi
+      min:
+        memory: 1Gi
+      default:
+        memory: 1Gi
+      defaultRequest:
+        memory: 1Gi
+      maxLimitRequestRatio:
+        memory: 1
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: with-other-limit-member
+spec:
+  limits:
+    - type: Container
+      min:
+        memory: 1Gi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  # default namespace
+spec:
+  limits:
+    - type: PersistentVolumeClaim
+      max:
+        storage: 1Gi
+      min:
+        storage: 1Gi
+---
