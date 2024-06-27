@@ -20,14 +20,18 @@
 package org.sonar.iac.kubernetes.checks;
 
 import javax.annotation.Nullable;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.testing.TemplateFileReader;
+import org.sonar.iac.utils.TemporaryFilesCleanup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(TemporaryFilesCleanup.class)
 class MemoryLimitCheckTest {
   IacCheck check = new MemoryLimitCheck();
 
@@ -36,20 +40,22 @@ class MemoryLimitCheckTest {
     KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_pod.yaml", check);
   }
 
-  @Test
-  void testPodKindWithGlobalLimit() {
-    KubernetesVerifier.verifyNoIssue("MemoryLimitCheck/memory_limit_pod_with_global_limit.yaml", check, "MemoryLimitCheck/limit_range.yaml");
-  }
-
-  @Test
-  void testPodKindWithGlobalLimitWrongType() {
-    KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_pod.yaml", check, "MemoryLimitCheck/limit_range_default_namespace.yaml");
-  }
-
-  @Test
-  @DisplayName("Should raise issues when a limit exists in the same namespace (default) but for different resource")
-  void shouldRaiseForPodWithGlobalLimitForCpu() {
-    KubernetesVerifier.verify("MemoryLimitCheck/memory_limit_pod.yaml", check, "MemoryLimitCheck/limit_range_cpu.yaml");
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+    with-global-limit,true
+    with-type-pvc,false
+    with-resource-cpu,false
+    with-type-full-qualified-name,false
+    with-other-limit-member,false
+    '',true""")
+  void testPodKindWithNamespace(String namespace, boolean noIssueExpected) {
+    if (noIssueExpected) {
+      var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/memory_limit_pod_with_global_limit.yaml", "${namespace}", namespace);
+      KubernetesVerifier.verifyContentNoIssue(content, "MemoryLimitCheck", check, "MemoryLimitCheck/limit_ranges.yaml");
+    } else {
+      var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/memory_limit_pod.yaml", "${namespace}", namespace);
+      KubernetesVerifier.verifyContent(content, "MemoryLimitCheck", check, "MemoryLimitCheck/limit_ranges.yaml");
+    }
   }
 
   @Test
@@ -59,12 +65,20 @@ class MemoryLimitCheckTest {
 
   @Test
   void testKindWithTemplateWithGlobalLimit() {
-    KubernetesVerifier.verifyNoIssue("MemoryLimitCheck/memory_limit_deployment_with_global_limit.yaml", check, "MemoryLimitCheck/limit_range.yaml");
+    KubernetesVerifier.verifyNoIssue("MemoryLimitCheck/memory_limit_deployment_with_global_limit.yaml", check, "MemoryLimitCheck/limit_ranges.yaml");
   }
 
-  @Test
-  void testPodKindForHelm() {
-    KubernetesVerifier.verify("MemoryLimitCheck/helm/templates/memory_limit_deployment_helm.yaml", check);
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "with-type-pvc",
+    "with-resource-cpu",
+    "with-type-full-qualified-name",
+    "with-other-limit-member",
+    "",
+  })
+  void testPodKindForHelm(String namespace) {
+    var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/helm/templates/memory_limit_pod_helm.yaml", "${namespace}", namespace);
+    KubernetesVerifier.verifyContent(content, "MemoryLimitCheck/helm/templates", check);
   }
 
   @ParameterizedTest

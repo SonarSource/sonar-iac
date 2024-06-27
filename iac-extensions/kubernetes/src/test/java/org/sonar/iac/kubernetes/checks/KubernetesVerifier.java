@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,7 +77,8 @@ import static org.sonar.iac.common.testing.Verifier.contentToTmp;
 public class KubernetesVerifier {
 
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesVerifier.class);
-  public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  public static final Path BASE_DIR = Paths.get("build", "resources", "test", "checks");
+  public static final String TMP_CONTENT_FILE_NAME = "temp-file-for-k8s-verify-content.yaml";
   private static final SensorContextTester SENSOR_CONTEXT = SensorContextTester.create(BASE_DIR.toAbsolutePath());
   private static final KubernetesAnalyzer KUBERNETES_ANALYZER = initializeKubernetesAnalyzer();
   private static final TreeParser<Tree> PARSER = KUBERNETES_ANALYZER::parse;
@@ -99,6 +101,16 @@ public class KubernetesVerifier {
     Verifier.verify(PARSER, inputFileContext, check,
       multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
       commentsVisitor, expectedIssues);
+  }
+
+  public static void verifyContent(String content, String basePath, IacCheck check, String... fileNames) {
+    var relativePath = createFileInBaseDir(basePath, content);
+    verify(relativePath, check, fileNames);
+  }
+
+  public static void verifyContentNoIssue(String content, String basePath, IacCheck check, String... fileNames) {
+    var relativePath = createFileInBaseDir(basePath, content);
+    verifyNoIssue(relativePath, check, fileNames);
   }
 
   /**
@@ -203,6 +215,16 @@ public class KubernetesVerifier {
       return inputFile.contents();
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Unable to read content of %s", inputFile), e);
+    }
+  }
+
+  private static String createFileInBaseDir(String basePath, String content) {
+    var tempPath = Path.of(basePath).resolve(TMP_CONTENT_FILE_NAME);
+    try {
+      Files.writeString(BASE_DIR.resolve(tempPath), content, StandardCharsets.UTF_8);
+      return tempPath.toString();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
