@@ -53,8 +53,8 @@ func PrepareChartValues(templateSources *TemplateSources) (map[string]interface{
 	}
 
 	chart, err := mo.Do(func() *Chart {
-		content, _ := templateSources.SourceFile("Chart.yaml")
-		chart, _ := LoadChart(string(content))
+		content := mo.TupleToResult(templateSources.SourceFile("Chart.yaml")).MustGet()
+		chart := mo.TupleToResult(LoadChart(string(content))).MustGet()
 		return chart
 	}).Get()
 
