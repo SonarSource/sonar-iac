@@ -71,7 +71,7 @@ public class KubernetesParserStatistics {
       return;
     }
     String filename = inputFileContext.inputFile.filename();
-    if (filename.equals("kustomization.yaml") || filename.equals("kustomization.yml")) {
+    if ("kustomization.yaml".equals(filename) || "kustomization.yml".equals(filename)) {
       if (inputFileContext instanceof HelmInputFileContext) {
         kustomizeHelmFileCount++;
       } else {

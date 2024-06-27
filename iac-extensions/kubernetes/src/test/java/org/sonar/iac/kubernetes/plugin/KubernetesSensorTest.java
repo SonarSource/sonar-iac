@@ -490,6 +490,18 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(tplFile)).isTrue();
   }
 
+  @Test
+  void shouldAnalyzeAndLogKustomizeFiles() {
+    InputFile kustomizeHelm = inputFile("templates/kustomization.yaml", "{{ some helm code }}\n" + K8_IDENTIFIERS);
+    InputFile kustomizeK8s = inputFile("templates/kustomization.yml", K8_IDENTIFIERS);
+
+    analyze(sensor(), kustomizeHelm, kustomizeK8s);
+    assertNSourceFileIsParsed(2);
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
+        "Helm files count: 1, parsed: 0, not parsed: 1; Kustomize file count: pure Kubernetes 1, Helm: 1");
+  }
+
   private void assertNotSourceFileIsParsed() {
     assertNSourceFileIsParsed(0);
   }
