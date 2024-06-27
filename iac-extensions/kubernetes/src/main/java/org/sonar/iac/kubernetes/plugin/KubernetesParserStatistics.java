@@ -20,8 +20,11 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 public class KubernetesParserStatistics {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesParserStatistics.class);
@@ -30,30 +33,50 @@ public class KubernetesParserStatistics {
   private int pureKubernetesParsedFileCount;
   private int helmFileCount;
   private int helmParsedFileCount;
+  private int kustomizePureKubernetesFileCount;
+  private int kustomizeHelmFileCount;
 
-  public <T> T recordPureKubernetesFile(Supplier<T> o) {
-    pureKubernetesFileCount++;
-    var v = o.get();
-    pureKubernetesParsedFileCount++;
-    return v;
-  }
-
-  public <T> T recordHelmFile(Supplier<T> o) {
-    helmFileCount++;
-    var v = o.get();
-    helmParsedFileCount++;
-    return v;
+  public <T> T recordFile(Supplier<T> o, @Nullable InputFileContext inputFileContext) {
+    T result;
+    recordKustomizeFiles(inputFileContext);
+    if (inputFileContext instanceof HelmInputFileContext) {
+      helmFileCount++;
+      result = o.get();
+      helmParsedFileCount++;
+    } else {
+      pureKubernetesFileCount++;
+      result = o.get();
+      pureKubernetesParsedFileCount++;
+    }
+    return result;
   }
 
   public void logStatistics() {
     if (pureKubernetesFileCount != 0 || helmFileCount != 0) {
-      LOG.debug("Kubernetes Parsing Statistics: Pure Kubernetes files count: {}, parsed: {}, not parsed: {}; Helm files count: {}, parsed: {}, not parsed: {}",
+      LOG.debug("Kubernetes Parsing Statistics: Pure Kubernetes files count: {}, parsed: {}, not parsed: {}; Helm files count: {}, " +
+        "parsed: {}, not parsed: {}; Kustomize file count: pure Kubernetes {}, Helm: {}",
         pureKubernetesFileCount,
         pureKubernetesParsedFileCount,
         (pureKubernetesFileCount - pureKubernetesParsedFileCount),
         helmFileCount,
         helmParsedFileCount,
-        (helmFileCount - helmParsedFileCount));
+        (helmFileCount - helmParsedFileCount),
+        kustomizePureKubernetesFileCount,
+        kustomizeHelmFileCount);
+    }
+  }
+
+  private void recordKustomizeFiles(@Nullable InputFileContext inputFileContext) {
+    if (inputFileContext == null) {
+      return;
+    }
+    String filename = inputFileContext.inputFile.filename();
+    if ("kustomization.yaml".equals(filename) || "kustomization.yml".equals(filename)) {
+      if (inputFileContext instanceof HelmInputFileContext) {
+        kustomizeHelmFileCount++;
+      } else {
+        kustomizePureKubernetesFileCount++;
+      }
     }
   }
 }
