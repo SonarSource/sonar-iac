@@ -109,4 +109,8 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
       .map(ScalarTree::value)
       .orElse("");
   }
+
+  static boolean startsWithDigit(@Nullable String value) {
+    return value != null && !value.isEmpty() && Character.isDigit(value.charAt(0));
+  }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,8 +27,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.TemplateFileReader;
 import org.sonar.iac.utils.TemporaryFilesCleanup;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(TemporaryFilesCleanup.class)
 class MemoryLimitCheckTest {
@@ -50,7 +47,8 @@ class MemoryLimitCheckTest {
     '',true""")
   void testPodKindWithNamespace(String namespace, boolean noIssueExpected) {
     if (noIssueExpected) {
-      var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/memory_limit_pod_with_global_limit.yaml", "${namespace}", namespace);
+      var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/memory_limit_pod_with_global_limit.yaml", "${namespace}",
+        namespace);
       KubernetesVerifier.verifyContentNoIssue(content, "MemoryLimitCheck", check, "MemoryLimitCheck/limit_ranges.yaml");
     } else {
       var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/memory_limit_pod.yaml", "${namespace}", namespace);
@@ -65,7 +63,8 @@ class MemoryLimitCheckTest {
 
   @Test
   void testKindWithTemplateWithGlobalLimit() {
-    KubernetesVerifier.verifyNoIssue("MemoryLimitCheck/memory_limit_deployment_with_global_limit.yaml", check, "MemoryLimitCheck/limit_ranges.yaml");
+    KubernetesVerifier.verifyNoIssue("MemoryLimitCheck/memory_limit_deployment_with_global_limit.yaml", check, "MemoryLimitCheck" +
+      "/limit_ranges.yaml");
   }
 
   @ParameterizedTest
@@ -77,23 +76,8 @@ class MemoryLimitCheckTest {
     "",
   })
   void testPodKindForHelm(String namespace) {
-    var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/helm/templates/memory_limit_pod_helm.yaml", "${namespace}", namespace);
+    var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/helm/templates/memory_limit_pod_helm.yaml", "${namespace}",
+      namespace);
     KubernetesVerifier.verifyContent(content, "MemoryLimitCheck/helm/templates", check);
-  }
-
-  @ParameterizedTest
-  @CsvSource(value = {
-    "1, true",
-    "1Gi, true",
-    "200M, true",
-    "1.5Gi, true",
-    "~, false",
-    "_, false",
-    "1.5, true",
-    "Gi, false",
-    "null, false",
-  }, emptyValue = "_", nullValues = "null")
-  void shouldDetectValidMemorySpecifiers(@Nullable String value, boolean shouldBeValid) {
-    assertThat(MemoryLimitCheck.isValidMemory(value)).isEqualTo(shouldBeValid);
   }
 }

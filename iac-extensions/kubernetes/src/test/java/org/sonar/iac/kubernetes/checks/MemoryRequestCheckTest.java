@@ -21,12 +21,18 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.testing.TemplateFileReader;
+import org.sonar.iac.utils.TemporaryFilesCleanup;
 
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
+@ExtendWith(TemporaryFilesCleanup.class)
 class MemoryRequestCheckTest {
   IacCheck check = new MemoryRequestCheck();
 
@@ -42,12 +48,46 @@ class MemoryRequestCheckTest {
   }
 
   @Test
+  void testKindWithTemplateWithGlobalLimit() {
+    KubernetesVerifier.verifyNoIssue("MemoryRequestCheck/memory_request_deployment_with_global_request_limit.yaml", check,
+      "MemoryRequestCheck/limit_ranges.yaml");
+  }
+
+  @Test
   void testPodKind() {
     KubernetesVerifier.verify("MemoryRequestCheck/memory_request_pod.yaml", check);
   }
 
-  @Test
-  void testPodKindForHelm() {
-    KubernetesVerifier.verify("MemoryRequestCheck/helm/templates/memory_request_deployment_helm.yaml", check);
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+    with-global-limit,true
+    with-type-pvc,false
+    with-resource-cpu,false
+    with-type-full-qualified-name,false
+    with-other-limit-member,false
+    '',true""")
+  void testPodKindWithNamespace(String namespace, boolean noIssueExpected) {
+    if (noIssueExpected) {
+      var content = TemplateFileReader.readTemplateAndReplace("MemoryRequestCheck/memory_request_pod_with_global_request_limit.yaml", "$" +
+        "{namespace}", namespace);
+      KubernetesVerifier.verifyContentNoIssue(content, "MemoryRequestCheck", check, "MemoryRequestCheck/limit_ranges.yaml");
+    } else {
+      var content = TemplateFileReader.readTemplateAndReplace("MemoryRequestCheck/memory_request_pod.yaml", "${namespace}", namespace);
+      KubernetesVerifier.verifyContent(content, "MemoryRequestCheck", check, "MemoryRequestCheck/limit_ranges.yaml");
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "with-type-pvc",
+    "with-resource-cpu",
+    "with-type-full-qualified-name",
+    "with-other-limit-member",
+    "",
+  })
+  void testPodKindForHelm(String namespace) {
+    var content = TemplateFileReader.readTemplateAndReplace("MemoryRequestCheck/helm/templates/memory_request_deployment_helm.yaml", "$" +
+      "{namespace}", namespace);
+    KubernetesVerifier.verifyContent(content, "MemoryRequestCheck/helm/templates", check);
   }
 }

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: ${type}
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: compliant_without_memory_request
+          resources:
+            requests:
+              cpu: 200m
+
+        - name: compliant_without_requests
+          resources:
+            limits:
+              memory: 64Mi
+
+        - name: compliant_without_resources
+
+        - name: compliant_memory_request_tilde
+          resources:
+            requests:
+              memory: "~"
+
+        - name: compliant_memory_request_empty_brackets
+          resources:
+            requests:
+              memory: "[]"
+
+        - resources:
+            requests:
+              memory: "null"
+          name: compliant_memory_request_null
+
+        - name: compliant_memory_request
+          resources:
+            requests:
+              memory: 100Mi

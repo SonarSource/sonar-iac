@@ -21,7 +21,6 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.Collection;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
@@ -50,11 +49,7 @@ public class MemoryLimitCheck extends AbstractLimitCheck {
   }
 
   private static boolean hasMemoryLimit(LimitRangeItem limitRangeItem) {
-    var defaultMemoryLimit = limitRangeItem.defaultMap().get("memory");
-    return LIMIT_TYPES.contains(limitRangeItem.type()) && isValidMemory(defaultMemoryLimit);
-  }
-
-  static boolean isValidMemory(@Nullable String value) {
-    return value != null && !value.isEmpty() && Character.isDigit(value.charAt(0));
+    var defaultMemoryLimit = limitRangeItem.defaultMap().get(KEY);
+    return LIMIT_TYPES.contains(limitRangeItem.type()) && startsWithDigit(defaultMemoryLimit);
   }
 }
