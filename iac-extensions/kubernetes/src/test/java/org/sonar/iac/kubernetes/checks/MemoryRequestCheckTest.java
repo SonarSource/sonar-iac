@@ -20,18 +20,19 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.TemplateFileReader;
+import org.sonar.iac.utils.TemporaryFilesCleanup;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
+@ExtendWith(TemporaryFilesCleanup.class)
 class MemoryRequestCheckTest {
   IacCheck check = new MemoryRequestCheck();
 
@@ -55,21 +56,6 @@ class MemoryRequestCheckTest {
   @Test
   void testPodKind() {
     KubernetesVerifier.verify("MemoryRequestCheck/memory_request_pod.yaml", check);
-  }
-
-  @ParameterizedTest
-  @CsvSource(nullValues = "null", textBlock = """
-    1, true
-    1Gi, true
-    200M, true
-    1.5Gi, true
-    ~, false
-    '', false
-    1.5, true
-    Gi, false
-    null, false""")
-  void shouldDetectValidMemorySpecifiers(@Nullable String value, boolean shouldBeValid) {
-    assertThat(MemoryRequestCheck.isValidMemory(value)).isEqualTo(shouldBeValid);
   }
 
   @ParameterizedTest

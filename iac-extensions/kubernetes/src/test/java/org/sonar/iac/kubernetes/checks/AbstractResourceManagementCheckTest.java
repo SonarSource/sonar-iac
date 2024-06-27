@@ -19,7 +19,10 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.YamlParser;
@@ -49,4 +52,18 @@ class AbstractResourceManagementCheckTest {
     assertThat(firstChildElement).isNull();
   }
 
+  @ParameterizedTest
+  @CsvSource(nullValues = "null", textBlock = """
+    1, true
+    1Gi, true
+    200M, true
+    1.5Gi, true
+    ~, false
+    '', false
+    1.5, true
+    Gi, false
+    null, false""")
+  void shouldDetectIfStartsWithDigit(@Nullable String value, boolean shouldBeValid) {
+    assertThat(AbstractResourceManagementCheck.startsWithDigit(value)).isEqualTo(shouldBeValid);
+  }
 }
