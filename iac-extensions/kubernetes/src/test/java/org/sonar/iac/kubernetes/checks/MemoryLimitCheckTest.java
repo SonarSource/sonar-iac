@@ -82,17 +82,16 @@ class MemoryLimitCheckTest {
   }
 
   @ParameterizedTest
-  @CsvSource(value = {
-    "1, true",
-    "1Gi, true",
-    "200M, true",
-    "1.5Gi, true",
-    "~, false",
-    "'' false",
-    "1.5, true",
-    "Gi, false",
-    "null, false",
-  }, nullValues = "null")
+  @CsvSource(nullValues = "null", textBlock = """
+    1, true
+    1Gi, true
+    200M, true
+    1.5Gi, true
+    ~, false
+    '', false
+    1.5, true
+    Gi, false
+    null, false""")
   void shouldDetectValidMemorySpecifiers(@Nullable String value, boolean shouldBeValid) {
     assertThat(MemoryLimitCheck.isValidMemory(value)).isEqualTo(shouldBeValid);
   }
