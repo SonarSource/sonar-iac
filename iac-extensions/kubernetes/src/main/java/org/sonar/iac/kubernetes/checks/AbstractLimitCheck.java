@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.iac.kubernetes.model.LimitRange;
 
 public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
