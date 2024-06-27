@@ -1,4 +1,7 @@
 {
+"kubernetes_cross_file-project:ruling/src/integrationTest/resources/sources/kubernetes_cross_file/pod-no-limit-range.yaml": [
+6
+],
 "kubernetes_cross_file-project:ruling/src/integrationTest/resources/sources/kubernetes_cross_file/pod.yaml": [
 6
 ]

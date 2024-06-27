@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-ns-compliant
+  namespace: ns-without-limit-ranges
+spec:
+  containers:
+    # All X-file rules should be raised here are the namespace doesn't contain any LimitRange
+    - name: nginx-ns-non-compliant
+      image: nginx
