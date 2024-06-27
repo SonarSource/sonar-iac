@@ -19,33 +19,27 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.iac.kubernetes.model.LimitRange;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
-  private static final Set<String> LIMIT_TYPES = Set.of("Pod", "Container");
+class AbstractLimitCheckTest {
 
-  String getResourceManagementName() {
-    return RESOURCE_MANAGEMENT_TYPE;
-  }
-
-  @Override
-  Class<LimitRange> getGlobalResourceType() {
-    return LimitRange.class;
-  }
-
-  protected Set<String> getLimitTypes() {
-    return LIMIT_TYPES;
-  }
-
-  abstract String getResourceName();
-
-  abstract String getMessage();
-
-  static boolean startsWithDigit(@Nullable String value) {
-    return value != null && !value.isEmpty() && Character.isDigit(value.charAt(0));
+  @ParameterizedTest
+  @CsvSource(value = {
+    "1, true",
+    "1Gi, true",
+    "200M, true",
+    "1.5Gi, true",
+    "~, false",
+    "_, false",
+    "1.5, true",
+    "Gi, false",
+    "null, false",
+  }, emptyValue = "_", nullValues = "null")
+  void shouldDetectValidMemorySpecifiers(@Nullable String value, boolean shouldBeValid) {
+    assertThat(MemoryLimitCheck.startsWithDigit(value)).isEqualTo(shouldBeValid);
   }
 }

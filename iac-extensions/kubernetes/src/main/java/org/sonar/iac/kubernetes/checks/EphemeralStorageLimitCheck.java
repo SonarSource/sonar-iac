@@ -19,18 +19,15 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.Collection;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.kubernetes.model.LimitRange;
+import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
 @Rule(key = "S6870")
 public class EphemeralStorageLimitCheck extends AbstractLimitCheck {
   private static final String MESSAGE = "Specify a storage limit for this container.";
   private static final String KEY = "ephemeral-storage";
-
-  @Override
-  boolean shouldVisitWholeDocument() {
-    return false;
-  }
 
   @Override
   String getResourceName() {
@@ -43,13 +40,14 @@ public class EphemeralStorageLimitCheck extends AbstractLimitCheck {
   }
 
   @Override
-  void registerObjectCheck() {
-    register(KIND_POD, (BlockObject pod) -> pod.blocks("containers")
-      .filter(container -> container.blocks("volumeMounts").findAny().isPresent())
-      .forEach(this::reportMissingLimit));
+  protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
+    return globalResources.stream()
+      .flatMap(limitRange -> limitRange.limits().stream())
+      .anyMatch(this::hasStorageLimit);
+  }
 
-    register(KIND_WITH_TEMPLATE, (BlockObject obj) -> obj.block("template").block("spec").blocks("containers")
-      .filter(container -> container.blocks("volumeMounts").findAny().isPresent())
-      .forEach(this::reportMissingLimit));
+  private boolean hasStorageLimit(LimitRangeItem limitRangeItem) {
+    var defaultStorageLimit = limitRangeItem.defaultMap().get(KEY);
+    return getLimitTypes().contains(limitRangeItem.type()) && startsWithDigit(defaultStorageLimit);
   }
 }

@@ -11,3 +11,64 @@ spec:
       volumeMounts:
         - name: ephemeral
           mountPath: "/tmp"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-no-limit-range
+  namespace: namespace-no-limit-range
+spec:
+  containers:
+# Noncompliant@+1
+    - name: {{ .Values.container.name }}
+#              ^^^^^^^^^^^^^^^^^^^^^^
+      image: nginx
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-limit-range-container
+  namespace: with-limit-range-container
+spec:
+  containers:
+# Compliant there is LimitRange for container
+    - name: {{ .Values.container.name }}
+      image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-limit-range-for-pod
+  namespace: with-limit-range-pod
+spec:
+  containers:
+# Compliant there is LimitRange for pod
+    - name: {{ .Values.container.name }}
+      image: nginx
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-limit-range-for-pvc
+  namespace: with-limit-range-pvc
+spec:
+  containers:
+# Noncompliant@+1
+    - name: {{ .Values.container.name }}
+#              ^^^^^^^^^^^^^^^^^^^^^^
+      image: nginx
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-limit-range-for-cpu
+  namespace: with-limit-range-cpu
+spec:
+  containers:
+# Noncompliant@+1
+    - name: {{ .Values.container.name }}
+#              ^^^^^^^^^^^^^^^^^^^^^^
+      image: nginx

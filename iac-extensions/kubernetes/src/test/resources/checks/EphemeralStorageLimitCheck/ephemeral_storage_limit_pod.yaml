@@ -70,7 +70,8 @@ spec:
         - name: ephemeral
           mountPath: "/tmp"
 
-    - name: compliant_without_volumeMounts # Compliant
+    - name: compliant_without_volumeMounts # Noncompliant
+    # ^^^^
       image: nginx
       resources:
         limits:

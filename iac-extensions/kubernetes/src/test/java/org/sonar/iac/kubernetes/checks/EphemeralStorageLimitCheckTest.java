@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 class EphemeralStorageLimitCheckTest {
+
   IacCheck check = new EphemeralStorageLimitCheck();
 
   @Test
@@ -31,8 +32,17 @@ class EphemeralStorageLimitCheckTest {
   }
 
   @Test
-  void testKindWithTemplate() {
-    KubernetesVerifier.verify("EphemeralStorageLimitCheck/ephemeral_storage_limit_deployment.yaml", check);
+  void testKindWithTemplateAndNamespace() {
+    KubernetesVerifier.verify("EphemeralStorageLimitCheck/ephemeral_storage_limit.yaml",
+      check,
+      "EphemeralStorageLimitCheck/limitRange.yaml");
+  }
+
+  @Test
+  void testGlobalLimitRangeNoIssues() {
+    KubernetesVerifier.verifyNoIssue("EphemeralStorageLimitCheck/ephemeral_storage_limit_deployment_no_issue.yaml",
+      check,
+      "EphemeralStorageLimitCheck/limitRange.yaml");
   }
 
   @Test
