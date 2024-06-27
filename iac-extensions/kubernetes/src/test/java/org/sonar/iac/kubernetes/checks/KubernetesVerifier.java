@@ -32,7 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +116,7 @@ public class KubernetesVerifier {
   }
 
   /**
-   * Only usable for pure Kubernetes files
+   * Only usable for single pure Kubernetes files
    */
   public static void verifyContent(String content, IacCheck check) {
     var tempFile = contentToTmp(content);
@@ -239,8 +241,13 @@ public class KubernetesVerifier {
           filePath));
       }
       addDependentFilesToSensorContext(helmProjectPath);
+      var helmInputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, sourceInputFile);
+      var additionalFiles = StreamSupport.stream(SENSOR_CONTEXT.fileSystem().inputFiles(f -> true).spliterator(), false)
+        .collect(Collectors.toMap(file -> file.uri().toString(), file -> file));
 
-      return new HelmInputFileContext(SENSOR_CONTEXT, sourceInputFile);
+      helmInputFileContext.setAdditionalFiles(additionalFiles);
+
+      return helmInputFileContext;
     }
 
     public static void addDependentFilesToSensorContext(Path helmProjectPath) {

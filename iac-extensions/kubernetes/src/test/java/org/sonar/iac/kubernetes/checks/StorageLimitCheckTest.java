@@ -22,22 +22,32 @@ package org.sonar.iac.kubernetes.checks;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 
-class EphemeralStorageLimitCheckTest {
-  IacCheck check = new EphemeralStorageLimitCheck();
+class StorageLimitCheckTest {
+
+  IacCheck check = new StorageLimitCheck();
 
   @Test
   void testPodKind() {
-    KubernetesVerifier.verify("EphemeralStorageLimitCheck/ephemeral_storage_limit_pod.yaml", check);
+    KubernetesVerifier.verify("StorageLimitCheck/storage_limit_pod.yaml", check);
   }
 
   @Test
-  void testKindWithTemplate() {
-    KubernetesVerifier.verify("EphemeralStorageLimitCheck/ephemeral_storage_limit_deployment.yaml", check);
+  void testKindWithTemplateAndNamespace() {
+    KubernetesVerifier.verify("StorageLimitCheck/storage_limit.yaml",
+      check,
+      "StorageLimitCheck/limitRange.yaml");
+  }
+
+  @Test
+  void testGlobalLimitRangeNoIssues() {
+    KubernetesVerifier.verifyNoIssue("StorageLimitCheck/storage_limit_deployment_no_issue.yaml",
+      check,
+      "StorageLimitCheck/limitRange.yaml");
   }
 
   @Test
   void testPodKindForHelm() {
-    KubernetesVerifier.verify("EphemeralStorageLimitCheck/helm/templates/ephemeral_storage_limit_helm.yaml", check);
+    KubernetesVerifier.verify("StorageLimitCheck/helm/templates/storage_limit_helm.yaml", check);
   }
 
 }

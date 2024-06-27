@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.Collection;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
@@ -29,13 +28,12 @@ import org.sonar.iac.kubernetes.model.LimitRangeItem;
 public class MemoryLimitCheck extends AbstractLimitCheck {
   private static final String MESSAGE = "Specify a memory limit for this container.";
   private static final String KEY = "memory";
-  private static final Set<String> LIMIT_TYPES = Set.of("Pod", "Container");
 
   @Override
   protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
     return globalResources.stream()
       .flatMap(limitRange -> limitRange.limits().stream())
-      .anyMatch(MemoryLimitCheck::hasMemoryLimit);
+      .anyMatch(this::hasMemoryLimit);
   }
 
   @Override
@@ -48,8 +46,8 @@ public class MemoryLimitCheck extends AbstractLimitCheck {
     return MESSAGE;
   }
 
-  private static boolean hasMemoryLimit(LimitRangeItem limitRangeItem) {
+  private boolean hasMemoryLimit(LimitRangeItem limitRangeItem) {
     var defaultMemoryLimit = limitRangeItem.defaultMap().get(KEY);
-    return LIMIT_TYPES.contains(limitRangeItem.type()) && startsWithDigit(defaultMemoryLimit);
+    return getLimitTypes().contains(limitRangeItem.type()) && startsWithDigit(defaultMemoryLimit);
   }
 }

@@ -19,28 +19,27 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Set;
-import org.sonar.iac.kubernetes.model.LimitRange;
+import javax.annotation.Nullable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
-  private static final Set<String> LIMIT_TYPES = Set.of("Pod", "Container");
+class AbstractLimitCheckTest {
 
-  String getResourceManagementName() {
-    return RESOURCE_MANAGEMENT_TYPE;
+  @ParameterizedTest
+  @CsvSource(value = {
+    "1, true",
+    "1Gi, true",
+    "200M, true",
+    "1.5Gi, true",
+    "~, false",
+    "_, false",
+    "1.5, true",
+    "Gi, false",
+    "null, false",
+  }, emptyValue = "_", nullValues = "null")
+  void shouldDetectValidMemorySpecifiers(@Nullable String value, boolean shouldBeValid) {
+    assertThat(MemoryLimitCheck.startsWithDigit(value)).isEqualTo(shouldBeValid);
   }
-
-  @Override
-  Class<LimitRange> getGlobalResourceType() {
-    return LimitRange.class;
-  }
-
-  protected Set<String> getLimitTypes() {
-    return LIMIT_TYPES;
-  }
-
-  abstract String getResourceName();
-
-  abstract String getMessage();
 }

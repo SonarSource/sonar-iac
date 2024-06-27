@@ -1,0 +1,150 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: with-limit-range-container
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: compliant-limit-range-and-limit-cpu
+          resources:
+            limits:
+              cpu: 200m
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-and-request-ephemeral-storage
+          resources:
+            requests:
+              ephemeral-storage: 100Mi
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-without-resources
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-and-limit-tilde
+          resources:
+            limits:
+              ephemeral-storage: "~"
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-and-empty-brackets
+          resources:
+            limits:
+              ephemeral-storage: "[]"
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - resources:
+            limits:
+              ephemeral-storage: "null"
+          name: compliant-limit-range-and-limit-null
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-and-storage-limit
+          resources:
+            limits:
+              ephemeral-storage: 100Mi
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-without-volumeMounts
+          image: nginx
+          resources:
+            limits:
+              memory: 64Mi
+---
+# It is a copy of the above code but different namespace
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: with-limit-range-pod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: compliant-limit-range-and-limit-cpu
+          resources:
+            limits:
+              cpu: 200m
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-and-request-ephemeral-storage
+          resources:
+            requests:
+              ephemeral-storage: 100Mi
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-without-resources
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-and-limit-tilde
+          resources:
+            limits:
+              ephemeral-storage: "~"
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-and-empty-brackets
+          resources:
+            limits:
+              ephemeral-storage: "[]"
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - resources:
+            limits:
+              ephemeral-storage: "null"
+          name: compliant-limit-range-and-limit-null
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-and-storage-limit
+          resources:
+            limits:
+              ephemeral-storage: 100Mi
+          volumeMounts:
+            - name: ephemeral
+              mountPath: "/tmp"
+
+        - name: compliant-limit-range-without-volumeMounts
+          image: nginx
+          resources:
+            limits:
+              memory: 64Mi

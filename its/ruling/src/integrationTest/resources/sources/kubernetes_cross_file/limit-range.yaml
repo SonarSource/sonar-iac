@@ -8,3 +8,4 @@ spec:
     - type: Container
       default:
         memory: 512Mi
+        ephemeral-storage: "10Mi"
