@@ -25,7 +25,7 @@ import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
 @Rule(key = "S6870")
-public class EphemeralStorageLimitCheck extends AbstractLimitCheck {
+public class StorageLimitCheck extends AbstractLimitCheck {
   private static final String MESSAGE = "Specify a storage limit for this container.";
   private static final String KEY = "ephemeral-storage";
 

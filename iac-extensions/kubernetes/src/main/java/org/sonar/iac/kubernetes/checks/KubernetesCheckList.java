@@ -38,7 +38,7 @@ public final class KubernetesCheckList {
       CpuLimitCheck.class,
       CpuRequestCheck.class,
       DockerSocketCheck.class,
-      EphemeralStorageLimitCheck.class,
+      StorageLimitCheck.class,
       ExposedAdministrationServicesCheck.class,
       HostNamespacesCheck.class,
       MemoryLimitCheck.class,
