@@ -46,7 +46,7 @@ public class MemoryLimitCheck extends AbstractLimitCheck {
     return MESSAGE;
   }
 
-  private static boolean hasMemoryLimit(LimitRangeItem limitRangeItem) {
+  private boolean hasMemoryLimit(LimitRangeItem limitRangeItem) {
     var defaultMemoryLimit = limitRangeItem.defaultMap().get(KEY);
     return getLimitTypes().contains(limitRangeItem.type()) && startsWithDigit(defaultMemoryLimit);
   }

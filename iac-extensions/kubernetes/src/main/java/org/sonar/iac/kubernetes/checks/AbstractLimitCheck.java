@@ -44,8 +44,4 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
   abstract String getResourceName();
 
   abstract String getMessage();
-
-  static boolean startsWithDigit(@Nullable String value) {
-    return value != null && !value.isEmpty() && Character.isDigit(value.charAt(0));
-  }
 }
