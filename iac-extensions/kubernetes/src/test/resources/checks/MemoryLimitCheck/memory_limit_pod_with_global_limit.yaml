@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: example
-  namespace: with-global-limit
+  namespace: ${namespace}
 spec:
   containers:
     - name: compliant_without_memory_limit

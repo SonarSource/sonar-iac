@@ -38,7 +38,7 @@ apiVersion: v1
 kind: LimitRange
 metadata:
   name: limit-range
-  namespace: with-fq-type-name
+  namespace: with-type-full-qualified-name
 spec:
   limits:
     - type: with-global-limit.example

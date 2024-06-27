@@ -78,6 +78,7 @@ public class KubernetesVerifier {
 
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesVerifier.class);
   public static final Path BASE_DIR = Paths.get("build", "resources", "test", "checks");
+  public static final String TMP_CONTENT_FILE_NAME = "temp-file-for-k8s-verify-content.yaml";
   private static final SensorContextTester SENSOR_CONTEXT = SensorContextTester.create(BASE_DIR.toAbsolutePath());
   private static final KubernetesAnalyzer KUBERNETES_ANALYZER = initializeKubernetesAnalyzer();
   private static final TreeParser<Tree> PARSER = KUBERNETES_ANALYZER::parse;
@@ -218,9 +219,10 @@ public class KubernetesVerifier {
   }
 
   private static String createFileInBaseDir(String basePath, String content) {
+    var tempPath = Path.of(basePath).resolve(TMP_CONTENT_FILE_NAME);
     try {
-      Files.writeString(BASE_DIR.resolve(basePath).resolve("test.yaml"), content, StandardCharsets.UTF_8);
-      return Path.of(basePath).resolve("test.yaml").toString();
+      Files.writeString(BASE_DIR.resolve(tempPath), content, StandardCharsets.UTF_8);
+      return tempPath.toString();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
