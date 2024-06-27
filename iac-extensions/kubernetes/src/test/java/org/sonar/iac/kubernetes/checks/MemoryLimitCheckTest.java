@@ -88,11 +88,11 @@ class MemoryLimitCheckTest {
     "200M, true",
     "1.5Gi, true",
     "~, false",
-    "_, false",
+    "'' false",
     "1.5, true",
     "Gi, false",
     "null, false",
-  }, emptyValue = "_", nullValues = "null")
+  }, nullValues = "null")
   void shouldDetectValidMemorySpecifiers(@Nullable String value, boolean shouldBeValid) {
     assertThat(MemoryLimitCheck.isValidMemory(value)).isEqualTo(shouldBeValid);
   }
