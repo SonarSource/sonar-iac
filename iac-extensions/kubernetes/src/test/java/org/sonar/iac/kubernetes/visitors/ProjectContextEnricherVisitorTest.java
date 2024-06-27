@@ -42,7 +42,7 @@ import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMo
 class ProjectContextEnricherVisitorTest {
   private static final TreeParser<FileTree> PARSER = new YamlParser();
   @TempDir
-  private static Path BASE_DIR;
+  private static Path baseDir;
 
   @Test
   void shouldStoreProjectResources() {
@@ -63,7 +63,7 @@ class ProjectContextEnricherVisitorTest {
         serviceAccountName: my-service-account
       """;
     var inputFileContext = IacTestUtils.createInputFileContextMock("test.yaml");
-    when(inputFileContext.inputFile.uri()).thenReturn(BASE_DIR.resolve("dir1/dir2/test.yaml").toUri());
+    when(inputFileContext.inputFile.uri()).thenReturn(baseDir.resolve("dir1/dir2/test.yaml").toUri());
     var tree = PARSER.parse(code, inputFileContext);
     var projectContextBuilder = spy(ProjectContext.builder());
     var visitor = new ProjectContextEnricherVisitor(projectContextBuilder);
@@ -78,7 +78,7 @@ class ProjectContextEnricherVisitorTest {
 
   private static InputFileContext toInputFileContext(String path) {
     var inputFileContext = createInputFileContextMock(path);
-    when(inputFileContext.inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
+    when(inputFileContext.inputFile.uri()).thenReturn(baseDir.resolve(path).toUri());
     return inputFileContext;
   }
 }

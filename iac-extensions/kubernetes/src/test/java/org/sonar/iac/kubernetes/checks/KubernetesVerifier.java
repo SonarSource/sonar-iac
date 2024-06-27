@@ -32,9 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,9 +87,13 @@ public class KubernetesVerifier {
     var initialization = initializeVerification(templateFileName, fileNames);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    var projectContext = prepareProjectContext(inputFileContext, fileNames);
     Verifier.verify(PARSER, inputFileContext, check,
-      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      multiFileVerifier -> {
+        // Prepare project context inside this lambda so that it happens after parsing. HelmInputFileContext
+        // is fully initialized during parsing (i.e. additional files are discovered and added).
+        var projectContext = prepareProjectContext(inputFileContext, fileNames);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+      },
       commentsVisitor);
   }
 
@@ -99,9 +101,11 @@ public class KubernetesVerifier {
     var initialization = initializeVerification(templateFileName);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    var projectContext = prepareProjectContext(inputFileContext);
     Verifier.verify(PARSER, inputFileContext, check,
-      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      multiFileVerifier -> {
+        var projectContext = prepareProjectContext(inputFileContext);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+      },
       commentsVisitor, expectedIssues);
   }
 
@@ -130,9 +134,11 @@ public class KubernetesVerifier {
     var initialization = initializeVerification(templateFileName, fileNames);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    var projectContext = prepareProjectContext(inputFileContext, fileNames);
     Verifier.verifyNoIssue(PARSER, inputFileContext, check,
-      multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext),
+      multiFileVerifier -> {
+        var projectContext = prepareProjectContext(inputFileContext, fileNames);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+      },
       commentsVisitor);
   }
 
@@ -241,13 +247,7 @@ public class KubernetesVerifier {
           filePath));
       }
       addDependentFilesToSensorContext(helmProjectPath);
-      var helmInputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, sourceInputFile);
-      var additionalFiles = StreamSupport.stream(SENSOR_CONTEXT.fileSystem().inputFiles(f -> true).spliterator(), false)
-        .collect(Collectors.toMap(file -> file.uri().toString(), file -> file));
-
-      helmInputFileContext.setAdditionalFiles(additionalFiles);
-
-      return helmInputFileContext;
+      return new HelmInputFileContext(SENSOR_CONTEXT, sourceInputFile);
     }
 
     public static void addDependentFilesToSensorContext(Path helmProjectPath) {

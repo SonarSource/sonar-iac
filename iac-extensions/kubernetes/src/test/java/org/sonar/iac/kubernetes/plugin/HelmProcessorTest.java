@@ -66,7 +66,7 @@ class HelmProcessorTest {
   @TempDir
   static Path tempDir;
   private final InputFile DEFAULT_INPUT_FILE = IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
-  private HelmInputFileContext DEFAULT_INPUT_FILE_CONTEXT;
+  private HelmInputFileContext defaultInputFileContext;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -75,7 +75,7 @@ class HelmProcessorTest {
   void setUp() {
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(tempDir);
-      DEFAULT_INPUT_FILE_CONTEXT = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE);
+      defaultInputFileContext = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE);
     }
   }
 
@@ -166,8 +166,8 @@ class HelmProcessorTest {
   @Test
   void validateAndReadFilesShouldThrowExceptionIfValuesFileNotFound() {
     Map<String, InputFile> files = new HashMap<>();
-    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(files);
-    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT))
+    defaultInputFileContext.setAdditionalFiles(files);
+    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(defaultInputFileContext))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to find values file");
   }
@@ -177,9 +177,9 @@ class HelmProcessorTest {
     var valuesFile = mockInputFile("chart/values.yaml", "");
     when(valuesFile.contents()).thenThrow(IOException.class);
     Map<String, InputFile> additionalFiles = Map.of("values.yaml", valuesFile);
-    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(additionalFiles);
+    defaultInputFileContext.setAdditionalFiles(additionalFiles);
 
-    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT))
+    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(defaultInputFileContext))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to read file at chart/values.yaml");
   }
@@ -189,9 +189,9 @@ class HelmProcessorTest {
   void validateAndReadFilesShouldNotThrowIfValuesFileIsEmpty(String valuesFileName) throws IOException {
     var emptyValuesFile = mockInputFile("chart/" + valuesFileName, "");
     var additionalFiles = Map.of(valuesFileName, emptyValuesFile);
-    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(additionalFiles);
+    defaultInputFileContext.setAdditionalFiles(additionalFiles);
 
-    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT);
+    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(defaultInputFileContext);
 
     assertThat(additionalFilesContent).isNotEmpty();
     assertThat(additionalFilesContent.get(valuesFileName)).isEmpty();
@@ -202,9 +202,9 @@ class HelmProcessorTest {
     var emptyValuesFile = mockInputFile("chart/values.yaml", "");
     var notEmptyFile = mockInputFile("templates/some.yaml", "kind: Pod");
     var additionalFiles = Map.of("values.yaml", emptyValuesFile, "templates/some.yaml", notEmptyFile);
-    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(additionalFiles);
+    defaultInputFileContext.setAdditionalFiles(additionalFiles);
 
-    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT);
+    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(defaultInputFileContext);
 
     assertThat(additionalFilesContent)
       .hasSize(2)
@@ -232,9 +232,9 @@ class HelmProcessorTest {
   @Test
   void validateAndReadFilesShouldLogIfAdditionalFileNameContainsLineBreak() {
     var additionalFiles = Map.of("values.yaml", mock(InputFile.class), "_helpers\n.tpl", mock(InputFile.class));
-    DEFAULT_INPUT_FILE_CONTEXT.setAdditionalFiles(additionalFiles);
+    defaultInputFileContext.setAdditionalFiles(additionalFiles);
 
-    assertThatCode(() -> HelmProcessor.validateAndReadFiles(DEFAULT_INPUT_FILE_CONTEXT))
+    assertThatCode(() -> HelmProcessor.validateAndReadFiles(defaultInputFileContext))
       .doesNotThrowAnyException();
 
     assertThat(logTester.logs(Level.DEBUG)).contains("Some additional files have names containing line breaks, skipping them");
@@ -269,7 +269,7 @@ class HelmProcessorTest {
     Map<String, String> templateDependencies = new HashMap<>();
     when(helmEvaluator.evaluateTemplate(any(), any(), anyMap())).thenThrow(exception);
 
-    assertThatThrownBy(() -> helmProcessor.evaluateHelmTemplate(path, DEFAULT_INPUT_FILE_CONTEXT, content, templateDependencies))
+    assertThatThrownBy(() -> helmProcessor.evaluateHelmTemplate(path, defaultInputFileContext, content, templateDependencies))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Template evaluation failed");
   }
