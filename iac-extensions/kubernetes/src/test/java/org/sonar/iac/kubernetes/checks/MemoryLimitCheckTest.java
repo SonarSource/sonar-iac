@@ -28,7 +28,6 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.TemplateFileReader;
 import org.sonar.iac.utils.TemporaryFilesCleanup;
 
-
 @ExtendWith(TemporaryFilesCleanup.class)
 class MemoryLimitCheckTest {
   IacCheck check = new MemoryLimitCheck();
