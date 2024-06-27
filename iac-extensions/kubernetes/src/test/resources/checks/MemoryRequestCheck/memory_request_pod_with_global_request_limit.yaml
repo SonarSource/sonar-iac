@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: ${namespace}
+spec:
+  containers:
+    - name: compliant_without_memory_request
+      image: nginx
+      resources:
+        requests:
+          cpu: 200m
+
+    - name: compliant_without_requests
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
+
+    - name: compliant_without_resources
+      image: nginx
+
+    - name: compliant_memory_request_tilde
+      image: nginx
+      resources:
+        requests:
+          memory: "~"
+
+    - name: compliant_memory_request_empty_brackets
+      image: nginx
+      resources:
+        requests:
+          memory: "[]"
+
+    - image: nginx
+      name: compliant_memory_request_null
+      resources:
+        requests:
+          memory: "null"
+
+    - name: compliant_memory_request
+      image: nginx
+      resources:
+        requests:
+          memory: 100Mi
