@@ -40,7 +40,7 @@ import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMo
 
 class ProjectContextTest {
   @TempDir
-  private static Path BASE_DIR;
+  private static Path baseDir;
 
   @Test
   void shouldCorrectlyStoreResourcesAndProvideAccess() {
@@ -106,20 +106,20 @@ class ProjectContextTest {
   }
 
   private static URI toUri(String path) {
-    return BASE_DIR.resolve(path).normalize().toUri();
+    return baseDir.resolve(path).normalize().toUri();
   }
 
   private static InputFileContext toInputFileContext(String path) {
     var inputFileContext = createInputFileContextMock(path);
-    when(inputFileContext.inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
+    when(inputFileContext.inputFile.uri()).thenReturn(baseDir.resolve(path).toUri());
     return inputFileContext;
   }
 
   private static HelmInputFileContext toHelmInputFileContext(String path) {
     var inputFile = mock(InputFile.class);
-    when(inputFile.uri()).thenReturn(BASE_DIR.resolve(path).toUri());
+    when(inputFile.uri()).thenReturn(baseDir.resolve(path).toUri());
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(BASE_DIR.resolve("path1"));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(baseDir.resolve("path1"));
       return new HelmInputFileContext(mock(SensorContext.class), inputFile);
     }
   }
