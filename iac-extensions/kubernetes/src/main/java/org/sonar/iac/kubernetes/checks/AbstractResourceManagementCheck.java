@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -35,7 +36,9 @@ import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
 public abstract class AbstractResourceManagementCheck<T extends ProjectResource> extends AbstractKubernetesObjectCheck {
   protected static final String KIND_POD = "Pod";
-  protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  protected static final List<String> KIND_WITH_TEMPLATE = List.of(
+    "DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  protected static final Set<String> LIMIT_RANGE_LIMIT_TYPES = Set.of("Pod", "Container");
 
   @Override
   boolean shouldVisitWholeDocument() {
@@ -88,6 +91,10 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
   // TODO: make abstract once its implemented for all subclasses
   protected boolean hasLimitDefinedGlobally(Collection<T> globalResources) {
     return false;
+  }
+
+  protected Set<String> getLimitRangeLimitTypes() {
+    return LIMIT_RANGE_LIMIT_TYPES;
   }
 
   abstract String getResourceManagementName();

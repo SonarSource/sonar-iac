@@ -24,11 +24,11 @@ import org.sonar.check.Rule;
 @Rule(key = "S6897")
 public class StorageRequestCheck extends AbstractRequestCheck {
   private static final String MESSAGE = "Specify a storage request for this container.";
-  private static final String KEY = "ephemeral-storage";
+  private static final String RESOURCE_NAME = "ephemeral-storage";
 
   @Override
   String getResourceName() {
-    return KEY;
+    return RESOURCE_NAME;
   }
 
   @Override

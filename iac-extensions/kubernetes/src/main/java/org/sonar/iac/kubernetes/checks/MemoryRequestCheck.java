@@ -19,34 +19,16 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Collection;
-import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.iac.kubernetes.model.LimitRange;
-import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
 @Rule(key = "S6873")
 public class MemoryRequestCheck extends AbstractRequestCheck {
   private static final String MESSAGE = "Specify a memory request for this container.";
-  private static final String KEY = "memory";
-
-  private static final Set<String> LIMIT_TYPES = Set.of("Pod", "Container");
-
-  @Override
-  protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
-    return globalResources.stream()
-      .flatMap(limitRange -> limitRange.limits().stream())
-      .anyMatch(MemoryRequestCheck::hasMemoryRequest);
-  }
-
-  private static boolean hasMemoryRequest(LimitRangeItem limitRangeItem) {
-    var defaultMemoryRequest = limitRangeItem.defaultRequestMap().get(KEY);
-    return LIMIT_TYPES.contains(limitRangeItem.type()) && startsWithDigit(defaultMemoryRequest);
-  }
+  private static final String RESOURCE_NAME = "memory";
 
   @Override
   String getResourceName() {
-    return KEY;
+    return RESOURCE_NAME;
   }
 
   @Override
