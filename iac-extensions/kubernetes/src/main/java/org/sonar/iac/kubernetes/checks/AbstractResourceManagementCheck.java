@@ -21,21 +21,27 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.kubernetes.model.ProjectResource;
+import org.sonar.iac.kubernetes.model.LimitRange;
+import org.sonar.iac.kubernetes.model.LimitRangeItem;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
-import static org.sonar.iac.common.yaml.TreePredicates.isSet;
+import static org.sonar.iac.common.yaml.TreePredicates.isSetString;
 
-public abstract class AbstractResourceManagementCheck<T extends ProjectResource> extends AbstractKubernetesObjectCheck {
+public abstract class AbstractResourceManagementCheck extends AbstractKubernetesObjectCheck {
   protected static final String KIND_POD = "Pod";
-  protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  protected static final List<String> KIND_WITH_TEMPLATE = List.of(
+    "DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  protected static final Set<String> LIMIT_RANGE_LIMIT_TYPES = Set.of("Pod", "Container");
 
   @Override
   boolean shouldVisitWholeDocument() {
@@ -66,7 +72,7 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
     container.block("resources").block(getResourceManagementName())
       .attribute(getResourceName())
       .reportIfAbsent(getFirstChildElement(container), getMessage())
-      .reportIfValue(isSet().negate(), getMessage());
+      .reportIfValue(TreePredicates.isSet().negate(), getMessage());
   }
 
   @Nullable
@@ -77,18 +83,28 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
     return null;
   }
 
-  private Collection<T> getGlobalResources(BlockObject document, String namespace) {
+  private static Collection<LimitRange> getGlobalResources(BlockObject document, String namespace) {
     var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
     var inputFileContext = ((KubernetesCheckContext) document.ctx).inputFileContext();
-    return projectContext.getProjectResources(namespace, inputFileContext, getGlobalResourceType());
+    return projectContext.getProjectResources(namespace, inputFileContext, LimitRange.class);
   }
 
-  abstract Class<T> getGlobalResourceType();
-
-  // TODO: make abstract once its implemented for all subclasses
-  protected boolean hasLimitDefinedGlobally(Collection<T> globalResources) {
-    return false;
+  protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
+    return globalResources.stream()
+      .flatMap(limitRange -> limitRange.limits().stream())
+      .anyMatch(this::hasDefinedLimitForResource);
   }
+
+  protected boolean hasDefinedLimitForResource(LimitRangeItem limitRangeItem) {
+    var limit = retrieveLimitRangeItemMap(limitRangeItem).get(getResourceName());
+    return getLimitRangeLimitTypes().contains(limitRangeItem.type()) && isSet(limit);
+  }
+
+  protected Set<String> getLimitRangeLimitTypes() {
+    return LIMIT_RANGE_LIMIT_TYPES;
+  }
+
+  abstract Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem);
 
   abstract String getResourceManagementName();
 
@@ -110,7 +126,7 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
       .orElse("");
   }
 
-  static boolean startsWithDigit(@Nullable String value) {
-    return value != null && !value.isEmpty() && Character.isDigit(value.charAt(0));
+  static boolean isSet(@Nullable String value) {
+    return value != null && isSetString().test(value);
   }
 }

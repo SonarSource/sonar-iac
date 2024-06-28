@@ -19,35 +19,20 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Collection;
 import org.sonar.check.Rule;
-import org.sonar.iac.kubernetes.model.LimitRange;
-import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
 @Rule(key = "S6870")
 public class StorageLimitCheck extends AbstractLimitCheck {
   private static final String MESSAGE = "Specify a storage limit for this container.";
-  private static final String KEY = "ephemeral-storage";
+  private static final String RESOURCE_NAME = "ephemeral-storage";
 
   @Override
   String getResourceName() {
-    return KEY;
+    return RESOURCE_NAME;
   }
 
   @Override
   String getMessage() {
     return MESSAGE;
-  }
-
-  @Override
-  protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
-    return globalResources.stream()
-      .flatMap(limitRange -> limitRange.limits().stream())
-      .anyMatch(this::hasStorageLimit);
-  }
-
-  private boolean hasStorageLimit(LimitRangeItem limitRangeItem) {
-    var defaultStorageLimit = limitRangeItem.defaultMap().get(KEY);
-    return getLimitTypes().contains(limitRangeItem.type()) && startsWithDigit(defaultStorageLimit);
   }
 }

@@ -19,36 +19,20 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Collection;
-import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.iac.kubernetes.model.LimitRange;
-import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
 @Rule(key = "S6869")
 public class CpuLimitCheck extends AbstractLimitCheck {
   private static final String MESSAGE = "Specify a CPU limit for this container.";
-  private static final String KEY = "cpu";
-  private static final Set<String> LIMIT_TYPES = Set.of("Pod", "Container");
-
-  @Override
-  protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
-    return globalResources.stream()
-      .flatMap(limitRange -> limitRange.limits().stream())
-      .anyMatch(CpuLimitCheck::hasCpuLimit);
-  }
+  private static final String RESOURCE_NAME = "cpu";
 
   @Override
   String getResourceName() {
-    return KEY;
+    return RESOURCE_NAME;
   }
 
   @Override
   String getMessage() {
     return MESSAGE;
-  }
-
-  private static boolean hasCpuLimit(LimitRangeItem limitRangeItem) {
-    return LIMIT_TYPES.contains(limitRangeItem.type()) && limitRangeItem.defaultMap().containsKey("cpu");
   }
 }

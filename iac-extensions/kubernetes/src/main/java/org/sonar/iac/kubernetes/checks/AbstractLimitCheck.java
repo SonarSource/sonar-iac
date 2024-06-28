@@ -19,28 +19,23 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Set;
-import org.sonar.iac.kubernetes.model.LimitRange;
+import java.util.Map;
+import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
-public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
+public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck {
 
   private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
-  private static final Set<String> LIMIT_TYPES = Set.of("Pod", "Container");
 
   String getResourceManagementName() {
     return RESOURCE_MANAGEMENT_TYPE;
   }
 
-  @Override
-  Class<LimitRange> getGlobalResourceType() {
-    return LimitRange.class;
-  }
-
-  protected Set<String> getLimitTypes() {
-    return LIMIT_TYPES;
-  }
-
   abstract String getResourceName();
 
   abstract String getMessage();
+
+  @Override
+  Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
+    return limitRangeItem.defaultMap();
+  }
 }

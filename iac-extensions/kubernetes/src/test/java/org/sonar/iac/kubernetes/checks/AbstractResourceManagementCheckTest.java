@@ -57,13 +57,15 @@ class AbstractResourceManagementCheckTest {
     1, true
     1Gi, true
     200M, true
+    +200M, true
+    -200M, true
+    .5, true
     1.5Gi, true
     ~, false
     '', false
     1.5, true
-    Gi, false
     null, false""")
-  void shouldDetectIfStartsWithDigit(@Nullable String value, boolean shouldBeValid) {
-    assertThat(AbstractResourceManagementCheck.startsWithDigit(value)).isEqualTo(shouldBeValid);
+  void shouldDetectIfValueIsSet(@Nullable String value, boolean shouldBeValid) {
+    assertThat(AbstractResourceManagementCheck.isSet(value)).isEqualTo(shouldBeValid);
   }
 }

@@ -48,6 +48,20 @@ class StorageRequestCheckTest {
 
   @Test
   void testPodKindForHelm() {
-    KubernetesVerifier.verify("StorageRequestCheck/StorageRequestChart/templates/storage_request_deployment_helm.yaml", check);
+    KubernetesVerifier.verify("StorageRequestCheck/helm/templates/storage_request_deployment_helm.yaml", check);
+  }
+
+  @MethodSource("sensitiveKinds")
+  @ParameterizedTest(name = "[{index}] should raise no storage memory request issue for kind: \"{0}\" because of limit range")
+  void testKindWithTemplateAndNamespace(String kind) {
+    String content = readTemplateAndReplace("StorageRequestCheck/storage_request_deployment.yaml", kind);
+    KubernetesVerifier.verifyContent(content, "StorageRequestCheck", check, "StorageRequestCheck/limitRange.yaml");
+  }
+
+  @Test
+  void testGlobalLimitRangeNoIssues() {
+    KubernetesVerifier.verifyNoIssue("StorageRequestCheck/storage_request_deployment_no_issue.yaml",
+      check,
+      "StorageRequestCheck/limitRange.yaml");
   }
 }

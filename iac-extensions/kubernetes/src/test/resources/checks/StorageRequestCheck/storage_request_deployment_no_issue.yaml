@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: with-limit-range-container
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: compliant_without_storage_request
+          resources:
+            requests:
+              cpu: 200m
+
+        - name: compliant_without_requests
+          resources:
+            limits:
+              ephemeral-storage: 64Mi
+
+        - name: compliant_without_resources
+
+        - name: compliant_storage_request_tilde
+          resources:
+            requests:
+              ephemeral-storage: "~"
+
+        - name: compliant_storage_request_empty_brackets
+          resources:
+            requests:
+              ephemeral-storage: "[]"
+
+        - resources:
+            requests:
+              ephemeral-storage: "null"
+          name: compliant_storage_request_null
+
+        - name: compliant_storage_request
+          resources:
+            requests:
+              ephemeral-storage: 100Mi
