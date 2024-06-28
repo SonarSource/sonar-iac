@@ -96,7 +96,7 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
   }
 
   protected boolean hasDefinedLimitForResource(LimitRangeItem limitRangeItem) {
-    var limit = retrieveLimitRangeMap(limitRangeItem).get(getResourceName());
+    var limit = retrieveLimitRangeItemMap(limitRangeItem).get(getResourceName());
     return getLimitRangeLimitTypes().contains(limitRangeItem.type()) && isSet(limit);
   }
 
@@ -104,7 +104,7 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
     return LIMIT_RANGE_LIMIT_TYPES;
   }
 
-  abstract Map<String, String> retrieveLimitRangeMap(LimitRangeItem limitRangeItem);
+  abstract Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem);
 
   abstract String getResourceManagementName();
 

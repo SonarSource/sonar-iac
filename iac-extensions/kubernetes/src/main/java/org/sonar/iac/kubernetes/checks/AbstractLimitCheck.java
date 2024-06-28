@@ -35,7 +35,7 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
   abstract String getMessage();
 
   @Override
-  Map<String, String> retrieveLimitRangeMap(LimitRangeItem limitRangeItem) {
+  Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
     return limitRangeItem.defaultMap();
   }
 }
