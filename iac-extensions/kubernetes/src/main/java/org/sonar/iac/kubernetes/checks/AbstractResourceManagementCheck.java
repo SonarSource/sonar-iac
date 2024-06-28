@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
@@ -34,7 +35,7 @@ import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
-import static org.sonar.iac.common.yaml.TreePredicates.isSet;
+import static org.sonar.iac.common.yaml.TreePredicates.isSetString;
 
 public abstract class AbstractResourceManagementCheck extends AbstractKubernetesObjectCheck {
   protected static final String KIND_POD = "Pod";
@@ -71,7 +72,7 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
     container.block("resources").block(getResourceManagementName())
       .attribute(getResourceName())
       .reportIfAbsent(getFirstChildElement(container), getMessage())
-      .reportIfValue(isSet().negate(), getMessage());
+      .reportIfValue(TreePredicates.isSet().negate(), getMessage());
   }
 
   @Nullable
@@ -96,7 +97,7 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
 
   protected boolean hasDefinedLimitForResource(LimitRangeItem limitRangeItem) {
     var limit = retrieveLimitRangeMap(limitRangeItem).get(getResourceName());
-    return getLimitRangeLimitTypes().contains(limitRangeItem.type()) && startsWithDigit(limit);
+    return getLimitRangeLimitTypes().contains(limitRangeItem.type()) && isSet(limit);
   }
 
   protected Set<String> getLimitRangeLimitTypes() {
@@ -125,7 +126,7 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
       .orElse("");
   }
 
-  static boolean startsWithDigit(@Nullable String value) {
-    return value != null && !value.isEmpty() && Character.isDigit(value.charAt(0));
+  static boolean isSet(@Nullable String value) {
+    return value != null && isSetString().test(value);
   }
 }

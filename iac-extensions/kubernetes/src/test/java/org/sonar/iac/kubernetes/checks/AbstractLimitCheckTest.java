@@ -40,6 +40,6 @@ class AbstractLimitCheckTest {
     "null, false",
   }, emptyValue = "_", nullValues = "null")
   void shouldDetectValidMemorySpecifiers(@Nullable String value, boolean shouldBeValid) {
-    assertThat(MemoryLimitCheck.startsWithDigit(value)).isEqualTo(shouldBeValid);
+    assertThat(MemoryLimitCheck.isSet(value)).isEqualTo(shouldBeValid);
   }
 }
