@@ -8,5 +8,7 @@ spec:
     - type: Container
       default:
         memory: 512Mi
+      default:
+        memory: 512Mi
         cpu: 1
         ephemeral-storage: "10Mi"

@@ -19,12 +19,51 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.Set;
+import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.kubernetes.model.LimitRange;
 import java.util.Map;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
-public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck {
+import java.util.Collection;
+import java.util.stream.Stream;
+
+import static org.sonar.iac.common.yaml.TreePredicates.isSet;
+
+public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
 
   private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
+
+  @Override
+  void registerObjectCheck() {
+    register(KIND_POD, document -> checkDocument(document, false));
+    register(KIND_WITH_TEMPLATE, document -> checkDocument(document, true));
+  }
+
+  private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
+    var globalResources = getGlobalResources(document);
+
+    Stream<BlockObject> containers;
+    if (isKindWithTemplate) {
+      containers = document.block("spec").block("template").block("spec").blocks("containers");
+    } else {
+      containers = document.block("spec").blocks("containers");
+    }
+    containers.filter(container -> !hasLimitDefinedGlobally(globalResources))
+      .forEach(this::reportMissingLimit);
+  }
+
+  protected void reportMissingLimit(BlockObject container) {
+    container.block("resources").block(getResourceManagementName())
+      .attribute(getResourceName())
+      .reportIfAbsent(getFirstChildElement(container), getMessage())
+      .reportIfValue(isSet().negate(), getMessage());
+  }
+
+  // TODO: make abstract once its implemented for all subclasses
+  protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
+    return false;
+  }
 
   String getResourceManagementName() {
     return RESOURCE_MANAGEMENT_TYPE;

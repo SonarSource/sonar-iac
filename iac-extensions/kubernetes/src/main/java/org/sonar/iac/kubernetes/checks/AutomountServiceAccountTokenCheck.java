@@ -19,24 +19,28 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.kubernetes.model.ServiceAccount;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
 
 @Rule(key = "S6865")
-public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectCheck {
+public class AutomountServiceAccountTokenCheck extends AbstractResourceManagementCheck<ServiceAccount> {
   private static final String MESSAGE = "Set automountServiceAccountToken to false for this specification of kind %s.";
   private static final String KEY = "automountServiceAccountToken";
   private static final String KIND_POD = "Pod";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
-
-  @Override
-  boolean shouldVisitWholeDocument() {
-    return true;
-  }
 
   @Override
   void registerObjectCheck() {
@@ -47,18 +51,60 @@ public class AutomountServiceAccountTokenCheck extends AbstractKubernetesObjectC
     }
   }
 
-  private static void checkAndReport(BlockObject blockObject, String message) {
+  @Override
+  Class<ServiceAccount> getGlobalResourceType() {
+    return ServiceAccount.class;
+  }
+
+  private void checkAndReport(BlockObject blockObject, String message) {
     var specAsBlockObject = blockObject.block("spec");
     var specAsAttributeObject = blockObject.attribute("spec");
     if (specAsAttributeObject.tree != null && isContainersPresentInSpecBlock(specAsBlockObject)) {
       var tokenAttribute = specAsBlockObject.attribute(KEY);
-      tokenAttribute.reportIfAbsent(specAsAttributeObject.tree.key(), message);
-      tokenAttribute.reportIfValue(isSet().negate(), message);
-      tokenAttribute.reportIfValue(isTrue(), message);
+      if (tokenAttribute.isAbsent()) {
+        List<ServiceAccount> linkedServiceAccounts = retrieveLinkedServiceAccount(blockObject);
+        if (linkedServiceAccounts.isEmpty()) {
+          tokenAttribute.reportIfAbsent(specAsAttributeObject.tree.key(), message);
+        } else {
+          boolean hasAtLeastOneAccountCompliant = linkedServiceAccounts.stream().anyMatch(account -> account.automountServiceAccountToken().isFalse());
+          if (!hasAtLeastOneAccountCompliant) {
+            // otherwise, report on first linked account - there should be only one
+            reportIssueWithLinkedAccount(linkedServiceAccounts.get(0), blockObject, message);
+          }
+        }
+      } else {
+        tokenAttribute.reportIfValue(isSet().negate(), message);
+        tokenAttribute.reportIfValue(isTrue(), message);
+      }
     }
+  }
+
+  private static void reportIssueWithLinkedAccount(ServiceAccount linkedAccount, BlockObject blockObject, String message) {
+    var blockSpec = blockObject.block("spec");
+    var serviceAccountNameAttr = blockSpec.attribute("serviceAccountName");
+    List<SecondaryLocation> secondaryLocations = new ArrayList<>();
+    secondaryLocations.add(new SecondaryLocation(serviceAccountNameAttr.tree.value(), "Through this service account"));
+    if (linkedAccount.automountServiceAccountToken().isTrue()) {
+      secondaryLocations.add(new SecondaryLocation(linkedAccount.valueLocation(), "Change this setting", linkedAccount.path()));
+    }
+    blockObject.attribute("spec").reportOnKey(message, secondaryLocations);
   }
 
   private static boolean isContainersPresentInSpecBlock(BlockObject blockObject) {
     return blockObject.attribute("containers").tree != null;
+  }
+
+  private List<ServiceAccount> retrieveLinkedServiceAccount(BlockObject rootBlock) {
+    AttributeObject serviceAccountNameAttr = rootBlock.block("spec").attribute("serviceAccountName");
+    if (!serviceAccountNameAttr.isAbsent()) {
+      YamlTree tree = serviceAccountNameAttr.tree.value();
+      if (tree instanceof ScalarTree scalarTree) {
+        Collection<ServiceAccount> accounts = getGlobalResources(rootBlock);
+        return accounts.stream()
+          .filter(account -> account.name().equals(scalarTree.value()))
+          .toList();
+      }
+    }
+    return Collections.emptyList();
   }
 }
