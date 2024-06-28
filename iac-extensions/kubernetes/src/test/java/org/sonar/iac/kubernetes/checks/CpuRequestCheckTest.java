@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
@@ -46,8 +47,39 @@ class CpuRequestCheckTest {
     KubernetesVerifier.verify("CpuRequestCheck/cpu_request_pod.yaml", check);
   }
 
-  @Test
-  void testPodKindForHelm() {
-    KubernetesVerifier.verify("CpuRequestCheck/helm/templates/cpu_request_helm.yaml", check);
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+    with-cpu-request, true
+    with-cpu-request-wrong-format, false
+    with-memory-request, false
+    with-pvc-type, false
+    default, false
+    '', false""")
+  void testPodKindWithGlobalRequest(String namespace, boolean expectNoIssues) {
+    if (expectNoIssues) {
+      var content = readTemplateAndReplace("CpuRequestCheck/cpu_request_pod_with_global_request.yaml", "${namespace}", namespace);
+      KubernetesVerifier.verifyContentNoIssue(content, "CpuRequestCheck", check, "CpuRequestCheck/limit_ranges.yaml");
+    } else {
+      var content = readTemplateAndReplace("CpuRequestCheck/cpu_request_pod.yaml", "${namespace}", namespace);
+      KubernetesVerifier.verifyContent(content, "CpuRequestCheck", check, "CpuRequestCheck/limit_ranges.yaml");
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+    with-cpu-request, true
+    with-cpu-request-wrong-format, false
+    with-memory-request, false
+    with-pvc-type, false
+    default, false
+    '', false""")
+  void testPodKindForHelm(String namespace, boolean expectNoIssues) {
+    if (expectNoIssues) {
+      var content = readTemplateAndReplace("CpuRequestCheck/helm/templates/cpu_request_helm_with_global_request.yaml", "${namespace}", namespace);
+      KubernetesVerifier.verifyContentNoIssue(content, "CpuRequestCheck/helm/templates", check);
+    } else {
+      var content = readTemplateAndReplace("CpuRequestCheck/helm/templates/cpu_request_helm.yaml", "${namespace}", namespace);
+      KubernetesVerifier.verifyContent(content, "CpuRequestCheck/helm/templates", check);
+    }
   }
 }
