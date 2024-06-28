@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
@@ -37,11 +38,11 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSetString;
 
-public abstract class AbstractResourceManagementCheck extends AbstractKubernetesObjectCheck {
+public abstract class AbstractResourceManagementCheck<T extends ProjectResource> extends AbstractKubernetesObjectCheck {
   protected static final String KIND_POD = "Pod";
-  protected static final List<String> KIND_WITH_TEMPLATE = List.of(
-    "DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
   protected static final Set<String> LIMIT_RANGE_LIMIT_TYPES = Set.of("Pod", "Container");
+  private String namespace;
 
   @Override
   boolean shouldVisitWholeDocument() {
@@ -49,30 +50,14 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
   }
 
   @Override
-  void registerObjectCheck() {
-    register(KIND_POD, document -> checkDocument(document, false));
-    register(KIND_WITH_TEMPLATE, document -> checkDocument(document, true));
+  public void initialize(InitContext init) {
+    register(KIND_POD, document -> computeNamespace(document));
+    register(KIND_WITH_TEMPLATE, document -> computeNamespace(document));
+    super.initialize(init);
   }
 
-  private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
-    var namespace = getNamespace(document);
-    var globalResources = getGlobalResources(document, namespace);
-
-    Stream<BlockObject> containers;
-    if (isKindWithTemplate) {
-      containers = document.block("spec").block("template").block("spec").blocks("containers");
-    } else {
-      containers = document.block("spec").blocks("containers");
-    }
-    containers.filter(container -> !hasLimitDefinedGlobally(globalResources))
-      .forEach(this::reportMissingLimit);
-  }
-
-  protected void reportMissingLimit(BlockObject container) {
-    container.block("resources").block(getResourceManagementName())
-      .attribute(getResourceName())
-      .reportIfAbsent(getFirstChildElement(container), getMessage())
-      .reportIfValue(TreePredicates.isSet().negate(), getMessage());
+  private void computeNamespace(BlockObject document) {
+    this.namespace = retrieveNamespace(document);
   }
 
   @Nullable
@@ -100,24 +85,26 @@ public abstract class AbstractResourceManagementCheck extends AbstractKubernetes
     return getLimitRangeLimitTypes().contains(limitRangeItem.type()) && isSet(limit);
   }
 
+  abstract Class<T> getGlobalResourceType();
+
   protected Set<String> getLimitRangeLimitTypes() {
     return LIMIT_RANGE_LIMIT_TYPES;
   }
 
   abstract Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem);
 
-  abstract String getResourceManagementName();
-
-  abstract String getResourceName();
-
-  abstract String getMessage();
+  protected Collection<T> getGlobalResources(BlockObject document) {
+    var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
+    var inputFileContext = ((KubernetesCheckContext) document.ctx).inputFileContext();
+    return projectContext.getProjectResources(namespace, inputFileContext, getGlobalResourceType());
+  }
 
   /**
    * Retrieve the namespace of the document from the `metadata.namespace` attribute.<br/>
    * If it is not set, the objects are installed in the namespace `default`. However, a namespace can be set during deployment using the
    * `--namespace [custom-name]` flag. Because of that, an empty string is returned if the namespace is not set.
    */
-  private static String getNamespace(BlockObject document) {
+  private static String retrieveNamespace(BlockObject document) {
     return Optional.ofNullable(document.block("metadata").attribute("namespace").tree)
       .map(TupleTree::value)
       .filter(ScalarTree.class::isInstance)
