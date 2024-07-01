@@ -19,16 +19,13 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Stream;
+import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.kubernetes.model.LimitRange;
-import java.util.Map;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
-
-import java.util.Collection;
-import java.util.stream.Stream;
-
-import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
 public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
 
@@ -57,13 +54,23 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
     container.block("resources").block(getResourceManagementName())
       .attribute(getResourceName())
       .reportIfAbsent(getFirstChildElement(container), getMessage())
-      .reportIfValue(isSet().negate(), getMessage());
+      .reportIfValue(TreePredicates.isSet().negate(), getMessage());
   }
 
-  // TODO: make abstract once its implemented for all subclasses
-  @Override
   protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
-    return false;
+    return globalResources.stream()
+      .flatMap(limitRange -> limitRange.limits().stream())
+      .anyMatch(this::hasDefinedLimitForResource);
+  }
+
+  protected boolean hasDefinedLimitForResource(LimitRangeItem limitRangeItem) {
+    var limit = retrieveLimitRangeItemMap(limitRangeItem).get(getResourceName());
+    return getLimitRangeLimitTypes().contains(limitRangeItem.type()) && isSet(limit);
+  }
+
+  @Override
+  Class<LimitRange> getGlobalResourceType() {
+    return LimitRange.class;
   }
 
   String getResourceManagementName() {
@@ -74,8 +81,7 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
 
   abstract String getMessage();
 
-  @Override
-  Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
+  protected Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
     return limitRangeItem.defaultMap();
   }
 }
