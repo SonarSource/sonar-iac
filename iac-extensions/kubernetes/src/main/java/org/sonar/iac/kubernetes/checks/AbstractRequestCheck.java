@@ -26,6 +26,12 @@ public abstract class AbstractRequestCheck extends AbstractLimitCheck {
 
   private static final String RESOURCE_MANAGEMENT_TYPE = "requests";
 
+  @Override
+  Class<LimitRange> getGlobalResourceType() {
+    return LimitRange.class;
+  }
+
+  @Override
   String getResourceManagementName() {
     return RESOURCE_MANAGEMENT_TYPE;
   }
