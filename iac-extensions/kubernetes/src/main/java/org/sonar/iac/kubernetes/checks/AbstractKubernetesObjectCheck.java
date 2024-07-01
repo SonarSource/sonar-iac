@@ -58,6 +58,7 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
           visitSpecTreeForKind(documentTree, ctx, kind);
         }
       });
+    visitDocumentOnEnd(documentTree, ctx);
   }
 
   void initializeCheck(CheckContext ctx) {
@@ -68,6 +69,11 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     // the default is "false" as we normally visit only the "spec" tree of the file.
     // Overriding this to "true" will enable visitation of the whole document.
     return false;
+  }
+
+
+  void visitDocumentOnEnd(MappingTree documentTree, CheckContext ctx) {
+    // default implementation does nothing; the rule can interact when leaving document
   }
 
   private void visitSpecTreeForKind(MappingTree documentTree, CheckContext ctx, String kind) {
