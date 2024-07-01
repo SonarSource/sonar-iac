@@ -68,7 +68,7 @@ public class AttributeObject extends YamlObject<TupleTree> {
     return this;
   }
 
-  public AttributeObject report(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+  private AttributeObject report(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
     if (textRange != null) {
       ctx.reportIssue(() -> textRange, message, secondaryLocations);
     }
