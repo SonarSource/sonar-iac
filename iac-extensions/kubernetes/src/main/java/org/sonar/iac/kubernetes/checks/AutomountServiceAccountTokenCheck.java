@@ -65,7 +65,7 @@ public class AutomountServiceAccountTokenCheck extends AbstractResourceManagemen
         tokenAttribute.reportIfValue(isTrue(), message);
         return;
       }
-      
+
       List<ServiceAccount> linkedServiceAccounts = retrieveLinkedServiceAccount(blockObject);
       if (linkedServiceAccounts.isEmpty()) {
         specAsAttributeObject.reportOnKey(message);
