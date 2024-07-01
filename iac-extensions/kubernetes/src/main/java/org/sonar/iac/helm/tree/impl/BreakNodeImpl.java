@@ -19,20 +19,23 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.BreakNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.BreakNode;
 import org.sonar.iac.helm.tree.api.Node;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class BreakNodeImpl extends AbstractNode implements BreakNode {
   private final long line;
 
-  public BreakNodeImpl(long position, long length, long line) {
-    super(position, length);
+  public BreakNodeImpl(TextRange textRange, long line) {
+    super(textRange);
     this.line = line;
   }
 
-  public static Node fromPb(BreakNodeOrBuilder breakNodePb) {
-    return new BreakNodeImpl(breakNodePb.getPos(), breakNodePb.getLength(), breakNodePb.getLine());
+  public static Node fromPb(BreakNodeOrBuilder breakNodePb, String source) {
+    return new BreakNodeImpl(textRangeFromPb(breakNodePb, source), breakNodePb.getLine());
   }
 
   public long line() {

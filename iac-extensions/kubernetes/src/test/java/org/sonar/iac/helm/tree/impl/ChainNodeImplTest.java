@@ -25,13 +25,14 @@ import org.mockito.Mockito;
 import org.sonar.iac.helm.tree.api.Node;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class ChainNodeImplTest {
 
   @Test
   void shouldReturnAllChildren() {
     var node = Mockito.mock(Node.class);
-    var chainNode = new ChainNodeImpl(0, 10, node, List.of());
+    var chainNode = new ChainNodeImpl(range(1, 0, 1, 10), node, List.of());
     var actual = chainNode.children();
     assertThat(actual).contains(node);
   }

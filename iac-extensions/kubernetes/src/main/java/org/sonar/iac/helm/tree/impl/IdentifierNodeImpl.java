@@ -20,21 +20,24 @@
 package org.sonar.iac.helm.tree.impl;
 
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.IdentifierNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.IdentifierNode;
 import org.sonar.iac.helm.tree.api.Node;
+
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
 
 public class IdentifierNodeImpl extends AbstractNode implements IdentifierNode {
   @Nullable
   private final String identifier;
 
-  public IdentifierNodeImpl(long position, long length, String identifier) {
-    super(position, length);
+  public IdentifierNodeImpl(TextRange textRange, String identifier) {
+    super(textRange);
     this.identifier = identifier;
   }
 
-  public static Node fromPb(IdentifierNodeOrBuilder identifierNodePb) {
-    return new IdentifierNodeImpl(identifierNodePb.getPos(), identifierNodePb.getLength(), identifierNodePb.getIdent());
+  public static Node fromPb(IdentifierNodeOrBuilder identifierNodePb, String source) {
+    return new IdentifierNodeImpl(textRangeFromPb(identifierNodePb, source), identifierNodePb.getIdent());
   }
 
   public String identifier() {

@@ -23,9 +23,9 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.helm.tree.api.ListNode;
 import org.sonar.iac.helm.tree.api.PipeNode;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class AbstractBranchNodeTest {
 
@@ -34,7 +34,7 @@ class AbstractBranchNodeTest {
     var pipeNode = mock(PipeNode.class);
     var listNode = mock(ListNode.class);
     var elseListNode = mock(ListNode.class);
-    var withNode = new WithNodeImpl(0, 10, pipeNode, listNode, elseListNode);
+    var withNode = new WithNodeImpl(range(0, 1, 0, 10), pipeNode, listNode, elseListNode);
 
     var children = withNode.children();
 
@@ -46,7 +46,7 @@ class AbstractBranchNodeTest {
     var pipeNode = mock(PipeNode.class);
     var listNode = mock(ListNode.class);
     var elseListNode = mock(ListNode.class);
-    var withNode = new WithNodeImpl(0, 10, pipeNode, listNode, elseListNode);
+    var withNode = new WithNodeImpl(range(1, 0, 1, 10), pipeNode, listNode, elseListNode);
 
     var actual = withNode.pipe();
 
@@ -58,7 +58,7 @@ class AbstractBranchNodeTest {
     var pipeNode = mock(PipeNode.class);
     var listNode = mock(ListNode.class);
     var elseListNode = mock(ListNode.class);
-    var withNode = new WithNodeImpl(0, 10, pipeNode, listNode, elseListNode);
+    var withNode = new WithNodeImpl(range(1, 0, 1, 10), pipeNode, listNode, elseListNode);
 
     var actual = withNode.list();
 
@@ -70,7 +70,7 @@ class AbstractBranchNodeTest {
     var pipeNode = mock(PipeNode.class);
     var listNode = mock(ListNode.class);
     var elseListNode = mock(ListNode.class);
-    var withNode = new WithNodeImpl(0, 10, pipeNode, listNode, elseListNode);
+    var withNode = new WithNodeImpl(range(1, 0, 1, 10), pipeNode, listNode, elseListNode);
 
     var actual = withNode.elseList();
 

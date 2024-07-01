@@ -19,20 +19,23 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.CommentNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.CommentNode;
 import org.sonar.iac.helm.tree.api.Node;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class CommentNodeImpl extends AbstractNode implements CommentNode {
   private final String text;
 
-  public CommentNodeImpl(long position, long length, String text) {
-    super(position, length);
+  public CommentNodeImpl(TextRange textRange, String text) {
+    super(textRange);
     this.text = text;
   }
 
-  public static Node fromPb(CommentNodeOrBuilder nodePb) {
-    return new CommentNodeImpl(nodePb.getPos(), nodePb.getLength(), nodePb.getText());
+  public static Node fromPb(CommentNodeOrBuilder nodePb, String source) {
+    return new CommentNodeImpl(textRangeFromPb(nodePb, source), nodePb.getText());
   }
 
   @Override

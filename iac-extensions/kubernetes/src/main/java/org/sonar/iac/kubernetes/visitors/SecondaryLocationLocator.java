@@ -19,6 +19,11 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,12 +38,6 @@ import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 import org.sonar.iac.helm.tree.utils.ValuePath;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class SecondaryLocationLocator {
   private static final Logger LOG = LoggerFactory.getLogger(SecondaryLocationLocator.class);
@@ -58,13 +57,12 @@ public final class SecondaryLocationLocator {
   static List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext helmContext, TextRange primaryLocationTextRange) {
     var ast = helmContext.getGoTemplateTree();
     var valuesFile = helmContext.getValuesFile();
-    var sourceWithComments = helmContext.getSourceWithComments();
-    if (ast == null || valuesFile == null || sourceWithComments == null) {
+    if (ast == null || valuesFile == null) {
       return List.of();
     }
     var secondaryLocations = new ArrayList<SecondaryLocation>();
     try {
-      var valuePaths = GoTemplateAstHelper.findValuePaths(ast, primaryLocationTextRange, sourceWithComments);
+      var valuePaths = GoTemplateAstHelper.findValuePaths(ast, primaryLocationTextRange);
       for (ValuePath valuePath : valuePaths) {
         var secondaryTextRange = toTextRangeInValuesFile(valuePath, helmContext);
         if (secondaryTextRange != null) {

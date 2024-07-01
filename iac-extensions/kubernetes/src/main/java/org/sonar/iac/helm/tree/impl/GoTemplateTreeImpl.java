@@ -21,6 +21,7 @@ package org.sonar.iac.helm.tree.impl;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.TreeOrBuilder;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.api.ListNode;
@@ -39,11 +40,11 @@ public class GoTemplateTreeImpl implements GoTemplateTree {
   }
 
   @CheckForNull
-  public static GoTemplateTree fromPbTree(@Nullable TreeOrBuilder treePb) {
+  public static GoTemplateTree fromPbTree(@Nullable TreeOrBuilder treePb, String source) {
     if (treePb == null) {
       return null;
     }
-    return new GoTemplateTreeImpl(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNodeImpl) ListNodeImpl.fromPb(treePb.getRoot()));
+    return new GoTemplateTreeImpl(treePb.getName(), treePb.getParseName(), (int) treePb.getMode(), (ListNodeImpl) ListNodeImpl.fromPb(treePb.getRoot(), source));
   }
 
   @Override
@@ -64,5 +65,10 @@ public class GoTemplateTreeImpl implements GoTemplateTree {
   @Override
   public ListNode root() {
     return root;
+  }
+
+  @Override
+  public TextRange textRange() {
+    return root.textRange();
   }
 }

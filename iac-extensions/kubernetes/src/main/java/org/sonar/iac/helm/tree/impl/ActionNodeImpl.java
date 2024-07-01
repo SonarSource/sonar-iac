@@ -20,21 +20,25 @@
 package org.sonar.iac.helm.tree.impl;
 
 import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.ActionNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.ActionNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class ActionNodeImpl extends AbstractNode implements ActionNode {
   private final PipeNode pipe;
 
-  public ActionNodeImpl(long position, long length, PipeNode pipe) {
-    super(position, length);
+  public ActionNodeImpl(TextRange textRange, PipeNode pipe) {
+    super(textRange);
     this.pipe = pipe;
   }
 
-  public static Node fromPb(ActionNodeOrBuilder nodePb) {
-    return new ActionNodeImpl(nodePb.getPos(), nodePb.getLength(), (PipeNode) PipeNodeImpl.fromPb(nodePb.getPipe()));
+  public static Node fromPb(ActionNodeOrBuilder nodePb, String source) {
+    return new ActionNodeImpl(textRangeFromPb(nodePb, source), (PipeNode) PipeNodeImpl.fromPb(nodePb.getPipe(), source));
   }
 
   public PipeNode pipe() {
@@ -42,7 +46,7 @@ public class ActionNodeImpl extends AbstractNode implements ActionNode {
   }
 
   @Override
-  public List<Node> children() {
+  public List<Tree> children() {
     return List.of(pipe);
   }
 }

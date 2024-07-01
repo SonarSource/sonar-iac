@@ -19,21 +19,24 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.IfNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.IfNode;
 import org.sonar.iac.helm.tree.api.ListNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class IfNodeImpl extends AbstractBranchNode implements IfNode {
-  public IfNodeImpl(long position, long length, PipeNode pipe, ListNode list, ListNode elseList) {
-    super(position, length, pipe, list, elseList);
+  public IfNodeImpl(TextRange textRange, PipeNode pipe, ListNode list, ListNode elseList) {
+    super(textRange, pipe, list, elseList);
   }
 
-  public static Node fromPb(IfNodeOrBuilder ifNodePb) {
-    var pipe = (PipeNode) PipeNodeImpl.fromPb(ifNodePb.getBranchNode().getPipe());
-    var list = (ListNode) ListNodeImpl.fromPb(ifNodePb.getBranchNode().getList());
-    var elseList = (ListNode) ListNodeImpl.fromPb(ifNodePb.getBranchNode().getElseList());
-    return new IfNodeImpl(ifNodePb.getPos(), ifNodePb.getLength(), pipe, list, elseList);
+  public static Node fromPb(IfNodeOrBuilder ifNodePb, String source) {
+    var pipe = (PipeNode) PipeNodeImpl.fromPb(ifNodePb.getBranchNode().getPipe(), source);
+    var list = (ListNode) ListNodeImpl.fromPb(ifNodePb.getBranchNode().getList(), source);
+    var elseList = (ListNode) ListNodeImpl.fromPb(ifNodePb.getBranchNode().getElseList(), source);
+    return new IfNodeImpl(textRangeFromPb(ifNodePb, source), pipe, list, elseList);
   }
 }

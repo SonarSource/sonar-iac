@@ -34,9 +34,9 @@ import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.ListNode;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
+import org.sonar.iac.kubernetes.KubernetesAssertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class GoTemplateAstConverterTest {
   private GoAstCreator goAstCreator;
@@ -50,13 +50,13 @@ class GoTemplateAstConverterTest {
 
   @Test
   void shouldIgnoreNullInput() {
-    assertThat(GoTemplateTreeImpl.fromPbTree(null)).isNull();
+    assertThat(GoTemplateTreeImpl.fromPbTree(null, "ignored")).isNull();
   }
 
   @Test
   void shouldIgnoreUnknownNode() {
     var any = Any.newBuilder().setTypeUrl("unknown").build();
-    assertThat(GoTemplateAstConverter.unpackNode(any)).isNull();
+    assertThat(GoTemplateAstConverter.unpackNode(any, "ignored")).isNull();
   }
 
   @Test
@@ -73,6 +73,8 @@ class GoTemplateAstConverterTest {
       assertThat(t.parseName()).isEqualTo("my-chart/templates/test.yaml");
       assertThat(t.mode()).isOne();
       assertThat(t.root()).isInstanceOf(ListNode.class);
+      assertThat(t.children()).hasSize(1).containsExactly(t.root());
+      KubernetesAssertions.assertThat(t.textRange()).hasRange(1, 0, 1, 20);
     });
     var node = tree.root().nodes().get(0);
     assertThat(node).isInstanceOf(ActionNode.class);
@@ -98,41 +100,40 @@ class GoTemplateAstConverterTest {
 
   static Stream<String> shouldBuildTreeFromTemplate() {
     return Stream.of(
-      code(
-        "{{- /* returns \"foo\" */ -}}",
-        "{{- define \"foo\" }}",
-        "{{ split \"0\" \"00foo\" }}",
-        "{{ end }}",
-        "{{ template \"foo\" }}"),
-      code(
-        "apiVersion: v1",
-        "kind: ConfigMap",
-        "metadata:",
-        "{{- if .Values.annotations }}",
-        "annotations:",
-        "{{- range $key, $value := .Values.annotations }}",
-        "{{ $key }}: {{ $value }}",
-        "{{- end }}",
-        "{{- end }}"),
-      code(
-        "{{- if .Values.annotations }}",
-        "{{- range $key, $value := .Values.annotations }}",
-        "{{- if eq $key \"foo\" }} {{- break -}} {{else}} {{continue}} {{- end }}",
-        "{{ $key }}: {{ $value }}",
-        "{{- end }}",
-        "{{- else if false }}",
-        "{{- printf nil }}",
-        "{{- printf 2.0 }}",
-        "{{- else }}",
-        "{{ print .Values.fallbacks.foo }}",
-        "{{- end }}"),
-      code(
-        "{{- with .Values.annotations }}",
-        "{{- range $key, $value := . }}",
-        "{{ $key }}: {{ $value }}",
-        "{{- end }}",
-        "{{- end }}"),
-      code(
-        "{{- len ( print .Values.foo) }}"));
+      """
+        {{- /* returns "foo" */ -}}
+        {{- define "foo" }}
+        {{ split "0" "00foo" }}
+        {{ end }}
+        {{ template "foo" }}""",
+      """
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+        {{- if .Values.annotations }}
+        annotations:
+        {{- range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+        {{- end }}""",
+      """
+        {{- if .Values.annotations }}
+        {{- range $key, $value := .Values.annotations }}
+        {{- if eq $key "foo" }} {{- break -}} {{else}} {{continue}} {{- end }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+        {{- else if false }}
+        {{- printf nil }}
+        {{- printf 2.0 }}
+        {{- else }}
+        {{ print .Values.fallbacks.foo }}
+        {{- end }}""",
+      """
+        {{- with .Values.annotations }}
+        {{- range $key, $value := . }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+        {{- end }}""",
+      "{{- len ( print .Values.foo) }}");
   }
 }

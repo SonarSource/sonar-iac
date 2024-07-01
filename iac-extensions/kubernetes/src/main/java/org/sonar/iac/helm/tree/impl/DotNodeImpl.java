@@ -19,17 +19,20 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.DotNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.DotNode;
 import org.sonar.iac.helm.tree.api.Node;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class DotNodeImpl extends AbstractNode implements DotNode {
 
-  public DotNodeImpl(long position, long length) {
-    super(position, length);
+  public DotNodeImpl(TextRange textRange) {
+    super(textRange);
   }
 
-  public static Node fromPb(DotNodeOrBuilder dotNodePb) {
-    return new DotNodeImpl(dotNodePb.getPos(), dotNodePb.getLength());
+  public static Node fromPb(DotNodeOrBuilder dotNodePb, String source) {
+    return new DotNodeImpl(textRangeFromPb(dotNodePb, source));
   }
 }

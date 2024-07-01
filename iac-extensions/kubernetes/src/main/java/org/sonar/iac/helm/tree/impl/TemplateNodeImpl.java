@@ -23,10 +23,14 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.TemplateNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.TemplateNode;
+
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
 
 public class TemplateNodeImpl extends AbstractNode implements TemplateNode {
   @Nullable
@@ -34,18 +38,20 @@ public class TemplateNodeImpl extends AbstractNode implements TemplateNode {
   @Nullable
   private final PipeNode pipe;
 
-  public TemplateNodeImpl(long position, long length, @Nullable String name, @Nullable PipeNode pipe) {
-    super(position, length);
+  public TemplateNodeImpl(TextRange textRange, @Nullable String name, @Nullable PipeNode pipe) {
+    super(textRange);
     this.name = name;
     this.pipe = pipe;
   }
 
-  public static Node fromPb(TemplateNodeOrBuilder templateNodePb) {
+  public static Node fromPb(TemplateNodeOrBuilder templateNodePb, String source) {
     return new TemplateNodeImpl(
-      templateNodePb.getPos(),
-      templateNodePb.getLength(),
+      textRangeFromPb(templateNodePb, source),
       templateNodePb.getName(),
-      (PipeNode) Optional.of(templateNodePb.getPipe()).filter(t -> templateNodePb.hasPipe()).map(PipeNodeImpl::fromPb).orElse(null));
+      (PipeNode) Optional.of(templateNodePb.getPipe())
+        .filter(t -> templateNodePb.hasPipe())
+        .map(it -> PipeNodeImpl.fromPb(it, source))
+        .orElse(null));
   }
 
   @CheckForNull
@@ -59,7 +65,7 @@ public class TemplateNodeImpl extends AbstractNode implements TemplateNode {
   }
 
   @Override
-  public List<Node> children() {
+  public List<Tree> children() {
     if (pipe != null) {
       return List.of(pipe);
     } else {

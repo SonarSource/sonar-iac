@@ -19,21 +19,20 @@
  */
 package org.sonar.iac.helm.tree.utils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.api.IdentifierNode;
-import org.sonar.iac.helm.tree.api.Location;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.NodeType;
-import org.sonar.iac.helm.tree.impl.LocationImpl;
+
+import static org.sonar.iac.common.api.tree.impl.TextRanges.overlap;
 
 public final class GoTemplateAstHelper {
 
@@ -41,75 +40,62 @@ public final class GoTemplateAstHelper {
     // utility class
   }
 
-  public static Stream<Node> findNodesToHighlight(GoTemplateTree tree, TextRange range, String sourceText) {
-    var location = LocationImpl.fromTextRange(range, sourceText);
-
+  public static Stream<Node> findNodesToHighlight(GoTemplateTree tree, TextRange range) {
     return Stream.concat(Stream.concat(
-      findValuePathNodes(tree, location),
-      findIncludeFunctionsFirstArg(tree, location)),
-      findToYamlNodes(tree, location));
+      findValuePathNodes(tree, range),
+      findIncludeFunctionsFirstArg(tree, range)),
+      findToYamlNodes(tree, range));
   }
 
-  static Stream<FieldNode> findValuePathNodes(GoTemplateTree tree, Location location) {
+  static Stream<FieldNode> findValuePathNodes(GoTemplateTree tree, TextRange textRange) {
     var nodes = tree.root().children().stream()
-      .filter(hasOverlayingLocation(location))
+      .filter(node -> overlap(node.textRange(), textRange))
       .toList();
 
-    return nodesWithImmediateChildren(nodes).stream()
+    return nodesWithAllChildren(nodes).stream()
       .filter(FieldNode.class::isInstance)
       // Sometimes top-level nodes have a very broad range and some children can be actually outside the range.
-      .filter(hasOverlayingLocation(location))
+      .filter(node -> overlap(node.textRange(), textRange))
       .map(FieldNode.class::cast);
   }
 
-  public static List<ValuePath> findValuePaths(GoTemplateTree tree, TextRange range, String sourceText) {
-    var location = LocationImpl.fromTextRange(range, sourceText);
-
-    return findValuePathNodes(tree, location)
+  public static List<ValuePath> findValuePaths(GoTemplateTree tree, TextRange range) {
+    return findValuePathNodes(tree, range)
       .map(FieldNode::identifiers)
       .map(ValuePath::new)
       .toList();
   }
 
-  private static Stream<Node> findIncludeFunctionsFirstArg(GoTemplateTree tree, Location location) {
+  private static Stream<Node> findIncludeFunctionsFirstArg(GoTemplateTree tree, TextRange textRange) {
     return collectNodesByType(tree.root(), NodeType.NODE_COMMAND, CommandNode.class)
-      .filter(hasOverlayingLocation(location))
+      .filter(node -> overlap(node.textRange(), textRange))
       .filter(node -> isFunction(node, "include"))
       .map(cmd -> cmd.arguments().get(1));
   }
 
-  private static Stream<? extends Node> findToYamlNodes(GoTemplateTree tree, Location location) {
+  private static Stream<? extends Node> findToYamlNodes(GoTemplateTree tree, TextRange textRange) {
     return collectNodesByType(tree.root(), NodeType.NODE_COMMAND, CommandNode.class)
-      .filter(hasOverlayingLocation(location))
+      .filter(node -> overlap(node.textRange(), textRange))
       .filter(node -> isFunction(node, "toYaml"));
   }
 
-  private static Predicate<Node> hasOverlayingLocation(Location location) {
-    return (Node node) -> {
-      var position = location.position();
-      var length = location.length();
-      var nodePosition = node.location().position();
-      var nodeLength = node.location().length();
-      return !(nodePosition > position + length || nodePosition + nodeLength < position);
-    };
-  }
-
-  private static List<Node> nodesWithImmediateChildren(List<Node> nodes) {
-    List<Node> allNodes = new ArrayList<>(nodes);
-    for (var i = 0; i < allNodes.size(); i++) {
-      allNodes.addAll(allNodes.get(i).children());
-    }
-    return allNodes;
+  private static List<Tree> nodesWithAllChildren(List<Tree> nodes) {
+    return Stream.concat(
+      nodes.stream(),
+      nodes.stream().flatMap(node -> nodesWithAllChildren(node.children()).stream()))
+      .toList();
   }
 
   private static <T extends Node> Stream<T> collectNodesByType(Node node, NodeType type, Class<T> nodeClass) {
     return Stream.concat(
       Stream.of(node).filter(n -> type == n.type()),
-      node.children().stream().flatMap(child -> collectNodesByType(child, type, nodeClass)))
+      node.children().stream()
+        .map(Node.class::cast)
+        .flatMap(child -> collectNodesByType(child, type, nodeClass)))
       .map(nodeClass::cast);
   }
 
-  public static void addChildrenIfPresent(Collection<Node> children, @Nullable Node tree) {
+  public static void addChildrenIfPresent(Collection<Tree> children, @Nullable Node tree) {
     if (tree != null) {
       children.add(tree);
     }

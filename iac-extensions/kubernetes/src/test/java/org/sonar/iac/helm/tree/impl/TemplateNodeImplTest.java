@@ -24,20 +24,21 @@ import org.mockito.Mockito;
 import org.sonar.iac.helm.tree.api.PipeNode;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class TemplateNodeImplTest {
 
   @Test
   void shouldReturnAllChildren() {
     var node = Mockito.mock(PipeNode.class);
-    var templateNode = new TemplateNodeImpl(0, 10, "dummy", node);
+    var templateNode = new TemplateNodeImpl(range(1, 0, 1, 10), "dummy", node);
     var actual = templateNode.children();
     assertThat(actual).contains(node);
   }
 
   @Test
   void shouldReturnEmptyListIfPipeNodeIsNull() {
-    var templateNode = new TemplateNodeImpl(0, 10, "dummy", null);
+    var templateNode = new TemplateNodeImpl(range(1, 0, 1, 10), "dummy", null);
     var actual = templateNode.children();
     assertThat(actual).isEmpty();
   }

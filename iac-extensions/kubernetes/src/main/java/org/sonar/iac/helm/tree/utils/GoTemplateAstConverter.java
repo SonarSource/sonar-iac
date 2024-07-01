@@ -24,21 +24,29 @@ import com.google.protobuf.AnyOrBuilder;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.iac.helm.tree.impl.CommentNodeImpl;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
 import org.sonar.iac.helm.tree.impl.BoolNodeImpl;
 import org.sonar.iac.helm.tree.impl.BreakNodeImpl;
 import org.sonar.iac.helm.tree.impl.ChainNodeImpl;
 import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
+import org.sonar.iac.helm.tree.impl.CommentNodeImpl;
 import org.sonar.iac.helm.tree.impl.ContinueNodeImpl;
 import org.sonar.iac.helm.tree.impl.DotNodeImpl;
 import org.sonar.iac.helm.tree.impl.FieldNodeImpl;
 import org.sonar.iac.helm.tree.impl.IdentifierNodeImpl;
 import org.sonar.iac.helm.tree.impl.IfNodeImpl;
 import org.sonar.iac.helm.tree.impl.ListNodeImpl;
+import org.sonar.iac.helm.tree.impl.LocationImpl;
 import org.sonar.iac.helm.tree.impl.NilNodeImpl;
 import org.sonar.iac.helm.tree.impl.NumberNodeImpl;
 import org.sonar.iac.helm.tree.impl.PipeNodeImpl;
@@ -48,13 +56,6 @@ import org.sonar.iac.helm.tree.impl.TemplateNodeImpl;
 import org.sonar.iac.helm.tree.impl.TextNodeImpl;
 import org.sonar.iac.helm.tree.impl.VariableNodeImpl;
 import org.sonar.iac.helm.tree.impl.WithNodeImpl;
-
-import javax.annotation.CheckForNull;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 public final class GoTemplateAstConverter {
   private static final Logger LOG = LoggerFactory.getLogger(GoTemplateAstConverter.class);
@@ -94,7 +95,7 @@ public final class GoTemplateAstConverter {
   }
 
   @CheckForNull
-  public static Node unpackNode(Any nodePb) {
+  public static Node unpackNode(Any nodePb, String source) {
     try {
       var typeName = typeName(nodePb);
       var converter = typeNameToConverter.get(typeName);
@@ -102,35 +103,37 @@ public final class GoTemplateAstConverter {
         LOG.debug("Unknown node type: {}", typeName);
         return null;
       }
-      return converter.convert(nodePb);
+      return converter.convert(nodePb, source);
     } catch (InvalidProtocolBufferException e) {
       LOG.debug("Failed to unpack node", e);
       return null;
     }
   }
 
-  public static List<Node> unpack(Collection<Any> nodesPb) {
+  public static List<Node> unpack(Collection<Any> nodesPb, String source) {
     return nodesPb.stream()
-      .map(GoTemplateAstConverter::unpackNode)
+      .map(it -> unpackNode(it, source))
       .toList();
+  }
+
+  public static TextRange textRangeFromPb(MessageOrBuilder nodePb, String source) {
+    var pos = (Long) nodePb.getField(nodePb.getDescriptorForType().findFieldByName("pos"));
+    var length = (Long) nodePb.getField(nodePb.getDescriptorForType().findFieldByName("length"));
+    return new LocationImpl(pos.intValue(), length.intValue()).toTextRange(source);
   }
 
   private static String typeName(AnyOrBuilder nodePb) {
     return nodePb.getTypeUrl().substring(nodePb.getTypeUrl().lastIndexOf('/') + 1);
   }
 
-  private static class Converter<M extends Message, T extends MessageOrBuilder> implements AnyToNodeConverter {
-    private final Class<M> messageType;
-    private final Function<T, Node> fromPb;
-
-    public Converter(Class<M> messageType, Function<T, Node> fromPb) {
-      this.messageType = messageType;
-      this.fromPb = fromPb;
-    }
+  private record Converter<M extends Message, T extends MessageOrBuilder> (
+    Class<M> messageType,
+    BiFunction<T, String, Node> fromPb) implements AnyToNodeConverter {
 
     @Override
-    public Node convert(Any any) throws InvalidProtocolBufferException {
-      return fromPb.apply((T) any.unpack(messageType));
+    public Node convert(Any any, String source) throws InvalidProtocolBufferException {
+      var pb = (T) any.unpack(messageType);
+      return fromPb.apply(pb, source);
     }
   }
 }

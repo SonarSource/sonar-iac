@@ -22,7 +22,11 @@ package org.sonar.iac.common.api.tree.impl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.tree.HasTextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,6 +105,22 @@ class TextRangesTest {
     assertThat(TextRanges.isValidAndNotEmpty(range(1, 1, 1, 1))).isFalse();
     assertThat(TextRanges.isValidAndNotEmpty(range(2, 1, 1, 1))).isFalse();
     assertThat(TextRanges.isValidAndNotEmpty(range(1, 2, 3, 4))).isTrue();
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testOverlapTwoRanges(TextRange range1, TextRange range2, boolean expected) {
+    assertThat(TextRanges.overlap(range1, range2)).isEqualTo(expected);
+    assertThat(TextRanges.overlap(range2, range1)).isEqualTo(expected);
+  }
+
+  static Stream<Arguments> testOverlapTwoRanges() {
+    return Stream.of(
+      Arguments.of(range(1, 0, 1, 10), range(1, 5, 1, 15), true),
+      Arguments.of(range(1, 0, 1, 5), range(1, 10, 1, 15), false),
+      Arguments.of(range(1, 0, 1, 5), range(1, 5, 1, 10), true),
+      Arguments.of(range(1, 0, 2, 0), range(1, 10, 2, 5), true),
+      Arguments.of(range(1, 0, 2, 0), range(2, 1, 2, 5), false));
   }
 
   public static TextRange range(int startLine, int startLineColumn, int endLine, int endLineColumn) {

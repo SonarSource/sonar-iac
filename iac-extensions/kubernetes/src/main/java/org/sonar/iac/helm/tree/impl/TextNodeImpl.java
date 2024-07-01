@@ -19,20 +19,23 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.TextNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.TextNode;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class TextNodeImpl extends AbstractNode implements TextNode {
   private final String text;
 
-  public TextNodeImpl(long position, long length, String text) {
-    super(position, length);
+  public TextNodeImpl(TextRange textRange, String text) {
+    super(textRange);
     this.text = text;
   }
 
-  public static Node fromPb(TextNodeOrBuilder nodePb) {
-    return new TextNodeImpl(nodePb.getPos(), nodePb.getLength(), nodePb.getText().toStringUtf8());
+  public static Node fromPb(TextNodeOrBuilder nodePb, String source) {
+    return new TextNodeImpl(textRangeFromPb(nodePb, source), nodePb.getText().toStringUtf8());
   }
 
   public String text() {

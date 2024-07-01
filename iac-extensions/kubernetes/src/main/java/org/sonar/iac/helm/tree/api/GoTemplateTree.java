@@ -19,10 +19,13 @@
  */
 package org.sonar.iac.helm.tree.api;
 
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+
 /**
  * An AST built from Go template.
  */
-public interface GoTemplateTree {
+public interface GoTemplateTree extends Tree {
   /**
    * Name of the template.
    *
@@ -50,4 +53,9 @@ public interface GoTemplateTree {
    * @return the root of the AST
    */
   ListNode root();
+
+  @Override
+  default List<Tree> children() {
+    return List.of(root());
+  }
 }

@@ -19,30 +19,16 @@
  */
 package org.sonar.iac.helm.tree.api;
 
-import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
 
 /**
  * Node represents a node in the Go template AST.
  */
-public interface Node {
+public interface Node extends Tree {
   /**
    * The type of the node.
    *
    * @return the type of the node
    */
   NodeType type();
-
-  /**
-   * The location of the node in the file.
-   *
-   * @return the location of the node in the file
-   */
-  Location location();
-
-  /**
-   * All children of given AST Node.
-   *
-   * @return the list of all children elements
-   */
-  List<Node> children();
 }

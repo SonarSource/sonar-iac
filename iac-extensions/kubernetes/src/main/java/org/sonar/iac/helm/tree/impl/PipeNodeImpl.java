@@ -19,32 +19,34 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.PipeNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.VariableNode;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
 
 public class PipeNodeImpl extends AbstractNode implements PipeNode {
   private final List<VariableNode> declarations;
   private final List<CommandNode> commands;
 
-  public PipeNodeImpl(long position, long length, List<VariableNode> declarations, List<CommandNode> commands) {
-    super(position, length);
+  public PipeNodeImpl(TextRange textRange, List<VariableNode> declarations, List<CommandNode> commands) {
+    super(textRange);
     this.declarations = Collections.unmodifiableList(declarations);
     this.commands = Collections.unmodifiableList(commands);
   }
 
-  public static Node fromPb(PipeNodeOrBuilder nodePb) {
+  public static Node fromPb(PipeNodeOrBuilder nodePb, String source) {
     return new PipeNodeImpl(
-      nodePb.getPos(),
-      nodePb.getLength(),
-      nodePb.getDeclList().stream().map(node -> (VariableNode) VariableNodeImpl.fromPb(node)).toList(),
-      nodePb.getCmdsList().stream().map(node -> (CommandNode) CommandNodeImpl.fromPb(node)).toList());
+      textRangeFromPb(nodePb, source),
+      nodePb.getDeclList().stream().map(node -> (VariableNode) VariableNodeImpl.fromPb(node, source)).toList(),
+      nodePb.getCmdsList().stream().map(node -> (CommandNode) CommandNodeImpl.fromPb(node, source)).toList());
   }
 
   public List<VariableNode> declarations() {
@@ -56,8 +58,8 @@ public class PipeNodeImpl extends AbstractNode implements PipeNode {
   }
 
   @Override
-  public List<Node> children() {
-    List<Node> children = new ArrayList<>();
+  public List<Tree> children() {
+    var children = new ArrayList<Tree>();
     children.addAll(declarations);
     children.addAll(commands);
     return children;

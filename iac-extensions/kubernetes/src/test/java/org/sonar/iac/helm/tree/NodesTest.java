@@ -20,7 +20,6 @@
 package org.sonar.iac.helm.tree;
 
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.sonar.iac.helm.tree.api.CommandNode;
@@ -52,33 +51,34 @@ import org.sonar.iac.helm.tree.impl.VariableNodeImpl;
 import org.sonar.iac.helm.tree.impl.WithNodeImpl;
 import org.sonar.iac.kubernetes.KubernetesAssertions;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class NodesTest {
   @Test
   void shouldBuildActionNode() {
     var pipeNode = Mockito.mock(PipeNode.class);
-    var actionNode = new ActionNodeImpl(1, 5, pipeNode);
+    var actionNode = new ActionNodeImpl(range(1, 0, 1, 5), pipeNode);
 
-    KubernetesAssertions.assertThat(actionNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(actionNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(actionNode.type()).isEqualTo(NodeType.NODE_ACTION);
     assertThat(actionNode.pipe()).isEqualTo(pipeNode);
   }
 
   @Test
   void shouldBuildBoolNode() {
-    var boolNode = new BoolNodeImpl(1, 5, true);
+    var boolNode = new BoolNodeImpl(range(1, 0, 1, 5), true);
 
-    KubernetesAssertions.assertThat(boolNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(boolNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(boolNode.type()).isEqualTo(NodeType.NODE_BOOL);
     assertThat(boolNode.value()).isTrue();
   }
 
   @Test
   void shouldBuildBreakNode() {
-    var breakNode = new BreakNodeImpl(1, 5, 5);
+    var breakNode = new BreakNodeImpl(range(1, 0, 1, 5), 5);
 
-    KubernetesAssertions.assertThat(breakNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(breakNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(breakNode.type()).isEqualTo(NodeType.NODE_BREAK);
     assertThat(breakNode.line()).isEqualTo(5);
   }
@@ -87,9 +87,9 @@ class NodesTest {
   void shouldBuildChainNode() {
     var field = (List<String>) Mockito.mock(List.class);
     var node = Mockito.mock(Node.class);
-    var chainNode = new ChainNodeImpl(1, 5, node, field);
+    var chainNode = new ChainNodeImpl(range(1, 0, 1, 5), node, field);
 
-    KubernetesAssertions.assertThat(chainNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(chainNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(chainNode.type()).isEqualTo(NodeType.NODE_CHAIN);
     assertThat(chainNode.fields()).isEqualTo(field);
     assertThat(chainNode.node()).hasValue(node);
@@ -98,54 +98,54 @@ class NodesTest {
   @Test
   void shouldBuildCommandNode() {
     var arguments = (List<Node>) Mockito.mock(List.class);
-    var commandNode = new CommandNodeImpl(1, 5, arguments);
+    var commandNode = new CommandNodeImpl(range(1, 0, 1, 5), arguments);
 
-    KubernetesAssertions.assertThat(commandNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(commandNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(commandNode.type()).isEqualTo(NodeType.NODE_COMMAND);
     assertThat(commandNode.arguments()).isEqualTo(arguments);
   }
 
   @Test
   void shouldBuildCommentNode() {
-    var commentNode = new CommentNodeImpl(1, 5, "/* foo */");
+    var commentNode = new CommentNodeImpl(range(1, 0, 1, 5), "/* foo */");
 
-    KubernetesAssertions.assertThat(commentNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(commentNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(commentNode.type()).isEqualTo(NodeType.NODE_COMMENT);
     assertThat(commentNode.text()).isEqualTo("/* foo */");
   }
 
   @Test
   void shouldBuildContinueNode() {
-    var continueNode = new ContinueNodeImpl(1, 5, 5);
+    var continueNode = new ContinueNodeImpl(range(1, 0, 1, 5), 5);
 
-    KubernetesAssertions.assertThat(continueNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(continueNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(continueNode.type()).isEqualTo(NodeType.NODE_CONTINUE);
     assertThat(continueNode.line()).isEqualTo(5);
   }
 
   @Test
   void shouldBuildDotNode() {
-    var dotNode = new DotNodeImpl(1, 5);
+    var dotNode = new DotNodeImpl(range(1, 0, 1, 5));
 
-    KubernetesAssertions.assertThat(dotNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(dotNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(dotNode.type()).isEqualTo(NodeType.NODE_DOT);
   }
 
   @Test
   void shouldBuildFieldNode() {
     var identifiers = (List<String>) Mockito.mock(List.class);
-    var fieldNode = new FieldNodeImpl(1, 5, identifiers);
+    var fieldNode = new FieldNodeImpl(range(1, 0, 1, 5), identifiers);
 
-    KubernetesAssertions.assertThat(fieldNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(fieldNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(fieldNode.type()).isEqualTo(NodeType.NODE_FIELD);
     assertThat(fieldNode.identifiers()).isEqualTo(identifiers);
   }
 
   @Test
   void shouldBuildIdentifierNode() {
-    var identifierNode = new IdentifierNodeImpl(1, 5, "name");
+    var identifierNode = new IdentifierNodeImpl(range(1, 0, 1, 5), "name");
 
-    KubernetesAssertions.assertThat(identifierNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(identifierNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(identifierNode.type()).isEqualTo(NodeType.NODE_IDENTIFIER);
     assertThat(identifierNode.identifier()).isEqualTo("name");
   }
@@ -155,9 +155,9 @@ class NodesTest {
     var pipeNode = Mockito.mock(PipeNode.class);
     var list = Mockito.mock(ListNode.class);
     var elseList = Mockito.mock(ListNode.class);
-    var ifNode = new IfNodeImpl(1, 5, pipeNode, list, elseList);
+    var ifNode = new IfNodeImpl(range(1, 0, 1, 5), pipeNode, list, elseList);
 
-    KubernetesAssertions.assertThat(ifNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(ifNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(ifNode.type()).isEqualTo(NodeType.NODE_IF);
     assertThat(ifNode.pipe()).isEqualTo(pipeNode);
     assertThat(ifNode.list()).isEqualTo(list);
@@ -167,26 +167,26 @@ class NodesTest {
   @Test
   void shouldBuildListNode() {
     var nodes = (List<Node>) Mockito.mock(List.class);
-    var listNode = new ListNodeImpl(1, 5, nodes);
+    var listNode = new ListNodeImpl(range(1, 0, 1, 5), nodes);
 
-    KubernetesAssertions.assertThat(listNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(listNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(listNode.type()).isEqualTo(NodeType.NODE_LIST);
     assertThat(listNode.nodes()).isEqualTo(nodes);
   }
 
   @Test
   void shouldBuildNilNode() {
-    var nilNode = new NilNodeImpl(1, 5);
+    var nilNode = new NilNodeImpl(range(1, 0, 1, 5));
 
-    KubernetesAssertions.assertThat(nilNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(nilNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(nilNode.type()).isEqualTo(NodeType.NODE_NIL);
   }
 
   @Test
   void shouldBuildNumberNode() {
-    var numberNode = new NumberNodeImpl(1, 5, "5");
+    var numberNode = new NumberNodeImpl(range(1, 0, 1, 5), "5");
 
-    KubernetesAssertions.assertThat(numberNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(numberNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(numberNode.type()).isEqualTo(NodeType.NODE_NUMBER);
     assertThat(numberNode.text()).isEqualTo("5");
   }
@@ -195,9 +195,9 @@ class NodesTest {
   void shouldBuildPipeNode() {
     var commands = (List<CommandNode>) Mockito.mock(List.class);
     var declarations = (List<VariableNode>) Mockito.mock(List.class);
-    var pipeNode = new PipeNodeImpl(1, 5, declarations, commands);
+    var pipeNode = new PipeNodeImpl(range(1, 0, 1, 5), declarations, commands);
 
-    KubernetesAssertions.assertThat(pipeNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(pipeNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(pipeNode.type()).isEqualTo(NodeType.NODE_PIPE);
     assertThat(pipeNode.declarations()).isEqualTo(declarations);
     assertThat(pipeNode.commands()).isEqualTo(commands);
@@ -208,9 +208,9 @@ class NodesTest {
     var pipeNode = Mockito.mock(PipeNode.class);
     var list = Mockito.mock(ListNode.class);
     var elseList = Mockito.mock(ListNode.class);
-    var rangeNode = new RangeNodeImpl(1, 5, pipeNode, list, elseList);
+    var rangeNode = new RangeNodeImpl(range(1, 0, 1, 5), pipeNode, list, elseList);
 
-    KubernetesAssertions.assertThat(rangeNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(rangeNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(rangeNode.type()).isEqualTo(NodeType.NODE_RANGE);
     assertThat(rangeNode.pipe()).isEqualTo(pipeNode);
     assertThat(rangeNode.list()).isEqualTo(list);
@@ -219,9 +219,9 @@ class NodesTest {
 
   @Test
   void shouldBuildStringNode() {
-    var stringNode = new StringNodeImpl(1, 5, "name");
+    var stringNode = new StringNodeImpl(range(1, 0, 1, 5), "name");
 
-    KubernetesAssertions.assertThat(stringNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(stringNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(stringNode.type()).isEqualTo(NodeType.NODE_STRING);
     assertThat(stringNode.text()).isEqualTo("name");
   }
@@ -229,9 +229,9 @@ class NodesTest {
   @Test
   void shouldBuildTemplateNode() {
     var pipe = Mockito.mock(PipeNode.class);
-    var templateNode = new TemplateNodeImpl(1, 5, "name", pipe);
+    var templateNode = new TemplateNodeImpl(range(1, 0, 1, 5), "name", pipe);
 
-    KubernetesAssertions.assertThat(templateNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(templateNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(templateNode.type()).isEqualTo(NodeType.NODE_TEMPLATE);
     assertThat(templateNode.name()).isEqualTo("name");
     assertThat(templateNode.pipe()).isEqualTo(pipe);
@@ -239,18 +239,18 @@ class NodesTest {
 
   @Test
   void shouldBuildTextNode() {
-    var textNode = new TextNodeImpl(1, 5, "name");
+    var textNode = new TextNodeImpl(range(1, 0, 1, 5), "name");
 
-    KubernetesAssertions.assertThat(textNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(textNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(textNode.type()).isEqualTo(NodeType.NODE_TEXT);
     assertThat(textNode.text()).isEqualTo("name");
   }
 
   @Test
   void shouldBuildVariableNode() {
-    var variableNode = new VariableNodeImpl(1, 5, List.of("name"));
+    var variableNode = new VariableNodeImpl(range(1, 0, 1, 5), List.of("name"));
 
-    KubernetesAssertions.assertThat(variableNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(variableNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(variableNode.type()).isEqualTo(NodeType.NODE_VARIABLE);
     assertThat(variableNode.idents()).containsExactly("name");
   }
@@ -260,9 +260,9 @@ class NodesTest {
     var pipeNode = Mockito.mock(PipeNode.class);
     var list = Mockito.mock(ListNode.class);
     var elseList = Mockito.mock(ListNode.class);
-    var withNode = new WithNodeImpl(1, 5, pipeNode, list, elseList);
+    var withNode = new WithNodeImpl(range(1, 0, 1, 5), pipeNode, list, elseList);
 
-    KubernetesAssertions.assertThat(withNode.location()).hasLocation(1, 5);
+    KubernetesAssertions.assertThat(withNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(withNode.type()).isEqualTo(NodeType.NODE_WITH);
     assertThat(withNode.pipe()).isEqualTo(pipeNode);
     assertThat(withNode.list()).isEqualTo(list);

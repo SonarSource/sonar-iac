@@ -22,21 +22,25 @@ package org.sonar.iac.helm.tree.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.CommandNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstConverter;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class CommandNodeImpl extends AbstractNode implements CommandNode {
   private final List<Node> arguments;
 
-  public CommandNodeImpl(long position, long length, List<Node> arguments) {
-    super(position, length);
+  public CommandNodeImpl(TextRange textRange, List<Node> arguments) {
+    super(textRange);
     this.arguments = Collections.unmodifiableList(arguments);
   }
 
-  public static Node fromPb(CommandNodeOrBuilder nodePb) {
-    return new CommandNodeImpl(nodePb.getPos(), nodePb.getLength(), GoTemplateAstConverter.unpack(nodePb.getArgsList()));
+  public static Node fromPb(CommandNodeOrBuilder nodePb, String source) {
+    return new CommandNodeImpl(textRangeFromPb(nodePb, source), GoTemplateAstConverter.unpack(nodePb.getArgsList(), source));
   }
 
   public List<Node> arguments() {
@@ -44,7 +48,7 @@ public class CommandNodeImpl extends AbstractNode implements CommandNode {
   }
 
   @Override
-  public List<Node> children() {
+  public List<Tree> children() {
     return new ArrayList<>(arguments);
   }
 }

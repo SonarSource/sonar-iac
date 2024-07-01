@@ -25,5 +25,5 @@ import org.sonar.iac.helm.tree.api.Node;
 
 @FunctionalInterface
 public interface AnyToNodeConverter {
-  Node convert(Any nodePb) throws InvalidProtocolBufferException;
+  Node convert(Any nodePb, String source) throws InvalidProtocolBufferException;
 }

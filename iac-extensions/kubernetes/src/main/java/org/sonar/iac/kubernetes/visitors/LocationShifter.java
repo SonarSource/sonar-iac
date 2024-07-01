@@ -169,9 +169,8 @@ public final class LocationShifter {
     var sourceWithComments = helmContext.getSourceWithComments();
     if (goTemplateTree != null && sourceWithComments != null) {
       // The go template tree contains locations aligned to source code with additional trailing line numbers comments
-      var textRanges = GoTemplateAstHelper.findNodesToHighlight(goTemplateTree, textRange, sourceWithComments)
-        .map(Node::location)
-        .map(location -> location.toTextRange(sourceWithComments))
+      var textRanges = GoTemplateAstHelper.findNodesToHighlight(goTemplateTree, textRange)
+        .map(Node::textRange)
         .toList();
       if (!textRanges.isEmpty()) {
         return TextRanges.merge(textRanges);
