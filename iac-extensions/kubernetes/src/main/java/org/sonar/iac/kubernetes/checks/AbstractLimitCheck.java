@@ -61,6 +61,7 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
   }
 
   // TODO: make abstract once its implemented for all subclasses
+  @Override
   protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
     return false;
   }
