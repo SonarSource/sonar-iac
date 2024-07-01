@@ -60,20 +60,21 @@ public class AutomountServiceAccountTokenCheck extends AbstractResourceManagemen
     var specAsAttributeObject = blockObject.attribute("spec");
     if (specAsAttributeObject.tree != null && isContainersPresentInSpecBlock(specAsBlockObject)) {
       var tokenAttribute = specAsBlockObject.attribute(KEY);
-      if (tokenAttribute.isAbsent()) {
-        List<ServiceAccount> linkedServiceAccounts = retrieveLinkedServiceAccount(blockObject);
-        if (linkedServiceAccounts.isEmpty()) {
-          tokenAttribute.reportIfAbsent(specAsAttributeObject.tree.key(), message);
-        } else {
-          boolean hasAtLeastOneAccountCompliant = linkedServiceAccounts.stream().anyMatch(account -> account.automountServiceAccountToken().isFalse());
-          if (!hasAtLeastOneAccountCompliant) {
-            // otherwise, report on first linked account - there should be only one
-            reportIssueWithLinkedAccount(linkedServiceAccounts.get(0), blockObject, message);
-          }
-        }
-      } else {
-        tokenAttribute.reportIfValue(TreePredicates.isSet().negate(), message);
+      if (!tokenAttribute.isAbsent()) {
+        tokenAttribute.reportIfValue(isSet().negate(), message);
         tokenAttribute.reportIfValue(isTrue(), message);
+        return;
+      }
+      
+      List<ServiceAccount> linkedServiceAccounts = retrieveLinkedServiceAccount(blockObject);
+      if (linkedServiceAccounts.isEmpty()) {
+        specAsAttributeObject.reportOnKey(message);
+      } else {
+        boolean hasAtLeastOneAccountCompliant = linkedServiceAccounts.stream().anyMatch(account -> account.automountServiceAccountToken().isFalse());
+        if (!hasAtLeastOneAccountCompliant) {
+          // report on first linked account - there should be only one
+          reportIssueWithLinkedAccount(linkedServiceAccounts.get(0), blockObject, message);
+        }
       }
     }
   }
