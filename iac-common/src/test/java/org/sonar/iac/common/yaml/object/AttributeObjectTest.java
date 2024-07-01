@@ -25,6 +25,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -138,6 +139,29 @@ class AttributeObjectTest extends YamlTreeTest {
   void shouldNotReportOnKeyForMissingTree() {
     AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnKey("message");
+
+    assertThat(raisedIssues).isEmpty();
+  }
+
+  @Test
+  void shouldReportOnKeyWithSecondaries() {
+    TupleTree tree = parseTuple("a: b");
+    SecondaryLocation secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
+    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
+    attributeObject.reportOnKey("message", List.of(secondaryLocation));
+
+    assertThat(raisedIssues).hasSize(1);
+    TestIssue issue = raisedIssues.get(0);
+    assertThat(issue.message).isEqualTo("message");
+    assertThat(issue.secondaryLocations).containsExactly(secondaryLocation);
+    assertThat(issue.textRange).isEqualTo(tree.key().textRange());
+  }
+
+  @Test
+  void shouldNotReportOnKeyWithSecondariesForMissingTree() {
+    SecondaryLocation secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
+    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
+    attributeObject.reportOnKey("message", List.of(secondaryLocation));
 
     assertThat(raisedIssues).isEmpty();
   }
