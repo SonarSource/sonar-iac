@@ -51,8 +51,8 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
 
   @Override
   public void initialize(InitContext init) {
-    register(KIND_POD, document -> computeNamespace(document));
-    register(KIND_WITH_TEMPLATE, document -> computeNamespace(document));
+    register(KIND_POD, this::computeNamespace);
+    register(KIND_WITH_TEMPLATE, this::computeNamespace);
     super.initialize(init);
   }
 
