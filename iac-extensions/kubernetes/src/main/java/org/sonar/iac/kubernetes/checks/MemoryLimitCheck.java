@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Collection;
 import org.sonar.check.Rule;
 
 @Rule(key = "S6864")
