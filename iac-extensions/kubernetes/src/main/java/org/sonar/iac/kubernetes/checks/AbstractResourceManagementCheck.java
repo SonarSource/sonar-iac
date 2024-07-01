@@ -21,19 +21,15 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.kubernetes.model.LimitRange;
-import org.sonar.iac.kubernetes.model.LimitRangeItem;
+import org.sonar.iac.kubernetes.model.ProjectResource;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 import static org.sonar.iac.common.yaml.TreePredicates.isSetString;
@@ -68,30 +64,11 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
     return null;
   }
 
-  private static Collection<LimitRange> getGlobalResources(BlockObject document, String namespace) {
-    var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
-    var inputFileContext = ((KubernetesCheckContext) document.ctx).inputFileContext();
-    return projectContext.getProjectResources(namespace, inputFileContext, LimitRange.class);
-  }
-
-  protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
-    return globalResources.stream()
-      .flatMap(limitRange -> limitRange.limits().stream())
-      .anyMatch(this::hasDefinedLimitForResource);
-  }
-
-  protected boolean hasDefinedLimitForResource(LimitRangeItem limitRangeItem) {
-    var limit = retrieveLimitRangeItemMap(limitRangeItem).get(getResourceName());
-    return getLimitRangeLimitTypes().contains(limitRangeItem.type()) && isSet(limit);
-  }
-
   abstract Class<T> getGlobalResourceType();
 
   protected Set<String> getLimitRangeLimitTypes() {
     return LIMIT_RANGE_LIMIT_TYPES;
   }
-
-  abstract Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem);
 
   protected Collection<T> getGlobalResources(BlockObject document) {
     var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
