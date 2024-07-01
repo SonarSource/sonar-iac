@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -39,6 +40,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -207,5 +209,29 @@ class InputFileContextTest {
     inputFileContext.reportAnalysisError("Error message", new DefaultTextPointer(5, 10));
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Error when creating valid line offset of pointer, fallback to beginning of the file.");
+  }
+
+  @Test
+  void shouldReportTwoIssuesEvenIfThyHaveTheSameHash() {
+    var rule1 = RuleKey.of("kubernetes", "S6897");
+    var textRange1 = TextRanges.range(10, 6, 10, 10);
+    var rule2 = RuleKey.of("kubernetes", "S6864");
+    var textRange2 = range(13, 6, 13, 10);
+    var hash1 = Objects.hash(rule1, textRange1, List.of());
+    var hash2 = Objects.hash(rule2, textRange2, List.of());
+    // Those 2 Issue reports have the same hash
+    assertThat(hash1).isEqualTo(hash2);
+
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "file")
+      .setCharset(StandardCharsets.UTF_8)
+      .initMetadata("\n\n\n\n\n\n\n\n\nLine 10 content\n\n\nLine 13 content")
+      .build();
+    inputFileContext = new InputFileContext(sensorContext, inputFile);
+
+    inputFileContext.reportIssue(rule1, textRange1, "message 1", List.of());
+    inputFileContext.reportIssue(rule2, textRange2, "message 2", List.of());
+
+    List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
+    assertThat(issues).hasSize(2);
   }
 }

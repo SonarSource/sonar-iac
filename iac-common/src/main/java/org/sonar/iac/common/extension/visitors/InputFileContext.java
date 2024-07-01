@@ -22,7 +22,6 @@ package org.sonar.iac.common.extension.visitors;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -50,7 +49,7 @@ public class InputFileContext extends TreeContext {
   public final SensorContext sensorContext;
   public final InputFile inputFile;
 
-  private final Set<Integer> raisedIssues = new HashSet<>();
+  private final Set<RaisedIssue> raisedIssues = new HashSet<>();
 
   public InputFileContext(SensorContext sensorContext, InputFile inputFile) {
     this.sensorContext = sensorContext;
@@ -60,7 +59,8 @@ public class InputFileContext extends TreeContext {
   public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
     // We avoid raising an issue on text ranges on which we already raised one. This is to avoid duplicate ones which might happen, for example,
     // with Yaml anchors SONARIAC-78.
-    if (raisedIssues.add(issueHash(ruleKey, textRange, secondaryLocations))) {
+    var raisedIssue = new RaisedIssue(ruleKey, textRange, secondaryLocations);
+    if (raisedIssues.add(raisedIssue)) {
       NewIssue issue = sensorContext.newIssue();
       NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
@@ -172,7 +172,6 @@ public class InputFileContext extends TreeContext {
     return inputFile.newRange(1, 0, 1, 1);
   }
 
-  private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange, List<SecondaryLocation> secondaryLocations) {
-    return Objects.hash(ruleKey, textRange, secondaryLocations);
+  record RaisedIssue(RuleKey ruleKey, @Nullable TextRange textRange, List<SecondaryLocation> secondaryLocations) {
   }
 }
