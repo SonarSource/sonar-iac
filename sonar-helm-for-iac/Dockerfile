@@ -16,7 +16,6 @@ FROM ${BUILD_ENV}_image
 
 ARG GO_VERSION
 ARG MUSL_VERSION=1.2.4
-ARG PROTOBUF_GO_VERSION=1.34.1
 ARG UID=1000
 
 USER root
@@ -35,8 +34,6 @@ WORKDIR /home/sonarsource/sonar-helm-for-iac
 
 ENV PATH="/opt/go/bin:/opt/protoc/bin:/opt/musl/bin:/home/sonarsource/go/bin:${PATH}"
 ENV GO_CROSS_COMPILE=1
-
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v${PROTOBUF_GO_VERSION}
 
 ENTRYPOINT \
   ./make.sh clean && \
