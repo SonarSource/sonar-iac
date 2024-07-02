@@ -33,6 +33,7 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 public abstract class AbstractKubernetesObjectCheck implements IacCheck {
 
@@ -42,11 +43,11 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
   public void initialize(InitContext init) {
     init.register(FileTree.class, (ctx, fileTree) -> fileTree.documents().stream()
       .filter(MappingTree.class::isInstance)
-      .forEach(documentTree -> visitDocument((MappingTree) documentTree, ctx)));
+      .forEach(documentTree -> visitDocument((MappingTree) documentTree, (KubernetesCheckContext) ctx)));
     registerObjectCheck();
   }
 
-  void visitDocument(MappingTree documentTree, CheckContext ctx) {
+  void visitDocument(MappingTree documentTree, KubernetesCheckContext ctx) {
     initializeCheck(ctx);
     PropertyUtils.get(documentTree, "kind")
       .flatMap(kind -> TextUtils.getValue(kind.value()))
@@ -61,7 +62,7 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     visitDocumentOnEnd(documentTree, ctx);
   }
 
-  void initializeCheck(CheckContext ctx) {
+  void initializeCheck(KubernetesCheckContext ctx) {
     // default implementation does nothing; the rule can interact with CheckContext here.
   }
 

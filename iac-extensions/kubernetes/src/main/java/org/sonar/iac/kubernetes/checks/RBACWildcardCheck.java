@@ -51,10 +51,8 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
   }
 
   @Override
-  void initializeCheck(CheckContext ctx) {
-    if (ctx instanceof KubernetesCheckContext kubernetesCtx) {
-      kubernetesCtx.setShouldReportSecondaryInValues(true);
-    }
+  void initializeCheck(KubernetesCheckContext ctx) {
+    ctx.setShouldReportSecondaryInValues(true);
   }
 
   private static boolean containsWildCardItem(BlockObject rule, String listKey) {

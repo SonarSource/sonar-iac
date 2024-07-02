@@ -94,10 +94,8 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjec
   }
 
   @Override
-  void initializeCheck(CheckContext ctx) {
-    if (ctx instanceof KubernetesCheckContext kubernetesCtx) {
-      kubernetesCtx.setShouldReportSecondaryInValues(true);
-    }
+  void initializeCheck(KubernetesCheckContext ctx) {
+    ctx.setShouldReportSecondaryInValues(true);
   }
 
   // Container contains a map of environment variables
