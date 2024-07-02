@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: example-namespace
+spec:
+  containers:
+    - name: compliant_with_fixed_tag
+      image: {{ .Values.imageWithTag }}
+    - name: compliant_with_fixed_sha
+      image: {{ .Values.imageWithSha }}
+    - name: compliant_with_fixed_tag_2
+      image: {{ .Values.complexImageWithTag }}
+
+    - name: non_compliant_without_tag
+      # Noncompliant@+1
+      image: {{ .Values.pureImageName }}
+#               ^^^^^^^^^^^^^^^^^^^^^
+    - name: non_compliant_with_latest_tag
+      # Noncompliant@+1
+      image: {{ .Values.imageWithLatestTag }}
+#               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    - name: non_compliant_split_image
+      # Noncompliant@+1
+      image: "{{ .Values.pureImageName }}:{{ .Values.latestTag }}"
+#                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    - name: compliant_split_image
+      image: {{ .Values.pureImageName }}:{{ .Values.specifiedTag }}

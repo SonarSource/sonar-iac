@@ -38,7 +38,6 @@ public final class KubernetesCheckList {
       CpuLimitCheck.class,
       CpuRequestCheck.class,
       DockerSocketCheck.class,
-      StorageLimitCheck.class,
       ExposedAdministrationServicesCheck.class,
       HostNamespacesCheck.class,
       MemoryLimitCheck.class,
@@ -46,8 +45,10 @@ public final class KubernetesCheckList {
       MountingFileSystemPathsCheck.class,
       ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class,
-      StorageRequestCheck.class,
       RBACWildcardCheck.class,
+      SpecificVersionTagCheck.class,
+      StorageRequestCheck.class,
+      StorageLimitCheck.class,
       ToDoCommentCheck.class);
   }
 }

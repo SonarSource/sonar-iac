@@ -1,0 +1,8 @@
+imageWithTag: nginx:1.14.2
+imageWithSha: nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+complexImageWithTag: gcr.io/istio-testing/metallb/controller:v0.14.3
+fourthImage: nginx
+imageWithLatestTag: nginx:latest
+pureImageName: nginx
+latestTag: latest
+specifiedTag: 1.14.2
