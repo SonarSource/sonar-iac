@@ -40,8 +40,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class ProjectResourceFactory {
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectResourceFactory.class);
-
   private ProjectResourceFactory() {
     // utility class
   }
@@ -94,8 +92,6 @@ public final class ProjectResourceFactory {
   }
 
   private static LimitRangeItem toLimitRangeItem(MappingTree tree) {
-    LOG.info("Converting tuple keys to map:");
-    tree.elements().stream().forEach(tuple -> LOG.info("  Tuple key: " + ((ScalarTree) tuple.key()).value()));
     var map = tree.elements().stream()
       .collect(Collectors.toMap(tuple -> ((ScalarTree) tuple.key()).value(), TupleTree::value));
 
