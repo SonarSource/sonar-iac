@@ -56,40 +56,41 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjec
   private void checkContainer(BlockObject containerBlock) {
     var container = new Container(new HashMap<>());
     containers.add(container);
-    containerBlock.blocks("env").forEach(env -> {
-      var attribute = env.attribute("name");
-      if (attribute.tree != null) {
-        var tree = attribute.tree.value();
-        if (tree instanceof ScalarTree scalarTree) {
-          var name = scalarTree.value();
+    containerBlock.blocks("env").forEach(env -> checkEnvironmentVariable(env, container));
+  }
 
-          if (container.envs.containsKey(name)) {
-            container.envs.get(name).add(scalarTree);
-          } else {
-            var list = new ArrayList<YamlTree>();
-            list.add(scalarTree);
-            container.envs.put(name, list);
-          }
+  private static void checkEnvironmentVariable(BlockObject env, Container container) {
+    var attribute = env.attribute("name");
+    if (attribute.tree != null) {
+      var tree = attribute.tree.value();
+      if (tree instanceof ScalarTree scalarTree) {
+        var name = scalarTree.value();
+
+        if (container.envs.containsKey(name)) {
+          container.envs.get(name).add(scalarTree);
+        } else {
+          var list = new ArrayList<YamlTree>();
+          list.add(scalarTree);
+          container.envs.put(name, list);
         }
       }
-    });
+    }
   }
 
   @Override
   void visitDocumentOnEnd(MappingTree documentTree, CheckContext ctx) {
-    containers.forEach(container -> {
-      container.envs.entrySet().stream()
-        .filter(entry -> entry.getValue().size() > 1)
-        .forEach(entry -> {
-          var trees = entry.getValue();
-          var secondaryLocations = trees.stream()
-            .skip(1)
-            .map(t -> new SecondaryLocation(t, MESSAGE_SECONDARY_LOCATION))
-            .toList();
-          ctx.reportIssue(trees.get(0), MESSAGE, secondaryLocations);
-        });
-    });
+    containers.forEach(container -> container.envs.entrySet().stream()
+      .filter(entry -> entry.getValue().size() > 1)
+      .forEach(entry -> reportIssue(ctx, entry.getValue())));
     containers.clear();
+  }
+
+  private static void reportIssue(CheckContext ctx, List<YamlTree> trees) {
+    var secondaryLocations = trees.stream()
+      .skip(1)
+      .map(t -> new SecondaryLocation(t, MESSAGE_SECONDARY_LOCATION))
+      .toList();
+    ctx.reportIssue(trees.get(0), MESSAGE, secondaryLocations);
   }
 
   @Override
