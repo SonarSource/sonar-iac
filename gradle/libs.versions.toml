@@ -50,4 +50,5 @@ antlr4 = { module = "org.antlr:antlr4", version.ref = "antlr4" }
 antlr4-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr4" }
 
 [plugins]
+diffplug-spotless = { id = "com.diffplug.spotless", version.ref = "spotless-gradle" }
 google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf-gradle" }
