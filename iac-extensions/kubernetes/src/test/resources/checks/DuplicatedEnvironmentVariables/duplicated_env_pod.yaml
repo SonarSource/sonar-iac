@@ -57,3 +57,13 @@ spec:
         - name: VAR1
           #     ^^^^<
           value: "value3"
+
+    # For coverage / unexpected tree
+    - name: nginx3
+      image: nginx:1.7.9
+      env: ["name", "variable"]
+
+    - name: nginx4
+      image: nginx:1.7.9
+      env:
+        - name: ["a", "b"]
