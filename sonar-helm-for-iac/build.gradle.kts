@@ -1,10 +1,12 @@
 import com.google.protobuf.gradle.id
+import de.undercouch.gradle.tasks.download.Download
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
     id("org.sonarsource.iac.java-conventions")
     id("com.diffplug.spotless")
     alias(libs.plugins.google.protobuf)
+    alias(libs.plugins.download)
 }
 
 description = "SonarSource IaC Analyzer :: Sonar Helm for IaC"
@@ -19,13 +21,55 @@ artifacts.add(goBinaries.name, goBinariesJar)
 
 val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
 
+tasks.register<Download>("downloadProtocGenGo") {
+    group = "build"
+    description = "Download an archive with the protoc-gen-go binary for the current platform."
+
+    val binaryVersion = libs.versions.google.protobuf.go.get()
+    val os = DefaultNativePlatform.getCurrentOperatingSystem()
+    val arch = DefaultNativePlatform.getCurrentArchitecture()
+    val suffix = buildString {
+        when {
+            os.isLinux -> append("linux")
+            os.isMacOsX -> append("darwin")
+            os.isWindows -> append("windows")
+            else -> throw IllegalStateException("Unsupported OS: $os")
+        }
+        append('.')
+        when {
+            arch.isAmd64 -> append("amd64")
+            arch.isI386 -> append("386")
+            arch.isArm64 -> append("arm64")
+            else -> throw IllegalStateException("Unsupported architecture: $arch")
+        }
+        when {
+            os.isWindows -> append(".zip")
+            else -> append(".tar.gz")
+        }
+    }
+
+    src("https://github.com/protocolbuffers/protobuf-go/releases/download/v$binaryVersion/protoc-gen-go.v$binaryVersion.$suffix")
+    dest(layout.buildDirectory.file("protoc-gen-go/protoc-gen-go.$suffix"))
+
+    doLast {
+        copy {
+            val archiveTree = if (dest.name.endsWith(".zip")) ::zipTree else ::tarTree
+            from(archiveTree(dest))
+            into(layout.buildDirectory.dir("protoc-gen-go/bin"))
+        }
+    }
+}
+
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:${libs.versions.google.protobuf.asProvider().get()}"
     }
     plugins {
         id("go") {
-            path = "${System.getenv("HOME")}/go/bin/protoc-gen-go"
+            path = layout.buildDirectory.map {
+                val extension = if (DefaultNativePlatform.getCurrentOperatingSystem().isWindows) ".exe" else ""
+                it.file("protoc-gen-go/bin/protoc-gen-go$extension")
+            }.get().asFile.absolutePath
         }
     }
     generateProtoTasks {
@@ -38,6 +82,7 @@ protobuf {
                         // Result should be `$projectDir/src`.
                         outputSubDir = "../../../../../src"
                     }
+                    dependsOn("downloadProtocGenGo")
                 }
             }
         }

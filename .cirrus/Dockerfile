@@ -3,7 +3,6 @@ FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
 
 ARG GO_VERSION
 ARG MUSL_VERSION=1.2.4
-ARG PROTOBUF_GO_VERSION=1.34.1
 
 USER root
 # Install gcc, Go, protoc and musl.
@@ -16,5 +15,4 @@ RUN apt-get update && apt-get --no-install-recommends install -y gcc make && rm 
     cd musl-${MUSL_VERSION} && ./configure --prefix=/opt/musl --enable-gcc-wrapper=yes && make && make install
 
 USER sonarsource
-RUN /opt/go/bin/go install google.golang.org/protobuf/cmd/protoc-gen-go@v${PROTOBUF_GO_VERSION}
-ENV PATH="/opt/go/bin:/home/sonarsource/go/bin:/opt/protoc/bin:/opt/musl/bin:${PATH}"
+ENV PATH="/opt/go/bin:/home/sonarsource/go/bin:/opt/musl/bin:${PATH}"
