@@ -32,8 +32,6 @@ import org.sonar.iac.helm.tree.api.IdentifierNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.NodeType;
 
-import static org.sonar.iac.common.api.tree.impl.TextRanges.overlap;
-
 public final class GoTemplateAstHelper {
 
   private GoTemplateAstHelper() {
@@ -49,13 +47,13 @@ public final class GoTemplateAstHelper {
 
   static Stream<FieldNode> findValuePathNodes(GoTemplateTree tree, TextRange textRange) {
     var nodes = tree.root().children().stream()
-      .filter(node -> overlap(node.textRange(), textRange))
+      .filter(node -> node.textRange().overlap(textRange))
       .toList();
 
-    return nodesWithAllChildren(nodes).stream()
+    return nodesWithAllChildren(nodes)
       .filter(FieldNode.class::isInstance)
       // Sometimes top-level nodes have a very broad range and some children can be actually outside the range.
-      .filter(node -> overlap(node.textRange(), textRange))
+      .filter(node -> node.textRange().overlap(textRange))
       .map(FieldNode.class::cast);
   }
 
@@ -68,22 +66,21 @@ public final class GoTemplateAstHelper {
 
   private static Stream<Node> findIncludeFunctionsFirstArg(GoTemplateTree tree, TextRange textRange) {
     return collectNodesByType(tree.root(), NodeType.NODE_COMMAND, CommandNode.class)
-      .filter(node -> overlap(node.textRange(), textRange))
+      .filter(node -> node.textRange().overlap(textRange))
       .filter(node -> isFunction(node, "include"))
       .map(cmd -> cmd.arguments().get(1));
   }
 
   private static Stream<? extends Node> findToYamlNodes(GoTemplateTree tree, TextRange textRange) {
     return collectNodesByType(tree.root(), NodeType.NODE_COMMAND, CommandNode.class)
-      .filter(node -> overlap(node.textRange(), textRange))
+      .filter(node -> node.textRange().overlap(textRange))
       .filter(node -> isFunction(node, "toYaml"));
   }
 
-  private static List<Tree> nodesWithAllChildren(List<Tree> nodes) {
+  private static Stream<Tree> nodesWithAllChildren(List<Tree> nodes) {
     return Stream.concat(
       nodes.stream(),
-      nodes.stream().flatMap(node -> nodesWithAllChildren(node.children()).stream()))
-      .toList();
+      nodes.stream().flatMap(node -> nodesWithAllChildren(node.children())));
   }
 
   private static <T extends Node> Stream<T> collectNodesByType(Node node, NodeType type, Class<T> nodeClass) {

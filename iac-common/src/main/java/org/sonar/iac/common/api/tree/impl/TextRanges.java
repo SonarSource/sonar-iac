@@ -67,21 +67,4 @@ public class TextRanges {
   public static boolean isValidAndNotEmpty(TextRange range) {
     return range.end().compareTo(range.start()) > 0;
   }
-
-  /**
-   * Check if two text ranges overlap, i.e. there exists at least one text pointer that is contained in both ranges.
-   * @param tr1 first text range
-   * @param tr2 second text range
-   * @return true if the two text ranges overlap
-   */
-  public static boolean overlap(TextRange tr1, TextRange tr2) {
-    var first = tr1;
-    var second = tr2;
-    if (tr1.start().compareTo(tr2.start()) > 0) {
-      first = tr2;
-      second = tr1;
-    }
-    return first.end().compareTo(second.start()) >= 0;
-  }
-
 }
