@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  containers:
+    - image: {{ .Values.image.name }}
+      command: ["sleep", "6000"]
+      name: test-container
+      securityContext:
+        capabilities:
+          add: {{ .Values.capabilities | toYaml | nindent 10 }} {{- /* Noncompliant {{Check hardcoded issue from Go AST}} */}}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  containers:
+    - image: {{ .Values.image.name }}
+      command: ["sleep", "6000"]
+      name: test-container
+      securityContext:
+        capabilities:
+          {{- /* Note: noncompliant@+1 on a separate line doesn't work because of the line shifting logic */}}
+          add: {{ .Values.capabilities | toYaml | nindent 10 }}
+#         {{- /* Noncompliant {{Check hardcoded issue from Go AST}} */}}
+#         {{- /* ^[sc=19;ec=38] */}}
+---

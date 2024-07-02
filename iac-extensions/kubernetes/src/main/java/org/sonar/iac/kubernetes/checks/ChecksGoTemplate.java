@@ -17,24 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.tree.api;
+package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import org.sonar.iac.common.api.tree.HasComments;
-
-/**
- * ListNode holds a sequence of nodes.
- */
-public interface ListNode extends Node, HasComments {
-  @Override
-  default NodeType type() {
-    return NodeType.NODE_LIST;
-  }
-
-  /**
-   * The list of nodes.
-   *
-   * @return the list of nodes
-   */
-  List<Node> nodes();
+public interface ChecksGoTemplate {
 }

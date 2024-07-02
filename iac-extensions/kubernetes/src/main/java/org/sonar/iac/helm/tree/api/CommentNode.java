@@ -19,18 +19,24 @@
  */
 package org.sonar.iac.helm.tree.api;
 
+import org.sonar.iac.common.api.tree.Comment;
+
 /**
  * CommentNode holds a comment.
  */
-public interface CommentNode extends Node {
+public interface CommentNode extends Node, Comment {
+  int COMMENT_PREFIX_LENGTH = "/*".length();
+  int COMMENT_SUFFIX_LENGTH = "*/".length();
+
   @Override
   default NodeType type() {
     return NodeType.NODE_COMMENT;
   }
 
-  /**
-   * Returns the text of the comment.
-   * @return the text of the comment
-   */
-  String text();
+  @Override
+  default String contentText() {
+    var text = value().trim();
+    // According to https://pkg.go.dev/text/template#hdr-Actions, comments in Go templates can only start with `/*` and end with `*/`
+    return text.substring(COMMENT_PREFIX_LENGTH, text.length() - COMMENT_SUFFIX_LENGTH).trim();
+  }
 }

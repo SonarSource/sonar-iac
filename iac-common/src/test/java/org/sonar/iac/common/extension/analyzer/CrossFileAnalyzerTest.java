@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.common.extension.analyzer;
 
+import java.io.IOException;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -28,15 +30,14 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.IacTestUtils;
 
-import java.io.IOException;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
@@ -104,5 +105,23 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
 
     List<InputFile> files = List.of(fileWithContent);
     assertThat(analyzer.analyseFiles(context, files, "iac")).isFalse();
+  }
+
+  @Test
+  void shouldExecuteChecksVisitorOnAdditionalTrees() {
+    TreeVisitor<InputFileContext> visitor = mock(TreeVisitor.class);
+    TreeVisitor<InputFileContext> checksVisitor = mock(TreeVisitor.class);
+    var additionalTree = mock(Tree.class);
+
+    var analyzer = new CrossFileAnalyzer("iac", parser, List.of(visitor), checksVisitor, durationStatistics) {
+      @Override
+      protected FileWithAsts fileWithAsts(InputFileContext inputFileContext, Tree tree) {
+        return new FileWithAsts(inputFileContext, tree, List.of(additionalTree));
+      }
+    };
+
+    assertThat(analyzer.analyseFiles(context, List.of(fileWithContent), "iac")).isTrue();
+    verify(visitor, never()).scan(any(), eq(additionalTree));
+    verify(checksVisitor).scan(any(), eq(additionalTree));
   }
 }
