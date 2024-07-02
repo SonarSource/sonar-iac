@@ -28,6 +28,7 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.kubernetes.model.ConfigMap;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 import org.sonar.iac.kubernetes.model.ProjectResource;
@@ -51,6 +52,7 @@ public final class ProjectResourceFactory {
     return switch (kind) {
       case "ServiceAccount" -> createServiceAccount(path, tree);
       case "LimitRange" -> createLimitRange(tree);
+      case "ConfigMap" -> createConfigMap(path, tree);
       default -> null;
     };
   }
@@ -87,6 +89,25 @@ public final class ProjectResourceFactory {
       .toList();
 
     return new LimitRange(limits);
+  }
+
+  @CheckForNull
+  private static ProjectResource createConfigMap(String path, MappingTree tree) {
+    var map = PropertyUtils.value(tree, "data")
+      .stream()
+      .filter(MappingTree.class::isInstance)
+      .map(MappingTree.class::cast)
+      .flatMap(m -> m.elements().stream())
+      .collect(Collectors.toMap(k -> scalarToString(k.key()), k -> k.value()));
+
+    return new ConfigMap(path, map);
+  }
+
+  private static String scalarToString(YamlTree tree) {
+    if (tree instanceof ScalarTree scalar) {
+      return scalar.value();
+    }
+    return null;
   }
 
   private static LimitRangeItem toLimitRangeItem(MappingTree tree) {
