@@ -71,7 +71,6 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     return false;
   }
 
-
   void visitDocumentOnEnd(MappingTree documentTree, CheckContext ctx) {
     // default implementation does nothing; the rule can interact when leaving document
   }

@@ -1,3 +1,22 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.ArrayList;
@@ -11,11 +30,13 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S6907")
 public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjectCheck {
+
   private static final String MESSAGE = "Resolve the duplication of this environment variable.";
-  private static final String MESSAGE_SECONDARY_LOCATION = "Resolve the duplication of this environment variable.";
+  private static final String MESSAGE_SECONDARY_LOCATION = "Duplicated environment variable.";
   private static final List<String> KIND_WITH_TEMPLATE = List.of(
     "DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
   private final List<Container> containers = new ArrayList<>();
@@ -56,7 +77,6 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjec
 
   @Override
   void visitDocumentOnEnd(MappingTree documentTree, CheckContext ctx) {
-    System.out.println("END");
     containers.forEach(container -> {
       container.envs.entrySet().stream()
         .filter(entry -> entry.getValue().size() > 1)
@@ -69,6 +89,14 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjec
           ctx.reportIssue(trees.get(0), MESSAGE, secondaryLocations);
         });
     });
+    containers.clear();
+  }
+
+  @Override
+  void initializeCheck(CheckContext ctx) {
+    if (ctx instanceof KubernetesCheckContext kubernetesCtx) {
+      kubernetesCtx.setShouldReportSecondaryInValues(true);
+    }
   }
 
   // Container contains a map of environment variables
