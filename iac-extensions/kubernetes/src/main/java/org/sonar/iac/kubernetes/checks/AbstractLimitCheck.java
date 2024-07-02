@@ -19,12 +19,59 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Stream;
+import org.sonar.iac.common.yaml.TreePredicates;
+import org.sonar.iac.common.yaml.object.BlockObject;
+import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
-public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck {
+public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
 
   private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
+
+  @Override
+  void registerObjectCheck() {
+    register(KIND_POD, document -> checkDocument(document, false));
+    register(KIND_WITH_TEMPLATE, document -> checkDocument(document, true));
+  }
+
+  private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
+    var globalResources = getGlobalResources(document);
+
+    Stream<BlockObject> containers;
+    if (isKindWithTemplate) {
+      containers = document.block("spec").block("template").block("spec").blocks("containers");
+    } else {
+      containers = document.block("spec").blocks("containers");
+    }
+    containers.filter(container -> !hasLimitDefinedGlobally(globalResources))
+      .forEach(this::reportMissingLimit);
+  }
+
+  protected void reportMissingLimit(BlockObject container) {
+    container.block("resources").block(getResourceManagementName())
+      .attribute(getResourceName())
+      .reportIfAbsent(getFirstChildElement(container), getMessage())
+      .reportIfValue(TreePredicates.isSet().negate(), getMessage());
+  }
+
+  protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
+    return globalResources.stream()
+      .flatMap(limitRange -> limitRange.limits().stream())
+      .anyMatch(this::hasDefinedLimitForResource);
+  }
+
+  protected boolean hasDefinedLimitForResource(LimitRangeItem limitRangeItem) {
+    var limit = retrieveLimitRangeItemMap(limitRangeItem).get(getResourceName());
+    return getLimitRangeLimitTypes().contains(limitRangeItem.type()) && isSet(limit);
+  }
+
+  @Override
+  Class<LimitRange> getGlobalResourceType() {
+    return LimitRange.class;
+  }
 
   String getResourceManagementName() {
     return RESOURCE_MANAGEMENT_TYPE;
@@ -34,8 +81,7 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
 
   abstract String getMessage();
 
-  @Override
-  Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
+  protected Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
     return limitRangeItem.defaultMap();
   }
 }

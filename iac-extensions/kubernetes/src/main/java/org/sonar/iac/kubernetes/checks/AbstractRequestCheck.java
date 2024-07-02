@@ -22,16 +22,17 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.Map;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 
-public abstract class AbstractRequestCheck extends AbstractResourceManagementCheck {
+public abstract class AbstractRequestCheck extends AbstractLimitCheck {
 
   private static final String RESOURCE_MANAGEMENT_TYPE = "requests";
 
+  @Override
   String getResourceManagementName() {
     return RESOURCE_MANAGEMENT_TYPE;
   }
 
   @Override
-  Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
+  protected Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
     return limitRangeItem.defaultRequestMap();
   }
 }

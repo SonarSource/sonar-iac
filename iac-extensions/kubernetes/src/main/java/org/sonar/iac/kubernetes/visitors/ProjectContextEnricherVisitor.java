@@ -40,7 +40,7 @@ public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext>
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
       .forEach((MappingTree mappingTree) -> {
-        var resource = ProjectResourceFactory.createResource(mappingTree);
+        var resource = ProjectResourceFactory.createResource(ctx.inputFile.relativePath(), mappingTree);
         if (resource == null) {
           return;
         }

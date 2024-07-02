@@ -19,9 +19,6 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -36,26 +33,30 @@ import org.sonar.iac.kubernetes.model.LimitRangeItem;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
 
+import javax.annotation.CheckForNull;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public final class ProjectResourceFactory {
   private ProjectResourceFactory() {
     // utility class
   }
 
   @CheckForNull
-  public static ProjectResource createResource(MappingTree tree) {
+  public static ProjectResource createResource(String path, MappingTree tree) {
     var kind = PropertyUtils.value(tree, "kind")
       .map(ScalarTree.class::cast)
       .map(ScalarTree::value)
       .orElse("");
     return switch (kind) {
-      case "ServiceAccount" -> createServiceAccount(tree);
+      case "ServiceAccount" -> createServiceAccount(path, tree);
       case "LimitRange" -> createLimitRange(tree);
       default -> null;
     };
   }
 
   @CheckForNull
-  private static ProjectResource createServiceAccount(MappingTree tree) {
+  private static ProjectResource createServiceAccount(String path, MappingTree tree) {
     var name = PropertyUtils.value(tree, "metadata", MappingTree.class)
       .flatMap(metadata -> PropertyUtils.value(metadata, "name"))
       .map(ScalarTree.class::cast)
@@ -71,7 +72,7 @@ public final class ProjectResourceFactory {
       .orElse(Trilean.UNKNOWN);
     var valueLocation = automountServiceAccountTokenTree.map(HasTextRange::textRange).orElse(null);
 
-    return new ServiceAccount(name.get(), automountServiceAccountToken, valueLocation);
+    return new ServiceAccount(path, name.get(), automountServiceAccountToken, valueLocation);
   }
 
   @CheckForNull
