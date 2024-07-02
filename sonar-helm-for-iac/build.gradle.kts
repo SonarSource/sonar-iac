@@ -31,8 +31,8 @@ protobuf {
     generateProtoTasks {
         all().configureEach {
             plugins {
-                if (!isCi || System.getenv("CIRRUS_TASK_NAME") == "build") {
-                    // Only enable this locally or in specific CI tasks as this requires protoc-gen-go to be available.
+                if (System.getenv("CIRRUS_TASK_NAME") == "build") {
+                    // Only enable in specific CI tasks as this requires protoc-gen-go to be available.
                     id("go") {
                         // Only the subdirectory is configurable, with the base directory being `build/generated/source/proto/main/go`.
                         // Result should be `$projectDir/src`.
