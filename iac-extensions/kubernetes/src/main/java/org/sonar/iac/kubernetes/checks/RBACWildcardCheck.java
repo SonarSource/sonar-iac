@@ -22,7 +22,6 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -51,10 +50,8 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
   }
 
   @Override
-  void initializeCheck(CheckContext ctx) {
-    if (ctx instanceof KubernetesCheckContext kubernetesCtx) {
-      kubernetesCtx.setShouldReportSecondaryInValues(true);
-    }
+  void initializeCheck(KubernetesCheckContext ctx) {
+    ctx.setShouldReportSecondaryInValues(true);
   }
 
   private static boolean containsWildCardItem(BlockObject rule, String listKey) {

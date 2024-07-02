@@ -1,0 +1,50 @@
+<p>Having duplicate environment variable names for a container can lead to unexpected behavior, as the last declared variable will overwrite any
+previous ones with the same name. This rule aims to detect and prevent such situations, thereby enhancing the clarity and predictability of Kubernetes
+configurations.</p>
+<h2>Why is this an issue?</h2>
+<p>If an environment variable of a container is declared multiple times with different values, it can become unclear which value will be used by the
+application and can lead to unpredictable behavior. Also, if an issue arises related to the environment variable, debugging can be challenging. The
+problem could be due to the overwritten variable, but this might take time to be noticeable.</p>
+<h2>How to fix it</h2>
+<p>Identify the duplicate environment variables for a container and remove the duplicates manually. If the same variable is needed with different
+values, consider using a different name for each variable.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-example
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.7.9
+    env:
+    - name: VAR1 # Noncompliant
+      value: "value1"
+    - name: VAR1 # Noncompliant
+      value: "value2"
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-example
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.7.9
+    env:
+    - name: VAR1
+      value: "value1"
+    - name: VAR2
+      value: "value2"
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/">Kubernetes - Environment Variables
+  for a Container</a> </li>
+</ul>
+

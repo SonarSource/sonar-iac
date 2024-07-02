@@ -26,10 +26,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.testing.Verifier;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
+import static org.sonar.iac.common.testing.Verifier.issue;
 
 class RBACWildcardCheckTest {
   IacCheck check = new RBACWildcardCheck();
@@ -57,8 +57,8 @@ class RBACWildcardCheckTest {
       "This value is used in a noncompliant part of a template",
       "RBACWildcardCheck/helm/values.yaml");
     var expectedIssues = List.of(
-      new Verifier.Issue(range(11, 8, 11, 11)),
-      new Verifier.Issue(range(14, 15, 14, 32),
+      issue(11, 8, 11, 11),
+      issue(14, 15, 14, 32,
         "Do not use wildcards when defining RBAC permissions.", expectedSecondary));
 
     KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check, expectedIssues);

@@ -21,7 +21,6 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -87,10 +86,8 @@ class KubernetesVerifierTest {
     }
 
     @Override
-    void initializeCheck(CheckContext ctx) {
-      if (ctx instanceof KubernetesCheckContext kubernetesCtx) {
-        kubernetesCtx.setShouldReportSecondaryInValues(false);
-      }
+    void initializeCheck(KubernetesCheckContext ctx) {
+      ctx.setShouldReportSecondaryInValues(false);
     }
 
     private void reportIssueWithSecondaryInValuesFile(AttributeObject attribute) {
