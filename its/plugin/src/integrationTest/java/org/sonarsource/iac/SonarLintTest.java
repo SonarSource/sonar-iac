@@ -40,11 +40,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.analysis.api.AnalysisResults;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
-import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
+import org.sonarsource.sonarlint.core.analysis.api.Issue;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
-import org.sonarsource.sonarlint.core.commons.Language;
+import org.sonarsource.sonarlint.core.commons.api.SonarLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +59,7 @@ public class SonarLintTest {
   static File tmp;
 
   private static StandaloneSonarLintEngine sonarlintEngine;
-  public static final Language[] ENABLED_LANGUAGES = {Language.TERRAFORM, Language.CLOUDFORMATION, Language.KUBERNETES, Language.DOCKER};
+  public static final SonarLanguage[] ENABLED_LANGUAGES = {SonarLanguage.TERRAFORM, SonarLanguage.CLOUDFORMATION, SonarLanguage.KUBERNETES, SonarLanguage.DOCKER};
 
   @BeforeAll
   public static void prepare() {
@@ -111,11 +111,11 @@ public class SonarLintTest {
   private static List<Path> provideTestFiles(String testFileDir) {
     List<Path> testFiles = new ArrayList<>();
 
-    for (Language language : ENABLED_LANGUAGES) {
-      try (Stream<Path> pathStream = Files.list(BASE_DIR.resolve(language.getLanguageKey() + "/" + testFileDir))) {
+    for (SonarLanguage language : ENABLED_LANGUAGES) {
+      try (Stream<Path> pathStream = Files.list(BASE_DIR.resolve(language.getSonarLanguageKey() + "/" + testFileDir))) {
         pathStream
           .map(Path::getFileName)
-          .map(fileName -> BASE_DIR.resolve(language.getLanguageKey() + "/" + testFileDir + "/" + fileName))
+          .map(fileName -> BASE_DIR.resolve(language.getSonarLanguageKey() + "/" + testFileDir + "/" + fileName))
           .forEach(testFiles::add);
       } catch (IOException e) {
         throw new AssertionError("Can not load test files from " + testFileDir, e);

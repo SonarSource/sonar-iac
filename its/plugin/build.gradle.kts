@@ -12,6 +12,6 @@ dependencies {
     "integrationTestImplementation"(libs.assertj.core)
     "integrationTestImplementation"(libs.sonar.orchestrator.junit5)
     "integrationTestImplementation"(libs.sonar.ws)
-    "integrationTestImplementation"(libs.sonar.lint)
+    "integrationTestImplementation"(libs.sonar.lint.core)
     "integrationTestImplementation"(libs.sonar.plugin.api)
 }
