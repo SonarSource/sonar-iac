@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
