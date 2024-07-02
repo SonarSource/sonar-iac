@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -38,6 +40,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class ProjectResourceFactory {
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectResourceFactory.class);
+
   private ProjectResourceFactory() {
     // utility class
   }
@@ -90,6 +94,8 @@ public final class ProjectResourceFactory {
   }
 
   private static LimitRangeItem toLimitRangeItem(MappingTree tree) {
+    LOG.info("Converting tuple keys to map:");
+    tree.elements().stream().forEach(tuple -> LOG.info("  Tuple key: " + ((ScalarTree) tuple.key()).value()));
     var map = tree.elements().stream()
       .collect(Collectors.toMap(tuple -> ((ScalarTree) tuple.key()).value(), TupleTree::value));
 
