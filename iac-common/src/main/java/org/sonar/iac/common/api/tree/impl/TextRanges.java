@@ -67,5 +67,4 @@ public class TextRanges {
   public static boolean isValidAndNotEmpty(TextRange range) {
     return range.end().compareTo(range.start()) > 0;
   }
-
 }

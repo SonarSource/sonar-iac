@@ -104,4 +104,13 @@ public class TextRange {
     }
     return this;
   }
+
+  /**
+   * Check if this text range and the other one overlap, i.e. there exists at least one text pointer that is contained in both ranges.
+   * @param other the other text range
+   * @return true if the two text ranges overlap
+   */
+  public boolean overlap(TextRange other) {
+    return this.end.compareTo(other.start) >= 0 && other.end.compareTo(this.start) >= 0;
+  }
 }

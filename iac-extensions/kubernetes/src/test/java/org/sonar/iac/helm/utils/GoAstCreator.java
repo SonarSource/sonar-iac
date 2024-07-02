@@ -39,6 +39,6 @@ public class GoAstCreator {
     var templateDependencies = Map.of("values.yaml", valuesFileContent, "Chart.yaml", chartFileContent);
     var evaluationResult = helmEvaluator.evaluateTemplate("templates/test.yaml", source, templateDependencies);
 
-    return GoTemplateTreeImpl.fromPbTree(evaluationResult.getAst());
+    return GoTemplateTreeImpl.fromPbTree(evaluationResult.getAst(), source);
   }
 }

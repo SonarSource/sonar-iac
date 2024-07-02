@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.ChainNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.ChainNode;
 import org.sonar.iac.helm.tree.api.Node;
@@ -36,17 +38,16 @@ public class ChainNodeImpl extends AbstractNode implements ChainNode {
   private final Node node;
   private final List<String> field;
 
-  public ChainNodeImpl(long position, long length, @Nullable Node node, List<String> field) {
-    super(position, length);
+  public ChainNodeImpl(TextRange textRange, @Nullable Node node, List<String> field) {
+    super(textRange);
     this.node = node;
     this.field = Collections.unmodifiableList(field);
   }
 
-  public static Node fromPb(ChainNodeOrBuilder chainNodePb) {
+  public static Node fromPb(ChainNodeOrBuilder chainNodePb, String source) {
     return new ChainNodeImpl(
-      chainNodePb.getPos(),
-      chainNodePb.getLength(),
-      Optional.ofNullable(chainNodePb.getNode()).map(GoTemplateAstConverter::unpackNode).orElse(null),
+      GoTemplateAstConverter.textRangeFromPb(chainNodePb, source),
+      Optional.ofNullable(chainNodePb.getNode()).map(it -> GoTemplateAstConverter.unpackNode(it, source)).orElse(null),
       chainNodePb.getFieldList());
   }
 
@@ -59,8 +60,8 @@ public class ChainNodeImpl extends AbstractNode implements ChainNode {
   }
 
   @Override
-  public List<Node> children() {
-    List<Node> children = new ArrayList<>();
+  public List<Tree> children() {
+    var children = new ArrayList<Tree>();
     addChildrenIfPresent(children, node);
     return children;
   }

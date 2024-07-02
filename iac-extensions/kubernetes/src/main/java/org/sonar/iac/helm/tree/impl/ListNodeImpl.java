@@ -22,22 +22,25 @@ package org.sonar.iac.helm.tree.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.ListNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.ListNode;
 import org.sonar.iac.helm.tree.api.Node;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
 import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.unpack;
 
 public class ListNodeImpl extends AbstractNode implements ListNode {
   private final List<Node> nodes;
 
-  public ListNodeImpl(long position, long length, List<Node> nodes) {
-    super(position, length);
+  public ListNodeImpl(TextRange textRange, List<Node> nodes) {
+    super(textRange);
     this.nodes = Collections.unmodifiableList(nodes);
   }
 
-  public static Node fromPb(ListNodeOrBuilder nodePb) {
-    return new ListNodeImpl(nodePb.getPos(), nodePb.getLength(), unpack(nodePb.getNodesList()));
+  public static Node fromPb(ListNodeOrBuilder nodePb, String source) {
+    return new ListNodeImpl(textRangeFromPb(nodePb, source), unpack(nodePb.getNodesList(), source));
   }
 
   public List<Node> nodes() {
@@ -45,7 +48,7 @@ public class ListNodeImpl extends AbstractNode implements ListNode {
   }
 
   @Override
-  public List<Node> children() {
+  public List<Tree> children() {
     return new ArrayList<>(nodes);
   }
 }

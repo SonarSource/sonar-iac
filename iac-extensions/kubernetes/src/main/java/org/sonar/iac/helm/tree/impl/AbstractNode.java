@@ -20,23 +20,24 @@
 package org.sonar.iac.helm.tree.impl;
 
 import java.util.List;
-import org.sonar.iac.helm.tree.api.Location;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.tree.api.Node;
 
 public abstract class AbstractNode implements Node {
-  private final Location location;
+  private final TextRange textRange;
 
-  protected AbstractNode(long position, long length) {
-    this.location = new LocationImpl((int) position, (int) length);
+  protected AbstractNode(TextRange textRange) {
+    this.textRange = textRange;
   }
 
   @Override
-  public Location location() {
-    return location;
-  }
-
-  @Override
-  public List<Node> children() {
+  public List<Tree> children() {
     return List.of();
+  }
+
+  @Override
+  public TextRange textRange() {
+    return textRange;
   }
 }

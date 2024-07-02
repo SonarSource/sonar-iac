@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.tree.api.BranchNode;
 import org.sonar.iac.helm.tree.api.ListNode;
-import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
 
 import static org.sonar.iac.helm.tree.utils.GoTemplateAstHelper.addChildrenIfPresent;
@@ -38,8 +39,8 @@ public abstract class AbstractBranchNode extends AbstractNode implements BranchN
   @Nullable
   private final ListNode elseList;
 
-  protected AbstractBranchNode(long position, long length, @Nullable PipeNode pipe, @Nullable ListNode list, @Nullable ListNode elseList) {
-    super(position, length);
+  protected AbstractBranchNode(TextRange textRange, @Nullable PipeNode pipe, @Nullable ListNode list, @Nullable ListNode elseList) {
+    super(textRange);
     this.pipe = pipe;
     this.list = list;
     this.elseList = elseList;
@@ -61,8 +62,8 @@ public abstract class AbstractBranchNode extends AbstractNode implements BranchN
   }
 
   @Override
-  public List<Node> children() {
-    List<Node> children = new ArrayList<>();
+  public List<Tree> children() {
+    var children = new ArrayList<Tree>();
     addChildrenIfPresent(children, pipe);
     addChildrenIfPresent(children, list);
     addChildrenIfPresent(children, elseList);

@@ -380,12 +380,12 @@ final class LocationShifterTest {
   }
 
   private HelmInputFileContext inputFileContextWithTree() {
-    var fieldNode = new FieldNodeImpl(15, 3, List.of("Values", "bar"));
+    var fieldNode = new FieldNodeImpl(range(1, 15, 1, 18), List.of("Values", "bar"));
     return inputFileContextWithTree(fieldNode);
   }
 
   private HelmInputFileContext inputFileContextWithTreeValueLength1() {
-    var fieldNode = new FieldNodeImpl(15, 1, List.of("Values", "b"));
+    var fieldNode = new FieldNodeImpl(range(1, 15, 1, 16), List.of("Values", "b"));
     return inputFileContextWithTree(fieldNode);
   }
 
@@ -400,11 +400,11 @@ final class LocationShifterTest {
     }
     helmContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
 
-    var command = new CommandNodeImpl(8, 11, List.of(fieldNode));
-    var pipeNode = new PipeNodeImpl(8, 11, List.of(), List.of(command));
-    var actionNode = new ActionNodeImpl(8, 15, pipeNode);
-    var textNode = new TextNodeImpl(0, 5, "bar: ");
-    ListNodeImpl root = new ListNodeImpl(0, 15, List.of(textNode, actionNode));
+    var command = new CommandNodeImpl(range(1, 8, 1, 19), List.of(fieldNode));
+    var pipeNode = new PipeNodeImpl(range(1, 8, 1, 19), List.of(), List.of(command));
+    var actionNode = new ActionNodeImpl(range(1, 8, 1, 23), pipeNode);
+    var textNode = new TextNodeImpl(range(1, 0, 1, 5), "bar: ");
+    ListNodeImpl root = new ListNodeImpl(range(1, 0, 1, 15), List.of(textNode, actionNode));
     var goTemplateTree = new GoTemplateTreeImpl("test", "test", 0, root);
     helmContext.setGoTemplateTree(goTemplateTree);
     helmContext.setSourceWithComments("bar: {{ .Values.bar }} #1");

@@ -21,20 +21,23 @@ package org.sonar.iac.helm.tree.impl;
 
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.FieldNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.Node;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class FieldNodeImpl extends AbstractNode implements FieldNode {
   private final List<String> identifiers;
 
-  public FieldNodeImpl(long position, long length, List<String> identifiers) {
-    super(position, length);
+  public FieldNodeImpl(TextRange textRange, List<String> identifiers) {
+    super(textRange);
     this.identifiers = Collections.unmodifiableList(identifiers);
   }
 
-  public static Node fromPb(FieldNodeOrBuilder nodePb) {
-    return new FieldNodeImpl(nodePb.getPos(), nodePb.getLength(), nodePb.getIdentList());
+  public static Node fromPb(FieldNodeOrBuilder nodePb, String source) {
+    return new FieldNodeImpl(textRangeFromPb(nodePb, source), nodePb.getIdentList());
   }
 
   public List<String> identifiers() {

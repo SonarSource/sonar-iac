@@ -135,11 +135,11 @@ public class HelmProcessor {
     return fileContents;
   }
 
-  String evaluateHelmTemplate(String path, HelmInputFileContext inputFileContext, String content, Map<String, String> templateDependencies) {
+  String evaluateHelmTemplate(String path, HelmInputFileContext inputFileContext, String sourceWithComments, Map<String, String> templateDependencies) {
     var inputFile = inputFileContext.inputFile;
     try {
-      var templateEvaluationResult = helmEvaluator.evaluateTemplate(path, content, templateDependencies);
-      inputFileContext.setGoTemplateTree(GoTemplateTreeImpl.fromPbTree(templateEvaluationResult.getAst()));
+      var templateEvaluationResult = helmEvaluator.evaluateTemplate(path, sourceWithComments, templateDependencies);
+      inputFileContext.setGoTemplateTree(GoTemplateTreeImpl.fromPbTree(templateEvaluationResult.getAst(), sourceWithComments));
       return templateEvaluationResult.getTemplate();
     } catch (IllegalStateException | IOException e) {
       throw parseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());

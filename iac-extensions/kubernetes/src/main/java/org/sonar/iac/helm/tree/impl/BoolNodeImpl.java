@@ -19,20 +19,23 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.BoolNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.BoolNode;
 import org.sonar.iac.helm.tree.api.Node;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class BoolNodeImpl extends AbstractNode implements BoolNode {
   private final boolean value;
 
-  public BoolNodeImpl(long position, long length, boolean value) {
-    super(position, length);
+  public BoolNodeImpl(TextRange textRange, boolean value) {
+    super(textRange);
     this.value = value;
   }
 
-  public static Node fromPb(BoolNodeOrBuilder boolNodePb) {
-    return new BoolNodeImpl(boolNodePb.getPos(), boolNodePb.getLength(), boolNodePb.getTrue());
+  public static Node fromPb(BoolNodeOrBuilder boolNodePb, String source) {
+    return new BoolNodeImpl(textRangeFromPb(boolNodePb, source), boolNodePb.getTrue());
   }
 
   public boolean value() {

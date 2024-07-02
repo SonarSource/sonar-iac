@@ -19,23 +19,25 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.RangeNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.ListNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.RangeNode;
 
+import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
+
 public class RangeNodeImpl extends AbstractBranchNode implements RangeNode {
-  public RangeNodeImpl(long position, long length, PipeNode pipe, ListNode list, ListNode elseList) {
-    super(position, length, pipe, list, elseList);
+  public RangeNodeImpl(TextRange textRange, PipeNode pipe, ListNode list, ListNode elseList) {
+    super(textRange, pipe, list, elseList);
   }
 
-  public static Node fromPb(RangeNodeOrBuilder nodePb) {
+  public static Node fromPb(RangeNodeOrBuilder nodePb, String source) {
     return new RangeNodeImpl(
-      nodePb.getPos(),
-      nodePb.getLength(),
-      (PipeNode) PipeNodeImpl.fromPb(nodePb.getBranchNode().getPipe()),
-      (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getList()),
-      (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getElseList()));
+      textRangeFromPb(nodePb, source),
+      (PipeNode) PipeNodeImpl.fromPb(nodePb.getBranchNode().getPipe(), source),
+      (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getList(), source),
+      (ListNode) ListNodeImpl.fromPb(nodePb.getBranchNode().getElseList(), source));
   }
 }
