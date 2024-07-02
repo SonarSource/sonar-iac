@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.common.extension.analyzer;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -28,10 +31,6 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class CrossFileAnalyzer extends AbstractAnalyzer {
 
@@ -52,7 +51,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
 
   public boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, String languageName) {
     List<String> filenames = inputFiles.stream().map(InputFile::toString).toList();
-    var progressReportParser = new ProgressReport("Progress of the " + languageName + " parsing", PROGRESS_REPORT_PERIOD_MILLIS, "parsed");
+    var progressReportParser = new ProgressReport(progressReportThreadName(languageName, " parsing"), PROGRESS_REPORT_PERIOD_MILLIS, "parsed");
     progressReportParser.start(filenames);
 
     List<InputFileContext> inputFileContextList = inputFiles.stream()
@@ -71,7 +70,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
         var content = readContent(inputFileContext);
         if (content != null) {
           Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
-          filesWithAst.add(new FileWithAst(inputFileContext, tree));
+          filesWithAst.addAll(fileWithAsts(inputFileContext, tree));
         }
       } catch (ParseException e) {
         reportParseError(e, inputFileContext);
@@ -81,14 +80,14 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     }
     progressReportParser.stop();
 
-    var progressReportVisitors = new ProgressReport("Progress of the " + languageName + " analysis",
+    var progressReportVisitors = new ProgressReport(progressReportThreadName(languageName, " analysis"),
       PROGRESS_REPORT_PERIOD_MILLIS, "analyzed");
     progressReportVisitors.start(filenames);
     if (!applyVisitors(sensorContext, filesWithAst, visitors, progressReportVisitors)) {
       return false;
     }
 
-    var progressReportCheckVisitor = new ProgressReport("Progress of the " + languageName + " analysis",
+    var progressReportCheckVisitor = new ProgressReport(progressReportThreadName(languageName, " analysis"),
       PROGRESS_REPORT_PERIOD_MILLIS, "checked");
     progressReportCheckVisitor.start(filenames);
     return applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor), progressReportCheckVisitor);
@@ -110,6 +109,14 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     return true;
   }
 
-  private record FileWithAst(InputFileContext inputFileContext, Tree tree) {
+  private static String progressReportThreadName(String language, String phase) {
+    return "Progress of the " + language + " " + phase;
+  }
+
+  protected Collection<FileWithAst> fileWithAsts(InputFileContext inputFileContext, Tree tree) {
+    return List.of(new FileWithAst(inputFileContext, tree));
+  }
+
+  public record FileWithAst(InputFileContext inputFileContext, Tree tree) {
   }
 }
