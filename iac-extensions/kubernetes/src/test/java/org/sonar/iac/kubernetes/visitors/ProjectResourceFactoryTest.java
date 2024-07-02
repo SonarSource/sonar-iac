@@ -27,6 +27,8 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.kubernetes.model.ConfigMap;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
 
@@ -236,5 +238,75 @@ class ProjectResourceFactoryTest {
 
     var limitRange = ProjectResourceFactory.createResource("limitRange.yaml", tree);
     assertThat(limitRange).isNull();
+  }
+
+  @Test
+  void shouldCreateConfigMap() {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: my-namespace
+      data:
+        key1: "value1"
+        key2: "value2"
+      """;
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var configMap = (ConfigMap) ProjectResourceFactory.createResource("configMap.yaml", tree);
+
+    assertThat(configMap.path()).isEqualTo("configMap.yaml");
+    assertThat(configMap.values()).containsKeys("key1", "key2");
+    assertThat(configMap.values().get("key1"))
+      .isInstanceOf(ScalarTree.class)
+      .extracting(s -> ((ScalarTree) s).value())
+      .isEqualTo("value1");
+    assertThat(configMap.values().get("key2"))
+      .isInstanceOf(ScalarTree.class)
+      .extracting(s -> ((ScalarTree) s).value())
+      .isEqualTo("value2");
+  }
+
+  @Test
+  void shouldParseConfigMapWithComplexValue() {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: my-namespace
+      data:
+        key1:
+          subkey:
+            "value1"
+      """;
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var configMap = (ConfigMap) ProjectResourceFactory.createResource("configMap.yaml", tree);
+
+    assertThat(configMap.path()).isEqualTo("configMap.yaml");
+    assertThat(configMap.values()).containsKeys("key1");
+    assertThat(configMap.values().get("key1"))
+      .isInstanceOf(MappingTree.class);
+  }
+
+  @Test
+  void shouldStayEmptyForIncorrectConfigMapDataFormat() {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: my-namespace
+      data:
+      - key1: "value1"
+      """;
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var configMap = (ConfigMap) ProjectResourceFactory.createResource("configMap.yaml", tree);
+
+    assertThat(configMap.path()).isEqualTo("configMap.yaml");
+    assertThat(configMap.values()).isEmpty();
   }
 }
