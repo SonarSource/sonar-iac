@@ -54,7 +54,7 @@ class DuplicatedEnvironmentVariablesCheckTest {
   void shouldVerifyHelmPod() {
     // secondary location is the same line as primary location
     var expectedSecondary1 = new SecondaryLocation(range(19, 0, 19, 35), "Duplicated environment variable.");
-    var expectedSecondary2 = new SecondaryLocation(range(12, 2, 19, 0), "This value is used in a noncompliant part of a template",
+    var expectedSecondary2 = new SecondaryLocation(range(12, 2, 18, 0), "This value is used in a noncompliant part of a template",
       "DuplicatedEnvironmentVariables/DuplicatedEnvsChart/values.yaml");
     // secondary location is the same line as primary location
     var expectedSecondary3 = new SecondaryLocation(range(28, 0, 28, 55), "Duplicated environment variable.");
