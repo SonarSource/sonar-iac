@@ -53,6 +53,7 @@ class AutomountServiceAccountTokenCheckTest {
     "DifferentName/automount_service_account_token_pod_linked.yaml,DifferentName/linked_account_service_token.yaml",
     "DifferentNamespace/automount_service_account_token_pod_linked.yaml,DifferentNamespace/linked_account_service_token.yaml",
     "InParentFolder/subfolder/automount_service_account_token_pod_linked.yaml,InParentFolder/linked_account_service_token.yaml",
+    "InvalidAccountName/automount_service_account_token_pod_linked.yaml,InvalidAccountName/linked_account_service_token.yaml",
     "MissingValue/automount_service_account_token_pod_linked.yaml,MissingValue/linked_account_service_token.yaml",
     "SensitiveValue/automount_service_account_token_pod_linked.yaml,SensitiveValue/linked_account_service_token.yaml",
   })
