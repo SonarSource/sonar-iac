@@ -12,17 +12,14 @@ def go_env():
     The following default values are provided:
     - GO_VERSION: 1.21.8
     - GO_CROSS_COMPILE: 1
-    - PROTOC_VERSION: 25.0
 
     :return: a dictionary with the following keys:
         - GO_VERSION
         - GO_CROSS_COMPILE
-        - PROTOC_VERSION
     """
     return {
         "GO_VERSION": "1.21.8",
         "GO_CROSS_COMPILE": "1",
-        "PROTOC_VERSION": "25.0",
     }
 
 def project_version_env():

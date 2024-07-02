@@ -1,6 +1,6 @@
 plugins {
     id("java-gradle-plugin")
-    id("com.diffplug.spotless") version libs.versions.spotless.gradle.get()
+    alias(libs.plugins.diffplug.spotless)
     id("org.sonarsource.iac.artifactory-configuration")
     id("org.sonarsource.iac.rule-api")
     id("org.sonarsource.iac.sonarqube")
