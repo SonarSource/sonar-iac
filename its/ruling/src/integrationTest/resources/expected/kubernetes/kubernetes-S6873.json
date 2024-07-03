@@ -1,4 +1,7 @@
 {
+"kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/S6907/duplicated-env-var.yaml": [
+12
+],
 "kubernetes-project:ruling/src/integrationTest/resources/sources/kubernetes/helm/S5849/templates/deployment.yaml": [
 19
 ],
