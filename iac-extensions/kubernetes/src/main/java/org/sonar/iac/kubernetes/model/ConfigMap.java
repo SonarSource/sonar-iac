@@ -19,12 +19,9 @@
  */
 package org.sonar.iac.kubernetes.model;
 
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.checks.Trilean;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-
-import javax.annotation.Nullable;
 import java.util.Map;
+
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public record ConfigMap(
   String path,
