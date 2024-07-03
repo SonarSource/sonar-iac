@@ -20,6 +20,8 @@
 package org.sonar.iac.kubernetes.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 class AutomountServiceAccountTokenCheckTest {
@@ -33,5 +35,30 @@ class AutomountServiceAccountTokenCheckTest {
   @Test
   void testKindWithTemplate() {
     KubernetesVerifier.verify("AutomountServiceAccountTokenCheck/automount_service_account_token_deployment.yaml", check);
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+    "InSubfolder/automount_service_account_token_pod_linked.yaml,InSubfolder/subfolder/linked_account_service_token.yaml",
+    "NoNamespace/automount_service_account_token_pod_linked.yaml,NoNamespace/linked_account_service_token.yaml",
+    "SameNamespace/automount_service_account_token_pod_linked.yaml,SameNamespace/linked_account_service_token.yaml",
+  })
+  void testLinkedAccountCompliant(String pod, String linkedAccount) {
+    String rootFolder = "AutomountServiceAccountTokenCheck/LinkedAccount/Compliant/";
+    KubernetesVerifier.verifyNoIssue(rootFolder + pod, check, rootFolder + linkedAccount);
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+    "DifferentName/automount_service_account_token_pod_linked.yaml,DifferentName/linked_account_service_token.yaml",
+    "DifferentNamespace/automount_service_account_token_pod_linked.yaml,DifferentNamespace/linked_account_service_token.yaml",
+    "InParentFolder/subfolder/automount_service_account_token_pod_linked.yaml,InParentFolder/linked_account_service_token.yaml",
+    "InvalidAccountName/automount_service_account_token_pod_linked.yaml,InvalidAccountName/linked_account_service_token.yaml",
+    "MissingValue/automount_service_account_token_pod_linked.yaml,MissingValue/linked_account_service_token.yaml",
+    "SensitiveValue/automount_service_account_token_pod_linked.yaml,SensitiveValue/linked_account_service_token.yaml",
+  })
+  void testLinkedNonAccountCompliant(String pod, String linkedAccount) {
+    String rootFolder = "AutomountServiceAccountTokenCheck/LinkedAccount/NonCompliant/";
+    KubernetesVerifier.verify(rootFolder + pod, check, rootFolder + linkedAccount);
   }
 }

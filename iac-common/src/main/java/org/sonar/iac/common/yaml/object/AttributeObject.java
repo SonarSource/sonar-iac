@@ -19,13 +19,16 @@
  */
 package org.sonar.iac.common.yaml.object;
 
-import java.util.function.Predicate;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class AttributeObject extends YamlObject<TupleTree> {
 
@@ -45,14 +48,14 @@ public class AttributeObject extends YamlObject<TupleTree> {
   }
 
   public AttributeObject reportIfValue(Predicate<YamlTree> predicate, String message) {
-    if (tree != null && predicate.test(tree.value())) {
+    if (isValue(predicate)) {
       ctx.reportIssue(tree.value(), message);
     }
     return this;
   }
 
   public AttributeObject reportIfAbsent(@Nullable HasTextRange hasTextRange, String message) {
-    if (this.status == Status.ABSENT && hasTextRange != null) {
+    if (isAbsent() && hasTextRange != null) {
       report(hasTextRange.textRange(), message);
     }
     return this;
@@ -65,9 +68,23 @@ public class AttributeObject extends YamlObject<TupleTree> {
     return this;
   }
 
+  private AttributeObject report(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+    if (textRange != null) {
+      ctx.reportIssue(() -> textRange, message, secondaryLocations);
+    }
+    return this;
+  }
+
   public AttributeObject reportOnKey(String message) {
     if (tree != null) {
       report(tree.key().textRange(), message);
+    }
+    return this;
+  }
+
+  public AttributeObject reportOnKey(String message, List<SecondaryLocation> secondaryLocations) {
+    if (tree != null) {
+      report(tree.key().textRange(), message, secondaryLocations);
     }
     return this;
   }
@@ -77,5 +94,13 @@ public class AttributeObject extends YamlObject<TupleTree> {
       report(tree.value().toHighlight(), message);
     }
     return this;
+  }
+
+  public boolean isAbsent() {
+    return this.status == Status.ABSENT;
+  }
+
+  public boolean isValue(Predicate<YamlTree> predicate) {
+    return tree != null && predicate.test(tree.value());
   }
 }

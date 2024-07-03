@@ -204,7 +204,7 @@ public class KubernetesVerifier {
     Stream.concat(
       additionalHelmProjectFiles,
       Arrays.stream(additionalFiles).map(fileName -> inputFile(fileName, BASE_DIR)))
-      .map(additionalFile -> {
+      .forEach(additionalFile -> {
         String additionalContent = retrieveContent(additionalFile);
         InputFileContext additionalInputFileContext;
         if (KubernetesAnalyzer.hasHelmContent(additionalContent)) {
@@ -212,8 +212,9 @@ public class KubernetesVerifier {
         } else {
           additionalInputFileContext = new InputFileContext(SENSOR_CONTEXT, additionalFile);
         }
-        return PARSER.parse(additionalContent, additionalInputFileContext);
-      }).forEach(tree -> projectContextEnricherVisitor.scan(inputFileContext, tree));
+        var tree = PARSER.parse(additionalContent, additionalInputFileContext);
+        projectContextEnricherVisitor.scan(additionalInputFileContext, tree);
+      });
 
     return projectContextBuilder.build();
   }
