@@ -27,11 +27,11 @@ import org.sonar.iac.helm.tree.api.Node;
 import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
 
 public class CommentNodeImpl extends AbstractNode implements CommentNode {
-  private final String text;
+  private final String value;
 
-  public CommentNodeImpl(TextRange textRange, String text) {
+  public CommentNodeImpl(TextRange textRange, String value) {
     super(textRange);
-    this.text = text;
+    this.value = value;
   }
 
   public static Node fromPb(CommentNodeOrBuilder nodePb, String source) {
@@ -39,7 +39,7 @@ public class CommentNodeImpl extends AbstractNode implements CommentNode {
   }
 
   @Override
-  public String text() {
-    return text;
+  public String value() {
+    return value;
   }
 }

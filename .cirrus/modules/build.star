@@ -101,6 +101,12 @@ def build_test_analyze_task():
             "eks_container": custom_image_container_builder(cpu=6, memory="6G"),
             "gradle_cache": gradle_cache(),
             "build_script": build_script(),
+            "on_failure": {
+                "junit_artifacts": {
+                    "path": "**/test-results/**/*.xml",
+                    "format": "junit"
+                }
+            },
             "cleanup_gradle_script": cleanup_gradle_script(),
         }
     }

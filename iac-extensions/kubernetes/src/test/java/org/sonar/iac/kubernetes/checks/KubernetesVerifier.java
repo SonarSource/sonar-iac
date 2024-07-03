@@ -62,6 +62,7 @@ import org.sonar.iac.kubernetes.plugin.KubernetesAnalyzer;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
+import org.sonar.iac.kubernetes.tree.impl.HelmFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
@@ -82,12 +83,23 @@ public class KubernetesVerifier {
   private static final SensorContextTester SENSOR_CONTEXT = SensorContextTester.create(BASE_DIR.toAbsolutePath());
   private static final KubernetesAnalyzer KUBERNETES_ANALYZER = initializeKubernetesAnalyzer();
   private static final TreeParser<Tree> PARSER = KUBERNETES_ANALYZER::parse;
+  private static final TreeParser<Tree> GO_PARSER = (String content, InputFileContext inputFileContext) -> {
+    var yamlTree = PARSER.parse(content, inputFileContext);
+    return ((HelmFileTreeImpl) yamlTree).getGoTemplateAst();
+  };
+
+  private static TreeParser<? extends Tree> parserFor(IacCheck check) {
+    if (check instanceof ChecksGoTemplate) {
+      return GO_PARSER;
+    }
+    return PARSER;
+  }
 
   public static void verify(String templateFileName, IacCheck check, String... fileNames) {
     var initialization = initializeVerification(templateFileName, fileNames);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    Verifier.verify(PARSER, inputFileContext, check,
+    Verifier.verify(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         // Prepare project context inside this lambda so that it happens after parsing. HelmInputFileContext
         // is fully initialized during parsing (i.e. additional files are discovered and added).
@@ -101,7 +113,7 @@ public class KubernetesVerifier {
     var initialization = initializeVerification(templateFileName);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    Verifier.verify(PARSER, inputFileContext, check,
+    Verifier.verify(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext);
         return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
@@ -126,7 +138,7 @@ public class KubernetesVerifier {
     var tempFile = contentToTmp(content);
     var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(),
       KubernetesLanguage.NAME));
-    Verifier.verify(PARSER, tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext,
+    Verifier.verify(parserFor(check), tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext,
       ProjectContext.builder().build()));
   }
 
@@ -134,7 +146,7 @@ public class KubernetesVerifier {
     var initialization = initializeVerification(templateFileName, fileNames);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
-    Verifier.verifyNoIssue(PARSER, inputFileContext, check,
+    Verifier.verifyNoIssue(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext, fileNames);
         return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);

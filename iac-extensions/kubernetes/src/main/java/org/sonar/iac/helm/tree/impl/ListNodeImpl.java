@@ -22,9 +22,11 @@ package org.sonar.iac.helm.tree.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.ListNodeOrBuilder;
+import org.sonar.iac.helm.tree.api.CommentNode;
 import org.sonar.iac.helm.tree.api.ListNode;
 import org.sonar.iac.helm.tree.api.Node;
 
@@ -50,5 +52,13 @@ public class ListNodeImpl extends AbstractNode implements ListNode {
   @Override
   public List<Tree> children() {
     return new ArrayList<>(nodes);
+  }
+
+  @Override
+  public List<Comment> comments() {
+    return children().stream()
+      .filter(CommentNode.class::isInstance)
+      .map(Comment.class::cast)
+      .toList();
   }
 }

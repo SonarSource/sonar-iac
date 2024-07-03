@@ -63,6 +63,12 @@ def qa_task(env):
         "mkdir_orchestrator_home_script": mkdir_orchestrator_home_script(),
         "orchestrator_cache": orchestrator_cache(),
         "run_its_script": run_its_script(),
+        "on_failure": {
+            "junit_artifacts": {
+                "path": "**/test-results/**/*.xml",
+                "format": "junit"
+            }
+        },
         "cleanup_gradle_script": cleanup_gradle_script(),
     }
 

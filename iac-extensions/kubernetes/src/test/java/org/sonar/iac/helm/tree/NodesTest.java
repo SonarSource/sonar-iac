@@ -111,7 +111,8 @@ class NodesTest {
 
     KubernetesAssertions.assertThat(commentNode.textRange()).hasRange(1, 0, 1, 5);
     assertThat(commentNode.type()).isEqualTo(NodeType.NODE_COMMENT);
-    assertThat(commentNode.text()).isEqualTo("/* foo */");
+    assertThat(commentNode.contentText()).isEqualTo("foo");
+    assertThat(commentNode.value()).isEqualTo("/* foo */");
   }
 
   @Test

@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
@@ -32,6 +33,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.analyzer.CrossFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.kubernetes.tree.impl.HelmFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
@@ -76,6 +78,17 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
     } catch (RuntimeException e) {
       throw ParseException.toParseException("parse", inputFileContext, e);
     }
+  }
+
+  @Override
+  protected FileWithAsts fileWithAsts(InputFileContext inputFileContext, Tree tree) {
+    if (tree instanceof HelmFileTreeImpl helmFileTree) {
+      Tree additionalTree = helmFileTree.getGoTemplateAst();
+      if (additionalTree != null) {
+        return new FileWithAsts(inputFileContext, tree, Set.of(additionalTree));
+      }
+    }
+    return super.fileWithAsts(inputFileContext, tree);
   }
 
   protected static boolean isHelmFile(InputFile inputFile) {
