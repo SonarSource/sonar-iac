@@ -96,6 +96,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
         }
         List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
           .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(helmCtx, secondaryLocation))
+          .distinct()
           .toList();
 
         allSecondaryLocations.addAll(shiftedSecondaryLocations);

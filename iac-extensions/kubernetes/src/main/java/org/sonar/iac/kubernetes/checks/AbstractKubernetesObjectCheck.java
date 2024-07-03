@@ -28,6 +28,7 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,11 +44,11 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
   public void initialize(InitContext init) {
     init.register(FileTree.class, (ctx, fileTree) -> fileTree.documents().stream()
       .filter(MappingTree.class::isInstance)
-      .forEach(documentTree -> visitDocument((MappingTree) documentTree, ctx)));
+      .forEach(documentTree -> visitDocument((MappingTree) documentTree, (KubernetesCheckContext) ctx)));
     registerObjectCheck();
   }
 
-  void visitDocument(MappingTree documentTree, CheckContext ctx) {
+  void visitDocument(MappingTree documentTree, KubernetesCheckContext ctx) {
     initializeCheck(ctx);
     PropertyUtils.get(documentTree, "kind")
       .flatMap(kind -> TextUtils.getValue(kind.value()))
@@ -59,9 +60,10 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
           visitSpecTreeForKind(documentTree, ctx, kind);
         }
       });
+    visitDocumentOnEnd(documentTree, ctx);
   }
 
-  void initializeCheck(CheckContext ctx) {
+  void initializeCheck(KubernetesCheckContext ctx) {
     // default implementation does nothing; the rule can interact with CheckContext here.
   }
 
@@ -69,6 +71,10 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     // the default is "false" as we normally visit only the "spec" tree of the file.
     // Overriding this to "true" will enable visitation of the whole document.
     return false;
+  }
+
+  void visitDocumentOnEnd(MappingTree documentTree, CheckContext ctx) {
+    // default implementation does nothing; the rule can interact when leaving document
   }
 
   private void visitSpecTreeForKind(MappingTree documentTree, CheckContext ctx, String kind) {

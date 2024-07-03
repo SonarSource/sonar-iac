@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: test-env
+spec:
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    spec:
+      containers:
+        - name: ubuntu
+          image: ubuntu
+          env:
+            - name: VAR1
+              value: "value1"
+            - name: VAR1
+              value: "value2"
+            - name: ANOTHER_VARIABLE
+            - name: ANOTHER_VARIABLE_2
+              value: "dummy"
+            - name: VAR1
+              value: "value3"

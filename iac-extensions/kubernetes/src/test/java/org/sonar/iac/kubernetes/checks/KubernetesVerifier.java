@@ -313,6 +313,7 @@ public class KubernetesVerifier {
         }
         List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
           .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(helmCtx, secondaryLocation))
+          .distinct()
           .toList();
 
         allSecondaryLocations.addAll(shiftedSecondaryLocations);
