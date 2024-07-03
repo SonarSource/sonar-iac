@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public record ConfigMap(
+public record Secret(
   String path,
-  Map<String, YamlTree> values) implements ProjectResource {
+  Map<String, YamlTree> values) implements MapResource {
 }

@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.common.extension.TreeParser;
@@ -30,6 +33,8 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.kubernetes.model.ConfigMap;
 import org.sonar.iac.kubernetes.model.LimitRange;
+import org.sonar.iac.kubernetes.model.MapResource;
+import org.sonar.iac.kubernetes.model.Secret;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -240,93 +245,107 @@ class ProjectResourceFactoryTest {
     assertThat(limitRange).isNull();
   }
 
-  @Test
-  void shouldCreateConfigMap() {
+  private static Stream<Arguments> provideMapResource() {
+    return Stream.of(
+      Arguments.of("ConfigMap", ConfigMap.class),
+      Arguments.of("Secret", Secret.class));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideMapResource")
+  void shouldCreateMapResource(String kindName, Class<? extends MapResource> clazz) {
     // language=yaml
     var code = """
       apiVersion: v1
-      kind: ConfigMap
+      kind: %s
       metadata:
         namespace: my-namespace
       data:
         key1: "value1"
         key2: "value2"
-      """;
+      """.formatted(kindName);
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var configMap = (ConfigMap) ProjectResourceFactory.createResource("configMap.yaml", tree);
+    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
 
-    assertThat(configMap.path()).isEqualTo("configMap.yaml");
-    assertThat(configMap.values()).containsKeys("key1", "key2");
-    assertThat(configMap.values().get("key1"))
+    assertThat(mapResource).isInstanceOf(clazz);
+    assertThat(mapResource.path()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.values()).containsKeys("key1", "key2");
+    assertThat(mapResource.values().get("key1"))
       .isInstanceOf(ScalarTree.class)
       .extracting(s -> ((ScalarTree) s).value())
       .isEqualTo("value1");
-    assertThat(configMap.values().get("key2"))
+    assertThat(mapResource.values().get("key2"))
       .isInstanceOf(ScalarTree.class)
       .extracting(s -> ((ScalarTree) s).value())
       .isEqualTo("value2");
   }
 
-  @Test
-  void shouldParseConfigMapWithComplexValue() {
+  @ParameterizedTest
+  @MethodSource("provideMapResource")
+  void shouldParseMapResourceWithComplexValue(String kindName, Class<? extends MapResource> clazz) {
     // language=yaml
     var code = """
       apiVersion: v1
-      kind: ConfigMap
+      kind: %s
       metadata:
         namespace: my-namespace
       data:
         key1:
           subkey:
             "value1"
-      """;
+      """.formatted(kindName);
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var configMap = (ConfigMap) ProjectResourceFactory.createResource("configMap.yaml", tree);
+    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
 
-    assertThat(configMap.path()).isEqualTo("configMap.yaml");
-    assertThat(configMap.values()).containsKeys("key1");
-    assertThat(configMap.values().get("key1"))
+    assertThat(mapResource).isInstanceOf(clazz);
+    assertThat(mapResource.path()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.values()).containsKeys("key1");
+    assertThat(mapResource.values().get("key1"))
       .isInstanceOf(MappingTree.class);
   }
 
-  @Test
-  void shouldStayEmptyForIncorrectConfigMapDataFormat() {
+  @ParameterizedTest
+  @MethodSource("provideMapResource")
+  void shouldStayEmptyForIncorrectMapResourceDataFormat(String kindName, Class<? extends MapResource> clazz) {
     // language=yaml
     var code = """
       apiVersion: v1
-      kind: ConfigMap
+      kind: %s
       metadata:
         namespace: my-namespace
       data:
       - key1: "value1"
-      """;
+      """.formatted(kindName);
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var configMap = (ConfigMap) ProjectResourceFactory.createResource("configMap.yaml", tree);
+    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
 
-    assertThat(configMap.path()).isEqualTo("configMap.yaml");
-    assertThat(configMap.values()).isEmpty();
+    assertThat(mapResource).isInstanceOf(clazz);
+    assertThat(mapResource.path()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.values()).isEmpty();
   }
 
-  @Test
-  void shouldHandleKeyNotScalarInConfigMap() {
+  @ParameterizedTest
+  @MethodSource("provideMapResource")
+  void shouldHandleKeyNotScalarInMapResource(String kindName, Class<? extends MapResource> clazz) {
     // language=yaml
     var code = """
       apiVersion: v1
-      kind: ConfigMap
+      kind: %s
       metadata:
         namespace: my-namespace
       data:
         ? name: John
         : "value"
-      """;
+      """.formatted(kindName);
     var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
 
-    var configMap = (ConfigMap) ProjectResourceFactory.createResource("configMap.yaml", tree);
+    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
 
-    assertThat(configMap.path()).isEqualTo("configMap.yaml");
-    assertThat(configMap.values()).isEmpty();
+    assertThat(mapResource).isInstanceOf(clazz);
+    assertThat(mapResource.path()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.values()).isEmpty();
   }
 }

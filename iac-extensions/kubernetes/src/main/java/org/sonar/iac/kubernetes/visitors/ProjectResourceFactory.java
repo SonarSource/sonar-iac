@@ -32,6 +32,7 @@ import org.sonar.iac.kubernetes.model.ConfigMap;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 import org.sonar.iac.kubernetes.model.ProjectResource;
+import org.sonar.iac.kubernetes.model.Secret;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
 
 import javax.annotation.CheckForNull;
@@ -53,11 +54,11 @@ public final class ProjectResourceFactory {
       case "ServiceAccount" -> createServiceAccount(path, tree);
       case "LimitRange" -> createLimitRange(tree);
       case "ConfigMap" -> createConfigMap(path, tree);
+      case "Secret" -> createSecret(path, tree);
       default -> null;
     };
   }
 
-  @CheckForNull
   private static ProjectResource createServiceAccount(String path, MappingTree tree) {
     var name = PropertyUtils.value(tree, "metadata", MappingTree.class)
       .flatMap(metadata -> PropertyUtils.value(metadata, "name"))
@@ -77,7 +78,6 @@ public final class ProjectResourceFactory {
     return new ServiceAccount(path, name.get(), automountServiceAccountToken, valueLocation);
   }
 
-  @CheckForNull
   private static ProjectResource createLimitRange(MappingTree tree) {
     var limits = PropertyUtils.value(tree, "spec")
       .flatMap(it -> PropertyUtils.value(it, "limits"))
@@ -91,17 +91,24 @@ public final class ProjectResourceFactory {
     return new LimitRange(limits);
   }
 
-  @CheckForNull
   private static ProjectResource createConfigMap(String path, MappingTree tree) {
-    var map = PropertyUtils.value(tree, "data")
+    var map = computeDataMap(tree);
+    return new ConfigMap(path, map);
+  }
+
+  private static ProjectResource createSecret(String path, MappingTree tree) {
+    var map = computeDataMap(tree);
+    return new Secret(path, map);
+  }
+
+  private static Map<String, YamlTree> computeDataMap(MappingTree tree) {
+    return PropertyUtils.value(tree, "data")
       .stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
       .flatMap(mappingTree -> mappingTree.elements().stream())
       .filter(tupleTree -> tupleTree.key() instanceof ScalarTree)
       .collect(Collectors.toMap(k -> ((ScalarTree) k.key()).value(), TupleTree::value));
-
-    return new ConfigMap(path, map);
   }
 
   private static LimitRangeItem toLimitRangeItem(MappingTree tree) {

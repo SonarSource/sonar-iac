@@ -25,5 +25,5 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public record ConfigMap(
   String path,
-  Map<String, YamlTree> values) implements ProjectResource {
+  Map<String, YamlTree> values) implements MapResource {
 }
