@@ -82,15 +82,13 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
 
   @Override
   protected FileWithAsts fileWithAsts(InputFileContext inputFileContext, Tree tree) {
-    Tree additionalTree = null;
     if (tree instanceof HelmFileTreeImpl helmFileTree) {
-      additionalTree = helmFileTree.getGoTemplateAst();
+      Tree additionalTree = helmFileTree.getGoTemplateAst();
+      if (additionalTree != null) {
+        return new FileWithAsts(inputFileContext, tree, Set.of(additionalTree));
+      }
     }
-    if (additionalTree != null) {
-      return new FileWithAsts(inputFileContext, tree, Set.of(additionalTree));
-    } else {
-      return super.fileWithAsts(inputFileContext, tree);
-    }
+    return super.fileWithAsts(inputFileContext, tree);
   }
 
   protected static boolean isHelmFile(InputFile inputFile) {
