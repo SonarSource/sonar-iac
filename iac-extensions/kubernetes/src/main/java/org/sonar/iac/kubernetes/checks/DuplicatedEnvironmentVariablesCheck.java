@@ -34,7 +34,7 @@ import org.sonar.iac.kubernetes.model.ConfigMap;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S6907")
-public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagementCheck {
+public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Resolve the duplication of this environment variable.";
   private static final String MESSAGE_SECONDARY_LOCATION = "Duplicate environment variable without any effect.";
@@ -90,11 +90,6 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
   @Override
   void initializeCheck(KubernetesCheckContext ctx) {
     ctx.setShouldReportSecondaryInValues(true);
-  }
-
-  @Override
-  Class getGlobalResourceType() {
-    return ConfigMap.class;
   }
 
   // Container contains a map of environment variables
