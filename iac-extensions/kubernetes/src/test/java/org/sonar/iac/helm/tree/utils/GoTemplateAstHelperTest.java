@@ -27,10 +27,12 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.utils.GoAstCreator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.params.provider.Arguments.of;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
@@ -91,5 +93,23 @@ class GoTemplateAstHelperTest {
     var actual = GoTemplateAstHelper.findValuePaths(goTemplateTree, range(2, 2, 2, 45));
 
     assertThat(actual).contains(new ValuePath("Values", "hostIPC"), new ValuePath("Values", "foo", "bar"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    " ", "​", "©"
+  })
+  void shouldNotThrowWithSpecialSymbols(String specialSymbol) {
+    var code = """
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: example
+      spec:
+        data:
+         \s""" + specialSymbol;
+
+    assertThatCode(() -> new GoAstCreator(tempDir).goAstFromSource(code, "", "name: test chart"))
+      .doesNotThrowAnyException();
   }
 }

@@ -134,6 +134,12 @@ public class LocationImpl implements Location {
   }
 
   private static TextPointer toTextPointer(int position, String sourceCode) {
+    if (position > sourceCode.length()) {
+      // This can happen sometimes for weird special characters. The Go side returns a node with too great value of the `length` field.
+      // Until this is fixed on the Go side, we just ignore it.
+      position = sourceCode.length();
+    }
+
     var matcher = LINE_PATTERN.matcher(sourceCode);
     var lineCounter = 1;
     var positionCounter = 0;

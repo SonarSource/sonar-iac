@@ -21,6 +21,7 @@ package org.sonar.iac.helm.tree.impl;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.helm.tree.impl.LocationImpl.fromTextRange;
@@ -28,9 +29,10 @@ import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
 
 class LocationImplTest {
 
-  private final static String TEXT = "line1\n" +
-    "line 2 some text\n" +
-    "line 3 extra text";
+  private static final String TEXT = """
+    line1
+    line 2 some text
+    line 3 extra text""";
 
   @Test
   void shouldReturnPositionAndLength() {
@@ -147,9 +149,10 @@ class LocationImplTest {
     var range = range(1, 0, 3, 10);
     var location = fromTextRange(range, TEXT);
     assertThat(location).on(TEXT)
-      .isEqualTo("line1\n" +
-        "line 2 some text\n" +
-        "line 3 ext")
+      .isEqualTo("""
+        line1
+        line 2 some text
+        line 3 ext""")
       .hasLocation(0, 33);
   }
 
@@ -165,9 +168,10 @@ class LocationImplTest {
     var range = range(1, 0, 3, 17);
     var location = fromTextRange(range, TEXT);
     assertThat(location).on(TEXT)
-      .isEqualTo("line1\n" +
-        "line 2 some text\n" +
-        "line 3 extra text")
+      .isEqualTo("""
+        line1
+        line 2 some text
+        line 3 extra text""")
       .hasLocation(0, 40);
   }
 
@@ -186,17 +190,17 @@ class LocationImplTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenStartPositionDoesntExist() {
+  void shouldNotThrowExceptionWhenStartPositionDoesntExist() {
     var location = new LocationImpl(TEXT.length() + 1, 0);
-    assertThatThrownBy(() -> location.toTextRange(TEXT))
-      .isInstanceOf(IllegalArgumentException.class);
+    assertThatCode(() -> location.toTextRange(TEXT))
+      .doesNotThrowAnyException();
   }
 
   @Test
-  void shouldThrowExceptionWhenEndPositionDoesntExist() {
+  void shouldNotThrowExceptionWhenEndPositionDoesntExist() {
     var location = new LocationImpl(0, TEXT.length() + 1);
-    assertThatThrownBy(() -> location.toTextRange(TEXT))
-      .isInstanceOf(IllegalArgumentException.class);
+    assertThatCode(() -> location.toTextRange(TEXT))
+      .doesNotThrowAnyException();
   }
 
   @Test
