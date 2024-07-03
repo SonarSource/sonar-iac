@@ -24,7 +24,7 @@ spec:
     - name: nginx3
       image: nginx:1.7.9
       env:
-      # Compliant, only one variable
+      # Noncompliant
       {{- .Values.envVariables3 | toYaml | nindent 8 }}
 ---
 apiVersion: v1
@@ -42,12 +42,10 @@ spec:
     - name: nginx2
       image: nginx:1.7.9
       env:
-        - name: VAR1 # Noncompliant
-          #     ^^^^
+        # Noncompliant
+        - name: VAR1
           value: "value1"
         - name: VAR1
-          #     ^^^^<
           value: "value2"
         - name: VAR1
-          #     ^^^^<
           value: "value3"

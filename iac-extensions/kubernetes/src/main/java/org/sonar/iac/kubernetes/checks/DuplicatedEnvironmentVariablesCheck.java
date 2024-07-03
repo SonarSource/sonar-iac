@@ -36,7 +36,7 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Resolve the duplication of this environment variable.";
-  private static final String MESSAGE_SECONDARY_LOCATION = "Duplicated environment variable.";
+  private static final String MESSAGE_SECONDARY_LOCATION = "Duplicate environment variable without any effect.";
   private static final List<String> KIND_WITH_TEMPLATE = List.of(
     "DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
   private final List<Container> containers = new ArrayList<>();
@@ -65,14 +65,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjec
       var tree = attribute.tree.value();
       if (tree instanceof ScalarTree scalarTree) {
         var name = scalarTree.value();
-
-        if (container.envs.containsKey(name)) {
-          container.envs.get(name).add(scalarTree);
-        } else {
-          var list = new ArrayList<YamlTree>();
-          list.add(scalarTree);
-          container.envs.put(name, list);
-        }
+        container.envs.computeIfAbsent(name, key -> new ArrayList<>()).add(scalarTree);
       }
     }
   }
@@ -87,10 +80,10 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractKubernetesObjec
 
   private static void reportIssue(CheckContext ctx, List<YamlTree> trees) {
     var secondaryLocations = trees.stream()
-      .skip(1)
+      .limit(trees.size() - 1)
       .map(t -> new SecondaryLocation(t, MESSAGE_SECONDARY_LOCATION))
       .toList();
-    ctx.reportIssue(trees.get(0), MESSAGE, secondaryLocations);
+    ctx.reportIssue(trees.get(trees.size() - 1), MESSAGE, secondaryLocations);
   }
 
   @Override

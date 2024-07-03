@@ -12,11 +12,11 @@ spec:
         - name: ubuntu1
           image: ubuntu
           env:
+            - name: VAR1
+              #     ^^^^>
+              value: "value1"
             - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
               #     ^^^^
-              value: "value1"
-            - name: VAR1
-              #     ^^^^<
               value: "value2"
 
         - name: ubuntu2
@@ -28,14 +28,14 @@ spec:
         - name: ubuntu3
           image: ubuntu
           env:
-            - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
-              #     ^^^^
+            - name: VAR1
+              #     ^^^^>
               value: "value1"
             - name: VAR1
-              #     ^^^^<
+              #     ^^^^>
               value: "value2"
-            - name: VAR1
-              #     ^^^^<
+            - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
+              #     ^^^^
               value: "value3"
 ---
 apiVersion: apps/v1
@@ -52,9 +52,11 @@ spec:
         - name: ubuntu1
           image: ubuntu
           env:
+            - name: VAR1
+              #     ^^^^>
+              value: "value1"
             - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
               #     ^^^^
-              value: "value1"
-            - name: VAR1
-              #     ^^^^<
               value: "value2"
+            - name: ANOTHER_VARIABLE
+              value: "dummy"

@@ -7,11 +7,11 @@ spec:
     - name: nginx1
       image: nginx:1.7.9
       env:
+        - name: VAR1
+          #     ^^^^>
+          value: "value1"
         - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
           #     ^^^^
-          value: "value1"
-        - name: VAR1
-          #     ^^^^<
           value: "value2"
 
     - name: nginx2
@@ -23,14 +23,14 @@ spec:
     - name: nginx3
       image: nginx:1.7.9
       env:
-        - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
-          #     ^^^^
+        - name: VAR1
+          #     ^^^^>
           value: "value1"
         - name: VAR1
-          #     ^^^^<
+          #     ^^^^>
           value: "value2"
-        - name: VAR1
-          #     ^^^^<
+        - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
+          #     ^^^^
           value: "value3"
 ---
 apiVersion: v1
@@ -48,14 +48,16 @@ spec:
     - name: nginx2
       image: nginx:1.7.9
       env:
-        - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
-          #     ^^^^
+        - name: VAR1
+          #     ^^^^>
           value: "value1"
         - name: VAR1
-          #     ^^^^<
+          #     ^^^^>
           value: "value2"
-        - name: VAR1
-          #     ^^^^<
+        - name: ANOTHER_VARIABLE
+          value: "dummy"
+        - name: VAR1 # Noncompliant {{Resolve the duplication of this environment variable.}}
+          #     ^^^^
           value: "value3"
 
     # For coverage / unexpected tree
