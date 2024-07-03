@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.checks.Trilean;
 
 public record ServiceAccount(
-  String path,
+  String filePath,
   String name,
   Trilean automountServiceAccountToken,
   @Nullable TextRange valueLocation) implements ProjectResource {

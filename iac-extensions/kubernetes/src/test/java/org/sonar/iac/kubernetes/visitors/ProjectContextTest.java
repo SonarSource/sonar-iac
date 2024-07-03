@@ -19,8 +19,16 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
+
 import java.net.URI;
 import java.nio.file.Path;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -30,13 +38,6 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ProjectContextTest {
   @TempDir

@@ -19,6 +19,13 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.yaml.TreePredicates;
@@ -27,13 +34,6 @@ import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
 
 @Rule(key = "S6865")
 public class AutomountServiceAccountTokenCheck extends AbstractResourceManagementCheck<ServiceAccount> {
@@ -86,7 +86,7 @@ public class AutomountServiceAccountTokenCheck extends AbstractResourceManagemen
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
     secondaryLocations.add(new SecondaryLocation(serviceAccountNameAttr.tree.value(), "Through this service account"));
     if (linkedAccount.automountServiceAccountToken().isTrue()) {
-      secondaryLocations.add(new SecondaryLocation(linkedAccount.valueLocation(), "Change this setting", linkedAccount.path()));
+      secondaryLocations.add(new SecondaryLocation(linkedAccount.valueLocation(), "Change this setting", linkedAccount.filePath()));
     }
     blockObject.attribute("spec").reportOnKey(message, secondaryLocations);
   }
