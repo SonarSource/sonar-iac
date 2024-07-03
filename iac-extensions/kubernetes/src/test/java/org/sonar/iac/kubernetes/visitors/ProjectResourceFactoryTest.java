@@ -309,4 +309,24 @@ class ProjectResourceFactoryTest {
     assertThat(configMap.path()).isEqualTo("configMap.yaml");
     assertThat(configMap.values()).isEmpty();
   }
+
+  @Test
+  void shouldHandleKeyNotScalarInConfigMap() {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: my-namespace
+      data:
+        ? name: John
+        : "value"
+      """;
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var configMap = (ConfigMap) ProjectResourceFactory.createResource("configMap.yaml", tree);
+
+    assertThat(configMap.path()).isEqualTo("configMap.yaml");
+    assertThat(configMap.values()).isEmpty();
+  }
 }

@@ -97,17 +97,11 @@ public final class ProjectResourceFactory {
       .stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
-      .flatMap(m -> m.elements().stream())
-      .collect(Collectors.toMap(k -> scalarToString(k.key()), k -> k.value()));
+      .flatMap(mappingTree -> mappingTree.elements().stream())
+      .filter(tupleTree -> tupleTree.key() instanceof ScalarTree)
+      .collect(Collectors.toMap(k -> ((ScalarTree) k.key()).value(), TupleTree::value));
 
     return new ConfigMap(path, map);
-  }
-
-  private static String scalarToString(YamlTree tree) {
-    if (tree instanceof ScalarTree scalar) {
-      return scalar.value();
-    }
-    return null;
   }
 
   private static LimitRangeItem toLimitRangeItem(MappingTree tree) {
