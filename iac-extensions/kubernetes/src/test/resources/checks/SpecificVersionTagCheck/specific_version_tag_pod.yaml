@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: example-namespace
+spec:
+  containers:
+    - name: compliant_with_fixed_tag
+      image: nginx:1.14.2
+    - name: compliant_with_fixed_sha
+      image: nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+    - name: compliant_with_fixed_tag_2
+      image: gcr.io/istio-testing/metallb/controller:v0.14.3
+
+    - name: compliant_should_not_fail_and_raise
+      image: "nginx:"
+
+    - name: compliant_should_not_fail_and_raise
+      image nginx:
+
+    - name: compliant_should_not_fail_and_raise_2
+      image: :latest
+
+    - name: compliant_should_not_fail_and_raise_2
+      image: ":"
+
+    - name: non_compliant_without_tag
+      image: nginx # Noncompliant {{Use a specific version tag for the image.}}
+#            ^^^^^
+    - name: non_compliant_with_latest_tag
+      image: nginx:latest # Noncompliant {{Use a specific version tag for the image.}}
+#            ^^^^^^^^^^^^
