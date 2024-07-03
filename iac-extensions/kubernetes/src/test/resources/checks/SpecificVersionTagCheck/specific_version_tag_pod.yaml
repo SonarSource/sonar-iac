@@ -12,6 +12,18 @@ spec:
     - name: compliant_with_fixed_tag_2
       image: gcr.io/istio-testing/metallb/controller:v0.14.3
 
+    - name: compliant_should_not_fail_and_raise
+      image: "nginx:"
+
+    - name: compliant_should_not_fail_and_raise
+      image nginx:
+
+    - name: compliant_should_not_fail_and_raise_2
+      image: :latest
+
+    - name: compliant_should_not_fail_and_raise_2
+      image: ":"
+
     - name: non_compliant_without_tag
       image: nginx # Noncompliant {{Use a specific version tag for the image.}}
 #            ^^^^^

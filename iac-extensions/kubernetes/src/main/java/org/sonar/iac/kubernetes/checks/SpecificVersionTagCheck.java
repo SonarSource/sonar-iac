@@ -62,7 +62,7 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
     } else if (fullImageName.contains(":")) {
       // raise an issue if the version tag is "latest"
       String[] splitImageName = fullImageName.split(":");
-      return splitImageName.length > 1 && "latest".equals(splitImageName[1]);
+      return splitImageName.length > 1 && "latest".equals(splitImageName[1]) && !splitImageName[0].isBlank();
     } else {
       // no version tag specified, kubernetes assumes "latest"
       return true;
