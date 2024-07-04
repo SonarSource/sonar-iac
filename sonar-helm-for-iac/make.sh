@@ -75,8 +75,6 @@ install_go() {
     # Set up env variables for go
     export PATH="${PATH}:${DEFAULT_GO_BINARY_DIRECTORY}"
     go_binary="${DEFAULT_GO_BINARY}"
-    # Install protoc-gen-go
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@v"${PROTOBUF_GO_VERSION}"
   fi
   echo "${go_binary}"
 }
