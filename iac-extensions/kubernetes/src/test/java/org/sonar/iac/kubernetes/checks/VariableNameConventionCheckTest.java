@@ -21,9 +21,13 @@ package org.sonar.iac.kubernetes.checks;
 
 import org.junit.jupiter.api.Test;
 
-class NameConventionCheckTest {
+class VariableNameConventionCheckTest {
   @Test
   void shouldDetectIssue() {
-    KubernetesVerifier.verify("NameConventionCheck/helm/templates/template.yaml", new NameConventionCheck());
+    var check = new VariableNameConventionCheck();
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/template.yaml", check);
+
+    // Should also raise on variables with the same name in another file
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/second-template.yaml", check);
   }
 }

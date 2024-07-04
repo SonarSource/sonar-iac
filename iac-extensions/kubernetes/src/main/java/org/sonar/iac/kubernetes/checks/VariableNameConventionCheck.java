@@ -32,7 +32,7 @@ import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.VariableNode;
 
 @Rule(key = "S117")
-public class NameConventionCheck implements ChecksGoTemplate, IacCheck {
+public class VariableNameConventionCheck implements ChecksGoTemplate, IacCheck {
   private static final String MESSAGE = "Rename this variable \"%s\" to match the regular expression '%s'.";
   private static final String DEFAULT_FORMAT = "^\\$[a-z][a-zA-Z0-9]*$";
 
@@ -42,12 +42,12 @@ public class NameConventionCheck implements ChecksGoTemplate, IacCheck {
     defaultValue = DEFAULT_FORMAT)
   public String format = DEFAULT_FORMAT;
   private Pattern pattern = Pattern.compile(format);
-  private final Set<String> reportedNames = new HashSet<>();
+  private final Set<String> checkedNames = new HashSet<>();
 
   @Override
   public void initialize(InitContext init) {
     this.pattern = Pattern.compile(format);
-    init.register(GoTemplateTree.class, (ctx, tree) -> this.reportedNames.clear());
+    init.register(GoTemplateTree.class, (ctx, tree) -> this.checkedNames.clear());
     init.register(PipeNode.class, (ctx, node) -> node.declarations().forEach(variable -> checkVariable(ctx, variable)));
   }
 
@@ -55,10 +55,12 @@ public class NameConventionCheck implements ChecksGoTemplate, IacCheck {
     // Variables in pipelines should always have at least one identifier, even if it's just a `$` sign.
     // However, initialization is indistinguishable from reassignment, so we check it additionally.
     var name = variable.idents().get(0);
-    if (reportedNames.contains(name) || pattern.matcher(name).matches()) {
+    if (checkedNames.contains(name)) {
       return;
     }
-    ctx.reportIssue(variable, MESSAGE.formatted(name, format));
-    reportedNames.add(name);
+    if (!pattern.matcher(name).matches()) {
+      ctx.reportIssue(variable, MESSAGE.formatted(name, format));
+    }
+    checkedNames.add(name);
   }
 }
