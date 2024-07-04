@@ -19,13 +19,11 @@ val goBinariesJar by tasks.registering(Jar::class) {
 }
 artifacts.add(goBinaries.name, goBinariesJar)
 
-val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
-
-tasks.register<Download>("downloadProtocGenGo") {
+val protocBinaryVersion = libs.versions.google.protobuf.go.get()
+val downloadProtocGenGo by tasks.registering(Download::class) {
     group = "build"
     description = "Download an archive with the protoc-gen-go binary for the current platform."
 
-    val binaryVersion = libs.versions.google.protobuf.go.get()
     val os = DefaultNativePlatform.getCurrentOperatingSystem()
     val arch = DefaultNativePlatform.getCurrentArchitecture()
     val suffix = buildString {
@@ -48,16 +46,23 @@ tasks.register<Download>("downloadProtocGenGo") {
         }
     }
 
-    src("https://github.com/protocolbuffers/protobuf-go/releases/download/v$binaryVersion/protoc-gen-go.v$binaryVersion.$suffix")
-    dest(layout.buildDirectory.file("protoc-gen-go/protoc-gen-go.$suffix"))
+    inputs.property("binaryVersion", protocBinaryVersion)
+    src("https://github.com/protocolbuffers/protobuf-go/releases/download/v$protocBinaryVersion/protoc-gen-go.v$protocBinaryVersion.$suffix")
+    dest(layout.buildDirectory.file("protoc-gen-go/protoc-gen-go.v$protocBinaryVersion.$suffix"))
+    onlyIfModified(false)
+    overwrite(false)
+    outputs.cacheIf { true }
+}
 
-    doLast {
-        copy {
-            val archiveTree = if (dest.name.endsWith(".zip")) ::zipTree else ::tarTree
-            from(archiveTree(dest))
-            into(layout.buildDirectory.dir("protoc-gen-go/bin"))
-        }
-    }
+val extractProtocGenGo by tasks.registering(Copy::class) {
+    group = "build"
+    description = "Extract the protoc-gen-go binary from the downloaded archive."
+    inputs.files(downloadProtocGenGo)
+
+    val archiveFile = downloadProtocGenGo.get().dest
+    val archiveTree = if (archiveFile.name.endsWith(".zip")) ::zipTree else ::tarTree
+    from(archiveTree(archiveFile))
+    into(layout.buildDirectory.dir("protoc-gen-go/bin"))
 }
 
 protobuf {
@@ -75,19 +80,18 @@ protobuf {
     generateProtoTasks {
         all().configureEach {
             plugins {
-                if (!isCi || System.getenv("CIRRUS_TASK_NAME") == "build") {
-                    // Only enable this locally or in specific CI tasks as this requires protoc-gen-go to be available.
-                    id("go") {
-                        // Only the subdirectory is configurable, with the base directory being `build/generated/source/proto/main/go`.
-                        // Result should be `$projectDir/src`.
-                        outputSubDir = "../../../../../src"
-                    }
-                    dependsOn("downloadProtocGenGo")
+                id("go") {
+                    // Only the subdirectory is configurable, with the base directory being `build/generated/source/proto/main/go`.
+                    // Result should be `$projectDir/src`.
+                    outputSubDir = "../../../../../src"
                 }
+                dependsOn(extractProtocGenGo)
             }
         }
     }
 }
+
+val isCi: Boolean = System.getenv("CI")?.equals("true") ?: false
 
 // CI - run the build of go code and protobuf with protoc and local make.sh/make.bat script
 if (isCi) {
@@ -102,21 +106,19 @@ if (isCi) {
     tasks.register<Exec>("compileGoCode") {
         description = "Compile the go code for the local system."
         group = "build"
-        if (!DefaultNativePlatform.getCurrentOperatingSystem().isWindows) {
-            // For Windows CI, we can rely on cached results from the previous step.
-            dependsOn("generateProto")
-        }
+        dependsOn("generateProto")
 
         inputs.property("GO_CROSS_COMPILE", System.getenv("GO_CROSS_COMPILE") ?: "0")
         inputs.files(fileTree(projectDir).matching {
-            include("*.go",
-            "**/*.go",
-            "**/go.mod",
-            "**/go.sum",
-            "go.work",
-            "go.work.sum",
-            "make.bat",
-            "make.sh")
+            include(
+                "*.go",
+                "**/*.go",
+                "**/go.mod",
+                "**/go.sum",
+                "go.work",
+                "go.work.sum",
+                "make.bat",
+                "make.sh")
             exclude("build/**")
         })
         outputs.dir("build/executable")
