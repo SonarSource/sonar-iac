@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.Trilean;
@@ -91,14 +92,16 @@ public final class ProjectResourceFactory {
     return new LimitRange(limits);
   }
 
-  private static ProjectResource createConfigMap(String path, MappingTree tree) {
+  private static ProjectResource createConfigMap(String filePath, MappingTree tree) {
     var map = computeDataMap(tree);
-    return new ConfigMap(path, map);
+    var name = retrieveNameFromMetadata(tree);
+    return new ConfigMap(filePath, name, map);
   }
 
-  private static ProjectResource createSecret(String path, MappingTree tree) {
+  private static ProjectResource createSecret(String filePath, MappingTree tree) {
     var map = computeDataMap(tree);
-    return new Secret(path, map);
+    var name = retrieveNameFromMetadata(tree);
+    return new Secret(filePath, name, map);
   }
 
   private static Map<String, YamlTree> computeDataMap(MappingTree tree) {
@@ -109,6 +112,16 @@ public final class ProjectResourceFactory {
       .flatMap(mappingTree -> mappingTree.elements().stream())
       .filter(tupleTree -> tupleTree.key() instanceof ScalarTree)
       .collect(Collectors.toMap(k -> ((ScalarTree) k.key()).value(), TupleTree::value));
+  }
+  
+  @CheckForNull
+  private static String retrieveNameFromMetadata(MappingTree tree) {
+    return PropertyUtils.value(tree, "metadata")
+      .flatMap(it -> PropertyUtils.value(it, "name"))
+      .filter(ScalarTree.class::isInstance)
+      .map(ScalarTree.class::cast)
+      .map(TextTree::value)
+      .orElse(null);
   }
 
   private static LimitRangeItem toLimitRangeItem(MappingTree tree) {

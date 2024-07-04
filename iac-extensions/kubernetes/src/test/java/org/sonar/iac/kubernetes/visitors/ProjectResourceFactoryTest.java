@@ -259,6 +259,7 @@ class ProjectResourceFactoryTest {
       apiVersion: v1
       kind: %s
       metadata:
+        name: my-data
         namespace: my-namespace
       data:
         key1: "value1"
@@ -270,6 +271,7 @@ class ProjectResourceFactoryTest {
 
     assertThat(mapResource).isInstanceOf(clazz);
     assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.name()).isEqualTo("my-data");
     assertThat(mapResource.values()).containsKeys("key1", "key2");
     assertThat(mapResource.values().get("key1"))
       .isInstanceOf(ScalarTree.class)
@@ -289,6 +291,7 @@ class ProjectResourceFactoryTest {
       apiVersion: v1
       kind: %s
       metadata:
+        name: my-data
         namespace: my-namespace
       data:
         key1:
@@ -301,6 +304,7 @@ class ProjectResourceFactoryTest {
 
     assertThat(mapResource).isInstanceOf(clazz);
     assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.name()).isEqualTo("my-data");
     assertThat(mapResource.values()).containsKeys("key1");
     assertThat(mapResource.values().get("key1"))
       .isInstanceOf(MappingTree.class);
@@ -309,6 +313,74 @@ class ProjectResourceFactoryTest {
   @ParameterizedTest
   @MethodSource("provideMapResource")
   void shouldStayEmptyForIncorrectMapResourceDataFormat(String kindName, Class<? extends MapResource> clazz) {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: %s
+      metadata:
+        name: my-data
+        namespace: my-namespace
+      data:
+      - key1: "value1"
+      """.formatted(kindName);
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
+
+    assertThat(mapResource).isInstanceOf(clazz);
+    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.name()).isEqualTo("my-data");
+    assertThat(mapResource.values()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideMapResource")
+  void shouldHandleKeyNotScalarInMapResource(String kindName, Class<? extends MapResource> clazz) {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: %s
+      metadata:
+        name: my-data
+        namespace: my-namespace
+      data:
+        ? name: John
+        : "value"
+      """.formatted(kindName);
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
+
+    assertThat(mapResource).isInstanceOf(clazz);
+    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.name()).isEqualTo("my-data");
+    assertThat(mapResource.values()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideMapResource")
+  void shouldCreateMapResourceWithoutData(String kindName, Class<? extends MapResource> clazz) {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: %s
+      metadata:
+        name: my-data
+        namespace: my-namespace
+      """.formatted(kindName);
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
+
+    assertThat(mapResource).isInstanceOf(clazz);
+    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.name()).isEqualTo("my-data");
+    assertThat(mapResource.values()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideMapResource")
+  void shouldCreateMapResourceWithoutName(String kindName, Class<? extends MapResource> clazz) {
     // language=yaml
     var code = """
       apiVersion: v1
@@ -324,47 +396,7 @@ class ProjectResourceFactoryTest {
 
     assertThat(mapResource).isInstanceOf(clazz);
     assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
-    assertThat(mapResource.values()).isEmpty();
-  }
-
-  @ParameterizedTest
-  @MethodSource("provideMapResource")
-  void shouldHandleKeyNotScalarInMapResource(String kindName, Class<? extends MapResource> clazz) {
-    // language=yaml
-    var code = """
-      apiVersion: v1
-      kind: %s
-      metadata:
-        namespace: my-namespace
-      data:
-        ? name: John
-        : "value"
-      """.formatted(kindName);
-    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
-
-    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
-
-    assertThat(mapResource).isInstanceOf(clazz);
-    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
-    assertThat(mapResource.values()).isEmpty();
-  }
-
-  @ParameterizedTest
-  @MethodSource("provideMapResource")
-  void shouldCreateMapResourceWithoutData(String kindName, Class<? extends MapResource> clazz) {
-    // language=yaml
-    var code = """
-      apiVersion: v1
-      kind: %s
-      metadata:
-        namespace: my-namespace
-      """.formatted(kindName);
-    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
-
-    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
-
-    assertThat(mapResource).isInstanceOf(clazz);
-    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.name()).isNull();
     assertThat(mapResource.values()).isEmpty();
   }
 }
