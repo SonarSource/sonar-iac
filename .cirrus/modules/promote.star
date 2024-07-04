@@ -19,7 +19,6 @@ def promote_script():
         "cirrus_jfrog_promote multi",
         "source ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt",
         "github-notify-promotion",
-        "burgr-notify-promotion"
     ]
 
 

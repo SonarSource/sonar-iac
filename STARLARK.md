@@ -403,7 +403,6 @@ def promote_script():
         "cirrus_jfrog_promote multi",
         "source ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt",
         "github-notify-promotion",
-        "burgr-notify-promotion"
     ]
 ```
 
@@ -582,7 +581,8 @@ The prereqs library contains mandatory configuration elements used for instance 
 execution runtime: it seems there is only one Cirrus cluster in Prod. To use major versions instead of @latest would
 imply developers have to migrate their pipeline to refer to the next version of the prerequisites to make their pipeline
 work again with the new changes applied to the Cirrus cluster. The same for 3rd party configurations: there is only one
-Repox, one Burgr, and one GitHub service that developers can use, they need to get the latest configuration available
+Repox
+, and one GitHub service that developers can use, they need to get the latest configuration available
 for each every time they execute their pipelines.
 
 ![starlark-sharing.png](starlark-sharing.png)
