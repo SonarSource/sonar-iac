@@ -21,10 +21,12 @@ package org.sonar.iac.kubernetes.model;
 
 import java.util.Map;
 
+import javax.annotation.Nullable;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public record Secret(
   String filePath,
+  @Nullable
   String name,
   Map<String, YamlTree> values) implements MapResource {
 }
