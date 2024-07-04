@@ -26,7 +26,6 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public record Secret(
   String filePath,
-  @Nullable
-  String name,
+  @Nullable String name,
   Map<String, YamlTree> values) implements MapResource {
 }
