@@ -113,7 +113,7 @@ public final class ProjectResourceFactory {
       .filter(tupleTree -> tupleTree.key() instanceof ScalarTree)
       .collect(Collectors.toMap(k -> ((ScalarTree) k.key()).value(), TupleTree::value));
   }
-  
+
   @CheckForNull
   private static String retrieveNameFromMetadata(MappingTree tree) {
     return PropertyUtils.value(tree, "metadata")
