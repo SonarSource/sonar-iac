@@ -24,6 +24,7 @@ import java.util.Map;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public record ConfigMap(
-  String path,
+  String filePath,
+  String name,
   Map<String, YamlTree> values) implements MapResource {
 }

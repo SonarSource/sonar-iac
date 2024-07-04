@@ -269,7 +269,7 @@ class ProjectResourceFactoryTest {
     var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
 
     assertThat(mapResource).isInstanceOf(clazz);
-    assertThat(mapResource.path()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
     assertThat(mapResource.values()).containsKeys("key1", "key2");
     assertThat(mapResource.values().get("key1"))
       .isInstanceOf(ScalarTree.class)
@@ -300,7 +300,7 @@ class ProjectResourceFactoryTest {
     var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
 
     assertThat(mapResource).isInstanceOf(clazz);
-    assertThat(mapResource.path()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
     assertThat(mapResource.values()).containsKeys("key1");
     assertThat(mapResource.values().get("key1"))
       .isInstanceOf(MappingTree.class);
@@ -323,7 +323,7 @@ class ProjectResourceFactoryTest {
     var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
 
     assertThat(mapResource).isInstanceOf(clazz);
-    assertThat(mapResource.path()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
     assertThat(mapResource.values()).isEmpty();
   }
 
@@ -345,7 +345,26 @@ class ProjectResourceFactoryTest {
     var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
 
     assertThat(mapResource).isInstanceOf(clazz);
-    assertThat(mapResource.path()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
+    assertThat(mapResource.values()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideMapResource")
+  void shouldCreateMapResourceWithoutData(String kindName, Class<? extends MapResource> clazz) {
+    // language=yaml
+    var code = """
+      apiVersion: v1
+      kind: %s
+      metadata:
+        namespace: my-namespace
+      """.formatted(kindName);
+    var tree = (MappingTree) PARSER.parse(code, null).documents().get(0);
+
+    var mapResource = (MapResource) ProjectResourceFactory.createResource("mapResource.yaml", tree);
+
+    assertThat(mapResource).isInstanceOf(clazz);
+    assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
     assertThat(mapResource.values()).isEmpty();
   }
 }
