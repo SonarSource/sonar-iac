@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-example
+spec:
+  containers:
+    - name: nginx1
+      image: nginx:1.7.9
+      envFrom:
+        - configMapRef:
+            name:
+              - key: some value object
+      env:
+        - name: MY_SETTING_1
+          value: "value"

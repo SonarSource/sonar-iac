@@ -31,6 +31,7 @@ import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.kubernetes.model.ConfigMap;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.MapResource;
@@ -273,11 +274,24 @@ class ProjectResourceFactoryTest {
     assertThat(mapResource.filePath()).isEqualTo("mapResource.yaml");
     assertThat(mapResource.name()).isEqualTo("my-data");
     assertThat(mapResource.values()).containsKeys("key1", "key2");
-    assertThat(mapResource.values().get("key1"))
+
+    assertThat(mapResource.values().get("key1")).isInstanceOf(TupleTree.class);
+    var tuple1 = (TupleTree) mapResource.values().get("key1");
+    assertThat(tuple1.key())
+      .isInstanceOf(ScalarTree.class)
+      .extracting(s -> ((ScalarTree) s).value())
+      .isEqualTo("key1");
+    assertThat(tuple1.value())
       .isInstanceOf(ScalarTree.class)
       .extracting(s -> ((ScalarTree) s).value())
       .isEqualTo("value1");
-    assertThat(mapResource.values().get("key2"))
+
+    var tuple2 = (TupleTree) mapResource.values().get("key2");
+    assertThat(tuple2.key())
+      .isInstanceOf(ScalarTree.class)
+      .extracting(s -> ((ScalarTree) s).value())
+      .isEqualTo("key2");
+    assertThat(tuple2.value())
       .isInstanceOf(ScalarTree.class)
       .extracting(s -> ((ScalarTree) s).value())
       .isEqualTo("value2");
@@ -307,7 +321,9 @@ class ProjectResourceFactoryTest {
     assertThat(mapResource.name()).isEqualTo("my-data");
     assertThat(mapResource.values()).containsKeys("key1");
     assertThat(mapResource.values().get("key1"))
-      .isInstanceOf(MappingTree.class);
+      .isInstanceOf(TupleTree.class);
+    var tuple = (TupleTree) mapResource.values().get("key1");
+    assertThat(tuple.value()).isInstanceOf(MappingTree.class);
   }
 
   @ParameterizedTest

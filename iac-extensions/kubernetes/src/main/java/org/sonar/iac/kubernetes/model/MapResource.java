@@ -20,8 +20,9 @@
 package org.sonar.iac.kubernetes.model;
 
 import java.util.Map;
+
 import javax.annotation.CheckForNull;
-import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 
 public interface MapResource extends ProjectResource {
   String filePath();
@@ -29,5 +30,5 @@ public interface MapResource extends ProjectResource {
   @CheckForNull
   String name();
 
-  Map<String, YamlTree> values();
+  Map<String, TupleTree> values();
 }

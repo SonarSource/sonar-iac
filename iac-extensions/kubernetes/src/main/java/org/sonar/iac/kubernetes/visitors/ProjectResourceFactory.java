@@ -104,14 +104,14 @@ public final class ProjectResourceFactory {
     return new Secret(filePath, name, map);
   }
 
-  private static Map<String, YamlTree> computeDataMap(MappingTree tree) {
+  private static Map<String, TupleTree> computeDataMap(MappingTree tree) {
     return PropertyUtils.value(tree, "data")
       .stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
       .flatMap(mappingTree -> mappingTree.elements().stream())
       .filter(tupleTree -> tupleTree.key() instanceof ScalarTree)
-      .collect(Collectors.toMap(k -> ((ScalarTree) k.key()).value(), TupleTree::value));
+      .collect(Collectors.toMap(tupleTree -> ((ScalarTree) tupleTree.key()).value(), tupleTree -> tupleTree));
   }
 
   @CheckForNull
