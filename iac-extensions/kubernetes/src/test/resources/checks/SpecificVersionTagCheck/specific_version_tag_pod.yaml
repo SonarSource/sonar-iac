@@ -18,6 +18,12 @@ spec:
     - name: compliant_should_not_fail_and_raise
       image nginx:
 
+    - name: compliant_should_not_raise_on_environment_variable
+      image: $VAR
+
+    - name: compliant_should_not_raise_on_environment_variable_2
+      image: nginx:$VAR
+
     - name: compliant_should_not_fail_and_raise_2
       image: :latest
 

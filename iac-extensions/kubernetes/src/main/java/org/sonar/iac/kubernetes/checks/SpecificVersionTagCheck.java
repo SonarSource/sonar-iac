@@ -65,7 +65,7 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
       return splitImageName.length > 1 && "latest".equals(splitImageName[1]) && !splitImageName[0].isBlank();
     } else {
       // no version tag specified, kubernetes assumes "latest"
-      return true;
+      return !fullImageName.startsWith("$");
     }
   }
 }
