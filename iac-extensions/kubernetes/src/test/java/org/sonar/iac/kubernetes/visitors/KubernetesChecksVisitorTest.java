@@ -142,6 +142,15 @@ class KubernetesChecksVisitorTest {
     verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of());
   }
 
+  @Test
+  void shouldReportWhenTextRangeIsNull() {
+    var inputFileContext = mockInputFileContext(false);
+
+    when(tree.textRange()).thenReturn(null);
+    visitor.scan(inputFileContext, tree);
+    verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), null, "testIssue", List.of());
+  }
+
   private void assertTraceLog(boolean shouldContainLog) {
     var traceLogs = logTester.logs(Level.TRACE);
     if (shouldContainLog) {
