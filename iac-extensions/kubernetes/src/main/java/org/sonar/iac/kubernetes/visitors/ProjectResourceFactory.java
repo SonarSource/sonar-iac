@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.Trilean;
@@ -28,9 +29,11 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.kubernetes.model.ConfigMap;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 import org.sonar.iac.kubernetes.model.ProjectResource;
+import org.sonar.iac.kubernetes.model.Secret;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
 
 import javax.annotation.CheckForNull;
@@ -51,11 +54,12 @@ public final class ProjectResourceFactory {
     return switch (kind) {
       case "ServiceAccount" -> createServiceAccount(path, tree);
       case "LimitRange" -> createLimitRange(tree);
+      case "ConfigMap" -> createConfigMap(path, tree);
+      case "Secret" -> createSecret(path, tree);
       default -> null;
     };
   }
 
-  @CheckForNull
   private static ProjectResource createServiceAccount(String path, MappingTree tree) {
     var name = PropertyUtils.value(tree, "metadata", MappingTree.class)
       .flatMap(metadata -> PropertyUtils.value(metadata, "name"))
@@ -75,7 +79,6 @@ public final class ProjectResourceFactory {
     return new ServiceAccount(path, name.get(), automountServiceAccountToken, valueLocation);
   }
 
-  @CheckForNull
   private static ProjectResource createLimitRange(MappingTree tree) {
     var limits = PropertyUtils.value(tree, "spec")
       .flatMap(it -> PropertyUtils.value(it, "limits"))
@@ -87,6 +90,38 @@ public final class ProjectResourceFactory {
       .toList();
 
     return new LimitRange(limits);
+  }
+
+  private static ProjectResource createConfigMap(String filePath, MappingTree tree) {
+    var map = computeDataMap(tree);
+    var name = retrieveNameFromMetadata(tree);
+    return new ConfigMap(filePath, name, map);
+  }
+
+  private static ProjectResource createSecret(String filePath, MappingTree tree) {
+    var map = computeDataMap(tree);
+    var name = retrieveNameFromMetadata(tree);
+    return new Secret(filePath, name, map);
+  }
+
+  private static Map<String, YamlTree> computeDataMap(MappingTree tree) {
+    return PropertyUtils.value(tree, "data")
+      .stream()
+      .filter(MappingTree.class::isInstance)
+      .map(MappingTree.class::cast)
+      .flatMap(mappingTree -> mappingTree.elements().stream())
+      .filter(tupleTree -> tupleTree.key() instanceof ScalarTree)
+      .collect(Collectors.toMap(k -> ((ScalarTree) k.key()).value(), TupleTree::value));
+  }
+
+  @CheckForNull
+  private static String retrieveNameFromMetadata(MappingTree tree) {
+    return PropertyUtils.value(tree, "metadata")
+      .flatMap(it -> PropertyUtils.value(it, "name"))
+      .filter(ScalarTree.class::isInstance)
+      .map(ScalarTree.class::cast)
+      .map(TextTree::value)
+      .orElse(null);
   }
 
   private static LimitRangeItem toLimitRangeItem(MappingTree tree) {
