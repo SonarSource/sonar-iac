@@ -297,7 +297,7 @@ public class KubernetesVerifier {
     private final InputFileContext inputFileContext;
     private final ProjectContext projectContext;
     private boolean shouldReportSecondaryInValues = true;
-    private boolean disableLocationShifting;
+    private boolean enableLocationShifting = true;
 
     public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext inputFileContext, ProjectContext projectContext) {
       super(verifier);
@@ -317,7 +317,7 @@ public class KubernetesVerifier {
 
     @Override
     protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      if (!disableLocationShifting && inputFileContext instanceof HelmInputFileContext helmCtx) {
+      if (enableLocationShifting && inputFileContext instanceof HelmInputFileContext helmCtx) {
         var shiftedTextRange = LocationShifter.shiftLocation(helmCtx, textRange);
 
         List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
@@ -349,7 +349,7 @@ public class KubernetesVerifier {
 
     @Override
     public void disableLocationShifting() {
-      this.disableLocationShifting = true;
+      this.enableLocationShifting = false;
     }
   }
 }

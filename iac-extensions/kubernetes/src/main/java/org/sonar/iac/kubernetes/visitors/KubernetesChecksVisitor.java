@@ -60,7 +60,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     private InputFileContext inputFileContext;
     private boolean shouldReportSecondaryInValues;
     // In order to raise issues on the correct locations on the GO AST, we need to be able to disable location shifting here
-    private boolean disableLocationShifting;
+    private boolean enableLocationShifting = true;
 
     public KubernetesContextAdapter(RuleKey ruleKey) {
       super(ruleKey);
@@ -86,7 +86,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
     @Override
     protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      if (!disableLocationShifting && inputFileContext instanceof HelmInputFileContext helmCtx) {
+      if (enableLocationShifting && inputFileContext instanceof HelmInputFileContext helmCtx) {
         var shiftedTextRange = textRange;
         List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
         if (textRange != null) {
@@ -121,7 +121,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
     @Override
     public void disableLocationShifting() {
-      this.disableLocationShifting = true;
+      this.enableLocationShifting = false;
     }
   }
 }

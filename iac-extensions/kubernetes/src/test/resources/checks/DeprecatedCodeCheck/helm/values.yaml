@@ -2,3 +2,7 @@ container:
   name: my-container
 ingress:
   className: "nginx"
+KubeVersion:
+  GitVersion: "test"
+  Version:
+    GitVersion: "test"

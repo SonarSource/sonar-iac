@@ -29,3 +29,21 @@ spec:
       "/opt/cni/bin"
 }}
   {{- $kubeTargetVersion := default .Capabilities.KubeVersion.GitVersion .Values.kubeTargetVersionOverride }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: CompliantExamplesForCoverage
+data:
+  compliantSmallDifference2: {{ .Capabilities.KubeVersion }}
+  compliantSmallDifference3: {{ .Capabilities }}
+  compliantSmallDifference4: {{ .Capabilities.KubeVersion.Version}}
+  compliantSmallDifference5: {{ .Capabilities.HelmVersion.Version }}
+  compliantSmallDifference6: {{ .Values.KubeVersion.GitVersion }}
+  compliantSmallDifference7: {{ .Values.KubeVersion.Version.GitVersion }}
+  compliantSmallDifference8: {{ $.Capabilities.KubeVersion }}
+  compliantSmallDifference9: {{ $.Capabilities }}
+  compliantSmallDifference10: {{ $.Capabilities.KubeVersion.Version}}
+  compliantSmallDifference11: {{ $.Capabilities.HelmVersion.Version }}
+  compliantSmallDifference12: {{ $.Values.KubeVersion.GitVersion }}
