@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.IdentifierNodeOrBuilder;
@@ -31,8 +32,8 @@ public class IdentifierNodeImpl extends AbstractNode implements IdentifierNode {
   @Nullable
   private final String identifier;
 
-  public IdentifierNodeImpl(TextRange textRange, String identifier) {
-    super(textRange);
+  public IdentifierNodeImpl(Supplier<TextRange> textRangeSupplier, String identifier) {
+    super(textRangeSupplier);
     this.identifier = identifier;
   }
 

@@ -198,12 +198,12 @@ class SecondaryLocationLocatorTest {
     }
     inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
 
-    var fieldNode = new FieldNodeImpl(range(1, 15, 1, 26), List.of("Values", "bar"));
-    var command = new CommandNodeImpl(range(1, 8, 1, 19), List.of(fieldNode));
-    var pipeNode = new PipeNodeImpl(range(1, 8, 1, 19), List.of(), List.of(command));
-    var actionNode = new ActionNodeImpl(range(1, 8, 1, 23), pipeNode);
-    var textNode = new TextNodeImpl(range(1, 0, 1, 5), "bar: ");
-    ListNodeImpl root = new ListNodeImpl(range(1, 0, 1, 15), List.of(textNode, actionNode));
+    var fieldNode = new FieldNodeImpl(() -> range(1, 15, 1, 26), List.of("Values", "bar"));
+    var command = new CommandNodeImpl(() -> range(1, 8, 1, 19), List.of(fieldNode));
+    var pipeNode = new PipeNodeImpl(() -> range(1, 8, 1, 19), List.of(), List.of(command));
+    var actionNode = new ActionNodeImpl(() -> range(1, 8, 1, 23), pipeNode);
+    var textNode = new TextNodeImpl(() -> range(1, 0, 1, 5), "bar: ");
+    ListNodeImpl root = new ListNodeImpl(() -> range(1, 0, 1, 15), List.of(textNode, actionNode));
     var goTemplateTree = new GoTemplateTreeImpl("test", "test", 0, root);
     inputFileContext.setGoTemplateTree(goTemplateTree);
     inputFileContext.setSourceWithComments("bar: {{ .Values.bar }} #1");

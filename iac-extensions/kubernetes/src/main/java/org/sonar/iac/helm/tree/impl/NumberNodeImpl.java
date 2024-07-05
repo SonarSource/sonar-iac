@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.NumberNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.Node;
@@ -29,8 +30,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 public class NumberNodeImpl extends AbstractNode implements NumberNode {
   private final String text;
 
-  public NumberNodeImpl(TextRange textRange, String text) {
-    super(textRange);
+  public NumberNodeImpl(Supplier<TextRange> textRangeSupplier, String text) {
+    super(textRangeSupplier);
     this.text = text;
   }
 

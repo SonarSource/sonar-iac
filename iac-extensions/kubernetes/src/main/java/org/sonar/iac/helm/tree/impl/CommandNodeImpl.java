@@ -22,6 +22,7 @@ package org.sonar.iac.helm.tree.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.CommandNodeOrBuilder;
@@ -34,8 +35,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 public class CommandNodeImpl extends AbstractNode implements CommandNode {
   private final List<Node> arguments;
 
-  public CommandNodeImpl(TextRange textRange, List<Node> arguments) {
-    super(textRange);
+  public CommandNodeImpl(Supplier<TextRange> textRangeSupplier, List<Node> arguments) {
+    super(textRangeSupplier);
     this.arguments = Collections.unmodifiableList(arguments);
   }
 

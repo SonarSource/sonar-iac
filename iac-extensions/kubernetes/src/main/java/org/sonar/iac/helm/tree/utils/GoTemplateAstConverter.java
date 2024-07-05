@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,10 +117,12 @@ public final class GoTemplateAstConverter {
       .toList();
   }
 
-  public static TextRange textRangeFromPb(MessageOrBuilder nodePb, String source) {
-    var pos = (Long) nodePb.getField(nodePb.getDescriptorForType().findFieldByName("pos"));
-    var length = (Long) nodePb.getField(nodePb.getDescriptorForType().findFieldByName("length"));
-    return new LocationImpl(pos.intValue(), length.intValue()).toTextRange(source);
+  public static Supplier<TextRange> textRangeFromPb(MessageOrBuilder nodePb, String source) {
+    return () -> {
+      var pos = (Long) nodePb.getField(nodePb.getDescriptorForType().findFieldByName("pos"));
+      var length = (Long) nodePb.getField(nodePb.getDescriptorForType().findFieldByName("length"));
+      return new LocationImpl(pos.intValue(), length.intValue()).toTextRange(source);
+    };
   }
 
   private static String typeName(AnyOrBuilder nodePb) {

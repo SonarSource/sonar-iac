@@ -21,6 +21,7 @@ package org.sonar.iac.helm.tree.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.VariableNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.Node;
@@ -31,8 +32,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 public class VariableNodeImpl extends AbstractNode implements VariableNode {
   private final List<String> ident;
 
-  public VariableNodeImpl(TextRange textRange, List<String> ident) {
-    super(textRange);
+  public VariableNodeImpl(Supplier<TextRange> textRangeSupplier, List<String> ident) {
+    super(textRangeSupplier);
     this.ident = Collections.unmodifiableList(ident);
   }
 

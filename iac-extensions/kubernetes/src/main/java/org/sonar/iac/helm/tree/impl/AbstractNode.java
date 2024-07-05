@@ -20,15 +20,16 @@
 package org.sonar.iac.helm.tree.impl;
 
 import java.util.List;
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.tree.api.Node;
 
 public abstract class AbstractNode implements Node {
-  private final TextRange textRange;
+  private final Supplier<TextRange> textRangeSupplier;
 
-  protected AbstractNode(TextRange textRange) {
-    this.textRange = textRange;
+  protected AbstractNode(Supplier<TextRange> textRangeSupplier) {
+    this.textRangeSupplier = textRangeSupplier;
   }
 
   @Override
@@ -38,6 +39,6 @@ public abstract class AbstractNode implements Node {
 
   @Override
   public TextRange textRange() {
-    return textRange;
+    return textRangeSupplier.get();
   }
 }

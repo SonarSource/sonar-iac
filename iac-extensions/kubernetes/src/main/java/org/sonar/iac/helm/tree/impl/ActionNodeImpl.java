@@ -20,6 +20,7 @@
 package org.sonar.iac.helm.tree.impl;
 
 import java.util.List;
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.ActionNodeOrBuilder;
@@ -32,8 +33,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 public class ActionNodeImpl extends AbstractNode implements ActionNode {
   private final PipeNode pipe;
 
-  public ActionNodeImpl(TextRange textRange, PipeNode pipe) {
-    super(textRange);
+  public ActionNodeImpl(Supplier<TextRange> textRangeSupplier, PipeNode pipe) {
+    super(textRangeSupplier);
     this.pipe = pipe;
   }
 

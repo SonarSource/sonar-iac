@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -38,8 +39,8 @@ public class ChainNodeImpl extends AbstractNode implements ChainNode {
   private final Node node;
   private final List<String> field;
 
-  public ChainNodeImpl(TextRange textRange, @Nullable Node node, List<String> field) {
-    super(textRange);
+  public ChainNodeImpl(Supplier<TextRange> textRangeSupplier, @Nullable Node node, List<String> field) {
+    super(textRangeSupplier);
     this.node = node;
     this.field = Collections.unmodifiableList(field);
   }

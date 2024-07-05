@@ -21,6 +21,7 @@ package org.sonar.iac.helm.tree.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
@@ -38,8 +39,8 @@ public class TemplateNodeImpl extends AbstractNode implements TemplateNode {
   @Nullable
   private final PipeNode pipe;
 
-  public TemplateNodeImpl(TextRange textRange, @Nullable String name, @Nullable PipeNode pipe) {
-    super(textRange);
+  public TemplateNodeImpl(Supplier<TextRange> textRangeSupplier, @Nullable String name, @Nullable PipeNode pipe) {
+    super(textRangeSupplier);
     this.name = name;
     this.pipe = pipe;
   }

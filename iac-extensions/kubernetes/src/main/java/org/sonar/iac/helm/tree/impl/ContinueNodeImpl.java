@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.ContinueNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.ContinueNode;
@@ -29,8 +30,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 public class ContinueNodeImpl extends AbstractNode implements ContinueNode {
   private final long line;
 
-  public ContinueNodeImpl(TextRange textRange, long line) {
-    super(textRange);
+  public ContinueNodeImpl(Supplier<TextRange> textRangeSupplier, long line) {
+    super(textRangeSupplier);
     this.line = line;
   }
 
