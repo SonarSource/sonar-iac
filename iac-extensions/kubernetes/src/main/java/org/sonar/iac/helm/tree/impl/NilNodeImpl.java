@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.NilNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.NilNode;
@@ -27,8 +28,8 @@ import org.sonar.iac.helm.tree.api.Node;
 import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
 
 public class NilNodeImpl extends AbstractNode implements NilNode {
-  public NilNodeImpl(TextRange textRange) {
-    super(textRange);
+  public NilNodeImpl(Supplier<TextRange> textRangeSupplier) {
+    super(textRangeSupplier);
   }
 
   public static Node fromPb(NilNodeOrBuilder nilNodePb, String source) {

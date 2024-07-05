@@ -22,6 +22,7 @@ package org.sonar.iac.helm.tree.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -36,8 +37,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.unpack;
 public class ListNodeImpl extends AbstractNode implements ListNode {
   private final List<Node> nodes;
 
-  public ListNodeImpl(TextRange textRange, List<Node> nodes) {
-    super(textRange);
+  public ListNodeImpl(Supplier<TextRange> textRangeSupplier, List<Node> nodes) {
+    super(textRangeSupplier);
     this.nodes = Collections.unmodifiableList(nodes);
   }
 

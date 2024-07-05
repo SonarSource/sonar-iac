@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.IfNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.IfNode;
@@ -29,8 +30,8 @@ import org.sonar.iac.helm.tree.api.PipeNode;
 import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFromPb;
 
 public class IfNodeImpl extends AbstractBranchNode implements IfNode {
-  public IfNodeImpl(TextRange textRange, PipeNode pipe, ListNode list, ListNode elseList) {
-    super(textRange, pipe, list, elseList);
+  public IfNodeImpl(Supplier<TextRange> textRangeSupplier, PipeNode pipe, ListNode list, ListNode elseList) {
+    super(textRangeSupplier, pipe, list, elseList);
   }
 
   public static Node fromPb(IfNodeOrBuilder ifNodePb, String source) {

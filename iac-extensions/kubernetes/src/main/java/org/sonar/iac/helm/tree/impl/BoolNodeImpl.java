@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.BoolNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.BoolNode;
@@ -29,8 +30,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 public class BoolNodeImpl extends AbstractNode implements BoolNode {
   private final boolean value;
 
-  public BoolNodeImpl(TextRange textRange, boolean value) {
-    super(textRange);
+  public BoolNodeImpl(Supplier<TextRange> textRangeSupplier, boolean value) {
+    super(textRangeSupplier);
     this.value = value;
   }
 

@@ -21,6 +21,7 @@ package org.sonar.iac.helm.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
@@ -39,8 +40,8 @@ public abstract class AbstractBranchNode extends AbstractNode implements BranchN
   @Nullable
   private final ListNode elseList;
 
-  protected AbstractBranchNode(TextRange textRange, @Nullable PipeNode pipe, @Nullable ListNode list, @Nullable ListNode elseList) {
-    super(textRange);
+  protected AbstractBranchNode(Supplier<TextRange> textRangeSupplier, @Nullable PipeNode pipe, @Nullable ListNode list, @Nullable ListNode elseList) {
+    super(textRangeSupplier);
     this.pipe = pipe;
     this.list = list;
     this.elseList = elseList;

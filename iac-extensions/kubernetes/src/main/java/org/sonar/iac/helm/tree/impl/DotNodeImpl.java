@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.DotNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.DotNode;
@@ -28,8 +29,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 
 public class DotNodeImpl extends AbstractNode implements DotNode {
 
-  public DotNodeImpl(TextRange textRange) {
-    super(textRange);
+  public DotNodeImpl(Supplier<TextRange> textRangeSupplier) {
+    super(textRangeSupplier);
   }
 
   public static Node fromPb(DotNodeOrBuilder dotNodePb, String source) {

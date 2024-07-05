@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.BreakNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.BreakNode;
@@ -29,8 +30,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 public class BreakNodeImpl extends AbstractNode implements BreakNode {
   private final long line;
 
-  public BreakNodeImpl(TextRange textRange, long line) {
-    super(textRange);
+  public BreakNodeImpl(Supplier<TextRange> textRangeSupplier, long line) {
+    super(textRangeSupplier);
     this.line = line;
   }
 

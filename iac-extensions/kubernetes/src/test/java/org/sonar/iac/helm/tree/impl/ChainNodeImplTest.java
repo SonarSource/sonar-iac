@@ -32,7 +32,7 @@ class ChainNodeImplTest {
   @Test
   void shouldReturnAllChildren() {
     var node = Mockito.mock(Node.class);
-    var chainNode = new ChainNodeImpl(range(1, 0, 1, 10), node, List.of());
+    var chainNode = new ChainNodeImpl(() -> range(1, 0, 1, 10), node, List.of());
     var actual = chainNode.children();
     assertThat(actual).contains(node);
   }

@@ -21,6 +21,7 @@ package org.sonar.iac.helm.tree.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.FieldNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.FieldNode;
@@ -31,8 +32,8 @@ import static org.sonar.iac.helm.tree.utils.GoTemplateAstConverter.textRangeFrom
 public class FieldNodeImpl extends AbstractNode implements FieldNode {
   private final List<String> identifiers;
 
-  public FieldNodeImpl(TextRange textRange, List<String> identifiers) {
-    super(textRange);
+  public FieldNodeImpl(Supplier<TextRange> textRangeSupplier, List<String> identifiers) {
+    super(textRangeSupplier);
     this.identifiers = Collections.unmodifiableList(identifiers);
   }
 
