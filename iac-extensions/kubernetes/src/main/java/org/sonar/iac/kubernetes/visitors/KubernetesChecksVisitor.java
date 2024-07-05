@@ -40,7 +40,8 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
   /**
    * TODO SONARIAC-1352 Remove property "secondaryLocationsInValuesEnable"
    */
-  protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm.secondaryLocationsInValuesEnable";
+  protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm" +
+    ".secondaryLocationsInValuesEnable";
 
   private final ProjectContext projectContext;
 
@@ -58,6 +59,8 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
     private InputFileContext inputFileContext;
     private boolean shouldReportSecondaryInValues;
+    // In order to raise issues on the correct locations on the GO AST, we need to be able to disable location shifting here
+    private boolean disableLocationShifting;
 
     public KubernetesContextAdapter(RuleKey ruleKey) {
       super(ruleKey);
@@ -83,7 +86,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
     @Override
     protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      if (inputFileContext instanceof HelmInputFileContext helmCtx) {
+      if (!disableLocationShifting && inputFileContext instanceof HelmInputFileContext helmCtx) {
         var shiftedTextRange = textRange;
         List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
         if (textRange != null) {
@@ -114,6 +117,11 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     @Override
     public void setShouldReportSecondaryInValues(boolean shouldReport) {
       this.shouldReportSecondaryInValues = shouldReport;
+    }
+
+    @Override
+    public void disableLocationShifting() {
+      this.disableLocationShifting = true;
     }
   }
 }
