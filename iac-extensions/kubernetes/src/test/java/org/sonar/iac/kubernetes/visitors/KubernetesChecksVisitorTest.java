@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmFileSystem;
@@ -46,6 +48,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
@@ -55,7 +59,8 @@ class KubernetesChecksVisitorTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.TRACE);
 
   private static final ProjectContext PROJECT_CONTEXT = mock(ProjectContext.class);
-  private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT);
+  private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class),
+    new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT);
   private KubernetesChecksVisitor.KubernetesContextAdapter context;
   private final Tree tree = mock(Tree.class);
 
@@ -104,10 +109,44 @@ class KubernetesChecksVisitorTest {
     assertThat(checkContext.projectContext()).isEqualTo(PROJECT_CONTEXT);
   }
 
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void shouldNotDoLocationShiftingWhenDisabled(boolean shouldDisableLocationShifting) {
+    try (var ignored = mockStatic(LocationShifter.class)) {
+      var inputFileContext = mockInputFileContext(true);
+      TextRange range = range(2, 0, 2, 2);
+      when(LocationShifter.shiftLocation(any(), any())).thenReturn(range);
+
+      if (shouldDisableLocationShifting) {
+        context.disableLocationShifting();
+        range = range(1, 0, 1, 1);
+      }
+      visitor.scan(inputFileContext, tree);
+
+      verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of());
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void shouldNotDoLocationShiftingOnNormalInputFileContext(boolean shouldDisableLocationShifting) {
+    var inputFileContext = spy(new InputFileContext(mock(SensorContext.class), mock(InputFile.class)));
+    doNothing().when(inputFileContext).reportIssue(any(), any(), any(), any());
+    TextRange range = range(1, 0, 1, 1);
+
+    if (shouldDisableLocationShifting) {
+      context.disableLocationShifting();
+    }
+    visitor.scan(inputFileContext, tree);
+
+    verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of());
+  }
+
   private void assertTraceLog(boolean shouldContainLog) {
     var traceLogs = logTester.logs(Level.TRACE);
     if (shouldContainLog) {
-      assertThat(traceLogs).containsExactly("Find secondary location for issue in additional files for textRange [1:0/1:1] in file dir1/dir2/testFile");
+      assertThat(traceLogs).containsExactly("Find secondary location for issue in additional files for textRange [1:0/1:1] in file " +
+        "dir1/dir2/testFile");
     } else {
       assertThat(traceLogs).isEmpty();
     }
