@@ -20,6 +20,8 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public interface KubernetesCheckContext extends CheckContext {
@@ -30,4 +32,6 @@ public interface KubernetesCheckContext extends CheckContext {
   InputFileContext inputFileContext();
 
   ProjectContext projectContext();
+
+  void reportIssueNoLineShift(TextRange toHighlight, String message);
 }

@@ -19,15 +19,26 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import static org.sonar.iac.common.testing.Verifier.issue;
 
 class VariableNameConventionCheckTest {
   @Test
-  void shouldDetectIssue() {
+  void shouldDetectIssues() {
     var check = new VariableNameConventionCheck();
-    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/template.yaml", check);
+    var issue1 = issue(1, 4, 1, 16, "Rename this variable \"$my_Variable\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.");
+    var issue2 = issue(2, 4, 2, 5, "Rename this variable \"$\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.");
+    var issue3 = issue(6, 10, 6, 16, "Rename this variable \"$KeyNc\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.");
+    var issue4 = issue(6, 18, 6, 25, "Rename this variable \"$VAL_NC\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.");
+    var issue5 = issue(8, 5, 8, 19, "Rename this variable \"$NON_COMPLIANT\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.");
+
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/template.yaml", check,
+      List.of(issue1, issue2, issue3, issue4, issue5));
 
     // Should also raise on variables with the same name in another file
-    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/second-template.yaml", check);
+    var issue6 = issue(1, 4, 1, 16, "Rename this variable \"$my_Variable\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.");
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/second-template.yaml", check, List.of(issue6));
   }
 }

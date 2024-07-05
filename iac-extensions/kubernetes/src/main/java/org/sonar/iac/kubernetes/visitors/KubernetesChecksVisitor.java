@@ -69,6 +69,11 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     }
 
     @Override
+    public void reportIssueNoLineShift(TextRange toHighlight, String message) {
+      inputFileContext.reportIssue(ruleKey, toHighlight, message, List.of());
+    }
+
+    @Override
     public InputFileContext inputFileContext() {
       return inputFileContext;
     }

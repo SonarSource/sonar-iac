@@ -315,6 +315,12 @@ public class KubernetesVerifier {
     }
 
     @Override
+    public void reportIssueNoLineShift(TextRange textRange, String message) {
+      var issue = new Verifier.Issue(textRange, message, List.of());
+      addToRaisedIssues(issue);
+    }
+
+    @Override
     protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       if (inputFileContext instanceof HelmInputFileContext helmCtx) {
         var shiftedTextRange = LocationShifter.shiftLocation(helmCtx, textRange);

@@ -330,8 +330,12 @@ public final class Verifier {
             addSecondaryOnMainFile(reportedIssue, secondary);
           }
         });
-        raisedIssues.add(issue);
+        addToRaisedIssues(issue);
       }
+    }
+
+    protected void addToRaisedIssues(Issue issue) {
+      raisedIssues.add(issue);
     }
 
     private static void addSecondaryOnMainFile(SingleFileVerifier.Issue reportedIssue, SecondaryLocation secondary) {

@@ -30,6 +30,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.VariableNode;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S117")
 public class VariableNameConventionCheck implements ChecksGoTemplate, IacCheck {
@@ -48,10 +49,10 @@ public class VariableNameConventionCheck implements ChecksGoTemplate, IacCheck {
   public void initialize(InitContext init) {
     this.pattern = Pattern.compile(format);
     init.register(GoTemplateTree.class, (ctx, tree) -> this.checkedNames.clear());
-    init.register(PipeNode.class, (ctx, node) -> node.declarations().forEach(variable -> checkVariable(ctx, variable)));
+    init.register(PipeNode.class, (ctx, node) -> node.declarations().forEach(variable -> checkVariable((KubernetesCheckContext) ctx, variable)));
   }
 
-  private void checkVariable(CheckContext ctx, VariableNode variable) {
+  private void checkVariable(KubernetesCheckContext ctx, VariableNode variable) {
     // Variables in pipelines should always have at least one identifier, even if it's just a `$` sign.
     // However, initialization is indistinguishable from reassignment, so we check it additionally.
     var name = variable.idents().get(0);
@@ -59,7 +60,7 @@ public class VariableNameConventionCheck implements ChecksGoTemplate, IacCheck {
       return;
     }
     if (!pattern.matcher(name).matches()) {
-      ctx.reportIssue(variable, MESSAGE.formatted(name, format));
+      ctx.reportIssueNoLineShift(variable.textRange(), MESSAGE.formatted(name, format));
     }
     checkedNames.add(name);
   }
