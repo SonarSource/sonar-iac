@@ -37,6 +37,7 @@ public final class KubernetesCheckList {
       ContainerPrivilegedModeCheck.class,
       CpuLimitCheck.class,
       CpuRequestCheck.class,
+      DeprecatedCodeCheck.class,
       DockerSocketCheck.class,
       DuplicatedEnvironmentVariablesCheck.class,
       ExposedAdministrationServicesCheck.class,

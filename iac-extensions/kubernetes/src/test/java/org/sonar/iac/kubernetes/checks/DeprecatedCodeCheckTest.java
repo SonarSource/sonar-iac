@@ -17,19 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.visitors;
+package org.sonar.iac.kubernetes.checks;
 
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public interface KubernetesCheckContext extends CheckContext {
-  boolean shouldReportSecondaryInValues();
+import static org.sonar.iac.common.testing.Verifier.issue;
 
-  void setShouldReportSecondaryInValues(boolean shouldReport);
+class DeprecatedCodeCheckTest {
 
-  void disableLocationShifting();
+  private static final String MESSAGE = "Remove this deprecated use of \"Capabilities.KubeVersion.GitVersion\", use \"Capabilities.KubeVersion" +
+    ".Version\" instead.";
+  IacCheck check = new DeprecatedCodeCheck();
 
-  InputFileContext inputFileContext();
-
-  ProjectContext projectContext();
+  @Test
+  void shouldTestHelm() {
+    KubernetesVerifier.verify("DeprecatedCodeCheck/helm/templates/deprecated_code.yaml", check,
+      List.of(
+        issue(7, 28, 7, 64, MESSAGE),
+        issue(8, 54, 8, 90, MESSAGE),
+        issue(18, 34, 18, 70, MESSAGE),
+        issue(21, 70, 21, 107, MESSAGE),
+        issue(27, 5, 27, 41, MESSAGE),
+        issue(31, 36, 31, 72, MESSAGE)));
+  }
 }
