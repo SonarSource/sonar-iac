@@ -1,0 +1,4 @@
+myVariableValue: foo
+favorite:
+  color: blue
+  number: 42

@@ -44,6 +44,7 @@ public final class KubernetesCheckList {
       MemoryLimitCheck.class,
       MemoryRequestCheck.class,
       MountingFileSystemPathsCheck.class,
+      VariableNameConventionCheck.class,
       ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class,
       RBACWildcardCheck.class,
