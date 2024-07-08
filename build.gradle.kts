@@ -17,7 +17,10 @@ spotless {
 project(":sonar-helm-for-iac") {
     sonar {
         properties {
+            property("sonar.sources", ".")
+            property("sonar.inclusions", "**/*.go")
             property("sonar.exclusions", "**/build/**,**/org.sonar.iac.helm/**")
+            property("sonar.tests", ".")
             property("sonar.test.inclusions", "**/*_test.go")
             property("sonar.go.tests.reportPaths", "build/test-report.json")
             property("sonar.go.coverage.reportPaths", "build/test-coverage.out")
@@ -30,7 +33,6 @@ listOf(":its:plugin", ":its:ruling").forEach { path ->
         sonar {
             properties {
                 property("sonar.tests", "src/integrationTest")
-                property("sonar.exclusions", "src/integrationTest/resources/**")
             }
         }
     }
