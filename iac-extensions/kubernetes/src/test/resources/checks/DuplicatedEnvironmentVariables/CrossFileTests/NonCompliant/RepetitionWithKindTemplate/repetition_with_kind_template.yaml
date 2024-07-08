@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ${type}
+metadata:
+  name: env-example
+spec:
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    spec:
+      containers:
+        - name: ubuntu1
+          image: ubuntu
+          env:
+            - name: MY_SETTING
+#                   ^^^^^^^^^^> {{Duplicate environment variable without any effect.}}
+              value: "value"
+          envFrom:
+            - configMapRef:
+                name: my-config-map
+#                     ^^^^^^^^^^^^^> {{ConfigMap that contain the duplicate environment variable 'MY_SETTING' without any effect.}}
+            - secretRef:
+                name: my-secret # Noncompliant {{Resolve the duplication of the environment variable 'MY_SETTING' in this Secret.}}
+#                     ^^^^^^^^^

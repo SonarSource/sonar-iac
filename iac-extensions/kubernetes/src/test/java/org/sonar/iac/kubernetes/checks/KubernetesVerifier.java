@@ -109,6 +109,18 @@ public class KubernetesVerifier {
       commentsVisitor);
   }
 
+  public static void verify(String templateFileName, IacCheck check, List<Verifier.Issue> expectedIssues, String... fileNames) {
+    var initialization = initializeVerification(templateFileName, fileNames);
+    var inputFileContext = initialization.first();
+    var commentsVisitor = initialization.second();
+    Verifier.verify(parserFor(check), inputFileContext, check,
+      multiFileVerifier -> {
+        var projectContext = prepareProjectContext(inputFileContext, fileNames);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+      },
+      commentsVisitor, expectedIssues);
+  }
+
   public static void verify(String templateFileName, IacCheck check, List<Verifier.Issue> expectedIssues) {
     var initialization = initializeVerification(templateFileName);
     var inputFileContext = initialization.first();

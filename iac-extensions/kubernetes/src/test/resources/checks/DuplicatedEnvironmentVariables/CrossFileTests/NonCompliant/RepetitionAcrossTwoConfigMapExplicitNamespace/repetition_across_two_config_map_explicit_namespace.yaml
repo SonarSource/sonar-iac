@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-example
+  namespace: my-namespace
+spec:
+  containers:
+    - name: nginx1
+      image: nginx:1.7.9
+      envFrom:
+        - configMapRef:
+            name: my-config-map-1
+#                 ^^^^^^^^^^^^^^^> {{ConfigMap that contain the duplicate environment variable 'MY_SETTING' without any effect.}}
+        - configMapRef:
+            name: my-config-map-2 # Noncompliant {{Resolve the duplication of the environment variable 'MY_SETTING' in this ConfigMap.}}
+#                 ^^^^^^^^^^^^^^^
