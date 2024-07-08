@@ -20,27 +20,17 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.helm.tree.api.ActionNode;
-import org.sonar.iac.helm.tree.api.CommandNode;
-import org.sonar.iac.helm.tree.api.CommentNode;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.api.Node;
-import org.sonar.iac.helm.tree.api.PipeNode;
-import org.sonar.iac.helm.tree.api.TextNode;
-import org.sonar.iac.helm.tree.api.VariableNode;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S6893")
@@ -48,36 +38,38 @@ public class WhitespaceBracesCheck implements ChecksGoTemplate, IacCheck {
   private static final String MESSAGE = "Add a whitespace after {{ or before }} in the template directive.";
   private static final int INVALID_DISTANCE = "{{".length();
 
-  private TextRange lastNodeTextRange = null;
 
   @Override
   public void initialize(InitContext init) {
-    init.register(GoTemplateTree.class, (ctx, tree) -> {
-      lastNodeTextRange = null;
-    });
-    init.register(TextNode.class, (ctx, node) -> handle((KubernetesCheckContext) ctx, node));
-    init.register(ActionNode.class, (ctx, node) -> handle((KubernetesCheckContext) ctx, node));
-    init.register(CommentNode.class, (ctx, node) -> handle((KubernetesCheckContext) ctx, node));
+    init.register(GoTemplateTree.class, (ctx, tree) -> handleGoTemplateTree((KubernetesCheckContext) ctx, tree));
   }
 
-  private void handle(KubernetesCheckContext ctx, Node node) {
+  private void handleGoTemplateTree(KubernetesCheckContext ctx, GoTemplateTree tree) {
+    TextRange textRange = null;
+    for (Node node: tree.root().nodes()) {
+      textRange = handle(ctx, node, textRange);
+    }
+  }
+
+  private TextRange handle(KubernetesCheckContext ctx, Node node, @Nullable TextRange lastNodeTextRange) {
     var currentTextRange = textRange(node);
     if (lastNodeTextRange != null) {
       var dist = distance(lastNodeTextRange.end(), currentTextRange.start());
-      System.out.println("AAA dist " + dist);
       if (dist == INVALID_DISTANCE) {
         var textRange = TextRanges.range(
           lastNodeTextRange.end().line(),
           lastNodeTextRange.end().lineOffset(),
           currentTextRange.start().line(),
           currentTextRange.start().lineOffset());
-        System.out.println("AAA report on " + textRange);
         ctx.reportIssueNoLineShift(textRange, MESSAGE);
+      }
+      var textRange = lastNodeTextRange;
+      for(Tree n : node.children()) {
+        textRange = handle(ctx, (Node) n, textRange);
       }
     }
 
-    lastNodeTextRange = currentTextRange;
-    System.out.println("AAA lastNodeTextRange " + lastNodeTextRange + " node " + node);
+    return currentTextRange;
   }
 
   private int distance(TextPointer end, TextPointer start) {
@@ -89,12 +81,9 @@ public class WhitespaceBracesCheck implements ChecksGoTemplate, IacCheck {
   }
 
   private TextRange textRange(Node node) {
-    if (node instanceof ActionNode) {
-      // It is temporary workaround for SONARIAC-1530 Wrong text ranges in "ActionNode" (Go AST)
-      List<TextRange> textRanges = new ArrayList<>(node.children().stream().map(Tree::textRange).toList());
-      textRanges.add(node.textRange());
-      return TextRanges.merge(textRanges);
-    }
-    return node.textRange();
+    // It is temporary workaround for SONARIAC-1530 Wrong text ranges in "ActionNode" (Go AST)
+    List<TextRange> textRanges = new ArrayList<>(node.children().stream().map(Tree::textRange).toList());
+    textRanges.add(node.textRange());
+    return TextRanges.merge(textRanges);
   }
 }

@@ -316,8 +316,7 @@ public class KubernetesVerifier {
 
     @Override
     public void reportIssueNoLineShift(TextRange textRange, String message) {
-      var issue = new Verifier.Issue(textRange, message, List.of());
-      addToRaisedIssues(issue);
+      super.reportIssue(textRange, message, List.of());
     }
 
     @Override

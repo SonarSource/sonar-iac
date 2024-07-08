@@ -11,8 +11,11 @@ spec:
      {{- /* Compliant */ -}}
     - name: {{ .Values.containerName1 }}
 
+# FNs because of invalid locations we are not able to detect it
     - name: {{ .Values.containerName1}} {{- /* Noncompliant */ -}}
-    - name: {{.Values.containerName2 }} {{- /* Noncompliant */ -}}
+#                                   ^       ^  - the locations of neighboring nodes
+    - name: {{- /* Noncompliant */ -}} {{.Values.containerName2 }}
+
 
 # comment
 {{if .Values.containerName3 }}

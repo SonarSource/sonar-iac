@@ -31,11 +31,14 @@ class WhitespaceBracesCheckTest {
     var check = new WhitespaceBracesCheck();
     var issue1 = issue(8, 37, 8, 39, "Add a whitespace after {{ or before }} in the template directive.");
     var issue2 = issue(10, 12, 10, 14, "Add a whitespace after {{ or before }} in the template directive.");
-    // 14 missing?
-    var issue3 = issue(15, 12, 15, 14, "Add a whitespace after {{ or before }} in the template directive.");
-    // 18 missing
-    var issue4 = issue(19, 0, 19, 2, "Add a whitespace after {{ or before }} in the template directive.");
+    // FN 21 missing
+    var issue3 = issue(22, 0, 22, 2, "Add a whitespace after {{ or before }} in the template directive.");
+    // FN 23 missing
+    // FN 24 missing
+    var issue4 = issue(25, 60, 25, 62, "Add a whitespace after {{ or before }} in the template directive.");
+    var issue5 = issue(26, 6, 26, 8, "Add a whitespace after {{ or before }} in the template directive.");
+
     KubernetesVerifier.verify("WhitespaceBracesCheckTest/helm/templates/whitespace-braces.yaml", check,
-      List.of(issue1, issue2, issue3, issue4));
+      List.of(issue1, issue2, issue3, issue4, issue5));
   }
 }
