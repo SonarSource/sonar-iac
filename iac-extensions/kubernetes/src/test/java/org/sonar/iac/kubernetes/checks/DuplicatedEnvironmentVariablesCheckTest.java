@@ -85,11 +85,11 @@ class DuplicatedEnvironmentVariablesCheckTest {
     return Stream.of(
       Arguments.of("RepetitionAcrossAllSources", "repetition_across_all_sources.yaml", List.of("my-config-map.yaml", "my-secret.yaml")),
       Arguments.of("RepetitionAcrossTwoConfigMap", "repetition_across_two_config_map.yaml", List.of("my-config-map-1.yaml", "my-config-map-2.yaml")),
-      Arguments.of("RepetitionAcrossTwoConfigMapExplicitNamespace", "repetition_across_two_config_map_explicit_namespace.yaml", List.of("my-config-map-1.yaml", "my-config-map-2.yaml")),
+      Arguments.of("RepetitionAcrossTwoConfigMapExplicitNamespace", "repetition_across_two_config_map_explicit_namespace.yaml",
+        List.of("my-config-map-1.yaml", "my-config-map-2.yaml")),
       Arguments.of("RepetitionAcrossTwoSecret", "repetition_across_two_secret.yaml", List.of("my-secret-1.yaml", "my-secret-2.yaml")),
       Arguments.of("RepetitionInsideConfigMapAfter", "repetition_inside_config_map_after.yaml", List.of("my-config-map.yaml")),
-      Arguments.of("RepetitionInsideConfigMapBefore", "repetition_inside_config_map_before.yaml", List.of("my-config-map.yaml"))
-    );
+      Arguments.of("RepetitionInsideConfigMapBefore", "repetition_inside_config_map_before.yaml", List.of("my-config-map.yaml")));
   }
 
   @ParameterizedTest
@@ -107,9 +107,9 @@ class DuplicatedEnvironmentVariablesCheckTest {
       Arguments.of("NoRepetitionMixEnvAndSecret", "no_repetition_mix_env_and_secret.yaml", List.of("my-secret.yaml")),
       Arguments.of("NoRepetitionWithTwoConfigMap", "no_repetition_with_two_config_map.yaml", List.of("my-config-map-1.yaml", "my-config-map-2.yaml")),
       Arguments.of("NoRepetitionWithTwoSecret", "no_repetition_with_two_secret.yaml", List.of("my-secret-1.yaml", "my-secret-2.yaml")),
-      Arguments.of("RepetitionAcrossConfigMapAndSecretButDifferentNamespace", "repetition_across_config_map_and_secret_but_different_namespace.yaml", List.of("my-config-map.yaml", "my-secret.yaml")),
-      Arguments.of("UnknownConfigMap", "unknown_config_map.yaml", List.of())
-    );
+      Arguments.of("RepetitionAcrossConfigMapAndSecretButDifferentNamespace", "repetition_across_config_map_and_secret_but_different_namespace.yaml",
+        List.of("my-config-map.yaml", "my-secret.yaml")),
+      Arguments.of("UnknownConfigMap", "unknown_config_map.yaml", List.of()));
   }
 
   @ParameterizedTest

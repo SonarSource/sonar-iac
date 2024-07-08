@@ -110,7 +110,8 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     });
   }
 
-  private Optional<ScalarTree> retrieveMapRefTree(BlockObject mapRef) {var attribute = mapRef.attribute("name");
+  private Optional<ScalarTree> retrieveMapRefTree(BlockObject mapRef) {
+    var attribute = mapRef.attribute("name");
     if (attribute.tree != null) {
       var mapRefNameValueTree = attribute.tree.value();
       if (mapRefNameValueTree instanceof ScalarTree scalarTree) {
@@ -172,6 +173,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     }
 
     abstract String primaryMessage(String variableName);
+
     abstract String secondaryMessage(String variableName);
   }
 
