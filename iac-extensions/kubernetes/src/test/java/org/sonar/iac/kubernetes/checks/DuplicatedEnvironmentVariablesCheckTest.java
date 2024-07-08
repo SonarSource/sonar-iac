@@ -19,19 +19,18 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
-
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 
 class DuplicatedEnvironmentVariablesCheckTest {
 
@@ -82,39 +81,42 @@ class DuplicatedEnvironmentVariablesCheckTest {
     KubernetesVerifier.verify("DuplicatedEnvironmentVariables/SingleFileTests/DuplicatedEnvsChart/templates/duplicated-env-pod.yaml", check, expectedIssues);
   }
 
-  @ParameterizedTest
-  @CsvSource(delimiter = ';', value = {
-    "RepetitionAcrossAllSources;repetition_across_all_sources.yaml;my-config-map.yaml,my-secret.yaml",
-    "RepetitionAcrossTwoConfigMap;repetition_across_two_config_map.yaml;my-config-map-1.yaml,my-config-map-2.yaml",
-    "RepetitionAcrossTwoConfigMapExplicitNamespace;repetition_across_two_config_map_explicit_namespace.yaml;my-config-map-1.yaml,my-config-map-2.yaml",
-    "RepetitionAcrossTwoSecret;repetition_across_two_secret.yaml;my-secret-1.yaml,my-secret-2.yaml",
-    "RepetitionInsideConfigMapAfter;repetition_inside_config_map_after.yaml;my-config-map.yaml",
-    "RepetitionInsideConfigMapBefore;repetition_inside_config_map_before.yaml;my-config-map.yaml",
-  })
-  void shouldCheckCrossFileNonCompliant(String root, String mainFile, String otherFiles) {
-    String folder = "DuplicatedEnvironmentVariables/CrossFileTests/NonCompliant/" + root + "/";
-    String[] otherFilesSplit = Arrays.stream(otherFiles.split(",")).map(file -> folder + file).toArray(String[]::new);
-    KubernetesVerifier.verify(folder + mainFile, check, otherFilesSplit);
+  static Stream<Arguments> testCrossFileNonCompliant() {
+    return Stream.of(
+      Arguments.of("RepetitionAcrossAllSources", "repetition_across_all_sources.yaml", List.of("my-config-map.yaml", "my-secret.yaml")),
+      Arguments.of("RepetitionAcrossTwoConfigMap", "repetition_across_two_config_map.yaml", List.of("my-config-map-1.yaml", "my-config-map-2.yaml")),
+      Arguments.of("RepetitionAcrossTwoConfigMapExplicitNamespace", "repetition_across_two_config_map_explicit_namespace.yaml", List.of("my-config-map-1.yaml", "my-config-map-2.yaml")),
+      Arguments.of("RepetitionAcrossTwoSecret", "repetition_across_two_secret.yaml", List.of("my-secret-1.yaml", "my-secret-2.yaml")),
+      Arguments.of("RepetitionInsideConfigMapAfter", "repetition_inside_config_map_after.yaml", List.of("my-config-map.yaml")),
+      Arguments.of("RepetitionInsideConfigMapBefore", "repetition_inside_config_map_before.yaml", List.of("my-config-map.yaml"))
+    );
   }
 
   @ParameterizedTest
-  @CsvSource(delimiter = ';', value = {
-    "InvalidConfigMap;invalid_config_map.yaml;",
-    "NoRepetitionMixEnvAndConfigMap;no_repetition_mix_env_and_config_map.yaml;my-config-map.yaml",
-    "NoRepetitionMixEnvAndSecret;no_repetition_mix_env_and_secret.yaml;my-secret.yaml",
-    "NoRepetitionWithTwoConfigMap;no_repetition_with_two_config_map.yaml;my-config-map-1.yaml,my-config-map-2.yaml",
-    "NoRepetitionWithTwoSecret;no_repetition_with_two_secret.yaml;my-secret-1.yaml,my-secret-2.yaml",
-    "RepetitionAcrossConfigMapAndSecretButDifferentNamespace;repetition_across_config_map_and_secret_but_different_namespace.yaml;my-config-map.yaml,my-secret.yaml",
-    "UnknownConfigMap;unknown_config_map.yaml;",
-  })
-  void shouldCheckCrossFileCompliant(String root, String mainFile, @Nullable String otherFiles) {
+  @MethodSource
+  void testCrossFileNonCompliant(String root, String mainFile, List<String> otherFiles) {
+    String folder = "DuplicatedEnvironmentVariables/CrossFileTests/NonCompliant/" + root + "/";
+    String[] otherFilesSplit = otherFiles.stream().map(file -> folder + file).toArray(String[]::new);
+    KubernetesVerifier.verify(folder + mainFile, check, otherFilesSplit);
+  }
+
+  static Stream<Arguments> testCrossFileCompliant() {
+    return Stream.of(
+      Arguments.of("InvalidConfigMap", "invalid_config_map.yaml", List.of()),
+      Arguments.of("NoRepetitionMixEnvAndConfigMap", "no_repetition_mix_env_and_config_map.yaml", List.of("my-config-map.yaml")),
+      Arguments.of("NoRepetitionMixEnvAndSecret", "no_repetition_mix_env_and_secret.yaml", List.of("my-secret.yaml")),
+      Arguments.of("NoRepetitionWithTwoConfigMap", "no_repetition_with_two_config_map.yaml", List.of("my-config-map-1.yaml", "my-config-map-2.yaml")),
+      Arguments.of("NoRepetitionWithTwoSecret", "no_repetition_with_two_secret.yaml", List.of("my-secret-1.yaml", "my-secret-2.yaml")),
+      Arguments.of("RepetitionAcrossConfigMapAndSecretButDifferentNamespace", "repetition_across_config_map_and_secret_but_different_namespace.yaml", List.of("my-config-map.yaml", "my-secret.yaml")),
+      Arguments.of("UnknownConfigMap", "unknown_config_map.yaml", List.of())
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testCrossFileCompliant(String root, String mainFile, List<String> otherFiles) {
     String folder = "DuplicatedEnvironmentVariables/CrossFileTests/Compliant/" + root + "/";
-    String[] otherFilesSplit;
-    if (otherFiles == null) {
-      otherFilesSplit = new String[0];
-    } else {
-      otherFilesSplit = Arrays.stream(otherFiles.split(",")).map(file -> folder + file).toArray(String[]::new);
-    }
+    String[] otherFilesSplit = otherFiles.stream().map(file -> folder + file).toArray(String[]::new);
     KubernetesVerifier.verifyNoIssue(folder + mainFile, check, otherFilesSplit);
   }
 }
