@@ -71,7 +71,7 @@ public class WhitespaceBracesCheck implements ChecksGoTemplate, IacCheck {
     return currentTextRange;
   }
 
-  private int distance(TextPointer end, TextPointer start) {
+  private static int distance(TextPointer end, TextPointer start) {
     if (end.line() == start.line()) {
       return start.lineOffset() - end.lineOffset();
     } else {
@@ -79,7 +79,7 @@ public class WhitespaceBracesCheck implements ChecksGoTemplate, IacCheck {
     }
   }
 
-  private TextRange textRange(Node node) {
+  private static TextRange textRange(Node node) {
     // It is temporary workaround for SONARIAC-1530 Wrong text ranges in "ActionNode" (Go AST)
     List<TextRange> textRanges = new ArrayList<>(node.children().stream().map(Tree::textRange).toList());
     textRanges.add(node.textRange());

@@ -24,3 +24,62 @@ spec:
 {{ print "bb: " | indent 6 }}{{print .Values.containerName3 }}
 {{ print "cc: " | indent 6 }}{{ print .Values.containerName3}}
 {{ end}}#comment
+
+#FPs
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  annotations:
+    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    {{-
+      if .Values.annotations
+    }} {{- range $key, $value := .Values.annotations }}
+    {{ $key }}: {{ $value | quote }} {{- end }}{{- end }}
+spec:
+  containers:
+    - image: k8s.gcr.io/test-webserver
+      name: test-container
+    - name: {{ .Values.container.name }}
+      securityContext:
+        privileged: {{ .Values.container.privileged }}
+      image: nginx
+  {{- with .Values.podSecurityContext }}
+  securityContext:
+    {{- toYaml . | nindent 4 }}
+  {{- end}}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+{{ if .Values.service.annotations }}
+  annotations:
+    {{- range $key, $value := .Values.service.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+    checksum/plugins: {{ include (print $.Template.BasePath "/install-plugins.yaml") . | sha256sum }}
+    image: {{ default (include "sonarqube.image" $) .Values.initContainers.image }}
+
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example
+data:
+  install_plugins.sh: |-
+    {{- if .Values.ApplicationNodes.plugins.install }}
+    rm -f {{ .Values.sonarqubeFolder }}/extensions/plugins/*
+    cd {{ .Values.sonarqubeFolder }}/extensions/plugins
+      {{- range $index, $val := .Values.ApplicationNodes.plugins.install }}
+    curl {{ if $.Values.ApplicationNodes.plugins.noCheckCertificate }}--insecure{{ end }} {{ if $.Values.ApplicationNodes.plugins.netrcCreds }}--netrc-file /root/.netrc{{ end }} -fsSLO {{ $val | quote }}
+      {{- end }}
+    {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example
+data: {{- if eq (include "jwtSecret.useInternalSecret" .) "true" }}
