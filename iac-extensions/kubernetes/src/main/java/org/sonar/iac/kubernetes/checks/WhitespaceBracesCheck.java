@@ -38,7 +38,6 @@ public class WhitespaceBracesCheck implements ChecksGoTemplate, IacCheck {
   private static final String MESSAGE = "Add a whitespace after {{ or before }} in the template directive.";
   private static final int INVALID_DISTANCE = "{{".length();
 
-
   @Override
   public void initialize(InitContext init) {
     init.register(GoTemplateTree.class, (ctx, tree) -> handleGoTemplateTree((KubernetesCheckContext) ctx, tree));
@@ -46,7 +45,7 @@ public class WhitespaceBracesCheck implements ChecksGoTemplate, IacCheck {
 
   private void handleGoTemplateTree(KubernetesCheckContext ctx, GoTemplateTree tree) {
     TextRange textRange = null;
-    for (Node node: tree.root().nodes()) {
+    for (Node node : tree.root().nodes()) {
       textRange = handle(ctx, node, textRange);
     }
   }
@@ -64,7 +63,7 @@ public class WhitespaceBracesCheck implements ChecksGoTemplate, IacCheck {
         ctx.reportIssueNoLineShift(textRange, MESSAGE);
       }
       var textRange = lastNodeTextRange;
-      for(Tree n : node.children()) {
+      for (Tree n : node.children()) {
         textRange = handle(ctx, (Node) n, textRange);
       }
     }
