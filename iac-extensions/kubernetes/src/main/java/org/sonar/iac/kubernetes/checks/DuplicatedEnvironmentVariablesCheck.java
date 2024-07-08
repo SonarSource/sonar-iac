@@ -88,15 +88,15 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
   }
 
   /**
-   * Fill the provided {@link Container} with {@link Variable} collected from the related global resources.
+   * Fill the provided {@link Container} with {@link AbstractVariable} collected from the related global resources.
    * @param root The document object, required to retrieve global resources.
    * @param mapRef The current block being processed ({@code configMapRef} or {@code secretRef})
-   * @param container The container in which we fill the {@link Variable}
+   * @param container The container in which we fill the {@link AbstractVariable}
    * @param clazz The class of global resource we are looking for, either {@link ConfigMap} or {@link Secret}
-   * @param creator A function used to wrap the resulting {@link YamlTree} into the corresponding {@link Variable} class instance.
+   * @param creator A function used to wrap the resulting {@link YamlTree} into the corresponding {@link AbstractVariable} class instance.
    */
-  private void checkMapResource(BlockObject root, BlockObject mapRef, Container container, Class<? extends MapResource> clazz, Function<YamlTree, ? extends Variable> creator) {
-    retrieveMapRefTree(mapRef).ifPresent(mapRefNameValueTree -> {
+  private void checkMapResource(BlockObject root, BlockObject mapRef, Container container, Class<? extends MapResource> clazz, Function<YamlTree, ? extends AbstractVariable> creator) {
+    retrieveMapRefTree(mapRef).ifPresent((ScalarTree mapRefNameValueTree) -> {
       var mapName = mapRefNameValueTree.value();
       getGlobalResources(root).stream()
         .filter(clazz::isInstance)
@@ -110,7 +110,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     });
   }
 
-  private Optional<ScalarTree> retrieveMapRefTree(BlockObject mapRef) {
+  private static Optional<ScalarTree> retrieveMapRefTree(BlockObject mapRef) {
     var attribute = mapRef.attribute("name");
     if (attribute.tree != null) {
       var mapRefNameValueTree = attribute.tree.value();
@@ -129,7 +129,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     containers.clear();
   }
 
-  private static void reportIssue(CheckContext ctx, String variableName, List<Variable> envVariableReferences) {
+  private static void reportIssue(CheckContext ctx, String variableName, List<AbstractVariable> envVariableReferences) {
     // Sort collected variables by line number
     Collections.sort(envVariableReferences);
     var secondaryLocations = new ArrayList<>(envVariableReferences.stream()
@@ -141,7 +141,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     ctx.reportIssue(lastEnvVariableReference.tree, message, secondaryLocations);
   }
 
-  private static SecondaryLocation computeSecondaryLocationFromEnvVariableReference(String variableName, Variable envVariableReference) {
+  private static SecondaryLocation computeSecondaryLocationFromEnvVariableReference(String variableName, AbstractVariable envVariableReference) {
     String message = envVariableReference.secondaryMessage(variableName);
     return new SecondaryLocation(envVariableReference.tree, message);
   }
@@ -157,18 +157,18 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
   }
 
   // Container contains a map of environment variables including those from ConfigMap and Secret
-  record Container(Map<String, List<Variable>> variables) {
+  record Container(Map<String, List<AbstractVariable>> variables) {
   }
 
-  static abstract class Variable implements Comparable<Variable> {
+  abstract static class AbstractVariable implements Comparable<AbstractVariable> {
     private final YamlTree tree;
 
-    public Variable(YamlTree tree) {
+    protected AbstractVariable(YamlTree tree) {
       this.tree = tree;
     }
 
     @Override
-    public int compareTo(Variable o) {
+    public int compareTo(AbstractVariable o) {
       return tree.textRange().start().line() - o.tree.textRange().start().line();
     }
 
@@ -177,7 +177,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     abstract String secondaryMessage(String variableName);
   }
 
-  static class EnvVariable extends Variable {
+  static class EnvVariable extends AbstractVariable {
     public EnvVariable(YamlTree tree) {
       super(tree);
     }
@@ -193,7 +193,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     }
   }
 
-  static class ConfigMapVariable extends Variable {
+  static class ConfigMapVariable extends AbstractVariable {
     public ConfigMapVariable(YamlTree tree) {
       super(tree);
     }
@@ -209,7 +209,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     }
   }
 
-  static class SecretVariable extends Variable {
+  static class SecretVariable extends AbstractVariable {
     public SecretVariable(YamlTree tree) {
       super(tree);
     }
