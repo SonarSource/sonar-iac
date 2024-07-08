@@ -95,7 +95,8 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
    * @param clazz The class of global resource we are looking for, either {@link ConfigMap} or {@link Secret}
    * @param creator A function used to wrap the resulting {@link YamlTree} into the corresponding {@link AbstractVariable} class instance.
    */
-  private void checkMapResource(BlockObject root, BlockObject mapRef, Container container, Class<? extends MapResource> clazz, Function<YamlTree, ? extends AbstractVariable> creator) {
+  private void checkMapResource(BlockObject root, BlockObject mapRef, Container container, Class<? extends MapResource> clazz,
+    Function<YamlTree, ? extends AbstractVariable> creator) {
     retrieveMapRefTree(mapRef).ifPresent((ScalarTree mapRefNameValueTree) -> {
       var mapName = mapRefNameValueTree.value();
       getGlobalResources(root).stream()
