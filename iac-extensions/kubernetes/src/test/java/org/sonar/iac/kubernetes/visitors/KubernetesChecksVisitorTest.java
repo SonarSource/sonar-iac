@@ -29,6 +29,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -36,6 +38,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
@@ -75,7 +78,7 @@ class KubernetesChecksVisitorTest {
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
   void shouldReportSecondaryInValuesWithProperty(boolean isPropertyEnabled) {
-    var inputFileContext = mockInputFileContext(isPropertyEnabled);
+    var inputFileContext = createInputFileContextMock(isPropertyEnabled);
 
     visitor.scan(inputFileContext, tree);
     assertTraceLog(isPropertyEnabled);
@@ -84,7 +87,7 @@ class KubernetesChecksVisitorTest {
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
   void shouldReportSecondaryLocationAccordingToContext(boolean shouldReport) {
-    var inputFileContext = mockInputFileContext(false);
+    var inputFileContext = createInputFileContextMock(false);
     context.setShouldReportSecondaryInValues(shouldReport);
 
     visitor.scan(inputFileContext, tree);
@@ -95,7 +98,7 @@ class KubernetesChecksVisitorTest {
   void shouldReturnCurrentInputFileContext() {
     var checkContext = (KubernetesCheckContext) visitor.context(RuleKey.of("kubernetes", "S0000"));
     assertThat(checkContext.inputFileContext()).isNull();
-    var inputFileContext = mockInputFileContext(false);
+    var inputFileContext = createInputFileContextMock(false);
 
     ((KubernetesChecksVisitor.KubernetesContextAdapter) checkContext).register(Tree.class, (ctx, node) -> {
     });
@@ -113,7 +116,7 @@ class KubernetesChecksVisitorTest {
   @ValueSource(booleans = {true, false})
   void shouldNotDoLocationShiftingWhenDisabled(boolean shouldDisableLocationShifting) {
     try (var ignored = mockStatic(LocationShifter.class)) {
-      var inputFileContext = mockInputFileContext(true);
+      var inputFileContext = createInputFileContextMock(true);
       TextRange range = range(2, 0, 2, 2);
       when(LocationShifter.shiftLocation(any(), any())).thenReturn(range);
 
@@ -144,11 +147,55 @@ class KubernetesChecksVisitorTest {
 
   @Test
   void shouldReportWhenTextRangeIsNull() {
-    var inputFileContext = mockInputFileContext(false);
+    var inputFileContext = createInputFileContextMock(false);
 
     when(tree.textRange()).thenReturn(null);
     visitor.scan(inputFileContext, tree);
     verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), null, "testIssue", List.of());
+  }
+
+  @Test
+  void shouldReportWithSecondaryLocationOnSameFile() {
+    var inputFileContext = createInputFileContextMock(false);
+    TextRange range = range(1, 0, 1, 1);
+    var secondaryLocation = new SecondaryLocation(range(1, 0, 2, 3), "testIssueSecondary");
+    var customVisitor = prepareVisitorToRaise("testIssue", List.of(secondaryLocation));
+    customVisitor.scan(inputFileContext, tree);
+    verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of(secondaryLocation));
+  }
+
+  @Test
+  void shouldReportWithSecondaryLocationOnDifferentFile() {
+    var inputFileContext = createInputFileContextMock(false);
+    TextRange range = range(1, 0, 1, 1);
+    var secondaryLocation = new SecondaryLocation(range(1, 0, 2, 3), "testIssueSecondary", "my/other/file.yaml");
+    var customVisitor = prepareVisitorToRaise("testIssue", List.of(secondaryLocation));
+    customVisitor.scan(inputFileContext, tree);
+    verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of(secondaryLocation));
+  }
+
+  @Test
+  void shouldReportWithSecondaryLocationOnDifferentFileWhenProvidedNormalInputFileContext() {
+    var inputFileContext = createInputFileContextMock(false);
+    var secondaryInputFileContext = createInputFileContextMock(false);
+    TextRange range = range(1, 0, 1, 1);
+    var secondaryLocation = new SecondaryLocation(range(1, 0, 2, 3), "testIssueSecondary", "my/other/file.yaml");
+    var customVisitor = prepareVisitorToRaise("testIssue", List.of(secondaryLocation), prepareProjectContext("my/other/file.yaml", secondaryInputFileContext));
+    customVisitor.scan(inputFileContext, tree);
+    verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of(secondaryLocation));
+  }
+
+  @Test
+  void shouldReportWithSecondaryLocationOnDifferentFileWithShiftedLocation() {
+    var inputFileContext = createInputFileContextMock(false);
+    var secondaryInputFileContext = createHelmInputFileContextMock("my/other/file.yaml");
+    secondaryInputFileContext.sourceMap().addLineData(1, 3, 3);
+    TextRange range = range(1, 0, 1, 1);
+    var providedSecondaryLocation = new SecondaryLocation(range(1, 0, 2, 3), "testIssueSecondary", "my/other/file.yaml");
+    var expectedSecondaryLocation = new SecondaryLocation(range(3, 0, 0, 0), "testIssueSecondary", "my/other/file.yaml");
+    var customVisitor = prepareVisitorToRaise("testIssue", List.of(providedSecondaryLocation), prepareProjectContext("my/other/file.yaml", secondaryInputFileContext));
+    customVisitor.scan(inputFileContext, tree);
+    verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of(expectedSecondaryLocation));
   }
 
   private void assertTraceLog(boolean shouldContainLog) {
@@ -161,24 +208,53 @@ class KubernetesChecksVisitorTest {
     }
   }
 
-  private InputFileContext mockInputFileContext(boolean isPropertyEnabled) {
-    var inputFileContext = spy(createInputFileContextMock("testFile"));
+  private InputFileContext createInputFileContextMock(boolean isPropertyEnabled) {
+    var inputFileContext = spy(createHelmInputFileContextMock("testFile"));
     var config = mock(Configuration.class);
     when(config.getBoolean(KubernetesChecksVisitor.ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY)).thenReturn(Optional.of(isPropertyEnabled));
     when(inputFileContext.sensorContext.config()).thenReturn(config);
+    var fileSystem = mock(FileSystem.class);
+    when(fileSystem.predicates()).thenReturn(mock(FilePredicates.class));
+    when(inputFileContext.sensorContext.fileSystem()).thenReturn(fileSystem);
     doNothing().when(inputFileContext).reportIssue(any(), any(), any(), any());
 
     return inputFileContext;
   }
 
-  public static HelmInputFileContext createInputFileContextMock(String filename) {
+  public static HelmInputFileContext createHelmInputFileContextMock(String filename) {
     var inputFile = mock(InputFile.class);
     when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.uri()).thenReturn(URI.create("file:///dir1/dir2/" + filename));
+    var sensorContext = mock(SensorContext.class);
+    var fileSystem = mock(FileSystem.class);
+    var filePredicates = mock(FilePredicates.class);
+    when(filePredicates.is(any())).thenReturn(input -> true);
+    when(fileSystem.inputFile(any())).thenReturn(inputFile);
+    when(fileSystem.predicates()).thenReturn(filePredicates);
+    when(sensorContext.fileSystem()).thenReturn(fileSystem);
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
-      return new HelmInputFileContext(mock(SensorContext.class), inputFile);
+      return new HelmInputFileContext(sensorContext, inputFile);
     }
+  }
+
+  private KubernetesChecksVisitor prepareVisitorToRaise(String message, List<SecondaryLocation> secondaryLocations) {
+    return prepareVisitorToRaise(message, secondaryLocations, PROJECT_CONTEXT);
+  }
+
+  private KubernetesChecksVisitor prepareVisitorToRaise(String message, List<SecondaryLocation> secondaryLocations, ProjectContext projectContext) {
+    KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), projectContext);
+    KubernetesChecksVisitor.KubernetesContextAdapter specificContext = (KubernetesChecksVisitor.KubernetesContextAdapter) specificVisitor
+      .context(RuleKey.of("testRepo", "testRule"));
+    IacCheck validCheckWithSecondaryLocation = init -> init.register(Tree.class, (ctx, node) -> ctx.reportIssue(node, message, secondaryLocations));
+    validCheckWithSecondaryLocation.initialize(specificContext);
+    return specificVisitor;
+  }
+
+  private ProjectContext prepareProjectContext(String path, InputFileContext associatedInputFileContext) {
+    ProjectContext projectContext = mock(ProjectContext.class);
+    when(projectContext.getInputFileContext(path)).thenReturn(associatedInputFileContext);
+    return projectContext;
   }
 }

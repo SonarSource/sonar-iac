@@ -36,6 +36,7 @@ public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext>
 
   private static void handleFileTree(InputFileContext ctx, FileTree fileTree, ProjectContext.Builder projectContextBuilder) {
     var uri = Path.of(ctx.inputFile.uri()).normalize().toUri();
+    projectContextBuilder.addInputFileContext(ctx.inputFile.relativePath(), ctx);
     fileTree.documents().stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)

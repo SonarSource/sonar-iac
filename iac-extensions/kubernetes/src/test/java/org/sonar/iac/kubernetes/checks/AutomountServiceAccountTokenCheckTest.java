@@ -19,10 +19,14 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.testing.Verifier;
 
 class AutomountServiceAccountTokenCheckTest {
   IacCheck check = new AutomountServiceAccountTokenCheck();
@@ -60,5 +64,16 @@ class AutomountServiceAccountTokenCheckTest {
   void testLinkedNonAccountCompliant(String pod, String linkedAccount) {
     String rootFolder = "AutomountServiceAccountTokenCheck/LinkedAccount/NonCompliant/";
     KubernetesVerifier.verify(rootFolder + pod, check, rootFolder + linkedAccount);
+  }
+
+  @Test
+  void testLinkedAccountNonCompliantChartWithShiftedLocation() {
+    var secondaryLocation1 = new SecondaryLocation(TextRanges.range(11, 0, 11, 54), "Through this service account");
+    var secondaryLocation2 = new SecondaryLocation(TextRanges.range(5, 0, 5, 72), "Change this setting",
+      "AutomountServiceAccountTokenCheck/LinkedAccount/NonCompliant/SensitiveValueChart/templates/linked_account_service_token.yaml");
+    var expectedIssue = new Verifier.Issue(TextRanges.range(7, 0, 7, 4), "Set automountServiceAccountToken to false for this specification of kind Pod.",
+      List.of(secondaryLocation1, secondaryLocation2));
+    KubernetesVerifier.verify("AutomountServiceAccountTokenCheck/LinkedAccount/NonCompliant/SensitiveValueChart/templates/automount_service_account_token_pod_linked.yaml", check,
+      List.of(expectedIssue));
   }
 }
