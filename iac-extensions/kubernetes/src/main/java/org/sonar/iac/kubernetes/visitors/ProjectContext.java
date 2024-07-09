@@ -31,15 +31,24 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 
+import static java.util.Objects.nonNull;
+
 /**
  * Data class to provide information about the project. This allows to share cross-file knowledge to the individual checks.
  */
 public final class ProjectContext {
 
-  private final Map<String, Map<String, Set<ProjectResource>>> projectResourcePerNamespacePerPath = new HashMap<>();
+  private final Map<String, Map<String, Set<ProjectResource>>> projectResourcePerPathPerNamespace = new HashMap<>();
   private final Map<String, InputFileContext> inputFileContextPerPath = new HashMap<>();
 
-  private ProjectContext() {
+  public void addResource(String namespace, String uri, ProjectResource resource) {
+    projectResourcePerPathPerNamespace.computeIfAbsent(uri, k -> new HashMap<>())
+      .computeIfAbsent(namespace, k -> new HashSet<>())
+      .add(resource);
+  }
+
+  public void removeResource(String uri) {
+    projectResourcePerPathPerNamespace.remove(uri);
   }
 
   /**
@@ -48,26 +57,23 @@ public final class ProjectContext {
    * If the file is part of a Helm project, all files inside the project are accessible. The location of the Chart.yaml serves as the root directory of the project.
    */
   public <T extends ProjectResource> Set<T> getProjectResources(String namespace, InputFileContext inputFileContext, Class<T> clazz) {
-    if (projectResourcePerNamespacePerPath.containsKey(namespace)) {
-      var resourcesPerPath = projectResourcePerNamespacePerPath.get(namespace);
+    var basePath = Optional.of(inputFileContext)
+      .filter(HelmInputFileContext.class::isInstance)
+      .map(it -> ((HelmInputFileContext) it).getHelmProjectDirectory())
+      .or(() -> Optional.ofNullable(Path.of(inputFileContext.inputFile.uri()).getParent()))
+      .map(Path::normalize)
+      .map(Path::toUri)
+      .map(URI::toString)
+      .orElse("");
 
-      var basePath = Optional.of(inputFileContext)
-        .filter(HelmInputFileContext.class::isInstance)
-        .map(it -> ((HelmInputFileContext) it).getHelmProjectDirectory())
-        .or(() -> Optional.ofNullable(Path.of(inputFileContext.inputFile.uri()).getParent()))
-        .map(Path::normalize)
-        .map(Path::toUri)
-        .map(URI::toString)
-        .orElse("");
-
-      return resourcesPerPath.entrySet().stream()
-        .filter(entry -> entry.getKey().startsWith(basePath))
-        .flatMap(entry -> entry.getValue().stream())
-        .filter(clazz::isInstance)
-        .map(clazz::cast)
-        .collect(Collectors.toSet());
-    }
-    return Set.of();
+    return projectResourcePerPathPerNamespace.entrySet().stream()
+      .filter(entry -> entry.getKey().startsWith(basePath))
+      .map(Map.Entry::getValue)
+      .filter(entry -> nonNull(entry.get(namespace)))
+      .flatMap(entry -> entry.get(namespace).stream())
+      .filter(clazz::isInstance)
+      .map(clazz::cast)
+      .collect(Collectors.toSet());
   }
 
   @Nullable
@@ -75,32 +81,7 @@ public final class ProjectContext {
     return inputFileContextPerPath.get(path);
   }
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static final class Builder {
-
-    private final ProjectContext ctx;
-
-    private Builder() {
-      this.ctx = new ProjectContext();
-    }
-
-    public Builder addResource(String namespace, String uri, ProjectResource resource) {
-      ctx.projectResourcePerNamespacePerPath.computeIfAbsent(namespace, k -> new HashMap<>())
-        .computeIfAbsent(uri, k -> new HashSet<>())
-        .add(resource);
-      return this;
-    }
-
-    public Builder addInputFileContext(String path, InputFileContext inputFileContext) {
-      ctx.inputFileContextPerPath.put(path, inputFileContext);
-      return this;
-    }
-
-    public ProjectContext build() {
-      return ctx;
-    }
+  public void addInputFileContext(String path, InputFileContext inputFileContext) {
+    ctx.inputFileContextPerPath.put(path, inputFileContext);
   }
 }

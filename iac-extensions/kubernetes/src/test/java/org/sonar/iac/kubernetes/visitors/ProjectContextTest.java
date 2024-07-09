@@ -45,17 +45,16 @@ class ProjectContextTest {
 
   @Test
   void shouldCorrectlyStoreResourcesAndProvideAccess() {
-    var builder = ProjectContext.builder();
+    var ctx = new ProjectContext();
 
     var resource11 = mock(ServiceAccount.class);
-    builder.addResource("namespace1", toUri("path1/resource11.yaml").toString(), resource11);
+    ctx.addResource("namespace1", toUri("path1/resource11.yaml").toString(), resource11);
     var resource12 = mock(LimitRange.class);
-    builder.addResource("namespace1", toUri("path1/resource12.yaml").toString(), resource12);
+    ctx.addResource("namespace1", toUri("path1/resource12.yaml").toString(), resource12);
     var resource21 = mock(ServiceAccount.class);
-    builder.addResource("namespace2", toUri("path2/resource21.yaml").toString(), resource21);
+    ctx.addResource("namespace2", toUri("path2/resource21.yaml").toString(), resource21);
     var resource22 = mock(ServiceAccount.class);
-    builder.addResource("namespace2", toUri("path2/resource22.yaml").toString(), resource22);
-    var ctx = builder.build();
+    ctx.addResource("namespace2", toUri("path2/resource22.yaml").toString(), resource22);
 
     assertThat(ctx.getProjectResources("namespace1", toInputFileContext("path1/something.yaml"), ServiceAccount.class)).containsExactly(resource11);
     assertThat(ctx.getProjectResources("namespace1", toInputFileContext("path1/something.yaml"), LimitRange.class)).containsExactly(resource12);
@@ -67,17 +66,16 @@ class ProjectContextTest {
 
   @Test
   void shouldProvideAccessOnlyToDescendantDirectories() {
-    var builder = ProjectContext.builder();
+    var ctx = new ProjectContext();
 
     var resource1 = mock(TestResource.class);
-    builder.addResource("default", toUri("path1/resource.yaml").toString(), resource1);
+    ctx.addResource("default", toUri("path1/resource.yaml").toString(), resource1);
     var resource2 = mock(TestResource.class);
-    builder.addResource("default", toUri("path2/resource.yaml").toString(), resource2);
+    ctx.addResource("default", toUri("path2/resource.yaml").toString(), resource2);
     var resource3 = mock(TestResource.class);
-    builder.addResource("default", toUri("path1/subdir1/resource.yaml").toString(), resource3);
+    ctx.addResource("default", toUri("path1/subdir1/resource.yaml").toString(), resource3);
     var resource4 = mock(TestResource.class);
-    builder.addResource("default", toUri("path1/subdir2/resource.yaml").toString(), resource4);
-    var ctx = builder.build();
+    ctx.addResource("default", toUri("path1/subdir2/resource.yaml").toString(), resource4);
 
     assertThat(ctx.getProjectResources("default", toInputFileContext("path1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource3, resource4);
     assertThat(ctx.getProjectResources("default", toInputFileContext("path1/subdir1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource3);
@@ -88,15 +86,14 @@ class ProjectContextTest {
 
   @Test
   void shouldProvideAccessOnlyToResourcesInTheSameHelmChart() {
-    var builder = ProjectContext.builder();
+    var ctx = new ProjectContext();
 
     var resource1 = mock(TestResource.class);
-    builder.addResource("default", toUri("path1/templates/resource.yaml").toString(), resource1);
+    ctx.addResource("default", toUri("path1/templates/resource.yaml").toString(), resource1);
     var resource2 = mock(TestResource.class);
-    builder.addResource("default", toUri("path1/Chart.yaml").toString(), resource2);
+    ctx.addResource("default", toUri("path1/Chart.yaml").toString(), resource2);
     var resource3 = mock(TestResource.class);
-    builder.addResource("default", toUri("path2/resource.yaml").toString(), resource3);
-    var ctx = builder.build();
+    ctx.addResource("default", toUri("path2/resource.yaml").toString(), resource3);
 
     assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource2);
     assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/subdir/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1,

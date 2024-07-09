@@ -65,13 +65,12 @@ class ProjectContextEnricherVisitorTest {
     var inputFileContext = IacTestUtils.createInputFileContextMock("test.yaml");
     when(inputFileContext.inputFile.uri()).thenReturn(baseDir.resolve("dir1/dir2/test.yaml").toUri());
     var tree = PARSER.parse(code, inputFileContext);
-    var projectContextBuilder = spy(ProjectContext.builder());
-    var visitor = new ProjectContextEnricherVisitor(projectContextBuilder);
+    var projectContext = spy(new ProjectContext());
+    var visitor = new ProjectContextEnricherVisitor(projectContext);
 
     visitor.scan(inputFileContext, tree);
 
-    var projectContext = projectContextBuilder.build();
-    verify(projectContextBuilder, times(1)).addResource(anyString(), any(), any());
+    verify(projectContext, times(1)).addResource(anyString(), any(), any());
     assertThat(projectContext.getProjectResources("my-namespace", toInputFileContext("dir1/dir2/test.yaml"), ServiceAccount.class)).isNotEmpty();
     assertThat(projectContext.getProjectResources("my-namespace", toInputFileContext("dir1/dir2/test.yaml"), LimitRange.class)).isEmpty();
   }
