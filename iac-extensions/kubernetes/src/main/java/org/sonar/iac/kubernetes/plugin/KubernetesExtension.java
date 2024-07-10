@@ -19,15 +19,11 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarProduct;
 import org.sonar.iac.helm.HelmEvaluator;
 
 public class KubernetesExtension {
-
-  private static final Logger LOG = LoggerFactory.getLogger(KubernetesExtension.class);
 
   public static final String REPOSITORY_KEY = "kubernetes";
 
@@ -35,12 +31,8 @@ public class KubernetesExtension {
   }
 
   public static void define(Plugin.Context context) {
-    LOG.info("AAA KubernetesExtension define product: " + context.getRuntime().getProduct());
     if (context.getRuntime().getProduct() == SonarProduct.SONARLINT) {
-      LOG.info("AAA Add SonarLintFileListener extension");
       context.addExtension(SonarLintFileListener.class);
-    } else {
-      LOG.info("AAA DO NOT add SonarLintFileListener extension, product: " + context.getRuntime().getProduct());
     }
     context.addExtensions(
       // Language

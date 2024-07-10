@@ -103,6 +103,19 @@ class ProjectContextTest {
     assertThat(ctx.getProjectResources("default", toInputFileContext("path2/subdir/something.yaml"), TestResource.class)).isEmpty();
   }
 
+  @Test
+  void shouldRemoveResource() {
+    var ctx = new ProjectContext();
+
+    var resource1 = mock(TestResource.class);
+    var uri = toUri("path1/templates/resource.yaml").toString();
+    ctx.addResource("default", uri, resource1);
+
+    ctx.removeResource(uri);
+
+    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/resource.yaml"), TestResource.class)).isEmpty();
+  }
+
   private static URI toUri(String path) {
     return baseDir.resolve(path).normalize().toUri();
   }

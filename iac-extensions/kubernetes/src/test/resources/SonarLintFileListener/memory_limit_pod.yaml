@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: with-global-limit
+spec:
+  automountServiceAccountToken: false
+  containers:
+    - name: memory-limit
+      image: nginx:1.2.3
+      resources:
+        limits:
+          memory: 1G
+          cpu: 600m
+        requests:
+          memory: 512Mi
+          cpu: 200m
+
+    - name: no-limit-s
+      image: nginx:1.2.3
+      resources:
+        requests:
+
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: no-global-limit
+spec:
+  automountServiceAccountToken: false
+  containers:
+    - name: no-memory-limit-no-limit-range
+      image: nginx:1.2.3
+      resources:
+        requests:

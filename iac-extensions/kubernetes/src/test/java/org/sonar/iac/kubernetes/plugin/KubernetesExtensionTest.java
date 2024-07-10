@@ -34,10 +34,18 @@ class KubernetesExtensionTest {
   private static final Version VERSION_9_5 = Version.create(9, 5);
 
   @Test
-  void sonarqube_extensions() {
+  void shouldVerifySonarqubeExtensions() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_5, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     KubernetesExtension.define(context);
     assertThat(context.getExtensions()).hasSize(6);
+  }
+
+  @Test
+  void shouldVerifySonarLint() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(VERSION_9_5);
+    Plugin.Context context = new Plugin.Context(runtime);
+    KubernetesExtension.define(context);
+    assertThat(context.getExtensions()).hasSize(7);
   }
 }

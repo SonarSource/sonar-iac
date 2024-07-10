@@ -19,8 +19,14 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
 public class EmptyChecksVisitor extends TreeVisitor<InputFileContext> {
+  @Override
+  public void scan(InputFileContext ctx, @Nullable Tree root) {
+    // do nothing
+  }
 }

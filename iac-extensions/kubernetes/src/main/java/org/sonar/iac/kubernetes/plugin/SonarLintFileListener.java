@@ -69,5 +69,4 @@ public class SonarLintFileListener implements ModuleFileListener {
       analyzer.analyseFiles(sensorContext, List.of(moduleFileEvent.getTarget()), KubernetesLanguage.KEY);
     }
   }
-
 }
