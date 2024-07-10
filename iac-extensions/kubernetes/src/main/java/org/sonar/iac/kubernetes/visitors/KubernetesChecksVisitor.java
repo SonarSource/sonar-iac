@@ -144,8 +144,8 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     }
 
     @Override
-    public void disableLocationShifting() {
-      this.enableLocationShifting = false;
+    public void reportIssueNoLineShift(TextRange toHighlight, String message) {
+      inputFileContext.reportIssue(ruleKey, toHighlight, message, List.of());
     }
   }
 }

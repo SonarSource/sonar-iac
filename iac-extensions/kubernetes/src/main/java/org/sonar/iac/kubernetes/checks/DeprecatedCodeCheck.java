@@ -41,10 +41,10 @@ public class DeprecatedCodeCheck implements ChecksGoTemplate, IacCheck {
   }
 
   private static void checkTree(CheckContext ctx, CommandNode commandNode) {
-    ((KubernetesCheckContext) ctx).disableLocationShifting();
+    var kubernetesContext = (KubernetesCheckContext) ctx;
     for (Node node : commandNode.arguments()) {
       if (shouldReportNode(node)) {
-        ctx.reportIssue(node, MESSAGE);
+        kubernetesContext.reportIssueNoLineShift(node.textRange(), MESSAGE);
       }
     }
   }

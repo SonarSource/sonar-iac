@@ -45,13 +45,14 @@ public final class KubernetesCheckList {
       MemoryLimitCheck.class,
       MemoryRequestCheck.class,
       MountingFileSystemPathsCheck.class,
-      VariableNameConventionCheck.class,
       ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class,
       RBACWildcardCheck.class,
       SpecificVersionTagCheck.class,
       StorageRequestCheck.class,
       StorageLimitCheck.class,
-      ToDoCommentCheck.class);
+      ToDoCommentCheck.class,
+      VariableNameConventionCheck.class,
+      WhitespaceBracesCheck.class);
   }
 }

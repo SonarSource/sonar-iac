@@ -112,39 +112,6 @@ class KubernetesChecksVisitorTest {
     assertThat(checkContext.projectContext()).isEqualTo(PROJECT_CONTEXT);
   }
 
-  @ParameterizedTest
-  @ValueSource(booleans = {true, false})
-  void shouldNotDoLocationShiftingWhenDisabled(boolean shouldDisableLocationShifting) {
-    try (var ignored = mockStatic(LocationShifter.class)) {
-      var inputFileContext = createInputFileContextMock(true);
-      TextRange range = range(2, 0, 2, 2);
-      when(LocationShifter.shiftLocation(any(), any())).thenReturn(range);
-
-      if (shouldDisableLocationShifting) {
-        context.disableLocationShifting();
-        range = range(1, 0, 1, 1);
-      }
-      visitor.scan(inputFileContext, tree);
-
-      verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of());
-    }
-  }
-
-  @ParameterizedTest
-  @ValueSource(booleans = {true, false})
-  void shouldNotDoLocationShiftingOnNormalInputFileContext(boolean shouldDisableLocationShifting) {
-    var inputFileContext = spy(new InputFileContext(mock(SensorContext.class), mock(InputFile.class)));
-    doNothing().when(inputFileContext).reportIssue(any(), any(), any(), any());
-    TextRange range = range(1, 0, 1, 1);
-
-    if (shouldDisableLocationShifting) {
-      context.disableLocationShifting();
-    }
-    visitor.scan(inputFileContext, tree);
-
-    verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of());
-  }
-
   @Test
   void shouldReportWhenTextRangeIsNull() {
     var inputFileContext = createInputFileContextMock(false);
