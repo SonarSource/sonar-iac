@@ -98,7 +98,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
           }
         }
         List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
-          .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(computeHelmInputFileContextForSecondaryLocation(secondaryLocation, helmCtx), secondaryLocation))
+          .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(computeInputFileContext(secondaryLocation, helmCtx), secondaryLocation))
           .distinct()
           .toList();
 
@@ -109,7 +109,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
       }
     }
 
-    private HelmInputFileContext computeHelmInputFileContextForSecondaryLocation(SecondaryLocation secondaryLocation, HelmInputFileContext defaultHelmContext) {
+    private HelmInputFileContext computeInputFileContext(SecondaryLocation secondaryLocation, HelmInputFileContext defaultHelmContext) {
       InputFileContext context = null;
       if (secondaryLocation.filePath != null) {
         context = projectContext.getInputFileContext(secondaryLocation.filePath);

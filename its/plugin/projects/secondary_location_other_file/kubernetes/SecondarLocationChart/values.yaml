@@ -1,4 +1,3 @@
-# values.yaml
 createServiceAccount: true
 serviceAccountName: example-service-account
 autoMountServiceAccountToken: true

@@ -1,4 +1,3 @@
-# templates/service-account.yaml
   {{- if .Values.createServiceAccount }}
 apiVersion: v1
 kind: ServiceAccount
