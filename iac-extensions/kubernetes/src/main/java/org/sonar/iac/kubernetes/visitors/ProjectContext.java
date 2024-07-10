@@ -82,6 +82,6 @@ public final class ProjectContext {
   }
 
   public void addInputFileContext(String path, InputFileContext inputFileContext) {
-    ctx.inputFileContextPerPath.put(path, inputFileContext);
+    inputFileContextPerPath.put(path, inputFileContext);
   }
 }
