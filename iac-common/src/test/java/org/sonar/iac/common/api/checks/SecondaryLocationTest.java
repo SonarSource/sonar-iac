@@ -84,4 +84,10 @@ class SecondaryLocationTest {
 
     assertThat(location1).hasSameHashCodeAs(location2);
   }
+
+  @Test
+  void shouldTestToString() {
+    SecondaryLocation location = new SecondaryLocation(range(1, 2, 3, 4), "message", "path/to/file");
+    assertThat(location).hasToString("SecondaryLocation{textRange=[1:2/3:4], message='message', filePath='path/to/file'}");
+  }
 }

@@ -337,7 +337,7 @@ public class KubernetesVerifier {
           allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange);
         }
         List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
-          .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(helmCtx, secondaryLocation))
+          .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(computeHelmInputFileContextForSecondaryLocation(secondaryLocation, helmCtx), secondaryLocation))
           .distinct()
           .toList();
 
@@ -347,6 +347,17 @@ public class KubernetesVerifier {
       } else {
         super.reportIssue(textRange, message, secondaryLocations);
       }
+    }
+
+    private HelmInputFileContext computeHelmInputFileContextForSecondaryLocation(SecondaryLocation secondaryLocation, HelmInputFileContext defaultHelmContext) {
+      InputFileContext context = null;
+      if (secondaryLocation.filePath != null) {
+        context = projectContext.getInputFileContext(secondaryLocation.filePath);
+      }
+      if (!(context instanceof HelmInputFileContext)) {
+        context = defaultHelmContext;
+      }
+      return (HelmInputFileContext) context;
     }
 
     @Override

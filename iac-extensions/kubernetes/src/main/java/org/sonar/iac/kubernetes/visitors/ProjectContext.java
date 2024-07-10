@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 
@@ -34,7 +35,9 @@ import org.sonar.iac.kubernetes.model.ProjectResource;
  * Data class to provide information about the project. This allows to share cross-file knowledge to the individual checks.
  */
 public final class ProjectContext {
+
   private final Map<String, Map<String, Set<ProjectResource>>> projectResourcePerNamespacePerPath = new HashMap<>();
+  private final Map<String, InputFileContext> inputFileContextPerPath = new HashMap<>();
 
   private ProjectContext() {
   }
@@ -67,6 +70,11 @@ public final class ProjectContext {
     return Set.of();
   }
 
+  @Nullable
+  public InputFileContext getInputFileContext(String path) {
+    return inputFileContextPerPath.get(path);
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -83,6 +91,11 @@ public final class ProjectContext {
       ctx.projectResourcePerNamespacePerPath.computeIfAbsent(namespace, k -> new HashMap<>())
         .computeIfAbsent(uri, k -> new HashSet<>())
         .add(resource);
+      return this;
+    }
+
+    public Builder addInputFileContext(String path, InputFileContext inputFileContext) {
+      ctx.inputFileContextPerPath.put(path, inputFileContext);
       return this;
     }
 

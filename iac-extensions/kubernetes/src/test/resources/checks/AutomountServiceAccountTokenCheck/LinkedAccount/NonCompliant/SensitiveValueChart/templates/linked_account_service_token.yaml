@@ -1,0 +1,8 @@
+  {{- if .Values.createServiceAccount }}
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: {{ .Values.autoMountServiceAccountToken }}
+metadata:
+  name: {{ .Values.serviceAccountName }}
+  namespace: some-namespace
+  {{- end }}

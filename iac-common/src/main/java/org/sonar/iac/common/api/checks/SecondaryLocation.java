@@ -74,4 +74,13 @@ public class SecondaryLocation {
   public int hashCode() {
     return Objects.hash(textRange, message, filePath);
   }
+
+  @Override
+  public String toString() {
+    return "SecondaryLocation{" +
+      "textRange=" + textRange +
+      ", message='" + message + '\'' +
+      ", filePath='" + filePath + '\'' +
+      '}';
+  }
 }
