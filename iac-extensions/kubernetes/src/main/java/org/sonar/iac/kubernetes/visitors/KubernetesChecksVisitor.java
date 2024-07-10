@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -37,11 +39,15 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class KubernetesChecksVisitor extends ChecksVisitor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(KubernetesChecksVisitor.class);
+
   /**
    * TODO SONARIAC-1352 Remove property "secondaryLocationsInValuesEnable"
    */
   protected static final String ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY = "sonar.kubernetes.internal.helm" +
     ".secondaryLocationsInValuesEnable";
+  protected static final String DISABLE_SECONDARY_LOCATIONS_IN_OTHER_YAML_KEY = "sonar.kubernetes.internal.helm" +
+    ".secondaryLocationsInOtherFilesDisable";
 
   private final ProjectContext projectContext;
 
@@ -97,7 +103,14 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
             allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange);
           }
         }
-        List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
+
+        var streamSecondaryLocations = secondaryLocations.stream();
+        boolean isReportingDisabledOnOtherFile = helmCtx.sensorContext.config().getBoolean(DISABLE_SECONDARY_LOCATIONS_IN_OTHER_YAML_KEY + "." + ruleKey.rule()).orElse(false);
+        if (isReportingDisabledOnOtherFile) {
+          LOG.debug("External secondary locations for rule {} are disabled !", ruleKey.rule());
+          streamSecondaryLocations = streamSecondaryLocations.filter(secondaryLocation -> secondaryLocation.filePath == null);
+        }
+        List<SecondaryLocation> shiftedSecondaryLocations = streamSecondaryLocations
           .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(computeInputFileContext(secondaryLocation, helmCtx), secondaryLocation))
           .distinct()
           .toList();

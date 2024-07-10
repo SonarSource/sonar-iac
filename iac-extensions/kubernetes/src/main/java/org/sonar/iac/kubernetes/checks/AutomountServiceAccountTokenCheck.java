@@ -73,18 +73,21 @@ public class AutomountServiceAccountTokenCheck extends AbstractResourceManagemen
       } else {
         boolean hasAtLeastOneAccountCompliant = linkedServiceAccounts.stream().anyMatch(account -> account.automountServiceAccountToken().isFalse());
         if (!hasAtLeastOneAccountCompliant) {
-          reportIssueWithLinkedAccount(blockObject, message);
+          // report on first linked account - there should be only one
+          reportIssueWithLinkedAccount(linkedServiceAccounts.get(0), blockObject, message);
         }
       }
     }
   }
 
-  private static void reportIssueWithLinkedAccount(BlockObject blockObject, String message) {
+  private static void reportIssueWithLinkedAccount(ServiceAccount linkedAccount, BlockObject blockObject, String message) {
     var blockSpec = blockObject.block("spec");
     var serviceAccountNameAttr = blockSpec.attribute("serviceAccountName");
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
     secondaryLocations.add(new SecondaryLocation(serviceAccountNameAttr.tree.value(), "Through this service account"));
-    // TODO SONARIAC-1532: put back the code to add in the secondary location the field 'automountServiceAccountToken' of the linked account
+    if (linkedAccount.automountServiceAccountToken().isTrue()) {
+      secondaryLocations.add(new SecondaryLocation(linkedAccount.valueLocation(), "Change this setting", linkedAccount.filePath()));
+    }
     blockObject.attribute("spec").reportOnKey(message, secondaryLocations);
   }
 
