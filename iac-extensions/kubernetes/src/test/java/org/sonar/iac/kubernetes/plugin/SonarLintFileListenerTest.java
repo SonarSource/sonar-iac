@@ -35,7 +35,6 @@ import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
@@ -45,7 +44,7 @@ class SonarLintFileListenerTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
-  private final static Path BASE_DIR = Path.of("src/test/resources/SonarLintFileListener");
+  private static final Path BASE_DIR = Path.of("src/test/resources/SonarLintFileListener");
 
   private SonarLintFileListener sonarLintFileListener;
   private SensorContext context;
@@ -71,7 +70,7 @@ class SonarLintFileListenerTest {
   void shouldCallAnalyseFilesWhenInit() {
     sonarLintFileListener.initContext(context, analyzer, projectContext);
 
-    verify(analyzer).analyseFiles(eq(context), eq(inputFiles), eq("kubernetes"));
+    verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
   }
 
   @Test
