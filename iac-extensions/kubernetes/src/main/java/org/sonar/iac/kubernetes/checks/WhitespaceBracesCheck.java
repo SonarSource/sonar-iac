@@ -40,10 +40,10 @@ public class WhitespaceBracesCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(FileTree.class, (ctx, tree) -> visit((KubernetesCheckContext) ctx, tree));
+    init.register(FileTree.class, (ctx, tree) -> visit((KubernetesCheckContext) ctx));
   }
 
-  private void visit(KubernetesCheckContext kubernetesContext, FileTree tree) {
+  private static void visit(KubernetesCheckContext kubernetesContext) {
     var content = readContentWithComments(kubernetesContext);
     if (content != null) {
       verifyContent(kubernetesContext, OPEN_BRACKETS, content, MESSAGE_OPEN_BRACKETS);
