@@ -28,12 +28,11 @@ class WhitespaceBracesCheckTest {
 
   private static final String OPEN = "Add a whitespace after {{ in the template directive.";
   private static final String CLOSE = "Add a whitespace before }} in the template directive.";
+  private static final WhitespaceBracesCheck CHECK = new WhitespaceBracesCheck();
 
   @Test
   void shouldDetectIssues() {
-    var check = new WhitespaceBracesCheck();
-
-    KubernetesVerifier.verify("WhitespaceBracesCheckTest/helm/templates/whitespace-braces.yaml", check,
+    KubernetesVerifier.verify("WhitespaceBracesCheckTest/helm/templates/whitespace-braces.yaml", CHECK,
       List.of(
         issue(8, 37, 8, 39, CLOSE),
         issue(10, 12, 10, 14, OPEN),
@@ -46,5 +45,10 @@ class WhitespaceBracesCheckTest {
         issue(23, 29, 23, 31, OPEN),
         issue(24, 60, 24, 62, CLOSE),
         issue(25, 6, 25, 8, CLOSE)));
+  }
+
+  @Test
+  void shouldNorRaiseIssuesForPureKubernetesFile() {
+    KubernetesVerifier.verifyNoIssue("WhitespaceBracesCheckTest/whitespace-braces-k8s.yaml", CHECK);
   }
 }
