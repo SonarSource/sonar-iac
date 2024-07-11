@@ -141,14 +141,14 @@ class KubernetesChecksVisitorTest {
 
   @Test
   void shouldDiscardSecondaryLocationOnDifferentFileWhenDisabled() {
-    var inputFileContext = createInputFileContextMock(false);
+    var inputFileContext = createHelmInputFileContextMock(false);
     when(inputFileContext.sensorContext.config().getBoolean(KubernetesChecksVisitor.DISABLE_SECONDARY_LOCATIONS_IN_OTHER_YAML_KEY + ".testRule")).thenReturn(Optional.of(true));
     TextRange range = range(1, 0, 1, 1);
     var secondaryLocationSameFile = new SecondaryLocation(range(1, 0, 2, 3), "testIssueSecondary");
     var secondaryLocationOtherFile = new SecondaryLocation(range(1, 0, 2, 3), "testIssueSecondary", "my/other/file.yaml");
     var customVisitor = prepareVisitorToRaise("testIssue", List.of(secondaryLocationSameFile, secondaryLocationOtherFile));
     customVisitor.scan(inputFileContext, tree);
-    verify(inputFileContext, times(1)).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of(secondaryLocationSameFile));
+    verify(inputFileContext).reportIssue(RuleKey.of("testRepo", "testRule"), range, "testIssue", List.of(secondaryLocationSameFile));
   }
 
   @Test
