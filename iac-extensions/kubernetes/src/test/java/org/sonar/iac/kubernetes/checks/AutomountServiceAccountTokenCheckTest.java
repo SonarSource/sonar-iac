@@ -76,4 +76,14 @@ class AutomountServiceAccountTokenCheckTest {
     KubernetesVerifier.verify("AutomountServiceAccountTokenCheck/LinkedAccount/NonCompliant/SensitiveValueChart/templates/automount_service_account_token_pod_linked.yaml", check,
       List.of(expectedIssue));
   }
+
+  @Test
+  void shouldRaiseSecondaryLocationOnLinkedAccount() {
+    String root = "AutomountServiceAccountTokenCheck/LinkedAccount/NonCompliant/SensitiveValue/";
+    var secondaryLocation1 = new SecondaryLocation(TextRanges.range(10, 22, 10, 45), "Through this service account");
+    var secondaryLocation2 = new SecondaryLocation(TextRanges.range(6, 30, 6, 34), "Change this setting", root + "linked_account_service_token.yaml");
+    Verifier.Issue expectedIssue = new Verifier.Issue(TextRanges.range(6, 0, 6, 4), "Set automountServiceAccountToken to false for this specification of kind Pod.",
+      List.of(secondaryLocation1, secondaryLocation2));
+    KubernetesVerifier.verify(root + "automount_service_account_token_pod_linked.yaml", check, List.of(expectedIssue), root + "linked_account_service_token.yaml");
+  }
 }
