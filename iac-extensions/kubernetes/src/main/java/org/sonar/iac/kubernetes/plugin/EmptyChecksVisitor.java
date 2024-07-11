@@ -19,31 +19,17 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarProduct;
-import org.sonar.iac.helm.HelmEvaluator;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
-public class KubernetesExtension {
-
-  public static final String REPOSITORY_KEY = "kubernetes";
-
-  private KubernetesExtension() {
-  }
-
-  public static void define(Plugin.Context context) {
-    if (context.getRuntime().getProduct() == SonarProduct.SONARLINT) {
-      context.addExtension(SonarLintFileListener.class);
-    }
-    context.addExtensions(
-      // Language
-      KubernetesLanguage.class,
-      // Sensor
-      KubernetesSensor.class,
-      // Rules and profiles
-      KubernetesRulesDefinition.class,
-      KubernetesProfileDefinition.class,
-      // Other extensions
-      HelmEvaluator.class);
-    context.addExtensions(KubernetesSettings.getProperties());
+/**
+ * It is no-ops visitor used in SonarLint context.
+ */
+public class EmptyChecksVisitor extends TreeVisitor<InputFileContext> {
+  @Override
+  public void scan(InputFileContext ctx, @Nullable Tree root) {
+    // do nothing
   }
 }

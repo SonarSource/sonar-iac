@@ -19,31 +19,25 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarProduct;
-import org.sonar.iac.helm.HelmEvaluator;
+import java.util.List;
+import java.util.stream.Stream;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem;
 
-public class KubernetesExtension {
+public class TestModuleFileSystem implements ModuleFileSystem {
+  private final List<InputFile> inputFiles;
 
-  public static final String REPOSITORY_KEY = "kubernetes";
-
-  private KubernetesExtension() {
+  public TestModuleFileSystem(List<InputFile> inputFiles) {
+    this.inputFiles = inputFiles;
   }
 
-  public static void define(Plugin.Context context) {
-    if (context.getRuntime().getProduct() == SonarProduct.SONARLINT) {
-      context.addExtension(SonarLintFileListener.class);
-    }
-    context.addExtensions(
-      // Language
-      KubernetesLanguage.class,
-      // Sensor
-      KubernetesSensor.class,
-      // Rules and profiles
-      KubernetesRulesDefinition.class,
-      KubernetesProfileDefinition.class,
-      // Other extensions
-      HelmEvaluator.class);
-    context.addExtensions(KubernetesSettings.getProperties());
+  @Override
+  public Stream<InputFile> files(String s, InputFile.Type type) {
+    return inputFiles.stream();
+  }
+
+  @Override
+  public Stream<InputFile> files() {
+    return inputFiles.stream();
   }
 }

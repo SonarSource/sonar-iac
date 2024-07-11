@@ -19,31 +19,22 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarProduct;
-import org.sonar.iac.helm.HelmEvaluator;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.yaml.tree.TupleTreeImpl;
 
-public class KubernetesExtension {
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
-  public static final String REPOSITORY_KEY = "kubernetes";
+class EmptyChecksVisitorTest {
 
-  private KubernetesExtension() {
-  }
-
-  public static void define(Plugin.Context context) {
-    if (context.getRuntime().getProduct() == SonarProduct.SONARLINT) {
-      context.addExtension(SonarLintFileListener.class);
-    }
-    context.addExtensions(
-      // Language
-      KubernetesLanguage.class,
-      // Sensor
-      KubernetesSensor.class,
-      // Rules and profiles
-      KubernetesRulesDefinition.class,
-      KubernetesProfileDefinition.class,
-      // Other extensions
-      HelmEvaluator.class);
-    context.addExtensions(KubernetesSettings.getProperties());
+  @Test
+  void shouldNotInteractWithContext() {
+    var visitor = new EmptyChecksVisitor();
+    InputFileContext ctx = mock(InputFileContext.class);
+    Tree root = new TupleTreeImpl(null, null, null);
+    visitor.scan(ctx, root);
+    verifyNoInteractions(ctx);
   }
 }

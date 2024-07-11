@@ -49,6 +49,18 @@ dependencyResolutionManagement {
         mavenCentral()
         maven {
             url = uri("https://repox.jfrog.io/repox/sonarsource")
+            authentication {
+                credentials {
+                    val artifactoryUsername =
+                        System.getenv("ARTIFACTORY_PRIVATE_USERNAME")
+                            ?: providers.gradleProperty("artifactoryUsername").getOrElse("")
+                    val artifactoryPassword =
+                        System.getenv("ARTIFACTORY_PRIVATE_PASSWORD")
+                            ?: providers.gradleProperty("artifactoryPassword").getOrElse("")
+                    username = artifactoryUsername
+                    password = artifactoryPassword
+                }
+            }
         }
     }
 }

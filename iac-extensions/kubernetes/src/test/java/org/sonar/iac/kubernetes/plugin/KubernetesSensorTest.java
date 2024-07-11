@@ -63,6 +63,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
 
@@ -70,6 +71,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\n";
   private static final String PARSING_ERROR_KEY = "S2260";
+  private final SonarLintFileListener sonarLintFileListener = mock(SonarLintFileListener.class);
 
   @Test
   void shouldParseYamlFileWithKubernetesIdentifiers() {
@@ -502,6 +504,15 @@ class KubernetesSensorTest extends ExtensionSensorTest {
         "Helm files count: 1, parsed: 0, not parsed: 1; Kustomize file count: pure Kubernetes 1, Helm: 1");
   }
 
+  @Test
+  void shouldInitSonarLintFileListener() {
+    var inputFile = inputFile("templates/kustomization.yaml", K8_IDENTIFIERS);
+
+    analyze(sensorSonarLint(), inputFile);
+
+    verify(sonarLintFileListener).initContext(any(), any(), any());
+  }
+
   private void assertNotSourceFileIsParsed() {
     assertNSourceFileIsParsed(0);
   }
@@ -561,6 +572,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
     return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
       mock(HelmEvaluator.class));
+  }
+
+  protected KubernetesSensor sensorSonarLint() {
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory(), noSonarFilter, new KubernetesLanguage(),
+      mock(HelmEvaluator.class), sonarLintFileListener);
   }
 
   protected KubernetesSensor sensor(HelmProcessor helmProcessor, CheckFactory checkFactory) {

@@ -21,6 +21,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
@@ -32,9 +33,9 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlParser;
@@ -53,14 +54,23 @@ public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
   private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
   private final HelmEvaluator helmEvaluator;
-  private final ProjectContext.Builder projectContextBuilder = ProjectContext.builder();
+  @Nullable
+  private final SonarLintFileListener sonarLintFileListener;
+  private final ProjectContext projectContext = new ProjectContext();
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator) {
+    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, helmEvaluator, null);
+  }
+
+  // Constructor for SonarLint
+  public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+    NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator, @Nullable SonarLintFileListener sonarLintFileListener) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks());
     this.helmEvaluator = helmEvaluator;
+    this.sonarLintFileListener = sonarLintFileListener;
   }
 
   @Override
@@ -83,6 +93,11 @@ public class KubernetesSensor extends YamlSensor {
     } else {
       LOG.debug("Skipping initialization of Helm processor");
     }
+    if (sonarLintFileListener != null) {
+      var statistics = new DurationStatistics(sensorContext.config());
+      var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
+      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext);
+    }
   }
 
   @Override
@@ -92,7 +107,7 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
-    visitors.add(new ProjectContextEnricherVisitor(projectContextBuilder));
+    visitors.add(new ProjectContextEnricherVisitor(projectContext));
     return visitors;
   }
 
@@ -125,8 +140,30 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new KubernetesAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics, new HelmParser(helmProcessor),
-      kubernetesParserStatistics, new KubernetesChecksVisitor(checks, statistics, projectContextBuilder.build()));
+    return new KubernetesAnalyzer(
+      repositoryKey(),
+      new YamlParser(),
+      visitors(sensorContext, statistics),
+      statistics,
+      new HelmParser(helmProcessor),
+      kubernetesParserStatistics,
+      new KubernetesChecksVisitor(checks, statistics, projectContext));
+  }
+
+  /**
+   * It creates a {@link KubernetesAnalyzer} used for updating {@link ProjectContext} when files changes in SonarLint.
+   * The difference between this one and created by {@link KubernetesSensor#createAnalyzer(SensorContext, DurationStatistics)}
+   * is that this one uses only {@link ProjectContextEnricherVisitor}.
+   */
+  private KubernetesAnalyzer createAnalyzerForUpdatingProjectContext(DurationStatistics statistics) {
+    return new KubernetesAnalyzer(
+      repositoryKey(),
+      new YamlParser(),
+      List.of(new ProjectContextEnricherVisitor(projectContext)),
+      statistics,
+      new HelmParser(helmProcessor),
+      kubernetesParserStatistics,
+      new EmptyChecksVisitor());
   }
 
   void setHelmProcessorForTesting(HelmProcessor helmProcessor) {

@@ -30,13 +30,13 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext> {
   private static final String DEFAULT_NAMESPACE = "";
 
-  public ProjectContextEnricherVisitor(ProjectContext.Builder projectContextBuilder) {
-    register(FileTree.class, (ctx, fileTree) -> handleFileTree(ctx, fileTree, projectContextBuilder));
+  public ProjectContextEnricherVisitor(ProjectContext projectContext) {
+    register(FileTree.class, (ctx, fileTree) -> handleFileTree(ctx, fileTree, projectContext));
   }
 
-  private static void handleFileTree(InputFileContext ctx, FileTree fileTree, ProjectContext.Builder projectContextBuilder) {
+  private static void handleFileTree(InputFileContext ctx, FileTree fileTree, ProjectContext projectContext) {
     var uri = Path.of(ctx.inputFile.uri()).normalize().toUri();
-    projectContextBuilder.addInputFileContext(ctx.inputFile.relativePath(), ctx);
+    projectContext.addInputFileContext(ctx.inputFile.relativePath(), ctx);
     fileTree.documents().stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
@@ -46,7 +46,7 @@ public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext>
           return;
         }
         var namespace = getNamespace(mappingTree);
-        projectContextBuilder.addResource(namespace, uri.toString(), resource);
+        projectContext.addResource(namespace, uri.toString(), resource);
       });
   }
 

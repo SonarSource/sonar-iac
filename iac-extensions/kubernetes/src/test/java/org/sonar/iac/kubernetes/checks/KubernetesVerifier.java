@@ -151,7 +151,7 @@ public class KubernetesVerifier {
     var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(),
       KubernetesLanguage.NAME));
     Verifier.verify(parserFor(check), tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext,
-      ProjectContext.builder().build()));
+      new ProjectContext()));
   }
 
   public static void verifyNoIssue(String templateFileName, IacCheck check, String... fileNames) {
@@ -218,8 +218,8 @@ public class KubernetesVerifier {
   }
 
   private static ProjectContext prepareProjectContext(InputFileContext inputFileContext, String... additionalFiles) {
-    var projectContextBuilder = ProjectContext.builder();
-    var projectContextEnricherVisitor = new ProjectContextEnricherVisitor(projectContextBuilder);
+    var projectContext = new ProjectContext();
+    var projectContextEnricherVisitor = new ProjectContextEnricherVisitor(projectContext);
 
     Stream<InputFile> additionalHelmProjectFiles = Stream.empty();
     if (inputFileContext instanceof HelmInputFileContext helmCtx) {
@@ -240,7 +240,7 @@ public class KubernetesVerifier {
         projectContextEnricherVisitor.scan(additionalInputFileContext, tree);
       });
 
-    return projectContextBuilder.build();
+    return projectContext;
   }
 
   private static String retrieveContent(InputFile inputFile) {
