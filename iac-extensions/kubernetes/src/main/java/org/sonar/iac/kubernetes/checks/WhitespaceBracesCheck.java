@@ -20,15 +20,20 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.tree.impl.LocationImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S6893")
 public class WhitespaceBracesCheck implements IacCheck {
+  private static final Logger LOG = LoggerFactory.getLogger(WhitespaceBracesCheck.class);
+
   private static final String MESSAGE_OPEN_BRACKETS = "Add a whitespace after {{ in the template directive.";
   private static final String MESSAGE_CLOSE_BRACKETS = "Add a whitespace before }} in the template directive.";
   // The [^\r\n\t\f\v -] in regex is like \S (non-space character) and not dash
@@ -37,17 +42,23 @@ public class WhitespaceBracesCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    var kubernetesContext = (KubernetesCheckContext) init;
+    init.register(FileTree.class, (ctx, tree) -> visit((KubernetesCheckContext) ctx, tree));
+  }
+
+  private void visit(KubernetesCheckContext kubernetesContext, FileTree tree) {
+    LOG.info("AAA visit " + kubernetesContext.inputFileContext().inputFile);
     var content = readContentWithComments(kubernetesContext);
-    verifyContent(kubernetesContext, OPEN_BRACKETS, content, MESSAGE_OPEN_BRACKETS);
-    verifyContent(kubernetesContext, CLOSE_BRACKETS, content, MESSAGE_CLOSE_BRACKETS);
+    if (content != null) {
+      verifyContent(kubernetesContext, OPEN_BRACKETS, content, MESSAGE_OPEN_BRACKETS);
+      verifyContent(kubernetesContext, CLOSE_BRACKETS, content, MESSAGE_CLOSE_BRACKETS);
+    }
   }
 
   private String readContentWithComments(KubernetesCheckContext ctx) {
     if (ctx.inputFileContext() instanceof HelmInputFileContext helmContext) {
       return helmContext.getSourceWithComments();
     }
-    return "";
+    return null;
   }
 
   private void verifyContent(KubernetesCheckContext context, Pattern pattern, String content, String message) {
