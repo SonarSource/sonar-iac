@@ -20,8 +20,6 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -32,13 +30,13 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S6893")
 public class WhitespaceBracesCheck implements IacCheck {
-  private static final Logger LOG = LoggerFactory.getLogger(WhitespaceBracesCheck.class);
 
   private static final String MESSAGE_OPEN_BRACKETS = "Add a whitespace after {{ in the template directive.";
   private static final String MESSAGE_CLOSE_BRACKETS = "Add a whitespace before }} in the template directive.";
+  private static final String GROUP_NAME = "brackets";
   // The [^\r\n\t\f\v -] in regex is like \S (non-space character) and not dash
-  private static final Pattern OPEN_BRACKETS = Pattern.compile("(?<brackets>\\{\\{)[^\\r\\n\\t\\f\\v -]");
-  private static final Pattern CLOSE_BRACKETS = Pattern.compile("[^\\r\\n\\t\\f\\v -](?<brackets>\\}\\})");
+  private static final Pattern OPEN_BRACKETS = Pattern.compile("(?<" + GROUP_NAME + ">\\{\\{)[^\\r\\n\\t\\f\\v -]");
+  private static final Pattern CLOSE_BRACKETS = Pattern.compile("[^\\r\\n\\t\\f\\v -](?<" + GROUP_NAME + ">\\}\\})");
 
   @Override
   public void initialize(InitContext init) {
@@ -46,7 +44,6 @@ public class WhitespaceBracesCheck implements IacCheck {
   }
 
   private void visit(KubernetesCheckContext kubernetesContext, FileTree tree) {
-    LOG.info("AAA visit " + kubernetesContext.inputFileContext().inputFile);
     var content = readContentWithComments(kubernetesContext);
     if (content != null) {
       verifyContent(kubernetesContext, OPEN_BRACKETS, content, MESSAGE_OPEN_BRACKETS);
@@ -54,17 +51,17 @@ public class WhitespaceBracesCheck implements IacCheck {
     }
   }
 
-  private String readContentWithComments(KubernetesCheckContext ctx) {
+  private static String readContentWithComments(KubernetesCheckContext ctx) {
     if (ctx.inputFileContext() instanceof HelmInputFileContext helmContext) {
       return helmContext.getSourceWithComments();
     }
     return null;
   }
 
-  private void verifyContent(KubernetesCheckContext context, Pattern pattern, String content, String message) {
+  private static void verifyContent(KubernetesCheckContext context, Pattern pattern, String content, String message) {
     var matcher = pattern.matcher(content);
     while (matcher.find()) {
-      var location = new LocationImpl(matcher.start("brackets"), matcher.end("brackets") - matcher.start("brackets"));
+      var location = new LocationImpl(matcher.start(GROUP_NAME), matcher.end(GROUP_NAME) - matcher.start(GROUP_NAME));
       var textRange = location.toTextRange(content);
       context.reportIssueNoLineShift(textRange, message);
     }
