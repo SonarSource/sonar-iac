@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -42,6 +44,9 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S6907")
 public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagementCheck<MapResource> {
+
+  private static final String MESSAGE_ENV_VARIABLE_DUPLICATION = "Resolve the duplication of this environment variable.";
+  private static final String MESSAGE_ENV_VARIABLE_DUPLICATE = "Duplicate environment variable without any effect.";
 
   private static final List<String> KIND_WITH_TEMPLATE = List.of(
     "DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
@@ -96,17 +101,19 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
    * @param creator A function used to wrap the resulting {@link YamlTree} into the corresponding {@link AbstractVariable} class instance.
    */
   private void checkMapResource(BlockObject root, BlockObject mapRef, Container container, Class<? extends MapResource> clazz,
-    Function<YamlTree, ? extends AbstractVariable> creator) {
+    TriFunction<YamlTree, String, YamlTree, ? extends AbstractVariable> creator) {
     retrieveMapRefTree(mapRef).ifPresent((ScalarTree mapRefNameValueTree) -> {
       var mapName = mapRefNameValueTree.value();
       getGlobalResources(root).stream()
         .filter(clazz::isInstance)
         .map(clazz::cast)
         .filter(mapResource -> mapName.equals(mapResource.name()))
-        .flatMap(mapResource -> mapResource.values().entrySet().stream())
-        .forEach((Map.Entry<String, TupleTree> entryConfigMap) -> {
-          var name = entryConfigMap.getKey();
-          container.variables.computeIfAbsent(name, key -> new ArrayList<>()).add(creator.apply(mapRefNameValueTree));
+        .forEach((MapResource mapResource) -> {
+          var filePath = mapResource.filePath();
+          mapResource.values().forEach((String name, TupleTree value) -> {
+            var variableKeyReferenceInMapResourceFile = value.key();
+            container.variables.computeIfAbsent(name, key -> new ArrayList<>()).add(creator.apply(mapRefNameValueTree, filePath, variableKeyReferenceInMapResourceFile));
+          });
         });
     });
   }
@@ -135,16 +142,24 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     Collections.sort(envVariableReferences);
     var secondaryLocations = new ArrayList<>(envVariableReferences.stream()
       .limit(envVariableReferences.size() - 1L)
-      .map(envVariableReference -> computeSecondaryLocationFromEnvVariableReference(variableName, envVariableReference))
+      .flatMap(envVariableReference -> computeSecondaryLocationsFromEnvVariableReference(variableName, envVariableReference))
       .toList());
     var lastEnvVariableReference = envVariableReferences.get(envVariableReferences.size() - 1);
+    Optional.ofNullable(lastEnvVariableReference.extraSecondaryLocation(false))
+      .ifPresent(secondaryLocations::add);
     String message = lastEnvVariableReference.primaryMessage(variableName);
     ctx.reportIssue(lastEnvVariableReference.tree, message, secondaryLocations);
   }
 
-  private static SecondaryLocation computeSecondaryLocationFromEnvVariableReference(String variableName, AbstractVariable envVariableReference) {
+  private static Stream<SecondaryLocation> computeSecondaryLocationsFromEnvVariableReference(String variableName, AbstractVariable envVariableReference) {
     String message = envVariableReference.secondaryMessage(variableName);
-    return new SecondaryLocation(envVariableReference.tree, message);
+    var mainSecondaryLocation = new SecondaryLocation(envVariableReference.tree, message);
+    var secondSecondaryLocation = envVariableReference.extraSecondaryLocation(true);
+    if (secondSecondaryLocation == null) {
+      return Stream.of(mainSecondaryLocation);
+    } else {
+      return Stream.of(mainSecondaryLocation, secondSecondaryLocation);
+    }
   }
 
   @Override
@@ -162,7 +177,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
   }
 
   abstract static class AbstractVariable implements Comparable<AbstractVariable> {
-    private final YamlTree tree;
+    protected final YamlTree tree;
 
     protected AbstractVariable(YamlTree tree) {
       this.tree = tree;
@@ -176,6 +191,9 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     abstract String primaryMessage(String variableName);
 
     abstract String secondaryMessage(String variableName);
+
+    @Nullable
+    abstract SecondaryLocation extraSecondaryLocation(boolean isDuplicate);
   }
 
   static class EnvVariable extends AbstractVariable {
@@ -185,18 +203,47 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
 
     @Override
     String primaryMessage(String variableName) {
-      return "Resolve the duplication of this environment variable.";
+      return MESSAGE_ENV_VARIABLE_DUPLICATION;
     }
 
     @Override
     String secondaryMessage(String variableName) {
-      return "Duplicate environment variable without any effect.";
+      return MESSAGE_ENV_VARIABLE_DUPLICATE;
+    }
+
+    @Nullable
+    @Override
+    SecondaryLocation extraSecondaryLocation(boolean isDuplicate) {
+      return null;
     }
   }
 
-  static class ConfigMapVariable extends AbstractVariable {
-    public ConfigMapVariable(YamlTree tree) {
-      super(tree);
+  abstract static class AbstractMapResourceVariable extends AbstractVariable {
+    protected final String filePath;
+    protected final YamlTree resourceMapVariableKey;
+
+    protected AbstractMapResourceVariable(YamlTree configMapReference, String filePath, YamlTree resourceMapVariableKey) {
+      super(configMapReference);
+      this.filePath = filePath;
+      this.resourceMapVariableKey = resourceMapVariableKey;
+    }
+
+    @Nullable
+    @Override
+    SecondaryLocation extraSecondaryLocation(boolean isDuplicate) {
+      String message;
+      if (isDuplicate) {
+        message = MESSAGE_ENV_VARIABLE_DUPLICATE;
+      } else {
+        message = MESSAGE_ENV_VARIABLE_DUPLICATION;
+      }
+      return new SecondaryLocation(resourceMapVariableKey, message, filePath);
+    }
+  }
+
+  static class ConfigMapVariable extends AbstractMapResourceVariable {
+    public ConfigMapVariable(YamlTree configMapReference, String filePath, YamlTree resourceMapVariableKey) {
+      super(configMapReference, filePath, resourceMapVariableKey);
     }
 
     @Override
@@ -210,9 +257,9 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     }
   }
 
-  static class SecretVariable extends AbstractVariable {
-    public SecretVariable(YamlTree tree) {
-      super(tree);
+  static class SecretVariable extends AbstractMapResourceVariable {
+    public SecretVariable(YamlTree configMapReference, String filePath, YamlTree resourceMapVariableKey) {
+      super(configMapReference, filePath, resourceMapVariableKey);
     }
 
     @Override
@@ -224,5 +271,10 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
     String secondaryMessage(String variableName) {
       return "Secret that contain the duplicate environment variable '%s' without any effect.".formatted(variableName);
     }
+  }
+
+  @FunctionalInterface
+  interface TriFunction<A, B, C, R> {
+    R apply(A a, B b, C c);
   }
 }
