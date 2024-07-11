@@ -95,9 +95,7 @@ public class KubernetesSensor extends YamlSensor {
     }
     if (sonarLintFileListener != null) {
       var statistics = new DurationStatistics(sensorContext.config());
-      var analyzer = new KubernetesAnalyzer(repositoryKey(), new YamlParser(), List.of(new ProjectContextEnricherVisitor(projectContext)), statistics,
-        new HelmParser(helmProcessor),
-        kubernetesParserStatistics, new EmptyChecksVisitor());
+      var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
       sonarLintFileListener.initContext(sensorContext, analyzer, projectContext);
     }
   }
@@ -142,8 +140,30 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new KubernetesAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics, new HelmParser(helmProcessor),
-      kubernetesParserStatistics, new KubernetesChecksVisitor(checks, statistics, projectContext));
+    return new KubernetesAnalyzer(
+      repositoryKey(),
+      new YamlParser(),
+      visitors(sensorContext, statistics),
+      statistics,
+      new HelmParser(helmProcessor),
+      kubernetesParserStatistics,
+      new KubernetesChecksVisitor(checks, statistics, projectContext));
+  }
+
+  /**
+   * It creates a {@link KubernetesAnalyzer} used for updating {@link ProjectContext} when files changes in SonarLint.
+   * The difference between this one and created by {@link KubernetesSensor#createAnalyzer(SensorContext, DurationStatistics)}
+   * is that this one uses only {@link ProjectContextEnricherVisitor}.
+   */
+  private KubernetesAnalyzer createAnalyzerForUpdatingProjectContext(DurationStatistics statistics) {
+    return new KubernetesAnalyzer(
+      repositoryKey(),
+      new YamlParser(),
+      List.of(new ProjectContextEnricherVisitor(projectContext)),
+      statistics,
+      new HelmParser(helmProcessor),
+      kubernetesParserStatistics,
+      new EmptyChecksVisitor());
   }
 
   void setHelmProcessorForTesting(HelmProcessor helmProcessor) {

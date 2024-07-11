@@ -35,6 +35,8 @@ import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
@@ -96,6 +98,10 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verify(projectContext).removeResource(uri(inputFile2));
+    // it will be called by initContext()
+    verify(analyzer).analyseFiles(any(), eq(List.of(inputFile1, inputFile2)), any());
+    // it will be called by process()
+    verify(analyzer).analyseFiles(any(), eq(List.of(inputFile2)), any());
   }
 
   private String uri(InputFile inputFile) {

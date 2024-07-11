@@ -62,10 +62,8 @@ public class SonarLintFileListener implements ModuleFileListener {
   @Override
   public void process(ModuleFileEvent moduleFileEvent) {
     var uri = Path.of(moduleFileEvent.getTarget().uri()).normalize().toUri().toString();
-    if (moduleFileEvent.getType() == ModuleFileEvent.Type.DELETED) {
-      projectContext.removeResource(uri);
-    } else {
-      projectContext.removeResource(uri);
+    projectContext.removeResource(uri);
+    if (moduleFileEvent.getType() != ModuleFileEvent.Type.DELETED) {
       analyzer.analyseFiles(sensorContext, List.of(moduleFileEvent.getTarget()), KubernetesLanguage.KEY);
     }
   }

@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.iac;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.iac.arm.plugin.ArmExtension;
 import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
@@ -37,12 +35,8 @@ import org.sonar.iac.terraform.plugin.TerraformExtension;
 
 public class IacPlugin implements Plugin {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IacPlugin.class);
-
-
   @Override
   public void define(Context context) {
-    LOG.info("AAA IacPlugin define");
     TerraformExtension.define(context);
     CloudformationExtension.define(context);
     KubernetesExtension.define(context);
