@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -33,11 +32,12 @@ import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.kubernetes.visitors.LocationShifter.LinesShifting;
 
 public class HelmInputFileContext extends InputFileContext {
+  private static final String VALUES_YAML = "values.yaml";
   @Nullable
   private final Path helmProjectDirectory;
   @Nullable
   private GoTemplateTree goTemplateTree;
-  private Map<String, InputFile> additionalFiles = new HashMap<>();
+  private Map<String, String> additionalFiles = new HashMap<>();
   @Nullable
   private String sourceWithComments;
 
@@ -48,21 +48,25 @@ public class HelmInputFileContext extends InputFileContext {
     this.helmProjectDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
   }
 
-  public void setAdditionalFiles(Map<String, InputFile> additionalFiles) {
-    this.additionalFiles = Collections.unmodifiableMap(additionalFiles);
-  }
-
-  public boolean hasAdditionalFile(String filePath) {
-    return additionalFiles.containsKey(filePath);
+  public void setAdditionalFiles(Map<String, String> additionalFiles) {
+    this.additionalFiles = additionalFiles;
   }
 
   @CheckForNull
-  public InputFile getValuesFile() {
-    return additionalFiles.get("values.yaml");
+  public String getValuesFile() {
+    return additionalFiles.get(VALUES_YAML);
   }
 
-  public Map<String, InputFile> getAdditionalFiles() {
-    return Collections.unmodifiableMap(additionalFiles);
+  @CheckForNull
+  public String getValuesFilePath() {
+    if (additionalFiles.containsKey(VALUES_YAML)) {
+      return VALUES_YAML;
+    }
+    return null;
+  }
+
+  public Map<String, String> getAdditionalFiles() {
+    return additionalFiles;
   }
 
   @CheckForNull

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,7 +33,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
@@ -47,6 +47,7 @@ import org.sonar.iac.helm.tree.impl.ListNodeImpl;
 import org.sonar.iac.helm.tree.impl.PipeNodeImpl;
 import org.sonar.iac.helm.tree.impl.TextNodeImpl;
 import org.sonar.iac.helm.tree.utils.ValuePath;
+import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,11 +62,19 @@ class SecondaryLocationLocatorTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
+  private FileSystemProvider fileSystemProvider = mock(FileSystemProvider.class);
+  private static final Path BASE_DIR = Path.of("dir1");
+
+  @BeforeEach
+  public void init() {
+    when(fileSystemProvider.getBasePath()).thenReturn(BASE_DIR);
+  }
+
   @Test
   void shouldFindSecondaryLocationsInValuesFile() {
     var inputFileContext = inputFileContextWithTree();
 
-    var locationsInAdditionalFiles = SecondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22));
+    var locationsInAdditionalFiles = SecondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22), fileSystemProvider);
 
     assertThat(locationsInAdditionalFiles).hasSize(1);
     assertThat(locationsInAdditionalFiles.get(0).textRange).hasRange(1, 5, 1, 8);
@@ -75,19 +84,15 @@ class SecondaryLocationLocatorTest {
   void shouldFindNothingIfRangeIsNotOverlapping() {
     var inputFileContext = inputFileContextWithTree();
 
-    var locationsInAdditionalFiles = SecondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 1, 1, 3));
+    var locationsInAdditionalFiles = SecondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 1, 1, 3), fileSystemProvider);
     assertThat(locationsInAdditionalFiles).isEmpty();
   }
 
   @Test
   void shouldFindNothingIfValuesIsAbsentInValuesFile() {
     var inputFileContext = inputFileContextWithTree();
-
-    var valuesFile = new TestInputFileBuilder("test", ".")
-      .setContents("notBar: baz")
-      .build();
-    inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
-    var locationsInAdditionalFiles = SecondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22));
+    inputFileContext.setAdditionalFiles(Map.of("values.yaml", "notBar: baz"));
+    var locationsInAdditionalFiles = SecondaryLocationLocator.doFindSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22), fileSystemProvider);
     assertThat(locationsInAdditionalFiles).isEmpty();
   }
 
@@ -160,7 +165,7 @@ class SecondaryLocationLocatorTest {
     var inputFileContext = inputFileContextWithTree();
     inputFileContext.setAdditionalFiles(Map.of());
 
-    var secondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null);
+    var secondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null, fileSystemProvider);
 
     assertThat(secondaryLocations).isEmpty();
   }
@@ -169,34 +174,21 @@ class SecondaryLocationLocatorTest {
   void shouldReturnEmptyForInputFileContext() {
     var inputFileContext = new InputFileContext(null, null);
 
-    var secondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null);
+    var secondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null, fileSystemProvider);
 
     assertThat(secondaryLocations).isEmpty();
   }
 
-  @Test
-  void shouldNotFindSecondaryLocationsWhenIoException() throws IOException {
-    var inputFileContext = inputFileContextWithTree();
-    var valuesFileMock = mock(InputFile.class);
-    when(valuesFileMock.contents()).thenThrow(new IOException("error"));
-    inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFileMock));
-
-    var locationsInAdditionalFiles = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, range(1, 6, 1, 22));
-
-    assertThat(locationsInAdditionalFiles).isEmpty();
-    assertThat(logTester.logs()).anyMatch(line -> line.startsWith("Failed to find secondary locations in additional file"));
-  }
-
   private HelmInputFileContext inputFileContextWithTree() {
-    var valuesFile = new TestInputFileBuilder("test", ".")
-      .setContents("bar: baz")
-      .build();
     HelmInputFileContext inputFileContext;
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
-      inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(BASE_DIR);
+      inputFileContext = new HelmInputFileContext(
+        mockSensorContextWithEnabledFeature(),
+        inputFile("template/foo.yaml", BASE_DIR, "bar: {{ .Values.bar }}",
+          null));
     }
-    inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
+    inputFileContext.setAdditionalFiles(Map.of("values.yaml", "bar: baz"));
 
     var fieldNode = new FieldNodeImpl(() -> range(1, 15, 1, 26), List.of("Values", "bar"));
     var command = new CommandNodeImpl(() -> range(1, 8, 1, 19), List.of(fieldNode));
@@ -211,9 +203,6 @@ class SecondaryLocationLocatorTest {
   }
 
   private TextRange getTextRangeFor(String valuesFileContent, ValuePath valuePath) throws IOException {
-    var valuesFile = new TestInputFileBuilder("test", ".")
-      .setContents(valuesFileContent)
-      .build();
     HelmInputFileContext inputFileContext;
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
@@ -221,7 +210,7 @@ class SecondaryLocationLocatorTest {
       when(inputFile.uri()).thenReturn(Path.of("dir1/templates/something.yaml").toUri());
       inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile);
     }
-    inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
+    inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFileContent));
 
     return SecondaryLocationLocator.toTextRangeInValuesFile(valuePath, inputFileContext);
   }

@@ -44,6 +44,8 @@ import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
+import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
+import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
@@ -58,6 +60,7 @@ public class KubernetesSensor extends YamlSensor {
   private final SonarLintFileListener sonarLintFileListener;
   private final ProjectContext projectContext = new ProjectContext();
   private HelmProcessor helmProcessor;
+  private FileSystemProvider fileSystemProvider;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
@@ -87,7 +90,8 @@ public class KubernetesSensor extends YamlSensor {
   protected void initContext(SensorContext sensorContext) {
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
-      var helmFileSystem = new HelmFileSystem(sensorContext.fileSystem());
+      fileSystemProvider = new DefaultFileSystemProvider(sensorContext.fileSystem());
+      var helmFileSystem = new HelmFileSystem(fileSystemProvider);
       helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
       helmProcessor.initialize();
     } else {
@@ -147,7 +151,7 @@ public class KubernetesSensor extends YamlSensor {
       statistics,
       new HelmParser(helmProcessor),
       kubernetesParserStatistics,
-      new KubernetesChecksVisitor(checks, statistics, projectContext));
+      new KubernetesChecksVisitor(checks, statistics, projectContext, fileSystemProvider));
   }
 
   /**

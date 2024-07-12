@@ -19,79 +19,44 @@
  */
 package org.sonar.iac.helm;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FilePredicates;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 public final class HelmFileSystem {
   public static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
-  private final FileSystem fileSystem;
+  private final FileSystemProvider fileSystemProvider;
 
-  public HelmFileSystem(FileSystem fileSystem) {
-    this.fileSystem = fileSystem;
+  public HelmFileSystem(FileSystemProvider fileSystemProvider) {
+    this.fileSystemProvider = fileSystemProvider;
   }
 
   public static String getFileRelativePath(HelmInputFileContext inputFileContext) {
     var inputFile = inputFileContext.inputFile;
-    var filePath = Path.of(inputFile.uri());
     var chartRootDirectory = inputFileContext.getHelmProjectDirectory();
+    return getFileRelativePath(chartRootDirectory, inputFile);
+  }
+
+  public static String getFileRelativePath(@Nullable Path chartRootDirectory, InputFile inputFile) {
+    var filePath = Path.of(inputFile.uri());
     String fileRelativePath;
     if (chartRootDirectory == null) {
       fileRelativePath = inputFile.filename();
     } else {
       fileRelativePath = chartRootDirectory.relativize(filePath).normalize().toString();
       // transform windows to unix path
-      fileRelativePath = HelmFileSystem.normalizeToUnixPathSeparator(fileRelativePath);
+      fileRelativePath = FileSystemProvider.normalizeToUnixPathSeparator(fileRelativePath);
     }
     return fileRelativePath;
   }
 
-  // Ignore additional file pattern mentioned in .helmignore
-  public Map<String, InputFile> getRelatedHelmFiles(HelmInputFileContext inputFileContext) {
-    var helmDirectoryPath = inputFileContext.getHelmProjectDirectory();
-    if (helmDirectoryPath == null) {
-      return Map.of();
-    }
-
-    var additionalHelmFilesPredicate = additionalHelmDependenciesPredicate(inputFileContext.inputFile, helmDirectoryPath);
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(additionalHelmFilesPredicate);
-
-    Map<String, InputFile> result = new HashMap<>();
-    for (InputFile additionalFile : inputFiles) {
-      String fileName = resolveToInputFile(helmDirectoryPath, additionalFile);
-      fileName = normalizeToUnixPathSeparator(fileName);
-      result.put(fileName, additionalFile);
-    }
-    return result;
-  }
-
-  FilePredicate additionalHelmDependenciesPredicate(InputFile inputFile, Path helmProjectDirectoryPath) {
-    FilePredicates predicates = fileSystem.predicates();
-    var basePath = fileSystem.baseDir().toPath();
-    var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
-    String pathPattern = relativizedPath + File.separator + "**";
-
-    return predicates.and(
-      predicates.matchesPathPattern(pathPattern),
-      extensionPredicate(predicates),
-      predicates.not(predicates.hasURI(inputFile.uri())));
-  }
-
-  private static FilePredicate extensionPredicate(FilePredicates predicates) {
-    Set<FilePredicate> extensionPredicates = INCLUDED_EXTENSIONS.stream()
-      .map(predicates::hasExtension)
-      .collect(Collectors.toSet());
-
-    return predicates.or(extensionPredicates);
+  public Map<String, String> getRelatedHelmFiles(HelmInputFileContext inputFileContext) {
+    return fileSystemProvider.inputFilesForHelm(inputFileContext);
   }
 
   public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem) {
@@ -109,13 +74,5 @@ public final class HelmFileSystem {
       return null;
     }
     return helmProjectDirectoryPath;
-  }
-
-  private static String resolveToInputFile(Path helmDirectoryPath, InputFile additionalFile) {
-    return helmDirectoryPath.relativize(Path.of(additionalFile.uri())).toString();
-  }
-
-  public static String normalizeToUnixPathSeparator(String filename) {
-    return filename.replace('\\', '/');
   }
 }

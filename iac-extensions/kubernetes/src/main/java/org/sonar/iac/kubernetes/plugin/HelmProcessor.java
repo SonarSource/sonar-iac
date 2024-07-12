@@ -20,10 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -34,6 +31,7 @@ import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
+import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -41,7 +39,6 @@ import static org.sonar.iac.helm.LineNumberCommentInserter.addLineComments;
 import static org.sonar.iac.helm.LineNumberCommentRemover.cleanSource;
 
 public class HelmProcessor {
-  public static final List<String> LINE_SEPARATORS = List.of("\n", "\r\n", "\r", "\u2028", "\u2029");
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private final HelmEvaluator helmEvaluator;
   private final HelmFileSystem helmFilesystem;
@@ -94,45 +91,22 @@ public class HelmProcessor {
       return null;
     }
 
-    var sourceWithComments = addLineComments(source);
-    inputFileContext.setSourceWithComments(sourceWithComments);
-    inputFileContext.setAdditionalFiles(helmFilesystem.getRelatedHelmFiles(inputFileContext));
-    var fileContents = validateAndReadFiles(inputFileContext);
-    var path = helmFilesystem.getFileRelativePath(inputFileContext);
-    return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, fileContents);
-  }
-
-  static Map<String, String> validateAndReadFiles(HelmInputFileContext inputFileContext) {
-    if (containsLineBreak(inputFileContext.inputFile.filename())) {
-      throw parseExceptionFor(inputFileContext.inputFile, "File name contains line break", null);
-    } else if (inputFileContext.getAdditionalFiles().keySet().stream().anyMatch(HelmProcessor::containsLineBreak)) {
-      inputFileContext.setAdditionalFiles(
-        inputFileContext.getAdditionalFiles().entrySet().stream()
-          .filter(entry -> !containsLineBreak(entry.getKey()))
-          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-      LOG.debug("Some additional files have names containing line breaks, skipping them");
+    if (FileSystemProvider.containsLineBreak(inputFile.filename())) {
+      throw parseExceptionFor(inputFile, "File name contains line break", null);
     }
 
-    // Currently we are only looking for the default location of the values file
-    if (!inputFileContext.hasAdditionalFile("values.yaml") && !inputFileContext.hasAdditionalFile("values.yml")) {
+    var sourceWithComments = addLineComments(source);
+    inputFileContext.setSourceWithComments(sourceWithComments);
+
+    var relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(inputFileContext);
+    inputFileContext.setAdditionalFiles(relatedHelmFiles);
+
+    if (inputFileContext.getValuesFilePath() == null) {
       throw parseExceptionFor(inputFileContext.inputFile, "Failed to find values file", null);
     }
 
-    var files = inputFileContext.getAdditionalFiles();
-    Map<String, String> fileContents = new HashMap<>(files.size());
-
-    for (Map.Entry<String, InputFile> filenameToInputFile : files.entrySet()) {
-      var additionalInputFile = filenameToInputFile.getValue();
-      String fileContent;
-      try {
-        fileContent = additionalInputFile.contents();
-      } catch (IOException e) {
-        throw parseExceptionFor(inputFileContext.inputFile, "Failed to read file at " + additionalInputFile, e.getMessage());
-      }
-
-      fileContents.put(filenameToInputFile.getKey(), fileContent);
-    }
-    return fileContents;
+    var path = helmFilesystem.getFileRelativePath(inputFileContext);
+    return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, relatedHelmFiles);
   }
 
   String evaluateHelmTemplate(String path, HelmInputFileContext inputFileContext, String sourceWithComments, Map<String, String> templateDependencies) {
@@ -148,9 +122,5 @@ public class HelmProcessor {
 
   private static ParseException parseExceptionFor(InputFile inputFile, String cause, @Nullable String details) {
     return new ParseException("Failed to evaluate Helm file " + inputFile + ": " + cause, null, details);
-  }
-
-  private static boolean containsLineBreak(String filename) {
-    return LINE_SEPARATORS.stream().anyMatch(filename::contains);
   }
 }
