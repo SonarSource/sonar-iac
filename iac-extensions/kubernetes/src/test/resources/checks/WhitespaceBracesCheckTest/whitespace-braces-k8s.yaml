@@ -1,0 +1,11 @@
+# The file doesn't contain any double curry braces to not be treated as Helm file
+# However it is needed for coverage
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: example-namespace
+spec:
+  containers:
+    - name: compliant_with_fixed_tag
+      image: nginx:1.14.2

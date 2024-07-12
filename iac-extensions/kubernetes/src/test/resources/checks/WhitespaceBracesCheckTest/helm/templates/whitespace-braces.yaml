@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: podName
+spec:
+  containers:
+    # Noncompliant
+    - name: {{ .Values.containerName1}}
+    # Noncompliant
+    - name: {{.Values.containerName2 }}
+    # Compliant
+    - name: {{ .Values.containerName1 }}
+    # Noncompliant
+    - name: {{ .Values.containerName1}} {{- /* Noncompliant */ -}}
+    # Noncompliant
+    - name: {{ .Values.containerName1}}{{.Values.containerName2 }}
+
+
+{{if .Values.containerName3 }}
+{{print "- name: " | indent 4 }}{{ print .Values.containerName3 }}
+{{ print "aa: " | indent 6}}{{ print .Values.containerName3 }}
+{{ print "bb: " | indent 6 }}{{print .Values.containerName3 }}
+{{ print "cc: " | indent 6 }}{{ print .Values.containerName3}}
+{{ end}}
+

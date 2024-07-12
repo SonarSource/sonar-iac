@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public interface KubernetesCheckContext extends CheckContext {
@@ -27,7 +28,7 @@ public interface KubernetesCheckContext extends CheckContext {
 
   void setShouldReportSecondaryInValues(boolean shouldReport);
 
-  void disableLocationShifting();
+  void reportIssueNoLineShift(TextRange toHighlight, String message);
 
   InputFileContext inputFileContext();
 

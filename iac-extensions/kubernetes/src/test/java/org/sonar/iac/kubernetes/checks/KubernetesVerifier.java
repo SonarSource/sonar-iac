@@ -371,8 +371,8 @@ public class KubernetesVerifier {
     }
 
     @Override
-    public void disableLocationShifting() {
-      this.enableLocationShifting = false;
+    public void reportIssueNoLineShift(TextRange textRange, String message) {
+      super.reportIssue(textRange, message, List.of());
     }
   }
 }
