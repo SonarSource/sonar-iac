@@ -16,7 +16,6 @@ spec:
     - name: {{ .Values.containerName1}}{{.Values.containerName2 }}
 
 
-# comment
 {{if .Values.containerName3 }}
 {{print "- name: " | indent 4 }}{{ print .Values.containerName3 }}
 {{ print "aa: " | indent 6}}{{ print .Values.containerName3 }}
