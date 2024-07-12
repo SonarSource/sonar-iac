@@ -119,4 +119,22 @@ class DuplicatedEnvironmentVariablesCheckTest {
     String[] otherFilesSplit = otherFiles.stream().map(file -> folder + file).toArray(String[]::new);
     KubernetesVerifier.verifyNoIssue(folder + mainFile, check, otherFilesSplit);
   }
+
+  @Test
+  void shouldRaiseCrossFileIssuesOnOtherFileInSecondaryLocations() {
+    String folder = "DuplicatedEnvironmentVariables/CrossFileTests/NonCompliant/RepetitionAcrossAllSources/";
+    String mainFile = folder + "repetition_across_all_sources.yaml";
+    String configMapFile = folder + "my-config-map.yaml";
+    String secretFile = folder + "my-secret.yaml";
+
+    var expectedSecondarySecretVariableLocation = new SecondaryLocation(range(7, 2, 7, 12), PRIMARY_MESSAGE_VARIABLE, secretFile);
+    var expectedSecondaryConfigMapReference = new SecondaryLocation(range(14, 18, 14, 31),
+      "ConfigMap that contain the duplicate environment variable 'MY_SETTING' without any effect.");
+    var expectedSecondaryConfigMapVariableLocation = new SecondaryLocation(range(6, 2, 6, 12), SECONDARY_MESSAGE_VARIABLE, configMapFile);
+    var expectedSecondaryMainVariableLocation = new SecondaryLocation(range(10, 16, 10, 26), SECONDARY_MESSAGE_VARIABLE);
+    var expectedIssue = issue(16, 18, 16, 27, "Resolve the duplication of the environment variable 'MY_SETTING' in this Secret.", expectedSecondarySecretVariableLocation,
+      expectedSecondaryConfigMapReference, expectedSecondaryConfigMapVariableLocation, expectedSecondaryMainVariableLocation);
+
+    KubernetesVerifier.verify(mainFile, check, List.of(expectedIssue), configMapFile, secretFile);
+  }
 }

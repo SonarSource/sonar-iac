@@ -8,7 +8,6 @@ spec:
       image: nginx:1.7.9
       env:
         - name: MY_SETTING
-#               ^^^^^^^^^^> {{Duplicate environment variable without any effect.}}
           value: "value"
       envFrom:
         - configMapRef:
