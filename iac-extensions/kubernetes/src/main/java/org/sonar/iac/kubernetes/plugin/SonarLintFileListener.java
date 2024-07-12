@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -61,6 +62,14 @@ public class SonarLintFileListener implements ModuleFileListener {
 
   @Override
   public void process(ModuleFileEvent moduleFileEvent) {
+    InputFile target = moduleFileEvent.getTarget();
+    String language = target.language();
+    if (language == null || !HelmFileSystem.INCLUDED_EXTENSIONS.contains(language)) {
+      LOG.debug("Module file event for {} for file {} has been ignored because it's not a Kubernetes file.",
+        moduleFileEvent.getType(), moduleFileEvent.getTarget());
+      return;
+    }
+
     LOG.debug("Module file event {} for file {}", moduleFileEvent.getType(), moduleFileEvent.getTarget());
     // the projectContext may be null if SonarLint calls this method before initContext()
     // it happens when starting IDE
@@ -70,6 +79,9 @@ public class SonarLintFileListener implements ModuleFileListener {
       if (moduleFileEvent.getType() != ModuleFileEvent.Type.DELETED) {
         analyzer.analyseFiles(sensorContext, List.of(moduleFileEvent.getTarget()), KubernetesLanguage.KEY);
       }
+      LOG.debug("Kubernetes Project Context updated");
+    } else {
+      LOG.debug("Kubernetes Project Context not updated");
     }
   }
 }

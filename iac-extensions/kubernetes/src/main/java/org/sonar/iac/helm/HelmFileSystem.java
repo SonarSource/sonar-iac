@@ -33,7 +33,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 public final class HelmFileSystem {
-  private static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
+  public static final Set<String> INCLUDED_EXTENSIONS = Set.of("yaml", "yml", "tpl", "txt", "toml", "properties");
   private final FileSystem fileSystem;
 
   public HelmFileSystem(FileSystem fileSystem) {
