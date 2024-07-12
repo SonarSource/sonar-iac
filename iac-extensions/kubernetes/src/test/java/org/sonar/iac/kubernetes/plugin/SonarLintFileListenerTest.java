@@ -35,10 +35,12 @@ import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
 class SonarLintFileListenerTest {
@@ -54,12 +56,16 @@ class SonarLintFileListenerTest {
   private ProjectContext projectContext;
   private InputFile inputFile1;
   private InputFile inputFile2;
+  private InputFile inputFileJava;
+  private InputFile inputFileNoLanguage;
   private List<InputFile> inputFiles;
 
   @BeforeEach
   public void init() {
     inputFile1 = inputFile("limit_range.yaml", BASE_DIR, "yaml");
     inputFile2 = inputFile("memory_limit_pod.yaml", BASE_DIR, "yaml");
+    inputFileJava = inputFile("FactoryBuilder.java", BASE_DIR, "java");
+    inputFileNoLanguage = inputFile("FactoryBuilder.java", BASE_DIR, null);
     inputFiles = List.of(inputFile1, inputFile2);
     var moduleFileSystem = new TestModuleFileSystem(inputFiles);
     sonarLintFileListener = new SonarLintFileListener(moduleFileSystem);
@@ -73,6 +79,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.initContext(context, analyzer, projectContext);
 
     verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
+    assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
   }
 
   @Test
@@ -83,6 +90,43 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verify(projectContext).removeResource(uri(inputFile1));
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Module file event DELETED for file limit_range.yaml",
+      "Kubernetes Project Context updated");
+  }
+
+  @Test
+  void shouldNotCallAnalyzerWhenProjectContextIsNull() {
+    var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
+
+    sonarLintFileListener.process(event);
+
+    verifyNoInteractions(projectContext);
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Module file event DELETED for file limit_range.yaml",
+      "Kubernetes Project Context not updated");
+  }
+
+  @Test
+  void shouldIgnoreJavaFile() {
+    var event = DefaultModuleFileEvent.of(inputFileJava, ModuleFileEvent.Type.MODIFIED);
+
+    sonarLintFileListener.process(event);
+
+    verifyNoInteractions(projectContext);
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
+  }
+
+  @Test
+  void shouldIgnoreFileNullLanguage() {
+    var event = DefaultModuleFileEvent.of(inputFileNoLanguage, ModuleFileEvent.Type.MODIFIED);
+
+    sonarLintFileListener.process(event);
+
+    verifyNoInteractions(projectContext);
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
   static List<ModuleFileEvent.Type> shouldCallRemoveResourceAndAnalyseFilesWhenEvent() {
