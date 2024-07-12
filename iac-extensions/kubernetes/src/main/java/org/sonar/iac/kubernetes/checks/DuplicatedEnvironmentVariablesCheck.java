@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -88,34 +89,39 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
   }
 
   private void checkEnvironmentVariableFrom(BlockObject root, BlockObject envFrom, Container container) {
-    checkMapResource(root, envFrom.block("configMapRef"), container, ConfigMap.class, ConfigMapVariable::new);
-    checkMapResource(root, envFrom.block("secretRef"), container, Secret.class, SecretVariable::new);
+    checkMapResource(resourcesByNameProvider(root, ConfigMap.class), envFrom.block("configMapRef"), container, ConfigMapVariable::new);
+    checkMapResource(resourcesByNameProvider(root, Secret.class), envFrom.block("secretRef"), container, SecretVariable::new);
   }
 
   /**
    * Fill the provided {@link Container} with {@link AbstractVariable} collected from the related global resources.
-   * @param root The document object, required to retrieve global resources.
+   * @param resourceByNameProvider A function that provide resources for a specific name.
    * @param mapRef The current block being processed ({@code configMapRef} or {@code secretRef})
    * @param container The container in which we fill the {@link AbstractVariable}
-   * @param clazz The class of global resource we are looking for, either {@link ConfigMap} or {@link Secret}
    * @param creator A function used to wrap the resulting {@link YamlTree} into the corresponding {@link AbstractVariable} class instance.
    */
-  private void checkMapResource(BlockObject root, BlockObject mapRef, Container container, Class<? extends MapResource> clazz,
+  private void checkMapResource(Function<String, Stream<? extends MapResource>> resourceByNameProvider, BlockObject mapRef, Container container,
     TriFunction<YamlTree, String, YamlTree, ? extends AbstractVariable> creator) {
     retrieveMapRefTree(mapRef).ifPresent((ScalarTree mapRefNameValueTree) -> {
       var mapName = mapRefNameValueTree.value();
-      getGlobalResources(root).stream()
-        .filter(clazz::isInstance)
-        .map(clazz::cast)
-        .filter(mapResource -> mapName.equals(mapResource.name()))
+      resourceByNameProvider.apply(mapName)
         .forEach((MapResource mapResource) -> {
           var filePath = mapResource.filePath();
           mapResource.values().forEach((String name, TupleTree value) -> {
             var variableKeyReferenceInMapResourceFile = value.key();
-            container.variables.computeIfAbsent(name, key -> new ArrayList<>()).add(creator.apply(mapRefNameValueTree, filePath, variableKeyReferenceInMapResourceFile));
+            container.variables
+              .computeIfAbsent(name, key -> new ArrayList<>())
+              .add(creator.apply(mapRefNameValueTree, filePath, variableKeyReferenceInMapResourceFile));
           });
         });
     });
+  }
+
+  private Function<String, Stream<? extends MapResource>> resourcesByNameProvider(BlockObject root, Class<? extends MapResource> clazz) {
+    return (String name) -> getGlobalResources(root).stream()
+      .filter(clazz::isInstance)
+      .map(clazz::cast)
+      .filter(mapResource -> name.equals(mapResource.name()));
   }
 
   private static Optional<ScalarTree> retrieveMapRefTree(BlockObject mapRef) {
