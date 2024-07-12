@@ -35,10 +35,12 @@ import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
 class SonarLintFileListenerTest {
@@ -73,6 +75,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.initContext(context, analyzer, projectContext);
 
     verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
+    assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
   }
 
   @Test
@@ -83,6 +86,17 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verify(projectContext).removeResource(uri(inputFile1));
+    assertThat(logTester.logs(Level.DEBUG)).contains("Module file event DELETED for file limit_range.yaml");
+  }
+
+  @Test
+  void shouldNotCallAnalyzerWhenProjectContextIsNull() {
+    var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
+
+    sonarLintFileListener.process(event);
+
+    verifyNoInteractions(projectContext);
+    assertThat(logTester.logs(Level.DEBUG)).contains("Module file event DELETED for file limit_range.yaml");
   }
 
   static List<ModuleFileEvent.Type> shouldCallRemoveResourceAndAnalyseFilesWhenEvent() {

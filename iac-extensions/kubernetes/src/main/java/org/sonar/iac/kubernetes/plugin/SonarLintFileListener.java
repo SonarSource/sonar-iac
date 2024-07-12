@@ -61,10 +61,15 @@ public class SonarLintFileListener implements ModuleFileListener {
 
   @Override
   public void process(ModuleFileEvent moduleFileEvent) {
-    var uri = Path.of(moduleFileEvent.getTarget().uri()).normalize().toUri().toString();
-    projectContext.removeResource(uri);
-    if (moduleFileEvent.getType() != ModuleFileEvent.Type.DELETED) {
-      analyzer.analyseFiles(sensorContext, List.of(moduleFileEvent.getTarget()), KubernetesLanguage.KEY);
+    LOG.debug("Module file event {} for file {}", moduleFileEvent.getType(), moduleFileEvent.getTarget());
+    // the projectContext may be null if SonarLint calls this method before initContext()
+    // it happens when starting IDE
+    if (projectContext != null) {
+      var uri = Path.of(moduleFileEvent.getTarget().uri()).normalize().toUri().toString();
+      projectContext.removeResource(uri);
+      if (moduleFileEvent.getType() != ModuleFileEvent.Type.DELETED) {
+        analyzer.analyseFiles(sensorContext, List.of(moduleFileEvent.getTarget()), KubernetesLanguage.KEY);
+      }
     }
   }
 }
