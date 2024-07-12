@@ -39,12 +39,12 @@ class WhitespaceBracesCheckTest {
         issue(14, 37, 14, 39, CLOSE),
         issue(16, 37, 16, 39, CLOSE),
         issue(16, 39, 16, 41, OPEN),
+        issue(19, 0, 19, 2, OPEN),
         issue(20, 0, 20, 2, OPEN),
-        issue(21, 0, 21, 2, OPEN),
-        issue(22, 26, 22, 28, CLOSE),
-        issue(23, 29, 23, 31, OPEN),
-        issue(24, 60, 24, 62, CLOSE),
-        issue(25, 6, 25, 8, CLOSE)));
+        issue(21, 26, 21, 28, CLOSE),
+        issue(22, 29, 22, 31, OPEN),
+        issue(23, 60, 23, 62, CLOSE),
+        issue(24, 6, 24, 8, CLOSE)));
   }
 
   @Test
