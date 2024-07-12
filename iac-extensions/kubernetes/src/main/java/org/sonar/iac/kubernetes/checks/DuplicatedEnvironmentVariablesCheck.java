@@ -100,7 +100,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
    * @param container The container in which we fill the {@link AbstractVariable}
    * @param creator A function used to wrap the resulting {@link YamlTree} into the corresponding {@link AbstractVariable} class instance.
    */
-  private void checkMapResource(Function<String, Stream<? extends MapResource>> resourceByNameProvider, BlockObject mapRef, Container container,
+  private static void checkMapResource(Function<String, Stream<? extends MapResource>> resourceByNameProvider, BlockObject mapRef, Container container,
     TriFunction<YamlTree, String, YamlTree, ? extends AbstractVariable> creator) {
     retrieveMapRefTree(mapRef).ifPresent((ScalarTree mapRefNameValueTree) -> {
       var mapName = mapRefNameValueTree.value();
