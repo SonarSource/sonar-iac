@@ -40,8 +40,8 @@ metadata:
   name: {{ .Release.Name }}-configmap
 data:
   myvalue: "Hello World"
-  {{- range $KeyNc, $val-nc := .Values.favorite }} # Noncompliant
-  {{ $KeyNc }}: {{ $val-nc | quote }}
+  {{- range $KeyNc, $VAL_NC := .Values.favorite }} # Noncompliant
+  {{ $KeyNc }}: {{ $VAL_NC | quote }}
   {{- end }}
 </pre>
 <h4>Compliant solution</h4>

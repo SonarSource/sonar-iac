@@ -15,9 +15,23 @@ that node.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <p>To avoid potential issues, specify a storage request for each container using ephemeral storage with
-<code>resources.requests.ephemeral-storage</code>.</p>
+<code>resources.requests.ephemeral-storage</code>, or create a <code>LimitRange</code> resource, that sets a default storage request for all
+containers in all pod specifications belonging to the same namespace.</p>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web # Noncompliant
+      image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -47,9 +61,34 @@ spec:
         - name: ephemeral
           mountPath: "/tmp"
 </pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: storage-limit-range
+  namespace: namespace-with-limit-range
+spec:
+  limits:
+  - defaultRequest:
+      ephemeral-storage: "10Mi"
+    type: Container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: namespace-with-limit-range
+spec:
+  containers:
+    - name: web
+      image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+</pre>
 <h3>How does this work?</h3>
 <p>You can set a request through the property <code>resources.requests.ephemeral-storage</code> of a container. Alternatively, you can set a default
-request for a namespace with <code>LimitRange</code>.</p>
+request for a namespace with <code>LimitRange</code> through <code>spec.limits[].defaultRequest.ephemeral-storage</code>.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

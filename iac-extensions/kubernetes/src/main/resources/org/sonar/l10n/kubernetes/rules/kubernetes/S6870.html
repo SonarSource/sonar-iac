@@ -27,6 +27,19 @@ spec:
         - name: ephemeral
           mountPath: "/tmp"
 </pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web # Noncompliant
+      image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+</pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 apiVersion: v1
@@ -44,9 +57,34 @@ spec:
         - name: ephemeral
           mountPath: "/tmp"
 </pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: storage-limit-range
+  namespace: namespace-with-limit-range
+spec:
+  limits:
+  - default:
+      ephemeral-storage: "10Mi"
+    type: Container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: namespace-with-limit-range
+spec:
+  containers:
+    - name: web
+      image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+</pre>
 <h3>How does this work?</h3>
 <p>A limit can be set through the property <code>resources.limits.ephemeral-storage</code> of a container. Alternatively, a default limit for a
-namespace can be set with <code>LimitRange</code>.</p>
+namespace can be set with <code>LimitRange</code> through <code>spec.limits[].default.ephemeral-storage</code>.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

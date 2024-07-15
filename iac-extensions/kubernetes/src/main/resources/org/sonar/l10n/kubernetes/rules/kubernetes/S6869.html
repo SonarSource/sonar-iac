@@ -13,6 +13,8 @@ processes on the same host might be deprived of the necessary CPU resources, cau
 loss of data, disrupting critical operations and impacting system reliability.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
+<p>To avoid potential issues, either specify a CPU limit for each container or create a resource of type <code>LimitRange</code> that sets a default
+CPU limit for all containers in a namespace.</p>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 apiVersion: v1
@@ -22,6 +24,16 @@ metadata:
 spec:
   containers:
     - name: web # Noncompliant
+      image: nginx
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-ns-noncompliant
+spec:
+  containers:
+    - name: nginx-ns-noncompliant # Noncompliant
       image: nginx
 </pre>
 <h4>Compliant solution</h4>
@@ -38,9 +50,31 @@ spec:
         limits:
           cpu: 0.5
 </pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-limit-range
+  namespace: default-cpu-example
+spec:
+  limits:
+  - default:
+      cpu: 0.5
+    type: Container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-ns-compliant
+  namespace: default-cpu-example
+spec:
+  containers:
+  - name: nginx-ns-compliant
+    image: nginx
+</pre>
 <h3>How does this work?</h3>
 <p>A limit can be set through the property <code>resources.limits.cpu</code> of a container. Alternatively, a default limit for a namespace can be set
-with <code>LimitRange</code>.</p>
+with <code>LimitRange</code> through <code>spec.limits[].default.cpu</code>.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
