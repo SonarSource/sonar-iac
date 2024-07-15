@@ -23,3 +23,11 @@ spec:
 {{ print "cc: " | indent 6 }}{{ print .Values.containerName3}}
 {{ end}}
 
+{{/* Compliant */}}
+{{- /* Compliant */ -}}
+
+{{ if .Values.containerName3 }}
+{{ print "- name: " | indent 4 }}{{ print .Values.containerName3 }}
+{{
+end
+}}
