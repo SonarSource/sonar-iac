@@ -23,11 +23,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -117,6 +120,17 @@ class DefaultFileSystemProviderTest {
       .hasMessage("Failed to evaluate Helm file charts/project/templates/pod.yaml: Failed to read file at values.yaml");
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"\n", "\r\n", "\r", "\u2028", "\u2029"})
+  void shouldSkipFilesWithLineBreakCharacters(String lineBreak) {
+    Map<String, InputFile> filesMap = Map.of(
+      "correct_file.yaml", mockInputFile(),
+      "incorrect_" + lineBreak + "_file.yaml", mockInputFile()
+    );
+    var result = DefaultFileSystemProvider.validateAndReadFiles(filesMap, mock(HelmInputFileContext.class));
+    assertThat(result).containsOnlyKeys("correct_file.yaml");
+  }
+
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {
     for (InputFile inputFile : inputFiles) {
       sensorContext.fileSystem().add(inputFile);
@@ -131,5 +145,9 @@ class DefaultFileSystemProviderTest {
       .setCharset(StandardCharsets.UTF_8)
       .setContents("")
       .build();
+  }
+
+  protected InputFile mockInputFile() {
+    return mock(InputFile.class);
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -98,8 +97,7 @@ class SecondaryLocationLocatorTest {
 
   @ParameterizedTest
   @MethodSource
-  void shouldFindSecondaryLocation(String valuesFileContent, ValuePath valuePath, int expectedStartLine, int expectedStartColumn, int expectedEndLine, int expectedEndColumn)
-    throws IOException {
+  void shouldFindSecondaryLocation(String valuesFileContent, ValuePath valuePath, int expectedStartLine, int expectedStartColumn, int expectedEndLine, int expectedEndColumn) {
     var textRange = getTextRangeFor(valuesFileContent, valuePath);
 
     assertThat(textRange).hasRange(expectedStartLine, expectedStartColumn, expectedEndLine, expectedEndColumn);
@@ -128,7 +126,7 @@ class SecondaryLocationLocatorTest {
 
   @ParameterizedTest
   @MethodSource
-  void shouldNotFindSecondaryLocation(String valuesFileContent, ValuePath valuePath) throws IOException {
+  void shouldNotFindSecondaryLocation(String valuesFileContent, ValuePath valuePath) {
     var textRange = getTextRangeFor(valuesFileContent, valuePath);
 
     assertThat(textRange).isNull();
