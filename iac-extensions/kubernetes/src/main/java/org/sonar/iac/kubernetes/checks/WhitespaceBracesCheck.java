@@ -35,8 +35,10 @@ public class WhitespaceBracesCheck implements IacCheck {
   private static final String MESSAGE_CLOSE_BRACKETS = "Add a whitespace before }} in the template directive.";
   private static final String GROUP_NAME = "brackets";
   // The [^\r\n\t\f\v -] in regex is like \S (non-space character) and not dash
-  private static final Pattern OPEN_BRACKETS = Pattern.compile("(?<" + GROUP_NAME + ">\\{\\{)[^\\r\\n\\t\\f\\v -]");
-  private static final Pattern CLOSE_BRACKETS = Pattern.compile("[^\\r\\n\\t\\f\\v -](?<" + GROUP_NAME + ">\\}\\})");
+  private static final String EXCLUDING_CHARS = "\\r\\n\\t\\f\\v -";
+  public static final String EXCLUDING_COMMENT_START = "(?!/\\*)";
+  private static final Pattern OPEN_BRACKETS = Pattern.compile("(?<" + GROUP_NAME + ">\\{\\{)" + EXCLUDING_COMMENT_START + "[^" + EXCLUDING_CHARS + "]");
+  private static final Pattern CLOSE_BRACKETS = Pattern.compile("(?<!\\*/|[" + EXCLUDING_CHARS + "])(?<" + GROUP_NAME + ">\\}\\})");
 
   @Override
   public void initialize(InitContext init) {
