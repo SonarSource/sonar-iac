@@ -17,9 +17,20 @@ contention management. This could result in the scheduler placing a resource-int
 performance issues or even node failure.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
-<p>To avoid potential issues specify a memory limit for each container.</p>
+<p>To avoid potential issues, either specify a memory limit for each container in a pod specification or create a resource of a kind
+<code>LimitRange</code>, that sets a default memory limit for all containers in all pod specifications belonging to the same namespace.</p>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web # Noncompliant
+      image: nginx
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -43,9 +54,31 @@ spec:
         limits:
           memory: 100Mi
 </pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: mem-limit-range
+  namespace: default-mem-example
+spec:
+  limits:
+    - type: Container
+      default:
+        memory: 100Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: default-mem-example
+spec:
+  containers:
+    - name: web
+      image: nginx
+</pre>
 <h3>How does this work?</h3>
 <p>A limit can be set through the property <code>resources.limits.memory</code> of a container. Alternatively, a default limit for a namespace can be
-set with <code>LimitRange</code>.</p>
+set with <code>LimitRange</code> through <code>spec.limits[].default.memory</code>.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

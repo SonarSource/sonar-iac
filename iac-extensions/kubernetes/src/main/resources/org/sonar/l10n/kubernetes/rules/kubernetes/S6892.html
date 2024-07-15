@@ -16,9 +16,20 @@ run out of resources. In this case, Kubernetes may throttle its CPU usage. By se
 get the requested CPU.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
-<p>To avoid potential issues specify a CPU request for each container with <code>resources.requests.cpu</code>.</p>
+<p>To avoid potential issues, either specify a CPU request for each container with <code>resources.requests.cpu</code> or create a resource of a kind
+<code>LimitRange</code> that sets a default CPU request for all containers in all pod specifications in a namespace.</p>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web # Noncompliant
+      image: nginx
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -42,9 +53,31 @@ spec:
         requests:
           cpu: 0.5
 </pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-request-range
+  namespace: default-cpu-example
+spec:
+  limits:
+  - defaultRequest:
+      cpu: 0.5
+    type: Container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-ns-compliant
+  namespace: default-cpu-example
+spec:
+  containers:
+  - name: nginx-ns-compliant
+    image: nginx
+</pre>
 <h3>How does this work?</h3>
 <p>A request can be set through the property <code>resources.requests.cpu</code> of a container. Alternatively, a default request for a namespace can
-be set with <code>LimitRange</code>.</p>
+be set with <code>LimitRange</code> through the property <code>spec.limits[].defaultRequest.cpu</code>.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
