@@ -31,7 +31,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -45,10 +44,10 @@ import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
+import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,6 +57,7 @@ import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 class HelmProcessorTest {
@@ -142,7 +142,7 @@ class HelmProcessorTest {
     var context = SensorContextTester.create(baseDir);
     context.fileSystem().add(valuesFile);
 
-    HelmFileSystem helmFileSystem = new HelmFileSystem(context.fileSystem());
+    HelmFileSystem helmFileSystem = new HelmFileSystem(new DefaultFileSystemProvider(context.fileSystem()));
 
     var processedFile = IacTestUtils.inputFile("templates/pod.yaml", baseDir);
 
@@ -159,85 +159,48 @@ class HelmProcessorTest {
     assertEquals(result, processedFile.contents());
   }
 
-  // -------------------------------------------------
-  // ----Test HelmProcessor.validateAndReadFiles------
-  // -------------------------------------------------
-
   @Test
   void validateAndReadFilesShouldThrowExceptionIfValuesFileNotFound() {
-    Map<String, InputFile> files = new HashMap<>();
+    Map<String, String> files = new HashMap<>();
     defaultInputFileContext.setAdditionalFiles(files);
-    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(defaultInputFileContext))
+    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    helmProcessor.initialize();
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("{{ /* dummy */}}", defaultInputFileContext))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to find values file");
   }
 
   @Test
-  void validateAndReadFilesShouldThrowExceptionIfValuesFileNotRead() throws IOException {
-    var valuesFile = mockInputFile("chart/values.yaml", "");
-    when(valuesFile.contents()).thenThrow(IOException.class);
-    Map<String, InputFile> additionalFiles = Map.of("values.yaml", valuesFile);
-    defaultInputFileContext.setAdditionalFiles(additionalFiles);
-
-    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(defaultInputFileContext))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to read file at chart/values.yaml");
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"values.yaml", "values.yml"})
-  void validateAndReadFilesShouldNotThrowIfValuesFileIsEmpty(String valuesFileName) throws IOException {
-    var emptyValuesFile = mockInputFile("chart/" + valuesFileName, "");
-    var additionalFiles = Map.of(valuesFileName, emptyValuesFile);
-    defaultInputFileContext.setAdditionalFiles(additionalFiles);
-
-    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(defaultInputFileContext);
-
-    assertThat(additionalFilesContent).isNotEmpty();
-    assertThat(additionalFilesContent.get(valuesFileName)).isEmpty();
-  }
-
-  @Test
-  void validateAndReadFilesShouldNotThrowIfSomeFileIsEmpty() throws IOException {
-    var emptyValuesFile = mockInputFile("chart/values.yaml", "");
-    var notEmptyFile = mockInputFile("templates/some.yaml", "kind: Pod");
-    var additionalFiles = Map.of("values.yaml", emptyValuesFile, "templates/some.yaml", notEmptyFile);
-    defaultInputFileContext.setAdditionalFiles(additionalFiles);
-
-    Map<String, String> additionalFilesContent = HelmProcessor.validateAndReadFiles(defaultInputFileContext);
-
-    assertThat(additionalFilesContent)
-      .hasSize(2)
-      .containsKey("values.yaml")
-      .containsKey("templates/some.yaml")
-      .containsEntry("values.yaml", "")
-      .containsEntry("templates/some.yaml", "kind: Pod");
-  }
-
-  @Test
   void validateAndReadFilesShouldThrowExceptionIfMainFileNameContainsLineBreak() {
-    var additionalFiles = Map.of("values.yaml", mock(InputFile.class));
     var inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn("file\n.yaml");
     when(inputFile.uri()).thenReturn(URI.create("file:/file.yaml"));
     when(inputFile.toString()).thenReturn("file\n.yaml");
-    var inputFileContext = new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile);
-    inputFileContext.setAdditionalFiles(additionalFiles);
+    var inputFileContext = spy(new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile));
+    when(inputFileContext.getHelmProjectDirectory()).thenReturn(Path.of("."));
 
-    assertThatThrownBy(() -> HelmProcessor.validateAndReadFiles(inputFileContext))
+    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    helmProcessor.initialize();
+
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("{{ }}", inputFileContext))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file file\n.yaml: File name contains line break");
   }
 
   @Test
-  void validateAndReadFilesShouldLogIfAdditionalFileNameContainsLineBreak() {
-    var additionalFiles = Map.of("values.yaml", mock(InputFile.class), "_helpers\n.tpl", mock(InputFile.class));
-    defaultInputFileContext.setAdditionalFiles(additionalFiles);
+  void shouldThrowExceptionWhenHelpProjectDirectoryIsNull() {
+    var inputFile = mock(InputFile.class);
+    when(inputFile.filename()).thenReturn("file.yaml");
+    when(inputFile.uri()).thenReturn(URI.create("file:/file.yaml"));
+    when(inputFile.toString()).thenReturn("file.yaml");
+    var inputFileContext = new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile);
 
-    assertThatCode(() -> HelmProcessor.validateAndReadFiles(defaultInputFileContext))
-      .doesNotThrowAnyException();
+    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    helmProcessor.initialize();
 
-    assertThat(logTester.logs(Level.DEBUG)).contains("Some additional files have names containing line breaks, skipping them");
+    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("{{ }}", inputFileContext))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Failed to evaluate Helm file file.yaml: Failed to resolve Helm project directory");
   }
 
   // -------------------------------------------------

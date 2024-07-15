@@ -37,7 +37,6 @@ import org.slf4j.event.Level;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
@@ -390,15 +389,12 @@ final class LocationShifterTest {
   }
 
   private HelmInputFileContext inputFileContextWithTree(FieldNode fieldNode) {
-    var valuesFile = new TestInputFileBuilder("test", ".")
-      .setContents("bar: baz")
-      .build();
     HelmInputFileContext helmContext;
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       Mockito.when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("."));
       helmContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null));
     }
-    helmContext.setAdditionalFiles(Map.of("values.yaml", valuesFile));
+    helmContext.setAdditionalFiles(Map.of("values.yaml", "bar: baz"));
 
     var command = new CommandNodeImpl(() -> range(1, 8, 1, 19), List.of(fieldNode));
     var pipeNode = new PipeNodeImpl(() -> range(1, 8, 1, 19), List.of(), List.of(command));

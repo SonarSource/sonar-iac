@@ -44,6 +44,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,10 +60,11 @@ class KubernetesChecksVisitorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.TRACE);
+  private FileSystemProvider fileSystemProvider = mock(FileSystemProvider.class);
 
   private static final ProjectContext PROJECT_CONTEXT = mock(ProjectContext.class);
   private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class),
-    new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT);
+    new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT, fileSystemProvider);
   private KubernetesChecksVisitor.KubernetesContextAdapter context;
   private static final TextRange TREE_TEXT_RANGE = range(1, 0, 1, 1);
   private final Tree tree = mock(Tree.class);
@@ -253,7 +255,8 @@ class KubernetesChecksVisitorTest {
   }
 
   private KubernetesChecksVisitor prepareVisitorToRaise(String message, List<SecondaryLocation> secondaryLocations, ProjectContext projectContext) {
-    KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), projectContext);
+    KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), projectContext,
+      fileSystemProvider);
     KubernetesChecksVisitor.KubernetesContextAdapter specificContext = (KubernetesChecksVisitor.KubernetesContextAdapter) specificVisitor
       .context(RuleKey.of("testRepo", "testRule"));
     IacCheck validCheckWithSecondaryLocation = init -> init.register(Tree.class, (ctx, node) -> ctx.reportIssue(node, message, secondaryLocations));
@@ -262,7 +265,8 @@ class KubernetesChecksVisitorTest {
   }
 
   private KubernetesChecksVisitor prepareVisitorToRaiseNoLineShift(String message, TextRange textRange, ProjectContext projectContext) {
-    KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), projectContext);
+    KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(mock(Checks.class), new DurationStatistics(mock(Configuration.class)), projectContext,
+      fileSystemProvider);
     KubernetesChecksVisitor.KubernetesContextAdapter specificContext = (KubernetesChecksVisitor.KubernetesContextAdapter) specificVisitor
       .context(RuleKey.of("testRepo", "testRule"));
     IacCheck validCheckWithSecondaryLocation = init -> init.register(Tree.class, (ctx, node) -> ((KubernetesCheckContext) ctx).reportIssueNoLineShift(textRange, message));

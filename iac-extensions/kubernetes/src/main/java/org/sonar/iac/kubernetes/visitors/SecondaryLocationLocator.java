@@ -19,14 +19,12 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -38,6 +36,7 @@ import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 import org.sonar.iac.helm.tree.utils.ValuePath;
+import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 
 public final class SecondaryLocationLocator {
   private static final Logger LOG = LoggerFactory.getLogger(SecondaryLocationLocator.class);
@@ -46,39 +45,39 @@ public final class SecondaryLocationLocator {
   private SecondaryLocationLocator() {
   }
 
-  public static List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
+  public static List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange,
+    FileSystemProvider fileSystemProvider) {
     if (inputFileContext instanceof HelmInputFileContext helmContext) {
       LOG.trace("Find secondary location for issue in additional files for textRange {} in file {}", shiftedTextRange, inputFileContext.inputFile);
-      return new ArrayList<>(doFindSecondaryLocationsInAdditionalFiles(helmContext, shiftedTextRange));
+      return new ArrayList<>(doFindSecondaryLocationsInAdditionalFiles(helmContext, shiftedTextRange, fileSystemProvider));
     }
     return new ArrayList<>();
   }
 
-  static List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext helmContext, TextRange primaryLocationTextRange) {
+  static List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext helmContext, TextRange primaryLocationTextRange,
+    FileSystemProvider fileSystemProvider) {
     var ast = helmContext.getGoTemplateTree();
-    var valuesFile = helmContext.getValuesFile();
-    if (ast == null || valuesFile == null) {
+    if (ast == null || helmContext.getHelmProjectDirectory() == null || helmContext.getValuesFilePath() == null) {
       return List.of();
     }
+
+    var valuesFromProjectRootPath = helmContext.getHelmProjectDirectory().resolve("values.yaml");
+    var valuesFilePath = fileSystemProvider.getBasePath().relativize(valuesFromProjectRootPath).normalize().toString().replace('\\', '/');
     var secondaryLocations = new ArrayList<SecondaryLocation>();
-    try {
-      var valuePaths = GoTemplateAstHelper.findValuePaths(ast, primaryLocationTextRange);
-      for (ValuePath valuePath : valuePaths) {
-        var secondaryTextRange = toTextRangeInValuesFile(valuePath, helmContext);
-        if (secondaryTextRange != null) {
-          secondaryLocations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFile.toString()));
-        }
+    var valuePaths = GoTemplateAstHelper.findValuePaths(ast, primaryLocationTextRange);
+    for (ValuePath valuePath : valuePaths) {
+      var secondaryTextRange = toTextRangeInValuesFile(valuePath, helmContext);
+      if (secondaryTextRange != null) {
+        secondaryLocations.add(new SecondaryLocation(secondaryTextRange, "This value is used in a noncompliant part of a template", valuesFilePath));
       }
-    } catch (IOException e) {
-      LOG.debug("Failed to find secondary locations in additional file {}", valuesFile, e);
     }
     return secondaryLocations;
   }
 
   @CheckForNull
-  static TextRange toTextRangeInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) throws IOException {
-    var valuesFile = inputFileContext.getValuesFile();
-    var valuesFileTree = buildTreeFrom(valuesFile);
+  static TextRange toTextRangeInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) {
+    var valuesFileContent = inputFileContext.getValuesFile();
+    var valuesFileTree = buildTreeFrom(valuesFileContent);
     var path = filteredPaths(valuePath);
 
     if (valuesFileTree == null || valuesFileTree.documents().isEmpty() || path.isEmpty()) {
@@ -102,12 +101,9 @@ public final class SecondaryLocationLocator {
   }
 
   @CheckForNull
-  private static FileTree buildTreeFrom(@Nullable InputFile yamlFile) throws IOException {
-    if (yamlFile != null) {
-      var valuesFileContent = yamlFile.contents();
-      if (!valuesFileContent.isBlank()) {
-        return PARSER.parse(valuesFileContent, null);
-      }
+  private static FileTree buildTreeFrom(@Nullable String yamlFileContent) {
+    if (yamlFileContent != null && !yamlFileContent.isBlank()) {
+      return PARSER.parse(yamlFileContent, null);
     }
     return null;
   }

@@ -39,6 +39,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +67,7 @@ class HelmFileSystemTest {
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
     FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("templates").toFile());
-    helmFilesystem = new HelmFileSystem(context.fileSystem());
+    helmFilesystem = new HelmFileSystem(new DefaultFileSystemProvider(context.fileSystem()));
   }
 
   @AfterEach
@@ -85,13 +86,13 @@ class HelmFileSystemTest {
     InputFile additionalFile = createInputFile(helmProjectPathPrefix + relativePath);
     addToFilesystem(context, helmTemplate, additionalFile);
 
-    Map<String, InputFile> helmDependentFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate));
-    InputFile resultingInputFile = helmDependentFiles.get(relativePath);
+    Map<String, String> helmDependentFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate));
+    String resultingInputFile = helmDependentFiles.get(relativePath);
 
     if (shouldBeIncluded) {
       assertThat(helmDependentFiles).hasSize(2);
       assertThat(resultingInputFile).isNotNull();
-      assertThat(resultingInputFile).isEqualTo(additionalFile);
+      assertThat(resultingInputFile).isBlank();
     } else {
       assertThat(helmDependentFiles).hasSize(1);
     }
@@ -161,7 +162,7 @@ class HelmFileSystemTest {
   @Test
   void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    Map<String, InputFile> relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate));
+    Map<String, String> relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate));
 
     assertThat(relatedHelmFiles).isEmpty();
   }

@@ -62,6 +62,8 @@ import org.sonar.iac.kubernetes.plugin.KubernetesAnalyzer;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
+import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
+import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 import org.sonar.iac.kubernetes.tree.impl.HelmFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
@@ -104,7 +106,8 @@ public class KubernetesVerifier {
         // Prepare project context inside this lambda so that it happens after parsing. HelmInputFileContext
         // is fully initialized during parsing (i.e. additional files are discovered and added).
         var projectContext = prepareProjectContext(inputFileContext, fileNames);
-        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+        var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext, fileSystemProvider);
       },
       commentsVisitor);
   }
@@ -116,7 +119,8 @@ public class KubernetesVerifier {
     Verifier.verify(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext, fileNames);
-        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+        var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext, fileSystemProvider);
       },
       commentsVisitor, expectedIssues);
   }
@@ -128,7 +132,8 @@ public class KubernetesVerifier {
     Verifier.verify(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext);
-        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+        var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext, fileSystemProvider);
       },
       commentsVisitor, expectedIssues);
   }
@@ -150,8 +155,9 @@ public class KubernetesVerifier {
     var tempFile = contentToTmp(content);
     var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(),
       KubernetesLanguage.NAME));
+    var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
     Verifier.verify(parserFor(check), tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext,
-      new ProjectContext()));
+      new ProjectContext(), fileSystemProvider));
   }
 
   public static void verifyNoIssue(String templateFileName, IacCheck check, String... fileNames) {
@@ -161,7 +167,8 @@ public class KubernetesVerifier {
     Verifier.verifyNoIssue(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext, fileNames);
-        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
+        var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext, fileSystemProvider);
       },
       commentsVisitor);
   }
@@ -197,7 +204,7 @@ public class KubernetesVerifier {
       throw new IllegalStateException("Could not create temporary directory", e);
     }
     HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
-    HelmFileSystem helmFileSystem = new HelmFileSystem(SENSOR_CONTEXT.fileSystem());
+    HelmFileSystem helmFileSystem = new HelmFileSystem(new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem()));
     HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
     helmProcessor.initialize();
     HelmParser helmParser = new HelmParser(helmProcessor);
@@ -223,7 +230,8 @@ public class KubernetesVerifier {
 
     Stream<InputFile> additionalHelmProjectFiles = Stream.empty();
     if (inputFileContext instanceof HelmInputFileContext helmCtx) {
-      additionalHelmProjectFiles = helmCtx.getAdditionalFiles().values().stream();
+      additionalHelmProjectFiles = helmCtx.getAdditionalFiles().entrySet().stream()
+        .map(entry -> inputFile(helmCtx.getHelmProjectDirectory() + "/" + entry.getKey(), BASE_DIR, entry.getValue(), null));
     }
     Stream.concat(
       additionalHelmProjectFiles,
@@ -310,11 +318,13 @@ public class KubernetesVerifier {
     private final ProjectContext projectContext;
     private boolean shouldReportSecondaryInValues = true;
     private boolean enableLocationShifting = true;
+    private final FileSystemProvider fileSystemProvider;
 
-    public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext inputFileContext, ProjectContext projectContext) {
+    public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext inputFileContext, ProjectContext projectContext, DefaultFileSystemProvider fileSystemProvider) {
       super(verifier);
       this.inputFileContext = inputFileContext;
       this.projectContext = projectContext;
+      this.fileSystemProvider = fileSystemProvider;
     }
 
     @Override
@@ -334,7 +344,7 @@ public class KubernetesVerifier {
 
         List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
         if (shouldReportSecondaryInValues) {
-          allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange);
+          allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange, fileSystemProvider);
         }
         List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
           .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(computeHelmInputFileContextForSecondaryLocation(secondaryLocation, helmCtx), secondaryLocation))
