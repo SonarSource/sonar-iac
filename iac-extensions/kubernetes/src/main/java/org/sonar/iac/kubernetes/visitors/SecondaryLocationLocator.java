@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;

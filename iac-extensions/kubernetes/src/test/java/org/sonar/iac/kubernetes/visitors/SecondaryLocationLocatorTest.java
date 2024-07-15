@@ -151,7 +151,7 @@ class SecondaryLocationLocatorTest {
   }
 
   @Test
-  void shouldReturnNullForMissingValuesFile() throws IOException {
+  void shouldReturnNullForMissingValuesFile() {
     var inputFileContext = inputFileContextWithTree();
     inputFileContext.setAdditionalFiles(Map.of());
 
@@ -202,7 +202,7 @@ class SecondaryLocationLocatorTest {
     return inputFileContext;
   }
 
-  private TextRange getTextRangeFor(String valuesFileContent, ValuePath valuePath) throws IOException {
+  private TextRange getTextRangeFor(String valuesFileContent, ValuePath valuePath) {
     HelmInputFileContext inputFileContext;
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
