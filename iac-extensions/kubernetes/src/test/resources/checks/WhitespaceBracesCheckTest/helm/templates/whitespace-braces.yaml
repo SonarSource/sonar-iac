@@ -26,6 +26,10 @@ spec:
 {{/* Compliant */}}
 {{- /* Compliant */ -}}
 
+{{-.Values }}
+{{ .Values-}}
+{{-.Values-}}
+
 {{ if .Values.containerName3 }}
 {{ print "- name: " | indent 4 }}{{ print .Values.containerName3 }}
 {{
