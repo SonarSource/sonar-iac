@@ -125,8 +125,7 @@ class DefaultFileSystemProviderTest {
   void shouldSkipFilesWithLineBreakCharacters(String lineBreak) {
     Map<String, InputFile> filesMap = Map.of(
       "correct_file.yaml", mockInputFile(),
-      "incorrect_" + lineBreak + "_file.yaml", mockInputFile()
-    );
+      "incorrect_" + lineBreak + "_file.yaml", mockInputFile());
     var result = DefaultFileSystemProvider.validateAndReadFiles(filesMap, mock(HelmInputFileContext.class));
     assertThat(result).containsOnlyKeys("correct_file.yaml");
   }
