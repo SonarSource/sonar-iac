@@ -62,7 +62,7 @@ public final class SecondaryLocationLocator {
     }
 
     var valuesFromProjectRootPath = helmContext.getHelmProjectDirectory().resolve("values.yaml");
-    var valuesFilePath = fileSystemProvider.getBasePath().relativize(valuesFromProjectRootPath).normalize().toString();
+    var valuesFilePath = fileSystemProvider.getBasePath().relativize(valuesFromProjectRootPath).normalize().toString().replace('\\', '/');
     var secondaryLocations = new ArrayList<SecondaryLocation>();
     var valuePaths = GoTemplateAstHelper.findValuePaths(ast, primaryLocationTextRange);
     for (ValuePath valuePath : valuePaths) {
