@@ -24,6 +24,10 @@ load(
     "project_version_cache",
     "store_project_version_script"
 )
+load(
+    "cache.star",
+    "gradle_wrapper_cache"
+)
 
 
 #
@@ -70,6 +74,7 @@ def build_task():
             "eks_container": custom_image_container_builder(cpu=10, memory="6G"),
             "project_version_cache": project_version_cache(),
             "gradle_cache": gradle_cache(),
+            "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": build_script(),
             "cleanup_gradle_script": cleanup_gradle_script(),
             "on_success": profile_report_artifacts(),
@@ -100,6 +105,7 @@ def build_test_analyze_task():
             "env": build_test_env(),
             "eks_container": custom_image_container_builder(cpu=6, memory="6G"),
             "gradle_cache": gradle_cache(),
+            "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": build_script(),
             "on_failure": {
                 "junit_artifacts": {
@@ -137,6 +143,7 @@ def sca_scan_task():
             "env": whitesource_api_env(),
             "eks_container": custom_image_container_builder(),
             "gradle_cache": gradle_cache(),
+            "gradle_wrapper_cache": gradle_wrapper_cache(),
             "project_version_cache": project_version_cache(),
             "whitesource_script": whitesource_script(),
             "cleanup_gradle_script": cleanup_gradle_script(),

@@ -10,6 +10,10 @@ load(
     "set_orchestrator_home_script",
     "mkdir_orchestrator_home_script",
 )
+load(
+    "cache.star",
+    "gradle_wrapper_cache"
+)
 
 QA_PLUGIN_GRADLE_TASK = ":its:plugin:integrationTest"
 QA_RULING_GRADLE_TASK = ":its:ruling:integrationTest"
@@ -37,6 +41,7 @@ def qa_os_win_task():
             "ec2_instance": ec2_instance_builder(),
             "env": artifactory_reader_env(),
             "gradle_cache": gradle_cache(),
+            "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": qa_win_script(),
             "on_success": profile_report_artifacts(),
             "on_failure": {
@@ -59,6 +64,7 @@ def qa_task(env):
         "eks_container": base_image_container_builder(memory="9G"),
         "env": env,
         "gradle_cache": gradle_cache(),
+        "gradle_wrapper_cache": gradle_wrapper_cache(),
         "set_orchestrator_home_script": set_orchestrator_home_script(),
         "mkdir_orchestrator_home_script": mkdir_orchestrator_home_script(),
         "orchestrator_cache": orchestrator_cache(),
