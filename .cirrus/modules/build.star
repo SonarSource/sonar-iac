@@ -68,11 +68,13 @@ def build_env():
 
 
 def build_task():
+    project_version_cache_custom = project_version_cache()
+    project_version_cache_custom["fingerprint_script"] = "echo $CI_BUILD_NUMBER"
     return {
         "build_task": {
             "env": build_env(),
             "eks_container": custom_image_container_builder(cpu=10, memory="6G"),
-            "project_version_cache": project_version_cache(),
+            "project_version_cache": project_version_cache_custom,
             "gradle_cache": gradle_cache(),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": build_script(),
@@ -136,6 +138,8 @@ def whitesource_script():
 # SHARED CANDIDATE???
 # Some bits depend on the project: project version cache, on success profile report artifacts
 def sca_scan_task():
+    project_version_cache_custom = project_version_cache()
+    project_version_cache_custom["fingerprint_script"] = "echo $CI_BUILD_NUMBER"
     return {
         "sca_scan_task": {
             "only_if": is_main_branch(),
@@ -144,7 +148,7 @@ def sca_scan_task():
             "eks_container": custom_image_container_builder(),
             "gradle_cache": gradle_cache(),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
-            "project_version_cache": project_version_cache(),
+            "project_version_cache": project_version_cache_custom,
             "whitesource_script": whitesource_script(),
             "cleanup_gradle_script": cleanup_gradle_script(),
             "allow_failures": "true",

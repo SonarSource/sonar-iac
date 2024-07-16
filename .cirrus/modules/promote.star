@@ -25,6 +25,8 @@ def promote_script():
 # SHARED CANDIDATE???
 # There are some specific configuration that might not be needed for all the projects
 def promote_task():
+    project_version_cache_custom = project_version_cache()
+    project_version_cache_custom["fingerprint_script"] = "echo $CI_BUILD_NUMBER"
     return {
         "promote_task": {
             "only_if": is_branch_qa_eligible(),
@@ -37,7 +39,7 @@ def promote_task():
             ],
             "env": promote_env(),
             "eks_container": base_image_container_builder(cpu=1, memory="2G"),
-            "project_version_cache": project_version_cache(),
+            "project_version_cache": project_version_cache_custom,
             "script": promote_script()
         }
     }
