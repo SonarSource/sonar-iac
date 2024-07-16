@@ -1,6 +1,6 @@
 load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master","promotion_env")
 load("github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master", "base_image_container_builder")
-load("github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master", "project_version_cache")
+load("github.com/SonarSource/cirrus-modules/cloud-native/cache.star@petertrr/fix-cache-config", "project_version_cache")
 load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master", "is_branch_qa_eligible")
 
 
@@ -25,8 +25,6 @@ def promote_script():
 # SHARED CANDIDATE???
 # There are some specific configuration that might not be needed for all the projects
 def promote_task():
-    project_version_cache_custom = project_version_cache()
-    project_version_cache_custom["fingerprint_script"] = "echo $CI_BUILD_NUMBER"
     return {
         "promote_task": {
             "only_if": is_branch_qa_eligible(),
@@ -39,7 +37,7 @@ def promote_task():
             ],
             "env": promote_env(),
             "eks_container": base_image_container_builder(cpu=1, memory="2G"),
-            "project_version_cache": project_version_cache_custom,
+            "project_version_cache": project_version_cache(),
             "script": promote_script()
         }
     }

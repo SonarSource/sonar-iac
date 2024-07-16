@@ -3,16 +3,13 @@ load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysi
 load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master", "artifactory_reader_env")
 load("build.star", "profile_report_artifacts")
 load(
-    "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
+    "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@petertrr/fix-cache-config",
     "gradle_cache",
     "cleanup_gradle_script",
+    "gradle_wrapper_cache",
     "orchestrator_cache",
     "set_orchestrator_home_script",
     "mkdir_orchestrator_home_script",
-)
-load(
-    "cache.star",
-    "gradle_wrapper_cache"
 )
 
 QA_PLUGIN_GRADLE_TASK = ":its:plugin:integrationTest"
