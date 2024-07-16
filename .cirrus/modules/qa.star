@@ -6,13 +6,10 @@ load(
     "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
     "gradle_cache",
     "cleanup_gradle_script",
+    "gradle_wrapper_cache",
     "orchestrator_cache",
     "set_orchestrator_home_script",
     "mkdir_orchestrator_home_script",
-)
-load(
-    "cache.star",
-    "gradle_wrapper_cache"
 )
 
 QA_PLUGIN_GRADLE_TASK = ":its:plugin:integrationTest"
