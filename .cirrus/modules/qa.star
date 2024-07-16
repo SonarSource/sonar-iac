@@ -3,7 +3,7 @@ load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysi
 load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master", "artifactory_reader_env")
 load("build.star", "profile_report_artifacts")
 load(
-    "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@petertrr/fix-cache-config",
+    "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
     "gradle_cache",
     "cleanup_gradle_script",
     "gradle_wrapper_cache",

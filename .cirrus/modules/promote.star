@@ -1,6 +1,6 @@
 load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master","promotion_env")
 load("github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master", "base_image_container_builder")
-load("github.com/SonarSource/cirrus-modules/cloud-native/cache.star@petertrr/fix-cache-config", "project_version_cache")
+load("github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master", "project_version_cache")
 load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master", "is_branch_qa_eligible")
 
 

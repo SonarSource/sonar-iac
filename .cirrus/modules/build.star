@@ -15,7 +15,7 @@ load(
 "custom_image_container_builder"
 )
 load(
-    "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@petertrr/fix-cache-config",
+    "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
     "gradle_cache",
     "cleanup_gradle_script",
     "gradle_wrapper_cache",
