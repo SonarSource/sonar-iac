@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
@@ -98,11 +99,11 @@ public class SonarLintFileListener implements ModuleFileListener {
     fileSystemProvider.setInputFilesForHelm(filenameToContent);
   }
 
-  private static String content(InputFile in) {
+  private static String content(InputFile inputFile) {
     try {
-      return in.contents();
+      return inputFile.contents();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw ParseException.createGeneralParseException("read", inputFile, e, null);
     }
   }
 }

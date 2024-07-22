@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,7 +46,6 @@ import org.sonar.iac.helm.tree.impl.ListNodeImpl;
 import org.sonar.iac.helm.tree.impl.PipeNodeImpl;
 import org.sonar.iac.helm.tree.impl.TextNodeImpl;
 import org.sonar.iac.helm.tree.utils.ValuePath;
-import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

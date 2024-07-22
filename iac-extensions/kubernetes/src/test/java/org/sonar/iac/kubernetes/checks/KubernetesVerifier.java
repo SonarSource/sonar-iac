@@ -106,8 +106,7 @@ public class KubernetesVerifier {
         // Prepare project context inside this lambda so that it happens after parsing. HelmInputFileContext
         // is fully initialized during parsing (i.e. additional files are discovered and added).
         var projectContext = prepareProjectContext(inputFileContext, fileNames);
-        var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
-        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext, fileSystemProvider);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
       },
       commentsVisitor);
   }
@@ -120,7 +119,7 @@ public class KubernetesVerifier {
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext, fileNames);
         var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
-        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext, fileSystemProvider);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
       },
       commentsVisitor, expectedIssues);
   }
@@ -133,7 +132,7 @@ public class KubernetesVerifier {
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext);
         var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
-        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext, fileSystemProvider);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
       },
       commentsVisitor, expectedIssues);
   }
@@ -155,9 +154,8 @@ public class KubernetesVerifier {
     var tempFile = contentToTmp(content);
     var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(),
       KubernetesLanguage.NAME));
-    var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
     Verifier.verify(parserFor(check), tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext,
-      new ProjectContext(), fileSystemProvider));
+      new ProjectContext()));
   }
 
   public static void verifyNoIssue(String templateFileName, IacCheck check, String... fileNames) {
@@ -167,8 +165,7 @@ public class KubernetesVerifier {
     Verifier.verifyNoIssue(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext, fileNames);
-        var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
-        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext, fileSystemProvider);
+        return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
       },
       commentsVisitor);
   }
@@ -318,13 +315,11 @@ public class KubernetesVerifier {
     private final ProjectContext projectContext;
     private boolean shouldReportSecondaryInValues = true;
     private boolean enableLocationShifting = true;
-    private final FileSystemProvider fileSystemProvider;
 
-    public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext inputFileContext, ProjectContext projectContext, DefaultFileSystemProvider fileSystemProvider) {
+    public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext inputFileContext, ProjectContext projectContext) {
       super(verifier);
       this.inputFileContext = inputFileContext;
       this.projectContext = projectContext;
-      this.fileSystemProvider = fileSystemProvider;
     }
 
     @Override

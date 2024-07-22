@@ -36,7 +36,6 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 
 public class KubernetesChecksVisitor extends ChecksVisitor {
 

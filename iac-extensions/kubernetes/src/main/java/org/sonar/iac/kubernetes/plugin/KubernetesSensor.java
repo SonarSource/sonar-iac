@@ -61,7 +61,6 @@ public class KubernetesSensor extends YamlSensor {
   private final SonarLintFileListener sonarLintFileListener;
   private final ProjectContext projectContext = new ProjectContext();
   private HelmProcessor helmProcessor;
-  private FileSystemProvider fileSystemProvider;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
@@ -89,6 +88,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected void initContext(SensorContext sensorContext) {
+    FileSystemProvider fileSystemProvider;
     if (sonarLintFileListener != null) {
       var statistics = new DurationStatistics(sensorContext.config());
       var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
@@ -99,7 +99,6 @@ public class KubernetesSensor extends YamlSensor {
     }
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
-      fileSystemProvider = new DefaultFileSystemProvider(sensorContext.fileSystem());
       var helmFileSystem = new HelmFileSystem(fileSystemProvider);
       helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
       helmProcessor.initialize();

@@ -19,12 +19,13 @@
  */
 package org.sonar.iac.kubernetes.plugin.filesystem;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 public class SonarLintFileSystemProvider implements FileSystemProvider {
 
-  private Map<String, String> inputFilesForHelm;
+  private Map<String, String> inputFilesForHelm = new HashMap<>();
 
   @Override
   public Map<String, String> inputFilesForHelm(HelmInputFileContext inputFileContext) {
