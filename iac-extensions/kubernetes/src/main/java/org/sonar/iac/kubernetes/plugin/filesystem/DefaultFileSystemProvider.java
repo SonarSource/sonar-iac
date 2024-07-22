@@ -73,7 +73,7 @@ public class DefaultFileSystemProvider implements FileSystemProvider {
 
   FilePredicate additionalHelmDependenciesPredicate(InputFile inputFile, Path helmProjectDirectoryPath) {
     FilePredicates predicates = fileSystem.predicates();
-    var basePath = getBasePath();
+    var basePath = fileSystem.baseDir().toPath();
     var relativizedPath = basePath.relativize(helmProjectDirectoryPath);
     String pathPattern = relativizedPath + File.separator + "**";
 
@@ -81,10 +81,6 @@ public class DefaultFileSystemProvider implements FileSystemProvider {
       predicates.matchesPathPattern(pathPattern),
       extensionPredicate(predicates),
       predicates.not(predicates.hasURI(inputFile.uri())));
-  }
-
-  public Path getBasePath() {
-    return fileSystem.baseDir().toPath();
   }
 
   private static FilePredicate extensionPredicate(FilePredicates predicates) {

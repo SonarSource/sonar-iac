@@ -31,6 +31,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
@@ -76,7 +77,7 @@ class SonarLintFileListenerTest {
 
   @Test
   void shouldCallAnalyseFilesWhenInit() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    sonarLintFileListener.initContext(context, analyzer, projectContext, new SonarLintFileSystemProvider());
 
     verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
     assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
@@ -84,7 +85,7 @@ class SonarLintFileListenerTest {
 
   @Test
   void shouldCallRemoveResourceWhenRemoveEvent() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    sonarLintFileListener.initContext(context, analyzer, projectContext, new SonarLintFileSystemProvider());
     var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
 
     sonarLintFileListener.process(event);
@@ -136,7 +137,7 @@ class SonarLintFileListenerTest {
   @ParameterizedTest
   @MethodSource
   void shouldCallRemoveResourceAndAnalyseFilesWhenEvent(ModuleFileEvent.Type eventType) {
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    sonarLintFileListener.initContext(context, analyzer, projectContext, new SonarLintFileSystemProvider());
     var event = DefaultModuleFileEvent.of(inputFile2, eventType);
 
     sonarLintFileListener.process(event);

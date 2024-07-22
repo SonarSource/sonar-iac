@@ -46,6 +46,7 @@ import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
+import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
@@ -88,6 +89,14 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected void initContext(SensorContext sensorContext) {
+    if (sonarLintFileListener != null) {
+      var statistics = new DurationStatistics(sensorContext.config());
+      var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
+      fileSystemProvider = new SonarLintFileSystemProvider();
+      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext, (SonarLintFileSystemProvider) fileSystemProvider);
+    } else {
+      fileSystemProvider = new DefaultFileSystemProvider(sensorContext.fileSystem());
+    }
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
       fileSystemProvider = new DefaultFileSystemProvider(sensorContext.fileSystem());
@@ -96,11 +105,6 @@ public class KubernetesSensor extends YamlSensor {
       helmProcessor.initialize();
     } else {
       LOG.debug("Skipping initialization of Helm processor");
-    }
-    if (sonarLintFileListener != null) {
-      var statistics = new DurationStatistics(sensorContext.config());
-      var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
-      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext);
     }
   }
 
@@ -151,7 +155,7 @@ public class KubernetesSensor extends YamlSensor {
       statistics,
       new HelmParser(helmProcessor),
       kubernetesParserStatistics,
-      new KubernetesChecksVisitor(checks, statistics, projectContext, fileSystemProvider));
+      new KubernetesChecksVisitor(checks, statistics, projectContext));
   }
 
   /**

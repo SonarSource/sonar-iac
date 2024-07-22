@@ -36,7 +36,6 @@ import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.helm.tree.utils.GoTemplateAstHelper;
 import org.sonar.iac.helm.tree.utils.ValuePath;
-import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 
 public final class SecondaryLocationLocator {
   private static final Logger LOG = LoggerFactory.getLogger(SecondaryLocationLocator.class);
@@ -45,24 +44,26 @@ public final class SecondaryLocationLocator {
   private SecondaryLocationLocator() {
   }
 
-  public static List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange,
-    FileSystemProvider fileSystemProvider) {
+  public static List<SecondaryLocation> findSecondaryLocationsInAdditionalFiles(InputFileContext inputFileContext, TextRange shiftedTextRange) {
     if (inputFileContext instanceof HelmInputFileContext helmContext) {
       LOG.trace("Find secondary location for issue in additional files for textRange {} in file {}", shiftedTextRange, inputFileContext.inputFile);
-      return new ArrayList<>(doFindSecondaryLocationsInAdditionalFiles(helmContext, shiftedTextRange, fileSystemProvider));
+      return new ArrayList<>(doFindSecondaryLocationsInAdditionalFiles(helmContext, shiftedTextRange));
     }
     return new ArrayList<>();
   }
 
-  static List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext helmContext, TextRange primaryLocationTextRange,
-    FileSystemProvider fileSystemProvider) {
+  static List<SecondaryLocation> doFindSecondaryLocationsInAdditionalFiles(HelmInputFileContext helmContext, TextRange primaryLocationTextRange) {
     var ast = helmContext.getGoTemplateTree();
     if (ast == null || helmContext.getHelmProjectDirectory() == null || helmContext.getValuesFilePath() == null) {
       return List.of();
     }
 
     var valuesFromProjectRootPath = helmContext.getHelmProjectDirectory().resolve("values.yaml");
-    var valuesFilePath = fileSystemProvider.getBasePath().relativize(valuesFromProjectRootPath).normalize().toString().replace('\\', '/');
+    var baseDirPath = helmContext.sensorContext.fileSystem().baseDir().toPath();
+    var valuesFilePath = baseDirPath.relativize(valuesFromProjectRootPath)
+      .normalize()
+      .toString()
+      .replace('\\', '/');
     var secondaryLocations = new ArrayList<SecondaryLocation>();
     var valuePaths = GoTemplateAstHelper.findValuePaths(ast, primaryLocationTextRange);
     for (ValuePath valuePath : valuePaths) {

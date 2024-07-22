@@ -51,15 +51,12 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     ".secondaryLocationsInOtherFilesDisable";
 
   private final ProjectContext projectContext;
-  private final FileSystemProvider fileSystemProvider;
 
   public KubernetesChecksVisitor(Checks<IacCheck> checks,
     DurationStatistics statistics,
-    ProjectContext projectContext,
-    FileSystemProvider fileSystemProvider) {
+    ProjectContext projectContext) {
     super(checks, statistics);
     this.projectContext = projectContext;
-    this.fileSystemProvider = fileSystemProvider;
   }
 
   @Override
@@ -104,7 +101,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
           boolean isReportingEnabled = helmCtx.sensorContext.config().getBoolean(ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY).orElse(false);
           if (isReportingEnabled || shouldReportSecondaryInValues()) {
-            allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange, fileSystemProvider);
+            allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange);
           }
         }
 

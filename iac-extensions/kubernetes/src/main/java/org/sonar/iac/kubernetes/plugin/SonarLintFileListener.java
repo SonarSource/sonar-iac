@@ -19,13 +19,17 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -42,21 +46,24 @@ public class SonarLintFileListener implements ModuleFileListener {
   private SensorContext sensorContext;
   private KubernetesAnalyzer analyzer;
   private ProjectContext projectContext;
+  private SonarLintFileSystemProvider fileSystemProvider;
 
   public SonarLintFileListener(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
   }
 
-  public void initContext(SensorContext sensorContext, KubernetesAnalyzer analyzer, ProjectContext projectContext) {
+  public void initContext(SensorContext sensorContext, KubernetesAnalyzer analyzer, ProjectContext projectContext, SonarLintFileSystemProvider fileSystemProvider) {
     this.sensorContext = sensorContext;
     this.analyzer = analyzer;
     this.projectContext = projectContext;
+    this.fileSystemProvider = fileSystemProvider;
     var predicate = new KubernetesOrHelmFilePredicate(sensorContext);
     var inputFiles = moduleFileSystem.files("yaml", InputFile.Type.MAIN)
       .filter(predicate::apply)
       .toList();
 
     analyzer.analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
+    storeInputFilesContent(inputFiles);
     LOG.info("Finished building Kubernetes Project Context");
   }
 
@@ -82,6 +89,20 @@ public class SonarLintFileListener implements ModuleFileListener {
       LOG.debug("Kubernetes Project Context updated");
     } else {
       LOG.debug("Kubernetes Project Context not updated");
+    }
+  }
+
+  private void storeInputFilesContent(List<InputFile> inputFiles) {
+    var filenameToContent = inputFiles.stream()
+      .collect(Collectors.toMap(IndexedFile::filename, SonarLintFileListener::content));
+    fileSystemProvider.setInputFilesForHelm(filenameToContent);
+  }
+
+  private static String content(InputFile in) {
+    try {
+      return in.contents();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 }

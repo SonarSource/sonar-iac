@@ -344,7 +344,7 @@ public class KubernetesVerifier {
 
         List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
         if (shouldReportSecondaryInValues) {
-          allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange, fileSystemProvider);
+          allSecondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(helmCtx, shiftedTextRange);
         }
         List<SecondaryLocation> shiftedSecondaryLocations = secondaryLocations.stream()
           .map(secondaryLocation -> LocationShifter.computeShiftedSecondaryLocation(computeHelmInputFileContextForSecondaryLocation(secondaryLocation, helmCtx), secondaryLocation))

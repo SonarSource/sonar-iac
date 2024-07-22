@@ -19,20 +19,19 @@
  */
 package org.sonar.iac.kubernetes.plugin.filesystem;
 
-import java.util.List;
 import java.util.Map;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
-public interface FileSystemProvider {
-  List<String> LINE_SEPARATORS = List.of("\n", "\r\n", "\r", "\u2028", "\u2029");
+public class SonarLintFileSystemProvider implements FileSystemProvider {
 
-  Map<String, String> inputFilesForHelm(HelmInputFileContext inputFileContext);
+  private Map<String, String> inputFilesForHelm;
 
-  static String normalizeToUnixPathSeparator(String filename) {
-    return filename.replace('\\', '/');
+  @Override
+  public Map<String, String> inputFilesForHelm(HelmInputFileContext inputFileContext) {
+    return inputFilesForHelm;
   }
 
-  static boolean containsLineBreak(String filename) {
-    return LINE_SEPARATORS.stream().anyMatch(filename::contains);
+  public void setInputFilesForHelm(Map<String, String> inputFilesForHelm) {
+    this.inputFilesForHelm = inputFilesForHelm;
   }
 }
