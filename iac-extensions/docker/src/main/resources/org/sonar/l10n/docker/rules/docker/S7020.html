@@ -1,0 +1,40 @@
+<p>Having long <code>RUN</code> instruction on a single line reduce the visibility and make it harder to read and understand.</p>
+<h2>Why is this an issue?</h2>
+<p>In Dockerfiles, <code>RUN</code> instruction tend to be extensive and can rapidly become quite long, containing a lot of instruction with
+parameters and flags.<br> In order to keep a good readability and help for future maintenance, it is important to split them into multiple lines.<br>
+It is usually a good idea to group elements that belong together on the same lines.<br> The usage of the operator <code>&amp;&amp;</code> allows to
+chain multiple operators. Also, the default operator <code>\</code> allows to continue the <code>RUN</code> instruction on the next line.<br> Another
+way is to use the here documents format, which allows to define multiple instructions together without any chaining operator.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+RUN apt-get update &amp;&amp; apt-get install -y package-bar package-baz package-foo package-eel
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+# Split shell form
+RUN apt-get update &amp;&amp; \
+  apt-get install -y \
+  package-bar \
+  package-baz \
+  package-foo \
+  package-eel
+
+
+# Heredoc form
+RUN &lt;&lt;EOF
+apt-get update
+apt-get install -y \
+    package-bar \
+    package-baz \
+    package-foo \
+    package-eel
+EOF
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Docker docs - <a href="https://docs.docker.com/build/building/best-practices/#run">Building best practices</a> </li>
+</ul>
+
