@@ -23,16 +23,26 @@ import java.util.HashMap;
 import java.util.Map;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
+import static java.util.stream.Collectors.toMap;
+
 public class SonarLintFileSystemProvider implements FileSystemProvider {
 
-  private Map<String, String> inputFilesForHelm = new HashMap<>();
+  private Map<String, String> inputFilesContents = new HashMap<>();
 
   @Override
   public Map<String, String> inputFilesForHelm(HelmInputFileContext inputFileContext) {
-    return inputFilesForHelm;
+    var helmProjectDirectory = inputFileContext.getHelmProjectDirectory().toUri().toString();
+    return inputFilesContents.entrySet().stream()
+      .filter(entry -> entry.getKey().startsWith(helmProjectDirectory))
+      .filter(entry -> !entry.getKey().equals(inputFileContext.inputFile.uri().toString()))
+      .collect(toMap(entry -> entry.getKey().substring(helmProjectDirectory.length()), Map.Entry::getValue));
   }
 
-  public void setInputFilesForHelm(Map<String, String> inputFilesForHelm) {
-    this.inputFilesForHelm = inputFilesForHelm;
+  public void setInputFilesContents(Map<String, String> inputFilesContents) {
+    this.inputFilesContents = inputFilesContents;
+  }
+
+  public Map<String, String> getInputFilesContents() {
+    return inputFilesContents;
   }
 }

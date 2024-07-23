@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
@@ -63,8 +62,8 @@ public class SonarLintFileListener implements ModuleFileListener {
       .filter(predicate::apply)
       .toList();
 
-    analyzer.analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
     storeInputFilesContent(inputFiles);
+    analyzer.analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
     LOG.info("Finished building Kubernetes Project Context");
   }
 
@@ -82,21 +81,33 @@ public class SonarLintFileListener implements ModuleFileListener {
     // the projectContext may be null if SonarLint calls this method before initContext()
     // it happens when starting IDE
     if (projectContext != null) {
-      var uri = Path.of(moduleFileEvent.getTarget().uri()).normalize().toUri().toString();
+      var inputFilesContents = fileSystemProvider.getInputFilesContents();
+      var uri = getPath(moduleFileEvent);
       projectContext.removeResource(uri);
+      inputFilesContents.remove(moduleFileEvent.getTarget().filename());
       if (moduleFileEvent.getType() != ModuleFileEvent.Type.DELETED) {
+        inputFilesContents.put(moduleFileEvent.getTarget().filename(), content(moduleFileEvent.getTarget()));
         analyzer.analyseFiles(sensorContext, List.of(moduleFileEvent.getTarget()), KubernetesLanguage.KEY);
       }
+      fileSystemProvider.setInputFilesContents(inputFilesContents);
       LOG.debug("Kubernetes Project Context updated");
     } else {
       LOG.debug("Kubernetes Project Context not updated");
     }
   }
 
+  private static String getPath(ModuleFileEvent moduleFileEvent) {
+    return getPath(moduleFileEvent.getTarget());
+  }
+
+  private static String getPath(InputFile inputfile) {
+    return Path.of(inputfile.uri()).normalize().toUri().toString();
+  }
+
   private void storeInputFilesContent(List<InputFile> inputFiles) {
     var filenameToContent = inputFiles.stream()
-      .collect(Collectors.toMap(IndexedFile::filename, SonarLintFileListener::content));
-    fileSystemProvider.setInputFilesForHelm(filenameToContent);
+      .collect(Collectors.toMap(SonarLintFileListener::getPath, SonarLintFileListener::content));
+    fileSystemProvider.setInputFilesContents(filenameToContent);
   }
 
   private static String content(InputFile inputFile) {

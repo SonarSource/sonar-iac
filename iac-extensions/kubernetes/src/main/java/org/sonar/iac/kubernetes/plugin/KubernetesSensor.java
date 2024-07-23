@@ -34,7 +34,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.DurationStatistics;
-import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -88,15 +87,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected void initContext(SensorContext sensorContext) {
-    FileSystemProvider fileSystemProvider;
-    if (sonarLintFileListener != null) {
-      var statistics = new DurationStatistics(sensorContext.config());
-      var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
-      fileSystemProvider = new SonarLintFileSystemProvider();
-      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext, (SonarLintFileSystemProvider) fileSystemProvider);
-    } else {
-      fileSystemProvider = new DefaultFileSystemProvider(sensorContext.fileSystem());
-    }
+    FileSystemProvider fileSystemProvider = createFileSystemProvider(sensorContext);
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
       var helmFileSystem = new HelmFileSystem(fileSystemProvider);
@@ -105,6 +96,18 @@ public class KubernetesSensor extends YamlSensor {
     } else {
       LOG.debug("Skipping initialization of Helm processor");
     }
+    if (sonarLintFileListener != null) {
+      var statistics = new DurationStatistics(sensorContext.config());
+      var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
+      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext, (SonarLintFileSystemProvider) fileSystemProvider);
+    }
+  }
+
+  private FileSystemProvider createFileSystemProvider(SensorContext sensorContext) {
+    if (sonarLintFileListener != null) {
+      return new SonarLintFileSystemProvider();
+    }
+    return new DefaultFileSystemProvider(sensorContext.fileSystem());
   }
 
   @Override
@@ -178,14 +181,13 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   private static boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
-    var isNotSonarLintContext = IacSensor.isNotSonarLintContext(sensorContext);
     boolean isHelmAnalysisEnabled = sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
     var isHelmEvaluatorExecutableAvailable = HelmProcessor.isHelmEvaluatorExecutableAvailable();
-    LOG.debug("Checking conditions for enabling Helm analysis: isNotSonarLintContext={}, isHelmActivationFlagTrue={}, isHelmEvaluatorExecutableAvailable={}",
-      isNotSonarLintContext, isHelmAnalysisEnabled, isHelmEvaluatorExecutableAvailable);
-    if (isNotSonarLintContext && isHelmAnalysisEnabled && !isHelmEvaluatorExecutableAvailable) {
+    LOG.debug("Checking conditions for enabling Helm analysis: isHelmActivationFlagTrue={}, isHelmEvaluatorExecutableAvailable={}",
+      isHelmAnalysisEnabled, isHelmEvaluatorExecutableAvailable);
+    if (isHelmAnalysisEnabled && !isHelmEvaluatorExecutableAvailable) {
       LOG.info("Helm analysis is not supported for the current platform");
     }
-    return isNotSonarLintContext && isHelmAnalysisEnabled && isHelmEvaluatorExecutableAvailable;
+    return isHelmAnalysisEnabled && isHelmEvaluatorExecutableAvailable;
   }
 }

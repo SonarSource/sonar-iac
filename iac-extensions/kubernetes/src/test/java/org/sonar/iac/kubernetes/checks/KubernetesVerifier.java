@@ -63,7 +63,6 @@ import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
 import org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics;
 import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
-import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 import org.sonar.iac.kubernetes.tree.impl.HelmFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
@@ -118,7 +117,6 @@ public class KubernetesVerifier {
     Verifier.verify(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext, fileNames);
-        var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
         return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
       },
       commentsVisitor, expectedIssues);
@@ -131,7 +129,6 @@ public class KubernetesVerifier {
     Verifier.verify(parserFor(check), inputFileContext, check,
       multiFileVerifier -> {
         var projectContext = prepareProjectContext(inputFileContext);
-        var fileSystemProvider = new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem());
         return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
       },
       commentsVisitor, expectedIssues);
