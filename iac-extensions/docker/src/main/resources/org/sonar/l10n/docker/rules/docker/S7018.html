@@ -1,0 +1,36 @@
+<p>In Dockerfiles, when using multi-line <code>RUN</code> instructions, it’s important to ensure that the arguments are sorted alphabetically. This
+practice enhances the readability and maintainability of the code. It allows for easier tracking of modifications and can help prevent potential
+errors.</p>
+<h2>Why is this an issue?</h2>
+<p>When arguments in <code>RUN</code> instructions are not sorted alphabetically, it can make the Dockerfile harder to read and maintain. However,
+when arguments are sorted, it is easier to track changes in version control systems and to locate specific arguments.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+FROM ubuntu:20.04
+
+RUN apt-get update &amp;&amp; apt-get install -y \
+    unzip \
+    wget \
+    curl \
+    git \
+    zip
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM ubuntu:20.04
+
+RUN apt-get update &amp;&amp; apt-get install -y \
+    curl \
+    git \
+    unzip \
+    wget \
+    zip
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Docker Docs - <a href="https://docs.docker.com/build/building/best-practices/#sort-multi-line-arguments">Building best practices</a> </li>
+</ul>
+
