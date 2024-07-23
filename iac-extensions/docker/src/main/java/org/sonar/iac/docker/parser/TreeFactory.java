@@ -275,9 +275,10 @@ public class TreeFactory {
     return new RegularVariableImpl(dollar, identifier);
   }
 
-  public EncapsulatedVariable encapsulatedVariable(SyntaxToken openDollarCurly, SyntaxToken identifier, Optional<Tuple<SyntaxToken, Argument>> modifier, SyntaxToken closeCurly) {
+  public EncapsulatedVariable encapsulatedVariable(SyntaxToken openDollarCurly, SyntaxToken identifier, Optional<Tuple<SyntaxToken, Optional<Argument>>> modifier,
+    SyntaxToken closeCurly) {
     if (modifier.isPresent()) {
-      return new EncapsulatedVariableImpl(openDollarCurly, identifier, modifier.get().first(), modifier.get().second(), closeCurly);
+      return new EncapsulatedVariableImpl(openDollarCurly, identifier, modifier.get().first(), modifier.get().second().orNull(), closeCurly);
     }
     return new EncapsulatedVariableImpl(openDollarCurly, identifier, null, null, closeCurly);
   }

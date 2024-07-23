@@ -39,10 +39,12 @@ class EncapsulatedVariableImplTest {
       .matches("${FOO}")
       .matches("${F2}")
       .matches("${foo:-$bar}")
+      .matches("${foo:-}")
       .matches("${foo:+$bar}")
       .matches("${foo:+'bar'}")
       .matches("${foo:+\"bar\"}")
       .matches("${foo:+bar}")
+      .matches("${foo:+}")
       .matches("${foo:+bar$bar}")
       .matches("${foo:+${bar}}")
       .matches("${foo:+${bar:-'foobar'}}")
@@ -78,5 +80,13 @@ class EncapsulatedVariableImplTest {
   void shouldHaveNoModifierSeparator() {
     EncapsulatedVariable variable = parse("${foo}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
     assertThat(variable.modifierSeparator()).isNull();
+  }
+
+  @Test
+  void shouldHaveSeparatorButNoModifier() {
+    EncapsulatedVariable variable = parse("${foo:-}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+    assertThat(variable.identifier()).isEqualTo("foo");
+    assertThat(variable.modifierSeparator()).isEqualTo(":-");
+    assertThat(variable.modifier()).isNull();
   }
 }
