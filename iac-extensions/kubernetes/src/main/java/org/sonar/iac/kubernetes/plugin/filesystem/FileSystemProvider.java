@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.kubernetes.plugin.filesystem;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
@@ -36,6 +35,4 @@ public interface FileSystemProvider {
   static boolean containsLineBreak(String filename) {
     return LINE_SEPARATORS.stream().anyMatch(filename::contains);
   }
-
-  Path getBasePath();
 }

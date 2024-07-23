@@ -19,13 +19,17 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -42,20 +46,23 @@ public class SonarLintFileListener implements ModuleFileListener {
   private SensorContext sensorContext;
   private KubernetesAnalyzer analyzer;
   private ProjectContext projectContext;
+  private SonarLintFileSystemProvider fileSystemProvider;
 
   public SonarLintFileListener(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
   }
 
-  public void initContext(SensorContext sensorContext, KubernetesAnalyzer analyzer, ProjectContext projectContext) {
+  public void initContext(SensorContext sensorContext, KubernetesAnalyzer analyzer, ProjectContext projectContext, SonarLintFileSystemProvider fileSystemProvider) {
     this.sensorContext = sensorContext;
     this.analyzer = analyzer;
     this.projectContext = projectContext;
+    this.fileSystemProvider = fileSystemProvider;
     var predicate = new KubernetesOrHelmFilePredicate(sensorContext);
     var inputFiles = moduleFileSystem.files("yaml", InputFile.Type.MAIN)
       .filter(predicate::apply)
       .toList();
 
+    storeInputFilesContent(inputFiles);
     analyzer.analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
     LOG.info("Finished building Kubernetes Project Context");
   }
@@ -74,14 +81,40 @@ public class SonarLintFileListener implements ModuleFileListener {
     // the projectContext may be null if SonarLint calls this method before initContext()
     // it happens when starting IDE
     if (projectContext != null) {
-      var uri = Path.of(moduleFileEvent.getTarget().uri()).normalize().toUri().toString();
+      var inputFilesContents = fileSystemProvider.getInputFilesContents();
+      var uri = getPath(moduleFileEvent);
       projectContext.removeResource(uri);
+      inputFilesContents.remove(moduleFileEvent.getTarget().filename());
       if (moduleFileEvent.getType() != ModuleFileEvent.Type.DELETED) {
+        inputFilesContents.put(moduleFileEvent.getTarget().filename(), content(moduleFileEvent.getTarget()));
         analyzer.analyseFiles(sensorContext, List.of(moduleFileEvent.getTarget()), KubernetesLanguage.KEY);
       }
+      fileSystemProvider.setInputFilesContents(inputFilesContents);
       LOG.debug("Kubernetes Project Context updated");
     } else {
       LOG.debug("Kubernetes Project Context not updated");
+    }
+  }
+
+  private static String getPath(ModuleFileEvent moduleFileEvent) {
+    return getPath(moduleFileEvent.getTarget());
+  }
+
+  private static String getPath(InputFile inputfile) {
+    return Path.of(inputfile.uri()).normalize().toUri().toString();
+  }
+
+  private void storeInputFilesContent(List<InputFile> inputFiles) {
+    var filenameToContent = inputFiles.stream()
+      .collect(Collectors.toMap(SonarLintFileListener::getPath, SonarLintFileListener::content));
+    fileSystemProvider.setInputFilesContents(filenameToContent);
+  }
+
+  private static String content(InputFile inputFile) {
+    try {
+      return inputFile.contents();
+    } catch (IOException e) {
+      throw ParseException.createGeneralParseException("read", inputFile, e, null);
     }
   }
 }
