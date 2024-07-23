@@ -27,6 +27,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 @Rule(key = "S7018")
@@ -41,14 +42,14 @@ public class SortedArgumentListCheck implements IacCheck {
     .withAnyFlag()
     .with(INSTALL_COMMAND)
     .withAnyFlag()
-    .withOptionalRepeatingExcept("EOF")
+    .withOptionalRepeating(s -> true)
     .build();
   private static final CommandDetector APK_DETECTOR = CommandDetector.builder()
     .with("apk")
     .withAnyFlag()
     .with(ADD_COMMAND)
     .withAnyFlag()
-    .withOptionalRepeatingExcept("EOF")
+    .withOptionalRepeating(s -> true)
     .build();
   private static final CommandDetector PIP_DETECTOR = CommandDetector.builder()
     .with("pip")
@@ -56,7 +57,7 @@ public class SortedArgumentListCheck implements IacCheck {
     .with(INSTALL_COMMAND)
     // don't sort arguments if a file is used
     .withAnyFlagExcept("-r", "--requirement")
-    .withOptionalRepeatingExcept("EOF")
+    .withOptionalRepeating(s -> true)
     .build();
   private static final Set<CommandDetector> COMMAND_DETECTORS = Set.of(DEBIAN_PACKAGE_MANAGER_DETECTOR, APK_DETECTOR, PIP_DETECTOR);
 
@@ -66,6 +67,12 @@ public class SortedArgumentListCheck implements IacCheck {
   }
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
+    if (runInstruction.getKindOfArgumentList() == DockerTree.Kind.HEREDOCUMENT) {
+      // TODO SONARIAC-1557 Heredoc should be treated as multiple instructions
+      // Otherwise, it's not clear where to stop the matcher, and the next command can be captured.
+      return;
+    }
+
     var argumentResolutions = runInstruction.arguments().stream().map(ArgumentResolution::of).toList();
     COMMAND_DETECTORS.stream()
       .map(it -> it.search(argumentResolutions))

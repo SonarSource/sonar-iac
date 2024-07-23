@@ -9,8 +9,27 @@ RUN apt-get update && apt-get -V install -y \
     git \
     zip
 
-# Noncompliant@+4 {{Sort these package names alphanumerically.}}
-# ^[sl=+4;sc=1;el=+9;ec=6]
+# Noncompliant@+2 {{Sort these package names alphanumerically.}}
+# ^[sl=+2;sc=23;el=+7;ec=7]
+RUN apt-get update && apt-get -V install -y \
+    unzip \
+    wget \
+    curl \
+    git \
+    zip && \
+    rm -rf /var/lib/apt/lists/*
+
+# Noncompliant@+2 {{Sort these package names alphanumerically.}}
+# ^[sl=+2;sc=5;el=+7;ec=7]
+RUN apt-get -V install -y \
+    unzip \
+    wget \
+    curl \
+    git \
+    zip \
+    || echo "Failed to install packages"
+
+# FN; TODO SONARIAC-1557 Heredoc should be treated as multiple instructions
 RUN <<EOF
 apt-get update
 apt-get -V install -y \
@@ -45,6 +64,10 @@ RUN apk add --no-cache --virtual .build-deps  \
 
 # Noncompliant@+1
 RUN pip install seaborn matplotlib pandas numpy
+
+# Noncompliant@+1
+RUN echo "Installing packages" && pip install seaborn matplotlib pandas numpy || echo "Failed to install packages"
+#                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Compliant
 RUN apt-get update && apt-get install -y \
