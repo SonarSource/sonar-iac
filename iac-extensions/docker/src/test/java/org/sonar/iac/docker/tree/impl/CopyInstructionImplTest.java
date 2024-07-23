@@ -28,7 +28,6 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammarTest.FORBIDDEN_CHARACTERS_AFTER_KEYWORD;
@@ -53,6 +52,7 @@ class CopyInstructionImplTest {
       .matches("COPY \"src\" \"dest\"")
       .matches("COPY --option= src dest")
       .matches("COPY <<EOT\n  mkdir -p foo/bar\nEOT")
+      .matches("COPY --chown=755 <<EOT\n  mkdir -p foo/bar\nEOT")
       .matches("COPY <<EOT early code\n  mkdir -p foo/bar\nEOT")
       .matches("   COPY       <<EOT\n  mkdir -p foo/bar\nEOT")
       .matches("COPY <<eot\n  mkdir -p foo/bar\neot")
@@ -140,15 +140,35 @@ class CopyInstructionImplTest {
 
   @Test
   void copyInstructionHeredocForm() {
-    String toParse = code("COPY <<FILE1",
-      "line 1",
-      "line 2",
-      "FILE1");
+    String toParse = """
+      COPY <<FILE1
+      line 1
+      line 2
+      FILE1""";
     CopyInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.COPY);
     assertThat(tree.textRange()).hasRange(1, 0, 4, 5);
 
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertThat(tree.arguments()).isNotNull();
     assertArgumentsValue(tree.arguments(), "<<FILE1", "line", "1", "line", "2", "FILE1");
+  }
+
+  @Test
+  void shouldParseCopyInstructionWithMultipleHeredoc() {
+    String toParse = """
+      COPY <<FILE1 <<FILE2
+      line 1
+      line 2
+      FILE1
+      line 3
+      line 4
+      FILE2
+      """;
+    CopyInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.COPY);
+    assertThat(tree.textRange()).hasRange(1, 0, 7, 5);
+
+    assertThat(tree.keyword().value()).isEqualTo("COPY");
+    assertThat(tree.arguments()).isNotNull();
+    assertArgumentsValue(tree.arguments(), "<<FILE1", "<<FILE2", "line", "1", "line", "2", "FILE1", "line", "3", "line", "4", "FILE2");
   }
 }

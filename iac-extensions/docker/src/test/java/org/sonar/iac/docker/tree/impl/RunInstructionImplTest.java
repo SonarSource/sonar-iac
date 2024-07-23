@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -30,11 +31,13 @@ import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.Flag;
+import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
@@ -69,10 +72,11 @@ class RunInstructionImplTest {
       .matches("RUN /bin/sh /deploy.sh")
       .matches("RUN mkdir -p /output && zip -FS -r /output/lambda.zip ./")
       .matches("RUN CGO_ENABLED=0 go build -o backend main.go")
-      .matches("RUN <<EOF\n" +
-        "apk update\n" +
-        "apk add git\n" +
-        "EOF")
+      .matches("""
+        RUN <<EOF
+        apk update
+        apk add git
+        EOF""")
       .matches("RUN export FLASK_APP=app.py")
       .matches("RUN export FLASK_APP=app.py")
       .matches("RUN RUN set -ex \\\n\t&& apk add --no-cache --virtual .fetch-deps \\\n\t\tgnupg")
@@ -156,11 +160,12 @@ class RunInstructionImplTest {
 
   @Test
   void shouldParseMultiline() {
-    RunInstruction tree = DockerTestUtils.parse("RUN  \\\n" +
-      "        TEST=test && \\\n" +
-      "        ls && \\\n" +
-      "        curl sLO https://google.com &&\\\n" +
-      "        echo TEST | sha256sum --check",
+    RunInstruction tree = DockerTestUtils.parse("""
+      RUN  \\
+              TEST=test && \\
+              ls && \\
+              curl sLO https://google.com &&\\
+              echo TEST | sha256sum --check""",
       DockerLexicalGrammar.RUN);
 
     assertThat(tree.options()).isEmpty();
@@ -258,10 +263,11 @@ class RunInstructionImplTest {
 
   @Test
   void shouldCheckParseRunMultiLineFileEnding() {
-    String toParse = "RUN <<FILE1\n" +
-      "line 1\n" +
-      "line 2\n" +
-      "FILE1";
+    String toParse = """
+      RUN <<FILE1
+      line 1
+      line 2
+      FILE1""";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.textRange()).hasRange(1, 0, 4, 5);
 
@@ -272,11 +278,12 @@ class RunInstructionImplTest {
 
   @Test
   void shouldCheckParseRunMultiLineFollowedByOtherInstructionAndDash() {
-    String toParse = "RUN <<-FILE1 line 0\n" +
-      "line 1\n" +
-      "line 2\n" +
-      "FILE1\n" +
-      "HEALTHCHECK NONE";
+    String toParse = """
+      RUN <<-FILE1 line 0
+      line 1
+      line 2
+      FILE1
+      HEALTHCHECK NONE""";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.textRange()).hasRange(1, 0, 4, 5);
 
@@ -287,12 +294,13 @@ class RunInstructionImplTest {
 
   @Test
   void shouldCheckParseRunMultiLineMultipleRedirect() {
-    String toParse = "RUN <<FILE1 <<FILE2\n" +
-      "line file 1\n" +
-      "FILE1\n" +
-      "line file 2\n" +
-      "FILE2\n" +
-      "HEALTHCHECK NONE";
+    String toParse = """
+      RUN <<FILE1 <<FILE2
+      line file 1
+      FILE1
+      line file 2
+      FILE2
+      HEALTHCHECK NONE""";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.textRange()).hasRange(1, 0, 5, 5);
 
@@ -326,9 +334,10 @@ class RunInstructionImplTest {
 
   @Test
   void shouldHaveInlineCommentAttachedToPreviousToken() {
-    String toParse = "RUN executable\\\n" +
-      "# my comment\n" +
-      "     parameters";
+    String toParse = """
+      RUN executable\\
+      # my comment
+           parameters""";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.textRange()).hasRange(1, 0, 3, 15);
 
@@ -348,9 +357,10 @@ class RunInstructionImplTest {
 
   @Test
   void shouldHaveInlineCommentAttachedToMergedTokens() {
-    String toParse = "RUN executable\\\n" +
-      "# my comment\n" +
-      "parameters";
+    String toParse = """
+      RUN executable\\
+      # my comment
+      parameters""";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.textRange()).hasRange(1, 0, 3, 10);
 
@@ -367,10 +377,11 @@ class RunInstructionImplTest {
 
   @Test
   void shouldHaveInlineCommentAttachedToMergedTokensMultipleComment() {
-    String toParse = "RUN executable\\\n" +
-      "# my comment 1\n" +
-      "    # my comment 2\n" +
-      "parameters";
+    String toParse = """
+      RUN executable\\
+      # my comment 1
+          # my comment 2
+      parameters""";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.textRange()).hasRange(1, 0, 4, 10);
 
@@ -387,8 +398,9 @@ class RunInstructionImplTest {
 
   @Test
   void endOfFileAfterInlineComment() {
-    String toParse = "RUN executable\\\n" +
-      "# my comment";
+    String toParse = """
+      RUN executable\\
+      # my comment""";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.textRange()).hasRange(1, 0, 2, 12);
 
@@ -399,5 +411,58 @@ class RunInstructionImplTest {
     SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
     assertThat(syntaxToken.value()).isEqualTo("executable");
     assertThat(syntaxToken.comments()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    """
+      RUN echo <<EOF
+      Hello World
+      EOF
+      """,
+    """
+      RUN patch -Np2 -i - <<"EOF"
+      diff --git a/applications/shepherd b/applications/shepherd
+      EOF
+      """,
+    """
+      RUN cat > ".env" <<EOF
+          PORT=80
+          GIT_REV=${GIT_REV}
+          MAGIC_SECRET_KEY=${MAGIC_SECRET_KEY}
+          EOF
+      """,
+    """
+      RUN apt update && \\
+          apt upgrade && \\
+          apt clean all && \\
+          cat <<EOF >> /root/.profile
+      # Source global definitions
+      if [[ -f /etc/profile ]]
+      then
+          source /etc/profile
+      fi
+      EOF
+      """,
+  })
+  void shouldParseRunInstructionWithShellAndHeredoc(String code) {
+    assertThatCode(() -> DockerTestUtils.<RunInstruction>parse(code, DockerLexicalGrammar.RUN)).doesNotThrowAnyException();
+  }
+
+  @Test
+  @Disabled("The parser operates in a way that parts after closing TEXT1 are discarded")
+  void shouldParseRunInstructionWithMultipleHeredoc() {
+    var code = """
+      RUN cat <<TEXT1 && cat <<TEXT2
+      Text1
+      TEXT1
+      Text2
+      TEXT2
+      """;
+    var run = DockerTestUtils.<RunInstruction>parse(code, DockerLexicalGrammar.RUN);
+
+    assertThat(run.arguments())
+      .map(a -> ((Literal) a.expressions().get(0)).value())
+      .containsExactly("cat", "<<TEXT1", "&&", "cat", "<<TEXT2", "Text1", "TEXT1", "Text2", "TEXT2");
   }
 }
