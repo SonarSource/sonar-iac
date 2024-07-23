@@ -38,7 +38,7 @@ class DockerParserTest {
 
   @Test
   void raiseParsingErrorWithoutComments() {
-    String code = "ONBUILD unknown";
+    var code = "ONBUILD unknown";
     ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
     assertThat(exception.getMessage()).isEqualTo("Cannot parse 'null'");
     assertThat(exception.getDetails()).startsWith("Parse error at line 1 column 9");
@@ -46,7 +46,7 @@ class DockerParserTest {
 
   @Test
   void raiseParsingErrorLeadingComments() {
-    String code = """
+    var code = """
       # comment which will be removed
       ONBUILD unknown""";
     ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
@@ -56,7 +56,7 @@ class DockerParserTest {
 
   @Test
   void raiseParsingErrorMultilineInstruction() {
-    String code = """
+    var code = """
       ONBUILD\s
       unknown""";
     ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
@@ -66,7 +66,7 @@ class DockerParserTest {
 
   @Test
   void raiseParsingErrorMultilineInstructionWithComment() {
-    String code = """
+    var code = """
       ONBUILD\s
       # comment which will be removed
       unknown""";

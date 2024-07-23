@@ -107,13 +107,13 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       DockerPreprocessor.SourceOffset sourceOffset,
       @Nullable InputFile inputFile) {
 
-      var m = RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN.matcher(originalException.getMessage());
+      var matcher = RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN.matcher(originalException.getMessage());
       TextPointer position = null;
       RecognitionException fixedException = originalException;
-      if (m.find()) {
-        var line = Integer.parseInt(m.group("line"));
-        var column = Integer.parseInt(m.group("column"));
-        String rest = m.group("rest");
+      if (matcher.find()) {
+        var line = Integer.parseInt(matcher.group("line"));
+        var column = Integer.parseInt(matcher.group("column"));
+        String rest = matcher.group("rest");
         int index = computeIndexFromLineAndColumn(sourceCode, line, column);
         int[] correctedLineAndColumn = sourceOffset.sourceLineAndColumnAt(index);
         if (inputFile != null) {
