@@ -9,7 +9,7 @@ WORKDIR "C:/absolute/path/windows"
 WORKDIR C:\\absolute\\path\\windows
 WORKDIR "C:\\absolute\\path\\windows"
 
-# Noncompliant@+1 {{Use an absolute path instead of this relative path.}}
+# Noncompliant@+1 {{Use an absolute path instead of this relative path when defining the WORKDIR.}}
 WORKDIR relative/path
 #       ^^^^^^^^^^^^^
 
@@ -43,3 +43,5 @@ ONBUILD WORKDIR relative/path
 
 # Noncompliant@+1
 WORKDIR not:/a/windows/absolute/path
+
+WORKDIR ""
