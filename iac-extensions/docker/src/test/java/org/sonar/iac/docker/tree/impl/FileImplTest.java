@@ -33,8 +33,10 @@ import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 class FileImplTest {
 
   @Test
-  void shouldFailOnEmptyFile() {
-    assertThrows(ParseException.class, () -> parseFile(""), "Parse error at line 1 column 1");
+  void shouldCreateEmptyBodyFromEmptyFile() {
+    var file = parseFile("");
+    assertThat(file.body().globalArgs()).isEmpty();
+    assertThat(file.body().dockerImages()).isEmpty();
   }
 
   @Test

@@ -20,6 +20,10 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.docker.tree.api.AddInstruction;
@@ -94,11 +98,6 @@ import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
 import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.emptySeparatedList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
 
@@ -108,8 +107,8 @@ public class TreeFactory {
 
   private static final DockerHeredocParser HEREDOC_PARSER = DockerHeredocParser.create();
 
-  public File file(Body body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileImpl(body, eof);
+  public File file(Optional<Body> body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+    return new FileImpl(body.or(new BodyImpl(List.of(), List.of())), eof);
   }
 
   public Body body(Optional<List<ArgInstruction>> globalArgs, List<DockerImage> dockerImages) {

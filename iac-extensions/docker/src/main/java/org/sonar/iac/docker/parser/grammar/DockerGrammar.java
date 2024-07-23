@@ -73,7 +73,7 @@ public class DockerGrammar {
   public File FILE() {
     return b.<File>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
-        BODY(),
+        b.optional(BODY()),
         b.optional(b.token(DockerLexicalGrammar.SPACING)),
         b.token(DockerLexicalGrammar.EOF)));
   }
