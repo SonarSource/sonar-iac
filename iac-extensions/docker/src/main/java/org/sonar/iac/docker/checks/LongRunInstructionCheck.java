@@ -40,7 +40,7 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 public class LongRunInstructionCheck implements IacCheck {
 
   public static final int DEFAULT_MAX_LENGTH = 120;
-  public static final int DEFAULT_MIN_WORD_TO_TRIGGER = 7;
+  public static final int MIN_WORD_TO_TRIGGER = 7;
   private static final String MESSAGE = "Split this RUN instruction line into multiple lines.";
 
   @RuleProperty(
@@ -48,12 +48,6 @@ public class LongRunInstructionCheck implements IacCheck {
     description = "The maximum length that should not be exceeded by any RUN line instruction.",
     defaultValue = "" + DEFAULT_MAX_LENGTH)
   public int maxLength = DEFAULT_MAX_LENGTH;
-
-  @RuleProperty(
-    key = "minWordsToTrigger",
-    description = "The minimum amount of words required in a single line to trigger the check.",
-    defaultValue = "" + DEFAULT_MIN_WORD_TO_TRIGGER)
-  public int minWordsToTrigger = DEFAULT_MIN_WORD_TO_TRIGGER;
 
   @Override
   public void initialize(InitContext init) {
@@ -75,7 +69,7 @@ public class LongRunInstructionCheck implements IacCheck {
       int line = linesWithOffsets.getKey();
       int startOffset = runInstructionData.firstOffsetPerLine.get(line);
       int endOffset = linesWithOffsets.getValue();
-      if (runInstructionData.wordsPerLine.getOrDefault(line, 0) >= minWordsToTrigger) {
+      if (runInstructionData.wordsPerLine.getOrDefault(line, 0) >= MIN_WORD_TO_TRIGGER) {
         result.add(new TooLongLine(line, startOffset, endOffset));
       }
     }
@@ -86,7 +80,7 @@ public class LongRunInstructionCheck implements IacCheck {
    * Gather data about a {@link RunInstruction}:
    * - the first offset of each line, required to raise issue precisely
    * - the too long lines number with the last offset exceeding the {@link #maxLength} value
-   * - the number of words per lines, to not raise an issue when below the {@link #minWordsToTrigger} value
+   * - the number of words per lines, to not raise an issue when below the {@link #MIN_WORD_TO_TRIGGER} value
    */
   private RunInstructionData computeRunInstructionDataPerLines(RunInstruction runInstruction) {
     Map<Integer, Integer> wordsPerLine = countWordsPerLine(runInstruction);
@@ -110,20 +104,20 @@ public class LongRunInstructionCheck implements IacCheck {
 
   private static Map<Integer, Integer> countWordsPerLine(RunInstruction runInstruction) {
     Map<Integer, Integer> wordsPerLine = new HashMap<>();
-    incrementLine(wordsPerLine, runInstruction.keyword());
-    runInstruction.options().forEach(flag -> incrementLine(wordsPerLine, flag));
-    runInstruction.arguments().forEach(argument -> incrementLine(wordsPerLine, argument));
+    incrementWordCountOnLine(wordsPerLine, runInstruction.keyword());
+    runInstruction.options().forEach(flag -> incrementWordCountOnLine(wordsPerLine, flag));
+    runInstruction.arguments().forEach(argument -> incrementWordCountOnLine(wordsPerLine, argument));
     return wordsPerLine;
   }
 
-  private static void incrementLine(Map<Integer, Integer> wordsPerLine, Tree tree) {
+  private static void incrementWordCountOnLine(Map<Integer, Integer> wordsPerLine, Tree tree) {
     if (tree.textRange().start().line() != tree.textRange().end().line()) {
-      incrementLine(wordsPerLine, tree.textRange().start().line());
+      incrementWordCountOnLine(wordsPerLine, tree.textRange().start().line());
     }
-    incrementLine(wordsPerLine, tree.textRange().end().line());
+    incrementWordCountOnLine(wordsPerLine, tree.textRange().end().line());
   }
 
-  private static void incrementLine(Map<Integer, Integer> wordsPerLine, int line) {
+  private static void incrementWordCountOnLine(Map<Integer, Integer> wordsPerLine, int line) {
     wordsPerLine.putIfAbsent(line, 0);
     wordsPerLine.compute(line, (key, value) -> value + 1);
   }

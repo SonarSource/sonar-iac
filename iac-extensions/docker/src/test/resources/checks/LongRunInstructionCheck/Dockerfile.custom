@@ -3,15 +3,7 @@ FROM scratch
 # Noncompliant@+1 {{Split this RUN instruction line into multiple lines.}}
 RUN this short instruction is now sufficient to trigger
 
-# Noncompliant@+1
-RUN evenWithVery fewWordsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+RUN butThereIsStill theLimit OnThe NumberOfWords
 
 # Noncompliant@+1
 RUN very long instruction are still raised as before aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-
-# Noncompliant@+2
-RUN test \
-  && wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc"
-
-# Noncompliant@+1
-RUN Invoke-WebRequest "https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-$($env:GRAFANA_VERSION).windows-amd64.zip"  -OutFile grafana.zip -UseBasicParsing;

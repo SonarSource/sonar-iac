@@ -32,7 +32,6 @@ class LongRunInstructionCheckTest {
   void shouldCheckLongRunInstructionsWithCustomParameters() {
     var check = new LongRunInstructionCheck();
     check.maxLength = 50;
-    check.minWordsToTrigger = 3;
     DockerVerifier.verify("LongRunInstructionCheck/Dockerfile.custom", check);
   }
 }
