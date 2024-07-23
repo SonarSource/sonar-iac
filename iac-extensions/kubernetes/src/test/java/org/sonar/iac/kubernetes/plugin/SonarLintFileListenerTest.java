@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,18 +32,24 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
+import static org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent.Type.CREATED;
 
 class SonarLintFileListenerTest {
 
@@ -59,15 +66,18 @@ class SonarLintFileListenerTest {
   private InputFile inputFile2;
   private InputFile inputFileJava;
   private InputFile inputFileNoLanguage;
+  private InputFile inputFileTOException;
   private List<InputFile> inputFiles;
   private SonarLintFileSystemProvider fileSystemProvider;
 
   @BeforeEach
-  public void init() {
+  public void init() throws IOException {
     inputFile1 = inputFile("limit_range.yaml", BASE_DIR, "yaml");
     inputFile2 = inputFile("memory_limit_pod.yaml", BASE_DIR, "yaml");
     inputFileJava = inputFile("FactoryBuilder.java", BASE_DIR, "java");
     inputFileNoLanguage = inputFile("FactoryBuilder.java", BASE_DIR, null);
+    inputFileTOException = spy(inputFile2);
+    when(inputFileTOException.contents()).thenThrow(new IOException("Boom"));
     inputFiles = List.of(inputFile1, inputFile2);
     var moduleFileSystem = new TestModuleFileSystem(inputFiles);
     sonarLintFileListener = new SonarLintFileListener(moduleFileSystem);
@@ -133,7 +143,7 @@ class SonarLintFileListenerTest {
   }
 
   static List<ModuleFileEvent.Type> shouldCallRemoveResourceAndAnalyseFilesWhenEvent() {
-    return List.of(ModuleFileEvent.Type.CREATED, ModuleFileEvent.Type.MODIFIED);
+    return List.of(CREATED, ModuleFileEvent.Type.MODIFIED);
   }
 
   @ParameterizedTest
@@ -149,6 +159,18 @@ class SonarLintFileListenerTest {
     verify(analyzer).analyseFiles(any(), eq(List.of(inputFile1, inputFile2)), any());
     // it will be called by process()
     verify(analyzer).analyseFiles(any(), eq(List.of(inputFile2)), any());
+  }
+
+  @Test
+  void shouldThrowParseExceptionWhenIOException() {
+    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    var event = DefaultModuleFileEvent.of(inputFileTOException, CREATED);
+
+    var throwable = catchThrowable(() -> sonarLintFileListener.process(event));
+
+    assertThat(throwable)
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Cannot read 'memory_limit_pod.yaml'");
   }
 
   private String uri(InputFile inputFile) {
