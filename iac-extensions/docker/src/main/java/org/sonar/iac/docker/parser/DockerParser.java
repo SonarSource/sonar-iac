@@ -22,7 +22,6 @@ package org.sonar.iac.docker.parser;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
@@ -63,7 +62,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
 
   @Override
   public DockerTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    DockerPreprocessor.PreprocessorResult preprocessorResult = preprocessor.process(source);
+    var preprocessorResult = preprocessor.process(source);
     nodeBuilder.setPreprocessorResult(preprocessorResult);
     try {
       DockerTree tree = super.parse(preprocessorResult.processedSourceCode());
@@ -95,7 +94,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     }
   }
 
-  static class RecognitionExceptionAdjuster {
+  static final class RecognitionExceptionAdjuster {
     private static final String PARSING_ERROR_MESSAGE = "Parse error at line %d column %d %s";
     private static final Pattern RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN = Pattern.compile("Parse error at line (?<line>\\d+) column (?<column>\\d+)(?<rest>.*)");
 
@@ -108,19 +107,19 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       DockerPreprocessor.SourceOffset sourceOffset,
       @Nullable InputFile inputFile) {
 
-      Matcher m = RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN.matcher(originalException.getMessage());
+      var matcher = RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN.matcher(originalException.getMessage());
       TextPointer position = null;
       RecognitionException fixedException = originalException;
-      if (m.find()) {
-        int line = Integer.parseInt(m.group("line"));
-        int column = Integer.parseInt(m.group("column"));
-        String rest = m.group("rest");
+      if (matcher.find()) {
+        var line = Integer.parseInt(matcher.group("line"));
+        var column = Integer.parseInt(matcher.group("column"));
+        String rest = matcher.group("rest");
         int index = computeIndexFromLineAndColumn(sourceCode, line, column);
         int[] correctedLineAndColumn = sourceOffset.sourceLineAndColumnAt(index);
         if (inputFile != null) {
           position = inputFile.newPointer(correctedLineAndColumn[0], correctedLineAndColumn[1] - 1);
         }
-        String newErrorMessage = String.format(PARSING_ERROR_MESSAGE, correctedLineAndColumn[0], correctedLineAndColumn[1], rest);
+        var newErrorMessage = String.format(PARSING_ERROR_MESSAGE, correctedLineAndColumn[0], correctedLineAndColumn[1], rest);
         fixedException = new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
       }
 
@@ -133,8 +132,8 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
      */
     private static int computeIndexFromLineAndColumn(String code, int line, int column) {
       char[] chars = code.toCharArray();
-      int currentLine = 1;
-      int currentColumn = 0;
+      var currentLine = 1;
+      var currentColumn = 0;
       int index = -1;
       while (index + 1 < chars.length && (line != currentLine || column != currentColumn)) {
         index++;

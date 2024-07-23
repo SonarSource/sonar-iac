@@ -29,17 +29,16 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class DockerParserTest {
 
   @Test
   void raiseParsingErrorWithoutComments() {
-    String code = code("ONBUILD unknown");
+    var code = "ONBUILD unknown";
     ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
     assertThat(exception.getMessage()).isEqualTo("Cannot parse 'null'");
     assertThat(exception.getDetails()).startsWith("Parse error at line 1 column 9");
@@ -47,8 +46,9 @@ class DockerParserTest {
 
   @Test
   void raiseParsingErrorLeadingComments() {
-    String code = code("# comment which will be removed",
-      "ONBUILD unknown");
+    var code = """
+      # comment which will be removed
+      ONBUILD unknown""";
     ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
     assertThat(exception.getMessage()).isEqualTo("Cannot parse 'null'");
     assertThat(exception.getDetails()).startsWith("Parse error at line 2 column 9");
@@ -56,8 +56,9 @@ class DockerParserTest {
 
   @Test
   void raiseParsingErrorMultilineInstruction() {
-    String code = code("ONBUILD ",
-      "unknown");
+    var code = """
+      ONBUILD\s
+      unknown""";
     ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
     assertThat(exception.getMessage()).isEqualTo("Cannot parse 'null'");
     assertThat(exception.getDetails()).startsWith("Parse error at line 2 column 1");
@@ -65,9 +66,10 @@ class DockerParserTest {
 
   @Test
   void raiseParsingErrorMultilineInstructionWithComment() {
-    String code = code("ONBUILD ",
-      "# comment which will be removed",
-      "unknown");
+    var code = """
+      ONBUILD\s
+      # comment which will be removed
+      unknown""";
     InputFile inputFile = mock(InputFile.class);
     Mockito.when(inputFile.toString()).thenReturn("filename.abc");
     InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
@@ -84,5 +86,14 @@ class DockerParserTest {
       .isInstanceOf(ParseException.class)
       .extracting(exp -> ((ParseException) exp).getDetails())
       .isEqualTo("InvalidMessage");
+  }
+
+  @Test
+  void shouldParseFileWithOnlyComments() {
+    var code = """
+      # empty file
+      """;
+
+    assertThatNoException().isThrownBy(() -> parse(code, DockerLexicalGrammar.FILE));
   }
 }
