@@ -1,0 +1,23 @@
+{
+  "title": "Prefer COPY over ADD for copying local resources",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-7029",
+  "sqKey": "S7029",
+  "scope": "All",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "MEDIUM",
+      "SECURITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  }
+}
