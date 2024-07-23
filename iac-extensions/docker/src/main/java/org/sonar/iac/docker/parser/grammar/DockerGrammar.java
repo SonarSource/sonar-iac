@@ -523,7 +523,7 @@ public class DockerGrammar {
         b.optional(
           f.tuple(
             b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_SEPARATOR),
-            ENCAPS_VARIABLE_MODIFIER())),
+            b.optional(ENCAPS_VARIABLE_MODIFIER()))),
         b.token(Punctuator.RCURLYBRACE)));
   }
 

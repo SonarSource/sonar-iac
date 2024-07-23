@@ -19,9 +19,18 @@
  */
 package org.sonar.iac.docker.symbols;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.EMPTY;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
+import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,14 +51,6 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.EMPTY;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
-import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class ArgumentResolutionTest {
 
@@ -160,10 +161,10 @@ class ArgumentResolutionTest {
 
   @Test
   void shouldNotDeadLoopWhenResolvingSelfAssignedVariable() {
-    File file = parseFileAndAnalyzeSymbols(code(
-      "FROM foo",
-      "ARG FOO=${FOO}",
-      "LABEL MY_LABEL=${FOO}"));
+    File file = parseFileAndAnalyzeSymbols("""
+      FROM foo
+      ARG FOO=${FOO}
+      LABEL MY_LABEL=${FOO}""");
 
     Argument label = TreeUtils.firstDescendant(file, LabelInstruction.class).get().labels().get(0).value();
     assertThat(label).isNotNull();
@@ -175,10 +176,11 @@ class ArgumentResolutionTest {
   @ParameterizedTest
   @MethodSource
   void shouldCorrectlyHandleQuotes(String runInstruction, String expectedSecondArgument) {
-    File file = parseFileAndAnalyzeSymbols(code(
-      "FROM scratch",
-      "ARG FOO=\"foo\"",
-      runInstruction));
+    File file = parseFileAndAnalyzeSymbols("""
+      FROM scratch
+      ARG FOO="foo"
+      %s
+      """.formatted(runInstruction));
 
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, RunInstruction.class).get());
     ArgumentResolution stringArgument = argumentResolutions.get(1);
@@ -231,6 +233,29 @@ class ArgumentResolutionTest {
     assertThat(stringArgument.value())
       .matches(s -> s.startsWith("\"") || s.startsWith("\\\""))
       .matches(s -> s.endsWith("\"") || s.endsWith("\\\""));
+  }
+
+  static Stream<Arguments> shouldHandleInterpolatedVariable() {
+    return Stream.of(
+      Arguments.of("${FOO:+value}", "", UNRESOLVED),
+      Arguments.of("${FOO:+}", "", UNRESOLVED),
+      Arguments.of("${FOO:-value}", "bar", RESOLVED),
+      Arguments.of("${FOO:-}", "bar", RESOLVED));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldHandleInterpolatedVariable(String variable, String expectedValue, ArgumentResolution.Status status) {
+    File file = parseFileAndAnalyzeSymbols("""
+      FROM foo
+      ARG FOO=bar
+      LABEL MY_LABEL=%s""".formatted(variable));
+
+    Argument label = TreeUtils.firstDescendant(file, LabelInstruction.class).get().labels().get(0).value();
+    assertThat(label).isNotNull();
+    ArgumentResolution resolution = ArgumentResolution.of(label);
+    assertThat(resolution.status()).isEqualTo(status);
+    assertThat(resolution.value()).isEqualTo(expectedValue);
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {
