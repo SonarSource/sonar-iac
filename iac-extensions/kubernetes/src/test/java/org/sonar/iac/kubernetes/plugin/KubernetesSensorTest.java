@@ -139,8 +139,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     var logs = logTester.logs();
     assertThat(logs)
-      .contains("Skipping initialization of Helm processor")
-      .doesNotContain("Initializing Helm processor");
+      .contains("Initializing Helm processor")
+      .doesNotContain("Skipping initialization of Helm processor");
   }
 
   @Test
@@ -622,7 +622,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Checking conditions for enabling Helm analysis: isNotSonarLintContext=true, isHelmActivationFlagTrue=true, " +
+      .isEqualTo("Checking conditions for enabling Helm analysis: isHelmActivationFlagTrue=true, " +
         "isHelmEvaluatorExecutableAvailable=true");
     assertThat(logTester.logs(Level.DEBUG).get(1))
       .isEqualTo("Initializing Helm processor");
