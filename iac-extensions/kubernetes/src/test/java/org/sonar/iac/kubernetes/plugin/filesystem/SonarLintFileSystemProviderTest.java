@@ -69,7 +69,14 @@ class SonarLintFileSystemProviderTest {
 
     var actual = provider.inputFilesForHelm(inputFileContext);
 
-    assertThat(actual.keySet()).contains("templates/pod.yaml", "Chart.yaml", "values.yaml");
+    assertThat(actual).containsOnlyKeys("templates/pod.yaml", "Chart.yaml", "values.yaml");
+  }
+
+  @Test
+  void shouldNotFailWhenHelmProjectDirectoryIsNull() {
+    var inputFileContext = mock(HelmInputFileContext.class);
+    var actual = provider.inputFilesForHelm(inputFileContext);
+    assertThat(actual).isEmpty();
   }
 
   private String toUri(String path) {

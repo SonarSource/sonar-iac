@@ -31,11 +31,15 @@ public class SonarLintFileSystemProvider implements FileSystemProvider {
 
   @Override
   public Map<String, String> inputFilesForHelm(HelmInputFileContext inputFileContext) {
-    var helmProjectDirectory = inputFileContext.getHelmProjectDirectory().toUri().toString();
-    return inputFilesContents.entrySet().stream()
-      .filter(entry -> entry.getKey().startsWith(helmProjectDirectory))
-      .filter(entry -> !entry.getKey().equals(inputFileContext.inputFile.uri().toString()))
-      .collect(toMap(entry -> entry.getKey().substring(helmProjectDirectory.length()), Map.Entry::getValue));
+    var helmProjectDirectory = inputFileContext.getHelmProjectDirectory();
+    if (helmProjectDirectory != null) {
+      var helmProjectDirectoryAsText = helmProjectDirectory.toUri().toString();
+      return inputFilesContents.entrySet().stream()
+        .filter(entry -> entry.getKey().startsWith(helmProjectDirectoryAsText))
+        .filter(entry -> !entry.getKey().equals(inputFileContext.inputFile.uri().toString()))
+        .collect(toMap(entry -> entry.getKey().substring(helmProjectDirectoryAsText.length()), Map.Entry::getValue));
+    }
+    return Map.of();
   }
 
   public void setInputFilesContents(Map<String, String> inputFilesContents) {

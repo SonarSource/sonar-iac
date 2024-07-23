@@ -60,6 +60,7 @@ class SonarLintFileListenerTest {
   private InputFile inputFileJava;
   private InputFile inputFileNoLanguage;
   private List<InputFile> inputFiles;
+  private SonarLintFileSystemProvider fileSystemProvider;
 
   @BeforeEach
   public void init() {
@@ -73,11 +74,12 @@ class SonarLintFileListenerTest {
     context = SensorContextTester.create(BASE_DIR);
     projectContext = mock(ProjectContext.class);
     analyzer = mock(KubernetesAnalyzer.class);
+    fileSystemProvider = mock(SonarLintFileSystemProvider.class);
   }
 
   @Test
   void shouldCallAnalyseFilesWhenInit() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, new SonarLintFileSystemProvider());
+    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
 
     verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
     assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
@@ -85,7 +87,7 @@ class SonarLintFileListenerTest {
 
   @Test
   void shouldCallRemoveResourceWhenRemoveEvent() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, new SonarLintFileSystemProvider());
+    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
     var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
 
     sonarLintFileListener.process(event);
@@ -120,7 +122,7 @@ class SonarLintFileListenerTest {
   }
 
   @Test
-  void shouldIgnoreFileNullLanguage() {
+  void shouldIgnoreFileJavaLanguage() {
     var event = DefaultModuleFileEvent.of(inputFileNoLanguage, ModuleFileEvent.Type.MODIFIED);
 
     sonarLintFileListener.process(event);
@@ -137,7 +139,7 @@ class SonarLintFileListenerTest {
   @ParameterizedTest
   @MethodSource
   void shouldCallRemoveResourceAndAnalyseFilesWhenEvent(ModuleFileEvent.Type eventType) {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, new SonarLintFileSystemProvider());
+    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
     var event = DefaultModuleFileEvent.of(inputFile2, eventType);
 
     sonarLintFileListener.process(event);

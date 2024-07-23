@@ -87,7 +87,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected void initContext(SensorContext sensorContext) {
-    FileSystemProvider fileSystemProvider = createFileSystemProvider(sensorContext);
+    var fileSystemProvider = createFileSystemProvider(sensorContext);
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
       var helmFileSystem = new HelmFileSystem(fileSystemProvider);
