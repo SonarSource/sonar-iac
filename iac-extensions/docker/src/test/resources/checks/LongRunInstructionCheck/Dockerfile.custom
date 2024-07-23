@@ -1,0 +1,9 @@
+FROM scratch
+
+# Noncompliant@+1 {{Split this RUN instruction line into multiple lines.}}
+RUN this short instruction is now sufficient to trigger
+
+RUN butThereIsStill theLimit OnThe NumberOfWords
+
+# Noncompliant@+1
+RUN very long instruction are still raised as before aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

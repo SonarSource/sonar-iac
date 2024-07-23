@@ -1,0 +1,17 @@
+{
+"docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/flask/Dockerfile": [
+12
+],
+"docker-project:sources/docker/docker-containers/alpine3.7_py3.5.5_analytics/Dockerfile": [
+139
+],
+"docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu16.04/Dockerfile": [
+3
+],
+"docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu16.04_host_phusion/Dockerfile": [
+3
+],
+"docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu18.04/Dockerfile": [
+3
+]
+}
