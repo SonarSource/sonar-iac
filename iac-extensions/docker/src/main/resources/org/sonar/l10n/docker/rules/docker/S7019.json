@@ -1,0 +1,22 @@
+{
+  "title": "Prefer Exec form for ENTRYPOINT and CMD instructions",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-7019",
+  "sqKey": "S7019",
+  "scope": "All",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "CONVENTIONAL"
+  }
+}

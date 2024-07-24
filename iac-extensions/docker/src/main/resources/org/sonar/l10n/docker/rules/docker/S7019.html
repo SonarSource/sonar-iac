@@ -1,0 +1,27 @@
+<p>In Dockerfiles, it is recommended to use the exec form for <code>CMD</code> and <code>ENTRYPOINT</code> instructions. The exec form, which is
+represented as a JSON array, ensures that the process runs directly without being wrapped in a shell. This allows OS signals like SIGTERM and SIGINT
+to be received by the process. This practice enhances the reliability and control of your Docker containers.</p>
+<h2>Why is this an issue?</h2>
+<p>Using the shell form instead of the exec form for CMD and ENTRYPOINT instructions in Dockerfiles can lead to several issues. When you use the shell
+form, the executable runs as a child process to a shell, which does not pass OS signals. This can cause problems when trying to gracefully stop
+containers because the main process will not receive the signal intended to terminate it. Moreover, the exec form provides more control and
+predictability over the execution of the command. It does not invoke a command shell, which means it does not have the potential side effects of shell
+processing.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+FROM scratch
+ENTRYPOINT echo "Welcome!"
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM scratch
+ENTRYPOINT ["echo", "Welcome!"]
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Docker Build Checks - <a href="https://docs.docker.com/reference/build-checks/json-args-recommended/">JSONArgsRecommended</a> </li>
+</ul>
+

@@ -57,6 +57,7 @@ public final class DockerCheckList {
       SecretsGenerationCheck.class,
       SecretsHandlingCheck.class,
       ShellExpansionsInCommandCheck.class,
+      ShellFormOverExecFormCheck.class,
       SortedArgumentListCheck.class,
       SpaceBeforeEqualInKeyValuePairCheck.class,
       SpecificVersionTagCheck.class,
