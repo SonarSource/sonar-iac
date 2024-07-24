@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -32,11 +33,13 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   private final SyntaxToken leftBracket;
   private final SeparatedList<Argument, SyntaxToken> argumentsWithSeparators;
   private final SyntaxToken rightBracket;
+  private final SyntaxToken garbage;
 
-  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<Argument, SyntaxToken> argumentsWithSeparators, SyntaxToken rightBracket) {
+  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<Argument, SyntaxToken> argumentsWithSeparators, SyntaxToken rightBracket, @Nullable SyntaxToken garbage) {
     this.leftBracket = leftBracket;
     this.argumentsWithSeparators = argumentsWithSeparators;
     this.rightBracket = rightBracket;
+    this.garbage = garbage;
   }
 
   @Override
@@ -45,6 +48,9 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
     result.add(leftBracket);
     result.addAll(argumentsWithSeparators.elementsAndSeparators());
     result.add(rightBracket);
+    if (garbage != null) {
+      result.add(garbage);
+    }
     return result;
   }
 
@@ -72,4 +78,11 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   public SyntaxToken rightBracket() {
     return rightBracket;
   }
+
+  @Nullable
+  @Override
+  public SyntaxToken garbage() {
+    return garbage;
+  }
+
 }

@@ -322,7 +322,8 @@ public class DockerGrammar {
             b.token(Punctuator.COMMA),
             f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
               f.singleExpressionArgument(EXPANDABLE_STRING_LITERAL())))),
-        b.token(Punctuator.RBRACKET)));
+        b.token(Punctuator.RBRACKET),
+        b.optional(b.token(DockerLexicalGrammar.GARBAGE))));
   }
 
   /**

@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
 /**
@@ -29,6 +30,9 @@ import org.sonar.iac.common.api.tree.SeparatedList;
  * Examples :
  * {@code ["val"]}
  * {@code ["val1", "val2"]}
+ * Docker seems to support having characters after the closing brackets. It doesn't seem to have an impact on the final image, nor is it documented.
+ * Example:
+ * {@code ["val1", "val2"] some leftover}
  */
 public interface ExecForm extends ArgumentList {
   SyntaxToken leftBracket();
@@ -36,4 +40,7 @@ public interface ExecForm extends ArgumentList {
   SeparatedList<Argument, SyntaxToken> argumentsWithSeparators();
 
   SyntaxToken rightBracket();
+
+  @Nullable
+  SyntaxToken garbage();
 }
