@@ -41,7 +41,7 @@ class HereDocumentImplTest {
 
   @Test
   void shouldParseHereDocForm() {
-    Assertions.assertThat(DockerLexicalGrammar.HEREDOC_FORM)
+    Assertions.assertThat(DockerLexicalGrammar.HEREDOC)
       .matches(" <<KEY\n \nKEY")
       .matches(" <<\"KEY\"\n \nKEY")
       .matches(" <<-KEY\n \nKEY")
@@ -60,7 +60,7 @@ class HereDocumentImplTest {
 
   @Test
   void shouldCheckHereFormTree() {
-    HereDocument hereDoc = DockerTestUtils.parse(" <<KEY some arg\nline 1\nKEY", DockerLexicalGrammar.HEREDOC_FORM);
+    HereDocument hereDoc = DockerTestUtils.parse(" <<KEY some arg\nline 1\nKEY", DockerLexicalGrammar.HEREDOC);
 
     assertThat(hereDoc.getKind()).isEqualTo(DockerTree.Kind.HEREDOCUMENT);
     assertThat(hereDoc.arguments()).hasSize(6);

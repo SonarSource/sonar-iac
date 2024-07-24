@@ -42,7 +42,7 @@ public class DockerHeredocParser extends DockerParser {
   }
 
   public static DockerHeredocParser create() {
-    return new DockerHeredocParser(new DockerHeredocNodeBuilder(), DockerLexicalGrammar.HEREDOC_FORM_CONTENT);
+    return new DockerHeredocParser(new DockerHeredocNodeBuilder(), DockerLexicalGrammar.HEREDOC_CONTENT);
   }
 
   public DockerTree parse(TextTree token) {

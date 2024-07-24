@@ -250,7 +250,7 @@ public class DockerGrammar {
         b.zeroOrMore(
           FLAG()),
         b.firstOf(
-          HEREDOC_FORM(),
+          HEREDOC(),
           EXEC_FORM(),
           SHELL_FORM())));
   }
@@ -283,7 +283,7 @@ public class DockerGrammar {
           FLAG()),
         b.optional(
           b.firstOf(
-            HEREDOC_FORM(),
+            HEREDOC(),
             EXEC_FORM(),
             SHELL_FORM_GENERIC()))));
   }
@@ -332,7 +332,8 @@ public class DockerGrammar {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM).is(
       f.shellForm(
         b.oneOrMore(
-          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT()))));
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT())),
+        b.optional(f.hereDocument(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)))));
   }
 
   /**
@@ -342,17 +343,20 @@ public class DockerGrammar {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM_GENERIC).is(
       f.shellForm(
         b.oneOrMore(
-          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC()))));
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC())),
+        b.optional(f.hereDocument(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)))));
   }
 
-  public HereDocument HEREDOC_FORM() {
-    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM).is(
+  public HereDocument HEREDOC() {
+    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC).is(
       f.hereDocument(
         b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)));
   }
 
-  public HereDocument HEREDOC_FORM_CONTENT() {
-    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM_CONTENT).is(
+  // This method is used to enable an entrypoint for the Heredoc parser
+  @SuppressWarnings("unused")
+  public HereDocument HEREDOC_CONTENT() {
+    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_CONTENT).is(
       f.hereDocumentContent(
         HEREDOC_ELEMENT(),
         b.zeroOrMore(

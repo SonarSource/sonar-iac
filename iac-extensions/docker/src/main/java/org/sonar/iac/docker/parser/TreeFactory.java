@@ -244,8 +244,12 @@ public class TreeFactory {
     return new ExecFormImpl(leftBracket, separatedList, rightBracket);
   }
 
-  public ShellForm shellForm(List<Argument> arguments) {
-    return new ShellFormImpl(arguments);
+  public ShellForm shellForm(List<Argument> arguments, Optional<HereDocument> hereDocument) {
+    var allArguments = new ArrayList<>(arguments);
+    if (hereDocument.isPresent()) {
+      allArguments.addAll(hereDocument.get().arguments());
+    }
+    return new ShellFormImpl(allArguments);
   }
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {
