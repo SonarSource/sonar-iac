@@ -1,4 +1,4 @@
-<p><code>WORKDIR</code> instruction should be used with absolute path for clarity and reliability.</p>
+<p><code>WORKDIR</code> instructions should be used with an absolute path for clarity and reliability.</p>
 <h2>Why is this an issue?</h2>
 <p>The <code>WORKDIR</code> instruction defines the working directory for any <code>RUN</code>, <code>CMD</code>, <code>ENTRYPOINT</code>,
 <code>COPY</code>, and <code>ADD</code> instructions that follow in the Dockerfile.<br> Using absolute paths helps to avoid any confusion or
