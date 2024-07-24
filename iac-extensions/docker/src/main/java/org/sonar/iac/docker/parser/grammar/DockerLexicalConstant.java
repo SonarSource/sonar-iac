@@ -89,10 +89,12 @@ public class DockerLexicalConstant {
    * then the 1st capturing group (the heredoc block name), followed again by an optional double quote.
    * In 1st capturing group: one or more (possessive) uppercase/lowercase letters, numbers, or underscore.
    * The key part is the reference to the heredoc block name which end the heredoc block by having this element alone in a line.
-   * This regex also allow having multiple heredoc block name, it will then end until the last matched block.
+   * This regex also allow having multiple heredoc block name, with optional other commands between them on the same line;
+   * it will then end until the last matched block.
+   * Implementation note: `\1` matches the last match of the 1st capturing group, i.e. the name of the last opening heredoc marker.
    */
   public static final String HEREDOC_NAME = "<<-?\"?([a-zA-Z0-9_]++)\"?";
-  public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)";
+  public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "[^<\\r\\n]*)+[\\n\\r][\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)";
 
   public static final String IMAGE_ALIAS = "[-a-zA-Z0-9_\\.]+";
 

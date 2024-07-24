@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -37,7 +36,6 @@ import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
@@ -156,6 +154,45 @@ class RunInstructionImplTest {
       .matches("RUN <<\"EOT\"\n  mkdir -p foo/bar\nEOT")
       .notMatches("RUN <EOT\n  mkdir -p foo/bar\nEOT")
       .notMatches("RUN <<EOT\n  mkdir -p foo/bar\nEOT5");
+  }
+
+  @Test
+  void shouldParseRunWithShellAndHereDocument() {
+    Assertions.assertThat(DockerLexicalGrammar.RUN)
+      .matches(
+        """
+          RUN echo <<EOF
+          Hello World
+          EOF""")
+      .matches(
+        """
+          RUN <<EOF cat >/etc/apt/apt.conf.d/99-retry
+          Acquire::Retries "10";
+          EOF""")
+      .matches(
+        """
+          RUN patch -Np2 -i - <<"EOF"
+          diff --git a/applications/shepherd b/applications/shepherd
+          EOF""")
+      .matches(
+        """
+          RUN cat > ".env" <<EOF
+              PORT=80
+              GIT_REV=${GIT_REV}
+              MAGIC_SECRET_KEY=${MAGIC_SECRET_KEY}
+          EOF""")
+      .matches(
+        """
+          RUN apt update && \\
+              apt upgrade && \\
+              apt clean all && \\
+              cat <<EOF >> /root/.profile
+          # Source global definitions
+          if [[ -f /etc/profile ]]
+          then
+              source /etc/profile
+          fi
+          EOF""");
   }
 
   @Test
@@ -413,44 +450,7 @@ class RunInstructionImplTest {
     assertThat(syntaxToken.comments()).isEmpty();
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    """
-      RUN echo <<EOF
-      Hello World
-      EOF
-      """,
-    """
-      RUN patch -Np2 -i - <<"EOF"
-      diff --git a/applications/shepherd b/applications/shepherd
-      EOF
-      """,
-    """
-      RUN cat > ".env" <<EOF
-          PORT=80
-          GIT_REV=${GIT_REV}
-          MAGIC_SECRET_KEY=${MAGIC_SECRET_KEY}
-          EOF
-      """,
-    """
-      RUN apt update && \\
-          apt upgrade && \\
-          apt clean all && \\
-          cat <<EOF >> /root/.profile
-      # Source global definitions
-      if [[ -f /etc/profile ]]
-      then
-          source /etc/profile
-      fi
-      EOF
-      """,
-  })
-  void shouldParseRunInstructionWithShellAndHeredoc(String code) {
-    assertThatCode(() -> DockerTestUtils.<RunInstruction>parse(code, DockerLexicalGrammar.RUN)).doesNotThrowAnyException();
-  }
-
   @Test
-  @Disabled("The parser operates in a way that parts after closing TEXT1 are discarded")
   void shouldParseRunInstructionWithMultipleHeredoc() {
     var code = """
       RUN cat <<TEXT1 && cat <<TEXT2

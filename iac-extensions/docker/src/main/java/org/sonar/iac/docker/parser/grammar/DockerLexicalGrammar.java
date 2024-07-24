@@ -83,8 +83,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   EXEC_FORM,
   SHELL_FORM,
   SHELL_FORM_GENERIC,
-  HEREDOC_FORM,
-  HEREDOC_FORM_CONTENT,
+  HEREDOC,
+  HEREDOC_CONTENT,
 
   ALIAS,
   ALIAS_AS,

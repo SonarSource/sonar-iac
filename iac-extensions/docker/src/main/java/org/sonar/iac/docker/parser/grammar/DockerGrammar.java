@@ -250,7 +250,7 @@ public class DockerGrammar {
         b.zeroOrMore(
           FLAG()),
         b.firstOf(
-          HEREDOC_FORM(),
+          HEREDOC(),
           EXEC_FORM(),
           SHELL_FORM())));
   }
@@ -283,7 +283,7 @@ public class DockerGrammar {
           FLAG()),
         b.optional(
           b.firstOf(
-            HEREDOC_FORM(),
+            HEREDOC(),
             EXEC_FORM(),
             SHELL_FORM_GENERIC()))));
   }
@@ -347,16 +347,16 @@ public class DockerGrammar {
         b.optional(f.hereDocument(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)))));
   }
 
-  public HereDocument HEREDOC_FORM() {
-    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM).is(
+  public HereDocument HEREDOC() {
+    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC).is(
       f.hereDocument(
         b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)));
   }
 
   // This method is used to enable an entrypoint for the Heredoc parser
   @SuppressWarnings("unused")
-  public HereDocument HEREDOC_FORM_CONTENT() {
-    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM_CONTENT).is(
+  public HereDocument HEREDOC_CONTENT() {
+    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_CONTENT).is(
       f.hereDocumentContent(
         HEREDOC_ELEMENT(),
         b.zeroOrMore(
