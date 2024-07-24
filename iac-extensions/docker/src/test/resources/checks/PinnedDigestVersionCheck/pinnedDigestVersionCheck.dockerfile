@@ -70,6 +70,7 @@ FROM baseWithoutTag as builderWithoutTag
 FROM :
 FROM :bar
 FROM foo:
+FROM foo@
 
 # Compliant: scratch is a special image that cannot have tag/digest
 FROM scratch
