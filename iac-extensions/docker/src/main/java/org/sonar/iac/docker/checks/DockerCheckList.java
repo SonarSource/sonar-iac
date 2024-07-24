@@ -66,6 +66,7 @@ public final class DockerCheckList {
       VariableReferenceOutsideOfQuotesCheck.class,
       WeakHashAlgorithmsCheck.class,
       WeakSslTlsProtocolsCheck.class,
+      WorkdirAbsolutPathCheck.class,
       WorkdirInsteadCdCheck.class);
   }
 }

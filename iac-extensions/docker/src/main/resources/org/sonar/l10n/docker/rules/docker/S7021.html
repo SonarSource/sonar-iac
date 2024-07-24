@@ -1,0 +1,27 @@
+<p><code>WORKDIR</code> instructions should be used with an absolute path for clarity and reliability.</p>
+<h2>Why is this an issue?</h2>
+<p>The <code>WORKDIR</code> instruction defines the working directory for any <code>RUN</code>, <code>CMD</code>, <code>ENTRYPOINT</code>,
+<code>COPY</code>, and <code>ADD</code> instructions that follow in the Dockerfile.<br> Using absolute paths helps to avoid any confusion or
+unexpected behavior that could arise, for example after changing the current directory in one of the previous instructions.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+WORKDIR my_working_folder
+WORKDIR .\\my_working_folder
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+WORKDIR /images/my_working_folder
+WORKDIR C:\\images\\my_working_folder
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Docker docs - <a href="https://docs.docker.com/build/building/best-practices/#workdir">Building best practices - WORKDIR</a> </li>
+</ul>
+<h3>Related rules</h3>
+<ul>
+  <li> {rule:docker:S6597} - <code>WORKDIR</code> instruction should be used instead of <code>cd</code> commands </li>
+</ul>
+
