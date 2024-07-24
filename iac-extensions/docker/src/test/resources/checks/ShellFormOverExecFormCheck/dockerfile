@@ -16,6 +16,16 @@ ONBUILD CMD echo "Welcome!"
 HEALTHCHECK --interval=30s CMD node healthcheck.js
 #                              ^^^^^^^^^^^^^^^^^^^
 
+# Noncompliant@+1
+CMD this is a very \
+# ^[el=+2;sc=4;ec=14]
+  long multi-line  \
+  instruction
+
+# Noncompliant@+1
+CMD this is a very long instruction that is settled on a single line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 RUN echo "Welcome!"
 CMD ["echo", "Welcome!"]
 ENTRYPOINT ["echo", "Welcome!"]
