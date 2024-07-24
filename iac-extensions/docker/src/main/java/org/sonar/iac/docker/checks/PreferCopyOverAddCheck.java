@@ -31,8 +31,8 @@ import org.sonar.iac.docker.tree.api.Argument;
 @Rule(key = "S7029")
 public class PreferCopyOverAddCheck implements IacCheck {
   private static final String MESSAGE = "Replace this ADD instruction with a COPY instruction.";
-  private static final Set<String> ARCHIVE_EXTENSIONS = Set.of("tar", "gz", "tgz", "xz", "txz", "bz2", "tbz2", "tbz", "lz", "tlz", "lzma", "tlzma",
-    "lzo", "tlzo", "7z", "zip");
+  private static final Set<String> ARCHIVE_EXTENSIONS = Set.of(".tar", ".gz", ".tgz", ".xz", ".txz", ".bz2", ".tbz2", ".tbz", ".lz", ".tlz",
+    ".lzma", ".tlzma", ".lzo", ".tlzo", ".7z", ".zip");
 
   @Override
   public void initialize(InitContext init) {
@@ -40,13 +40,20 @@ public class PreferCopyOverAddCheck implements IacCheck {
   }
 
   private static void checkAddInstruction(CheckContext ctx, AddInstruction tree) {
-    tree.srcs().stream().filter(a -> !isRemoteResourceOrArchive(a)).forEach(a -> ctx.reportIssue(a, MESSAGE));
+    if (tree.srcs().stream().noneMatch(PreferCopyOverAddCheck::isAllowedAddSource)) {
+      ctx.reportIssue(tree, MESSAGE);
+    }
   }
 
-  private static boolean isRemoteResourceOrArchive(Argument argument) {
+  private static boolean isAllowedAddSource(Argument argument) {
     var argumentResolution = ArgumentResolution.of(argument);
 
+    if (argumentResolution.isUnresolved()) {
+      // we can't determine if the source is a local file or not, so we allow it as a source of ADD instruction
+      return true;
+    }
+
     var src = argumentResolution.value();
-    return src.startsWith("http") || ARCHIVE_EXTENSIONS.stream().anyMatch(src::endsWith);
+    return src.startsWith("http") || src.startsWith("git") || ARCHIVE_EXTENSIONS.stream().anyMatch(src::endsWith);
   }
 }
