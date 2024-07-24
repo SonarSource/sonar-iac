@@ -1,0 +1,27 @@
+<p>In Dockerfiles, it is recommended to use digests to pin versions of base images. This practice ensures that you are always using the exact version
+of the base image that you intend to use, making your Docker image builds reproducible.</p>
+<h2>Why is this an issue?</h2>
+<p>If you’re using tags to specify the version of your base image, you might not get the same image every time. Tags are mutable, meaning they can be
+updated to point to a different image. This can lead to inconsistencies between builds, making it difficult to reproduce bugs or replicate your
+environment. Moreover, if an attacker gains control of the repository, they could replace the image with a compromised one. Using a digest to pin the
+version of your base image can mitigate this risk.</p>
+<h2>How to fix it</h2>
+<p>Instead of using tags like <code>FROM &lt;image&gt;:&lt;tag&gt;</code>, you should use the digest like so: <code>FROM
+image@sha256:&lt;digest&gt;</code>. The digest can be retrieved from Docker CLI or looked up in the Docker registry.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+FROM ubuntu:20.04
+ENTRYPOINT ["echo", "Hello, World!"]
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM ubuntu:20.04@sha256:0b897358ff6624825fb50d20ffb605ab0eaea77ced0adb8c6a4b756513dec6fc
+ENTRYPOINT ["echo", "Hello, World!"]
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Docker Docs - <a href="https://docs.docker.com/build/building/best-practices/#pin-base-image-versions">Building best practices</a> </li>
+</ul>
+

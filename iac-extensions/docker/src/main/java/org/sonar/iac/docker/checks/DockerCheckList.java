@@ -51,6 +51,7 @@ public final class DockerCheckList {
       PackageManagerConsentFlagCheck.class,
       PackageManagerUpdateWithoutInstallCheck.class,
       ParsingErrorCheck.class,
+      PinnedDigestVersionCheck.class,
       PosixPermissionCheck.class,
       PrivilegedUserCheck.class,
       ToDoCommentCheck.class,

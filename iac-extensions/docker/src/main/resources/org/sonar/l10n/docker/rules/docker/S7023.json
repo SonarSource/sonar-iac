@@ -1,0 +1,23 @@
+{
+  "title": "Use digest to pin versions of base images",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-7023",
+  "sqKey": "S7023",
+  "scope": "All",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "HIGH",
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  }
+}
