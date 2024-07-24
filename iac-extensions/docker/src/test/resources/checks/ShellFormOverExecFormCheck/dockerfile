@@ -1,0 +1,21 @@
+FROM scratch
+
+# Noncompliant@+1 {{Replace this shell form with exec form.}}
+CMD echo "Welcome!"
+#   ^^^^^^^^^^^^^^^
+
+# Noncompliant@+1
+ENTRYPOINT echo "Welcome!"
+#          ^^^^^^^^^^^^^^^
+
+# Noncompliant@+1
+ONBUILD CMD echo "Welcome!"
+#           ^^^^^^^^^^^^^^^
+
+# Noncompliant@+1
+HEALTHCHECK --interval=30s CMD node healthcheck.js
+#                              ^^^^^^^^^^^^^^^^^^^
+
+RUN echo "Welcome!"
+CMD ["echo", "Welcome!"]
+ENTRYPOINT ["echo", "Welcome!"]
