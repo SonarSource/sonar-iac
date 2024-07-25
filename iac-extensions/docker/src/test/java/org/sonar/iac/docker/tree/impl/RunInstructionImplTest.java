@@ -50,6 +50,7 @@ class RunInstructionImplTest {
       .matches("RUN [\"executable\",\"param1\",\"param2\"]")
       .matches("RUN [\"/usr/bin/wc\",\"--help\"]")
       .matches("RUN [\"/usr/bin/wc\",\"--help\"]")
+      .matches("RUN [\"/usr/bin/supervisord\", \"-n\"] -D")
       .matches("    RUN []")
       .matches("RUN [\"c:\\\\Program Files\\\\foo.exe\"]")
       .matches("run")

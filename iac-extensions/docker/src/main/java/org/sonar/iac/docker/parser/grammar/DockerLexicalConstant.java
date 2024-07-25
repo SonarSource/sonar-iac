@@ -98,6 +98,8 @@ public class DockerLexicalConstant {
 
   public static final String IMAGE_ALIAS = "[-a-zA-Z0-9_\\.]+";
 
+  public static final String EXEC_LEFTOVER = "[^\n\r]+";
+
   private DockerLexicalConstant() {
   }
 }

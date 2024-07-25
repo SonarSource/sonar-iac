@@ -31,6 +31,7 @@ import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class ExecFormImplTest {
@@ -44,6 +45,8 @@ class ExecFormImplTest {
       .matches(" [\"/usr/bin/wc\",\"--help\"]")
       .matches(" [\"foo\" , \"bar\"]")
       .matches(" [ \"foo\", \"bar\" ]")
+      .matches(" [ \"foo\", \"bar\" ] garbage")
+      .matches(" [ \"foo\", \"bar\" ]garbage no space and multiple words")
       .matches("    [\"/usr/bin/wc\",\"--help\"]")
 
       .notMatches(" [abc]")
@@ -52,6 +55,7 @@ class ExecFormImplTest {
       .notMatches(" [\"la\", \"-bb]")
       .notMatches(" \"la\", \"-bb\"]")
       .notMatches(" [\"la\", \"-bb\",]")
+      .notMatches(" [ \"foo\", \"bar\" ] garbage\n on multiple lines")
       .notMatches("");
   }
 
@@ -91,5 +95,13 @@ class ExecFormImplTest {
     assertThat(execForm.argumentsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
 
     assertArgumentsValue(execForm.arguments(), "executable", "param1", "param2");
+  }
+
+  @Test
+  void shouldSupportGarbageAfterExecForm() {
+    ExecForm execForm = DockerTestUtils.parse(" [ \"foo\", \"bar\" ] garbage", DockerLexicalGrammar.EXEC_FORM);
+    assertThat(execForm.argumentsWithSeparators().elements()).hasSize(2);
+    assertThat(execForm.leftover().value()).isEqualTo("garbage");
+    assertThat(execForm.leftover().textRange()).hasRange(1, 18, 1, 25);
   }
 }
