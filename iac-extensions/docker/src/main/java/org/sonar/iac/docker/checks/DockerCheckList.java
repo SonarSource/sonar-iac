@@ -53,6 +53,7 @@ public final class DockerCheckList {
       ParsingErrorCheck.class,
       PinnedDigestVersionCheck.class,
       PosixPermissionCheck.class,
+      PreferCopyOverAddCheck.class,
       PrivilegedUserCheck.class,
       ToDoCommentCheck.class,
       SecretsGenerationCheck.class,

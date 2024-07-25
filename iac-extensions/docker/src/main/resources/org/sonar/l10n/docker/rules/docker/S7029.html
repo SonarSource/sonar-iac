@@ -1,0 +1,30 @@
+<p>In Dockerfiles, it is recommended to use the COPY instruction over the ADD instruction for copying local resources. The COPY instruction is more
+straightforward and less prone to errors, making it a better choice for copying local files and directories into a Docker image.</p>
+<h2>Why is this an issue?</h2>
+<p>Using the ADD instruction instead of COPY for local resources in Dockerfiles can lead to several issues, including unexpected behavior, increased
+complexity, and security risks. The ADD instruction has additional features that can introduce unintended side effects, such as automatically
+extracting compressed files and fetching remote resources. This can make the behavior of the instruction less predictable and harder to understand or
+even lead to security issues, if, for example, due to a typo in the source path, the ADD instruction could fetch a remote resource instead of copying
+a local file.</p>
+<p>If you only need to copy local files or directories into your Docker image, it is recommended to use the COPY instruction instead. Only use the ADD
+instruction when you need its additional features, such as fetching remote resources or extracting compressed files. See also the rule
+{rule:docker:S7026} for more information on using the ADD instruction to fetch remote resources.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+FROM ubuntu:20.04
+ADD ./app /app
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM ubuntu:20.04
+COPY ./app /app
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> {rule:docker:S7026} - Use ADD instruction to retrieve remote resources </li>
+  <li> Docker Docs - <a href="https://docs.docker.com/build/building/best-practices/#add-or-copy">Building best practices</a> </li>
+</ul>
+
