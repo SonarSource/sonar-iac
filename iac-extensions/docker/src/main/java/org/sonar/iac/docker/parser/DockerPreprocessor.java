@@ -21,6 +21,7 @@ package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Input;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalConstant.EOL;
 
 public class DockerPreprocessor {
 
+  private static final Map<String, Pattern> PATTERN_CACHE = new HashMap<>();
   private static final String NOT_EOL_CHARS = "[^\\n\\r\\u2028\\u2029]";
   private static final String COMMENT = "(#" + NOT_EOL_CHARS + "*+)";
   private static final String INLINE_COMMENT_OR_EMPTY_LINE = "(?<!" + NOT_EOL_CHARS + ")(?<inlineCommentOrEmptyLine>(?:[" + WHITESPACE + "]*+" + COMMENT + "?(?:" + EOL + "|$))*)";
@@ -115,13 +117,16 @@ public class DockerPreprocessor {
 
   private static Matcher matchRemovableSequences(String source) {
     String escapeCharacter = determineEscapeCharacter(source);
+    return PATTERN_CACHE.computeIfAbsent(escapeCharacter, DockerPreprocessor::computePattern).matcher(source);
+  }
 
+  private static Pattern computePattern(String escapeCharacter) {
     String escapedLineBreaks = "(?<escapedLineBreaks>(?<!escape=)" + escapeCharacter + "[" + WHITESPACE + "]*+" + EOL + ")";
     String multiLineInstruction = escapedLineBreaks + INLINE_COMMENT_OR_EMPTY_LINE;
 
     String pattern = "(?:" + multiLineInstruction + "|" + COMMENT_LINE + "|" + CROSS_BUILD_REGEX + ")";
 
-    return Pattern.compile(pattern).matcher(source);
+    return Pattern.compile(pattern);
   }
 
   static String determineEscapeCharacter(String source) {
