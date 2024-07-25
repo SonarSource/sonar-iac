@@ -33,13 +33,13 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   private final SyntaxToken leftBracket;
   private final SeparatedList<Argument, SyntaxToken> argumentsWithSeparators;
   private final SyntaxToken rightBracket;
-  private final SyntaxToken garbage;
+  private final SyntaxToken leftover;
 
-  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<Argument, SyntaxToken> argumentsWithSeparators, SyntaxToken rightBracket, @Nullable SyntaxToken garbage) {
+  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<Argument, SyntaxToken> argumentsWithSeparators, SyntaxToken rightBracket, @Nullable SyntaxToken leftover) {
     this.leftBracket = leftBracket;
     this.argumentsWithSeparators = argumentsWithSeparators;
     this.rightBracket = rightBracket;
-    this.garbage = garbage;
+    this.leftover = leftover;
   }
 
   @Override
@@ -48,8 +48,8 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
     result.add(leftBracket);
     result.addAll(argumentsWithSeparators.elementsAndSeparators());
     result.add(rightBracket);
-    if (garbage != null) {
-      result.add(garbage);
+    if (leftover != null) {
+      result.add(leftover);
     }
     return result;
   }
@@ -81,8 +81,8 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
 
   @Nullable
   @Override
-  public SyntaxToken garbage() {
-    return garbage;
+  public SyntaxToken leftover() {
+    return leftover;
   }
 
 }

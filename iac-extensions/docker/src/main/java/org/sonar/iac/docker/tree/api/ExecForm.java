@@ -42,5 +42,5 @@ public interface ExecForm extends ArgumentList {
   SyntaxToken rightBracket();
 
   @Nullable
-  SyntaxToken garbage();
+  SyntaxToken leftover();
 }

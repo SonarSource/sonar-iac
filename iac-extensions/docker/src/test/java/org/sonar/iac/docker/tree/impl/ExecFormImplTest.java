@@ -101,7 +101,7 @@ class ExecFormImplTest {
   void shouldSupportGarbageAfterExecForm() {
     ExecForm execForm = DockerTestUtils.parse(" [ \"foo\", \"bar\" ] garbage", DockerLexicalGrammar.EXEC_FORM);
     assertThat(execForm.argumentsWithSeparators().elements()).hasSize(2);
-    assertThat(execForm.garbage().value()).isEqualTo("garbage");
-    assertThat(execForm.garbage().textRange()).hasRange(1, 18, 1, 25);
+    assertThat(execForm.leftover().value()).isEqualTo("garbage");
+    assertThat(execForm.leftover().textRange()).hasRange(1, 18, 1, 25);
   }
 }

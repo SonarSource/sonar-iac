@@ -81,7 +81,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   FLAG_PREFIX,
   FLAG_NAME,
   EXEC_FORM,
-  GARBAGE,
+  EXEC_LEFTOVER,
   SHELL_FORM,
   SHELL_FORM_GENERIC,
   HEREDOC,
@@ -186,7 +186,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(HEREDOC_EXPRESSION).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.HEREDOC_EXPRESSION));
 
-    b.rule(GARBAGE).is(b.optional(SKIPPED_WHITESPACE), b.regexp(DockerLexicalConstant.GARBAGE));
+    b.rule(EXEC_LEFTOVER).is(b.optional(SKIPPED_WHITESPACE), b.regexp(DockerLexicalConstant.EXEC_LEFTOVER));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
