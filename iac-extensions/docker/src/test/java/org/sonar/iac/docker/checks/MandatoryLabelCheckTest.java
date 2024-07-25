@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -40,7 +42,8 @@ class MandatoryLabelCheckTest {
   @ValueSource(strings = {
     "compliant_simpleCase",
     "compliant_multipleImages",
-    "compliant_onbuild"
+    "compliant_onbuild",
+    "compliant_withoutFromInstruction",
   })
   void shouldExecuteCheck(String name) {
     DockerVerifier.verifyNoIssue("MandatoryLabelCheck/%s.dockerfile".formatted(name), new MandatoryLabelCheck());
@@ -77,5 +80,21 @@ class MandatoryLabelCheckTest {
       Arguments.of("", Set.of()),
       Arguments.of(" ", Set.of()),
       Arguments.of(",maintainer, ", Set.of("maintainer")));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldFormatLabelsCorrectly(List<String> labels, String expectedFormattedResult) {
+    String formattedLabels = MandatoryLabelCheck.formatLabels(new ArrayList<>(labels));
+
+    assertThat(formattedLabels).isEqualTo(expectedFormattedResult);
+  }
+
+  static Stream<Arguments> shouldFormatLabelsCorrectly() {
+    return Stream.of(
+      Arguments.of(List.of("first", "second"), "\"first\" and \"second\""),
+      Arguments.of(List.of("first", "second", "inorder"), "\"first\", \"inorder\" and \"second\""),
+      Arguments.of(List.of("first"), "\"first\""),
+      Arguments.of(List.of(), ""));
   }
 }

@@ -64,6 +64,10 @@ public class MandatoryLabelCheck implements IacCheck {
   }
 
   private void checkBody(CheckContext ctx, Body body) {
+    if (body.dockerImages().isEmpty()) {
+      return;
+    }
+
     Set<String> encounteredLabels = new HashSet<>();
 
     body.dockerImages().stream()
@@ -95,13 +99,13 @@ public class MandatoryLabelCheck implements IacCheck {
       });
   }
 
-  private static void handleLabelInstruction(LabelInstruction labelInstruction, Set<String> labelInstructions) {
+  private static void handleLabelInstruction(LabelInstruction labelInstruction, Set<String> encounteredLabels) {
     labelInstruction.labels().stream()
       .map(label -> ArgumentResolution.of(label.key()).value())
-      .forEach(labelInstructions::add);
+      .forEach(encounteredLabels::add);
   }
 
-  private static String formatLabels(List<String> missingLabels) {
+  static String formatLabels(List<String> missingLabels) {
     var sb = new StringBuilder();
     Collections.sort(missingLabels);
     for (var i = 0; i < missingLabels.size(); i++) {
