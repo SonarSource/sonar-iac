@@ -1,0 +1,32 @@
+<p>Multiplying the number of <code>RUN</code> instructions increases the final image build time and size.</p>
+<h2>Why is this an issue?</h2>
+<p>Each time a <code>RUN</code> instruction is added, a new layer is introduced in the final image.<br> This has a direct impact on the build time and
+image size. Chaining commands in a single <code>RUN</code> instruction using <code>&amp;&amp;</code> will use a single layer, thereby reducing the
+number of layers in the image.<br> This practice can make Docker images more efficient and easier to manage.<br> Each layer in a Docker image is
+essentially a change to the image, like a version control system.<br> So, fewer layers mean fewer changes to track, which simplifies management and
+troubleshooting.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" --output nodejs.tar.gz
+RUN echo "$NODE_DOWNLOAD_SHA nodejs.tar.gz" | sha256sum -c -
+RUN tar -xzf "nodejs.tar.gz" -C /usr/local --strip-components=1
+RUN rm nodejs.tar.gz
+RUN ln -s /usr/local/bin/node /usr/local/bin/nodejs
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" --output nodejs.tar.gz \
+&amp;&amp; echo "$NODE_DOWNLOAD_SHA nodejs.tar.gz" | sha256sum -c - \
+&amp;&amp; tar -xzf "nodejs.tar.gz" -C /usr/local --strip-components=1 \
+&amp;&amp; rm nodejs.tar.gz \
+&amp;&amp; ln -s /usr/local/bin/node /usr/local/bin/nodejs
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Dockerfile Best Practices - <a href="https://github.com/dnaprawa/dockerfile-best-practices?tab=readme-ov-file#limit-image-layers-amount">Limit
+  image layers amount</a> </li>
+</ul>
+
