@@ -20,8 +20,6 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.testing.IacCommonAssertions;
-import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
@@ -69,6 +67,7 @@ class CmdInstructionImplTest {
       .matches("    CMD \"/usr/bin/run.sh\"")
       .matches("CMD     \"/usr/bin/run.sh\"")
       .matches("cmd")
+      .matches("CMD rm -f /fifo && mkfifo /fifo && exec cat </fifo")
       // not exec form
       .matches("CMD [\"la\", \"-bb\"")
       .matches("CMD \"la\", \"-bb\"]")

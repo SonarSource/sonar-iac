@@ -68,7 +68,7 @@ public class DockerLexicalConstant {
   public static final String ESCAPED_UNQUOTED_STRING_CHARACTERS = "\\\\$|\\\\'|\\\\\"";
 
   public static final String UNQUOTED_STRING_LITERAL = "(?:"
-    + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"\\$<]|\\$(?![a-zA-Z_0-9{]))++"
+    + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"\\$]|\\$(?![a-zA-Z_0-9{]))++"
     + ")";
 
   /**
@@ -93,8 +93,8 @@ public class DockerLexicalConstant {
    * it will then end until the last matched block.
    * Implementation note: `\1` matches the last match of the 1st capturing group, i.e. the name of the last opening heredoc marker.
    */
-  public static final String HEREDOC_NAME = "<<-?\"?([a-zA-Z0-9_]++)\"?";
-  public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "[^<\\r\\n]*)+[\\n\\r][\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)";
+  public static final String HEREDOC_NAME = "<<-?(\"|')?([a-zA-Z0-9_]++)\\1?";
+  public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "[^<\\r\\n]*)+[\\n\\r][\\s\\S]*?([\\n\\r])\\2(?=[\\n\\r]|$)";
 
   public static final String IMAGE_ALIAS = "[-a-zA-Z0-9_\\.]+";
 
