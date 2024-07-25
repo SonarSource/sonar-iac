@@ -120,3 +120,8 @@ RUN apt-get install -y
 
 # Compliant; too few packages
 RUN apk add zip bash
+
+# Compliant
+RUN apt-get install -y gcc > /dev/null
+RUN apt-get install -y gcc &> /dev/null
+RUN apt-get install -y zip | tee apt-get.log

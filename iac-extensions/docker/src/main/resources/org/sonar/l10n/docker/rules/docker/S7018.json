@@ -1,5 +1,5 @@
 {
-  "title": "Arguments in multi-line RUN instructions should be sorted",
+  "title": "Arguments in long RUN instructions should be sorted",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

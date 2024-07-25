@@ -36,20 +36,21 @@ public class SortedArgumentListCheck implements IacCheck {
   private static final String INSTALL_COMMAND = "install";
   private static final String ADD_COMMAND = "add";
   private static final int MINIMAL_LENGTH_TO_SORT = 3;
+  private static final Set<String> ARG_LIST_TERMINATORS = Set.of(">", ">>", "&>", "&>>", "<");
 
   private static final CommandDetector DEBIAN_PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
     .with(Set.of("apt", "apt-get", "aptitude"))
     .withAnyFlag()
     .with(INSTALL_COMMAND)
     .withAnyFlag()
-    .withOptionalRepeating(s -> true)
+    .withOptionalRepeatingExcept(ARG_LIST_TERMINATORS::contains)
     .build();
   private static final CommandDetector APK_DETECTOR = CommandDetector.builder()
     .with("apk")
     .withAnyFlag()
     .with(ADD_COMMAND)
     .withAnyFlag()
-    .withOptionalRepeating(s -> true)
+    .withOptionalRepeatingExcept(ARG_LIST_TERMINATORS::contains)
     .build();
   private static final CommandDetector PIP_DETECTOR = CommandDetector.builder()
     .with("pip")
@@ -57,7 +58,7 @@ public class SortedArgumentListCheck implements IacCheck {
     .with(INSTALL_COMMAND)
     // don't sort arguments if a file is used
     .withAnyFlagExcept("-r", "--requirement")
-    .withOptionalRepeating(s -> true)
+    .withOptionalRepeatingExcept(ARG_LIST_TERMINATORS::contains)
     .build();
   private static final Set<CommandDetector> COMMAND_DETECTORS = Set.of(DEBIAN_PACKAGE_MANAGER_DETECTOR, APK_DETECTOR, PIP_DETECTOR);
 
