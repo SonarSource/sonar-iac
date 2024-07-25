@@ -23,6 +23,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.tree.Comment;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,6 +77,81 @@ class DockerPreprocessorTest {
     String input = "foo\\\nbar\\\npong";
     String output = preprocessor.process(input).processedSourceCode();
     assertThat(output).isEqualTo("foobarpong");
+  }
+
+  @Test
+  void shouldRemoveCrossBuildPrefixAndAdjustOffset() {
+    String input = "CROSS_BUILD_COPY .";
+    DockerPreprocessor.PreprocessorResult result = preprocessor.process(input);
+    assertThat(result.processedSourceCode()).isEqualTo("COPY .");
+    assertThat(result.commentMap()).isEmpty();
+    DockerPreprocessor.SourceOffset sourceOffset = result.sourceOffset();
+    assertThat(sourceOffset.sourceLineAndColumnAt(0)).isEqualTo(new int[] {1, 13});
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "ONBUILD",
+    "FROM",
+    "MAINTAINER",
+    "STOPSIGNAL",
+    "WORKDIR",
+    "EXPOSE",
+    "LABEL",
+    "ENV",
+    "ARG",
+    "CMD",
+    "ENTRYPOINT",
+    "RUN",
+    "ADD",
+    "COPY",
+    "USER",
+    "VOLUME",
+    "SHELL",
+    "HEALTHCHECK"
+  })
+  void shouldRemoveCrossBuildPrefixForAnyValidDockerInstructions(String instruction) {
+    String input = "CROSS_BUILD_%s something".formatted(instruction);
+    String output = preprocessor.process(input).processedSourceCode();
+    assertThat(output).isEqualTo("%s something".formatted(instruction));
+  }
+
+  // FP, we are removing a CROSS_BUILD_ prefix on heredoc data that is also a valid dockerfile instruction
+  @Test
+  void shouldRemoveCrossBuildPrefixEvenInHeredoc() {
+    String input = """
+      RUN <EOF
+      CROSS_BUILD_COPY .
+      EOF
+      """;
+    String output = preprocessor.process(input).processedSourceCode();
+    assertThat(output).isEqualTo("""
+      RUN <EOF
+      COPY .
+      EOF
+      """);
+  }
+
+  // FN, we are not removing a CROSS_BUILD_ prefix on a valid dockerfile instruction that has spaces before
+  @Test
+  void shouldNotRemoveCrossBuildPrefixWhenThereIsSpacesBefore() {
+    String input = "   CROSS_BUILD_COPY .";
+    String output = preprocessor.process(input).processedSourceCode();
+    assertThat(output).isEqualTo(input);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "CROSS_BUILD_OTHER something", // Not a dockerfile instruction
+    "ONBUILD CROSS_BUILD_COPY something", // The instruction is not starting a new line/file
+    "CROSS_BUILD_COPY\nCOPY .", // The instruction is not followed by a whitespace
+    // Few others invalid use case
+    "ARG MY_VAR=${CROSS_BUILD_VARIABLE}",
+    "ARG MY_VAR=\"CROSS_BUILD_VALUE\"",
+  })
+  void shouldNotRemoveCrossBuildPrefix(String input) {
+    String output = preprocessor.process(input).processedSourceCode();
+    assertThat(output).isEqualTo(input);
   }
 
   @ParameterizedTest
