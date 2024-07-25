@@ -333,8 +333,9 @@ public class DockerGrammar {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM).is(
       f.shellForm(
         b.oneOrMore(
-          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT())),
-        b.optional(f.hereDocument(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)))));
+          b.firstOf(
+            f.hereDocument(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)),
+            f.singleArgumentList(f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT()))))));
   }
 
   /**
@@ -344,8 +345,9 @@ public class DockerGrammar {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM_GENERIC).is(
       f.shellForm(
         b.oneOrMore(
-          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC())),
-        b.optional(f.hereDocument(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)))));
+          b.firstOf(
+            f.hereDocument(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)),
+            f.singleArgumentList(f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC()))))));
   }
 
   public HereDocument HEREDOC() {

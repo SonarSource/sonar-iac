@@ -44,6 +44,7 @@ class LabelInstructionImplTest {
       .matches("LABEL key1=value1 key2=value2")
       .matches("LABEL \"key1\"=\"value1\" \"key2\"=\"value2\"")
       .matches("LABEL \"key1\"=value1 key2=\"value2\"")
+      .matches("LABEL maintainer John Doe <john.doe@example.com>")
       .notMatches("LABEL \"key1 value1 still_value1 again_value1\"")
       .notMatches("LABEL")
       .notMatches("LABEL key1")

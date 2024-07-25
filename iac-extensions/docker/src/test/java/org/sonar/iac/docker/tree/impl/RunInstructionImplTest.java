@@ -83,6 +83,9 @@ class RunInstructionImplTest {
       .matches("    RUN \"/usr/bin/run.sh\"")
       .matches("RUN     \"/usr/bin/run.sh\"")
       .matches("run")
+      .matches("RUN service postgresql start && su postgres -c psql < /tmp/create_db.sql")
+      .matches("RUN npm cache clean -g -f < /dev/null 2> /dev/null")
+      .matches("RUN pip install mongoengine\\>=0.10,\\<0.11 pymongo\\>=3.0,\\<3.1 pyopenssl msgpack-python\\<0.5 pyyaml\\<4 psutil")
       // not exec form
       .matches("RUN [\"la\", \"-bb\"")
       .matches("RUN \"la\", \"-bb\"]")
@@ -193,7 +196,23 @@ class RunInstructionImplTest {
           then
               source /etc/profile
           fi
-          EOF""");
+          EOF""")
+      .matches(
+        """
+          RUN npm i semver && \\
+            npm cache  -g -f < /dev/null 2> /dev/null \\
+            && cat <<EOF
+          Installation done
+          EOF""")
+      .matches(
+        """
+          RUN \\
+          IFS=' ' read -a PACKAGES <<< "$PACKAGES" ; \\
+          pacman -Sy --noconfirm --needed "${PACKAGES[@]}\"""")
+      .matches("""
+        RUN grappa/configure --cc=$(which gcc) --gen=Ninja \\
+                      --third-party=/grappa-third-party \\
+                      --shmmax=$((1<<30))""");
   }
 
   @Test

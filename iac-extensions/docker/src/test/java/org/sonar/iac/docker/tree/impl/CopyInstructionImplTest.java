@@ -62,6 +62,7 @@ class CopyInstructionImplTest {
       .matches("COPY <<-EOT\n  mkdir -p foo/bar\nEOT")
       .matches("COPY <<\"EOT\"\n  mkdir -p foo/bar\nEOT")
       .matches("COPY ${mycopy:-test} dest")
+      .matches("COPY --chmod=755 <<'EOF' file.sh\necho \"Hello, World!\"\nEOF")
       .notMatches("COPY <EOT\n  mkdir -p foo/bar\nEOT")
       .notMatches("COPY <<EOT\n  mkdir -p foo/bar\nEOT5")
       .notMatches("COPY--option= src dest")

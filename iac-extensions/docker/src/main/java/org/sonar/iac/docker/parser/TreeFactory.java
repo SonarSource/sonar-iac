@@ -93,6 +93,7 @@ import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
+import org.sonar.iac.docker.tree.impl.SingleArgumentListImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
 import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
@@ -215,6 +216,10 @@ public class TreeFactory {
     }
   }
 
+  public ArgumentList singleArgumentList(Argument argument) {
+    return new SingleArgumentListImpl(argument);
+  }
+
   public HereDocument hereDocument(SyntaxToken token) {
     return (HereDocument) HEREDOC_PARSER.parse(token);
   }
@@ -244,10 +249,10 @@ public class TreeFactory {
     return new ExecFormImpl(leftBracket, separatedList, rightBracket, leftover.orNull());
   }
 
-  public ShellForm shellForm(List<Argument> arguments, Optional<HereDocument> hereDocument) {
-    var allArguments = new ArrayList<>(arguments);
-    if (hereDocument.isPresent()) {
-      allArguments.addAll(hereDocument.get().arguments());
+  public ShellForm shellForm(Iterable<ArgumentList> argumentLists) {
+    var allArguments = new ArrayList<Argument>();
+    for (var argumentList : argumentLists) {
+      allArguments.addAll(argumentList.arguments());
     }
     return new ShellFormImpl(allArguments);
   }
