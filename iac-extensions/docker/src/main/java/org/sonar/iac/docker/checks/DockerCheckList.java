@@ -34,6 +34,7 @@ public final class DockerCheckList {
       ArgDefinedOutsideOfScopeCheck.class,
       BuilderSandboxCheck.class,
       ClearTextProtocolDowngradeCheck.class,
+      ConsecutiveRunInstructionCheck.class,
       DebugModeCheck.class,
       DeprecatedInstructionCheck.class,
       DirectoryCopySourceCheck.class,
