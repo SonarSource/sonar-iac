@@ -31,7 +31,7 @@ import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 @Rule(key = "S7021")
 public class WorkdirAbsolutPathCheck implements IacCheck {
 
-  private static final Pattern regexAbsolutePath = Pattern.compile("^(?:/|[a-zA-Z]:[/\\\\])");
+  private static final Pattern regexAbsolutePath = Pattern.compile("^(?:/|[a-zA-Z]:[/\\\\]|~|%[a-zA-Z()86]++%)");
   private static final String MESSAGE = "Use an absolute path instead of this relative path when defining the WORKDIR.";
 
   @Override

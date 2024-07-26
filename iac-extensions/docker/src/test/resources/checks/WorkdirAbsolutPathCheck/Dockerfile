@@ -45,3 +45,21 @@ ONBUILD WORKDIR relative/path
 WORKDIR not:/a/windows/absolute/path
 
 WORKDIR ""
+
+WORKDIR ~
+WORKDIR ~user/some/path
+WORKDIR ~/some/path
+
+WORKDIR %temp%
+WORKDIR "%SystemRoot%\System32"
+WORKDIR "%CommonProgramFiles(x86)%"
+
+# Noncompliant@+1
+WORKDIR "%CommonProgramFiles(x87)%"
+
+# Noncompliant@+1
+WORKDIR "%notEndingInTilde"
+
+# Noncompliant@+1
+WORKDIR "notStartingWithTilde%"
+
