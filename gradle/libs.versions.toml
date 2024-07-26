@@ -2,7 +2,7 @@
 sonarqube = "10.6.0.92116"
 sonar-plugin-api = "10.9.0.2362"
 sonar-commons = "2.11.0.2861"
-sonar-orchestrator = "4.9.0.1920"
+sonar-orchestrator = "5.0.0.2065"
 junit = "5.10.3"
 assertj = "3.26.0"
 mockito = "5.12.0"
