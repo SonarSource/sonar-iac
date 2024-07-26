@@ -40,24 +40,25 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static final String MESSAGE = "Replace this invocation of %s with the ADD instruction.";
 
-  private static final Predicate<String> WGET_DOWNLOAD_FLAG = startsWithIgnoreQuotes("-O");
+  private static final Predicate<String> WGET_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-O", "--output-document");
   private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
 
   // wget -O /path/to/resource https://example.com/resource
   private static final CommandDetector WGET_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()
     .with("wget")
-    .withOptionalRepeating(WGET_DOWNLOAD_FLAG.negate())
-    .with(WGET_DOWNLOAD_FLAG)
+    .withOptionalRepeating(WGET_DOWNLOAD_FLAG_PREDICATE.negate())
+    .with(WGET_DOWNLOAD_FLAG_PREDICATE)
     .withOptionalRepeating(URL_PREDICATE.negate())
     .with(URL_PREDICATE)
     .build();
 
+  // wget https://example.com/resource -O /path/to/resource
   private static final CommandDetector WGET_URL_FIRST_DETECTOR = CommandDetector.builder()
     .with("wget")
     .withOptionalRepeating(URL_PREDICATE.negate())
     .with(URL_PREDICATE)
-    .withOptionalRepeating(WGET_DOWNLOAD_FLAG.negate())
-    .with(WGET_DOWNLOAD_FLAG)
+    .withOptionalRepeating(WGET_DOWNLOAD_FLAG_PREDICATE.negate())
+    .with(WGET_DOWNLOAD_FLAG_PREDICATE)
     .build();
 
   private static final List<CommandDetector> WGET_DETECTORS = List.of(WGET_DOWNLOAD_FLAG_FIRST_DETECTOR, WGET_URL_FIRST_DETECTOR);

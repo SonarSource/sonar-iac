@@ -28,13 +28,10 @@ public final class StringPredicate {
   }
 
   public static Predicate<String> startsWithIgnoreQuotes(String value) {
-    return str -> {
-      System.out.println("AAA startsWithIgnoreQuotes " + value + " result " + stripQuotes(str).startsWith(value));
-      return stripQuotes(str).startsWith(value);
-    };
+    return str -> stripQuotes(str).startsWith(value);
   }
 
-  public static Predicate<String> startsWithIgnoreQuotes(List<String> values) {
+  public static Predicate<String> startsWithIgnoreQuotes(String... values) {
     return str -> {
       for (String value : values) {
         if (stripQuotes(str).startsWith(value)) {
