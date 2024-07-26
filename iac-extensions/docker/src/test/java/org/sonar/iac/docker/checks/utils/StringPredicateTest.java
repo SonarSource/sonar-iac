@@ -108,4 +108,44 @@ class StringPredicateTest {
 
     assertThat(predicate.test(value)).isFalse();
   }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "value",
+    "\"value\"",
+    "'value'",
+    "value123",
+    "\"value123\"",
+    "'value123'",
+    "expected",
+    "expected=123",
+    "expected-value",
+    "value-expected"
+  })
+  void shouldStartsWithIgnoreQuotesListShouldBeTrue(String value) {
+    Predicate<String> predicate = startsWithIgnoreQuotes("value", "expected");
+
+    assertThat(predicate.test(value)).isTrue();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "val",
+    "\"val\"",
+    "'val'",
+    " value",
+    " value ",
+    "other",
+    "\"value",
+    "'value",
+    "exp",
+    "--expected",
+    "'expected",
+    "ex-pected"
+  })
+  void startsStartsWithIgnoreQuotesListShouldBeFalse(String value) {
+    Predicate<String> predicate = startsWithIgnoreQuotes("value", "expected");
+
+    assertThat(predicate.test(value)).isFalse();
+  }
 }
