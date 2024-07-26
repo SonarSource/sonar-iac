@@ -102,6 +102,7 @@ public class MandatoryLabelCheck implements IacCheck {
   private static void handleLabelInstruction(LabelInstruction labelInstruction, Set<String> encounteredLabels) {
     labelInstruction.labels().stream()
       .map(label -> ArgumentResolution.of(label.key()).value())
+      .map(String::toLowerCase)
       .forEach(encounteredLabels::add);
   }
 

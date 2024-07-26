@@ -40,7 +40,8 @@ class MandatoryLabelCheckTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-    "compliant_simpleCase",
+    "compliant_simple",
+    "compliant_uppercase",
     "compliant_multipleImages",
     "compliant_onbuild",
     "compliant_withoutFromInstruction",
