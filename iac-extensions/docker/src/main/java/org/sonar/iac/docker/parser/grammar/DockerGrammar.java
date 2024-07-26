@@ -346,7 +346,8 @@ public class DockerGrammar {
         b.oneOrMore(
           b.firstOf(
             f.hereDocument(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)),
-            f.singleArgumentList(f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC()))))));
+            f.singleArgumentList(f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC())),
+            f.singleArgumentList(f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), f.newArgument(b.oneOrMore(ANY_CHAR_STRING_LITERAL()))))))));
   }
 
   public HereDocument HEREDOC() {
@@ -428,6 +429,11 @@ public class DockerGrammar {
       b.firstOf(
         REGULAR_STRING_LITERAL(),
         EXPANDABLE_STRING_LITERAL_GENERIC()));
+  }
+
+  public Expression ANY_CHAR_STRING_LITERAL() {
+    return b.<Expression>nonterminal().is(
+      f.regularStringLiteral(b.token(DockerLexicalGrammar.ANY_CHAR_STRING_LITERAL)));
   }
 
   public KeyValuePair KEY_VALUE_PAIR() {

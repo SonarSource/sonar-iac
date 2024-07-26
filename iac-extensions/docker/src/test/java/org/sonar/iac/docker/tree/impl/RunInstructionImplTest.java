@@ -87,14 +87,16 @@ class RunInstructionImplTest {
       .matches("RUN npm cache clean -g -f < /dev/null 2> /dev/null")
       .matches("RUN pip install mongoengine\\>=0.10,\\<0.11 pymongo\\>=3.0,\\<3.1 pyopenssl msgpack-python\\<0.5 pyyaml\\<4 psutil")
       // not exec form
-      .matches("RUN [\"la\", \"-bb\"")
       .matches("RUN \"la\", \"-bb\"]")
       .matches("RUN ${run}")
       .matches("RUN ${run:-test}")
       .matches("RUN ${run%%[a-z]+}")
       .matches("RUN 'this is my var \" and other \"'")
+      // a malformed exec form will be treated as shell form
+      .matches("RUN [\"la\", \"-bb\"")
+      .matches("RUN [\"la\", \"-bb]")
+      .matches("RUN [ \"/bin/bash”, “-c” ]")
 
-      .notMatches("RUN [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 
@@ -137,10 +139,11 @@ class RunInstructionImplTest {
       .matches("RUN     --mount=target=/   \"/usr/bin/run.sh\"")
       .matches("RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;     Write-Host \"Downloading Prometheus version: $env:PROMETHEUS_VERSION\";")
       // not exec form
-      .matches("RUN [\"la\", \"-bb\"")
       .matches("RUN \"la\", \"-bb\"]")
+      // a malformed exec form
+      .matches("RUN [\"la\", \"-bb\"")
+      .matches("RUN [\"la\", \"-bb]")
 
-      .notMatches("RUN [\"la\", \"-bb]")
       .notMatches("--mount=target=. /bin/sh /deploy.sh");
   }
 
@@ -484,5 +487,13 @@ class RunInstructionImplTest {
     assertThat(run.arguments())
       .map(a -> ((Literal) a.expressions().get(0)).value())
       .containsExactly("cat", "<<TEXT1", "&&", "cat", "<<TEXT2", "Text1", "TEXT1", "Text2", "TEXT2");
+  }
+
+  @Test
+  void shouldTreatMalformedExecFormAsShellForm() {
+    var tree = DockerTestUtils.<RunInstruction>parse("RUN [ \"/bin/bash”, “-c” ])", DockerLexicalGrammar.RUN);
+
+    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
+    assertArgumentsValue(tree.arguments(), "[", "/bin/bash”, “-c” ]");
   }
 }

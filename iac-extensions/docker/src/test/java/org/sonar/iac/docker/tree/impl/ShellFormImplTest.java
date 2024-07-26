@@ -46,6 +46,7 @@ class ShellFormImplTest {
       .matches(" [ \"foo\", \"bar\" ] garbage")
       .matches(" [ \"foo\", \"bar\" ]garbage no space and multiple words")
 
+      .notMatches(" [ \"/bin/bash”, “-c” ]")
       .notMatches(" ${var%%[a-z+]}")
       .notMatches("ls -a")
       .notMatches("");
@@ -63,6 +64,7 @@ class ShellFormImplTest {
       .matches(" ${var}")
       .matches(" ${var:-test}")
       .matches(" ${var%%[a-z+]}")
+      .matches(" [ \"/bin/bash”, “-c” ]")
 
       .notMatches("ls -a")
       .notMatches("");

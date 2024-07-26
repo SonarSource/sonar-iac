@@ -45,6 +45,7 @@ class ExecFormImplTest {
       .matches(" [ \"foo\", \"bar\" ]")
       .matches("    [\"/usr/bin/wc\",\"--help\"]")
 
+      .notMatches(" [ \"/bin/bash”, “-c” ]")
       .notMatches(" [abc]")
       .notMatches(" [\"la\" \"-bb\"")
       .notMatches(" [\"la\", \"-bb\"")

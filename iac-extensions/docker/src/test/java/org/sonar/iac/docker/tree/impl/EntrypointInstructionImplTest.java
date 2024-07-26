@@ -65,13 +65,14 @@ class EntrypointInstructionImplTest {
       .matches("ENTRYPOINT     \"/usr/bin/run.sh\"")
       .matches("entrypoint")
       // not exec form
-      .matches("ENTRYPOINT [\"la\", \"-bb\"")
       .matches("ENTRYPOINT \"la\", \"-bb\"]")
       .matches("ENTRYPOINT ${entrypoint}")
       .matches("ENTRYPOINT ${entrypoint:-test}")
       .matches("ENTRYPOINT ${entrypoint%%[a-z]+}")
+      // a malformed exec form will be treated as shell form
+      .matches("ENTRYPOINT [\"la\", \"-bb\"")
+      .matches("ENTRYPOINT [\"la\", \"-bb]")
 
-      .notMatches("ENTRYPOINT [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 

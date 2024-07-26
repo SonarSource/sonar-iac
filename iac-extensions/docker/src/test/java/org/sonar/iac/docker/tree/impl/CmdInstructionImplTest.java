@@ -71,13 +71,14 @@ class CmdInstructionImplTest {
       .matches("cmd")
       .matches("CMD rm -f /fifo && mkfifo /fifo && exec cat </fifo")
       // not exec form
-      .matches("CMD [\"la\", \"-bb\"")
       .matches("CMD \"la\", \"-bb\"]")
       .matches("CMD ${cmd}")
       .matches("CMD ${cmd:-test}")
       .matches("CMD ${cmd%%[a-z]+}")
+      // a malformed exec form will be treated as shell form
+      .matches("CMD [\"la\", \"-bb\"")
+      .matches("CMD [\"la\", \"-bb]")
 
-      .notMatches("CMD [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 

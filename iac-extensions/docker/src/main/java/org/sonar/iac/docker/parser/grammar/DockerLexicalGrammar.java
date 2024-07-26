@@ -97,6 +97,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   UNQUOTED_STRING_LITERAL,
 
+  ANY_CHAR_STRING_LITERAL,
+
   UNQUOTED_KEY_LITERAL,
 
   HEREDOC_NAME,
@@ -186,6 +188,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(HEREDOC_EXPRESSION).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.HEREDOC_EXPRESSION));
 
+    b.rule(ANY_CHAR_STRING_LITERAL).is(b.optional(SKIPPED_WHITESPACE), b.regexp(DockerLexicalConstant.ANY_CHAR_STRING_LITERAL));
     b.rule(RBRACKET_END_EXEC_FORM).is(b.optional(SKIPPED_WHITESPACE), b.regexp(DockerLexicalConstant.RBRACKET_END_EXEC_FORM));
   }
 
