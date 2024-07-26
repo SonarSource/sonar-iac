@@ -43,6 +43,8 @@ class ShellFormImplTest {
       .matches(" $var")
       .matches(" ${var}")
       .matches(" ${var:-test}")
+      .matches(" [ \"foo\", \"bar\" ] garbage")
+      .matches(" [ \"foo\", \"bar\" ]garbage no space and multiple words")
 
       .notMatches(" ${var%%[a-z+]}")
       .notMatches("ls -a")

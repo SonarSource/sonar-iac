@@ -20,6 +20,8 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
@@ -124,5 +126,24 @@ class CmdInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments()).isEmpty();
+  }
+
+  @Test
+  void shouldParseMalformedExecFormAsShellForm() {
+    CmdInstruction tree = DockerTestUtils.parse("CMD [\"executable\", \"option\"] something behind", DockerLexicalGrammar.CMD);
+    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
+    assertArgumentsValue(tree.arguments(), "[executable,", "option]", "something", "behind");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "CMD [\"executable\", \"option\"]",
+    "CMD [\"executable\", \"option\"] ",
+    "CMD [\"executable\", \"option\"]  \t   "
+  })
+  void shouldParseExecFormProperly(String input) {
+    CmdInstruction tree = DockerTestUtils.parse(input, DockerLexicalGrammar.CMD);
+    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.EXEC_FORM);
+    assertArgumentsValue(tree.arguments(), "executable", "option");
   }
 }
