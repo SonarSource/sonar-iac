@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.checks.utils;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Predicate;
 
 public final class StringPredicate {
@@ -32,7 +31,7 @@ public final class StringPredicate {
   }
 
   public static Predicate<String> startsWithIgnoreQuotes(String... values) {
-    return str -> {
+    return (String str) -> {
       for (String value : values) {
         if (stripQuotes(str).startsWith(value)) {
           return true;

@@ -72,14 +72,14 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void check(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
-    WGET_DETECTORS.forEach(detector -> {
+    WGET_DETECTORS.forEach((CommandDetector detector) -> {
       SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
       splitCommands.elements().forEach(args -> checkArgument(ctx, detector, args));
     });
   }
 
   private static void checkArgument(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
-    detector.search(args).forEach(command -> {
+    detector.search(args).forEach((CommandDetector.Command command) -> {
       if (!containsWgetAuthenticationFlags(args)) {
         var textRangeList = args.stream().map(a -> a.argument().textRange())
           .toList();
