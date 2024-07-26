@@ -4,14 +4,6 @@ load("github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/mas
 load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master", "is_branch_qa_eligible")
 
 
-def promote_env():
-    env = promotion_env()
-    env |= {
-        "ARTIFACTS": "com.sonarsource.iac:sonar-iac-plugin:jar"
-    }
-    return env
-
-
 # SHARED CANDIDATE???
 def promote_script():
     return [
@@ -35,7 +27,7 @@ def promote_task():
                 "qa_ruling",
                 "qa_plugin"
             ],
-            "env": promote_env(),
+            "env": promotion_env(),
             "eks_container": base_image_container_builder(cpu=1, memory="2G"),
             "project_version_cache": project_version_cache(),
             "script": promote_script()
