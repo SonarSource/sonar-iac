@@ -14,7 +14,6 @@ jobs:
     if: >-
       (contains(fromJSON('["main", "master"]'),
       github.event.check_suite.head_branch) ||
-      startsWith(github.event.check_suite.head_branch, 'dogfood-') ||
       startsWith(github.event.check_suite.head_branch, 'branch-')) &&
       github.event.check_suite.conclusion == 'success' &&
       github.event.check_suite.app.slug == 'cirrus-ci'
