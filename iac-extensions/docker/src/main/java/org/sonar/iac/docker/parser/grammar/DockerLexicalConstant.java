@@ -75,7 +75,7 @@ public class DockerLexicalConstant {
   /**
    * Allows to match any character sequence as a string. Used as a fallback matcher for shell form.
    */
-  public static final String ANY_CHAR_STRING_LITERAL = "[^\n\r]+";
+  public static final String ANY_CHAR_STRING_LITERAL = "[^\n\r]++";
 
   /**
    * Allow to match the modifier of a variable in a dockerfile. Currently more permissive as it allow to match any characters except unescaped $, ' and "
