@@ -29,6 +29,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
+import org.sonar.iac.docker.checks.utils.ShortFlagPredicate;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -40,8 +41,18 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static final String MESSAGE = "Replace this invocation of %s with the ADD instruction.";
 
+  private static final List<String> WGET_AUTH_FLAGS = List.of("--http-user", "--http-password", "--proxy-user", "--proxy-password", "--load-cookies");
   private static final Predicate<String> WGET_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-O", "--output-document");
   private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
+
+  // By setting header manually: -H "Authorization ...", --header "Authorization ..." , -H "X-Auth-Token ..." , --header "X-Auth-Token ...".
+  private static final List<String> CURL_AUTH_FLAGS = List.of("--anyauth", "--basic", "--digest", "--ntlm", "--negotiate",
+    "--proxy-anyauth", "--proxy-basic", "--proxy-digest", "--proxy-ntlm", "--proxy-negotiate", "--user", "-u", "--oauth2-bearer",
+    "--proxy-user", "-U", "--tlsuser", "--proxy-tlspassword", "--tlspassword", "--proxy-tlspassword", "--proxy-tlsuser", "--tlsuser", "-b",
+    "--cookie", "-c", "--cookie-jar");
+  private static final List<String> CURL_STDOUT_REDIRECT = List.of(">", ">>", "1>", "1>>");
+  private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "-O", "--remote-name");
+  private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = new ShortFlagPredicate('L');
 
   // wget -O /path/to/resource https://example.com/resource
   private static final CommandDetector WGET_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()
@@ -62,7 +73,65 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     .build();
 
   private static final List<CommandDetector> WGET_DETECTORS = List.of(WGET_DOWNLOAD_FLAG_FIRST_DETECTOR, WGET_URL_FIRST_DETECTOR);
-  private static final List<String> WGET_AUTH_FLAGS = List.of("--http-user", "--http-password", "--proxy-user", "--proxy-password", "--load-cookies");
+
+  // curl -o output.txt https://example.com/resource
+  private static final CommandDetector CURL_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()
+    .with("curl")
+    .withOptionalRepeating(CURL_DOWNLOAD_FLAG_PREDICATE.negate())
+    .with(CURL_DOWNLOAD_FLAG_PREDICATE)
+    .withOptionalRepeating(URL_PREDICATE.negate())
+    .with(URL_PREDICATE)
+    .build();
+
+  // curl https://example.com/resource -o output.txt
+  private static final CommandDetector CURL_URL_FIRST_DETECTOR = CommandDetector.builder()
+    .with("curl")
+    .withOptionalRepeating(URL_PREDICATE.negate())
+    .with(URL_PREDICATE)
+    .withOptionalRepeating(CURL_DOWNLOAD_FLAG_PREDICATE.negate())
+    .with(CURL_DOWNLOAD_FLAG_PREDICATE)
+    .build();
+
+  // curl -LOv https://example.com/resource
+  private static final CommandDetector CURL_DOWNLOAD_SHORT_FLAG_FIRST_DETECTOR = CommandDetector.builder()
+    .with("curl")
+    .withOptionalRepeating(CURL_SHORT_DOWNLOAD_FLAG.negate())
+    .with(CURL_SHORT_DOWNLOAD_FLAG)
+    .withOptionalRepeating(URL_PREDICATE.negate())
+    .with(URL_PREDICATE)
+    .build();
+
+  // curl https://example.com/resource -LOv
+  private static final CommandDetector CURL_URL_FIRST_DOWNLOAD_SHORT_FLAG_DETECTOR = CommandDetector.builder()
+    .with("curl")
+    .withOptionalRepeating(URL_PREDICATE.negate())
+    .with(URL_PREDICATE)
+    .withOptionalRepeating(CURL_SHORT_DOWNLOAD_FLAG.negate())
+    .with(CURL_SHORT_DOWNLOAD_FLAG)
+    .build();
+
+  // curl https://example.com/resource > output.txt
+  private static final CommandDetector CURL_REDIRECT_STDOUT_DETECTOR = CommandDetector.builder()
+    .with("curl")
+    .withOptionalRepeating(URL_PREDICATE.negate())
+    .with(URL_PREDICATE)
+    .withOptionalRepeatingExcept(CURL_STDOUT_REDIRECT)
+    .with(CURL_STDOUT_REDIRECT)
+    .with(str -> !str.equals("/dev/null"))
+    .build();
+
+  // -H "Authorization: Bearer token"
+  private static final CommandDetector CURL_AUTH_HEADERS = CommandDetector.builder()
+    .with(List.of("-H", "--header"))
+    .with(startsWithIgnoreQuotes("Authorization", "X-Auth-Token"))
+    .build();
+
+  private static final List<CommandDetector> CURL_DETECTORS = List.of(
+    CURL_DOWNLOAD_FLAG_FIRST_DETECTOR,
+    CURL_URL_FIRST_DETECTOR,
+    CURL_DOWNLOAD_SHORT_FLAG_FIRST_DETECTOR,
+    CURL_URL_FIRST_DOWNLOAD_SHORT_FLAG_DETECTOR,
+    CURL_REDIRECT_STDOUT_DETECTOR);
 
   @Override
   public void initialize(InitContext init) {
@@ -74,11 +143,15 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
     WGET_DETECTORS.forEach((CommandDetector detector) -> {
       SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
-      splitCommands.elements().forEach(args -> checkArgument(ctx, detector, args));
+      splitCommands.elements().forEach(args -> checkArgumentForWget(ctx, detector, args));
+    });
+    CURL_DETECTORS.forEach((CommandDetector detector) -> {
+      SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
+      splitCommands.elements().forEach(args -> checkArgumentForCurl(ctx, detector, args));
     });
   }
 
-  private static void checkArgument(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
+  private static void checkArgumentForWget(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
     detector.search(args).forEach((CommandDetector.Command command) -> {
       if (!containsWgetAuthenticationFlags(args)) {
         var textRangeList = args.stream().map(a -> a.argument().textRange())
@@ -91,5 +164,25 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static boolean containsWgetAuthenticationFlags(List<ArgumentResolution> args) {
     return args.stream().anyMatch(arg -> WGET_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
+  }
+
+  private static void checkArgumentForCurl(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
+    detector.search(args).forEach((CommandDetector.Command command) -> {
+      if (!containsCurlAuthenticationFlags(args)) {
+        var textRangeList = args.stream().map(a -> a.argument().textRange())
+          .toList();
+        var textRange = TextRanges.merge(textRangeList);
+        ctx.reportIssue(textRange, MESSAGE.formatted("curl"));
+      }
+    });
+  }
+
+  private static boolean containsCurlAuthenticationFlags(List<ArgumentResolution> args) {
+    var containsSimpleAuthFlag = args.stream().anyMatch(arg -> CURL_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
+    return containsSimpleAuthFlag || containsAuthByHeader(args);
+  }
+
+  private static boolean containsAuthByHeader(List<ArgumentResolution> args) {
+    return !CURL_AUTH_HEADERS.search(args).isEmpty();
   }
 }

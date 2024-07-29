@@ -89,6 +89,9 @@ RUN wget --limit-rate=100k https://example.com/resource --max-redirect=1 --outpu
 # Noncompliant@+1
 RUN wget --limit-rate=100k https://example.com/resource --max-redirect=1 --output-document=/path/to/resource --no-check-certificate
 
+# TODO --load-cookies
+# TODO auth headers
+
 # Compliant because ADD doesn’t support authentication =======
 
 RUN wget -O /path/to/resource https://example.com/resource --http-user=user

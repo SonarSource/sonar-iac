@@ -29,4 +29,9 @@ class RetrieveRemoteResourcesCheckTest {
   void shouldVerifyWget() {
     DockerVerifier.verify("RetrieveRemoteResourcesCheck/wget.dockerfile", check);
   }
+
+  @Test
+  void shouldVerifyCurl() {
+    DockerVerifier.verify("RetrieveRemoteResourcesCheck/curl.dockerfile", check);
+  }
 }

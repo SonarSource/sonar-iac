@@ -29,6 +29,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
+import org.sonar.iac.docker.checks.utils.ShortFlagPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
@@ -47,20 +48,21 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final Set<String> REDIRECTION_FLAGS = Set.of("-L", "--location");
   private static final Set<String> SENSITIVE_FLAGS = Set.of("-L", "--location", PROTO_FLAG);
   // Curl supports "short options immediately next to each other", like -SfsL, we need special detection for this.
-  private static final String REDIRECTION_SHORT_FLAG = "L";
+  private static final char REDIRECTION_SHORT_FLAG = 'L';
   private static final Predicate<String> EQUALS_PROTO_FLAG_OPTION = equalsIgnoreQuotes("=https");
   private static final Predicate<String> SENSITIVE_HTTPS_URL_BEGINNING = startsWithIgnoreQuotes("https");
 
   private static final Predicate<String> SHORT_FLAG = s -> s.startsWith("-") && (s.length() == 1 || s.charAt(1) != '-');
   private static final Predicate<String> LONG_FLAG = s -> s.startsWith("--");
   private static final Predicate<String> LONG_OTHER_FLAG = LONG_FLAG.and(not(longFlagContainingOneOf(SENSITIVE_FLAGS)));
-  private static final Predicate<String> SHORT_OTHER_FLAG = SHORT_FLAG.and(not(shortFlagContaining(REDIRECTION_SHORT_FLAG)));
+  private static final Predicate<String> SHORT_REDIRECTION_FLAG = new ShortFlagPredicate(REDIRECTION_SHORT_FLAG);
+  private static final Predicate<String> SHORT_OTHER_FLAG = SHORT_FLAG.and(not(SHORT_REDIRECTION_FLAG));
   private static final Predicate<String> OPTIONAL_OTHER_FLAGS = LONG_OTHER_FLAG.or(SHORT_OTHER_FLAG);
 
   // common predicates of detectors
   private static final CommandDetector.Builder REDIRECTION_PREDICATES = CommandDetector.builder()
     .withOptionalRepeating(OPTIONAL_OTHER_FLAGS)
-    .with(longFlagContainingOneOf(REDIRECTION_FLAGS).or(shortFlagContaining(REDIRECTION_SHORT_FLAG)))
+    .with(longFlagContainingOneOf(REDIRECTION_FLAGS).or(SHORT_REDIRECTION_FLAG))
     .withOptionalRepeating(OPTIONAL_OTHER_FLAGS);
 
   private static final CommandDetector.Builder PROTO_FLAG_MISSING_OPTION_PREDICATES = CommandDetector.builder()
@@ -151,9 +153,5 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
 
   private static Predicate<String> longFlagContainingOneOf(Collection<String> flags) {
     return LONG_FLAG.and(flags::contains);
-  }
-
-  private static Predicate<String> shortFlagContaining(String flag) {
-    return SHORT_FLAG.and(s -> s.contains(flag));
   }
 }
