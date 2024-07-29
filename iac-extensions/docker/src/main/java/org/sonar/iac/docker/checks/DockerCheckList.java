@@ -44,6 +44,7 @@ public final class DockerCheckList {
       ImageWithDigestCheck.class,
       InstructionFormatCheck.class,
       LongRunInstructionCheck.class,
+      MalformedJsonInExecCheck.class,
       MandatoryLabelCheck.class,
       MisusedUnsetCheck.class,
       MountWorldPermissionCheck.class,
