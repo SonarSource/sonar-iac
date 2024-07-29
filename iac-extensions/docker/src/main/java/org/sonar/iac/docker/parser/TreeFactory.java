@@ -237,7 +237,7 @@ public class TreeFactory {
 
   public ExecForm execForm(SyntaxToken leftBracket, Optional<Argument> firstArgument,
     Optional<List<Tuple<SyntaxToken, Argument>>> otherArguments,
-    SyntaxToken rightBracket, Optional<SyntaxToken> leftover) {
+    SyntaxToken rightBracket) {
 
     SeparatedList<Argument, SyntaxToken> separatedList;
     if (firstArgument.isPresent()) {
@@ -246,7 +246,7 @@ public class TreeFactory {
       separatedList = emptySeparatedList();
     }
 
-    return new ExecFormImpl(leftBracket, separatedList, rightBracket, leftover.orNull());
+    return new ExecFormImpl(leftBracket, separatedList, rightBracket);
   }
 
   public ShellForm shellForm(Iterable<ArgumentList> argumentLists) {

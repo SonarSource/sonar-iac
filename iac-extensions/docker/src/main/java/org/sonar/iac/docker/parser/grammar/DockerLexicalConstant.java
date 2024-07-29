@@ -30,6 +30,7 @@ public class DockerLexicalConstant {
   public static final String STRING_LITERAL_WITHOUT_QUOTES = "(?:(?!" + LINE_BREAK + ")[^\\s])++";
   public static final String STRING_LITERAL_OLD = "(?:(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES + "))+";
   public static final String EQUALS_OPERATOR = "=";
+  public static final String RBRACKET_END_EXEC_FORM = "\\](?=[" + LexicalConstant.WHITESPACE + "]*+(?:[\r\n]|$))";
 
   /**
    * IDENTIFIERS
@@ -97,8 +98,6 @@ public class DockerLexicalConstant {
   public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "[^<\\r\\n]*)+[\\n\\r][\\s\\S]*?([\\n\\r])\\2(?=[\\n\\r]|$)";
 
   public static final String IMAGE_ALIAS = "[-a-zA-Z0-9_\\.]+";
-
-  public static final String EXEC_LEFTOVER = "[^\n\r]+";
 
   private DockerLexicalConstant() {
   }
