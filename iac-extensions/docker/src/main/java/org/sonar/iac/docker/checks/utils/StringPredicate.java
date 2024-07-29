@@ -30,6 +30,17 @@ public final class StringPredicate {
     return str -> stripQuotes(str).startsWith(value);
   }
 
+  public static Predicate<String> startsWithIgnoreQuotes(String... values) {
+    return (String str) -> {
+      for (String value : values) {
+        if (stripQuotes(str).startsWith(value)) {
+          return true;
+        }
+      }
+      return false;
+    };
+  }
+
   public static Predicate<String> equalsIgnoreQuotes(String value) {
     return str -> stripQuotes(str).equals(value);
   }
