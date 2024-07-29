@@ -19,11 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
-
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
@@ -32,6 +28,9 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class ExecFormImplTest {
 
