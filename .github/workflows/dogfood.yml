@@ -28,25 +28,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).dogfood_token }}
         id: dogfood
-        uses: SonarSource/gh-action_dogfood_merge@v1
+        uses: SonarSource/gh-action_dogfood_merge@be40f6c76f3f0440ba7c870e8c8886adeeb385ae
         with:
           dogfood-branch: 'dogfood-on-peach'
       # Use the output from the `dogfood` step
       - name: Get the name of the dogfood branch and its HEAD SHA1
         run: echo "The dogfood branch was `${{ steps.dogfood.outputs.dogfood-branch }}` and its HEAD SHA1 was `${{ steps.dogfood.outputs.sha1 }}`"
-      #slack notifications
+      # Slack notifications
       - name: Notify success on Slack
         uses: Ilshidur/action-slack@2.1.0
         env:
           SLACK_WEBHOOK: ${{ fromJSON(steps.secrets.outputs.vault).SLACK_WEBHOOK }}
-          SLACK_OVERRIDE_MESSAGE: 'Dogfood build for `${{ steps.dogfood.outputs.sha1 }}`: *successful*'
         with:
-          args: 'Succeed to build dogfood branch'
+          args: 'Dogfood build for `${{ steps.dogfood.outputs.sha1 }}`: *successful*'
       - name: Notify failures on Slack
         uses: Ilshidur/action-slack@2.1.0
         if: failure()
         env:
           SLACK_WEBHOOK: ${{ fromJSON(steps.secrets.outputs.vault).SLACK_WEBHOOK }}
-          SLACK_OVERRIDE_MESSAGE: 'Dogfood build for `${{ steps.dogfood.outputs.sha1 }}`: *failed*, see the logs at https://github.com/SonarSource/sonar-iac/actions'
         with:
-          args: 'Fail to build dogfood branch'
+          args: 'Dogfood build for `${{ steps.dogfood.outputs.sha1 }}`: *failed*, see the logs at https://github.com/SonarSource/sonar-iac/actions'
