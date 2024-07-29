@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/gobwas/glob v0.2.3
-	github.com/samber/mo v1.12.0
+	github.com/samber/mo v1.13.0
 	github.com/sonarsource/go/src v1.21.8-7
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/protobuf v1.34.2
