@@ -19,7 +19,17 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -31,16 +41,6 @@ import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
 
@@ -159,10 +159,12 @@ public class PackageInstallationCacheCheck implements IacCheck {
       return;
     }
 
-    for (int j = sensitiveInstallCommands.size() - 1; j >= 0; j--) {
-      var command = sensitiveInstallCommands.get(j).getResolvedArguments().get(0);
+    var iterator = sensitiveInstallCommands.iterator();
+    while (iterator.hasNext()) {
+      var sensitiveInstallCommand = iterator.next();
+      var command = sensitiveInstallCommand.getResolvedArguments().get(0);
       if (commandWithMountedCache.contains(command.value())) {
-        sensitiveInstallCommands.remove(j);
+        iterator.remove();
       }
     }
   }
@@ -177,26 +179,30 @@ public class PackageInstallationCacheCheck implements IacCheck {
   }
 
   /* Compute a set of commands for which their cache path is present is the provided list. */
-  private static Set<String> computeCachedCommands(List<String> cachedPaths) {
-    return cachedPaths.stream()
-      .flatMap(cachedPath -> CACHE_TO_COMMANDS.getOrDefault(cachedPath, Collections.emptySet()).stream())
-      .collect(Collectors.toSet());
+  private static Set<String> computeCachedCommands(Collection<String> cachedPaths) {
+    Set<String> result = new HashSet<>();
+    for (String cachedPath : cachedPaths) {
+      if (CACHE_TO_COMMANDS.containsKey(cachedPath)) {
+        result.addAll(CACHE_TO_COMMANDS.get(cachedPath));
+      }
+    }
+    return result;
   }
 
   /**
    * Retrieve all mounted flags that has a cache type and return their target.
    */
-  private static List<String> retrieveMountedCachePath(RunInstruction runInstruction) {
+  private static Set<String> retrieveMountedCachePath(RunInstruction runInstruction) {
     return runInstruction.options().stream()
       .filter(option -> "mount".equals(option.name()))
       .map(option -> ArgumentResolution.of(option.value()))
       .filter(ArgumentResolution::isResolved)
       .map(ArgumentResolution::value)
       .map(PackageInstallationCacheCheck::computeMapMountDetails)
-      .filter(entry -> "cache".equals(entry.get("type")))
-      .map(entry -> entry.get("target"))
+      .filter(map -> "cache".equals(map.get("type")))
+      .map(map -> map.get("target"))
       .filter(Objects::nonNull)
-      .toList();
+      .collect(Collectors.toSet());
   }
 
   /**
@@ -205,11 +211,12 @@ public class PackageInstallationCacheCheck implements IacCheck {
   private static Map<String, String> computeMapMountDetails(String mount) {
     return Arrays.stream(mount.split(","))
       .map(val -> val.split("="))
+      .filter(vals -> vals.length > 0)
       .collect(Collectors.toMap(
-        val -> val[0],
-        (String[] val) -> {
-          if (val.length > 1) {
-            return val[1];
+        (String[] vals) -> vals[0],
+        (String[] vals) -> {
+          if (vals.length > 1) {
+            return vals[1];
           } else {
             return "";
           }

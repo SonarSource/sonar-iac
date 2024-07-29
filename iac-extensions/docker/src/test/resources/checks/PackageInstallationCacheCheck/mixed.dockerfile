@@ -112,3 +112,12 @@ RUN --other=target=/var/cache/apk apk add nginx
 RUN --mount=type,target=/var/cache/apk apk add nginx
 # Noncompliant@+1
 RUN --mount=type=cache,target apk add nginx
+
+# Extra use case with invalid mount for split on '='
+# Noncompliant@+1
+RUN --mount==,target=/etc/apk/cache apk add nginx
+
+# Extra use case with invalid mount for split on ','
+# Noncompliant@+1
+RUN --mount=, apk add nginx
+
