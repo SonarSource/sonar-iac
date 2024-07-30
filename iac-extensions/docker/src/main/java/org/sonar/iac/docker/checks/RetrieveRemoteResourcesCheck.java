@@ -52,7 +52,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     "--cookie", "-c", "--cookie-jar");
   private static final List<String> CURL_STDOUT_REDIRECT = List.of(">", ">>", "1>", "1>>");
   private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "-O", "--remote-name");
-  private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = new ShortFlagPredicate('L');
+  private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = new ShortFlagPredicate('O');
 
   // wget -O /path/to/resource https://example.com/resource
   private static final CommandDetector WGET_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()
@@ -70,6 +70,15 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     .with(URL_PREDICATE)
     .withOptionalRepeating(WGET_DOWNLOAD_FLAG_PREDICATE.negate())
     .with(WGET_DOWNLOAD_FLAG_PREDICATE)
+    .build();
+
+  private static final CommandDetector WGET_AUTH_HEADERS_EQUALS = CommandDetector.builder()
+    .with(startsWithIgnoreQuotes("--header=\"Authorization", "--header=\"X-Auth-Token"))
+    .build();
+
+  private static final CommandDetector WGET_AUTH_HEADERS_SPACE = CommandDetector.builder()
+    .with("--header")
+    .with(startsWithIgnoreQuotes("Authorization", "X-Auth-Token"))
     .build();
 
   private static final List<CommandDetector> WGET_DETECTORS = List.of(WGET_DOWNLOAD_FLAG_FIRST_DETECTOR, WGET_URL_FIRST_DETECTOR);
@@ -163,7 +172,13 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   }
 
   private static boolean containsWgetAuthenticationFlags(List<ArgumentResolution> args) {
-    return args.stream().anyMatch(arg -> WGET_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
+    var containsSimpleAuthFlag = args.stream().anyMatch(arg -> WGET_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
+    return containsSimpleAuthFlag || containsWgetAuthByHeader(args);
+  }
+
+  private static boolean containsWgetAuthByHeader(List<ArgumentResolution> args) {
+    return !WGET_AUTH_HEADERS_EQUALS.search(args).isEmpty() ||
+      !WGET_AUTH_HEADERS_SPACE.search(args).isEmpty();
   }
 
   private static void checkArgumentForCurl(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
@@ -179,10 +194,10 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static boolean containsCurlAuthenticationFlags(List<ArgumentResolution> args) {
     var containsSimpleAuthFlag = args.stream().anyMatch(arg -> CURL_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
-    return containsSimpleAuthFlag || containsAuthByHeader(args);
+    return containsSimpleAuthFlag || containsCurlAuthByHeader(args);
   }
 
-  private static boolean containsAuthByHeader(List<ArgumentResolution> args) {
+  private static boolean containsCurlAuthByHeader(List<ArgumentResolution> args) {
     return !CURL_AUTH_HEADERS.search(args).isEmpty();
   }
 }

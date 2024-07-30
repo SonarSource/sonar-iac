@@ -34,6 +34,9 @@ RUN curl https://example.com/resource -o output.txt -L
 # Noncompliant@+1
 RUN curl -L https://example.com/resource -s -o output.txt -k
 
+# Noncompliant@+1
+RUN curl -L https://example.com/resource -s -o output.txt -k 1> /dev/null
+
 #The short "single-dash" form of the options, -d for example, may be used with or without a space between it
 
 # Noncompliant@+1
@@ -64,6 +67,9 @@ RUN curl https://example.com/resource -ooutput.txt -L
 
 # Noncompliant@+1
 RUN curl -L https://example.com/resource -k -ooutput.txt -s
+
+# Noncompliant@+1
+RUN curl -L https://example.com/resource -k -ooutput.txt -s >> /dev/null
 
 # --output flag ==============
 
@@ -96,6 +102,9 @@ RUN curl https://example.com/resource --output output.txt -L
 
 # Noncompliant@+1
 RUN curl -L https://example.com/resource -s --output output.txt -k
+
+# Noncompliant@+1
+RUN curl -L https://example.com/resource -s --output output.txt -k > /dev/null
 
 
 # -O flag ====================
@@ -136,6 +145,8 @@ RUN curl -L -k -s https://example.com/resource -O
 # Noncompliant@+1
 RUN curl -L -k -s https://example.com/resource -L -k -s -O -L -k -s
 
+# Noncompliant@+1
+RUN curl -O https://example.com/resource > /dev/null
 
 # Short version options that do not need any additional values can be used immediately next to each other
 # e.g.: options -O, -L and -v at once as -OLv.
@@ -160,6 +171,9 @@ RUN curl https://example.com/resource -LOv
 
 # Noncompliant@+1
 RUN curl https://example.com/resource -LOv -k
+
+# Noncompliant@+1
+RUN curl https://example.com/resource -LOv -k 1>> /dev/null
 
 # --remote-name ==============
 
@@ -199,6 +213,9 @@ RUN curl -L https://example.com/resource -k --remote-name -s
 # Noncompliant@+1
 RUN curl -L -k -s https://example.com/resource --remote-name -L -k -s
 
+# Noncompliant@+1
+RUN curl -L -k -s https://example.com/resource --remote-name -L -k -s > log.txt
+
 # --remote-name-all ==========
 
 # Noncompliant@+1
@@ -233,6 +250,9 @@ RUN curl -L --remote-name-all -k https://example.com/resource -s
 
 # Noncompliant@+1
 RUN curl -L -k -s --remote-name-all -L -k -s  https://example.com/resource -L -k -s
+
+# Noncompliant@+1
+RUN curl -L -k -s --remote-name-all -L -k -s  https://example.com/resource -L -k -s >> log.txt
 
 # redirect output ============
 
@@ -309,6 +329,9 @@ RUN curl --header "Custom-header: value". https://example.com/resource --output 
 
 # Noncompliant@+1
 RUN curl -L https://example.com/resource -s --output output.txt --header "Custom-header: value" -k
+
+# Noncompliant@+1
+RUN curl -L https://example.com/resource -s --output output.txt --header "Custom-header: value" -k 1> log.txt
 
 # Noncompliant@+1
 RUN ["curl", "-L", "https://example.com/resource", "-s", "--output", "output.txt", "--header", "Custom-header: value", "-k"]
@@ -393,7 +416,6 @@ RUN curl -L https://example.com/resource -s --output output.txt --header "X-Auth
 
 # Compliant save in /dev/null
 RUN curl https://example.com/resource > /dev/null
-#TODO why above works but below not?
-#RUN curl -L https://example.com/resource >> /dev/null
-#RUN curl -L https://example.com/resource -k 1> /dev/null
-#RUN curl -L https://example.com/resource -k 1>> /dev/null
+RUN curl -L https://example.com/resource >> /dev/null
+RUN curl -L https://example.com/resource -k 1> /dev/null
+RUN curl -L https://example.com/resource -k 1>> /dev/null

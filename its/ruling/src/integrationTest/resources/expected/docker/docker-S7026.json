@@ -19,6 +19,9 @@
 25,
 105
 ],
+"docker-project:sources/docker/dockerfile-examples/ghost/Dockerfile": [
+8
+],
 "docker-project:sources/docker/dockerfile-examples/jenkins/Dockerfile": [
 5
 ]

@@ -89,9 +89,6 @@ RUN wget --limit-rate=100k https://example.com/resource --max-redirect=1 --outpu
 # Noncompliant@+1
 RUN wget --limit-rate=100k https://example.com/resource --max-redirect=1 --output-document=/path/to/resource --no-check-certificate
 
-# TODO --load-cookies
-# TODO auth headers
-
 # Compliant because ADD doesn’t support authentication =======
 
 RUN wget -O /path/to/resource https://example.com/resource --http-user=user
@@ -124,5 +121,38 @@ RUN wget --output-document /path/to/resource https://example.com/resource --load
 RUN wget --load-cookies=cookies.txt --output-document /path/to/resource https://example.com/resource
 RUN wget --output-document /path/to/resource --load-cookies=cookies.txt https://example.com/resource
 
+RUN wget --header="Authorization: Bearer token" -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource  --header="Authorization: Bearer token" https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --header="Authorization: Bearer token"
+RUN wget --limit-rate=100k -O /path/to/resource https://example.com/resource --header="Authorization: Bearer token"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --header="Authorization: Bearer token"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header="Authorization: Bearer token"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header="Authorization: Bearer token" --quiet
+
+RUN wget --header="X-Auth-Token 123" -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource  --header="X-Auth-Token 123" https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --header="X-Auth-Token 123"
+RUN wget --limit-rate=100k -O /path/to/resource https://example.com/resource --header="X-Auth-Token 123"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --header="X-Auth-Token 123"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header="X-Auth-Token 123"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header="X-Auth-Token 123" --quiet
+
+RUN wget --header "Authorization: Bearer token" -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource  --header "Authorization: Bearer token" https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --header "Authorization: Bearer token"
+RUN wget --limit-rate=100k -O /path/to/resource https://example.com/resource --header "Authorization: Bearer token"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --header "Authorization: Bearer token"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header "Authorization: Bearer token"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header "Authorization: Bearer token" --quiet
+
+RUN wget --header "X-Auth-Token 123" -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource  --header "X-Auth-Token 123" https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --header "X-Auth-Token 123"
+RUN wget --limit-rate=100k -O /path/to/resource https://example.com/resource --header "X-Auth-Token 123"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --header "X-Auth-Token 123"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header "X-Auth-Token 123"
+RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header "X-Auth-Token 123" --quiet
+
 # Compliant no file save
 RUN wget https://example.com/resource > file.html
+
