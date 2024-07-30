@@ -37,7 +37,9 @@ public class LiteralImpl extends AbstractDockerTreeImpl implements Literal {
   @Override
   public String value() {
     String value = token.value();
-    if (value.startsWith("\"") || value.startsWith("'")) {
+    var isSingleQuoted = value.startsWith("'") && value.endsWith("'");
+    var isDoubleQuoted = value.startsWith("\"") && value.endsWith("\"");
+    if (isSingleQuoted || isDoubleQuoted) {
       return value.substring(1, value.length() - 1);
     }
     return value;

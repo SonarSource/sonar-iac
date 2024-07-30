@@ -491,9 +491,33 @@ class RunInstructionImplTest {
 
   @Test
   void shouldTreatMalformedExecFormAsShellForm() {
-    var tree = DockerTestUtils.<RunInstruction>parse("RUN [ \"/bin/bash”, “-c” ])", DockerLexicalGrammar.RUN);
+    var tree = DockerTestUtils.<RunInstruction>parse("RUN [ \"/bin/bash”, “-c” ]", DockerLexicalGrammar.RUN);
 
     assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertArgumentsValue(tree.arguments(), "[", "/bin/bash”, “-c” ]");
+    assertArgumentsValue(tree.arguments(), "[", "\"/bin/bash”, “-c” ]");
+  }
+
+  @Test
+  void shouldParseWeirdButValidExecForm() {
+    var tree = DockerTestUtils.<RunInstruction>parse("RUN [ \"/bin/bash”, “-c\" ]", DockerLexicalGrammar.RUN);
+
+    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.EXEC_FORM);
+    assertArgumentsValue(tree.arguments(), "/bin/bash”, “-c");
+  }
+
+  @Test
+  void shouldParseMalformedButValidShellForm() {
+    var tree = DockerTestUtils.<RunInstruction>parse("RUN [ '/bin/bash”, “-c” ]", DockerLexicalGrammar.RUN);
+
+    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
+    assertArgumentsValue(tree.arguments(), "[", "'/bin/bash”, “-c” ]");
+  }
+
+  @Test
+  void shouldTreatAnotherMalformedExecFormAsShellForm() {
+    var tree = DockerTestUtils.<RunInstruction>parse("RUN [ '/bin/bash”, “-c' ]", DockerLexicalGrammar.RUN);
+
+    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
+    assertArgumentsValue(tree.arguments(), "[", "/bin/bash”, “-c", "]");
   }
 }
