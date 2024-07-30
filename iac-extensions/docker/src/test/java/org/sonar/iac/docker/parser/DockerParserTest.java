@@ -27,11 +27,16 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.tree.api.CmdInstruction;
+import org.sonar.iac.docker.tree.api.EntrypointInstruction;
+import org.sonar.iac.docker.tree.api.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.docker.tree.api.DockerTree.Kind.EXEC_FORM;
+import static org.sonar.iac.docker.tree.api.DockerTree.Kind.SHELL_FORM;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class DockerParserTest {
@@ -95,5 +100,23 @@ class DockerParserTest {
       """;
 
     assertThatNoException().isThrownBy(() -> parse(code, DockerLexicalGrammar.FILE));
+  }
+
+  @Test
+  void shouldParseWithStrangeQuotes() {
+    var code = """
+      FROM ubuntu:20.04
+      ENTRYPOINT [ "/bin/bash”, “-c” ]
+      CMD ["source script"]
+      """;
+
+    var file = (File) parse(code, DockerLexicalGrammar.FILE);
+
+    assertThat(file.body().dockerImages()).hasSize(1);
+    var dockerImage = file.body().dockerImages().get(0);
+    var entrypoint = (EntrypointInstruction) dockerImage.instructions().get(0);
+    assertThat(entrypoint.getKindOfArgumentList()).isEqualTo(SHELL_FORM);
+    var cmd = (CmdInstruction) dockerImage.instructions().get(1);
+    assertThat(cmd.getKindOfArgumentList()).isEqualTo(EXEC_FORM);
   }
 }
