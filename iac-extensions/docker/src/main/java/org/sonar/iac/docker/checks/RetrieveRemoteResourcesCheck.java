@@ -40,6 +40,8 @@ import static org.sonar.iac.docker.checks.utils.StringPredicate.startsWithIgnore
 public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static final String MESSAGE = "Replace this invocation of %s with the ADD instruction.";
+  private static final String WGET = "wget";
+  private static final String CURL = "curl";
 
   private static final List<String> WGET_AUTH_FLAGS = List.of("--http-user", "--http-password", "--proxy-user", "--proxy-password", "--load-cookies");
   private static final Predicate<String> WGET_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-O", "--output-document");
@@ -55,7 +57,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   // wget -O /path/to/resource https://example.com/resource
   private static final CommandDetector WGET_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()
-    .with("wget")
+    .with(WGET)
     .withOptionalRepeating(WGET_DOWNLOAD_FLAG_PREDICATE.negate())
     .with(WGET_DOWNLOAD_FLAG_PREDICATE)
     .withOptionalRepeating(URL_PREDICATE.negate())
@@ -64,7 +66,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   // wget https://example.com/resource -O /path/to/resource
   private static final CommandDetector WGET_URL_FIRST_DETECTOR = CommandDetector.builder()
-    .with("wget")
+    .with(WGET)
     .withOptionalRepeating(URL_PREDICATE.negate())
     .with(URL_PREDICATE)
     .withOptionalRepeating(WGET_DOWNLOAD_FLAG_PREDICATE.negate())
@@ -84,7 +86,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   // curl -o output.txt https://example.com/resource
   private static final CommandDetector CURL_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()
-    .with("curl")
+    .with(CURL)
     .withOptionalRepeating(CURL_DOWNLOAD_FLAG_PREDICATE.negate())
     .with(CURL_DOWNLOAD_FLAG_PREDICATE)
     .withOptionalRepeating(URL_PREDICATE.negate())
@@ -93,7 +95,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   // curl https://example.com/resource -o output.txt
   private static final CommandDetector CURL_URL_FIRST_DETECTOR = CommandDetector.builder()
-    .with("curl")
+    .with(CURL)
     .withOptionalRepeating(URL_PREDICATE.negate())
     .with(URL_PREDICATE)
     .withOptionalRepeating(CURL_DOWNLOAD_FLAG_PREDICATE.negate())
@@ -102,7 +104,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   // curl -LOv https://example.com/resource
   private static final CommandDetector CURL_DOWNLOAD_SHORT_FLAG_FIRST_DETECTOR = CommandDetector.builder()
-    .with("curl")
+    .with(CURL)
     .withOptionalRepeating(CURL_SHORT_DOWNLOAD_FLAG.negate())
     .with(CURL_SHORT_DOWNLOAD_FLAG)
     .withOptionalRepeating(URL_PREDICATE.negate())
@@ -111,7 +113,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   // curl https://example.com/resource -LOv
   private static final CommandDetector CURL_URL_FIRST_DOWNLOAD_SHORT_FLAG_DETECTOR = CommandDetector.builder()
-    .with("curl")
+    .with(CURL)
     .withOptionalRepeating(URL_PREDICATE.negate())
     .with(URL_PREDICATE)
     .withOptionalRepeating(CURL_SHORT_DOWNLOAD_FLAG.negate())
@@ -120,7 +122,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   // curl https://example.com/resource > output.txt
   private static final CommandDetector CURL_REDIRECT_STDOUT_DETECTOR = CommandDetector.builder()
-    .with("curl")
+    .with(CURL)
     .withOptionalRepeating(URL_PREDICATE.negate())
     .with(URL_PREDICATE)
     .withOptionalRepeatingExcept(CURL_STDOUT_REDIRECT)
@@ -162,10 +164,13 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void checkArgumentForWget(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
     detector.search(args).forEach((CommandDetector.Command command) -> {
       if (!containsWgetAuthenticationFlags(args)) {
-        var textRangeList = args.stream().map(a -> a.argument().textRange())
+        int position = findPositionOf(args, WGET);
+        var textRangeList = args.stream()
+          .skip(position)
+          .map(a -> a.argument().textRange())
           .toList();
         var textRange = TextRanges.merge(textRangeList);
-        ctx.reportIssue(textRange, MESSAGE.formatted("wget"));
+        ctx.reportIssue(textRange, MESSAGE.formatted(WGET));
       }
     });
   }
@@ -183,10 +188,13 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void checkArgumentForCurl(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
     detector.search(args).forEach((CommandDetector.Command command) -> {
       if (!containsCurlAuthenticationFlags(args)) {
-        var textRangeList = args.stream().map(a -> a.argument().textRange())
+        int position = findPositionOf(args, CURL);
+        var textRangeList = args.stream()
+          .skip(position)
+          .map(a -> a.argument().textRange())
           .toList();
         var textRange = TextRanges.merge(textRangeList);
-        ctx.reportIssue(textRange, MESSAGE.formatted("curl"));
+        ctx.reportIssue(textRange, MESSAGE.formatted(CURL));
       }
     });
   }
@@ -198,5 +206,14 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static boolean containsCurlAuthByHeader(List<ArgumentResolution> args) {
     return !CURL_AUTH_HEADERS.search(args).isEmpty();
+  }
+
+  private static int findPositionOf(List<ArgumentResolution> args, String text) {
+    for (int i = 0; i < args.size(); i++) {
+      if (text.equals(args.get(i).value())) {
+        return i;
+      }
+    }
+    return 0;
   }
 }

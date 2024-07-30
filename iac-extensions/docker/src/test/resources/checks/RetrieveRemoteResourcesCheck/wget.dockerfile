@@ -10,6 +10,19 @@ RUN wget -O /path/to/resource https://example.com/resource
 RUN wget -O /path/to/resource https://example.com/resource --limit-rate=100k && wget https://example.com/
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+# Noncompliant@+1 {{Replace this invocation of wget with the ADD instruction.}}
+RUN sudo wget -O /path/to/resource https://example.com/resource --limit-rate=100k && wget https://example.com/
+#        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ENV PHP_URL=https://exmple.com/php
+
+# Noncompliant@+2
+RUN if [ -n "$PHP_URL" ]; then \
+      wget -O php.tar "$PHP_URL"; \
+#     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	  echo "Success" \
+	fi;
+
 # Noncompliant@+1
 RUN wget --max-redirect=1 -O /path/to/resource https://example.com/resource
 
