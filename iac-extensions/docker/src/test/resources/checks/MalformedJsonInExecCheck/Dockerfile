@@ -67,3 +67,6 @@ ENTRYPOINT [ "/bin/bash”, “-c” ]
 # Compliant: no quote like character at all
 CMD [Powershell-call]
 
+# Compliant: no quote like character at all
+CMD ]
+

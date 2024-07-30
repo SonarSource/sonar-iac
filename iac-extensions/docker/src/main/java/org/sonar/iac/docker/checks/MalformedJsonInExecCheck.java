@@ -36,10 +36,10 @@ import org.sonar.iac.docker.tree.api.ShellForm;
 public class MalformedJsonInExecCheck implements IacCheck {
 
   private static final String MESSAGE = "Fix this invalid JSON to prevent unexpected behavior of the exec form.";
-  // Exclude pattern: if there is a lot of characters after the first brackets, then we consider it's not a malformed Exec form
+  // Exclude pattern: if there is a lot of characters after the closing bracket, then we consider it's not a malformed Exec form
   private static final Predicate<String> EXCLUDE_TOO_LONG_AFTER_OBJECT = Pattern.compile("^\\[[^]]+][^\n\r]{10,}").asMatchPredicate();
   // Exclude pattern: if there is no quote-like characters inside the brackets, we consider it's not a malformed Exec form
-  private static final Predicate<String> EXCLUDE_NOT_QUOTES = Pattern.compile("^\\[[^\\[\"'‘’“”]+]").asMatchPredicate();
+  private static final Predicate<String> EXCLUDE_NOT_QUOTES = Pattern.compile("^\\[[^]'\"\\p{Pi}\\p{Pf}]+]").asMatchPredicate();
 
   @Override
   public void initialize(InitContext init) {
