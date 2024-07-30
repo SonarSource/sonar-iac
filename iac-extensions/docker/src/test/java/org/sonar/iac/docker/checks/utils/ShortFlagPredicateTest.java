@@ -17,21 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.docker.checks.utils;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-class RetrieveRemoteResourcesCheckTest {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  RetrieveRemoteResourcesCheck check = new RetrieveRemoteResourcesCheck();
+class ShortFlagPredicateTest {
 
-  @Test
-  void shouldVerifyWget() {
-    DockerVerifier.verify("RetrieveRemoteResourcesCheck/wget.dockerfile", check);
+  ShortFlagPredicate predicate = new ShortFlagPredicate('X');
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "-X",
+    "-aX",
+    "-Xa",
+    "-aXa",
+    "-Xab",
+    "-abX",
+    "-abXcd",
+    "-aaXaa",
+    "-aXaXa",
+  })
+  void shouldPredicateBeTrue(String argument) {
+    assertThat(predicate.test(argument)).isTrue();
   }
 
-  @Test
-  void shouldVerifyCurl() {
-    DockerVerifier.verify("RetrieveRemoteResourcesCheck/curl.dockerfile", check);
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "-",
+    "--",
+    "--X",
+    "--Xabcd",
+    "--abcdX",
+    "-a",
+    "-abc",
+    "-x",
+    "-xyz",
+    "-ABC"
+  })
+  void shouldPredicateBeFalse(String argument) {
+    assertThat(predicate.test(argument)).isFalse();
   }
 }
