@@ -19,7 +19,11 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class RetrieveRemoteResourcesCheckTest {
 
@@ -33,5 +37,12 @@ class RetrieveRemoteResourcesCheckTest {
   @Test
   void shouldVerifyCurl() {
     DockerVerifier.verify("RetrieveRemoteResourcesCheck/curl.dockerfile", check);
+  }
+
+  @Test
+  void shouldReturnZeroForEmptyArguments() {
+    List<ArgumentResolution> args = List.of();
+    var result = RetrieveRemoteResourcesCheck.findPositionOf(args, "foo");
+    assertThat(result).isZero();
   }
 }

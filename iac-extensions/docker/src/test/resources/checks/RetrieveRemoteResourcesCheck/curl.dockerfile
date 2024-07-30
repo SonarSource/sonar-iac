@@ -10,6 +10,20 @@ RUN curl -o output.txt https://example.com/resource
 RUN curl -L -o output.txt -s https://example.com/resource -k && cat output.txt
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+
+# Noncompliant@+1
+RUN sudo curl -L -o output.txt -s https://example.com/resource -k && cat output.txt
+#        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ENV PHP_URL=https://exmple.com/php
+
+# Noncompliant@+2
+RUN if [ -n "$PHP_URL" ]; then \
+      curl -o php.tar "$PHP_URL"; \
+#     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	  echo "Success" \
+	fi;
+
 # Noncompliant@+1
 RUN curl -L -o output.txt https://example.com/resource
 
