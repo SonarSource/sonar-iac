@@ -45,7 +45,6 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static final Predicate<String> WGET_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-O", "--output-document");
   private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
 
-  // By setting header manually: -H "Authorization ...", --header "Authorization ..." , -H "X-Auth-Token ..." , --header "X-Auth-Token ...".
   private static final List<String> CURL_AUTH_FLAGS = List.of("--anyauth", "--basic", "--digest", "--ntlm", "--negotiate",
     "--proxy-anyauth", "--proxy-basic", "--proxy-digest", "--proxy-ntlm", "--proxy-negotiate", "--user", "-u", "--oauth2-bearer",
     "--proxy-user", "-U", "--tlsuser", "--proxy-tlspassword", "--tlspassword", "--proxy-tlspassword", "--proxy-tlsuser", "--tlsuser", "-b",

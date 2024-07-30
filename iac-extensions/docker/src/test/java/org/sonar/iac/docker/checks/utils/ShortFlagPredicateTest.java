@@ -46,6 +46,8 @@ class ShortFlagPredicateTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
+    "-",
+    "--",
     "--X",
     "--Xabcd",
     "--abcdX",
