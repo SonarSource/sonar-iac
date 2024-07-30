@@ -126,7 +126,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     .with(URL_PREDICATE)
     .withOptionalRepeatingExcept(CURL_STDOUT_REDIRECT)
     .with(CURL_STDOUT_REDIRECT)
-    .with(str -> !str.equals("/dev/null"))
+    .with(str -> !"/dev/null".equals(str))
     .build();
 
   // -H "Authorization: Bearer token"

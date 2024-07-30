@@ -19,29 +19,43 @@
  */
 package org.sonar.iac.docker.checks.utils;
 
-import java.util.function.Predicate;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-/**
- * Predicate for {@link CommandDetector} to detect short flags.
- * In many shell commands like {@code curl} the short version options that do not need any additional values can be used immediately next
- * to each other, e.g.: options -O, -L and -v can be defined at once as -OLv.
- */
-public class ShortFlagPredicate implements Predicate<String> {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private static final Predicate<String> SHORT_FLAG = s -> s.startsWith("-") && (s.length() == 1 || s.charAt(1) != '-');
+class ShortFlagPredicateTest {
 
-  private final Predicate<String> predicate;
+  ShortFlagPredicate predicate = new ShortFlagPredicate('X');
 
-  public ShortFlagPredicate(char flag) {
-    predicate = SHORT_FLAG.and((String str) -> {
-      var flagNoDash = str.substring(1);
-      var characters = flagNoDash.chars().mapToObj(c -> (char) c).toList();
-      return characters.contains(flag);
-    });
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "-X",
+    "-aX",
+    "-Xa",
+    "-aXa",
+    "-Xab",
+    "-abX",
+    "-abXcd",
+    "-aaXaa",
+    "-aXaXa",
+  })
+  void shouldPredicateBeTrue(String argument) {
+    assertThat(predicate.test(argument)).isTrue();
   }
 
-  @Override
-  public boolean test(String argument) {
-    return predicate.test(argument);
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "--X",
+    "--Xabcd",
+    "--abcdX",
+    "-a",
+    "-abc",
+    "-x",
+    "-xyz",
+    "-ABC"
+  })
+  void shouldPredicateBeFalse(String argument) {
+    assertThat(predicate.test(argument)).isFalse();
   }
 }
