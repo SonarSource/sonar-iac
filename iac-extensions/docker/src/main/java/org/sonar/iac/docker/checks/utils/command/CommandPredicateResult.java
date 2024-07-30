@@ -19,17 +19,38 @@
  */
 package org.sonar.iac.docker.checks.utils.command;
 
-import org.junit.jupiter.api.Test;
+public class CommandPredicateResult {
 
-import static org.assertj.core.api.Assertions.assertThat;
+  private final boolean match;
+  private final PredicateContext.Status status;
 
-class ArgumentResolutionIncludingUnresolvedArgumentsPredicateTest {
+  private final boolean detectCurrentPredicateAgain;
 
-  @Test
-  void shouldCheckType() {
-    IncludingUnresolvedArgumentsArgumentResolutionPredicate predicate = new IncludingUnresolvedArgumentsArgumentResolutionPredicate(arg -> true);
+  private final boolean shouldBeMatchedAgain;
 
-    assertThat(predicate.hasType(CommandPredicate.Type.MATCH)).isTrue();
-    assertThat(predicate.hasType(CommandPredicate.Type.NO_MATCH)).isFalse();
+  public CommandPredicateResult(boolean match,
+    PredicateContext.Status status,
+    boolean detectCurrentPredicateAgain,
+    boolean shouldBeMatchedAgain) {
+    this.match = match;
+    this.status = status;
+    this.detectCurrentPredicateAgain = detectCurrentPredicateAgain;
+    this.shouldBeMatchedAgain = shouldBeMatchedAgain;
+  }
+
+  public boolean isMatch() {
+    return match;
+  }
+
+  public PredicateContext.Status getStatus() {
+    return status;
+  }
+
+  public boolean isDetectCurrentPredicateAgain() {
+    return detectCurrentPredicateAgain;
+  }
+
+  public boolean isShouldBeMatchedAgain() {
+    return shouldBeMatchedAgain;
   }
 }

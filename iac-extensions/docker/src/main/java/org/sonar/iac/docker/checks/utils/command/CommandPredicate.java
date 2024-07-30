@@ -30,7 +30,7 @@ public interface CommandPredicate {
 
   boolean hasType(Type... types);
 
-  void match(PredicateContext context);
+  CommandPredicateResult match(PredicateContext context);
 
   default boolean continueOnUnresolved() {
     return false;
