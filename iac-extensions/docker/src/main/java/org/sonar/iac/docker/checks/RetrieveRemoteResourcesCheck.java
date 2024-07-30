@@ -206,7 +206,8 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     ctx.reportIssue(textRange, MESSAGE.formatted(command));
   }
 
-  private static int findPositionOf(List<ArgumentResolution> args, String text) {
+  // visibility for tests
+  static int findPositionOf(List<ArgumentResolution> args, String text) {
     for (var i = 0; i < args.size(); i++) {
       if (text.equals(args.get(i).value())) {
         return i;
