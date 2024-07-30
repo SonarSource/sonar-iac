@@ -31,7 +31,6 @@ public class PredicateContext {
 
   private final Deque<ArgumentResolution> argumentStack;
   private final List<CommandPredicate> detectorPredicates;
-  private Status status;
   private Deque<CommandPredicate> predicatesStack;
   private List<ArgumentResolution> argumentsToReport;
   private CommandPredicate currentPredicate;
@@ -39,30 +38,16 @@ public class PredicateContext {
   public PredicateContext(Deque<ArgumentResolution> argumentStack, List<CommandPredicate> detectorPredicates) {
     this.argumentStack = argumentStack;
     this.detectorPredicates = detectorPredicates;
-    this.status = Status.CONTINUE;
   }
 
-  public void startNewfullMatchOn(List<CommandPredicate> detectorPredicates) {
+  public void startNewFullMatchOn(List<CommandPredicate> detectorPredicates) {
     this.predicatesStack = new LinkedList<>(detectorPredicates);
     this.argumentsToReport = new ArrayList<>();
-  }
-
-  public boolean is(Status... statusArray) {
-    for (Status specificStatus : statusArray) {
-      if (status == specificStatus) {
-        return true;
-      }
-    }
-    return false;
   }
 
   public boolean remainingPredicatesAreOptional() {
     predicatesStack.addFirst(currentPredicate);
     return predicatesStack.stream().noneMatch(predicate -> predicate.hasType(MATCH));
-  }
-
-  public boolean areNoArgumentsToHandle() {
-    return argumentStack.isEmpty();
   }
 
   public ArgumentResolution getNextArgumentToHandle() {
@@ -99,14 +84,6 @@ public class PredicateContext {
 
   public List<CommandPredicate> getDetectorPredicates() {
     return detectorPredicates;
-  }
-
-  public Status getStatus() {
-    return status;
-  }
-
-  public void setStatus(Status status) {
-    this.status = status;
   }
 
   public List<ArgumentResolution> getArgumentsToReport() {

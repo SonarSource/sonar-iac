@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -108,11 +106,12 @@ public final class CommandDetector {
    * The method is then called again with a reduced argument stack until there are no more arguments on the stack.
    * If a predicate can be applied multiple times to the argument stack, it is placed on the predicate stack again at the end of the loop.
    */
-  // Cognitive Complexity of methods should not be too high; Methods should not have too many return statements
-  // Methods should not be too complex
+  // S3776 Cognitive Complexity of methods should not be too high; Methods should not have too many return statements
+  // S1142 Methods should not be too complex
+  // S1541 Cyclomatic Complexity of functions should not be too high
   @SuppressWarnings({"java:S3776", "java:S1142", "java:S1541"})
   private static List<ArgumentResolution> fullMatch(PredicateContext context) {
-    context.startNewfullMatchOn(context.getDetectorPredicates());
+    context.startNewFullMatchOn(context.getDetectorPredicates());
 
     while (context.arePredicatesToDetectLeft()) {
 

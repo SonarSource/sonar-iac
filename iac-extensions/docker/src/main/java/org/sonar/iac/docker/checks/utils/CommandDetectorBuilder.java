@@ -32,18 +32,6 @@ public class CommandDetectorBuilder {
 
   private List<CommandPredicate> predicates = new ArrayList<>();
 
-  private void addCommandPredicate(CommandPredicate commandPredicate) {
-    predicates.add(commandPredicate);
-  }
-
-  private void addSingularPredicate(Predicate<String> predicate, CommandPredicate.Type type) {
-    addCommandPredicate(SingularPredicate.predicateString(predicate, type));
-  }
-
-  private void addIncludeUnresolved(Predicate<String> predicate) {
-    addCommandPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
-  }
-
   public CommandDetectorBuilder with(Predicate<String> predicate) {
     addSingularPredicate(predicate, CommandPredicate.Type.MATCH);
     return this;
@@ -130,4 +118,15 @@ public class CommandDetectorBuilder {
     return new CommandDetector(predicates);
   }
 
+  private void addCommandPredicate(CommandPredicate commandPredicate) {
+    predicates.add(commandPredicate);
+  }
+
+  private void addSingularPredicate(Predicate<String> predicate, CommandPredicate.Type type) {
+    addCommandPredicate(SingularPredicate.predicateString(predicate, type));
+  }
+
+  private void addIncludeUnresolved(Predicate<String> predicate) {
+    addCommandPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
+  }
 }

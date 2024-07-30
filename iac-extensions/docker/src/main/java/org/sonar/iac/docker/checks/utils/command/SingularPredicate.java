@@ -62,11 +62,10 @@ public class SingularPredicate implements CommandPredicate {
   @Override
   public CommandPredicateResult match(PredicateContext context) {
     ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
-
-    return matchResolution(context, resolution);
+    return matchResolution(resolution);
   }
 
-  protected CommandPredicateResult matchResolution(PredicateContext context, ArgumentResolution resolution) {
+  private CommandPredicateResult matchResolution(ArgumentResolution resolution) {
     // Test argument resolution with predicate
     var match = predicate.test(resolution);
     var detectCurrentPredicateAgain = false;
@@ -74,7 +73,7 @@ public class SingularPredicate implements CommandPredicate {
     if (match) {
       // Skip argument and start new command detection
       if (hasType(NO_MATCH)) {
-        return new CommandPredicateResult(match, ABORT, false, false);
+        return new CommandPredicateResult(match, ABORT, detectCurrentPredicateAgain, shouldBeMatchedAgain);
       }
       // Re-add predicate to stack to be reevaluated on the next argument
       if (hasType(ZERO_OR_MORE)) {
@@ -84,8 +83,7 @@ public class SingularPredicate implements CommandPredicate {
       // Re-add argument to be evaluated by the next predicate
       shouldBeMatchedAgain = true;
     } else {
-      context.setStatus(FOUND_NO_PREDICATE_MATCH);
-      return new CommandPredicateResult(match, FOUND_NO_PREDICATE_MATCH, false, false);
+      return new CommandPredicateResult(match, FOUND_NO_PREDICATE_MATCH, detectCurrentPredicateAgain, shouldBeMatchedAgain);
     }
     return new CommandPredicateResult(match, CONTINUE, detectCurrentPredicateAgain, shouldBeMatchedAgain);
   }
