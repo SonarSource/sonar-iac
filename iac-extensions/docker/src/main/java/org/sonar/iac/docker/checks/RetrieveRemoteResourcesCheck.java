@@ -164,13 +164,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void checkArgumentForWget(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
     detector.search(args).forEach((CommandDetector.Command command) -> {
       if (!containsWgetAuthenticationFlags(args)) {
-        int position = findPositionOf(args, WGET);
-        var textRangeList = args.stream()
-          .skip(position)
-          .map(a -> a.argument().textRange())
-          .toList();
-        var textRange = TextRanges.merge(textRangeList);
-        ctx.reportIssue(textRange, MESSAGE.formatted(WGET));
+        reportIssue(ctx, args, WGET);
       }
     });
   }
@@ -188,13 +182,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void checkArgumentForCurl(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
     detector.search(args).forEach((CommandDetector.Command command) -> {
       if (!containsCurlAuthenticationFlags(args)) {
-        int position = findPositionOf(args, CURL);
-        var textRangeList = args.stream()
-          .skip(position)
-          .map(a -> a.argument().textRange())
-          .toList();
-        var textRange = TextRanges.merge(textRangeList);
-        ctx.reportIssue(textRange, MESSAGE.formatted(CURL));
+        reportIssue(ctx, args, CURL);
       }
     });
   }
@@ -208,8 +196,18 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     return !CURL_AUTH_HEADERS.search(args).isEmpty();
   }
 
+  private static void reportIssue(CheckContext ctx, List<ArgumentResolution> args, String command) {
+    int position = findPositionOf(args, command);
+    var textRangeList = args.stream()
+      .skip(position)
+      .map(a -> a.argument().textRange())
+      .toList();
+    var textRange = TextRanges.merge(textRangeList);
+    ctx.reportIssue(textRange, MESSAGE.formatted(command));
+  }
+
   private static int findPositionOf(List<ArgumentResolution> args, String text) {
-    for (int i = 0; i < args.size(); i++) {
+    for (var i = 0; i < args.size(); i++) {
       if (text.equals(args.get(i).value())) {
         return i;
       }
