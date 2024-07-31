@@ -39,7 +39,7 @@ public class MalformedJsonInExecCheck implements IacCheck {
   // Exclude pattern: if there is a lot of characters after the closing bracket, then we consider it's not a malformed Exec form
   private static final Predicate<String> EXCLUDE_TOO_LONG_AFTER_OBJECT = Pattern.compile("^\\[[^]]+][^\n\r]{10,}").asMatchPredicate();
   // Exclude pattern: if there is no quote-like characters inside the brackets, we consider it's not a malformed Exec form
-  private static final Predicate<String> EXCLUDE_NOT_QUOTES = Pattern.compile("^\\[[^]'\"\\p{Pi}\\p{Pf}]+]").asMatchPredicate();
+  private static final Predicate<String> EXCLUDE_NO_QUOTES = Pattern.compile("^\\[[^]'\"\\p{Pi}\\p{Pf}]+]").asPredicate();
 
   @Override
   public void initialize(InitContext init) {
@@ -54,7 +54,7 @@ public class MalformedJsonInExecCheck implements IacCheck {
 
   private static boolean isMalformedExec(ShellForm shellForm) {
     String command = resolveFullCommand(shellForm.arguments());
-    return command != null && command.startsWith("[") && !EXCLUDE_TOO_LONG_AFTER_OBJECT.test(command) && !EXCLUDE_NOT_QUOTES.test(command);
+    return command != null && command.startsWith("[") && !EXCLUDE_TOO_LONG_AFTER_OBJECT.test(command) && !EXCLUDE_NO_QUOTES.test(command);
   }
 
   /**

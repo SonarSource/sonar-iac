@@ -76,3 +76,11 @@ CMD [ "" ]
 CMD ["something", ""]
 CMD ["", "something"]
 
+CMD [ -e /tmp/.lock ] || exit 1
+CMD something || [ -e /tmp/.lock ]
+
+# FPs: the test contains quotes, so the exclude clause does not work here
+# Noncompliant@+1
+CMD [ -e "/tmp/.lock" ]
+# Noncompliant@+1
+CMD [ -e "/tmp/.lock" ] || exit 1
