@@ -483,7 +483,7 @@ public class DockerGrammar {
     return b.<ExpandableStringLiteral>nonterminal(DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL).is(
       f.expandableStringLiteral(
         b.token(Punctuator.DOUBLE_QUOTE),
-        b.oneOrMore(
+        b.zeroOrMore(
           b.firstOf(
             EXPANDABLE_STRING_CHARACTERS(),
             VARIABLE())),
@@ -494,7 +494,7 @@ public class DockerGrammar {
     return b.<ExpandableStringLiteral>nonterminal(DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL_GENERIC).is(
       f.expandableStringLiteral(
         b.token(Punctuator.DOUBLE_QUOTE),
-        b.oneOrMore(
+        b.zeroOrMore(
           b.firstOf(
             EXPANDABLE_STRING_CHARACTERS(),
             VARIABLE_GENERIC())),

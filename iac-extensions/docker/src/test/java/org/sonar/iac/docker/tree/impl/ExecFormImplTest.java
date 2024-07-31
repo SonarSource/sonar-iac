@@ -38,6 +38,9 @@ class ExecFormImplTest {
   void shouldParseExecForm() {
     Assertions.assertThat(DockerLexicalGrammar.EXEC_FORM)
       .matches(" []")
+      .matches(" [\"\"]")
+      .matches(" [\"something\", \"\"]")
+      .matches(" [\"\", \"something\"]")
       .matches(" [\"ls\"]")
       .matches(" [\"executable\",\"param1\",\"param2\"]")
       .matches(" [\"/usr/bin/wc\",\"--help\"]")
