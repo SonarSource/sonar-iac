@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils;
+package org.sonar.iac.docker.checks.utils.command;
 
 import java.util.function.Predicate;
+import org.sonar.iac.docker.checks.utils.CommandDetector;
 
 /**
  * Predicate for {@link CommandDetector} to detect short flags.
@@ -32,7 +33,11 @@ public class ShortFlagPredicate implements Predicate<String> {
 
   private final Predicate<String> predicate;
 
-  public ShortFlagPredicate(char flag) {
+  /**
+   * Package private constructor, should be used via
+   * {@link StandardCommandDetectors#shortFlagPredicate(char)}.
+   */
+  ShortFlagPredicate(char flag) {
     predicate = SHORT_FLAG.and((String str) -> {
       var flagNoDash = str.substring(1);
       var characters = flagNoDash.chars().mapToObj(c -> (char) c).toList();

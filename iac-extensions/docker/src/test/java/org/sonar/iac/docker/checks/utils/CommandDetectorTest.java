@@ -24,18 +24,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.docker.DockerAssertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.ArgumentList;
-import org.sonar.iac.docker.tree.impl.ArgumentImpl;
-import org.sonar.iac.docker.tree.impl.LiteralImpl;
-import org.sonar.iac.docker.tree.impl.ShellFormImpl;
-import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.docker.checks.utils.CommandDetectorTestFactory.buildArgumentList;
 
 class CommandDetectorTest {
 
@@ -180,26 +173,7 @@ class CommandDetectorTest {
     DockerAssertions.assertThat(resolvedArguments.get(1)).hasValue("foo");
   }
 
-  static List<ArgumentResolution> buildArgumentList(String... strs) {
-    List<ArgumentResolution> arguments = new ArrayList<>();
-    int offset = 0;
-    for (String str : strs) {
-      Argument arg = buildArgument(str, range(1, offset, str));
-      offset += str.length() + 1;
-      arguments.add(ArgumentResolution.ofWithoutStrippingQuotes(arg));
-    }
-    return arguments;
-  }
-
-  static Argument buildArgument(String str, TextRange range) {
-    Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, range, List.of()))));
-    arg.expressions().forEach(e -> e.setParent(arg));
-    ArgumentList shellForm = new ShellFormImpl(List.of(arg));
-    arg.setParent(shellForm);
-    return arg;
-  }
-
-  void assertDetectedCommands(List<ArgumentResolution> resolvedArguments, String... commandList) {
+  private void assertDetectedCommands(List<ArgumentResolution> resolvedArguments, String... commandList) {
     CommandDetector detector = CommandDetector.builder()
       .with(s -> true)
       .build();

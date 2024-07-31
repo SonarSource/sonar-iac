@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils;
+package org.sonar.iac.docker.checks.utils.command;
 
 import java.util.List;
+import org.sonar.iac.docker.checks.utils.CommandDetector;
 
 public final class StandardCommandDetectors {
 
@@ -34,8 +35,12 @@ public final class StandardCommandDetectors {
     return CommandDetector.builder()
       .with(commands)
       .withAnyIncludingUnresolvedRepeating(StringPredicate.startsWithIgnoreQuotes(flag).negate())
-      .withArgumentResolutionIncludeUnresolved(new FlagNoSpaceArgumentPredicate(flag))
+      .withArgumentResolutionIncludeUnresolved(flagNoSpaceArgument(flag))
       .build();
+  }
+
+  public static FlagNoSpaceArgumentPredicate flagNoSpaceArgument(String flag) {
+    return new FlagNoSpaceArgumentPredicate(flag);
   }
 
   public static CommandDetector commandFlagEquals(String command, String flag) {
@@ -58,5 +63,9 @@ public final class StandardCommandDetectors {
       .with(StringPredicate.equalsIgnoreQuotes(flag))
       .withIncludeUnresolved(a -> true)
       .build();
+  }
+
+  public static ShortFlagPredicate shortFlagPredicate(char flag) {
+    return new ShortFlagPredicate(flag);
   }
 }

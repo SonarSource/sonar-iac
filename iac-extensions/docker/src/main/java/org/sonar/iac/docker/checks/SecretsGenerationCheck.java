@@ -28,15 +28,15 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
-import org.sonar.iac.docker.checks.utils.StringPredicate;
+import org.sonar.iac.docker.checks.utils.command.StringPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
-import static org.sonar.iac.docker.checks.utils.StandardCommandDetectors.commandFlagEquals;
-import static org.sonar.iac.docker.checks.utils.StandardCommandDetectors.commandFlagNoSpace;
-import static org.sonar.iac.docker.checks.utils.StandardCommandDetectors.commandFlagSpace;
+import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.commandFlagEquals;
+import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.commandFlagNoSpace;
+import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.commandFlagSpace;
 
 @Rule(key = "S6437")
 public class SecretsGenerationCheck implements IacCheck {

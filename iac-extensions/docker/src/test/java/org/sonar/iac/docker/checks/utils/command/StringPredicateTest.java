@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils;
+package org.sonar.iac.docker.checks.utils.command;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -26,9 +26,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.docker.checks.utils.StringPredicate.containsIgnoreQuotes;
-import static org.sonar.iac.docker.checks.utils.StringPredicate.equalsIgnoreQuotes;
-import static org.sonar.iac.docker.checks.utils.StringPredicate.startsWithIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StringPredicate.containsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StringPredicate.equalsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWithIgnoreQuotes;
 
 class StringPredicateTest {
 

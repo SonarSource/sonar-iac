@@ -17,47 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils;
+package org.sonar.iac.docker.checks.utils.command;
 
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.checks.utils.CommandDetectorTestFactory.buildArgumentList;
 
-class ShortFlagPredicateTest {
-
-  ShortFlagPredicate predicate = new ShortFlagPredicate('X');
-
+class FlagNoSpaceArgumentPredicateTest {
   @ParameterizedTest
-  @ValueSource(strings = {
-    "-X",
-    "-aX",
-    "-Xa",
-    "-aXa",
-    "-Xab",
-    "-abX",
-    "-abXcd",
-    "-aaXaa",
-    "-aXaXa",
+  @CsvSource({
+    "-p,-pvalue,true",
+    "-p,pvalue,false",
+    "--password,--passwordvalue,true",
+    "--password,passwordvalue,false",
   })
-  void shouldPredicateBeTrue(String argument) {
-    assertThat(predicate.test(argument)).isTrue();
-  }
+  void shouldMatchFlagsWithoutSpace(String flag, String input, boolean expected) {
+    FlagNoSpaceArgumentPredicate predicate = new FlagNoSpaceArgumentPredicate(flag);
+    FlagNoSpaceArgumentPredicate predicateCreatedByStaticMethod = StandardCommandDetectors.flagNoSpaceArgument(flag);
+    var arguments = buildArgumentList(input).get(0);
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "-",
-    "--",
-    "--X",
-    "--Xabcd",
-    "--abcdX",
-    "-a",
-    "-abc",
-    "-x",
-    "-xyz",
-    "-ABC"
-  })
-  void shouldPredicateBeFalse(String argument) {
-    assertThat(predicate.test(argument)).isFalse();
+    assertThat(predicate.test(arguments)).isEqualTo(expected);
+    assertThat(predicateCreatedByStaticMethod.test(arguments)).isEqualTo(expected);
   }
 }
