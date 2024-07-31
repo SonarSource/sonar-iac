@@ -36,6 +36,7 @@ class ExpandableStringLiteralImplTest {
   @Test
   void shouldParserExpandableStringLiteral() {
     Assertions.assertThat(DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL)
+      .matches("\"\"")
       .matches("\"foo$bar\"")
       .matches("\"foo $bar\"")
       .matches("\"$bar\"")
@@ -48,6 +49,14 @@ class ExpandableStringLiteralImplTest {
       .matches("\"{}${bar}\"")
 
       .notMatches("'$foo'");
+  }
+
+  @Test
+  void shouldSupportEmptyString() {
+    ExpandableStringLiteral literal = parse("\"\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
+    assertThat(literal.getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_LITERAL);
+    assertThat(literal.textRange()).hasRange(1, 0, 1, 2);
+    assertThat(literal.expressions()).isEmpty();
   }
 
   @Test

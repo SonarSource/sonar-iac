@@ -271,9 +271,9 @@ public class TreeFactory {
 
   public ExpandableStringLiteral expandableStringLiteral(
     SyntaxToken openDoubleQuote,
-    List<Expression> expressions,
+    Optional<List<Expression>> expressions,
     SyntaxToken closeDoubleQuote) {
-    return new ExpandableStringLiteralImpl(openDoubleQuote, expressions, closeDoubleQuote);
+    return new ExpandableStringLiteralImpl(openDoubleQuote, expressions.or(Collections.emptyList()), closeDoubleQuote);
   }
 
   public ExpandableStringCharacters expandableStringCharacters(SyntaxToken token) {

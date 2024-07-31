@@ -70,3 +70,9 @@ CMD [Powershell-call]
 # Compliant: no quote like character at all
 CMD ]
 
+CMD []
+CMD [""]
+CMD [ "" ]
+CMD ["something", ""]
+CMD ["", "something"]
+
