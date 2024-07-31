@@ -30,13 +30,13 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.CommandDetectorBuilder;
-import org.sonar.iac.docker.checks.utils.ShortFlagPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 import static java.util.function.Predicate.not;
-import static org.sonar.iac.docker.checks.utils.StringPredicate.equalsIgnoreQuotes;
-import static org.sonar.iac.docker.checks.utils.StringPredicate.startsWithIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.shortFlagPredicate;
+import static org.sonar.iac.docker.checks.utils.command.StringPredicate.equalsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWithIgnoreQuotes;
 
 @Rule(key = "S6506")
 public class ClearTextProtocolDowngradeCheck implements IacCheck {
@@ -56,7 +56,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final Predicate<String> SHORT_FLAG = s -> s.startsWith("-") && (s.length() == 1 || s.charAt(1) != '-');
   private static final Predicate<String> LONG_FLAG = s -> s.startsWith("--");
   private static final Predicate<String> LONG_OTHER_FLAG = LONG_FLAG.and(not(longFlagContainingOneOf(SENSITIVE_FLAGS)));
-  private static final Predicate<String> SHORT_REDIRECTION_FLAG = new ShortFlagPredicate(REDIRECTION_SHORT_FLAG);
+  private static final Predicate<String> SHORT_REDIRECTION_FLAG = shortFlagPredicate(REDIRECTION_SHORT_FLAG);
   private static final Predicate<String> SHORT_OTHER_FLAG = SHORT_FLAG.and(not(SHORT_REDIRECTION_FLAG));
   private static final Predicate<String> OPTIONAL_OTHER_FLAGS = LONG_OTHER_FLAG.or(SHORT_OTHER_FLAG);
 

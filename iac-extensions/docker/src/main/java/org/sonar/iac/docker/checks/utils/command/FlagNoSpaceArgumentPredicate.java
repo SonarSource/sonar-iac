@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils;
+package org.sonar.iac.docker.checks.utils.command;
 
+import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -31,7 +32,13 @@ import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 public class FlagNoSpaceArgumentPredicate implements Predicate<ArgumentResolution> {
   private final String flag;
 
-  public FlagNoSpaceArgumentPredicate(String flag) {
+  /**
+   * Package private constructor, should be used via
+   * {@link StandardCommandDetectors#flagNoSpaceArgument(String)} or
+   * {@link StandardCommandDetectors#commandFlagNoSpace(String, String)} or
+   * {@link StandardCommandDetectors#commandFlagNoSpace(List, String)}.
+   */
+  FlagNoSpaceArgumentPredicate(String flag) {
     this.flag = flag;
   }
 

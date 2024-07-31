@@ -32,8 +32,8 @@ import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
-import static org.sonar.iac.docker.checks.utils.StringPredicate.containsIgnoreQuotes;
-import static org.sonar.iac.docker.checks.utils.StringPredicate.equalsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StringPredicate.containsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StringPredicate.equalsIgnoreQuotes;
 
 @Rule(key = "S4423")
 public class WeakSslTlsProtocolsCheck implements IacCheck {

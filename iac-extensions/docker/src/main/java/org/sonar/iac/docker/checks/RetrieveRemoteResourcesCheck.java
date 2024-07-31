@@ -29,12 +29,12 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
-import org.sonar.iac.docker.checks.utils.ShortFlagPredicate;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
-import static org.sonar.iac.docker.checks.utils.StringPredicate.startsWithIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.shortFlagPredicate;
+import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWithIgnoreQuotes;
 
 @Rule(key = "S7026")
 public class RetrieveRemoteResourcesCheck implements IacCheck {
@@ -53,7 +53,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     "--cookie", "-c", "--cookie-jar");
   private static final List<String> CURL_STDOUT_REDIRECT = List.of(">", ">>", "1>", "1>>");
   private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "-O", "--remote-name");
-  private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = new ShortFlagPredicate('O');
+  private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = shortFlagPredicate('O');
 
   // wget -O /path/to/resource https://example.com/resource
   private static final CommandDetector WGET_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()

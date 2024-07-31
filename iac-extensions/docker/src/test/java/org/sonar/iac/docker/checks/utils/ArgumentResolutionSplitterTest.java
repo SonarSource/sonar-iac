@@ -29,8 +29,8 @@ import org.sonar.iac.docker.tree.api.Argument;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.DockerAssertions.assertThat;
-import static org.sonar.iac.docker.checks.utils.CommandDetectorTest.buildArgument;
-import static org.sonar.iac.docker.checks.utils.CommandDetectorTest.buildArgumentList;
+import static org.sonar.iac.docker.checks.utils.CommandDetectorTestFactory.buildArgument;
+import static org.sonar.iac.docker.checks.utils.CommandDetectorTestFactory.buildArgumentList;
 
 class ArgumentResolutionSplitterTest {
 
