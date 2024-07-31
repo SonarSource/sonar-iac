@@ -75,5 +75,6 @@
       "groupName": "all non-major Go dependencies",
       "groupSlug": "all-go-minor-patch"
     }
-  ]
+  ],
+  "reviewersFromCodeOwners": true
 }
