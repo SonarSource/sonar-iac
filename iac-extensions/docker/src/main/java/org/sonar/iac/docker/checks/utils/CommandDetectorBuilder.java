@@ -157,7 +157,7 @@ public class CommandDetectorBuilder {
   private void validateContainsIsNotCalled() {
     if (isContainsCalled) {
       throw new IllegalStateException("Wrong usage of CommandDetector. You can't call with*() or notWith() method after calling " +
-                                      "contains(). This is a current limitation of contains() usage.");
+        "contains(). This is a current limitation of contains() usage.");
     }
   }
 }
