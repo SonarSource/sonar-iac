@@ -1,7 +1,8 @@
-<p>When installing packages an index is cached locally by default. The index can be used on-the-fly and not stored locally.</p>
+<p>In Docker, when packages are installed via a package manager, an index is cached locally by default. This index should either be cleaned up or
+stored in a dedicated cache mount.</p>
 <h2>Why is this an issue?</h2>
-<p>Docker images should only contain necessary data. The package index is optional for the correct working of the installed software. Storing an index
-also increases the size of the Docker image. It should be reduced to speed up deployments and reduce storage and bandwidth.</p>
+<p>Docker images should only contain the necessary data. The package index is redundant for the correct operation of the installed software. Storing
+an index also increases the size of the Docker image. It should be reduced to speed up deployments and reduce storage and bandwidth.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -23,6 +24,11 @@ RUN aptitude update \
 <pre data-diff-id="4" data-diff-type="noncompliant">
 RUN apt update \
   &amp;&amp; apt install nginx
+</pre>
+<p>For apt-get, without a cache mount:</p>
+<pre data-diff-id="5" data-diff-type="noncompliant">
+RUN apt-get update \
+  &amp;&amp; apt-get install nginx
 </pre>
 <h4>Compliant solution</h4>
 <p>For apk:</p>
@@ -69,22 +75,36 @@ RUN apt update \
   &amp;&amp; apt install nginx \
   &amp;&amp; rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 </pre>
+<p>For apt-get, with a cache mount:</p>
+<pre data-diff-id="5" data-diff-type="compliant">
+RUN \
+  --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update \
+  &amp;&amp; apt-get install nginx
+</pre>
 <h3>How does this work?</h3>
-<p>When installing packages using <code>apt-get</code>, <code>aptitude</code> or <code>apt</code> they store an index in the Docker image layer in
-<code>/var/lib/apt/lists</code>. Using <code>apk</code>, it will store an index in <code>/var/cache/apk/</code>. In some distributions and
-configurations the cache will be created in <code>/etc/apk/cache</code>.</p>
+<p>When installing packages using <code>apt-get</code>, <code>aptitude</code> or <code>apt</code> these package managers store an index in the Docker
+image layer in <code>/var/lib/apt/lists</code>. Using <code>apk</code>, it will store an index in <code>/var/cache/apk/</code>. In some distributions
+and configurations, the cache will be created in <code>/etc/apk/cache</code>.</p>
 <p>This index is not needed after installation, so it can be removed. To do that, execute the <code>clean</code> command, or run <code>rm -rf
 &lt;location&gt;</code> for the cache location of you package manager tool.</p>
 <p>Additionally, for <code>apt-get</code>, <code>aptitude</code> and <code>apt</code> some lock files are stored in
 <code>/var/cache/apt/archives</code>, which can also be removed safely. They are not removed by the <code>clean</code> command, so they need to be
 removed manually.</p>
+<p>Alternatively, store the cache in a dedicated cache mount. A cache mount can be created by adding a flag <code>--mount type=cache</code> to the
+<code>RUN</code> command.<br> This will store the cache in a Docker volume, which will be persisted between builds making the build faster.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run">RUN - Best practices for writing Dockerfiles</a> </li>
+  <li> Dockefile Best Practices - <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run">RUN - Best practices for
+  writing Dockerfiles</a> </li>
   <li> <a href="https://man.archlinux.org/man/apk.8.en">apk man</a> </li>
   <li> <a href="https://manpages.debian.org/bookworm/apt/apt-get.8.en.html">apt-get man</a> </li>
   <li> <a href="https://manpages.debian.org/testing/aptitude/aptitude.8.en.html">aptitude man</a> </li>
-  <li> <a href="https://askubuntu.com/questions/1050800/how-do-i-remove-the-apt-package-index">How do I remove the apt package index?</a> </li>
+  <li> Ask Ubuntu - <a href="https://askubuntu.com/questions/1050800/how-do-i-remove-the-apt-package-index">How do I remove the apt package index?</a>
+  </li>
+  <li> Docker Build Cache - <a href="https://docs.docker.com/build/cache/#use-the-dedicated-run-cache">Use the dedicated <code>RUN</code> cache</a>
+  </li>
 </ul>
 
