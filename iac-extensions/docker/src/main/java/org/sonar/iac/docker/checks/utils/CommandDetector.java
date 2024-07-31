@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -38,9 +39,11 @@ import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.split
 public final class CommandDetector {
 
   private final List<CommandPredicate> predicates;
+  private final List<Predicate<ArgumentResolution>> containsPredicates;
 
-  CommandDetector(List<CommandPredicate> predicates) {
+  CommandDetector(List<CommandPredicate> predicates, List<Predicate<ArgumentResolution>> containsPredicates) {
     this.predicates = predicates;
+    this.containsPredicates = containsPredicates;
   }
 
   public static CommandDetectorBuilder builder() {
@@ -62,10 +65,12 @@ public final class CommandDetector {
 
     var context = new PredicateContext(argumentStack, predicates);
 
-    while (!argumentStack.isEmpty()) {
-      List<ArgumentResolution> commandArguments = fullMatch(context);
-      if (!commandArguments.isEmpty()) {
-        commands.add(new Command(commandArguments));
+    if (containsAllRequiredArguments(context, resolvedArguments)) {
+      while (!argumentStack.isEmpty()) {
+        List<ArgumentResolution> commandArguments = fullMatch(context);
+        if (!commandArguments.isEmpty()) {
+          commands.add(new Command(commandArguments));
+        }
       }
     }
     return commands;
@@ -96,6 +101,28 @@ public final class CommandDetector {
       commands.addAll(searchWithoutSplit(resolved));
     }
     return commands;
+  }
+
+  /**
+   * Scans the whole list of resolved arguments and check if it contains all arguments defined by containsPredicates.
+   */
+  private boolean containsAllRequiredArguments(PredicateContext context, List<ArgumentResolution> resolvedArguments) {
+    for (Predicate<ArgumentResolution> containsPredicate : containsPredicates) {
+      if (!containsArgument(context, resolvedArguments, containsPredicate)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean containsArgument(PredicateContext context, List<ArgumentResolution> resolvedArguments, Predicate<ArgumentResolution> containsPredicate) {
+    for (ArgumentResolution resolvedArgument : resolvedArguments) {
+      if (containsPredicate.test(resolvedArgument)) {
+        context.addContainsArgumentsToReport(resolvedArgument);
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

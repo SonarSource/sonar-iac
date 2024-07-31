@@ -23,7 +23,6 @@ import java.util.function.Predicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
-import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.OPTIONAL;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.ZERO_OR_MORE;
 import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.ABORT;
 import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.CONTINUE;
@@ -79,7 +78,7 @@ public class SingularPredicate implements CommandPredicate {
       if (hasType(ZERO_OR_MORE)) {
         detectCurrentPredicateAgain = true;
       }
-    } else if (hasType(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
+    } else if (hasType(ZERO_OR_MORE, NO_MATCH)) {
       // Re-add argument to be evaluated by the next predicate
       shouldBeMatchedAgain = true;
     } else {

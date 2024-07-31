@@ -56,21 +56,11 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = shortFlagPredicate('O');
 
   // wget -O /path/to/resource https://example.com/resource
-  private static final CommandDetector WGET_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()
-    .with(WGET)
-    .withOptionalRepeating(WGET_DOWNLOAD_FLAG_PREDICATE.negate())
-    .with(WGET_DOWNLOAD_FLAG_PREDICATE)
-    .withOptionalRepeating(URL_PREDICATE.negate())
-    .with(URL_PREDICATE)
-    .build();
-
   // wget https://example.com/resource -O /path/to/resource
-  private static final CommandDetector WGET_URL_FIRST_DETECTOR = CommandDetector.builder()
+  private static final CommandDetector WGET_DOWNLOAD_DETECTOR = CommandDetector.builder()
     .with(WGET)
-    .withOptionalRepeating(URL_PREDICATE.negate())
-    .with(URL_PREDICATE)
-    .withOptionalRepeating(WGET_DOWNLOAD_FLAG_PREDICATE.negate())
-    .with(WGET_DOWNLOAD_FLAG_PREDICATE)
+    .contains(URL_PREDICATE)
+    .contains(WGET_DOWNLOAD_FLAG_PREDICATE)
     .build();
 
   private static final CommandDetector WGET_AUTH_HEADERS_EQUALS = CommandDetector.builder()
@@ -82,42 +72,14 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     .with(startsWithIgnoreQuotes("Authorization", "X-Auth-Token"))
     .build();
 
-  private static final List<CommandDetector> WGET_DETECTORS = List.of(WGET_DOWNLOAD_FLAG_FIRST_DETECTOR, WGET_URL_FIRST_DETECTOR);
-
   // curl -o output.txt https://example.com/resource
-  private static final CommandDetector CURL_DOWNLOAD_FLAG_FIRST_DETECTOR = CommandDetector.builder()
-    .with(CURL)
-    .withOptionalRepeating(CURL_DOWNLOAD_FLAG_PREDICATE.negate())
-    .with(CURL_DOWNLOAD_FLAG_PREDICATE)
-    .withOptionalRepeating(URL_PREDICATE.negate())
-    .with(URL_PREDICATE)
-    .build();
-
-  // curl https://example.com/resource -o output.txt
-  private static final CommandDetector CURL_URL_FIRST_DETECTOR = CommandDetector.builder()
-    .with(CURL)
-    .withOptionalRepeating(URL_PREDICATE.negate())
-    .with(URL_PREDICATE)
-    .withOptionalRepeating(CURL_DOWNLOAD_FLAG_PREDICATE.negate())
-    .with(CURL_DOWNLOAD_FLAG_PREDICATE)
-    .build();
-
   // curl -LOv https://example.com/resource
-  private static final CommandDetector CURL_DOWNLOAD_SHORT_FLAG_FIRST_DETECTOR = CommandDetector.builder()
-    .with(CURL)
-    .withOptionalRepeating(CURL_SHORT_DOWNLOAD_FLAG.negate())
-    .with(CURL_SHORT_DOWNLOAD_FLAG)
-    .withOptionalRepeating(URL_PREDICATE.negate())
-    .with(URL_PREDICATE)
-    .build();
-
+  // curl https://example.com/resource -o output.txt
   // curl https://example.com/resource -LOv
-  private static final CommandDetector CURL_URL_FIRST_DOWNLOAD_SHORT_FLAG_DETECTOR = CommandDetector.builder()
+  private static final CommandDetector CURL_DOWNLOAD_DETECTOR = CommandDetector.builder()
     .with(CURL)
-    .withOptionalRepeating(URL_PREDICATE.negate())
-    .with(URL_PREDICATE)
-    .withOptionalRepeating(CURL_SHORT_DOWNLOAD_FLAG.negate())
-    .with(CURL_SHORT_DOWNLOAD_FLAG)
+    .contains(CURL_DOWNLOAD_FLAG_PREDICATE.or(CURL_SHORT_DOWNLOAD_FLAG))
+    .contains(URL_PREDICATE)
     .build();
 
   // curl https://example.com/resource > output.txt
@@ -137,10 +99,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     .build();
 
   private static final List<CommandDetector> CURL_DETECTORS = List.of(
-    CURL_DOWNLOAD_FLAG_FIRST_DETECTOR,
-    CURL_URL_FIRST_DETECTOR,
-    CURL_DOWNLOAD_SHORT_FLAG_FIRST_DETECTOR,
-    CURL_URL_FIRST_DOWNLOAD_SHORT_FLAG_DETECTOR,
+    CURL_DOWNLOAD_DETECTOR,
     CURL_REDIRECT_STDOUT_DETECTOR);
 
   @Override
@@ -151,18 +110,16 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void check(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
-    WGET_DETECTORS.forEach((CommandDetector detector) -> {
-      SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
-      splitCommands.elements().forEach(args -> checkArgumentForWget(ctx, detector, args));
-    });
+    SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
+    splitCommands.elements().forEach(args -> checkArgumentForWget(ctx, args));
+
     CURL_DETECTORS.forEach((CommandDetector detector) -> {
-      SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
       splitCommands.elements().forEach(args -> checkArgumentForCurl(ctx, detector, args));
     });
   }
 
-  private static void checkArgumentForWget(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
-    detector.search(args).forEach((CommandDetector.Command command) -> {
+  private static void checkArgumentForWget(CheckContext ctx, List<ArgumentResolution> args) {
+    WGET_DOWNLOAD_DETECTOR.search(args).forEach((CommandDetector.Command command) -> {
       if (!containsWgetAuthenticationFlags(args)) {
         reportIssue(ctx, args, WGET);
       }

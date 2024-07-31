@@ -24,7 +24,6 @@ public interface CommandPredicate {
   enum Type {
     MATCH,
     NO_MATCH,
-    OPTIONAL,
     ZERO_OR_MORE
   }
 

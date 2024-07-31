@@ -33,11 +33,13 @@ public class PredicateContext {
   private final List<CommandPredicate> detectorPredicates;
   private Deque<CommandPredicate> predicatesStack;
   private List<ArgumentResolution> argumentsToReport;
+  private final List<ArgumentResolution> containsArgumentsToReport;
   private CommandPredicate currentPredicate;
 
   public PredicateContext(Deque<ArgumentResolution> argumentStack, List<CommandPredicate> detectorPredicates) {
     this.argumentStack = argumentStack;
     this.detectorPredicates = detectorPredicates;
+    this.containsArgumentsToReport = new ArrayList<>();
   }
 
   public void startNewFullMatchOn(List<CommandPredicate> detectorPredicates) {
@@ -87,7 +89,12 @@ public class PredicateContext {
   }
 
   public List<ArgumentResolution> getArgumentsToReport() {
-    return argumentsToReport;
+    argumentsToReport.addAll(containsArgumentsToReport);
+    return argumentsToReport.stream().distinct().toList();
+  }
+
+  public void addContainsArgumentsToReport(ArgumentResolution resolution) {
+    containsArgumentsToReport.add(resolution);
   }
 
   public CommandPredicate getCurrentPredicate() {
