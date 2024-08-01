@@ -41,66 +41,54 @@ public class CommandDetectorBuilder {
   }
 
   public CommandDetectorBuilder with(Collection<String> firstOf) {
-    validateContainsIsNotCalled();
     return with(firstOf::contains);
   }
 
   public CommandDetectorBuilder with(String expectedString) {
-    validateContainsIsNotCalled();
     return with(expectedString::equals);
   }
 
   public CommandDetectorBuilder notWith(Predicate<String> predicate) {
-    validateContainsIsNotCalled();
     addSingularPredicate(predicate, CommandPredicate.Type.NO_MATCH);
     return this;
   }
 
   public CommandDetectorBuilder withOptionalRepeating(Predicate<String> predicate) {
-    validateContainsIsNotCalled();
     addSingularPredicate(predicate, CommandPredicate.Type.ZERO_OR_MORE);
     return this;
   }
 
   public CommandDetectorBuilder withOptionalRepeatingExcept(Predicate<String> predicate) {
-    validateContainsIsNotCalled();
     return withOptionalRepeating(predicate.negate());
   }
 
   public CommandDetectorBuilder withOptionalRepeatingExcept(String excludedString) {
-    validateContainsIsNotCalled();
     return withOptionalRepeatingExcept(excludedString::equals);
   }
 
   public CommandDetectorBuilder withOptionalRepeatingExcept(Collection<String> excludedStrings) {
-    validateContainsIsNotCalled();
     return withOptionalRepeatingExcept(excludedStrings::contains);
   }
 
   public CommandDetectorBuilder withAnyFlagExcept(String... excludedFlags) {
-    validateContainsIsNotCalled();
     return withAnyFlagExcept(Arrays.asList(excludedFlags));
   }
 
   public CommandDetectorBuilder withAnyFlagExcept(Collection<String> excludedFlags) {
-    validateContainsIsNotCalled();
     return withOptionalRepeating(s -> s.startsWith("-") && !excludedFlags.contains(s))
       .notWith(excludedFlags::contains);
   }
 
   public CommandDetectorBuilder withAnyFlagFollowedBy(String... flags) {
-    validateContainsIsNotCalled();
     return withAnyFlagFollowedBy(Arrays.asList(flags));
   }
 
   public CommandDetectorBuilder withAnyFlagFollowedBy(Collection<String> flags) {
-    validateContainsIsNotCalled();
     return withOptionalRepeating(s -> s.startsWith("-") && !flags.contains(s))
       .with(flags);
   }
 
   public CommandDetectorBuilder withAnyFlag() {
-    validateContainsIsNotCalled();
     return withOptionalRepeating(s -> s.startsWith("-"));
   }
 
@@ -111,19 +99,16 @@ public class CommandDetectorBuilder {
   }
 
   public CommandDetectorBuilder withIncludeUnresolved(Predicate<String> predicate) {
-    validateContainsIsNotCalled();
     addIncludeUnresolved(predicate);
     return this;
   }
 
   public CommandDetectorBuilder withAnyIncludingUnresolvedRepeating(Predicate<String> predicate) {
-    validateContainsIsNotCalled();
     addPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.ZERO_OR_MORE).includeUnresolved());
     return this;
   }
 
   public CommandDetectorBuilder withArgumentResolutionIncludeUnresolved(Predicate<ArgumentResolution> predicate) {
-    validateContainsIsNotCalled();
     addPredicate(SingularPredicate.predicateArgument(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
     return this;
   }
@@ -139,6 +124,7 @@ public class CommandDetectorBuilder {
   }
 
   private void addPredicate(CommandPredicate commandPredicate) {
+    validateContainsIsNotCalled();
     predicates.add(commandPredicate);
   }
 
