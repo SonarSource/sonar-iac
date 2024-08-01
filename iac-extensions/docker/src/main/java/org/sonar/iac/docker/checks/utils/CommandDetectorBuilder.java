@@ -30,9 +30,12 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 
 public class CommandDetectorBuilder {
 
-  private List<CommandPredicate> predicates = new ArrayList<>();
+  private final List<CommandPredicate> predicates = new ArrayList<>();
+  private final List<Predicate<ArgumentResolution>> containsPredicates = new ArrayList<>();
+  private boolean isContainsCalled;
 
   public CommandDetectorBuilder with(Predicate<String> predicate) {
+    validateContainsIsNotCalled();
     addSingularPredicate(predicate, CommandPredicate.Type.MATCH);
     return this;
   }
@@ -43,11 +46,6 @@ public class CommandDetectorBuilder {
 
   public CommandDetectorBuilder with(String expectedString) {
     return with(expectedString::equals);
-  }
-
-  public CommandDetectorBuilder withOptional(Predicate<String> predicate) {
-    addSingularPredicate(predicate, CommandPredicate.Type.OPTIONAL);
-    return this;
   }
 
   public CommandDetectorBuilder notWith(Predicate<String> predicate) {
@@ -95,6 +93,7 @@ public class CommandDetectorBuilder {
   }
 
   public CommandDetectorBuilder withPredicatesFrom(CommandDetectorBuilder otherBuilder) {
+    validateContainsIsNotCalled();
     this.predicates.addAll(otherBuilder.predicates);
     return this;
   }
@@ -105,28 +104,46 @@ public class CommandDetectorBuilder {
   }
 
   public CommandDetectorBuilder withAnyIncludingUnresolvedRepeating(Predicate<String> predicate) {
-    addCommandPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.ZERO_OR_MORE).includeUnresolved());
+    addPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.ZERO_OR_MORE).includeUnresolved());
     return this;
   }
 
   public CommandDetectorBuilder withArgumentResolutionIncludeUnresolved(Predicate<ArgumentResolution> predicate) {
-    addCommandPredicate(SingularPredicate.predicateArgument(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
+    addPredicate(SingularPredicate.predicateArgument(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
+    return this;
+  }
+
+  public CommandDetectorBuilder contains(Predicate<String> predicate) {
+    isContainsCalled = true;
+    addContainsPredicate(argumentResolution -> predicate.test(argumentResolution.value()));
     return this;
   }
 
   public CommandDetector build() {
-    return new CommandDetector(predicates);
+    return new CommandDetector(predicates, containsPredicates);
   }
 
-  private void addCommandPredicate(CommandPredicate commandPredicate) {
+  private void addPredicate(CommandPredicate commandPredicate) {
+    validateContainsIsNotCalled();
     predicates.add(commandPredicate);
   }
 
   private void addSingularPredicate(Predicate<String> predicate, CommandPredicate.Type type) {
-    addCommandPredicate(SingularPredicate.predicateString(predicate, type));
+    addPredicate(SingularPredicate.predicateString(predicate, type));
   }
 
   private void addIncludeUnresolved(Predicate<String> predicate) {
-    addCommandPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
+    addPredicate(SingularPredicate.predicateString(predicate, CommandPredicate.Type.MATCH).includeUnresolved());
+  }
+
+  private void addContainsPredicate(Predicate<ArgumentResolution> predicate) {
+    containsPredicates.add(predicate);
+  }
+
+  private void validateContainsIsNotCalled() {
+    if (isContainsCalled) {
+      throw new IllegalStateException("Wrong usage of CommandDetector. You can't call with*() or notWith() method after calling " +
+        "contains(). This is a current limitation of contains() usage.");
+    }
   }
 }

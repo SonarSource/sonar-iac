@@ -28,3 +28,8 @@ RUN apt install -y libcurl
 RUN aptitude install -y libcurl
 RUN apt-get install -tym libcurl
 RUN apt-get install --yes libcurl
+
+# FN SONARIAC-1115 CommandDetector, detect command when some flag is missing
+RUN apt-get install libcurl -y
+RUN apt install libcurl -y
+RUN aptitude install wget -y

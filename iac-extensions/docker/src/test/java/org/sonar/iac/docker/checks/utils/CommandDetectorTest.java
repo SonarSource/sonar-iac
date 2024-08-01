@@ -27,7 +27,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.docker.DockerAssertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.sonar.iac.docker.checks.utils.CommandDetectorTestFactory.buildArgumentList;
 
 class CommandDetectorTest {
@@ -171,6 +173,16 @@ class CommandDetectorTest {
     List<ArgumentResolution> resolvedArguments = commands.get(0).getResolvedArguments();
     DockerAssertions.assertThat(resolvedArguments.get(0)).hasValue("echo");
     DockerAssertions.assertThat(resolvedArguments.get(1)).hasValue("foo");
+  }
+
+  @Test
+  void shouldThrowExceptionWhenCallingWithAfterContains() {
+    var exception = catchException(() -> CommandDetector.builder()
+      .with("echo")
+      .contains("Hello"::equals)
+      .with("foo"));
+
+    assertThat(exception).isInstanceOf(IllegalStateException.class);
   }
 
   private void assertDetectedCommands(List<ArgumentResolution> resolvedArguments, String... commandList) {
