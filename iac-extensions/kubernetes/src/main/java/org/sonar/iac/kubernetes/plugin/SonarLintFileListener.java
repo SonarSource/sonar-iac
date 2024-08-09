@@ -58,7 +58,7 @@ public class SonarLintFileListener implements ModuleFileListener {
     this.projectContext = projectContext;
     this.fileSystemProvider = fileSystemProvider;
     var predicate = new KubernetesOrHelmFilePredicate(sensorContext);
-    var inputFiles = moduleFileSystem.files("yaml", InputFile.Type.MAIN)
+    var inputFiles = moduleFileSystem.files()
       .filter(predicate::apply)
       .toList();
 
