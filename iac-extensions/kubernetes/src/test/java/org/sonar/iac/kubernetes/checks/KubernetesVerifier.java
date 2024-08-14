@@ -56,6 +56,7 @@ import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.kubernetes.plugin.HelmParser;
 import org.sonar.iac.kubernetes.plugin.HelmProcessor;
 import org.sonar.iac.kubernetes.plugin.KubernetesAnalyzer;
@@ -297,9 +298,12 @@ public class KubernetesVerifier {
           // in the source file.
           if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
             for (Comment comment : ((HasComments) tree).comments()) {
-              Comment shiftedComment = new CommentImpl(comment.value(), comment.contentText(),
-                LocationShifter.computeShiftedLocation(inputFileContext, comment.textRange()));
-              commentsByLine.computeIfAbsent(shiftedComment.textRange().start().line(), i -> new HashSet<>()).add(shiftedComment);
+              if (!(tree instanceof Node)) {
+                // Invoke location shifting for YAML nodes; don't invoke it for nodes of the Go template AST
+                comment = new CommentImpl(comment.value(), comment.contentText(),
+                  LocationShifter.computeShiftedLocation(inputFileContext, comment.textRange()));
+              }
+              commentsByLine.computeIfAbsent(comment.textRange().start().line(), i -> new HashSet<>()).add(comment);
             }
             alreadyAdded.add(tree.textRange());
           }

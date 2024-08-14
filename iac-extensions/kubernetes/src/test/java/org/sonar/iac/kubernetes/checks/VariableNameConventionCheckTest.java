@@ -19,7 +19,10 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import static org.sonar.iac.common.testing.Verifier.issue;
 
 class VariableNameConventionCheckTest {
   @Test
@@ -29,5 +32,11 @@ class VariableNameConventionCheckTest {
 
     // Should also raise on variables with the same name in another file
     KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/second-template.yaml", check);
+  }
+
+  @Test
+  void shouldDetectIssuesInFileWithNotOnlyDeclarations() {
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/pod.yaml", new VariableNameConventionCheck(), List.of(
+      issue(1, 4, 1, 17, "Rename this variable \"$my_local_var\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.")));
   }
 }

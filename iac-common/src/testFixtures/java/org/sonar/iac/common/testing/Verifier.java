@@ -216,7 +216,7 @@ public final class Verifier {
       .forEach(comments -> comments.forEach(comment -> {
         TextPointer start = comment.textRange().start();
         if (comment.value().startsWith("/*")) {
-          verifier.addComment(path, start.line(), start.lineOffset(), comment.value(), 2, 2);
+          verifier.addComment(path, start.line(), start.lineOffset() + 1, comment.value(), 2, 2);
         } else {
           verifier.addComment(path, start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
         }

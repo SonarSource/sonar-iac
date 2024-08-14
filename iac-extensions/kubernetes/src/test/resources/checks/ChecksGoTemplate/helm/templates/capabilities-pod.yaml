@@ -22,8 +22,6 @@ spec:
       name: test-container
       securityContext:
         capabilities:
-          {{- /* Note: noncompliant@+1 on a separate line doesn't work because of the line shifting logic */}}
-          add: {{ .Values.capabilities | toYaml | nindent 10 }}
-#         {{- /* Noncompliant {{Check hardcoded issue from Go AST}} */}}
-#         {{- /* ^[sc=19;ec=38] */}}
+          add: {{ .Values.capabilities | toYaml | nindent 10 }} {{- /* Noncompliant {{Check hardcoded issue from Go AST}} */}}
+{{- /*            ^^^^^^^^^^^^^^^^^^^^ */}}
 ---
