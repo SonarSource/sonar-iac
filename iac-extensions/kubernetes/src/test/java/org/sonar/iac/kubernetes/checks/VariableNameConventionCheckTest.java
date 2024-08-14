@@ -28,16 +28,10 @@ class VariableNameConventionCheckTest {
   @Test
   void shouldDetectIssue() {
     var check = new VariableNameConventionCheck();
-    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/template.yaml", check, List.of(
-      issue(1, 4, 1, 16, "Rename this variable \"$my_Variable\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'."),
-      issue(2, 4, 2, 5, "Rename this variable \"$\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'."),
-      issue(6, 10, 6, 16, "Rename this variable \"$KeyNc\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'."),
-      issue(6, 18, 6, 25, "Rename this variable \"$VAL_NC\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'."),
-      issue(8, 5, 8, 19, "Rename this variable \"$NON_COMPLIANT\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.")));
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/template.yaml", check);
 
     // Should also raise on variables with the same name in another file
-    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/second-template.yaml", check, List.of(
-      issue(1, 4, 1, 16, "Rename this variable \"$my_Variable\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.")));
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/second-template.yaml", check);
   }
 
   @Test

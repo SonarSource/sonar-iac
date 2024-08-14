@@ -1,0 +1,4 @@
+container:
+  name: my-container
+ingress:
+  className: "nginx"

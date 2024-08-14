@@ -25,13 +25,14 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.helm.tree.api.FieldNode;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 class ChecksGoTemplateTest {
   @Test
   void testVisitor() {
     KubernetesVerifier.verify("ChecksGoTemplate/helm/templates/capabilities-pod.yaml", new DummyChecksGoAst(), List.of(
       Verifier.issue(12, 18, 12, 38, "Check hardcoded issue from Go AST"),
-      Verifier.issue(26, 18, 26, 38, "Check hardcoded issue from Go AST")));
+      Verifier.issue(25, 18, 25, 38, "Check hardcoded issue from Go AST")));
   }
 
   @Test
@@ -44,7 +45,7 @@ class ChecksGoTemplateTest {
     public void initialize(InitContext init) {
       init.register(FieldNode.class, (ctx, node) -> {
         if (node.identifiers().size() > 1 && node.identifiers().get(1).equals("capabilities")) {
-          ctx.reportIssue(node, "Check hardcoded issue from Go AST");
+          ((KubernetesCheckContext) ctx).reportIssueNoLineShift(node.textRange(), "Check hardcoded issue from Go AST");
         }
       });
     }
