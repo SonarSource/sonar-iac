@@ -30,6 +30,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.api.PipeNode;
 import org.sonar.iac.helm.tree.api.VariableNode;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S117")
 public class VariableNameConventionCheck implements ChecksGoTemplate, IacCheck {
@@ -59,7 +60,7 @@ public class VariableNameConventionCheck implements ChecksGoTemplate, IacCheck {
       return;
     }
     if (!pattern.matcher(name).matches()) {
-      ctx.reportIssue(variable, MESSAGE.formatted(name, format));
+      ((KubernetesCheckContext) ctx).reportIssueNoLineShift(variable.textRange(), MESSAGE.formatted(name, format));
     }
     checkedNames.add(name);
   }
