@@ -52,7 +52,9 @@ public class HelmFileTreeImpl extends FileTreeImpl implements KubernetesFileTree
   @Override
   public List<Tree> children() {
     List<Tree> children = super.children();
-    children.add(goTemplateAst);
+    if (goTemplateAst != null) {
+      children.add(goTemplateAst);
+    }
     return children;
   }
 }
