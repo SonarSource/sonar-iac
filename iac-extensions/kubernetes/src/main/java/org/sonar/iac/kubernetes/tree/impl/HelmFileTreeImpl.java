@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.tree.impl;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.FileTreeImpl;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -46,5 +47,14 @@ public class HelmFileTreeImpl extends FileTreeImpl implements KubernetesFileTree
   @CheckForNull
   public GoTemplateTree getGoTemplateAst() {
     return goTemplateAst;
+  }
+
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = super.children();
+    if (goTemplateAst != null) {
+      children.add(goTemplateAst);
+    }
+    return children;
   }
 }
