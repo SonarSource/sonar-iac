@@ -35,9 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
@@ -105,23 +103,5 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
 
     List<InputFile> files = List.of(fileWithContent);
     assertThat(analyzer.analyseFiles(context, files, "iac")).isFalse();
-  }
-
-  @Test
-  void shouldExecuteChecksVisitorOnAdditionalTrees() {
-    TreeVisitor<InputFileContext> visitor = mock(TreeVisitor.class);
-    TreeVisitor<InputFileContext> checksVisitor = mock(TreeVisitor.class);
-    var additionalTree = mock(Tree.class);
-
-    var analyzer = new CrossFileAnalyzer("iac", parser, List.of(visitor), checksVisitor, durationStatistics) {
-      @Override
-      protected FileWithAsts fileWithAsts(InputFileContext inputFileContext, Tree tree) {
-        return new FileWithAsts(inputFileContext, tree, List.of(additionalTree));
-      }
-    };
-
-    assertThat(analyzer.analyseFiles(context, List.of(fileWithContent), "iac")).isTrue();
-    verify(visitor, never()).scan(any(), eq(additionalTree));
-    verify(checksVisitor).scan(any(), eq(additionalTree));
   }
 }

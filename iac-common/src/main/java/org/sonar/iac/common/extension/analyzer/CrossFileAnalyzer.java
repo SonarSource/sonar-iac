@@ -59,7 +59,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
       .toList();
 
     // Parse files
-    List<FileWithAsts> filesWithAst = new ArrayList<>();
+    List<FileWithAst> filesWithAst = new ArrayList<>();
     for (InputFileContext inputFileContext : inputFileContextList) {
       if (sensorContext.isCancelled()) {
         progressReportParser.cancel();
@@ -70,7 +70,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
         var content = readContent(inputFileContext);
         if (content != null) {
           Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
-          filesWithAst.add(fileWithAsts(inputFileContext, tree));
+          filesWithAst.add(new FileWithAst(inputFileContext, tree));
         }
       } catch (ParseException e) {
         reportParseError(e, inputFileContext);
@@ -83,37 +83,26 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     var progressReportVisitors = new ProgressReport(progressReportThreadName(languageName, " analysis"),
       PROGRESS_REPORT_PERIOD_MILLIS, "analyzed");
     progressReportVisitors.start(filenames);
-    if (!applyVisitors(sensorContext, filesWithAst, visitors, progressReportVisitors, false)) {
+    if (!applyVisitors(sensorContext, filesWithAst, visitors, progressReportVisitors)) {
       return false;
     }
 
     var progressReportCheckVisitor = new ProgressReport(progressReportThreadName(languageName, " analysis"),
       PROGRESS_REPORT_PERIOD_MILLIS, "checked");
     progressReportCheckVisitor.start(filenames);
-    return applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor), progressReportCheckVisitor, true);
+    return applyVisitors(sensorContext, filesWithAst, List.of(checksVisitor), progressReportCheckVisitor);
   }
 
-  /**
-   * @param visitAdditionalTrees indicates whether additional trees associated with the same input file should be visited. This applies for example
-   *                             for Helm files where the main tree is the Kubernetes tree and the additional tree is the Go template tree.
-   *                             We don't want to run metrics and highlighting visitors on the additional tree, because it's been already measured
-   *                             as part of the main tree. We want to run checks visitors on it though.
-   */
-  private boolean applyVisitors(SensorContext sensorContext, List<FileWithAsts> filesWithAsts, List<TreeVisitor<InputFileContext>> visitorsToBeApplied,
-    ProgressReport progressReport, boolean visitAdditionalTrees) {
+  private boolean applyVisitors(SensorContext sensorContext, List<FileWithAst> filesWithAsts, List<TreeVisitor<InputFileContext>> visitorsToBeApplied,
+    ProgressReport progressReport) {
     // Visit files
-    for (FileWithAsts fileWithAsts : filesWithAsts) {
+    for (FileWithAst fileWithAsts : filesWithAsts) {
       if (sensorContext.isCancelled()) {
         progressReport.cancel();
         return false;
       }
 
       visit(visitorsToBeApplied, fileWithAsts.inputFileContext, fileWithAsts.tree);
-      if (visitAdditionalTrees) {
-        for (Tree additionalTree : fileWithAsts.additionalTrees) {
-          visit(visitorsToBeApplied, fileWithAsts.inputFileContext, additionalTree);
-        }
-      }
       progressReport.nextFile();
     }
     progressReport.stop();
@@ -124,10 +113,6 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     return "Progress of the " + language + " " + phase;
   }
 
-  protected FileWithAsts fileWithAsts(InputFileContext inputFileContext, Tree tree) {
-    return new FileWithAsts(inputFileContext, tree, List.of());
-  }
-
-  public record FileWithAsts(InputFileContext inputFileContext, Tree tree, Collection<Tree> additionalTrees) {
+  private record FileWithAst(InputFileContext inputFileContext, Tree tree) {
   }
 }

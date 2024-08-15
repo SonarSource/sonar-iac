@@ -27,7 +27,7 @@ import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
-class ChecksGoTemplateTest {
+class GoTemplateAstVerifierTest {
   @Test
   void testVisitor() {
     KubernetesVerifier.verify("ChecksGoTemplate/helm/templates/capabilities-pod.yaml", new DummyChecksGoAst(), List.of(
@@ -40,7 +40,7 @@ class ChecksGoTemplateTest {
     KubernetesVerifier.verify("ChecksGoTemplate/helm/templates/capabilities-pod.yaml", new DummyChecksGoAst());
   }
 
-  private static class DummyChecksGoAst implements ChecksGoTemplate, IacCheck {
+  private static class DummyChecksGoAst implements IacCheck {
     @Override
     public void initialize(InitContext init) {
       init.register(FieldNode.class, (ctx, node) -> {

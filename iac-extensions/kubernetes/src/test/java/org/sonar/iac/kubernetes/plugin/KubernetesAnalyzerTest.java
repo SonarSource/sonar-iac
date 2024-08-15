@@ -25,13 +25,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.List;
 import javax.annotation.Nullable;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
@@ -42,13 +40,11 @@ import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.TextRangeAssert;
@@ -56,9 +52,7 @@ import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.helm.HelmFileSystem;
-import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.kubernetes.tree.api.KubernetesFileTree;
-import org.sonar.iac.kubernetes.tree.impl.HelmFileTreeImpl;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -66,28 +60,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
 class KubernetesAnalyzerTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
-  @TempDir
-  File tempDir;
   private final InputFile inputFile = mock(InputFile.class);
   private final SensorContext sensorContext = mock(SensorContext.class);
   private HelmInputFileContext inputFileContext;
   private final FileSystem fileSystem = mock(FileSystem.class);
   private final HelmProcessor helmProcessor = mock(HelmProcessor.class);
   private final HelmParser helmParser = new HelmParser(helmProcessor);
-  private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)),
+  private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
+    new DurationStatistics(mock(Configuration.class)),
     helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class));
 
   @BeforeEach
@@ -114,7 +103,8 @@ class KubernetesAnalyzerTest {
 
     var processor = new TestHelmProcessor(evaluated);
     var helmParserLocal = new HelmParser(processor);
-    KubernetesAnalyzer analyzerLocal = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(), new DurationStatistics(mock(Configuration.class)), helmParserLocal,
+    KubernetesAnalyzer analyzerLocal = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
+      new DurationStatistics(mock(Configuration.class)), helmParserLocal,
       new KubernetesParserStatistics(), mock(TreeVisitor.class));
     return (FileTree) analyzerLocal.parse(originalCode, inputFileContext);
   }
@@ -384,14 +374,16 @@ class KubernetesAnalyzerTest {
     when(helmProcessor.isHelmEvaluatorInitialized()).thenReturn(true);
     when(helmProcessor.process(any(), any())).thenThrow(
       new ParseException("Failed to evaluate Helm file dummy.yaml: Template evaluation failed", new BasicTextPointer(1, 1),
-        "Evaluation error in Go library: template: dummy.yaml:10:11: executing \"dummy.yaml\" at <include \"a-template-from-dependency\" .>: error calling include: template: " +
+        "Evaluation error in Go library: template: dummy.yaml:10:11: executing \"dummy.yaml\" at <include \"a-template-from-dependency\" " +
+          ".>: error calling include: template: " +
           "error calling include: template: no template \"a-template-from-dependency\" associated with template \"aggregatingTemplate\""));
 
     assertThatCode(() -> analyzer.parse(code, inputFileContext))
       .doesNotThrowAnyException();
 
     assertThat(logTester.logs(Level.DEBUG))
-      .contains("Helm file /chart/templates/foo.yaml requires a named template that is missing; this feature is not yet supported, skipping processing of Helm file");
+      .contains("Helm file /chart/templates/foo.yaml requires a named template that is missing; this feature is not yet supported, " +
+        "skipping processing of Helm file");
   }
 
   @ParameterizedTest
@@ -501,41 +493,6 @@ class KubernetesAnalyzerTest {
       assertThat(ctx).isInstanceOf(HelmInputFileContext.class);
       assertThat(((HelmInputFileContext) ctx).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
     }
-  }
-
-  @Test
-  void shouldCallChecksVisitorOnAdditionalTrees() throws IOException {
-    var file1 = spy(inputFile("file1.txt", tempDir.toPath(), "File 1 content", null));
-    var file2 = spy(inputFile("file2.txt", tempDir.toPath(), "File 2 content", null));
-    var tree1 = mock(HelmFileTreeImpl.class);
-    var additionalTree1 = mock(GoTemplateTree.class);
-    when(tree1.getGoTemplateAst()).thenReturn(additionalTree1);
-    var tree2 = mock(Tree.class);
-    TreeParser<Tree> parser = mock(TreeParser.class);
-    when(parser.parse(eq(file1.contents()), any())).thenReturn(tree1);
-    when(parser.parse(eq(file2.contents()), any())).thenReturn(tree2);
-
-    TreeVisitor<InputFileContext> visitor1 = mock(TreeVisitor.class);
-    TreeVisitor<InputFileContext> visitor2 = mock(TreeVisitor.class);
-    TreeVisitor<InputFileContext> checksVisitor = mock(TreeVisitor.class);
-    var kubernetesAnalyzer = new KubernetesAnalyzer("", parser, List.of(visitor1, visitor2), new DurationStatistics(mock(Configuration.class)),
-      helmParser, new KubernetesParserStatistics(), checksVisitor);
-
-    var files = List.of(file1, file2);
-    assertThat(kubernetesAnalyzer.analyseFiles(sensorContext, files, "iac")).isTrue();
-
-    var inOrder = Mockito.inOrder(parser, visitor1, visitor2, checksVisitor);
-    inOrder.verify(parser).parse(eq("File 1 content"), any());
-    inOrder.verify(parser).parse(eq("File 2 content"), any());
-    inOrder.verify(visitor1).scan(any(), eq(tree1));
-    inOrder.verify(visitor2).scan(any(), eq(tree1));
-    inOrder.verify(visitor1).scan(any(), eq(tree2));
-    inOrder.verify(visitor2).scan(any(), eq(tree2));
-    inOrder.verify(checksVisitor).scan(any(), eq(tree1));
-    inOrder.verify(checksVisitor).scan(any(), eq(additionalTree1));
-    inOrder.verify(checksVisitor).scan(any(), eq(tree2));
-    verify(visitor1, never()).scan(any(), eq(additionalTree1));
-    verify(visitor2, never()).scan(any(), eq(additionalTree1));
   }
 
   private void assertEmptyFileTree(FileTree fileTree) {

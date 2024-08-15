@@ -31,7 +31,7 @@ import org.sonar.iac.helm.tree.api.VariableNode;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S1874")
-public class DeprecatedCodeCheck implements ChecksGoTemplate, IacCheck {
+public class DeprecatedCodeCheck implements IacCheck {
   private static final String MESSAGE = "Remove this deprecated use of \"Capabilities.KubeVersion.GitVersion\", use \"Capabilities" +
     ".KubeVersion.Version\" instead.";
 
