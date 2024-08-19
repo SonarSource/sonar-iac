@@ -76,5 +76,5 @@
       "groupSlug": "all-go-minor-patch"
     }
   ],
-  "reviewersFromCodeOwners": true
+  "reviewers": ["team:analysis-cloud-squad"]
 }
