@@ -85,7 +85,7 @@ class CfnLintReportTest extends TestBase {
     softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:cfn-lint.fallback");
     softly.assertThat(issue.getMessage())
       .isEqualTo("[{'Key': 'environment', 'Value': {'Ref': 'Environment'}}, {'Key': 'environment', 'Value': " +
-                 "{'Ref': 'TestEnvironment'}}] has non-unique elements for keys ['Key']");
+        "{'Ref': 'TestEnvironment'}}] has non-unique elements for keys ['Key']");
     softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
