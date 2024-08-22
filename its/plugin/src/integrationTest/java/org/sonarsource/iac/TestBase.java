@@ -171,9 +171,13 @@ public abstract class TestBase {
       .build());
   }
 
-  public static void executeBuildWithExpectedWarnings(Orchestrator orchestrator, SonarScanner build) {
+  public static String executeBuildAndReadLogs(Orchestrator orchestrator, SonarScanner build) {
     BuildResult result = orchestrator.executeBuild(build);
-    assertAnalyzerLogs(result.getLogs());
+    return result.getLogs();
+  }
+
+  public static void executeBuildWithExpectedWarnings(Orchestrator orchestrator, SonarScanner build) {
+    assertAnalyzerLogs(executeBuildAndReadLogs(orchestrator, build));
   }
 
   private static void assertAnalyzerLogs(String logs) {

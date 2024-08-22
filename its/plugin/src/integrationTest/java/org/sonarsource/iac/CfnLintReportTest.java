@@ -37,19 +37,60 @@ class CfnLintReportTest extends TestBase {
   void import_report() {
     SonarScanner sonarScanner = getSonarScanner(PROJECT, BASE_DIRECTORY, "cloudformation", "no_rules");
     // start analysis of the project
-    executeBuildWithExpectedWarnings(ORCHESTRATOR, sonarScanner);
+    var logs = executeBuildAndReadLogs(ORCHESTRATOR, sonarScanner);
+
+    assertThat(logs).contains("WARN: Cfn-lint report importing: could not save 2 out of 7 issues from");
 
     List<Issues.Issue> issues = issuesForComponent(PROJECT);
-    assertThat(issues).hasSize(1);
-    Issues.Issue first = issues.get(0);
+    assertThat(issues).hasSize(5);
+    Issues.Issue issue = issues.get(0);
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(first.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
-    softly.assertThat(first.getRule()).isEqualTo("external_cfn-lint:E0000");
-    softly.assertThat(first.getMessage()).isEqualTo("Null value at line 8 column 20");
-    softly.assertThat(first.getType()).isEqualTo(Common.RuleType.BUG);
-    softly.assertThat(first.getSeverity()).isEqualTo(Common.Severity.MAJOR);
-    softly.assertThat(first.getEffort()).isEqualTo("0min");
-    softly.assertThat(first.getLine()).isEqualTo(8);
+    softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
+    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:E2015");
+    softly.assertThat(issue.getMessage()).isEqualTo("Default should be a value within AllowedValues");
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
+    softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getEffort()).isEqualTo("0min");
+    softly.assertThat(issue.getLine()).isEqualTo(13);
+
+    issue = issues.get(1);
+    softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
+    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:W2001");
+    softly.assertThat(issue.getMessage()).isEqualTo("Parameter UnusedParam not used.");
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getEffort()).isEqualTo("0min");
+    softly.assertThat(issue.getLine()).isEqualTo(19);
+
+    issue = issues.get(2);
+    softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
+    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:cfn-lint.fallback");
+    softly.assertThat(issue.getMessage()).isEqualTo("'ami-123456' is not a 'AWS::EC2::Image.Id'");
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getEffort()).isEqualTo("0min");
+    softly.assertThat(issue.getLine()).isEqualTo(28);
+
+    issue = issues.get(3);
+    softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
+    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:cfn-lint.fallback");
+    softly.assertThat(issue.getMessage()).isEqualTo("'ami-123456' is not a 'AWS::EC2::Image.Id'");
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getEffort()).isEqualTo("0min");
+    softly.assertThat(issue.getLine()).isEqualTo(32);
+
+    issue = issues.get(4);
+    softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
+    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:cfn-lint.fallback");
+    softly.assertThat(issue.getMessage())
+      .isEqualTo("[{'Key': 'environment', 'Value': {'Ref': 'Environment'}}, {'Key': 'environment', 'Value': " +
+        "{'Ref': 'TestEnvironment'}}] has non-unique elements for keys ['Key']");
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getEffort()).isEqualTo("0min");
+    softly.assertThat(issue.getLine()).isEqualTo(33);
+
     softly.assertAll();
   }
 
