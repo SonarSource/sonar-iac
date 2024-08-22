@@ -28,11 +28,12 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.reports.ExternalReportWildcardProvider;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
 import org.sonar.iac.terraform.parser.HclParser;
@@ -40,7 +41,6 @@ import org.sonar.iac.terraform.reports.tflint.TFLintImporter;
 import org.sonar.iac.terraform.visitors.TerraformChecksVisitor;
 import org.sonar.iac.terraform.visitors.TerraformHighlightingVisitor;
 import org.sonar.iac.terraform.visitors.TerraformMetricsVisitor;
-import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
@@ -78,7 +78,7 @@ public class TerraformSensor extends IacSensor {
 
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
-    ExternalReportProvider.getReportFiles(sensorContext, TerraformSettings.TFLINT_REPORTS_KEY)
+    ExternalReportWildcardProvider.getReportFiles(sensorContext, TerraformSettings.TFLINT_REPORTS_KEY)
       .forEach(report -> new TFLintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 
