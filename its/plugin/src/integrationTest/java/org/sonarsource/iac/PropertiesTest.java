@@ -130,13 +130,13 @@ class PropertiesTest extends TestBase {
 
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
-    "springConfigCustomPattern; application*.properties,config*.properties,*.yaml; 5; 13",
-    "springConfigCustomPropertiesPattern; application*.properties,config*.properties; 4; 4",
-    "springConfigExcludeBoot; config*.properties; 2; 2",
-    "springCustomYaml; *.yaml; 1; 9",
+    "jvmFrameworkConfigCustomPattern; application*.properties,config*.properties,*.yaml; 5; 13",
+    "jvmFrameworkConfigCustomPropertiesPattern; application*.properties,config*.properties; 4; 4",
+    "jvmFrameworkConfigExcludeBoot; config*.properties; 2; 2",
+    "jvmFrameworkCustomYaml; *.yaml; 1; 9",
   })
-  void testSpringConfigPatterns(String projectKey, String patterns, int expectedFiles, int expectedNCloc) {
-    executeBuildAndAssertMetric(projectKey, "java", "patterns", "sonar.java.springconfig.file.patterns", patterns, "springconfig-its", expectedFiles, expectedNCloc);
+  void testJvmFrameworkConfigPatterns(String projectKey, String patterns, int expectedFiles, int expectedNCloc) {
+    executeBuildAndAssertMetric(projectKey, "java", "patterns", "sonar.java.jvmframeworkconfig.file.patterns", patterns, "jvmframeworkconfig-its", expectedFiles, expectedNCloc);
   }
 
   private void executeBuildAndAssertMetric(

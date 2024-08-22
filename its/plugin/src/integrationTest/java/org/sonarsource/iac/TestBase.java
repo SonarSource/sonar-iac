@@ -75,7 +75,7 @@ public abstract class TestBase {
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-json.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-yaml.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/no_rules-cloudformation.xml"))
-    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/java-springconfig.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/integrationTest/resources/java-jvmframeworkconfig.xml"))
     .build();
 
   @BeforeAll

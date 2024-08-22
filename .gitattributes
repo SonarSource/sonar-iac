@@ -1,4 +1,4 @@
 *                               text=auto
 /sonar-helm-for-iac/make.bat    text    eol=crlf
 /sonar-helm-for-iac/make.sh     text    eol=lf
-/its/ruling/src/integrationTest/resources/sources/spring-config/parsingErrorCR.properties  text   eol=cr
+/its/ruling/src/integrationTest/resources/sources/jvm-framework-config/parsingErrorCR.properties  text   eol=cr

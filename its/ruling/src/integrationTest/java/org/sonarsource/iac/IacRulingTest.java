@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.iac.springconfig.checks.SpringConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.checks.SpringConfigCheckList;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +77,7 @@ class IacRulingTest {
   public static void setUp() throws IOException {
     LANGUAGES.forEach((String language) -> activeAllRulesFor(language, language));
 
-    activateSpringConfigJavaRulesProfile();
+    activateJvmFrameworkConfigJavaRulesProfile();
 
     Files.createDirectories(Path.of(LITS_DIFFERENCES_FILE.getParentFile().toURI()));
   }
@@ -140,11 +140,11 @@ class IacRulingTest {
   }
 
   @Test
-  void testSpringConfig() throws IOException {
-    var springProperties = "sources/spring-config/**/*.properties";
-    var springYml = "sources/spring-config/**/*.yml";
-    var springYaml = "sources/spring-config/**/*.yaml";
-    var resourcesPath = "ruling/src/integrationTest/resources/sources/spring-config/**";
+  void testJvmFrameworkConfig() throws IOException {
+    var springProperties = "sources/jvm-framework-config/**/*.properties";
+    var springYml = "sources/jvm-framework-config/**/*.yml";
+    var springYaml = "sources/jvm-framework-config/**/*.yaml";
+    var resourcesPath = "ruling/src/integrationTest/resources/sources/jvm-framework-config/**";
     var inclusions = String.join(",", List.of(
       springProperties,
       springYml,
@@ -153,8 +153,8 @@ class IacRulingTest {
     var properties = Map.of(
       SONAR_INCLUSIONS_PROPERTY, inclusions,
       // include all files for analysis
-      "sonar.java.springconfig.file.patterns", inclusions);
-    runRulingTest("spring-config", properties);
+      "sonar.java.jvmframeworkconfig.file.patterns", inclusions);
+    runRulingTest("jvm-framework-config", properties);
   }
 
   @Disabled("This test is only a helper to diagnose failures on the local system")
@@ -211,7 +211,7 @@ class IacRulingTest {
     orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
   }
 
-  private static void activateSpringConfigJavaRulesProfile() throws IOException {
+  private static void activateJvmFrameworkConfigJavaRulesProfile() throws IOException {
     StringBuilder sb = new StringBuilder()
       .append("<profile>\n")
       .append("  <name>rules</name>\n")
