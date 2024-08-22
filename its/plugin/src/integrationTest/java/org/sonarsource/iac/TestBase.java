@@ -113,7 +113,6 @@ public abstract class TestBase {
       .setProjectVersion("1")
       .setSourceDirs(".")
       .setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx4G");
-//      .setEnvironmentVariable("SONAR_SCANNER_DEBUG_OPTS", "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5555");
   }
 
   protected Measure getMeasure(String projectKey, String metricKey) {
