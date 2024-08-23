@@ -141,14 +141,14 @@ class IacRulingTest {
 
   @Test
   void testJvmFrameworkConfig() throws IOException {
-    var springProperties = "sources/jvm-framework-config/**/*.properties";
-    var springYml = "sources/jvm-framework-config/**/*.yml";
-    var springYaml = "sources/jvm-framework-config/**/*.yaml";
+    var jvmFrameworkProperties = "sources/jvm-framework-config/**/*.properties";
+    var jvmFrameworkYml = "sources/jvm-framework-config/**/*.yml";
+    var jvmFrameworkYaml = "sources/jvm-framework-config/**/*.yaml";
     var resourcesPath = "ruling/src/integrationTest/resources/sources/jvm-framework-config/**";
     var inclusions = String.join(",", List.of(
-      springProperties,
-      springYml,
-      springYaml,
+      jvmFrameworkProperties,
+      jvmFrameworkYml,
+      jvmFrameworkYaml,
       resourcesPath));
     var properties = Map.of(
       SONAR_INCLUSIONS_PROPERTY, inclusions,
