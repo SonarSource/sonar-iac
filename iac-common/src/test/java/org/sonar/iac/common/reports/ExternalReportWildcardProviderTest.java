@@ -89,9 +89,6 @@ class ExternalReportWildcardProviderTest {
   void shouldReturnFilesForPattern(String pattern, List<String> expectedFiles) {
     var basePath = "src" + File.separatorChar + "test" + File.separatorChar + "resources";
     SensorContextTester context = SensorContextTester.create(new File(basePath));
-    if (OS.current() == OS.WINDOWS) {
-      pattern = pattern.replace("/", "\\");
-    }
     context.settings().setProperty(EXTERNAL_REPORTS_PROPERTY, pattern);
 
     List<File> reportFiles = ExternalReportWildcardProvider.getReportFiles(context, EXTERNAL_REPORTS_PROPERTY);

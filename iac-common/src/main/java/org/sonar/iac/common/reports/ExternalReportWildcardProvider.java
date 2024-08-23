@@ -23,9 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -69,7 +71,7 @@ public final class ExternalReportWildcardProvider {
   }
 
   private static List<File> getIOFiles(File baseDir, String reportPath) {
-    var pattern = WildcardPattern.create(reportPath);
+    var pattern = WildcardPattern.create(reportPath, File.separatorChar + "");
     try {
       var baseDirPath = baseDir.toPath();
       try (var stream = Files.find(baseDirPath,
