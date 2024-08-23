@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 
 class ExternalReportWildcardProviderTest {
 
-  private final static String EXTERNAL_REPORTS_PROPERTY = "sonar.foo.mylinter.reportPaths";
+  private static final String EXTERNAL_REPORTS_PROPERTY = "sonar.foo.mylinter.reportPaths";
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
