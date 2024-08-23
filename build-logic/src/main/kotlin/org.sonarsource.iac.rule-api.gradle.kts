@@ -26,8 +26,8 @@ dependencies {
 val iacExtensionNames =
     gradle.rootProject.allprojects.filter {
         it.path.startsWith(":iac-extensions:") &&
-            // For spring-config, we don't (yet) have separate rules.
-            it.name != "spring-config"
+            // For jvm-framework-config, we don't (yet) have separate rules.
+            it.name != "jvm-framework-config"
     }.map {
         it.name
     }

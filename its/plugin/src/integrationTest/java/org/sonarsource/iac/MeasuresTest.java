@@ -99,9 +99,9 @@ class MeasuresTest extends TestBase {
   }
 
   @Test
-  void testSpringConfigMeasures() {
-    var projectKey = "springConfigMeasures";
-    var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY, "java", "springconfig-its");
+  void testJvmFrameworkConfigMeasures() {
+    var projectKey = "jvmFrameworkConfigMeasures";
+    var sonarScanner = getSonarScanner(projectKey, BASE_DIRECTORY, "java", "jvmframeworkconfig-its");
 
     ORCHESTRATOR.executeBuild(sonarScanner);
 

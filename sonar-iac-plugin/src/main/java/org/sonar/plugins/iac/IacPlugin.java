@@ -30,7 +30,7 @@ import org.sonar.iac.common.yaml.YamlBuiltInProfileDefinition;
 import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.docker.plugin.DockerExtension;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
-import org.sonar.iac.springconfig.plugin.SpringConfigExtension;
+import org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension;
 import org.sonar.iac.terraform.plugin.TerraformExtension;
 
 public class IacPlugin implements Plugin {
@@ -42,7 +42,7 @@ public class IacPlugin implements Plugin {
     KubernetesExtension.define(context);
     DockerExtension.define(context);
     ArmExtension.define(context);
-    SpringConfigExtension.define(context);
+    JvmFrameworkConfigExtension.define(context);
 
     context.addExtension(YamlLanguage.class);
     context.addExtension(YamlLanguage.getProperty());

@@ -12,7 +12,7 @@ dependencies {
     implementation(project(":iac-extensions:kubernetes"))
     implementation(project(":iac-extensions:docker"))
     implementation(project(":iac-extensions:arm"))
-    implementation(project(":iac-extensions:spring-config"))
+    implementation(project(":iac-extensions:jvm-framework-config"))
     implementation(project(":sonar-helm-for-iac", "goBinaries"))
     api(libs.sonar.analyzer.commons)
 
