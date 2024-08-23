@@ -35,16 +35,19 @@ import org.sonar.api.utils.WildcardPattern;
 /**
  * It is alternative implementation of {@link org.sonarsource.analyzer.commons.ExternalReportProvider} but it accepts wildcards in filenames.
  */
-public class ExternalReportWildcardProvider {
+public final class ExternalReportWildcardProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(ExternalReportWildcardProvider.class);
+  private static final int MINIMUM_MAJOR_SUPPORTED_VERSION = 7;
+  private static final int MINIMUM_MINOR_SUPPORTED_VERSION = 2;
 
   private ExternalReportWildcardProvider() {
     // util class
   }
 
   public static List<File> getReportFiles(SensorContext context, String externalReportsProperty) {
-    boolean externalIssuesSupported = context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(7, 2));
+    var minumumVersion = Version.create(MINIMUM_MAJOR_SUPPORTED_VERSION, MINIMUM_MINOR_SUPPORTED_VERSION);
+    boolean externalIssuesSupported = context.runtime().getApiVersion().isGreaterThanOrEqual(minumumVersion);
     if (!externalIssuesSupported) {
       LOG.error("Import of external issues requires SonarQube 7.2 or greater.");
       return Collections.emptyList();
@@ -66,14 +69,15 @@ public class ExternalReportWildcardProvider {
   }
 
   private static List<File> getIOFiles(File baseDir, String reportPath) {
-    WildcardPattern pattern = WildcardPattern.create(reportPath);
+    var pattern = WildcardPattern.create(reportPath);
     try {
       var baseDirPath = baseDir.toPath();
-      return Files.find(baseDirPath,
+      try (var stream = Files.find(baseDirPath,
         Integer.MAX_VALUE,
-        (filePath, fileAttr) -> fileAttr.isRegularFile() && pattern.match(baseDirPath.relativize(filePath).toFile().getPath()))
-        .map(Path::toFile)
-        .toList();
+        (filePath, fileAttr) -> fileAttr.isRegularFile() && pattern.match(baseDirPath.relativize(filePath).toFile().getPath()))) {
+        return stream.map(Path::toFile)
+          .toList();
+      }
     } catch (IOException e) {
       LOG.debug("Exception, when searching files to import report.", e);
       return Collections.emptyList();
