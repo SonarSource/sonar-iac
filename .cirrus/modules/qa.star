@@ -44,6 +44,9 @@ def qa_os_win_task():
             "on_failure": {
                 "go_test_report_artifacts": {
                     "path": "sonar-helm-for-iac/build/test-report.json",
+                },
+                "java_test_report_artifacts": {
+                    "path": "**/build/reports/tests/**/*.html"
                 }
             },
         }

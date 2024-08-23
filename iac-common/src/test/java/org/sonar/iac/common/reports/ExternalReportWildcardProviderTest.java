@@ -20,6 +20,9 @@
 package org.sonar.iac.common.reports;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -35,13 +38,17 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 class ExternalReportWildcardProviderTest {
 
-  @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  private final static String EXTERNAL_REPORTS_PROPERTY = "sonar.foo.mylinter.reportPaths";
 
-  private final String EXTERNAL_REPORTS_PROPERTY = "sonar.foo.mylinter.reportPaths";
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @Test
   void shouldReturnEmptyListWhenOldSonarQubeVersion() {
@@ -89,4 +96,18 @@ class ExternalReportWildcardProviderTest {
     assertThat(files).containsAll(expectedFiles);
   }
 
+  @Test
+  void shouldReturnEmptyListWhenIOException() throws IOException {
+    var context = SensorContextTester.create(new File("."));
+    context.settings().setProperty(EXTERNAL_REPORTS_PROPERTY, "foo");
+
+    try (var ignored = mockStatic(Files.class)) {
+      when(Files.find(any(Path.class), anyInt(), any())).thenThrow(new IOException("boom"));
+
+      var reportFiles = ExternalReportWildcardProvider.getReportFiles(context, EXTERNAL_REPORTS_PROPERTY);
+
+      assertThat(reportFiles).isEmpty();
+      assertThat(logTester.logs(Level.DEBUG)).contains("Exception, when searching files to import report.");
+    }
+  }
 }
