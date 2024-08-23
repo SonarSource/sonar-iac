@@ -95,7 +95,7 @@ public class TerraformSettings {
     return List.of(PropertyDefinition.builder(TFLINT_REPORTS_KEY)
       .index(33)
       .name("TFLint Report Files")
-      .description("Paths (absolute or relative) to the files with TFLint issues.")
+      .description("Paths (absolute or relative) to the files with TFLint issues. You can use Ant patterns to define paths.")
       .category(EXTERNAL_ANALYZERS_CATEGORY)
       .subCategory(TERRAFORM_CATEGORY)
       .onQualifiers(Qualifiers.PROJECT)

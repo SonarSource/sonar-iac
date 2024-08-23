@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -86,8 +87,11 @@ class ExternalReportWildcardProviderTest {
   @ParameterizedTest(name = "{index} should return files for pattern: {0}")
   @MethodSource
   void shouldReturnFilesForPattern(String pattern, List<String> expectedFiles) {
-    var basePath = "src/test/resources/";
+    var basePath = "src" + File.separatorChar + "test" + File.separatorChar + "resources";
     SensorContextTester context = SensorContextTester.create(new File(basePath));
+    if (OS.current() == OS.WINDOWS) {
+      pattern = pattern.replace("/", "\\");
+    }
     context.settings().setProperty(EXTERNAL_REPORTS_PROPERTY, pattern);
 
     List<File> reportFiles = ExternalReportWildcardProvider.getReportFiles(context, EXTERNAL_REPORTS_PROPERTY);
