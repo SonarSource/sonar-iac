@@ -17,19 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
 
-import java.io.File;
-import java.util.List;
-import org.sonar.iac.common.testing.AbstractCheckListTest;
+import java.util.Set;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
-class SpringConfigCheckListTest extends AbstractCheckListTest {
-  protected List<Class<?>> checks() {
-    return SpringConfigCheckList.checks();
+@Rule(key = "S4507")
+public class DebugFeatureEnabledCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("debug");
+
+  @Override
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
   @Override
-  protected File checkClassDir() {
-    return new File("src/main/java/org/sonar/iac/jvmframeworkconfig/checks/");
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if ("true".equalsIgnoreCase(value)) {
+      ctx.reportIssue(tuple, MESSAGE);
+    }
   }
 }

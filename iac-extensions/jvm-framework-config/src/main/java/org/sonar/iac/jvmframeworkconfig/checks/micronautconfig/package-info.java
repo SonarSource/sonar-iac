@@ -17,23 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
-
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
-
-class DebugFeatureEnabledCheckTest {
-
-  private static final IacCheck CHECK = new DebugFeatureEnabledCheck();
-
-  @Test
-  void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.properties", CHECK);
-  }
-
-  @Test
-  void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.yaml", CHECK);
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.jvmframeworkconfig.checks.micronautconfig;

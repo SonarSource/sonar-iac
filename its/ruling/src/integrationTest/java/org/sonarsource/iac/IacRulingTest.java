@@ -39,7 +39,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.iac.jvmframeworkconfig.checks.SpringConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.checks.micronautconfig.MicronautConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.checks.springconfig.SpringConfigCheckList;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -219,6 +220,14 @@ class IacRulingTest {
       .append("  <rules>\n");
 
     SpringConfigCheckList.checks().stream()
+      .map(IacRulingTest::annotatedRuleKey)
+      .filter(Objects::nonNull)
+      .forEach(ruleKey -> sb.append("    <rule>\n")
+        .append("      <repositoryKey>java</repositoryKey>\n")
+        .append("      <key>").append(ruleKey).append("</key>\n")
+        .append("      <priority>INFO</priority>\n")
+        .append("    </rule>\n"));
+    MicronautConfigCheckList.checks().stream()
       .map(IacRulingTest::annotatedRuleKey)
       .filter(Objects::nonNull)
       .forEach(ruleKey -> sb.append("    <rule>\n")

@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import java.util.Set;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+@Rule(key = "S2092")
+public class SecureCookieCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure disabling the \"secure\" flag of this cookie is safe here.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.secure");
+
+  @Override
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      DebugFeatureEnabledCheck.class,
-      ExcessiveFileUploadSizeLimitCheck.class,
-      HardcodedSecretsCheck.class,
-      MisconfiguredHttpOnlyCookieFlagCheck.class,
-      ParsingErrorCheck.class,
-      SecureCookieCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Override
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if ("false".equalsIgnoreCase(value)) {
+      ctx.reportIssue(tuple, MESSAGE);
+    }
   }
 }

@@ -17,27 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.micronautconfig;
 
-import java.util.Set;
-import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-@Rule(key = "S4507")
-public class DebugFeatureEnabledCheck extends AbstractSensitiveKeyCheck {
-  private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
-  private static final Set<String> SENSITIVE_KEYS = Set.of("debug");
+class MicronautConfigToDoCommentCheckTest {
 
-  @Override
-  protected Set<String> sensitiveKeys() {
-    return SENSITIVE_KEYS;
+  @Test
+  void shouldRaiseOnToDoCommentsInPropertiesFile() {
+    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/TodoCheck.properties", new ToDoCommentCheck());
   }
 
-  @Override
-  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if ("true".equalsIgnoreCase(value)) {
-      ctx.reportIssue(tuple, MESSAGE);
-    }
+  @Test
+  void shouldRaiseOnToDoCommentsInYamlFile() {
+    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/TodoCheck.yaml", new ToDoCommentCheck());
   }
 }
