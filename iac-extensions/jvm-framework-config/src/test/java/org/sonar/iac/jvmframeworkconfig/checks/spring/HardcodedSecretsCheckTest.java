@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-class MisconfiguredHttpOnlyCookieFlagCheckTest {
+class HardcodedSecretsCheckTest {
   @Test
   void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("MisconfiguredHttpOnlyCookieFlagCheck/MisconfiguredHttpOnlyCookieFlagCheck.properties", new MisconfiguredHttpOnlyCookieFlagCheck());
+    JvmFrameworkConfigVerifier.verify("HardcodedSecretsCheck/HardcodedSecretsCheck.properties", new HardcodedSecretsCheck());
   }
 
   @Test
   void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("MisconfiguredHttpOnlyCookieFlagCheck/MisconfiguredHttpOnlyCookieFlagCheck.yaml", new MisconfiguredHttpOnlyCookieFlagCheck());
+    JvmFrameworkConfigVerifier.verify("HardcodedSecretsCheck/HardcodedSecretsCheck.yaml", new HardcodedSecretsCheck());
   }
 }

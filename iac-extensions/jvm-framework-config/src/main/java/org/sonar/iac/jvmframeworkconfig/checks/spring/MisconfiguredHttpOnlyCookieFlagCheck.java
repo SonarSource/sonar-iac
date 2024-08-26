@@ -17,23 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
-class DebugFeatureEnabledCheckTest {
+import java.util.Set;
 
-  private static final IacCheck CHECK = new DebugFeatureEnabledCheck();
+@Rule(key = "S3330")
+public class MisconfiguredHttpOnlyCookieFlagCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure disabling the \"HttpOnly\" flag of this cookie is safe here.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.http-only");
 
-  @Test
-  void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.properties", CHECK);
+  @Override
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
-  @Test
-  void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.yaml", CHECK);
+  @Override
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if ("false".equalsIgnoreCase(value)) {
+      ctx.reportIssue(tuple, MESSAGE);
+    }
   }
 }

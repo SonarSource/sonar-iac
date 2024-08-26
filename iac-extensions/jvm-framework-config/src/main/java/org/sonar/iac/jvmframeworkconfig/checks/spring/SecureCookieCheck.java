@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import java.util.Set;
+import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
-import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
-
-public abstract class AbstractSensitiveKeyCheck implements IacCheck {
+@Rule(key = "S2092")
+public class SecureCookieCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure disabling the \"secure\" flag of this cookie is safe here.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.secure");
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(Tuple.class, this::checkTuple);
+  protected Set<String> sensitiveKeys() {
+    return SENSITIVE_KEYS;
   }
 
-  protected abstract Set<String> sensitiveKeys();
-
-  protected abstract void checkValue(CheckContext ctx, Tuple tuple, String value);
-
-  private void checkTuple(CheckContext ctx, Tuple tuple) {
-    var key = tuple.key().value().value();
-    if (sensitiveKeys().contains(key)) {
-      var valueString = getStringValue(tuple);
-
-      if (valueString != null) {
-        checkValue(ctx, tuple, valueString);
-      }
+  @Override
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if ("false".equalsIgnoreCase(value)) {
+      ctx.reportIssue(tuple, MESSAGE);
     }
   }
 }

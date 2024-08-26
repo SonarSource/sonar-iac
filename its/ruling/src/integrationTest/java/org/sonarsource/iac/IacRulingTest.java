@@ -39,8 +39,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.iac.jvmframeworkconfig.checks.micronautconfig.MicronautConfigCheckList;
-import org.sonar.iac.jvmframeworkconfig.checks.springconfig.SpringConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.checks.micronaut.MicronautConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.checks.spring.SpringConfigCheckList;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;

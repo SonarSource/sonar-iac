@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.micronautconfig;
+package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
-import java.io.File;
 import java.util.List;
 
-import org.sonar.iac.common.testing.AbstractCheckListTest;
+import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
 
-class MicronautConfigCheckListTest extends AbstractCheckListTest {
-  protected List<Class<?>> checks() {
-    return MicronautConfigCheckList.checks();
+public final class MicronautConfigCheckList {
+  private MicronautConfigCheckList() {
   }
 
-  @Override
-  protected File checkClassDir() {
-    return new File("src/main/java/org/sonar/iac/jvmframeworkconfig/checks/micronautconfig/");
+  public static List<Class<?>> checks() {
+    return List.of(
+      ParsingErrorCheck.class,
+      ToDoCommentCheck.class);
   }
 }

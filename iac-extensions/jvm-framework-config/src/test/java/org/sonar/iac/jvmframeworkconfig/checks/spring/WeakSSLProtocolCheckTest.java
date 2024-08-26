@@ -17,30 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
-import java.io.File;
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-import org.sonar.iac.common.testing.AbstractCheckListTest;
+class WeakSSLProtocolCheckTest {
 
-class SpringConfigCheckListTest extends AbstractCheckListTest {
-  protected List<Class<?>> checks() {
-    return SpringConfigCheckList.checks();
+  IacCheck check = new WeakSSLProtocolCheck();
+
+  @Test
+  void shouldRaiseInPropertiesFile() {
+    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.properties", check);
   }
 
-  @Override
-  protected File checkClassDir() {
-    return new File("src/main/java/org/sonar/iac/jvmframeworkconfig/checks/springconfig/");
+  @Test
+  void shouldRaiseInYamlFile() {
+    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.yaml", check);
   }
 
-  @Override
-  protected boolean hasTodoCommentCheck() {
-    return false;
-  }
-
-  @Override
-  protected boolean hasParsingFailureCheck() {
-    return false;
-  }
 }

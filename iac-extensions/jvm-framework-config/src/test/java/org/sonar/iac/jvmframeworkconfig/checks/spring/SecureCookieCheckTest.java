@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.micronautconfig;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+class SecureCookieCheckTest {
 
-public final class MicronautConfigCheckList {
-  private MicronautConfigCheckList() {
+  private static final IacCheck CHECK = new SecureCookieCheck();
+
+  @Test
+  void shouldDetectSensitiveValueInProperties() {
+    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/SecureCookieCheck.properties", CHECK);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      ParsingErrorCheck.class,
-      ToDoCommentCheck.class);
+  @Test
+  void shouldDetectSensitiveValueInYaml() {
+    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/SecureCookieCheck.yaml", CHECK);
   }
 }

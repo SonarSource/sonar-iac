@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import javax.annotation.CheckForNull;
-
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;

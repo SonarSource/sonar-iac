@@ -17,5 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.jvmframeworkconfig.checks.micronautconfig;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
+
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
+
+class MisconfiguredHttpOnlyCookieFlagCheckTest {
+  @Test
+  void shouldDetectSensitiveValueInProperties() {
+    JvmFrameworkConfigVerifier.verify("MisconfiguredHttpOnlyCookieFlagCheck/MisconfiguredHttpOnlyCookieFlagCheck.properties", new MisconfiguredHttpOnlyCookieFlagCheck());
+  }
+
+  @Test
+  void shouldDetectSensitiveValueInYaml() {
+    JvmFrameworkConfigVerifier.verify("MisconfiguredHttpOnlyCookieFlagCheck/MisconfiguredHttpOnlyCookieFlagCheck.yaml", new MisconfiguredHttpOnlyCookieFlagCheck());
+  }
+}
