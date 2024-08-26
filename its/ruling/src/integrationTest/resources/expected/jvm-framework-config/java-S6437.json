@@ -176,6 +176,21 @@
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-boot-modules/spring-boot-testing/src/test/resources/application.properties": [
 6
 ],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-archaius/spring-cloud-archaius-dynamodb-config/src/main/resources/application.properties": [
+6
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bootstrap/discovery/src/main/resources/bootstrap.properties": [
+4
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bootstrap/gateway/src/main/resources/bootstrap.properties": [
+5
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bootstrap/zipkin-log-svc-book/src/main/resources/bootstrap.properties": [
+5
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bootstrap/zipkin-log-svc-rating/src/main/resources/bootstrap.properties": [
+5
+],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-bus/spring-cloud-bus-client/src/main/resources/application.yml": [
 13
 ],

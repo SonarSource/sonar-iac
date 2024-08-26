@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -219,22 +220,20 @@ class IacRulingTest {
       .append("  <language>java</language>\n")
       .append("  <rules>\n");
 
+    Set<String> keys = new HashSet<>();
     SpringConfigCheckList.checks().stream()
       .map(IacRulingTest::annotatedRuleKey)
       .filter(Objects::nonNull)
-      .forEach(ruleKey -> sb.append("    <rule>\n")
-        .append("      <repositoryKey>java</repositoryKey>\n")
-        .append("      <key>").append(ruleKey).append("</key>\n")
-        .append("      <priority>INFO</priority>\n")
-        .append("    </rule>\n"));
+      .forEach(keys::add);
     MicronautConfigCheckList.checks().stream()
       .map(IacRulingTest::annotatedRuleKey)
       .filter(Objects::nonNull)
-      .forEach(ruleKey -> sb.append("    <rule>\n")
-        .append("      <repositoryKey>java</repositoryKey>\n")
-        .append("      <key>").append(ruleKey).append("</key>\n")
-        .append("      <priority>INFO</priority>\n")
-        .append("    </rule>\n"));
+      .forEach(keys::add);
+    keys.forEach(ruleKey -> sb.append("    <rule>\n")
+      .append("      <repositoryKey>java</repositoryKey>\n")
+      .append("      <key>").append(ruleKey).append("</key>\n")
+      .append("      <priority>INFO</priority>\n")
+      .append("    </rule>\n"));
 
     sb.append("  </rules>\n")
       .append("</profile>");
