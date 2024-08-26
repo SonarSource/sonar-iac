@@ -20,8 +20,6 @@
 package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
 
 import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 public final class SpringConfigCheckList {
   private SpringConfigCheckList() {

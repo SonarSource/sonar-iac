@@ -23,12 +23,6 @@ import java.util.List;
 
 import org.sonar.iac.common.checks.ParsingErrorCheck;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
-import org.sonar.iac.jvmframeworkconfig.checks.springconfig.DebugFeatureEnabledCheck;
-import org.sonar.iac.jvmframeworkconfig.checks.springconfig.ExcessiveFileUploadSizeLimitCheck;
-import org.sonar.iac.jvmframeworkconfig.checks.springconfig.HardcodedSecretsCheck;
-import org.sonar.iac.jvmframeworkconfig.checks.springconfig.MisconfiguredHttpOnlyCookieFlagCheck;
-import org.sonar.iac.jvmframeworkconfig.checks.springconfig.SecureCookieCheck;
-import org.sonar.iac.jvmframeworkconfig.checks.springconfig.WeakSSLProtocolCheck;
 
 public final class MicronautConfigCheckList {
   private MicronautConfigCheckList() {

@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.List;
 
 import org.sonar.iac.common.testing.AbstractCheckListTest;
-import org.sonar.iac.jvmframeworkconfig.checks.springconfig.SpringConfigCheckList;
 
 class MicronautConfigCheckListTest extends AbstractCheckListTest {
   protected List<Class<?>> checks() {

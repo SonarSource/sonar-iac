@@ -22,7 +22,9 @@ package org.sonar.iac.jvmframeworkconfig.checks.springconfig;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import javax.annotation.CheckForNull;
+
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
