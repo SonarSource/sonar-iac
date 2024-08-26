@@ -38,7 +38,8 @@ import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlLanguage;
-import org.sonar.iac.jvmframeworkconfig.checks.SpringConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.checks.micronaut.MicronautConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.checks.spring.SpringConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigHighlightingVisitor;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigMetricsVisitor;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
@@ -54,7 +55,8 @@ import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtensio
 
 public class JvmFrameworkConfigSensor extends IacSensor {
   private static final Set<String> EXCLUDED_PROFILES = Set.of("dev", "test");
-  private final Checks<IacCheck> checks;
+  private final Checks<IacCheck> springConfigChecks;
+  private final Checks<IacCheck> micronautConfigChecks;
 
   public JvmFrameworkConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
     CheckFactory checkFactory) {
@@ -71,8 +73,10 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     // We don't create our own repository, as we want to raise all rules in the "java" repository for now
     // If in the future there is the need to raise rules in a separate repository, we can create a new repository and add the rules there,
     // basically reverting SONARIAC-1469
-    checks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
-    checks.addAnnotatedChecks(SpringConfigCheckList.checks());
+    springConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
+    springConfigChecks.addAnnotatedChecks(SpringConfigCheckList.checks());
+    micronautConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
+    micronautConfigChecks.addAnnotatedChecks(MicronautConfigCheckList.checks());
   }
 
   @Override
@@ -117,7 +121,8 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     return List.of(
-      new ChecksVisitor(checks, statistics),
+      new ChecksVisitor(springConfigChecks, statistics),
+      new ChecksVisitor(micronautConfigChecks, statistics),
       new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter),
       new JvmFrameworkConfigHighlightingVisitor());
   }

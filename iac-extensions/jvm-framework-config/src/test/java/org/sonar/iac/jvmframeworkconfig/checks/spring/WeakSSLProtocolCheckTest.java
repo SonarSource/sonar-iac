@@ -17,23 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-class SecureCookieCheckTest {
+class WeakSSLProtocolCheckTest {
 
-  private static final IacCheck CHECK = new SecureCookieCheck();
+  IacCheck check = new WeakSSLProtocolCheck();
 
   @Test
-  void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/SecureCookieCheck.properties", CHECK);
+  void shouldRaiseInPropertiesFile() {
+    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.properties", check);
   }
 
   @Test
-  void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/SecureCookieCheck.yaml", CHECK);
+  void shouldRaiseInYamlFile() {
+    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.yaml", check);
   }
+
 }

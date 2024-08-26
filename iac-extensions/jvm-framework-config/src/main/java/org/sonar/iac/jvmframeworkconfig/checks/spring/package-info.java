@@ -17,19 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
-
-import java.io.File;
-import java.util.List;
-import org.sonar.iac.common.testing.AbstractCheckListTest;
-
-class SpringConfigCheckListTest extends AbstractCheckListTest {
-  protected List<Class<?>> checks() {
-    return SpringConfigCheckList.checks();
-  }
-
-  @Override
-  protected File checkClassDir() {
-    return new File("src/main/java/org/sonar/iac/jvmframeworkconfig/checks/");
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.jvmframeworkconfig.checks.spring;

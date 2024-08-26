@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
-@Rule(key = "S4507")
-public class DebugFeatureEnabledCheck extends AbstractSensitiveKeyCheck {
-  private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
-  private static final Set<String> SENSITIVE_KEYS = Set.of("debug");
+@Rule(key = "S2092")
+public class SecureCookieCheck extends AbstractSensitiveKeyCheck {
+  private static final String MESSAGE = "Make sure disabling the \"secure\" flag of this cookie is safe here.";
+  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.secure");
 
   @Override
   protected Set<String> sensitiveKeys() {
@@ -36,7 +36,7 @@ public class DebugFeatureEnabledCheck extends AbstractSensitiveKeyCheck {
 
   @Override
   protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if ("true".equalsIgnoreCase(value)) {
+    if ("false".equalsIgnoreCase(value)) {
       ctx.reportIssue(tuple, MESSAGE);
     }
   }

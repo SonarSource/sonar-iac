@@ -17,28 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
-import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
+import java.util.List;
 
-import java.util.Set;
-
-@Rule(key = "S3330")
-public class MisconfiguredHttpOnlyCookieFlagCheck extends AbstractSensitiveKeyCheck {
-  private static final String MESSAGE = "Make sure disabling the \"HttpOnly\" flag of this cookie is safe here.";
-  private static final Set<String> SENSITIVE_KEYS = Set.of("server.servlet.session.cookie.http-only");
-
-  @Override
-  protected Set<String> sensitiveKeys() {
-    return SENSITIVE_KEYS;
+public final class SpringConfigCheckList {
+  private SpringConfigCheckList() {
   }
 
-  @Override
-  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if ("false".equalsIgnoreCase(value)) {
-      ctx.reportIssue(tuple, MESSAGE);
-    }
+  public static List<Class<?>> checks() {
+    return List.of(
+      DebugFeatureEnabledCheck.class,
+      ExcessiveFileUploadSizeLimitCheck.class,
+      HardcodedSecretsCheck.class,
+      MisconfiguredHttpOnlyCookieFlagCheck.class,
+      SecureCookieCheck.class,
+      WeakSSLProtocolCheck.class);
   }
 }

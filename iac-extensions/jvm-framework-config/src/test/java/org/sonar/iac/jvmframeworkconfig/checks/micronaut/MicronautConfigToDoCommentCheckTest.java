@@ -17,25 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-public final class SpringConfigCheckList {
-  private SpringConfigCheckList() {
+class MicronautConfigToDoCommentCheckTest {
+
+  @Test
+  void shouldRaiseOnToDoCommentsInPropertiesFile() {
+    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/TodoCheck.properties", new ToDoCommentCheck());
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      DebugFeatureEnabledCheck.class,
-      ExcessiveFileUploadSizeLimitCheck.class,
-      HardcodedSecretsCheck.class,
-      MisconfiguredHttpOnlyCookieFlagCheck.class,
-      ParsingErrorCheck.class,
-      SecureCookieCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Test
+  void shouldRaiseOnToDoCommentsInYamlFile() {
+    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/TodoCheck.yaml", new ToDoCommentCheck());
   }
 }

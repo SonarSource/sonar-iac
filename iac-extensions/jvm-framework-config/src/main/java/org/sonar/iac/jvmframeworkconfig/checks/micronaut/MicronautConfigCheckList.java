@@ -17,5 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
+
+import java.util.List;
+
+import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
+
+public final class MicronautConfigCheckList {
+  private MicronautConfigCheckList() {
+  }
+
+  public static List<Class<?>> checks() {
+    return List.of(
+      ParsingErrorCheck.class,
+      ToDoCommentCheck.class);
+  }
+}

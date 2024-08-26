@@ -17,23 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks;
+package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
+import java.io.File;
+import java.util.List;
 
-class DebugFeatureEnabledCheckTest {
+import org.sonar.iac.common.testing.AbstractCheckListTest;
 
-  private static final IacCheck CHECK = new DebugFeatureEnabledCheck();
-
-  @Test
-  void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.properties", CHECK);
+class MicronautConfigCheckListTest extends AbstractCheckListTest {
+  protected List<Class<?>> checks() {
+    return MicronautConfigCheckList.checks();
   }
 
-  @Test
-  void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.yaml", CHECK);
+  @Override
+  protected File checkClassDir() {
+    return new File("src/main/java/org/sonar/iac/jvmframeworkconfig/checks/micronaut/");
   }
 }

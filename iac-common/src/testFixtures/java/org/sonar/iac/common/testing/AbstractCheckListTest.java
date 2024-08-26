@@ -46,8 +46,13 @@ public abstract class AbstractCheckListTest {
     return true;
   }
 
+  protected boolean hasParsingFailureCheck() {
+    return true;
+  }
+
   @Test
   void containsParsingErrorCheck() {
+    assumeTrue(hasParsingFailureCheck());
     assertThat(checks()).contains(ParsingErrorCheck.class);
   }
 
@@ -64,8 +69,15 @@ public abstract class AbstractCheckListTest {
   void count() {
     IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
     Collection<File> files = FileUtils.listFiles(checkClassDir(), filter, trueFileFilter());
-    // We can increase the files size by 2 because the ParsingErrorCheck and ToDoCommentCheck is located in iac-commons
-    assertThat(checks()).hasSize(files.size() + 1 + (hasTodoCommentCheck() ? 1 : 0));
+    // We can increase the files size by 2 because the ParsingErrorCheck and ToDoCommentCheck are located in iac-commons
+    int checksSize = files.size();
+    if (hasTodoCommentCheck()) {
+      checksSize++;
+    }
+    if (hasParsingFailureCheck()) {
+      checksSize++;
+    }
+    assertThat(checks()).hasSize(checksSize);
   }
 
   /**
