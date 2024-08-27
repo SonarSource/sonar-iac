@@ -38,6 +38,7 @@ import org.sonar.iac.common.yaml.YamlLanguage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 
 class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   private static final String PATH_PREFIX = "src/main/resources/";
@@ -50,7 +51,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   @Override
   protected Sensor sensor(CheckFactory checkFactory) {
     return new JvmFrameworkConfigSensor(
-      SONAR_RUNTIME_10_0,
+      SONAR_RUNTIME_10_6,
       fileLinesContextFactory,
       noSonarFilter,
       checkFactory);
@@ -141,7 +142,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     assertThat(patterns).containsExactly(JvmFrameworkConfigSettings.FILE_PATTERNS_DEFAULT_VALUE.split(","));
   }
 
-  private static Stream<List<String>> shouldUseDefaultFilePatternsIfProvidedAreEmpty() {
+  static Stream<List<String>> shouldUseDefaultFilePatternsIfProvidedAreEmpty() {
     return Stream.of(
       List.of(""),
       List.of("", ""));

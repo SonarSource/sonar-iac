@@ -19,18 +19,32 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public class TFLintRulesDefinition implements RulesDefinition {
+@ScannerSide
+public class TFLintRulesDefinition extends AbstractExternalRulesDefinition {
+
   public static final String LINTER_KEY = "tflint";
   public static final String LINTER_NAME = "TFLINT";
-  private static final String RULES_JSON = "org/sonar/l10n/terraform/rules/tflint/rules.json";
 
-  public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, TerraformLanguage.KEY);
+  public TFLintRulesDefinition(SonarRuntime sonarRuntime) {
+    super(sonarRuntime, LINTER_KEY, LINTER_NAME, TerraformLanguage.KEY);
+  }
 
-  @Override
-  public void define(Context context) {
-    RULE_LOADER.createExternalRuleRepository(context);
+  public static TFLintRulesDefinition noOpInstanceForSL(SonarRuntime sonarRuntime) {
+    return new TFLintRulesDefinition(sonarRuntime) {
+      @Override
+      public void define(Context context) {
+        // nothing to do here
+      }
+
+      @Override
+      public ExternalRuleLoader getRuleLoader() {
+        return null;
+      }
+    };
   }
 }

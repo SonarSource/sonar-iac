@@ -21,23 +21,27 @@ package org.sonar.iac.terraform.plugin;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 
 class TerraformExtensionTest {
 
-  private static final Version VERSION_8_9 = Version.create(8, 9);
-
   @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
+  void shouldDefineExtensionsOnSonarqube() {
+    Plugin.Context context = new Plugin.Context(SONAR_RUNTIME_10_6);
     TerraformExtension.define(context);
     assertThat(context.getExtensions()).hasSize(11);
+  }
+
+  @Test
+  void shouldDefineExtensionsOnSonarlint() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(Version.create(3, 14));
+    Plugin.Context context = new Plugin.Context(runtime);
+    TerraformExtension.define(context);
+    assertThat(context.getExtensions()).hasSize(10);
   }
 }

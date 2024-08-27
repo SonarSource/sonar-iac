@@ -20,7 +20,6 @@
 package org.sonar.iac.common.reports;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import org.assertj.core.api.SoftAssertions;
@@ -54,10 +53,11 @@ class AbstractJsonReportImporterTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
+  private final AbstractExternalRulesDefinition mockRulesDefinition = mock(AbstractExternalRulesDefinition.class);
   private SensorContextTester context;
 
   @BeforeEach
-  void setUp() throws IOException {
+  void setUp() {
     File baseDir = new File("src/test/resources/ext-json-report");
     context = SensorContextTester.create(baseDir);
 
@@ -73,7 +73,7 @@ class AbstractJsonReportImporterTest {
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
     String logMessage = String.format(expectedLog, path);
-    TestImporter testImporter = new TestImporter(context, mockAnalysisWarnings, "PREFIX ");
+    TestImporter testImporter = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
 
     testImporter.importReport(reportFile);
 
@@ -86,7 +86,7 @@ class AbstractJsonReportImporterTest {
     String filename = "src/test/resources/ext-json-report/validIssue.json";
     String path = File.separatorChar == '/' ? filename : Paths.get(filename).toString();
     File reportFile = new File(path);
-    TestImporter testImporter = new TestImporter(context, mockAnalysisWarnings, "PREFIX ");
+    TestImporter testImporter = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
 
     testImporter.importReport(reportFile);
 
@@ -101,6 +101,7 @@ class AbstractJsonReportImporterTest {
     File reportFile = new File("src/test/resources/ext-json-report/validIssue.json");
     TestImporterThrowReportImporterExceptionWhenSaveIssue testImporter = new TestImporterThrowReportImporterExceptionWhenSaveIssue(
       context,
+      mockRulesDefinition,
       mockAnalysisWarnings,
       "PREFIX ");
 
@@ -115,7 +116,7 @@ class AbstractJsonReportImporterTest {
     String path = File.separatorChar == '/' ? filePath : Paths.get(filePath).toString();
     File reportFile = new File(path);
     TestImporterThrowReportImporterExceptionWhenSaveIssue testImporter = new TestImporterThrowReportImporterExceptionWhenSaveIssue(
-      context, mockAnalysisWarnings, "PREFIX ");
+      context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
 
     testImporter.importReport(reportFile);
 
@@ -159,7 +160,7 @@ class AbstractJsonReportImporterTest {
 
   @Test
   void shouldThrowExceptionWhenNullReportFile() {
-    TestImporter importer = new TestImporter(context, mockAnalysisWarnings, "PREFIX ");
+    TestImporter importer = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
 
     Throwable throwable = catchThrowable(() -> importer.inputFile(null));
 
@@ -172,7 +173,7 @@ class AbstractJsonReportImporterTest {
   void shouldThrowExceptionWhenFileDoesntExist() {
     String path = "doNotExist.tf";
     File reportFile = new File("src/test/resources/ext-json-report/validIssue.json");
-    TestImporter importer = new TestImporter(context, mockAnalysisWarnings, "PREFIX ");
+    TestImporter importer = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
     importer.importReport(reportFile);
 
     Throwable throwable = catchThrowable(() -> importer.inputFile(path));
@@ -186,7 +187,7 @@ class AbstractJsonReportImporterTest {
   void shouldResolveFile() {
     String path = "noArray.json";
     File reportFile = new File("src/test/resources/ext-json-report/validIssue.json");
-    TestImporter importer = new TestImporter(context, mockAnalysisWarnings, "PREFIX ");
+    TestImporter importer = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
     importer.importReport(reportFile);
 
     InputFile inputFile = importer.inputFile(path);
@@ -198,8 +199,8 @@ class AbstractJsonReportImporterTest {
 class TestImporter extends AbstractJsonReportImporter {
   private static final Logger LOG = LoggerFactory.getLogger(TestImporter.class);
 
-  protected TestImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
-    super(context, analysisWarnings, warningPrefix);
+  protected TestImporter(SensorContext context, AbstractExternalRulesDefinition rulesDefinition, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
+    super(context, rulesDefinition, analysisWarnings, warningPrefix);
   }
 
   @Override
@@ -211,8 +212,9 @@ class TestImporter extends AbstractJsonReportImporter {
 
 class TestImporterThrowReportImporterExceptionWhenSaveIssue extends AbstractJsonReportImporter {
 
-  protected TestImporterThrowReportImporterExceptionWhenSaveIssue(SensorContext context, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
-    super(context, analysisWarnings, warningPrefix);
+  protected TestImporterThrowReportImporterExceptionWhenSaveIssue(SensorContext context, AbstractExternalRulesDefinition rulesDefinition,
+    AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
+    super(context, rulesDefinition, analysisWarnings, warningPrefix);
   }
 
   @Override

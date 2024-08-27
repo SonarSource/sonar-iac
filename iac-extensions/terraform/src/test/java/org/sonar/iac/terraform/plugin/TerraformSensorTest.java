@@ -43,8 +43,11 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 
 class TerraformSensorTest extends ExtensionSensorTest {
+
+  private static final TFLintRulesDefinition tfLintRulesDefinition = new TFLintRulesDefinition(SONAR_RUNTIME_10_6);
 
   @Test
   void should_return_terraform_descriptor() {
@@ -56,10 +59,10 @@ class TerraformSensorTest extends ExtensionSensorTest {
 
   @Test
   void test_one_rule() {
-    InputFile inputFile = inputFile("file1.tf", "" +
-      "resource \"aws_s3_bucket\" \"myawsbucket\" {\n" +
-      "  tags = { \"anycompany:cost-center\" = \"\" }\n" +
-      "}");
+    InputFile inputFile = inputFile("file1.tf", """
+      resource "aws_s3_bucket" "myawsbucket" {
+        tags = { "anycompany:cost-center" = "" }
+      }""");
     analyze(sensor("S6273"), inputFile);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
@@ -67,7 +70,8 @@ class TerraformSensorTest extends ExtensionSensorTest {
     assertThat(issue.ruleKey().rule()).isEqualTo("S6273");
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
-    assertThat(location.message()).isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\".");
+    assertThat(location.message()).isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^" +
+      "([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\".");
     org.sonar.api.batch.fs.TextRange issueTextRange = location.textRange();
     TextRange treeTextRange = TextRanges.range(issueTextRange.start().line(), issueTextRange.start().lineOffset(),
       issueTextRange.end().line(), issueTextRange.end().lineOffset());
@@ -77,10 +81,10 @@ class TerraformSensorTest extends ExtensionSensorTest {
   @Test
   void test_sonarlint_context() {
     SonarRuntime sonarLintRuntime = SonarRuntimeImpl.forSonarLint(Version.create(6, 0));
-    InputFile inputFile = inputFile("file1.tf", "" +
-      "resource \"aws_s3_bucket\" \"myawsbucket\" {\n" +
-      "  tags = { \"anycompany:cost-center\" = \"\" }\n" +
-      "}");
+    InputFile inputFile = inputFile("file1.tf", """
+      resource "aws_s3_bucket" "myawsbucket" {
+        tags = { "anycompany:cost-center" = "" }
+      }""");
     context.setRuntime(sonarLintRuntime);
 
     analyze(sensor("S6273"), inputFile);
@@ -113,7 +117,8 @@ class TerraformSensorTest extends ExtensionSensorTest {
 
   @Override
   protected TerraformSensor sensor(CheckFactory checkFactory) {
-    return new TerraformSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new TerraformLanguage(new MapSettings().asConfig()), providerVersions());
+    return new TerraformSensor(SONAR_RUNTIME_10_6, tfLintRulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter,
+      new TerraformLanguage(new MapSettings().asConfig()), providerVersions());
   }
 
   private TerraformProviders providerVersions() {
@@ -148,10 +153,12 @@ class TerraformSensorTest extends ExtensionSensorTest {
   @Override
   protected void verifyDebugMessages(List<String> logs) {
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Parse error at line 1 column 4:\n" +
-        "\n" +
-        "1: a {\n" +
-        "      ^\n");
+      .isEqualTo("""
+        Parse error at line 1 column 4:
+
+        1: a {
+              ^
+        """);
 
     assertThat(logTester.logs(Level.DEBUG).get(1))
       .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'parserError.tf:1:1'" +

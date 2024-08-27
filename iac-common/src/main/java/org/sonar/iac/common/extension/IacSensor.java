@@ -19,10 +19,11 @@
  */
 package org.sonar.iac.common.extension;
 
+import java.util.List;
+import java.util.stream.StreamSupport;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -35,9 +36,6 @@ import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
-import java.util.List;
-import java.util.stream.StreamSupport;
-
 public abstract class IacSensor implements Sensor {
 
   public static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
@@ -47,7 +45,8 @@ public abstract class IacSensor implements Sensor {
   protected final NoSonarFilter noSonarFilter;
   protected final Language language;
 
-  protected IacSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, Language language) {
+  protected IacSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
+    Language language) {
     this.sonarRuntime = sonarRuntime;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.noSonarFilter = noSonarFilter;
@@ -93,7 +92,7 @@ public abstract class IacSensor implements Sensor {
 
     initContext(sensorContext);
 
-    DurationStatistics statistics = new DurationStatistics(sensorContext.config());
+    var statistics = new DurationStatistics(sensorContext.config());
     List<InputFile> inputFiles = inputFiles(sensorContext);
     var analyzer = createAnalyzer(sensorContext, statistics);
     analyzer.analyseFiles(sensorContext, inputFiles, languageName());
@@ -106,14 +105,14 @@ public abstract class IacSensor implements Sensor {
   }
 
   protected List<InputFile> inputFiles(SensorContext sensorContext) {
-    FileSystem fileSystem = sensorContext.fileSystem();
-    FilePredicate predicate = mainFilePredicate(sensorContext);
+    var fileSystem = sensorContext.fileSystem();
+    var predicate = mainFilePredicate(sensorContext);
     return StreamSupport.stream(fileSystem.inputFiles(predicate).spliterator(), false)
       .toList();
   }
 
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
-    FileSystem fileSystem = sensorContext.fileSystem();
+    var fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(
       fileSystem.predicates().hasLanguage(languageKey()),
       fileSystem.predicates().hasType(InputFile.Type.MAIN));

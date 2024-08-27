@@ -48,6 +48,8 @@ public class DockerExtension {
       // We do not import external reports in SonarLint so no need to define the Hadolint rules.
       context.addExtension(HadolintRulesDefinition.class);
       properties.addAll(DockerSettings.getExternalReportProperties());
+    } else {
+      context.addExtension(HadolintRulesDefinition.noOpInstanceForSL(context.getRuntime()));
     }
 
     context.addExtensions(properties);

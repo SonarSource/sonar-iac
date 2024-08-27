@@ -23,11 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Locale;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -37,12 +35,12 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
 import org.sonar.iac.common.reports.ReportImporterException;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
+import org.sonar.iac.terraform.plugin.TFLintRulesDefinition;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
 import static org.sonar.iac.terraform.plugin.TFLintRulesDefinition.LINTER_KEY;
-import static org.sonar.iac.terraform.plugin.TFLintRulesDefinition.RULE_LOADER;
 
 public class TFLintImporter extends AbstractJsonReportImporter {
 
@@ -52,8 +50,8 @@ public class TFLintImporter extends AbstractJsonReportImporter {
   // Matches: `: filename.tf:2,21-29:`
   private static final Pattern FILENAME_PATTERN = Pattern.compile(":\\s([^*&%:]+):(\\d+),(\\d+)-(\\d+):");
 
-  public TFLintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
-    super(context, analysisWarnings, MESSAGE_PREFIX);
+  public TFLintImporter(SensorContext context, TFLintRulesDefinition tfLintRulesDefinition, AnalysisWarningsWrapper analysisWarnings) {
+    super(context, tfLintRulesDefinition, analysisWarnings, MESSAGE_PREFIX);
   }
 
   @Override
@@ -70,7 +68,7 @@ public class TFLintImporter extends AbstractJsonReportImporter {
     JSONObject rule = (JSONObject) issueJson.get("rule");
     NewExternalIssue externalIssue;
     String severity;
-    RuleType type = RuleType.CODE_SMELL;
+    var type = RuleType.CODE_SMELL;
     Long effortInMinutes = 5L;
     // TFLint report contains 2 types: issues & errors. Errors do not contain `rule` object
     if (rule == null) {
@@ -82,9 +80,9 @@ public class TFLintImporter extends AbstractJsonReportImporter {
       String ruleId = (String) rule.get("name");
       severity = (String) rule.get("severity");
 
-      if (RULE_LOADER.ruleKeys().contains(ruleId)) {
-        type = RULE_LOADER.ruleType(ruleId);
-        effortInMinutes = RULE_LOADER.ruleConstantDebtMinutes(ruleId);
+      if (externalRuleLoader.ruleKeys().contains(ruleId)) {
+        type = externalRuleLoader.ruleType(ruleId);
+        effortInMinutes = externalRuleLoader.ruleConstantDebtMinutes(ruleId);
       } else {
         LOG.trace("{} No rule definition for rule id: {}", MESSAGE_PREFIX, ruleId);
       }
@@ -104,19 +102,19 @@ public class TFLintImporter extends AbstractJsonReportImporter {
 
   private NewIssueLocation issueLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
     JSONObject range = (JSONObject) issueJson.get("range");
-    String filename = (String) range.get("filename");
+    var filename = (String) range.get("filename");
 
-    InputFile inputFile = inputFile(filename);
+    var inputFile = inputFile(filename);
 
     JSONObject start = (JSONObject) range.get("start");
-    int startLine = asInt(start.get("line"));
-    int startColumn = asInt(start.get("column"));
+    var startLine = asInt(start.get("line"));
+    var startColumn = asInt(start.get("column"));
     JSONObject end = (JSONObject) range.get("end");
-    int endLine = asInt(end.get("line"));
-    int endColumn = asInt(end.get("column"));
-    TextRange textRange = inputFile.newRange(startLine, startColumn - 1, endLine, endColumn - 1);
+    var endLine = asInt(end.get("line"));
+    var endColumn = asInt(end.get("column"));
+    var textRange = inputFile.newRange(startLine, startColumn - 1, endLine, endColumn - 1);
 
-    String message = (String) issueJson.get("message");
+    var message = (String) issueJson.get("message");
 
     return externalIssue.newLocation()
       .message(message)
@@ -125,17 +123,17 @@ public class TFLintImporter extends AbstractJsonReportImporter {
   }
 
   private NewIssueLocation errorLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
-    String message = (String) issueJson.get("message");
-    Matcher matcher = FILENAME_PATTERN.matcher(message);
+    var message = (String) issueJson.get("message");
+    var matcher = FILENAME_PATTERN.matcher(message);
     if (!matcher.find()) {
       throw new ReportImporterException("Can't extract filename from error message");
     }
     String filename = matcher.group(1);
-    int startLine = Integer.parseInt(matcher.group(2));
-    int startColumn = Integer.parseInt(matcher.group(3));
-    int endLineOffset = Integer.parseInt(matcher.group(4));
+    var startLine = Integer.parseInt(matcher.group(2));
+    var startColumn = Integer.parseInt(matcher.group(3));
+    var endLineOffset = Integer.parseInt(matcher.group(4));
 
-    InputFile inputFile = inputFile(filename);
+    var inputFile = inputFile(filename);
 
     TextRange textRange;
     try {

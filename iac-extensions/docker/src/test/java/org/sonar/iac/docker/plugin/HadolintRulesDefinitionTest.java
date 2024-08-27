@@ -19,41 +19,40 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import java.util.Set;
-import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonarsource.analyzer.commons.ExternalRuleLoader;
+import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
+import org.sonar.iac.common.testing.AbstractExternalRulesDefinitionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+class HadolintRulesDefinitionTest extends AbstractExternalRulesDefinitionTest {
 
-class HadolintRulesDefinitionTest {
-
-  @Test
-  void rulesHaveValidSeverityAndType() {
-    ExternalRuleLoader ruleLoader = HadolintRulesDefinition.RULE_LOADER;
-    Set<String> ruleKeys = ruleLoader.ruleKeys();
-
-    assertDoesNotThrow(() -> {
-      for (String ruleKey : ruleKeys) {
-        ruleLoader.ruleSeverity(ruleKey);
-        ruleLoader.ruleType(ruleKey);
-      }
-    });
+  @Override
+  protected void customRuleAssertion(RulesDefinition.Repository repository, boolean shouldSupportCCT) {
+    // empty for now
   }
 
-  @Test
-  void createExternalHadoLintRepository() {
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    HadolintRulesDefinition hadoLintRulesDefinition = new HadolintRulesDefinition();
-    hadoLintRulesDefinition.define(context);
+  @Override
+  protected AbstractExternalRulesDefinition rulesDefinition(SonarRuntime sonarRuntime) {
+    return new HadolintRulesDefinition(sonarRuntime);
+  }
 
-    assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository("external_hadolint");
-    assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("HADOLINT");
-    assertThat(repository.language()).isEqualTo("docker");
-    assertThat(repository.isExternal()).isTrue();
-    assertThat(repository.rules()).hasSize(99);
+  @Override
+  protected int numberOfRules() {
+    return 99;
+  }
+
+  @Override
+  protected String reportName() {
+    return HadolintRulesDefinition.LINTER_NAME;
+  }
+
+  @Override
+  protected String reportKey() {
+    return HadolintRulesDefinition.LINTER_KEY;
+  }
+
+  @Override
+  protected String language() {
+    return DockerLanguage.KEY;
   }
 }

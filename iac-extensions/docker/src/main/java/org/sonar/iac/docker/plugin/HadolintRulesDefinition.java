@@ -19,18 +19,31 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public class HadolintRulesDefinition implements RulesDefinition {
+@ScannerSide
+public class HadolintRulesDefinition extends AbstractExternalRulesDefinition {
   public static final String LINTER_KEY = "hadolint";
   public static final String LINTER_NAME = "HADOLINT";
-  private static final String RULES_JSON = "org/sonar/l10n/docker/rules/hadolint/rules.json";
 
-  public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, DockerLanguage.KEY);
+  public HadolintRulesDefinition(SonarRuntime sonarRuntime) {
+    super(sonarRuntime, LINTER_KEY, LINTER_NAME, DockerLanguage.KEY);
+  }
 
-  @Override
-  public void define(Context context) {
-    RULE_LOADER.createExternalRuleRepository(context);
+  public static HadolintRulesDefinition noOpInstanceForSL(SonarRuntime sonarRuntime) {
+    return new HadolintRulesDefinition(sonarRuntime) {
+      @Override
+      public void define(Context context) {
+        // nothing to do here
+      }
+
+      @Override
+      public ExternalRuleLoader getRuleLoader() {
+        return null;
+      }
+    };
   }
 }

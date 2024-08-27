@@ -49,18 +49,20 @@ public class TerraformSensor extends IacSensor {
   private final Checks<IacCheck> checks;
   private final TerraformProviders providerVersions;
   private final AnalysisWarningsWrapper analysisWarnings;
+  private final TFLintRulesDefinition rulesDefinition;
 
-  public TerraformSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+  public TerraformSensor(SonarRuntime sonarRuntime, TFLintRulesDefinition rulesDefinition, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions) {
-    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, providerVersions, NOOP_ANALYSIS_WARNINGS);
+    this(sonarRuntime, rulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter, language, providerVersions, NOOP_ANALYSIS_WARNINGS);
   }
 
-  public TerraformSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+  public TerraformSensor(SonarRuntime sonarRuntime, TFLintRulesDefinition rulesDefinition, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions, AnalysisWarningsWrapper analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(TerraformCheckList.checks());
     this.providerVersions = providerVersions;
+    this.rulesDefinition = rulesDefinition;
     this.analysisWarnings = analysisWarnings;
   }
 
@@ -77,7 +79,7 @@ public class TerraformSensor extends IacSensor {
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
     ExternalReportProvider.getReportFiles(sensorContext, TerraformSettings.TFLINT_REPORTS_KEY)
-      .forEach(report -> new TFLintImporter(sensorContext, analysisWarnings).importReport(report));
+      .forEach(report -> new TFLintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 
   @Override

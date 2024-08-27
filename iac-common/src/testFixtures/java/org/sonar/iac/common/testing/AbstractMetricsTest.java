@@ -84,8 +84,8 @@ public abstract class AbstractMetricsTest {
       .setLanguage(language)
       .setContents(code)
       .build();
-    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
-    visitor.scan(ctx, parser.parse(code, ctx));
+    var inputFileContext = new InputFileContext(sensorContext, inputFile);
+    visitor.scan(inputFileContext, parser.parse(code, inputFileContext));
     return visitor;
   }
 }

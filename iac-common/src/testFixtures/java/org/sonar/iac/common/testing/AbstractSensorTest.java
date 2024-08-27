@@ -27,9 +27,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -54,13 +51,6 @@ public abstract class AbstractSensorTest {
   protected static final FileLinesContextFactory fileLinesContextFactory = Mockito.mock(FileLinesContextFactory.class);
   protected static final NoSonarFilter noSonarFilter = Mockito.mock(NoSonarFilter.class);
 
-  protected static final Version VERSION_8_9 = Version.create(8, 9);
-  protected static final SonarRuntime SONAR_RUNTIME_8_9 = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER,
-    SonarEdition.DEVELOPER);
-  private static final Version VERSION_10_0 = Version.create(10, 0);
-  protected static final SonarRuntime SONAR_RUNTIME_10_0 = SonarRuntimeImpl.forSonarQube(VERSION_10_0, SonarQubeSide.SCANNER,
-    SonarEdition.DEVELOPER);
-
   @TempDir
   protected File baseDir;
   protected SensorContextTester context;
@@ -70,7 +60,7 @@ public abstract class AbstractSensorTest {
   void setup() {
     FileLinesContext fileLinesContext = Mockito.mock(FileLinesContext.class);
     Mockito.when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
-    MapSettings settings = new MapSettings();
+    var settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     context = SensorContextTester.create(baseDir).setSettings(settings);
     sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(9, 2))).setSettings(settings);
@@ -112,7 +102,7 @@ public abstract class AbstractSensorTest {
   }
 
   protected CheckFactory checkFactory(SensorContextTester sensorContext, String... ruleKeys) {
-    ActiveRulesBuilder builder = new ActiveRulesBuilder();
+    var builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
       NewActiveRule newRule = new NewActiveRule.Builder()
         .setRuleKey(RuleKey.of(repositoryKey(), ruleKey))

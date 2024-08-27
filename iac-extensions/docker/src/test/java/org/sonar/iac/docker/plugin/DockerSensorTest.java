@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.plugin;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
@@ -37,12 +39,12 @@ import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 
 class DockerSensorTest extends ExtensionSensorTest {
+
+  private final HadolintRulesDefinition hadolintRulesDefinition = new HadolintRulesDefinition(SONAR_RUNTIME_10_6);
 
   @Test
   void shouldReturnDockerDescriptor() {
@@ -138,7 +140,8 @@ class DockerSensorTest extends ExtensionSensorTest {
   @Override
   protected Sensor sensor(CheckFactory checkFactory) {
     return new DockerSensor(
-      SONAR_RUNTIME_8_9,
+      SONAR_RUNTIME_10_6,
+      hadolintRulesDefinition,
       fileLinesContextFactory,
       checkFactory,
       noSonarFilter,
@@ -197,6 +200,7 @@ class DockerSensorTest extends ExtensionSensorTest {
   private DockerSensor sonarLintSensor(String... rules) {
     return new DockerSensor(
       SonarRuntimeImpl.forSonarLint(Version.create(9, 2)),
+      hadolintRulesDefinition,
       fileLinesContextFactory,
       checkFactory(sonarLintContext, rules),
       noSonarFilter,

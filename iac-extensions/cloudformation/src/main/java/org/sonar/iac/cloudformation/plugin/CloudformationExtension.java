@@ -45,6 +45,8 @@ public class CloudformationExtension {
       // We do not import external reports in SonarLint so no need to define their rules.
       context.addExtension(CfnLintRulesDefinition.class);
       context.addExtensions(CloudformationSettings.getExternalReportProperties());
+    } else {
+      context.addExtension(CfnLintRulesDefinition.noOpInstanceForSL(context.getRuntime()));
     }
 
   }

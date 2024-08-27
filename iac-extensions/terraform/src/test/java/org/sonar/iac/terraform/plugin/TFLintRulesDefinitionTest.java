@@ -19,41 +19,41 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-import java.util.Set;
-import org.junit.jupiter.api.Test;
+import javax.annotation.Nullable;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonarsource.analyzer.commons.ExternalRuleLoader;
+import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
+import org.sonar.iac.common.testing.AbstractExternalRulesDefinitionTest;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+class TFLintRulesDefinitionTest extends AbstractExternalRulesDefinitionTest {
 
-class TFLintRulesDefinitionTest {
-
-  @Test
-  void rulesHaveValidSeverityAndType() {
-    ExternalRuleLoader ruleLoader = TFLintRulesDefinition.RULE_LOADER;
-    Set<String> ruleKeys = ruleLoader.ruleKeys();
-
-    assertDoesNotThrow(() -> {
-      for (String ruleKey : ruleKeys) {
-        ruleLoader.ruleSeverity(ruleKey);
-        ruleLoader.ruleType(ruleKey);
-      }
-    });
+  @Override
+  protected void customRuleAssertion(RulesDefinition.Repository repository, boolean shouldSupportCCT) {
+    // empty for now
   }
 
-  @Test
-  void createExternalTFLintRepository() {
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    TFLintRulesDefinition TFLintRulesDefinition = new TFLintRulesDefinition();
-    TFLintRulesDefinition.define(context);
+  @Override
+  protected AbstractExternalRulesDefinition rulesDefinition(@Nullable SonarRuntime sonarRuntime) {
+    return new TFLintRulesDefinition(sonarRuntime);
+  }
 
-    assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository("external_tflint");
-    assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("TFLINT");
-    assertThat(repository.language()).isEqualTo("terraform");
-    assertThat(repository.isExternal()).isTrue();
-    assertThat(repository.rules()).hasSize(1712);
+  @Override
+  protected int numberOfRules() {
+    return 1712;
+  }
+
+  @Override
+  protected String reportName() {
+    return TFLintRulesDefinition.LINTER_NAME;
+  }
+
+  @Override
+  protected String reportKey() {
+    return TFLintRulesDefinition.LINTER_KEY;
+  }
+
+  @Override
+  protected String language() {
+    return TerraformLanguage.KEY;
   }
 }

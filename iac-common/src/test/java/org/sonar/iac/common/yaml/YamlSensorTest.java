@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -36,13 +38,11 @@ import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 
 class YamlSensorTest extends AbstractSensorTest {
 
@@ -98,7 +98,8 @@ class YamlSensorTest extends AbstractSensorTest {
 
   @Override
   protected YamlSensor sensor(CheckFactory checkFactory) {
-    return new YamlSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, YamlLanguage.YAML, Collections.emptyList()) {
+    return new YamlSensor(SONAR_RUNTIME_10_6, fileLinesContextFactory, checkFactory, noSonarFilter, YamlLanguage.YAML,
+      Collections.emptyList()) {
       @Override
       protected FilePredicate customFilePredicate(SensorContext sensorContext) {
         FilePredicate customPredicate = mock(FilePredicate.class);

@@ -25,7 +25,6 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
@@ -34,9 +33,9 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -54,20 +53,32 @@ import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_
 @Phase(name = Phase.Name.POST)
 public class DockerSensor extends IacSensor {
   private final Checks<IacCheck> checks;
-
   private final AnalysisWarningsWrapper analysisWarnings;
+  private final HadolintRulesDefinition rulesDefinition;
 
-  public DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, DockerLanguage language) {
-    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, NOOP_ANALYSIS_WARNINGS);
+  public DockerSensor(
+    SonarRuntime sonarRuntime,
+    HadolintRulesDefinition rulesDefinition,
+    FileLinesContextFactory fileLinesContextFactory,
+    CheckFactory checkFactory,
+    NoSonarFilter noSonarFilter,
+    DockerLanguage language) {
+    this(sonarRuntime, rulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter, language, NOOP_ANALYSIS_WARNINGS);
   }
 
-  public DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, DockerLanguage language, AnalysisWarningsWrapper analysisWarnings) {
+  public DockerSensor(
+    SonarRuntime sonarRuntime,
+    HadolintRulesDefinition rulesDefinition,
+    FileLinesContextFactory fileLinesContextFactory,
+    CheckFactory checkFactory,
+    NoSonarFilter noSonarFilter,
+    DockerLanguage language,
+    AnalysisWarningsWrapper analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(DockerCheckList.checks());
     this.analysisWarnings = analysisWarnings;
+    this.rulesDefinition = rulesDefinition;
   }
 
   @Override
@@ -79,7 +90,7 @@ public class DockerSensor extends IacSensor {
 
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
-    FileSystem fileSystem = sensorContext.fileSystem();
+    var fileSystem = sensorContext.fileSystem();
     FilePredicates p = fileSystem.predicates();
 
     FilePredicate pathPatterns = p.matchesPathPattern("**/Dockerfile.*");
@@ -113,7 +124,7 @@ public class DockerSensor extends IacSensor {
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
     ExternalReportProvider.getReportFiles(sensorContext, DockerSettings.HADOLINT_REPORTS_KEY)
-      .forEach(report -> new HadolintImporter(sensorContext, analysisWarnings).importReport(report));
+      .forEach(report -> new HadolintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 
   @Override

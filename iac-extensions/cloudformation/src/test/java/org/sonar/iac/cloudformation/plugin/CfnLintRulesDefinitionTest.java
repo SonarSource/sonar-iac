@@ -19,26 +19,41 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
-import org.junit.jupiter.api.Test;
+import javax.annotation.Nullable;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
+import org.sonar.iac.common.testing.AbstractExternalRulesDefinitionTest;
 
-import static org.fest.assertions.Assertions.assertThat;
+class CfnLintRulesDefinitionTest extends AbstractExternalRulesDefinitionTest {
 
-class CfnLintRulesDefinitionTest {
-
-  @Test
-  void createExternalCfnLintRepository() {
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    CfnLintRulesDefinition cfnLintRulesDefinition = new CfnLintRulesDefinition();
-    cfnLintRulesDefinition.define(context);
-
-    assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository("external_cfn-lint");
-    assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("CFN-LINT");
-    assertThat(repository.language()).isEqualTo("cloudformation");
-    assertThat(repository.isExternal()).isTrue();
-    assertThat(repository.rules()).hasSize(146);
+  @Override
+  protected void customRuleAssertion(RulesDefinition.Repository repository, boolean shouldSupportCCT) {
+    // empty for now
   }
 
+  @Override
+  protected AbstractExternalRulesDefinition rulesDefinition(@Nullable SonarRuntime sonarRuntime) {
+    return new CfnLintRulesDefinition(sonarRuntime);
+  }
+
+  @Override
+  protected int numberOfRules() {
+    return 146;
+  }
+
+  @Override
+  protected String reportName() {
+    return CfnLintRulesDefinition.LINTER_NAME;
+  }
+
+  @Override
+  protected String reportKey() {
+    return CfnLintRulesDefinition.LINTER_KEY;
+  }
+
+  @Override
+  protected String language() {
+    return CloudformationLanguage.KEY;
+  }
 }

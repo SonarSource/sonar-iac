@@ -65,6 +65,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
@@ -570,12 +571,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
+    return new KubernetesSensor(SONAR_RUNTIME_10_6, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
       mock(HelmEvaluator.class));
   }
 
   protected KubernetesSensor sensorSonarLint() {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory(), noSonarFilter, new KubernetesLanguage(),
+    return new KubernetesSensor(SONAR_RUNTIME_10_6, fileLinesContextFactory, checkFactory(), noSonarFilter, new KubernetesLanguage(),
       mock(HelmEvaluator.class), sonarLintFileListener);
   }
 

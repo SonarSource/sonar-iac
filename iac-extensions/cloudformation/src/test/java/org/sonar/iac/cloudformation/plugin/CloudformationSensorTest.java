@@ -32,10 +32,13 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 
 class CloudformationSensorTest extends ExtensionSensorTest {
 
   private static final String PARSING_ERROR_KEY = "S2260";
+
+  private final CfnLintRulesDefinition cfnLintRulesDefinition = new CfnLintRulesDefinition(SONAR_RUNTIME_10_6);
 
   @Test
   void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
@@ -113,7 +116,8 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new CloudformationLanguage());
+    return new CloudformationSensor(SONAR_RUNTIME_10_6, cfnLintRulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter,
+      new CloudformationLanguage());
   }
 
   @Override
@@ -144,14 +148,16 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   @Override
   protected void verifyDebugMessages(List<String> logs) {
     assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
-    String message1 = "while scanning a quoted scalar\n" +
-      " in reader, line 1, column 1:\n" +
-      "    \"a'\n" +
-      "    ^\n" +
-      "found unexpected end of stream\n" +
-      " in reader, line 1, column 4:\n" +
-      "    \"a'\n" +
-      "       ^\n";
+    String message1 = """
+      while scanning a quoted scalar
+       in reader, line 1, column 1:
+          "a'
+          ^
+      found unexpected end of stream
+       in reader, line 1, column 4:
+          "a'
+             ^
+      """;
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
