@@ -45,6 +45,7 @@ public final class IacTestUtils {
     SonarEdition.COMMUNITY);
   public static final SonarRuntime SONAR_RUNTIME_9_9 = SonarRuntimeImpl.forSonarQube(Version.create(9, 9), SonarQubeSide.SERVER,
     SonarEdition.COMMUNITY);
+  public static final SonarRuntime SONARLINT_RUNTIME_9_9 = SonarRuntimeImpl.forSonarLint(Version.create(9, 2));
 
   private IacTestUtils() {
     // utils class

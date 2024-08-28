@@ -21,16 +21,12 @@ package org.sonar.iac.cloudformation.plugin;
 
 import javax.annotation.Nullable;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 import org.sonar.iac.common.testing.AbstractExternalRulesDefinitionTest;
 
-class CfnLintRulesDefinitionTest extends AbstractExternalRulesDefinitionTest {
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 
-  @Override
-  protected void customRuleAssertion(RulesDefinition.Repository repository, boolean shouldSupportCCT) {
-    // empty for now
-  }
+class CfnLintRulesDefinitionTest extends AbstractExternalRulesDefinitionTest {
 
   @Override
   protected AbstractExternalRulesDefinition rulesDefinition(@Nullable SonarRuntime sonarRuntime) {
@@ -55,5 +51,10 @@ class CfnLintRulesDefinitionTest extends AbstractExternalRulesDefinitionTest {
   @Override
   protected String language() {
     return CloudformationLanguage.KEY;
+  }
+
+  @Override
+  protected AbstractExternalRulesDefinition noOpRulesDefinition() {
+    return CfnLintRulesDefinition.noOpInstanceForSL(SONAR_RUNTIME_10_6);
   }
 }

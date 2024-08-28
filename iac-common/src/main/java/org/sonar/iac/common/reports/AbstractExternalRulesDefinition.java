@@ -41,10 +41,6 @@ public abstract class AbstractExternalRulesDefinition implements RulesDefinition
     }
   }
 
-  protected AbstractExternalRulesDefinition() {
-    this.ruleLoader = null;
-  }
-
   @Override
   public void define(Context context) {
     ruleLoader.createExternalRuleRepository(context);

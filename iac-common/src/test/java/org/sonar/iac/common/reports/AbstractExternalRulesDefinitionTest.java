@@ -17,43 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.common.reports;
 
 import org.sonar.api.SonarRuntime;
-import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
-import org.sonar.iac.common.testing.AbstractExternalRulesDefinitionTest;
 
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+public class AbstractExternalRulesDefinitionTest extends org.sonar.iac.common.testing.AbstractExternalRulesDefinitionTest {
 
-class HadolintRulesDefinitionTest extends AbstractExternalRulesDefinitionTest {
+  @Override
+  public void noOpRulesDefinitionShouldNotDefineAnyRule() {
+    // We don't need this test here, as we don't define noOpRulesDefinition for the TestExternalRulesDefinition
+  }
 
   @Override
   protected AbstractExternalRulesDefinition rulesDefinition(SonarRuntime sonarRuntime) {
-    return new HadolintRulesDefinition(sonarRuntime);
+    return new TestExternalRulesDefinition(sonarRuntime);
   }
 
   @Override
   protected int numberOfRules() {
-    return 99;
+    return 1;
   }
 
   @Override
   protected String reportName() {
-    return HadolintRulesDefinition.LINTER_NAME;
+    return "testName";
   }
 
   @Override
   protected String reportKey() {
-    return HadolintRulesDefinition.LINTER_KEY;
+    return "testKey";
   }
 
   @Override
   protected String language() {
-    return DockerLanguage.KEY;
+    return "testLanguage";
   }
 
   @Override
   protected AbstractExternalRulesDefinition noOpRulesDefinition() {
-    return HadolintRulesDefinition.noOpInstanceForSL(SONAR_RUNTIME_10_6);
+    return null;
+  }
+}
+
+class TestExternalRulesDefinition extends AbstractExternalRulesDefinition {
+  protected TestExternalRulesDefinition(SonarRuntime sonarRuntime) {
+    super(sonarRuntime, "testKey", "testName", "testLanguage");
   }
 }

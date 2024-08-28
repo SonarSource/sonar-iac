@@ -1,0 +1,12 @@
+[
+  {
+    "key": "issueKey",
+    "name": "ruleName",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    }
+  }
+]

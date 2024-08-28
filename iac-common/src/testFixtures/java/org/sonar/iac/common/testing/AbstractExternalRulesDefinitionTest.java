@@ -20,14 +20,18 @@
 package org.sonar.iac.common.testing;
 
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_9_9;
 
@@ -36,7 +40,8 @@ public abstract class AbstractExternalRulesDefinitionTest {
   static Stream<Arguments> externalRepositoryShouldBeInitializedWithSonarRuntime() {
     return Stream.of(
       Arguments.of(SONAR_RUNTIME_10_6, true),
-      Arguments.of(SONAR_RUNTIME_9_9, false));
+      Arguments.of(SONAR_RUNTIME_9_9, false),
+      Arguments.of(SONARLINT_RUNTIME_9_9, false));
   }
 
   @MethodSource
@@ -44,12 +49,17 @@ public abstract class AbstractExternalRulesDefinitionTest {
   void externalRepositoryShouldBeInitializedWithSonarRuntime(SonarRuntime sonarRuntime, boolean shouldSupportCCT) {
     var context = new RulesDefinition.Context();
     AbstractExternalRulesDefinition rulesDefinition = rulesDefinition(sonarRuntime);
-    rulesDefinition.define(context);
 
-    assertExternalRuleLoader(context, rulesDefinition, shouldSupportCCT);
+    if (sonarRuntime.getProduct() != SonarProduct.SONARLINT) {
+      rulesDefinition.define(context);
+      assertExistingRepository(context, rulesDefinition, shouldSupportCCT);
+    } else {
+      assertNoRepositoryIsDefined(context, rulesDefinition);
+    }
+
   }
 
-  protected void assertExternalRuleLoader(
+  protected void assertExistingRepository(
     RulesDefinition.Context context,
     AbstractExternalRulesDefinition rulesDefinition,
     boolean shouldSupportCCT) {
@@ -62,16 +72,25 @@ public abstract class AbstractExternalRulesDefinitionTest {
     assertThat(repository.rules()).hasSize(numberOfRules());
 
     for (String ruleKey : rulesDefinition.getRuleLoader().ruleKeys()) {
-      rulesDefinition.getRuleLoader().ruleSeverity(ruleKey);
-      rulesDefinition.getRuleLoader().ruleType(ruleKey);
+      assertThatNoException().isThrownBy(() -> rulesDefinition.getRuleLoader().ruleSeverity(ruleKey));
+      assertThatNoException().isThrownBy(() -> rulesDefinition.getRuleLoader().ruleType(ruleKey));
     }
 
     assertThat(rulesDefinition.getRuleLoader().isCleanCodeImpactsAndAttributesSupported()).isEqualTo(shouldSupportCCT);
-
-    customRuleAssertion(repository, shouldSupportCCT);
   }
 
-  protected abstract void customRuleAssertion(RulesDefinition.Repository repository, boolean shouldSupportCCT);
+  @Test
+  public void noOpRulesDefinitionShouldNotDefineAnyRule() {
+    var context = new RulesDefinition.Context();
+    AbstractExternalRulesDefinition noOpRulesDefinition = noOpRulesDefinition();
+    noOpRulesDefinition.define(context);
+    assertNoRepositoryIsDefined(context, noOpRulesDefinition);
+  }
+
+  private void assertNoRepositoryIsDefined(RulesDefinition.Context context, AbstractExternalRulesDefinition rulesDefinition) {
+    assertThat(context.repositories()).isEmpty();
+    assertThat(rulesDefinition.getRuleLoader()).isNull();
+  }
 
   protected abstract AbstractExternalRulesDefinition rulesDefinition(SonarRuntime sonarRuntime);
 
@@ -82,4 +101,6 @@ public abstract class AbstractExternalRulesDefinitionTest {
   protected abstract String reportKey();
 
   protected abstract String language();
+
+  protected abstract AbstractExternalRulesDefinition noOpRulesDefinition();
 }
