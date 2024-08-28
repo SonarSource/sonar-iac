@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.common;
+package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
-import java.util.regex.Pattern;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck {
-  protected static final String MESSAGE = "Revoke and change this password, as it is compromised.";
-  protected static final Pattern VARIABLE = Pattern.compile("\\$\\{[^}]+}");
+class WeakSSLProtocolCheckTest {
 
-  @Override
-  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if (isHardcoded(value)) {
-      ctx.reportIssue(tuple.value(), MESSAGE);
-    }
+  IacCheck check = new WeakSSLProtocolCheck();
+
+  @Test
+  void shouldRaiseInPropertiesFile() {
+    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/micronaut/WeakSSLProtocolCheck.properties", check);
   }
 
-  private static boolean isHardcoded(String value) {
-    return !(value.isEmpty() || VARIABLE.matcher(value).find());
+  @Test
+  void shouldRaiseInYamlFile() {
+    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/micronaut/WeakSSLProtocolCheck.yaml", check);
   }
+
 }

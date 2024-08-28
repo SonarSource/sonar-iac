@@ -19,20 +19,30 @@
  */
 package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
-import java.util.List;
+import java.util.Set;
+import org.sonar.check.Rule;
+import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractWeakSSLProtocolCheck;
 
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+@Rule(key = "S4423")
+public class WeakSSLProtocolCheck extends AbstractWeakSSLProtocolCheck {
+  private static final Set<String> SENSITIVE_PATTERN_KEYS = Set.of(
+    "micronaut.server.ssl.protocol",
+    "micronaut.ssl.protocol",
+    "micronaut.http.client.ssl.protocol",
+    "micronaut.http.services.[^.]++.ssl.protocol");
+  private static final Set<String> SENSITIVE_PATTERN_ARRAY_KEYS = Set.of(
+    "micronaut.server.ssl.protocols",
+    "micronaut.ssl.protocols",
+    "micronaut.http.client.ssl.protocols",
+    "micronaut.http.services.[^.]++.ssl.protocols");
 
-public final class MicronautConfigCheckList {
-  private MicronautConfigCheckList() {
+  @Override
+  protected Set<String> sensitivePatternKeys() {
+    return SENSITIVE_PATTERN_KEYS;
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      HardcodedSecretsCheck.class,
-      ParsingErrorCheck.class,
-      ToDoCommentCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Override
+  protected Set<String> sensitivePatternArrayKeys() {
+    return SENSITIVE_PATTERN_ARRAY_KEYS;
   }
 }

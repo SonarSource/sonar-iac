@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractSensitiveKeyCheck;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 @Rule(key = "S5693")

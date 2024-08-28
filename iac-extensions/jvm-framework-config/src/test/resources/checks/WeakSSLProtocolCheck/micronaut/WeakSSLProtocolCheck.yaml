@@ -1,0 +1,106 @@
+## Checking message and location
+micronaut:
+  ssl:
+    protocols: [TLSv1.1] # Noncompliant {{Change this code to use a stronger protocol.}}
+#               ^^^^^^^
+
+---
+
+## Checking all sensitive values
+micronaut:
+  ssl:
+    protocol: TLSv1.0 # Noncompliant
+
+---
+
+micronaut:
+  ssl:
+    protocol: TLSv1.1 # Noncompliant
+
+---
+
+## Checking all sensitive keys single value
+micronaut:
+  server:
+    ssl:
+      protocol: TLSv1.1 # Noncompliant
+  ssl:
+    protocol: TLSv1.1 # Noncompliant
+  http:
+    client:
+      ssl:
+        protocol: TLSv1.1 # Noncompliant
+    services:
+      something:
+        ssl:
+          protocol: TLSv1.1 # Noncompliant
+
+---
+
+## Checking all sensitive keys array value
+micronaut:
+  server:
+    ssl:
+      protocols: [TLSv1.1] # Noncompliant
+  ssl:
+    protocols: [TLSv1.1] # Noncompliant
+  http:
+    client:
+      ssl:
+        protocols: [TLSv1.1] # Noncompliant
+    services:
+      something:
+        ssl:
+          protocols: [TLSv1.1] # Noncompliant
+
+---
+
+## Checking secondary locations
+micronaut:
+  server:
+    ssl:
+      protocols: [TLSv1.1, foo, TLSv1.0] # Noncompliant
+#                 ^^^^^^^       ^^^^^^^< 1{{Other weak protocol.}}
+
+---
+
+## Compliant use cases
+micronaut:
+  ssl:
+    protocol: TLSv1.2
+
+---
+
+micronaut:
+  ssl:
+    protocol: other
+
+---
+
+micronaut:
+  ssl:
+    protocols: TLSv1.0
+
+---
+
+micronaut:
+  ssl:
+    other: TLSv1.0
+
+---
+
+micronaut:
+  ssl:
+    protocol:
+
+---
+
+micronaut:
+  ssl:
+    protocols:
+
+---
+
+micronaut:
+  ssl:
+    protocols: TLSv1.0
