@@ -70,7 +70,7 @@ public class CloudformationSettings {
     return List.of(PropertyDefinition.builder(CFN_LINT_REPORTS_KEY)
       .index(33)
       .name("Cfn-Lint Report Files")
-      .description("Paths (absolute or relative) to the files with Cfn-Lint issues. You can use Ant patterns to define paths.")
+      .description("Paths (absolute or relative) to the files with Cfn-Lint issues. You can use wildcard patterns to define paths.")
       .category(EXTERNAL_ANALYZERS_CATEGORY)
       .subCategory(CLOUDFORMATION_CATEGORY)
       .onQualifiers(Qualifiers.PROJECT)

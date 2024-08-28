@@ -46,16 +46,15 @@ public final class ExternalReportWildcardProvider {
   }
 
   public static List<File> getReportFiles(SensorContext context, String externalReportsProperty) {
+    String[] reportPaths = context.config().getStringArray(externalReportsProperty);
+    if (reportPaths.length == 0) {
+      return Collections.emptyList();
+    }
+
     var minumumVersion = Version.create(MINIMUM_MAJOR_SUPPORTED_VERSION, MINIMUM_MINOR_SUPPORTED_VERSION);
     boolean externalIssuesSupported = context.runtime().getApiVersion().isGreaterThanOrEqual(minumumVersion);
     if (!externalIssuesSupported) {
       LOG.error("Import of external issues requires SonarQube 7.2 or greater.");
-      return Collections.emptyList();
-    }
-
-    String[] reportPaths = context.config().getStringArray(externalReportsProperty);
-
-    if (reportPaths.length == 0) {
       return Collections.emptyList();
     }
 
@@ -79,7 +78,7 @@ public final class ExternalReportWildcardProvider {
           .toList();
       }
     } catch (IOException e) {
-      LOG.debug("Exception, when searching files to import report.", e);
+      LOG.debug("Exception when searching for report files to import.", e);
       return Collections.emptyList();
     }
   }

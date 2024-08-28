@@ -54,6 +54,7 @@ class ExternalReportWildcardProviderTest {
   void shouldReturnEmptyListWhenOldSonarQubeVersion() {
     var runtime = SonarRuntimeImpl.forSonarQube(Version.create(7, 1), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     var context = SensorContextTester.create(new File(".")).setRuntime(runtime);
+    context.settings().setProperty(EXTERNAL_REPORTS_PROPERTY, "dummy.txt");
 
     var reportFiles = ExternalReportWildcardProvider.getReportFiles(context, EXTERNAL_REPORTS_PROPERTY);
 
@@ -80,7 +81,10 @@ class ExternalReportWildcardProviderTest {
       Arguments.of("/ext-json-report/**", List.of("noArray.json", "parseError.json", "validIssue.json")),
       Arguments.of("**/ext-json-report/**", List.of("noArray.json", "parseError.json", "validIssue.json")),
       Arguments.of("**/rules/**", List.of("S1.html", "S1.json", "Sonar_way_profile.json")),
-      Arguments.of("**/doesnt-exist/**", List.of()));
+      Arguments.of("**/doesnt-exist/**", List.of()),
+      Arguments.of("doesnt-exist.txt", List.of()),
+      Arguments.of("none*", List.of()),
+      Arguments.of("", List.of()));
   }
 
   @ParameterizedTest(name = "{index} should return files for pattern: {0}")
@@ -107,7 +111,7 @@ class ExternalReportWildcardProviderTest {
       var reportFiles = ExternalReportWildcardProvider.getReportFiles(context, EXTERNAL_REPORTS_PROPERTY);
 
       assertThat(reportFiles).isEmpty();
-      assertThat(logTester.logs(Level.DEBUG)).contains("Exception, when searching files to import report.");
+      assertThat(logTester.logs(Level.DEBUG)).contains("Exception when searching for report files to import.");
     }
   }
 }
