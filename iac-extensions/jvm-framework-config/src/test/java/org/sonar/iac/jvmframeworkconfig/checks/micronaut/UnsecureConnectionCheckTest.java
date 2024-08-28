@@ -19,21 +19,17 @@
  */
 package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
-
-public final class MicronautConfigCheckList {
-  private MicronautConfigCheckList() {
+class UnsecureConnectionCheckTest {
+  @Test
+  void shouldDetectSensitiveValueInProperties() {
+    JvmFrameworkConfigVerifier.verify("UnsecureConnectionCheck/micronaut/UnsecureConnectionCheck.properties", new UnsecureConnectionCheck());
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      HardcodedSecretsCheck.class,
-      ParsingErrorCheck.class,
-      ToDoCommentCheck.class,
-      UnsecureConnectionCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Test
+  void shouldDetectSensitiveValueInYaml() {
+    JvmFrameworkConfigVerifier.verify("UnsecureConnectionCheck/micronaut/UnsecureConnectionCheck.yaml", new UnsecureConnectionCheck());
   }
 }
