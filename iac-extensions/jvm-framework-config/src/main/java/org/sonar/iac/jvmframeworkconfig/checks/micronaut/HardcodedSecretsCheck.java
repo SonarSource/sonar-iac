@@ -30,13 +30,13 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.jvmframeworkconfig.checks.common.HardcodedSecrets;
+import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractHardcodedSecrets;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
 
 @Rule(key = "S6437")
-public class HardcodedSecretsCheck extends HardcodedSecrets {
+public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
   private static final Set<String> SENSITIVE_KEYS = Set.of(
     "micronaut.ssl.key.password",
     "micronaut.ssl.key-store.password",

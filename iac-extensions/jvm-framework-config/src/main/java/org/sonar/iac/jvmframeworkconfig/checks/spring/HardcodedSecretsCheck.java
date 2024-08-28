@@ -21,10 +21,10 @@ package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.iac.jvmframeworkconfig.checks.common.HardcodedSecrets;
+import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractHardcodedSecrets;
 
 @Rule(key = "S6437")
-public class HardcodedSecretsCheck extends HardcodedSecrets {
+public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
   private static final Set<String> SENSITIVE_KEYS = Set.of(
     "spring.mail.password",
     "spring.sendgrid.api-key",
