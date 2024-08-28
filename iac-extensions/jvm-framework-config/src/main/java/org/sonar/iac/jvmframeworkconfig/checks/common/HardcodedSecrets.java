@@ -17,35 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.spring;
+package org.sonar.iac.jvmframeworkconfig.checks.common;
 
-import java.util.Set;
+import java.util.regex.Pattern;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.jvmframeworkconfig.checks.spring.AbstractSensitiveKeyCheck;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
-import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
-
-public abstract class AbstractSensitiveKeyCheck implements IacCheck {
+public abstract class HardcodedSecrets extends AbstractSensitiveKeyCheck {
+  protected static final String MESSAGE = "Revoke and change this password, as it is compromised.";
+  protected static final Pattern VARIABLE = Pattern.compile("\\$\\{[^}]+}");
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(Tuple.class, this::checkTuple);
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if (isHardcoded(value)) {
+      ctx.reportIssue(tuple.value(), MESSAGE);
+    }
   }
 
-  protected abstract Set<String> sensitiveKeys();
-
-  protected abstract void checkValue(CheckContext ctx, Tuple tuple, String value);
-
-  protected void checkTuple(CheckContext ctx, Tuple tuple) {
-    var key = tuple.key().value().value();
-    if (sensitiveKeys().contains(key)) {
-      var valueString = getStringValue(tuple);
-
-      if (valueString != null) {
-        checkValue(ctx, tuple, valueString);
-      }
-    }
+  private static boolean isHardcoded(String value) {
+    return !(value.isEmpty() || VARIABLE.matcher(value).find());
   }
 }

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -220,20 +221,17 @@ class IacRulingTest {
       .append("  <language>java</language>\n")
       .append("  <rules>\n");
 
-    Set<String> keys = new HashSet<>();
-    SpringConfigCheckList.checks().stream()
+    Stream.concat(
+      SpringConfigCheckList.checks().stream(),
+      MicronautConfigCheckList.checks().stream())
       .map(IacRulingTest::annotatedRuleKey)
       .filter(Objects::nonNull)
-      .forEach(keys::add);
-    MicronautConfigCheckList.checks().stream()
-      .map(IacRulingTest::annotatedRuleKey)
-      .filter(Objects::nonNull)
-      .forEach(keys::add);
-    keys.forEach(ruleKey -> sb.append("    <rule>\n")
-      .append("      <repositoryKey>java</repositoryKey>\n")
-      .append("      <key>").append(ruleKey).append("</key>\n")
-      .append("      <priority>INFO</priority>\n")
-      .append("    </rule>\n"));
+      .distinct() // Fail to startup with duplicated keys
+      .forEach(ruleKey -> sb.append("    <rule>\n")
+        .append("      <repositoryKey>java</repositoryKey>\n")
+        .append("      <key>").append(ruleKey).append("</key>\n")
+        .append("      <priority>INFO</priority>\n")
+        .append("    </rule>\n"));
 
     sb.append("  </rules>\n")
       .append("</profile>");

@@ -25,11 +25,11 @@ import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 class MisconfiguredHttpOnlyCookieFlagCheckTest {
   @Test
   void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("MisconfiguredHttpOnlyCookieFlagCheck/MisconfiguredHttpOnlyCookieFlagCheck.properties", new MisconfiguredHttpOnlyCookieFlagCheck());
+    JvmFrameworkConfigVerifier.verify("MisconfiguredHttpOnlyCookieFlagCheck/spring/MisconfiguredHttpOnlyCookieFlagCheck.properties", new MisconfiguredHttpOnlyCookieFlagCheck());
   }
 
   @Test
   void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("MisconfiguredHttpOnlyCookieFlagCheck/MisconfiguredHttpOnlyCookieFlagCheck.yaml", new MisconfiguredHttpOnlyCookieFlagCheck());
+    JvmFrameworkConfigVerifier.verify("MisconfiguredHttpOnlyCookieFlagCheck/spring/MisconfiguredHttpOnlyCookieFlagCheck.yaml", new MisconfiguredHttpOnlyCookieFlagCheck());
   }
 }

@@ -27,11 +27,11 @@ class MicronautConfigToDoCommentCheckTest {
 
   @Test
   void shouldRaiseOnToDoCommentsInPropertiesFile() {
-    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/TodoCheck.properties", new ToDoCommentCheck());
+    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/micronaut/TodoCheck.properties", new ToDoCommentCheck());
   }
 
   @Test
   void shouldRaiseOnToDoCommentsInYamlFile() {
-    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/TodoCheck.yaml", new ToDoCommentCheck());
+    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/micronaut/TodoCheck.yaml", new ToDoCommentCheck());
   }
 }

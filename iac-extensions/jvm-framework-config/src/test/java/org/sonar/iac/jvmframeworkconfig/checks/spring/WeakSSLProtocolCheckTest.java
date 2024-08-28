@@ -29,12 +29,12 @@ class WeakSSLProtocolCheckTest {
 
   @Test
   void shouldRaiseInPropertiesFile() {
-    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.properties", check);
+    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/spring/WeakSSLProtocolCheck.properties", check);
   }
 
   @Test
   void shouldRaiseInYamlFile() {
-    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.yaml", check);
+    JvmFrameworkConfigVerifier.verify("WeakSSLProtocolCheck/spring/WeakSSLProtocolCheck.yaml", check);
   }
 
 }

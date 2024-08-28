@@ -29,11 +29,11 @@ class SecureCookieCheckTest {
 
   @Test
   void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/SecureCookieCheck.properties", CHECK);
+    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/spring/SecureCookieCheck.properties", CHECK);
   }
 
   @Test
   void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/SecureCookieCheck.yaml", CHECK);
+    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/spring/SecureCookieCheck.yaml", CHECK);
   }
 }

@@ -20,14 +20,11 @@
 package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
+import org.sonar.iac.jvmframeworkconfig.checks.common.HardcodedSecrets;
 
 @Rule(key = "S6437")
-public class HardcodedSecretsCheck extends AbstractSensitiveKeyCheck {
-  private static final String MESSAGE = "Revoke and change this password, as it is compromised.";
+public class HardcodedSecretsCheck extends HardcodedSecrets {
   private static final Set<String> SENSITIVE_KEYS = Set.of(
     "spring.mail.password",
     "spring.sendgrid.api-key",
@@ -98,21 +95,9 @@ public class HardcodedSecretsCheck extends AbstractSensitiveKeyCheck {
     "management.signalfx.metrics.export.access-token",
     "management.wavefront.api-token",
     "spring.devtools.remote.secret");
-  private static final Pattern VARIABLE = Pattern.compile("\\$\\{[^}]+}");
 
   @Override
   protected Set<String> sensitiveKeys() {
     return SENSITIVE_KEYS;
-  }
-
-  @Override
-  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if (isHardcoded(value)) {
-      ctx.reportIssue(tuple.value(), MESSAGE);
-    }
-  }
-
-  private static boolean isHardcoded(String value) {
-    return !(value.isEmpty() || VARIABLE.matcher(value).find());
   }
 }

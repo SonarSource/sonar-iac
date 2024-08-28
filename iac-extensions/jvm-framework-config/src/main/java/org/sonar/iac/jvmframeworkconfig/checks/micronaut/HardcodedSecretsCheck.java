@@ -27,18 +27,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.jvmframeworkconfig.checks.spring.AbstractSensitiveKeyCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.jvmframeworkconfig.checks.common.HardcodedSecrets;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
 
 @Rule(key = "S6437")
-public class HardcodedSecretsCheck extends AbstractSensitiveKeyCheck {
-  private static final String MESSAGE = "Revoke and change this password, as it is compromised.";
+public class HardcodedSecretsCheck extends HardcodedSecrets {
   private static final Set<String> SENSITIVE_KEYS = Set.of(
     "micronaut.ssl.key.password",
     "micronaut.ssl.key-store.password",
@@ -134,7 +133,6 @@ public class HardcodedSecretsCheck extends AbstractSensitiveKeyCheck {
   // Extra use case: combine both wildcard in the key and URL with password in value
   private static final Pattern PATTERN_SENSITIVE_RABBITMQ_PROPERTY = Pattern.compile("rabbitmq.servers.[^.]++.uri");
 
-  private static final Pattern VARIABLE = Pattern.compile("\\$\\{[^}]+}");
   // Compiling patterns together is ~35% faster than checking patterns individually
   private static final Predicate<String> PREDICATE_SENSITIVE_KEY_FULL_REGEX = Pattern.compile(String.join("|", SENSITIVE_KEYS_REGEX)).asMatchPredicate();
 
@@ -144,32 +142,21 @@ public class HardcodedSecretsCheck extends AbstractSensitiveKeyCheck {
   }
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(Tuple.class, this::checkTuplePatternInKey);
-    init.register(Tuple.class, HardcodedSecretsCheck::checkTuplePatternInValue);
-    super.initialize(init);
-  }
-
-  private void checkTuplePatternInKey(CheckContext ctx, Tuple tuple) {
+  protected void checkTuple(CheckContext ctx, Tuple tuple) {
     var key = tuple.key().value().value();
-    if (PREDICATE_SENSITIVE_KEY_FULL_REGEX.test(key)) {
+    if (sensitiveKeys().contains(key) || PREDICATE_SENSITIVE_KEY_FULL_REGEX.test(key)) {
       var valueString = getStringValue(tuple);
       if (valueString != null) {
         checkValue(ctx, tuple, valueString);
       }
+    } else if (SENSITIVE_KEYS_WITH_PATTERN_VALUE.containsKey(key)) {
+      var pattern = SENSITIVE_KEYS_WITH_PATTERN_VALUE.get(key);
+      checkValueWithPattern(ctx, pattern, tuple);
     } else {
       var matcher = PATTERN_SENSITIVE_RABBITMQ_PROPERTY.matcher(key);
       if (matcher.matches()) {
         checkValueWithPattern(ctx, PATTERN_PASSWORD_IN_URL, tuple);
       }
-    }
-  }
-
-  private static void checkTuplePatternInValue(CheckContext ctx, Tuple tuple) {
-    var key = tuple.key().value().value();
-    if (SENSITIVE_KEYS_WITH_PATTERN_VALUE.containsKey(key)) {
-      var pattern = SENSITIVE_KEYS_WITH_PATTERN_VALUE.get(key);
-      checkValueWithPattern(ctx, pattern, tuple);
     }
   }
 
@@ -195,16 +182,5 @@ public class HardcodedSecretsCheck extends AbstractSensitiveKeyCheck {
     int endLine = hasTextRange.textRange().start().line();
     int endLineOffset = hasTextRange.textRange().start().lineOffset() + endPassword;
     return TextRanges.range(startLine, startLineOffset, endLine, endLineOffset);
-  }
-
-  @Override
-  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if (isHardcoded(value)) {
-      ctx.reportIssue(tuple.value(), MESSAGE);
-    }
-  }
-
-  private static boolean isHardcoded(String value) {
-    return !(value.isEmpty() || VARIABLE.matcher(value).find());
   }
 }
