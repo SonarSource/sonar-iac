@@ -33,7 +33,8 @@ import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPP
 
 class TFLintRulesDefinitionTest {
 
-  @MethodSource(value = "org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions#externalRepositoryShouldBeInitializedWithSonarRuntime")
+  @MethodSource(value = "org.sonar.iac.common.testing" +
+    ".AbstractExternalRulesDefinitionAssertions#externalRepositoryShouldBeInitializedWithSonarRuntime")
   @ParameterizedTest
   void externalRepositoryShouldBeInitializedWithSonarRuntime(SonarRuntime sonarRuntime, boolean shouldSupportCCT) {
     var context = new RulesDefinition.Context();
@@ -57,7 +58,8 @@ class TFLintRulesDefinitionTest {
   @Test
   void noOpRulesDefinitionShouldNotDefineAnyRule() {
     var context = new RulesDefinition.Context();
-    AbstractExternalRulesDefinition noOpRulesDefinition = TFLintRulesDefinition.noOpInstanceForSL(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
+    AbstractExternalRulesDefinition noOpRulesDefinition =
+      TFLintRulesDefinition.noOpInstanceForSL(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
     noOpRulesDefinition.define(context);
     assertNoRepositoryIsDefined(context, noOpRulesDefinition);
   }
