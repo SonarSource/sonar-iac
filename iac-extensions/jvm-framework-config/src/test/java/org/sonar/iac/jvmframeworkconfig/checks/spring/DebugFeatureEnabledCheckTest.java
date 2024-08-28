@@ -29,11 +29,11 @@ class DebugFeatureEnabledCheckTest {
 
   @Test
   void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.properties", CHECK);
+    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/spring/DebugFeatureEnabledCheck.properties", CHECK);
   }
 
   @Test
   void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/DebugFeatureEnabledCheck.yaml", CHECK);
+    JvmFrameworkConfigVerifier.verify("DebugFeatureEnabledCheck/spring/DebugFeatureEnabledCheck.yaml", CHECK);
   }
 }

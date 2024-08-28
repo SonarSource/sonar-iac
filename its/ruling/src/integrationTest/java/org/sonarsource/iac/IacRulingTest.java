@@ -29,10 +29,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -219,17 +221,12 @@ class IacRulingTest {
       .append("  <language>java</language>\n")
       .append("  <rules>\n");
 
-    SpringConfigCheckList.checks().stream()
+    Stream.concat(
+      SpringConfigCheckList.checks().stream(),
+      MicronautConfigCheckList.checks().stream())
       .map(IacRulingTest::annotatedRuleKey)
       .filter(Objects::nonNull)
-      .forEach(ruleKey -> sb.append("    <rule>\n")
-        .append("      <repositoryKey>java</repositoryKey>\n")
-        .append("      <key>").append(ruleKey).append("</key>\n")
-        .append("      <priority>INFO</priority>\n")
-        .append("    </rule>\n"));
-    MicronautConfigCheckList.checks().stream()
-      .map(IacRulingTest::annotatedRuleKey)
-      .filter(Objects::nonNull)
+      .distinct() // Fail to startup with duplicated keys
       .forEach(ruleKey -> sb.append("    <rule>\n")
         .append("      <repositoryKey>java</repositoryKey>\n")
         .append("      <key>").append(ruleKey).append("</key>\n")

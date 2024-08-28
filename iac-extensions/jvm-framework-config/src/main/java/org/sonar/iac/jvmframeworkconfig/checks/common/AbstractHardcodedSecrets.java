@@ -17,19 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.spring;
+package org.sonar.iac.jvmframeworkconfig.checks.common;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
+import java.util.regex.Pattern;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.jvmframeworkconfig.checks.spring.AbstractSensitiveKeyCheck;
+import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
-class HardcodedSecretsCheckTest {
-  @Test
-  void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("HardcodedSecretsCheck/spring/HardcodedSecretsCheck.properties", new HardcodedSecretsCheck());
+public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck {
+  protected static final String MESSAGE = "Revoke and change this password, as it is compromised.";
+  protected static final Pattern VARIABLE = Pattern.compile("\\$\\{[^}]+}");
+
+  @Override
+  protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
+    if (isHardcoded(value)) {
+      ctx.reportIssue(tuple.value(), MESSAGE);
+    }
   }
 
-  @Test
-  void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("HardcodedSecretsCheck/spring/HardcodedSecretsCheck.yaml", new HardcodedSecretsCheck());
+  private static boolean isHardcoded(String value) {
+    return !(value.isEmpty() || VARIABLE.matcher(value).find());
   }
 }

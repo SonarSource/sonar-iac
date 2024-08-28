@@ -30,19 +30,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ExcessiveFileUploadSizeLimitCheckTest {
   @Test
   void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("ExcessiveFileUploadSizeLimitCheck/ExcessiveFileUploadSizeLimitCheck.properties", new ExcessiveFileUploadSizeLimitCheck());
+    JvmFrameworkConfigVerifier.verify("ExcessiveFileUploadSizeLimitCheck/spring/ExcessiveFileUploadSizeLimitCheck.properties", new ExcessiveFileUploadSizeLimitCheck());
   }
 
   @Test
   void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("ExcessiveFileUploadSizeLimitCheck/ExcessiveFileUploadSizeLimitCheck.yaml", new ExcessiveFileUploadSizeLimitCheck());
+    JvmFrameworkConfigVerifier.verify("ExcessiveFileUploadSizeLimitCheck/spring/ExcessiveFileUploadSizeLimitCheck.yaml", new ExcessiveFileUploadSizeLimitCheck());
   }
 
   @Test
   void shouldDetectSensitiveValueInPropertiesWithCustomLimit() {
     ExcessiveFileUploadSizeLimitCheck check = new ExcessiveFileUploadSizeLimitCheck();
     check.fileUploadSizeLimit = 1024 * 1024; // 1MB
-    JvmFrameworkConfigVerifier.verify("ExcessiveFileUploadSizeLimitCheck/ExcessiveFileUploadSizeLimitCheck-customRuleProperty.properties", check);
+    JvmFrameworkConfigVerifier.verify("ExcessiveFileUploadSizeLimitCheck/spring/ExcessiveFileUploadSizeLimitCheck-customRuleProperty.properties", check);
   }
 
   @ParameterizedTest

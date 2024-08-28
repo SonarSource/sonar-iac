@@ -30,6 +30,7 @@ public final class MicronautConfigCheckList {
 
   public static List<Class<?>> checks() {
     return List.of(
+      HardcodedSecretsCheck.class,
       ParsingErrorCheck.class,
       ToDoCommentCheck.class);
   }

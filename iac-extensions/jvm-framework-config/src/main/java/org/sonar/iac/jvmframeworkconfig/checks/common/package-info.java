@@ -17,19 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.jvmframeworkconfig.checks.spring;
-
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
-
-class HardcodedSecretsCheckTest {
-  @Test
-  void shouldDetectSensitiveValueInProperties() {
-    JvmFrameworkConfigVerifier.verify("HardcodedSecretsCheck/spring/HardcodedSecretsCheck.properties", new HardcodedSecretsCheck());
-  }
-
-  @Test
-  void shouldDetectSensitiveValueInYaml() {
-    JvmFrameworkConfigVerifier.verify("HardcodedSecretsCheck/spring/HardcodedSecretsCheck.yaml", new HardcodedSecretsCheck());
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.jvmframeworkconfig.checks.common;
