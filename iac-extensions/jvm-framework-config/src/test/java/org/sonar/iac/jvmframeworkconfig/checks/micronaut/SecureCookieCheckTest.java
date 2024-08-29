@@ -19,22 +19,21 @@
  */
 package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-public final class MicronautConfigCheckList {
-  private MicronautConfigCheckList() {
+class SecureCookieCheckTest {
+
+  private static final IacCheck CHECK = new SecureCookieCheck();
+
+  @Test
+  void shouldDetectSensitiveValueInProperties() {
+    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/micronaut/SecureCookieCheck.properties", CHECK);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      HardcodedSecretsCheck.class,
-      MisconfiguredHttpOnlyCookieFlagCheck.class,
-      ParsingErrorCheck.class,
-      SecureCookieCheck.class,
-      ToDoCommentCheck.class,
-      UnsecureConnectionCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Test
+  void shouldDetectSensitiveValueInYaml() {
+    JvmFrameworkConfigVerifier.verify("SecureCookieCheck/micronaut/SecureCookieCheck.yaml", CHECK);
   }
 }
