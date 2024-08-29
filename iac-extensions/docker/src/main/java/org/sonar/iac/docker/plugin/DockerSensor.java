@@ -39,6 +39,7 @@ import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.reports.ExternalReportWildcardProvider;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
@@ -46,7 +47,6 @@ import org.sonar.iac.docker.reports.hadolint.HadolintImporter;
 import org.sonar.iac.docker.visitors.DockerHighlightingVisitor;
 import org.sonar.iac.docker.visitors.DockerMetricsVisitor;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
-import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
@@ -123,7 +123,7 @@ public class DockerSensor extends IacSensor {
 
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
-    ExternalReportProvider.getReportFiles(sensorContext, DockerSettings.HADOLINT_REPORTS_KEY)
+    ExternalReportWildcardProvider.getReportFiles(sensorContext, DockerSettings.HADOLINT_REPORTS_KEY)
       .forEach(report -> new HadolintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 

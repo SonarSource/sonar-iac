@@ -69,7 +69,7 @@ public class DockerSettings {
     return List.of(PropertyDefinition.builder(HADOLINT_REPORTS_KEY)
       .index(33)
       .name("Hadolint Report Files")
-      .description("Paths (absolute or relative) to the files with Hadolint issues.")
+      .description("Paths (absolute or relative) to the files with Hadolint issues. You can use Ant patterns to define paths.")
       .category(EXTERNAL_ANALYZERS_CATEGORY)
       .subCategory(DOCKER_CATEGORY)
       .onQualifiers(Qualifiers.PROJECT)

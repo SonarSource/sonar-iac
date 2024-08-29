@@ -32,9 +32,9 @@ import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
+import org.sonar.iac.common.reports.ExternalReportWildcardProvider;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlSensor;
-import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
@@ -78,7 +78,7 @@ public class CloudformationSensor extends YamlSensor {
 
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
-    ExternalReportProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
+    ExternalReportWildcardProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
       .forEach(report -> new CfnLintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 
