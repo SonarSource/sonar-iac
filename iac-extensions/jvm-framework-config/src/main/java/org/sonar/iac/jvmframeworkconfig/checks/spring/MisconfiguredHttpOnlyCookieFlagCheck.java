@@ -21,6 +21,7 @@ package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractSensitiveKeyCheck;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 import java.util.Set;
