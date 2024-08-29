@@ -1,0 +1,87 @@
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-http-only: false # Noncompliant {{Make sure disabling the "HttpOnly" flag of this cookie is safe here.}}
+#       ^^^^^^^^^^^^^^^^^^^^^^^
+
+---
+
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-http-only: FALSE # Noncompliant
+
+---
+
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-http-only: "false" # Noncompliant
+
+---
+
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-http-only: true
+
+---
+
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-http-only:
+
+---
+
+other:
+  security:
+    token:
+      cookie:
+        cookie-http-only:
+
+---
+
+cookie-http-only:
+
+---
+
+micronaut:
+  security:
+    token:
+      jwt:
+        cookie:
+          cookie-http-only: false # Noncompliant
+
+---
+
+micronaut:
+  security:
+    token:
+      refresh:
+        cookie:
+          cookie-http-only: false # Noncompliant
+
+---
+
+micronaut:
+  security:
+    oauth2:
+      openid:
+        nonce:
+          cookie:
+            cookie-http-only: false # Noncompliant
+
+---
+
+micronaut:
+  security:
+    oauth2:
+      state:
+        cookie:
+          cookie-http-only: false # Noncompliant
