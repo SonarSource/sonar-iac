@@ -21,26 +21,23 @@ package org.sonar.iac.docker.plugin;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class DockerExtensionTest {
 
   @Test
   void shouldDefineExtensionsOnSonarqube() {
-    Plugin.Context context = new Plugin.Context(SONAR_RUNTIME_10_6);
+    Plugin.Context context = new Plugin.Context(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
     DockerExtension.define(context);
     assertThat(context.getExtensions()).hasSize(8);
   }
 
   @Test
   void shouldDefineExtensionsOnSonarlint() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(Version.create(3, 14));
-    Plugin.Context context = new Plugin.Context(runtime);
+    Plugin.Context context = new Plugin.Context(SONARLINT_RUNTIME_9_9);
     DockerExtension.define(context);
     assertThat(context.getExtensions()).hasSize(7);
   }

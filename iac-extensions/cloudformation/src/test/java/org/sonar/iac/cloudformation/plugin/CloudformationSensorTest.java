@@ -32,13 +32,13 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class CloudformationSensorTest extends ExtensionSensorTest {
 
   private static final String PARSING_ERROR_KEY = "S2260";
 
-  private final CfnLintRulesDefinition cfnLintRulesDefinition = new CfnLintRulesDefinition(SONAR_RUNTIME_10_6);
+  private final CfnLintRulesDefinition cfnLintRulesDefinition = new CfnLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
 
   @Test
   void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
@@ -116,7 +116,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(SONAR_RUNTIME_10_6, cfnLintRulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter,
+    return new CloudformationSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, cfnLintRulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter,
       new CloudformationLanguage());
   }
 

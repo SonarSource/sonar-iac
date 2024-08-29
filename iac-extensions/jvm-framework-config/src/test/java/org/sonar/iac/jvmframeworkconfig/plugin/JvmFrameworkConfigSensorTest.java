@@ -38,7 +38,7 @@ import org.sonar.iac.common.yaml.YamlLanguage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   private static final String PATH_PREFIX = "src/main/resources/";
@@ -51,7 +51,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   @Override
   protected Sensor sensor(CheckFactory checkFactory) {
     return new JvmFrameworkConfigSensor(
-      SONAR_RUNTIME_10_6,
+      SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
       fileLinesContextFactory,
       noSonarFilter,
       checkFactory);

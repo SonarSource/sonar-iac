@@ -46,7 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class HadolintImporterTest {
@@ -56,7 +56,7 @@ class HadolintImporterTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private SensorContextTester context;
-  private final HadolintRulesDefinition hadolintRulesDefinition = new HadolintRulesDefinition(SONAR_RUNTIME_10_6);
+  private final HadolintRulesDefinition hadolintRulesDefinition = new HadolintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
 
   @BeforeEach
   void setUp() {

@@ -67,7 +67,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class IacSensorTest extends AbstractSensorTest {
 
@@ -462,7 +462,7 @@ class IacSensorTest extends AbstractSensorTest {
 
   @Override
   protected IacSensor sensor(CheckFactory checkFactory) {
-    return sensor(SONAR_RUNTIME_10_6, checkFactory);
+    return sensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, checkFactory);
   }
 
   protected IacSensor sensor(SonarRuntime sonarRuntime, CheckFactory checkFactory) {
@@ -475,7 +475,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   private IacSensor sensorParseException(CheckFactory checkFactory) {
-    return new TestIacSensor(SONAR_RUNTIME_10_6,
+    return new TestIacSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
       fileLinesContextFactory,
       noSonarFilter,
       IacLanguage.IAC,
@@ -484,7 +484,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   private IacSensor sensorRecognitionException(CheckFactory checkFactory) {
-    return new TestIacSensor(SONAR_RUNTIME_10_6,
+    return new TestIacSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
       fileLinesContextFactory,
       noSonarFilter,
       IacLanguage.IAC,

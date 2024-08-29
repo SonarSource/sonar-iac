@@ -39,7 +39,7 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class ArmSensorTest extends ExtensionSensorTest {
 
@@ -95,7 +95,7 @@ class ArmSensorTest extends ExtensionSensorTest {
 
   @Override
   protected ArmSensor sensor(CheckFactory checkFactory) {
-    return new ArmSensor(SONAR_RUNTIME_10_6, fileLinesContextFactory, checkFactory, noSonarFilter,
+    return new ArmSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
       new ArmLanguage(new MapSettings().asConfig()));
   }
 

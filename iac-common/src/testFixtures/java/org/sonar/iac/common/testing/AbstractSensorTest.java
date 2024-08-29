@@ -35,13 +35,13 @@ import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.Version;
+
+import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 
 public abstract class AbstractSensorTest {
 
@@ -63,7 +63,7 @@ public abstract class AbstractSensorTest {
     var settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     context = SensorContextTester.create(baseDir).setSettings(settings);
-    sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(9, 2))).setSettings(settings);
+    sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SONARLINT_RUNTIME_9_9).setSettings(settings);
   }
 
   protected abstract String getActivationSettingKey();

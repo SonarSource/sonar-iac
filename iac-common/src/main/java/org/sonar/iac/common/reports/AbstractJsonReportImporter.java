@@ -50,7 +50,8 @@ public abstract class AbstractJsonReportImporter {
   private final String warningPrefix;
   private Set<String> unresolvedPaths;
 
-  protected AbstractJsonReportImporter(SensorContext context, AbstractExternalRulesDefinition externalRulesDefinition,
+  protected AbstractJsonReportImporter(SensorContext context,
+    AbstractExternalRulesDefinition externalRulesDefinition,
     AnalysisWarningsWrapper analysisWarnings,
     String warningPrefix) {
     this.externalRuleLoader = externalRulesDefinition.getRuleLoader();

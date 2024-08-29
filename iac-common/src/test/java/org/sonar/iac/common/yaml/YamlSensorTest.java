@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class YamlSensorTest extends AbstractSensorTest {
 
@@ -98,7 +98,7 @@ class YamlSensorTest extends AbstractSensorTest {
 
   @Override
   protected YamlSensor sensor(CheckFactory checkFactory) {
-    return new YamlSensor(SONAR_RUNTIME_10_6, fileLinesContextFactory, checkFactory, noSonarFilter, YamlLanguage.YAML,
+    return new YamlSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter, YamlLanguage.YAML,
       Collections.emptyList()) {
       @Override
       protected FilePredicate customFilePredicate(SensorContext sensorContext) {

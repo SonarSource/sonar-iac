@@ -41,9 +41,12 @@ import static org.mockito.Mockito.when;
 
 public final class IacTestUtils {
 
-  public static final SonarRuntime SONAR_RUNTIME_10_6 = SonarRuntimeImpl.forSonarQube(Version.create(10, 6), SonarQubeSide.SERVER,
+  /**
+   * It is a minial SonarQube version where CCT (Clean Code Taxonomy) is supported.
+   */
+  public static final SonarRuntime SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION = SonarRuntimeImpl.forSonarQube(Version.create(10, 6), SonarQubeSide.SERVER,
     SonarEdition.COMMUNITY);
-  public static final SonarRuntime SONAR_RUNTIME_9_9 = SonarRuntimeImpl.forSonarQube(Version.create(9, 9), SonarQubeSide.SERVER,
+  public static final SonarRuntime SONAR_QUBE_9_9 = SonarRuntimeImpl.forSonarQube(Version.create(9, 9), SonarQubeSide.SERVER,
     SonarEdition.COMMUNITY);
   public static final SonarRuntime SONARLINT_RUNTIME_9_9 = SonarRuntimeImpl.forSonarLint(Version.create(9, 2));
 

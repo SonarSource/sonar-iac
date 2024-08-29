@@ -23,16 +23,13 @@ import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -43,11 +40,12 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_RUNTIME_10_6;
+import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class TerraformSensorTest extends ExtensionSensorTest {
 
-  private static final TFLintRulesDefinition tfLintRulesDefinition = new TFLintRulesDefinition(SONAR_RUNTIME_10_6);
+  private static final TFLintRulesDefinition tfLintRulesDefinition = new TFLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
 
   @Test
   void should_return_terraform_descriptor() {
@@ -80,12 +78,11 @@ class TerraformSensorTest extends ExtensionSensorTest {
 
   @Test
   void test_sonarlint_context() {
-    SonarRuntime sonarLintRuntime = SonarRuntimeImpl.forSonarLint(Version.create(6, 0));
     InputFile inputFile = inputFile("file1.tf", """
       resource "aws_s3_bucket" "myawsbucket" {
         tags = { "anycompany:cost-center" = "" }
       }""");
-    context.setRuntime(sonarLintRuntime);
+    context.setRuntime(SONARLINT_RUNTIME_9_9);
 
     analyze(sensor("S6273"), inputFile);
     assertThat(context.allIssues()).hasSize(1);
@@ -117,7 +114,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
 
   @Override
   protected TerraformSensor sensor(CheckFactory checkFactory) {
-    return new TerraformSensor(SONAR_RUNTIME_10_6, tfLintRulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter,
+    return new TerraformSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, tfLintRulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter,
       new TerraformLanguage(new MapSettings().asConfig()), providerVersions());
   }
 
