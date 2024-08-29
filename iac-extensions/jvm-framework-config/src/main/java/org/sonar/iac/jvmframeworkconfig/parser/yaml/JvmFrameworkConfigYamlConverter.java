@@ -21,9 +21,11 @@ package org.sonar.iac.jvmframeworkconfig.parser.yaml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
@@ -87,10 +89,10 @@ public class JvmFrameworkConfigYamlConverter implements IacYamlConverter<File, S
   @Override
   public Stream<TupleBuilder> convertScalar(ScalarNode scalarNode) {
     TextRange range = YamlTreeMetadata.Builder.range(scalarNode);
-    var tuple = new TupleBuilder()
+    var tupleBuilder = new TupleBuilder()
       .withValue(scalarNode.getValue())
       .withValueTextRange(range);
-    return Stream.of(tuple);
+    return Stream.of(tupleBuilder);
   }
 
   @Override
@@ -104,10 +106,11 @@ public class JvmFrameworkConfigYamlConverter implements IacYamlConverter<File, S
 
     String keyPrefix = ((ScalarNode) tuple.getKeyNode()).getValue();
     boolean valueIsScalar = tuple.getValueNode() instanceof ScalarNode;
+    boolean valueIsEmptySequence = tuple.getValueNode() instanceof SequenceNode sequenceNode && sequenceNode.getValue().isEmpty();
 
     return convert(tuple.getValueNode())
       .map((TupleBuilder childTuple) -> {
-        if (valueIsScalar) {
+        if (valueIsScalar || valueIsEmptySequence) {
           return childTuple.withKeyTextRange(YamlTreeMetadata.Builder.range(tuple.getKeyNode()));
         }
         return childTuple;
@@ -117,6 +120,11 @@ public class JvmFrameworkConfigYamlConverter implements IacYamlConverter<File, S
 
   @Override
   public Stream<TupleBuilder> convertSequence(SequenceNode sequenceNode) {
+    // If this is an empty sequence, it means it is a flow style empty array like 'key: []'. We return a single empty tupleBuilder so that we
+    // keep a mapped null value to the key. Otherwise, it results in a Profile with no child, which throw an error when computing TextRange.
+    if (sequenceNode.getValue().isEmpty()) {
+      return Stream.of(new TupleBuilder());
+    }
     return IntStream
       .range(0, sequenceNode.getValue().size())
       .mapToObj((int index) -> {
@@ -131,6 +139,7 @@ public class JvmFrameworkConfigYamlConverter implements IacYamlConverter<File, S
   public static class TupleBuilder {
     private final List<String> keysReversed = new ArrayList<>();
     private TextRange keyTextRange;
+    @Nullable
     private String value;
     private TextRange valueTextRange;
 
@@ -156,8 +165,11 @@ public class JvmFrameworkConfigYamlConverter implements IacYamlConverter<File, S
         keyTextRange = valueTextRange;
       }
       var keyToken = new SyntaxTokenImpl(buildKey(keysReversed), keyTextRange);
-      var valueToken = new SyntaxTokenImpl(value, valueTextRange);
-      return new TupleImpl(new ScalarImpl(keyToken), new ScalarImpl(valueToken));
+      var valueToken = Optional.ofNullable(value)
+        .map(val -> new SyntaxTokenImpl(val, valueTextRange))
+        .map(ScalarImpl::new)
+        .orElse(null);
+      return new TupleImpl(new ScalarImpl(keyToken), valueToken);
     }
 
     private static String buildKey(List<String> keysReversed) {

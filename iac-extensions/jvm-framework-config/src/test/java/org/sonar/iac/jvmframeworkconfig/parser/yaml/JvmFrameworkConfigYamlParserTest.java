@@ -410,4 +410,16 @@ class JvmFrameworkConfigYamlParserTest {
 
     assertThatNoException().isThrownBy(() -> parser.parse(code, inputFileContext));
   }
+
+  @Test
+  void shouldParseYamlEmptyArray() {
+    String source = """
+      a:
+        b: []""";
+    File file = (File) parser.parse(source, inputFileContext);
+    assertThat(file.profiles().get(0).properties()).hasSize(1);
+    assertThat(file.profiles().get(0).properties().get(0).key().value().value()).isEqualTo("a.b");
+    assertThat(file.profiles().get(0).properties().get(0).value()).isNull();
+    TextRangeAssert.assertThat(file.profiles().get(0).properties().get(0).textRange()).hasRange(2, 2, 2, 3);
+  }
 }
