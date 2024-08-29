@@ -19,79 +19,46 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
-import org.sonar.iac.common.testing.AbstractExternalRulesDefinitionTest;
 
-import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
+import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertExistingRepository;
+import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertNoRepositoryIsDefined;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_9_9;
 
-class HadolintRulesDefinitionTest extends AbstractExternalRulesDefinitionTest {
+class HadolintRulesDefinitionTest {
 
-  static Stream<Arguments> externalRepositoryShouldBeInitializedWithSonarRuntime() {
-    return Stream.of(
-      Arguments.of(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, true),
-      Arguments.of(SONAR_QUBE_9_9, false),
-      Arguments.of(SONARLINT_RUNTIME_9_9, false));
-  }
-
-  @MethodSource
+  @MethodSource(value = "org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions#externalRepositoryShouldBeInitializedWithSonarRuntime")
   @ParameterizedTest
   void externalRepositoryShouldBeInitializedWithSonarRuntime(SonarRuntime sonarRuntime, boolean shouldSupportCCT) {
     var context = new RulesDefinition.Context();
-    AbstractExternalRulesDefinition rulesDefinition = rulesDefinition(sonarRuntime);
+    AbstractExternalRulesDefinition rulesDefinition = new HadolintRulesDefinition(sonarRuntime);
 
     if (sonarRuntime.getProduct() != SonarProduct.SONARLINT) {
       rulesDefinition.define(context);
-      assertExistingRepository(context, rulesDefinition, shouldSupportCCT);
+      assertExistingRepository(
+        context,
+        rulesDefinition,
+        "hadolint",
+        "HADOLINT",
+        "docker",
+        99,
+        shouldSupportCCT);
     } else {
       assertNoRepositoryIsDefined(context, rulesDefinition);
     }
   }
 
   @Test
-  public void noOpRulesDefinitionShouldNotDefineAnyRule() {
+  void noOpRulesDefinitionShouldNotDefineAnyRule() {
     var context = new RulesDefinition.Context();
-    AbstractExternalRulesDefinition noOpRulesDefinition = noOpRulesDefinition();
+    AbstractExternalRulesDefinition noOpRulesDefinition = HadolintRulesDefinition.noOpInstanceForSL(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
     noOpRulesDefinition.define(context);
     assertNoRepositoryIsDefined(context, noOpRulesDefinition);
-  }
-
-  @Override
-  protected AbstractExternalRulesDefinition rulesDefinition(SonarRuntime sonarRuntime) {
-    return new HadolintRulesDefinition(sonarRuntime);
-  }
-
-  @Override
-  protected int numberOfRules() {
-    return 99;
-  }
-
-  @Override
-  protected String reportName() {
-    return HadolintRulesDefinition.LINTER_NAME;
-  }
-
-  @Override
-  protected String reportKey() {
-    return HadolintRulesDefinition.LINTER_KEY;
-  }
-
-  @Override
-  protected String language() {
-    return DockerLanguage.KEY;
-  }
-
-  @Override
-  protected AbstractExternalRulesDefinition noOpRulesDefinition() {
-    return HadolintRulesDefinition.noOpInstanceForSL(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
   }
 }
