@@ -35,6 +35,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
+import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.JSONParser;
@@ -43,13 +44,17 @@ import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseExcepti
 public abstract class AbstractJsonReportImporter {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractJsonReportImporter.class);
   protected static final JSONParser jsonParser = new JSONParser();
-
+  protected final ExternalRuleLoader externalRuleLoader;
   protected final SensorContext context;
   private final AnalysisWarningsWrapper analysisWarnings;
   private final String warningPrefix;
   private Set<String> unresolvedPaths;
 
-  protected AbstractJsonReportImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
+  protected AbstractJsonReportImporter(SensorContext context,
+    AbstractExternalRulesDefinition externalRulesDefinition,
+    AnalysisWarningsWrapper analysisWarnings,
+    String warningPrefix) {
+    this.externalRuleLoader = externalRulesDefinition.getRuleLoader();
     this.context = context;
     this.analysisWarnings = analysisWarnings;
     this.warningPrefix = warningPrefix;
@@ -57,7 +62,7 @@ public abstract class AbstractJsonReportImporter {
 
   public void importReport(File reportFile) {
     if (!reportFile.isFile()) {
-      String message = String.format("path does not seem to point to a file %s", reportFile.getPath());
+      var message = String.format("path does not seem to point to a file %s", reportFile.getPath());
       logWarning(message);
       return;
     } else {
@@ -78,13 +83,13 @@ public abstract class AbstractJsonReportImporter {
     try {
       issuesJson = parseFileAsArray(reportFile);
     } catch (IOException e) {
-      String message = String.format("could not read report file %s", reportFile.getPath());
+      var message = String.format("could not read report file %s", reportFile.getPath());
       logWarning(message);
     } catch (ParseException e) {
-      String message = String.format("could not parse file as JSON %s", reportFile.getPath());
+      var message = String.format("could not parse file as JSON %s", reportFile.getPath());
       logWarning(message);
     } catch (RuntimeException e) {
-      String message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());
+      var message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());
       logWarning(message);
     }
     if (issuesJson == null) {
@@ -98,7 +103,7 @@ public abstract class AbstractJsonReportImporter {
   }
 
   protected int saveIssues(JSONArray issuesJson) {
-    int failedToSaveIssues = 0;
+    var failedToSaveIssues = 0;
     for (Object issueJson : issuesJson) {
       try {
         NewExternalIssue externalIssue = toExternalIssue((JSONObject) issueJson);
@@ -133,7 +138,7 @@ public abstract class AbstractJsonReportImporter {
       throw new ReportImporterException("Empty path");
     }
     FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(
+    var inputFile = context.fileSystem().inputFile(predicates.or(
       predicates.hasAbsolutePath(filename),
       predicates.hasRelativePath(filename)));
 
@@ -146,7 +151,7 @@ public abstract class AbstractJsonReportImporter {
   }
 
   private void addWarning(String path, int total, int failed) {
-    StringBuilder sb = new StringBuilder(String.format("could not save %d out of %d issues from %s.", failed, total, path));
+    var sb = new StringBuilder(String.format("could not save %d out of %d issues from %s.", failed, total, path));
     if (!unresolvedPaths.isEmpty()) {
       sb.append(" Some file paths could not be resolved: ");
       sb.append(unresolvedPaths.stream().limit(2).collect(Collectors.joining(", ")));

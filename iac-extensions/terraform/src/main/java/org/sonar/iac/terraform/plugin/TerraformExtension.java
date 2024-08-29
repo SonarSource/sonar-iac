@@ -51,6 +51,8 @@ public class TerraformExtension {
       // We do not import external reports in SonarLint so no need to define the tflint rules.
       context.addExtension(TFLintRulesDefinition.class);
       properties.addAll(TerraformSettings.getExternalReportProperties());
+    } else {
+      context.addExtension(TFLintRulesDefinition.noOpInstanceForSL(context.getRuntime()));
     }
 
     context.addExtensions(properties);

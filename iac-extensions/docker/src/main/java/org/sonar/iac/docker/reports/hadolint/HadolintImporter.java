@@ -19,11 +19,12 @@
  */
 package org.sonar.iac.docker.reports.hadolint;
 
-import org.sonar.api.batch.fs.InputFile;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
@@ -32,15 +33,12 @@ import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
 public class HadolintImporter extends AbstractJsonReportImporter {
   private static final String MESSAGE_PREFIX = "Hadolint report importing: ";
 
-  public HadolintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
-    super(context, analysisWarnings, MESSAGE_PREFIX);
+  public HadolintImporter(SensorContext context, HadolintRulesDefinition hadolintRulesDefinition,
+    AnalysisWarningsWrapper analysisWarnings) {
+    super(context, hadolintRulesDefinition, analysisWarnings, MESSAGE_PREFIX);
   }
 
   @Override
@@ -57,23 +55,23 @@ public class HadolintImporter extends AbstractJsonReportImporter {
       return array;
     } else {
       // exception is caught in calling method
-      String message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());
+      var message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());
       throw new ClassCastException(message);
     }
   }
 
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
-    ReportFormat reportFormat = ReportFormat.getFormatBasedOnReport(issueJson);
+    var reportFormat = ReportFormat.getFormatBasedOnReport(issueJson);
 
-    String path = reportFormat.getPath(issueJson);
-    InputFile inputFile = inputFile(path);
+    var path = reportFormat.getPath(issueJson);
+    var inputFile = inputFile(path);
 
-    String ruleId = reportFormat.getRuleId(issueJson);
+    var ruleId = reportFormat.getRuleId(issueJson);
 
-    NewExternalIssue externalIssue = context.newExternalIssue();
-    boolean loadPropertiesFromRepository = true;
-    if (!HadolintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
+    var externalIssue = context.newExternalIssue();
+    var loadPropertiesFromRepository = true;
+    if (!externalRuleLoader.ruleKeys().contains(ruleId)) {
       if (ruleId.startsWith("DL") || ruleId.startsWith("SC")) {
         // imported a rule which isn't (yet) contained in our rule repository, but is a valid rule from hadolint
         loadPropertiesFromRepository = false;
@@ -89,14 +87,14 @@ public class HadolintImporter extends AbstractJsonReportImporter {
     RuleType type;
 
     if (loadPropertiesFromRepository) {
-      effortInMinutes = HadolintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes(ruleId);
-      severity = HadolintRulesDefinition.RULE_LOADER.ruleSeverity(ruleId);
-      type = HadolintRulesDefinition.RULE_LOADER.ruleType(ruleId);
+      effortInMinutes = externalRuleLoader.ruleConstantDebtMinutes(ruleId);
+      severity = externalRuleLoader.ruleSeverity(ruleId);
+      type = externalRuleLoader.ruleType(ruleId);
     } else {
       severity = Severity.valueOf(reportFormat.getSeverity(issueJson));
       type = RuleType.valueOf(reportFormat.getRuleType(issueJson));
       // using default cause property is missing in report
-      effortInMinutes = HadolintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes("hadolint.fallback");
+      effortInMinutes = externalRuleLoader.ruleConstantDebtMinutes("hadolint.fallback");
     }
     externalIssue
       .ruleId(ruleId)
@@ -105,7 +103,7 @@ public class HadolintImporter extends AbstractJsonReportImporter {
       .severity(severity)
       .remediationEffortMinutes(effortInMinutes);
 
-    NewIssueLocation issueLocation = reportFormat.getIssueLocation(issueJson, externalIssue, inputFile);
+    var issueLocation = reportFormat.getIssueLocation(issueJson, externalIssue, inputFile);
     return externalIssue.at(issueLocation);
   }
 }

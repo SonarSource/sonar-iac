@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.terraform.reports.tflint;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,10 +36,7 @@ import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
+import org.sonar.iac.terraform.plugin.TFLintRulesDefinition;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.doAnswer;
@@ -46,6 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class TFLintImporterTest {
@@ -56,6 +57,7 @@ class TFLintImporterTest {
 
   private SensorContextTester context;
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
+  private final TFLintRulesDefinition tfLintRulesDefinition = new TFLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
 
   @BeforeEach
   void setUp() {
@@ -69,7 +71,7 @@ class TFLintImporterTest {
   @Test
   void shouldImportExampleIssue() {
     File reportFile = new File(PATH_PREFIX + "/exampleIssues.json");
-    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -85,7 +87,7 @@ class TFLintImporterTest {
   @Test
   void shouldImportExampleError() {
     File reportFile = new File(PATH_PREFIX + "/exampleError.json");
-    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -94,7 +96,9 @@ class TFLintImporterTest {
     assertThat(issue).hasRuleId("tflint.error");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo(
-      "Failed to check ruleset; Failed to check `aws_instance_previous_type` rule: exampleError.tf:2,21-29: Reference to undeclared input variable; An input variable with the name \"type\" has not been declared. This variable can be declared with a variable \"type\" {} block.");
+      "Failed to check ruleset; Failed to check `aws_instance_previous_type` rule: exampleError.tf:2,21-29: Reference to undeclared input" +
+        " variable; An input variable with the name \"type\" has not been declared. This variable can be declared with a variable " +
+        "\"type\" {} block.");
     assertTextRange(issue.primaryLocation().textRange(), 2, 0, 2, 26);
     verifyNoInteractions(mockAnalysisWarnings);
   }
@@ -102,7 +106,7 @@ class TFLintImporterTest {
   @Test
   void shouldImportExampleErrorBadFileLocation() {
     File reportFile = new File(PATH_PREFIX + "/exampleErrorBadFileLocation.json");
-    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -125,7 +129,7 @@ class TFLintImporterTest {
     reportPath = PATH_PREFIX + reportPath;
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
-    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -139,10 +143,10 @@ class TFLintImporterTest {
     String logMessage = String.format("TFLint report importing: could not read report file %s", path);
     when(reportFile.getPath()).thenReturn(path);
     when(reportFile.isFile()).thenReturn(true);
-    doAnswer((invocation) -> {
+    doAnswer(invocation -> {
       throw new IOException();
     }).when(reportFile).toPath();
-    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -154,7 +158,7 @@ class TFLintImporterTest {
   void shouldLogTraceWhenRuleDoesntExist() {
     String path = PATH_PREFIX + "/exampleIssueInvalidRuleId.json";
     File reportFile = new File(path);
-    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -164,14 +168,16 @@ class TFLintImporterTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-    PATH_PREFIX + "/invalidPathTwo.json; TFLint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
+    PATH_PREFIX + "/invalidPathTwo.json; TFLint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be " +
+      "resolved: " +
       "doesNotExist.yaml, a/b/doesNotExistToo.yaml",
-    PATH_PREFIX + "/invalidPathMoreThanTwo.json; TFLint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
+    PATH_PREFIX + "/invalidPathMoreThanTwo.json; TFLint report importing: could not save 3 out of 3 issues from %s. Some file paths could" +
+      " not be resolved: " +
       "doesNotExist.yaml, a/b/doesNotExistToo.yaml, ..."
   }, delimiter = ';')
   void testUnresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
     String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
-    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 

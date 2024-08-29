@@ -39,6 +39,7 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class ArmSensorTest extends ExtensionSensorTest {
 
@@ -94,7 +95,8 @@ class ArmSensorTest extends ExtensionSensorTest {
 
   @Override
   protected ArmSensor sensor(CheckFactory checkFactory) {
-    return new ArmSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new ArmLanguage(new MapSettings().asConfig()));
+    return new ArmSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
+      new ArmLanguage(new MapSettings().asConfig()));
   }
 
   private ArmSensor sensor(String... rules) {
@@ -129,14 +131,16 @@ class ArmSensorTest extends ExtensionSensorTest {
   @Override
   protected void verifyDebugMessages(List<String> logs) {
     assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
-    String message1 = "while scanning a quoted scalar\n" +
-      " in reader, line 1, column 1:\n" +
-      "    \"a'\n" +
-      "    ^\n" +
-      "found unexpected end of stream\n" +
-      " in reader, line 1, column 4:\n" +
-      "    \"a'\n" +
-      "       ^\n";
+    String message1 = """
+      while scanning a quoted scalar
+       in reader, line 1, column 1:
+          "a'
+          ^
+      found unexpected end of stream
+       in reader, line 1, column 4:
+          "a'
+             ^
+      """;
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";

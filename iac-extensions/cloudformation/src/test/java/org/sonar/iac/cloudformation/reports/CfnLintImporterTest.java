@@ -33,16 +33,18 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.cloudformation.plugin.CfnLintRulesDefinition;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
 class CfnLintImporterTest {
@@ -51,8 +53,8 @@ class CfnLintImporterTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private SensorContextTester context;
-
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
+  private final CfnLintRulesDefinition cfnLintRulesDefinition = new CfnLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
 
   @BeforeEach
   void setUp() {
@@ -85,7 +87,7 @@ class CfnLintImporterTest {
     String logMessage = String.format("Cfn-lint report importing: could not read report file %s", path);
     when(reportFile.getPath()).thenReturn(path);
     when(reportFile.isFile()).thenReturn(true);
-    doAnswer((invocation) -> {
+    doAnswer(invocation -> {
       throw new IOException();
     }).when(reportFile).toPath();
 
@@ -149,9 +151,11 @@ class CfnLintImporterTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-    PATH_PREFIX + "/invalidPathTwo.json; Cfn-lint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
+    PATH_PREFIX + "/invalidPathTwo.json; Cfn-lint report importing: could not save 2 out of 2 issues from %s. Some file paths could not " +
+      "be resolved: " +
       "doesNotExist.yaml, a/b/doesNotExistToo.yaml",
-    PATH_PREFIX + "/invalidPathMoreThanTwo.json; Cfn-lint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
+    PATH_PREFIX + "/invalidPathMoreThanTwo.json; Cfn-lint report importing: could not save 3 out of 3 issues from %s. Some file paths " +
+      "could not be resolved: " +
       "doesNotExist.yaml, a/b/doesNotExistToo.yaml, ..."
   }, delimiter = ';')
   void unresolvedPathsShouldBeAddedToWarning(File reportFile, String expectedLogFormat) {
@@ -165,6 +169,6 @@ class CfnLintImporterTest {
   }
 
   private void importReport(File reportFile) {
-    new CfnLintImporter(context, mockAnalysisWarnings).importReport(reportFile);
+    new CfnLintImporter(context, cfnLintRulesDefinition, mockAnalysisWarnings).importReport(reportFile);
   }
 }

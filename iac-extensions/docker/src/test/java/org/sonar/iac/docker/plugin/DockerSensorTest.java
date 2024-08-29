@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.plugin;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
@@ -29,20 +31,19 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class DockerSensorTest extends ExtensionSensorTest {
+
+  private final HadolintRulesDefinition hadolintRulesDefinition = new HadolintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
 
   @Test
   void shouldReturnDockerDescriptor() {
@@ -138,7 +139,8 @@ class DockerSensorTest extends ExtensionSensorTest {
   @Override
   protected Sensor sensor(CheckFactory checkFactory) {
     return new DockerSensor(
-      SONAR_RUNTIME_8_9,
+      SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
+      hadolintRulesDefinition,
       fileLinesContextFactory,
       checkFactory,
       noSonarFilter,
@@ -196,7 +198,8 @@ class DockerSensorTest extends ExtensionSensorTest {
 
   private DockerSensor sonarLintSensor(String... rules) {
     return new DockerSensor(
-      SonarRuntimeImpl.forSonarLint(Version.create(9, 2)),
+      SONARLINT_RUNTIME_9_9,
+      hadolintRulesDefinition,
       fileLinesContextFactory,
       checkFactory(sonarLintContext, rules),
       noSonarFilter,

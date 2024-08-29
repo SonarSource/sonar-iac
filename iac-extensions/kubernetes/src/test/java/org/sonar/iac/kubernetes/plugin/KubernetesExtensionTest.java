@@ -28,6 +28,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 
 class KubernetesExtensionTest {
 
@@ -43,8 +44,7 @@ class KubernetesExtensionTest {
 
   @Test
   void shouldVerifySonarLint() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(VERSION_9_5);
-    Plugin.Context context = new Plugin.Context(runtime);
+    Plugin.Context context = new Plugin.Context(SONARLINT_RUNTIME_9_9);
     KubernetesExtension.define(context);
     assertThat(context.getExtensions()).hasSize(7);
   }

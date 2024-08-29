@@ -34,7 +34,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -45,10 +44,8 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -65,6 +62,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
@@ -433,9 +432,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldHaveSpecificSonarlintVisitor() {
-    SonarRuntime sonarLintRuntime = SonarRuntimeImpl.forSonarLint(Version.create(6, 0));
     InputFile inputFile = inputFile("file1.tf", "test:val");
-    context.setRuntime(sonarLintRuntime);
+    context.setRuntime(SONARLINT_RUNTIME_9_9);
 
     analyze(sensor(), inputFile);
 
@@ -570,12 +568,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
+    return new KubernetesSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
       mock(HelmEvaluator.class));
   }
 
   protected KubernetesSensor sensorSonarLint() {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory(), noSonarFilter, new KubernetesLanguage(),
+    return new KubernetesSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory(), noSonarFilter, new KubernetesLanguage(),
       mock(HelmEvaluator.class), sonarLintFileListener);
   }
 
@@ -637,7 +635,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   private KubernetesSensor sonarLintSensor(String... rules) {
     return new KubernetesSensor(
-      SonarRuntimeImpl.forSonarLint(Version.create(9, 2)),
+      SONARLINT_RUNTIME_9_9,
       fileLinesContextFactory,
       checkFactory(sonarLintContext, rules),
       noSonarFilter,

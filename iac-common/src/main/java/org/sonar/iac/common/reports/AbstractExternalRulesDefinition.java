@@ -17,33 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.common.reports;
 
+import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.scanner.ScannerSide;
-import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-@ScannerSide
-public class HadolintRulesDefinition extends AbstractExternalRulesDefinition {
-  public static final String LINTER_KEY = "hadolint";
-  public static final String LINTER_NAME = "HADOLINT";
+public abstract class AbstractExternalRulesDefinition implements RulesDefinition {
+  private static final String RULES_JSON_PATH = "org/sonar/l10n/%s/rules/%s/rules.json";
+  private final ExternalRuleLoader ruleLoader;
 
-  public HadolintRulesDefinition(SonarRuntime sonarRuntime) {
-    super(sonarRuntime, LINTER_KEY, LINTER_NAME, DockerLanguage.KEY);
+  protected AbstractExternalRulesDefinition(SonarRuntime sonarRuntime, String reportKey, String reportName, String languageKey) {
+    if (sonarRuntime.getProduct() != SonarProduct.SONARLINT) {
+      this.ruleLoader = new ExternalRuleLoader(
+        reportKey,
+        reportName,
+        RULES_JSON_PATH.formatted(languageKey, reportKey),
+        languageKey,
+        sonarRuntime);
+    } else {
+      this.ruleLoader = null;
+    }
   }
 
-  public static HadolintRulesDefinition noOpInstanceForSL(SonarRuntime sonarRuntime) {
-    return new HadolintRulesDefinition(sonarRuntime) {
-      @Override
-      public void define(Context context) {
-        // nothing to do here
-      }
+  @Override
+  public void define(Context context) {
+    ruleLoader.createExternalRuleRepository(context);
+  }
 
-      @Override
-      public ExternalRuleLoader getRuleLoader() {
-        return null;
-      }
-    };
+  public ExternalRuleLoader getRuleLoader() {
+    return ruleLoader;
   }
 }

@@ -19,18 +19,31 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
-import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public class CfnLintRulesDefinition implements RulesDefinition {
+@ScannerSide
+public class CfnLintRulesDefinition extends AbstractExternalRulesDefinition {
   public static final String LINTER_KEY = "cfn-lint";
   public static final String LINTER_NAME = "CFN-LINT";
-  private static final String RULES_JSON = "org/sonar/l10n/cloudformation/rules/cfn-lint/rules.json";
 
-  public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, CloudformationLanguage.KEY);
+  public CfnLintRulesDefinition(SonarRuntime sonarRuntime) {
+    super(sonarRuntime, LINTER_KEY, LINTER_NAME, CloudformationLanguage.KEY);
+  }
 
-  @Override
-  public void define(Context context) {
-    RULE_LOADER.createExternalRuleRepository(context);
+  public static CfnLintRulesDefinition noOpInstanceForSL(SonarRuntime sonarRuntime) {
+    return new CfnLintRulesDefinition(sonarRuntime) {
+      @Override
+      public void define(Context context) {
+        // nothing to do here
+      }
+
+      @Override
+      public ExternalRuleLoader getRuleLoader() {
+        return null;
+      }
+    };
   }
 }

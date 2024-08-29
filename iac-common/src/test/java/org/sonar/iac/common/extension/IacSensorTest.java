@@ -20,6 +20,12 @@
 package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
@@ -55,19 +61,13 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class IacSensorTest extends AbstractSensorTest {
 
@@ -97,6 +97,7 @@ class IacSensorTest extends AbstractSensorTest {
   void testDescriptorSonarqube9_3() {
     final boolean[] called = {false};
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor() {
+      @Override
       public SensorDescriptor processesFilesIndependently() {
         called[0] = true;
         return this;
@@ -205,7 +206,8 @@ class IacSensorTest extends AbstractSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("testIssue");
-    assertThat(TextRanges.range(location.textRange().start().line(), location.textRange().start().lineOffset(), location.textRange().end().line(),
+    assertThat(TextRanges.range(location.textRange().start().line(), location.textRange().start().lineOffset(),
+      location.textRange().end().line(),
       location.textRange().end().lineOffset())).hasRange(1, 0, 1, 2);
   }
 
@@ -213,7 +215,8 @@ class IacSensorTest extends AbstractSensorTest {
   void testValidCheckWithSecondary() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
-    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue", new SecondaryLocation(tree.textRange(), "testSecondary")));
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue",
+      new SecondaryLocation(tree.textRange(), "testSecondary")));
 
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
@@ -459,7 +462,7 @@ class IacSensorTest extends AbstractSensorTest {
 
   @Override
   protected IacSensor sensor(CheckFactory checkFactory) {
-    return sensor(SONAR_RUNTIME_8_9, checkFactory);
+    return sensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, checkFactory);
   }
 
   protected IacSensor sensor(SonarRuntime sonarRuntime, CheckFactory checkFactory) {
@@ -472,7 +475,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   private IacSensor sensorParseException(CheckFactory checkFactory) {
-    return new TestIacSensor(SONAR_RUNTIME_8_9,
+    return new TestIacSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
       fileLinesContextFactory,
       noSonarFilter,
       IacLanguage.IAC,
@@ -481,7 +484,7 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   private IacSensor sensorRecognitionException(CheckFactory checkFactory) {
-    return new TestIacSensor(SONAR_RUNTIME_8_9,
+    return new TestIacSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
       fileLinesContextFactory,
       noSonarFilter,
       IacLanguage.IAC,

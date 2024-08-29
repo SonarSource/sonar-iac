@@ -29,9 +29,9 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
-import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
@@ -41,16 +41,29 @@ import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_
 public class CloudformationSensor extends YamlSensor {
 
   private final AnalysisWarningsWrapper analysisWarnings;
+  private final CfnLintRulesDefinition rulesDefinition;
 
-  public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, CloudformationLanguage language) {
-    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, NOOP_ANALYSIS_WARNINGS);
+  public CloudformationSensor(
+    SonarRuntime sonarRuntime,
+    CfnLintRulesDefinition rulesDefinition,
+    FileLinesContextFactory fileLinesContextFactory,
+    CheckFactory checkFactory,
+    NoSonarFilter noSonarFilter,
+    CloudformationLanguage language) {
+    this(sonarRuntime, rulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter, language, NOOP_ANALYSIS_WARNINGS);
   }
 
-  public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, CloudformationLanguage language, AnalysisWarningsWrapper analysisWarnings) {
+  public CloudformationSensor(
+    SonarRuntime sonarRuntime,
+    CfnLintRulesDefinition rulesDefinition,
+    FileLinesContextFactory fileLinesContextFactory,
+    CheckFactory checkFactory,
+    NoSonarFilter noSonarFilter,
+    CloudformationLanguage language,
+    AnalysisWarningsWrapper analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks());
     this.analysisWarnings = analysisWarnings;
+    this.rulesDefinition = rulesDefinition;
   }
 
   @Override
@@ -66,7 +79,7 @@ public class CloudformationSensor extends YamlSensor {
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
     ExternalReportProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
-      .forEach(report -> new CfnLintImporter(sensorContext, analysisWarnings).importReport(report));
+      .forEach(report -> new CfnLintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 
   @Override

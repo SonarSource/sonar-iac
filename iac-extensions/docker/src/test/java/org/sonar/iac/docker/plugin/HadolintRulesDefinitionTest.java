@@ -19,41 +19,46 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonarsource.analyzer.commons.ExternalRuleLoader;
+import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertExistingRepository;
+import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertNoRepositoryIsDefined;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class HadolintRulesDefinitionTest {
 
-  @Test
-  void rulesHaveValidSeverityAndType() {
-    ExternalRuleLoader ruleLoader = HadolintRulesDefinition.RULE_LOADER;
-    Set<String> ruleKeys = ruleLoader.ruleKeys();
+  @MethodSource(value = "org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions#externalRepositoryShouldBeInitializedWithSonarRuntime")
+  @ParameterizedTest
+  void externalRepositoryShouldBeInitializedWithSonarRuntime(SonarRuntime sonarRuntime, boolean shouldSupportCCT) {
+    var context = new RulesDefinition.Context();
+    AbstractExternalRulesDefinition rulesDefinition = new HadolintRulesDefinition(sonarRuntime);
 
-    assertDoesNotThrow(() -> {
-      for (String ruleKey : ruleKeys) {
-        ruleLoader.ruleSeverity(ruleKey);
-        ruleLoader.ruleType(ruleKey);
-      }
-    });
+    if (sonarRuntime.getProduct() != SonarProduct.SONARLINT) {
+      rulesDefinition.define(context);
+      assertExistingRepository(
+        context,
+        rulesDefinition,
+        "hadolint",
+        "HADOLINT",
+        "docker",
+        99,
+        shouldSupportCCT);
+    } else {
+      assertNoRepositoryIsDefined(context, rulesDefinition);
+    }
   }
 
   @Test
-  void createExternalHadoLintRepository() {
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    HadolintRulesDefinition hadoLintRulesDefinition = new HadolintRulesDefinition();
-    hadoLintRulesDefinition.define(context);
-
-    assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository("external_hadolint");
-    assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("HADOLINT");
-    assertThat(repository.language()).isEqualTo("docker");
-    assertThat(repository.isExternal()).isTrue();
-    assertThat(repository.rules()).hasSize(99);
+  void noOpRulesDefinitionShouldNotDefineAnyRule() {
+    var context = new RulesDefinition.Context();
+    AbstractExternalRulesDefinition noOpRulesDefinition = HadolintRulesDefinition.noOpInstanceForSL(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
+    noOpRulesDefinition.define(context);
+    assertNoRepositoryIsDefined(context, noOpRulesDefinition);
   }
 }

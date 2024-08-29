@@ -34,26 +34,26 @@ public class CfnLintImporter extends AbstractJsonReportImporter {
   public static final String COLUMN_NUMBER_KEY = "ColumnNumber";
   private static final String MESSAGE_PREFIX = "Cfn-lint report importing: ";
 
-  public CfnLintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
-    super(context, analysisWarnings, MESSAGE_PREFIX);
+  public CfnLintImporter(SensorContext context, CfnLintRulesDefinition cfnLintRulesDefinition, AnalysisWarningsWrapper analysisWarnings) {
+    super(context, cfnLintRulesDefinition, analysisWarnings, MESSAGE_PREFIX);
   }
 
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
-    String path = (String) issueJson.get("Filename");
-    InputFile inputFile = inputFile(path);
+    var path = (String) issueJson.get("Filename");
+    var inputFile = inputFile(path);
 
-    String ruleId = (String) ((JSONObject) issueJson.get("Rule")).get("Id");
-    if (!CfnLintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
+    var ruleId = (String) ((JSONObject) issueJson.get("Rule")).get("Id");
+    if (!externalRuleLoader.ruleKeys().contains(ruleId)) {
       ruleId = "cfn-lint.fallback";
     }
 
     NewExternalIssue externalIssue = context.newExternalIssue()
       .ruleId(ruleId)
-      .type(CfnLintRulesDefinition.RULE_LOADER.ruleType(ruleId))
+      .type(externalRuleLoader.ruleType(ruleId))
       .engineId(CfnLintRulesDefinition.LINTER_KEY)
-      .severity(CfnLintRulesDefinition.RULE_LOADER.ruleSeverity(ruleId))
-      .remediationEffortMinutes(CfnLintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes(ruleId));
+      .severity(externalRuleLoader.ruleSeverity(ruleId))
+      .remediationEffortMinutes(externalRuleLoader.ruleConstantDebtMinutes(ruleId));
     externalIssue.at(getIssueLocation(issueJson, externalIssue, inputFile));
 
     return externalIssue;

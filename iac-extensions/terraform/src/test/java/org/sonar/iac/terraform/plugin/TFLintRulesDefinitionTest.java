@@ -19,41 +19,46 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonarsource.analyzer.commons.ExternalRuleLoader;
+import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertExistingRepository;
+import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertNoRepositoryIsDefined;
+import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class TFLintRulesDefinitionTest {
 
-  @Test
-  void rulesHaveValidSeverityAndType() {
-    ExternalRuleLoader ruleLoader = TFLintRulesDefinition.RULE_LOADER;
-    Set<String> ruleKeys = ruleLoader.ruleKeys();
+  @MethodSource(value = "org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions#externalRepositoryShouldBeInitializedWithSonarRuntime")
+  @ParameterizedTest
+  void externalRepositoryShouldBeInitializedWithSonarRuntime(SonarRuntime sonarRuntime, boolean shouldSupportCCT) {
+    var context = new RulesDefinition.Context();
+    AbstractExternalRulesDefinition rulesDefinition = new TFLintRulesDefinition(sonarRuntime);
 
-    assertDoesNotThrow(() -> {
-      for (String ruleKey : ruleKeys) {
-        ruleLoader.ruleSeverity(ruleKey);
-        ruleLoader.ruleType(ruleKey);
-      }
-    });
+    if (sonarRuntime.getProduct() != SonarProduct.SONARLINT) {
+      rulesDefinition.define(context);
+      assertExistingRepository(
+        context,
+        rulesDefinition,
+        "tflint",
+        "TFLINT",
+        "terraform",
+        1712,
+        shouldSupportCCT);
+    } else {
+      assertNoRepositoryIsDefined(context, rulesDefinition);
+    }
   }
 
   @Test
-  void createExternalTFLintRepository() {
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    TFLintRulesDefinition TFLintRulesDefinition = new TFLintRulesDefinition();
-    TFLintRulesDefinition.define(context);
-
-    assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository("external_tflint");
-    assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("TFLINT");
-    assertThat(repository.language()).isEqualTo("terraform");
-    assertThat(repository.isExternal()).isTrue();
-    assertThat(repository.rules()).hasSize(1712);
+  void noOpRulesDefinitionShouldNotDefineAnyRule() {
+    var context = new RulesDefinition.Context();
+    AbstractExternalRulesDefinition noOpRulesDefinition = TFLintRulesDefinition.noOpInstanceForSL(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
+    noOpRulesDefinition.define(context);
+    assertNoRepositoryIsDefined(context, noOpRulesDefinition);
   }
 }
