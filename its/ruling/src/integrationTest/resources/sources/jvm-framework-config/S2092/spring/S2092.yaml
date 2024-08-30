@@ -10,3 +10,19 @@ server:
     session:
       cookie:
         secure: true
+
+---
+
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: false
+
+---
+
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: true
