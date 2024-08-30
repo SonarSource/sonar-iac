@@ -1,0 +1,84 @@
+## Testing location and message
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: false # Noncompliant {{Make sure disabling the "cookie-secure" flag of this cookie is safe here.}}
+#       ^^^^^^^^^^^^^^^^^^^^
+---
+
+## Testing sensitive values
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: FALSE # Noncompliant
+---
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: FALse # Noncompliant
+---
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: "false" # Noncompliant
+---
+
+## Testing all impacted fields
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: false # Noncompliant
+      jwt:
+        cookie:
+          cookie-secure: false # Noncompliant
+      refresh:
+        cookie:
+          cookie-secure: false # Noncompliant
+    oauth2:
+      openid:
+        nonce:
+          cookie:
+            cookie-secure: false # Noncompliant
+      state:
+        cookie:
+          cookie-secure: false # Noncompliant
+  session:
+    http:
+      cookie-secure: false # Noncompliant
+
+## Testing compliant values
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: true
+---
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: other
+---
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: 5
+---
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure: [false]
+---
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-secure:
+---
