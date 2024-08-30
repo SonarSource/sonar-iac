@@ -1,0 +1,19 @@
+micronaut:
+  security:
+    token:
+      cookie:
+        cookie-http-only: false
+      jwt:
+        cookie:
+          cookie-http-only: false
+      refresh:
+        cookie:
+          cookie-http-only: false
+    oauth2:
+      openid:
+        nonce:
+          cookie:
+            cookie-http-only: false
+      state:
+        cookie:
+          cookie-http-only: false
