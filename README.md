@@ -3,8 +3,7 @@ Code Quality and Security for Infrastructure-as-Code
 [![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonar-iac.svg?branch=master)](https://cirrus-ci.com/github/SonarSource/sonar-iac)
 
 This SonarSource project is a [static code analyzer](https://en.wikipedia.org/wiki/Static_program_analysis) for Infrastructure-as-Code (IaC) languages such as CloudFormation, Kubernetes, and Terraform.
-It is a component of the [SonarQube](https://www.sonarqube.org/) platform, and it runs the IaC features
-on [SonarCloud](https://sonarcloud.io/).
+It is a component of the [SonarQube](https://www.sonarqube.org/) platform, and it runs the IaC features on [SonarCloud](https://sonarcloud.io/).
 
 It allows you to produce stable and easily supported [Clean Code](https://www.sonarsource.com/solutions/clean-code/?utm_medium=referral&utm_source=github&utm_campaign=clean-code&utm_content=sonar-iac) by helping you find and correct vulnerabilities and code smells in your projects.
 
@@ -17,8 +16,8 @@ It allows you to produce stable and easily supported [Clean Code](https://www.so
 * Supports Terraform for AWS
   * HCL native syntax for files named with a .tf suffix (JSON format not supported)
   * Terraform for Azure and GCP: coming soon
-* Domains Covered: 
-    * AWS S3 Buckets
+* Domains Covered:
+  * AWS S3 Buckets
   * Permissions
   * Encryption at Rest
   * Encryption at Transit (coming soon)
@@ -34,14 +33,13 @@ It allows you to produce stable and easily supported [Clean Code](https://www.so
 ## Structure
 This project is one analyzer/plugin that scans and raises issues on files associated with multiple languages. Currently, these languages are CloudFormation, Kubernetes, and Terraform.
 
-The main registration point of the plugin to the API is in `sonar-iac-plugin`. The analyses of the different languages are separated into "
-extensions", which get loaded by the
-main plugin class and are structured similarly to other analyzers (i.e., parser, visitors, checks, rule resources, etc.)
+The main registration point of the plugin to the API is in `sonar-iac-plugin`. The analyses of the different languages are separated into "extensions", 
+which get loaded by the main plugin class and are structured similarly to other analyzers (i.e., parser, visitors, checks, rule resources, etc.)
 
 #### Using sonar-rule-api:
 
-When using the [sonar-rule-api](https://github.com/SonarSource/sonar-rule-api) to generate or update metadata of rules, it has to be done in
-the different extension folders: to update/generate a rule
+When using the [sonar-rule-api](https://github.com/SonarSource/sonar-rule-api) to generate or update metadata of rules, 
+it has to be done in the different extension folders: to update/generate a rule
 for AzureResourceManager, run sonar-rule-api in `iac-extensions/arm`, 
 for CloudFormation, run sonar-rule-api in `iac-extensions/cloudformation`, 
 for Docker, in `iac-extensions/docker`,
@@ -56,7 +54,7 @@ Alternatively, execute the Gradle task `ruleApiUpdate` to update rule metadata f
 * Java 17
 * Go 1.21 and the following dependencies:
   * musl on Linux (`musl-gcc` should be present on `PATH`)
-* Alternatively, Docker should be installed to perform the build of the Go part inside of a container
+* Alternatively, Docker should be installed to perform the build of the Go part inside a container
 
 #### Build and run unit tests:
 ```shell
@@ -122,22 +120,23 @@ The expected findings are saved in `its/ruling/src/integrationTest/resources/exp
 - Run:
 
 ```shell
-./gradlew :its:ruling:integrationTest -p its/ruling
+./gradlew :its:ruling:integrationTest
 ``` 
 
-It is possible to keep the prepared SonarQube instance running to better inspect actual-vs-expected differences (if any) in the SQ UI. For
-this use:
+It is possible to keep the prepared SonarQube instance running to better inspect actual-vs-expected differences (if any) in the SQ UI. 
+For this use:
   
   ```shell
-  ./gradlew :its:ruling:integrationTest -p its/ruling -DkeepSonarqubeRunning=true
+  ./gradlew :its:ruling:integrationTest -DkeepSonarqubeRunning=true
   ```
+
 #### Plugin integration tests
 
-These integration tests verify that the analyzer registers at and interacts with the SonarQube API correctly. For example, if file metrics
-get sent and all properties get registered.
+These integration tests verify that the analyzer registers at and interacts with the SonarQube API correctly. 
+For example, if file metrics get sent and all properties get registered.
 To run them:
 
   ```shell
-  ./gradlew :its:plugin:integrationTest -p its/plugin
+  ./gradlew :its:plugin:integrationTest
   ```
 
