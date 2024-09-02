@@ -1,10 +1,8 @@
 <h2>Why is this an issue?</h2>
-<p>Service account tokens are Kubernetes secrets created automatically to authenticate applications running inside pods to the API server. If a pod is
-compromised, an attacker could use this token to gain access to other resources in the cluster.</p>
+<p>Service account tokens are Kubernetes secrets to authenticate applications running inside pods to the API server. If a pod is compromised, an
+attacker could use this token to gain access to other resources in the cluster.</p>
 <p>For example, they could create new pods, modify existing ones, or even delete critical system pods, depending on the permissions associated with
 the service account.</p>
-<p>Therefore, it’s recommended to disable the automounting of service account tokens when it’s not necessary for the application running in the
-pod.</p>
 <h3>What is the potential impact?</h3>
 <h4>Unauthorized Access</h4>
 <p>If a pod with a mounted service account gets compromised, an attacker could potentially use the token to interact with the Kubernetes API, possibly
@@ -21,6 +19,8 @@ leading to a Denial of Service (DoS) attack.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
+<p>In this example, the service account token is mounted in the pod <code>example-pod</code> by default, but is unnecessary for the pod and its
+service(s) to function correctly.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
@@ -28,8 +28,21 @@ metadata:
   name: example-pod
 spec: # Noncompliant
   containers:
-  - name: example-pod
-    image: nginx:1.25.3
+  - name: example-container
+    image: nginx
+</pre>
+<p>In this example, the service account token is mounted in the pod <code>example-pod</code> and is necessary, for example because it allows a
+third-party service to authenticate with the Kubernetes API. However, no specific permissions are granted to the service account:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  serviceAccountName: example-sa # Noncompliant
+  containers:
+  - name: example-container
+    image: nginx
 </pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
@@ -39,13 +52,68 @@ metadata:
   name: example-pod
 spec:
   containers:
-  - name: example-pod
-    image: nginx:1.25.3
+  - name: example-container
+    image: nginx
   automountServiceAccountToken: false
 </pre>
+<p>In the following example, Role bindings are created, but Cluster Role Bindings would be more appropriate if the service account is intended to be
+used across multiple namespaces:</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: example-sa
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: example-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: example-role-binding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: example-sa
+  namespace: default
+roleRef:
+  kind: Role
+  name: example-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+  namespace: default
+spec:
+  serviceAccountName: example-sa
+  containers:
+  - name: example-container
+    image: nginx
+</pre>
 <h3>How does this work?</h3>
-<p>The automounting of service account tokens can be disabled by setting <code>automountServiceAccountToken: false</code> in the pod’s specification.
-Additionally, it can be disabled in the configuration of an accompanied service account.</p>
+<p>The essential part of the solution is to make sure that permissions within the cluster are constructed in a way that minimizes the risk of
+unauthorized access.</p>
+<p>To do so, it follows a least-privilege approach.</p>
+<ol>
+  <li> If the service account token is unnecessary for the pod to function, disable automounting. </li>
+  <li> If the service account token is required, ensure that the service account has the least amount of permissions necessary to perform its
+  function. </li>
+</ol>
+<p>Additionally, service account token automounting can be disabled directly from the service account specification file.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
