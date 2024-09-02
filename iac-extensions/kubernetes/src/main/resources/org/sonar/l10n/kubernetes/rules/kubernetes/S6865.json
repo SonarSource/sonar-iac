@@ -1,10 +1,10 @@
 {
-  "title": "Service account tokens should not be mounted in pods",
+  "title": "Service account permissions should be restricted",
   "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "5min"
+    "constantCost": "1h"
   },
   "tags": [],
   "defaultSeverity": "Major",
