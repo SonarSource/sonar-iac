@@ -68,6 +68,9 @@ public class LogRetentionCheck extends AbstractArmResourceCheck {
 
   private Consumer<ContextualResource> checkLogRetention(String propertyName, String enablingTypeName, String retentionDayTypeName) {
     return resource -> {
+      if (resource.isReferencingResource()) {
+        return;
+      }
       ContextualObject object = resource
         .object(propertyName);
       object.reportIfAbsent(String.format(PROPERTY_OR_TYPE_OMITTED_MESSAGE, propertyName));

@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.common.checks;
 
+import javax.annotation.Nullable;
+
 /**
  * A tree-value boolean: true, false, unknown.
  * https://en.wikipedia.org/wiki/Three-valued_logic
@@ -37,5 +39,15 @@ public enum Trilean {
 
   public boolean isUnknown() {
     return this == UNKNOWN;
+  }
+
+  public static Trilean fromBoolean(@Nullable Boolean bool) {
+    if (bool == null) {
+      return UNKNOWN;
+    } else if (bool) {
+      return TRUE;
+    } else {
+      return FALSE;
+    }
   }
 }

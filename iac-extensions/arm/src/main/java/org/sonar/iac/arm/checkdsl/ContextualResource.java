@@ -130,4 +130,27 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
     boolean isExternalChildByExplicitRelationship = explicitParent.isPresent() && symbolicName != null && TextUtils.isValue(explicitParent.get(), symbolicName.value()).isTrue();
     return isExternalChildByFullResourceName || isExternalChildByExplicitRelationship;
   }
+
+  /**
+   * Returns {@code ContextualProperty} for provided key name.
+   * <p>
+   * Example:
+   * <pre>
+   * {@code
+   *   {
+   *     "key1": "value1"
+   *   }
+   * }
+   * </pre>
+   *
+   * For call {@code resourceProperty("key1")} it will return {@code ContextualProperty} for {@code "value1"}.
+   * <p>
+   * For call {@code resourceProperty("unknown")} it will return {@code ContextualProperty} with {@code null} tree.
+   */
+  public ContextualProperty resourceProperty(String name) {
+    return Optional.ofNullable(tree)
+      .flatMap(tree -> tree.getResourceProperty(name))
+      .map(property -> ContextualProperty.fromPresent(ctx, property, this))
+      .orElse(ContextualProperty.fromAbsent(ctx, name, this));
+  }
 }

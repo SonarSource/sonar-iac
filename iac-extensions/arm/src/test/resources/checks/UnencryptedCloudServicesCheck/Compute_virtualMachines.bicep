@@ -35,6 +35,10 @@ resource nonCompliant1 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
+resource compliant_existing 'Microsoft.Compute/virtualMachines@2022-07-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource nonCompliant2 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   name: 'Noncompliant'
   properties: {

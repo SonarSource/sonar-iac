@@ -131,6 +131,9 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   }
 
   private static void checkServiceFabric(ContextualResource resource) {
+    if (resource.isReferencingResource()) {
+      return;
+    }
     ContextualProperty clientCertificateCommonNames = resource.property("clientCertificateCommonNames");
     ContextualProperty clientCertificateThumbprints = resource.property("clientCertificateThumbprints");
 

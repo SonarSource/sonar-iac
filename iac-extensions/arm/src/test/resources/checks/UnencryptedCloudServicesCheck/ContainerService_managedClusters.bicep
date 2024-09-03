@@ -11,6 +11,10 @@ resource nonCompliant1 'Microsoft.ContainerService/managedClusters@2023-03-02-pr
   }
 }
 
+resource compliant_existing 'Microsoft.ContainerService/managedClusters@2023-03-02-preview' existing = {
+  name: 'Compliant: existing'
+}
+
 // Noncompliant@+1 {{Omitting "diskEncryptionSetID" enables clear-text storage. Make sure it is safe here.}}
 resource nonCompliant2 'Microsoft.ContainerService/managedClusters@2023-03-02-preview' = {
   name: 'Noncompliant: enableEncryptionAtHost is missing'

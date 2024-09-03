@@ -23,6 +23,10 @@ resource noncompliant2 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
   }
 }
 
+resource compliant_existing 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' existing = {
+  name: 'Compliant: existing'
+}
+
 resource noncompliant3 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
   name: 'Sensitive: properties.backupPolicy.type is Periodic and not even periodicModeProperties is set (still default to 8 hour)'
   properties: {

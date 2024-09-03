@@ -123,6 +123,9 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   private static Consumer<ContextualResource> checkComputeComponent() {
     return resource -> {
+      if (resource.isReferencingResource()) {
+        return;
+      }
       ContextualProperty diskEncryptionSetId = resource.object("encryption").property("diskEncryptionSetId");
       ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
       ContextualProperty secureVMDiskEncryptionSetId = resource.object("securityProfile").property("secureVMDiskEncryptionSetId");

@@ -4,6 +4,10 @@ resource apiService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
   name: 'apiService'
 }
 
+resource apiService 'Microsoft.ApiManagement/service@2022-09-01-preview' existing = {
+  name: 'apiService'
+}
+
 resource apiService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
   name: 'apiService'
   resource portalSettings 'portalsettings@2022-09-01-preview' = {

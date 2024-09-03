@@ -216,7 +216,7 @@ class ManagedIdentityCheckTest {
   void shouldCheckManagedIdentityCheckJson(String type) {
     String content = readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.json", type);
     verifyContent(content, check,
-      issue(8, 14, 8, 54, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      issue(6, 14, 6, 16 + type.length(), "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
       issue(23, 16, 23, 22, "Make sure that disabling Azure Managed Identities is safe here."),
       issue(38, 6, 40, 7, "Omitting the \"type\" in \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
   }
@@ -227,7 +227,7 @@ class ManagedIdentityCheckTest {
     String content = readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.bicep", type);
 
     BicepVerifier.verifyContent(content, check,
-      issue(1, 9, 1, 39, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      issue(1, 41, 1, 41 + type.length(), "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
       issue(18, 10, 18, 16, "Make sure that disabling Azure Managed Identities is safe here."),
       issue(33, 2, 35, 3, "Omitting the \"type\" in \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
   }

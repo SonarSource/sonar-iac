@@ -23,6 +23,10 @@ resource nonCompliant2 'Microsoft.HDInsight/clusters@2021-06-01' = {
   }
 }
 
+resource compliant_existing 'Microsoft.HDInsight/clusters@2021-06-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource compliant1 'Microsoft.HDInsight/clusters@2021-06-01' = {
   name: 'Compliant: encryptDataDisks is set to true'
   properties: {

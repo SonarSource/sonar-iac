@@ -17,6 +17,10 @@ resource nonCompliant2 'Microsoft.AzureArcData/sqlServerInstances/databases@2023
   }
 }
 
+resource compliant_existing 'Microsoft.AzureArcData/sqlServerInstances/databases@2023-03-15-preview' existing = {
+  name: 'Compliant: existing'
+}
+
 resource compliant 'Microsoft.AzureArcData/sqlServerInstances/databases@2023-03-15-preview' = {
   name: 'Compliant: isEncrypted is set to true'
   properties: {

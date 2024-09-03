@@ -3,6 +3,12 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
     name: 'example'
 }
 
+resource appService 'Microsoft.Web/sites@2022-09-01' existing = {
+    name: 'example'
+}
+
+// false positive due to child resource not being recognized - will be fixed by https://sonarsource.atlassian.net/browse/SONARIAC-1044
+// Noncompliant@+1 {{Omitting "authsettingsV2" disables authentication. Make sure it is safe here.}}
 resource appService2 'Microsoft.Web/sites@2022-09-01' = {
     name: 'example'
 }

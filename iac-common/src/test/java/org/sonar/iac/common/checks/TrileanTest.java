@@ -45,4 +45,11 @@ class TrileanTest {
     assertThat(Trilean.FALSE.isUnknown()).isFalse();
     assertThat(Trilean.UNKNOWN.isUnknown()).isTrue();
   }
+
+  @Test
+  void testFromBooleanTrue() {
+    assertThat(Trilean.fromBoolean(true)).isEqualTo(Trilean.TRUE);
+    assertThat(Trilean.fromBoolean(false)).isEqualTo(Trilean.FALSE);
+    assertThat(Trilean.fromBoolean(null)).isEqualTo(Trilean.UNKNOWN);
+  }
 }

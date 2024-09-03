@@ -65,22 +65,22 @@ public class ContextualProperty extends ContextualPropertyTree<ContextualPropert
     return super.reportIfAbsent(message, secondaries);
   }
 
-  private Trilean isResourceReferencing() {
-    ContextualTree<?, ?> parentTree = this.parent;
-    while (parentTree != null) {
-      if (parentTree instanceof ContextualResource resource) {
-        return resource.isReferencingResource() ? Trilean.TRUE : Trilean.FALSE;
-      }
-      parentTree = parentTree.parent;
-    }
-    return Trilean.UNKNOWN;
-  }
-
   @CheckForNull
   public Expression valueOrNull() {
     if (tree != null) {
       return tree.value();
     }
     return null;
+  }
+
+  private Trilean isResourceReferencing() {
+    ContextualTree<?, ?> parentTree = this.parent;
+    while (parentTree != null) {
+      if (parentTree instanceof ContextualResource resource) {
+        return Trilean.fromBoolean(resource.isReferencingResource());
+      }
+      parentTree = parentTree.parent;
+    }
+    return Trilean.UNKNOWN;
   }
 }

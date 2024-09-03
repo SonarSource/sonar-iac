@@ -41,6 +41,10 @@ resource nonCompliant3 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = 
   properties: {}
 }
 
+resource compliant_existing 'Microsoft.Storage/storageAccounts@2023-03-02-preview' existing = {
+  name: 'Compliant: existing'
+}
+
 resource nonCompliant4 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
   name: 'Non-compliant: encryption object is present, requireInfrastructureEncryption is omitted'
   properties: {

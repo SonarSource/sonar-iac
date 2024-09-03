@@ -63,6 +63,9 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkWebSites(ContextualResource resource) {
+    if (resource.isReferencingResource()) {
+      return;
+    }
     ContextualResource authSettingsV2 = resource.childResourceBy("config", it -> isChildResourceWithName(resource, it, WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME));
 
     if (authSettingsV2.isAbsent()) {
@@ -81,6 +84,9 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkApiManagementService(ContextualResource resource) {
+    if (resource.isReferencingResource()) {
+      return;
+    }
     ContextualResource signIn = resource.childResourceBy("portalsettings", it -> isChildResourceWithName(resource, it, APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME));
 
     if (signIn.isAbsent()) {

@@ -4,6 +4,10 @@ resource noncompliant1 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
   properties: {}
 }
 
+resource compliant_existing 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' existing = {
+  name: 'Compliant: existing'
+}
+
 resource noncompliant2 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
   name: 'Sensitive: property \'clientCertificates\' array is empty'
   properties: {

@@ -44,6 +44,10 @@ resource Raise_an_issue_property_is_missing 'Microsoft.App/containerApps@2022-10
   }
 }
 
+resource Compliant_Existing 'Microsoft.App/containerApps@2022-10-01' existing = {
+  name: 'Compliant existing'
+}
+
 resource Compliant_require_value 'Microsoft.App/containerApps@2022-10-01' = {
   name: 'Compliant: require value'
   properties: {
