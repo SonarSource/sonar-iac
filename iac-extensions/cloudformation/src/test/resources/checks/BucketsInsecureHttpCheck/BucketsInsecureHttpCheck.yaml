@@ -173,6 +173,77 @@ Resources:
   SomeRandomResource:
     Type: 'NoBucketAndNoPolicy'
 
+  S3BucketCompliantResourcesList:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "mycompliantbuckets6249"
+  S3BucketPolicyCompliantResourcesList:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketCompliantResourcesList
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource:
+              - arn:aws:s3:::mycompliantbuckets6249
+              - arn:aws:s3:::mycompliantbuckets6249/* # for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketCompliantResourcesListWithJoin:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "mycompliantbuckets6249"
+  S3BucketPolicyCompliantResourcesListWithJoin:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketCompliantResourcesList
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource:
+              - !GetAtt 'S3BucketCompliantResourcesListWithJoin.Arn'
+              - !Join
+                - ''
+                - - !GetAtt 'S3BucketCompliantResourcesListWithJoin.Arn'
+                  - /*
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketNonCompliantResourcesList:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantbuckets6249"
+  S3BucketPolicyNonCompliantResourcesList:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketNonCompliantResourcesList
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource:
+              - arn:aws:s3:::mycompliantbuckets6249
+            # ^[el=+3;ec=12]< {{All resources should be restricted.}}
+              - arn:aws:s3:::mycompliantbuckets6249
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
   S3BucketCompliantJoinedResource:
     Type: AWS::S3::Bucket
     Properties:

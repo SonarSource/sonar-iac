@@ -28,13 +28,13 @@ import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 class BucketsInsecureHttpCheckTest {
 
   @Test
-  void test_yaml() {
-    CloudformationVerifier.verify("BucketsInsecureHttpCheck/test.yaml", new BucketsInsecureHttpCheck());
+  void shouldRaiseIssuesInYaml() {
+    CloudformationVerifier.verify("BucketsInsecureHttpCheck/BucketsInsecureHttpCheck.yaml", new BucketsInsecureHttpCheck());
   }
 
   @Test
-  void test_json() {
-    CloudformationVerifier.verify("BucketsInsecureHttpCheck/test.json", new BucketsInsecureHttpCheck(),
+  void shouldRaiseIssuesInJson() {
+    CloudformationVerifier.verify("BucketsInsecureHttpCheck/BucketsInsecureHttpCheck.json", new BucketsInsecureHttpCheck(),
       new Verifier.Issue(range(5, 14, 5, 31)),
       new Verifier.Issue(range(11, 14, 11, 31),
         "Make sure authorizing HTTP requests is safe here.",
