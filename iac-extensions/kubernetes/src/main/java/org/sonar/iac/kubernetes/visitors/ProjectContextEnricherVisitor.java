@@ -26,6 +26,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.helm.utils.Chart;
 
 public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext> {
   private static final String DEFAULT_NAMESPACE = "";
@@ -35,8 +36,13 @@ public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext>
   }
 
   private static void handleFileTree(InputFileContext ctx, FileTree fileTree, ProjectContext projectContext) {
-    var uri = Path.of(ctx.inputFile.uri()).normalize().toUri();
     projectContext.addInputFileContext(ctx.inputFile.relativePath(), ctx);
+    if ("Chart.yaml".equals(ctx.inputFile.filename())) {
+      projectContext.setChart(Chart.fromFileTree(fileTree));
+      return;
+    }
+
+    var uri = Path.of(ctx.inputFile.uri()).normalize().toUri();
     fileTree.documents().stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)

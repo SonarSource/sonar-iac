@@ -431,29 +431,6 @@ class KubernetesAnalyzerTest {
   }
 
   @ParameterizedTest
-  // filename, inChartRoot, expectedReturn
-  @CsvSource({
-    "Chart.yaml, true, true",
-    "Chart.yaml, false, false",
-    "Chart.yml, true, false",
-    "Chart.yml, false, false",
-    "Not_Charts.yaml, true, false",
-    "Not_Charts.yaml, false, false"
-  })
-  void isChartFileShouldReturnExpectedValue(String filename, boolean inChartRoot, boolean expectedReturn) {
-    when(inputFileContext.isInChartRootDirectory()).thenReturn(inChartRoot);
-    when(inputFile.filename()).thenReturn(filename);
-    when(inputFile.toString()).thenReturn(filename);
-
-    assertThat(HelmParser.isInvalidHelmInputFile(inputFileContext)).isEqualTo(expectedReturn);
-    if (expectedReturn) {
-      assertThat(logTester.logs()).contains("Helm Chart.yaml file detected, skipping parsing " + filename);
-    } else {
-      assertThat(logTester.logs()).doesNotContain("Helm Chart.yaml file detected, skipping parsing " + filename);
-    }
-  }
-
-  @ParameterizedTest
   @CsvSource({
     "_helpers.tpl, true",
     "_helpers.yaml, false",

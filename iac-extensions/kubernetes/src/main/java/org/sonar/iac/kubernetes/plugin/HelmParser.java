@@ -95,7 +95,7 @@ public class HelmParser {
   }
 
   static boolean isInvalidHelmInputFile(HelmInputFileContext helmFileCtx) {
-    return isValuesFile(helmFileCtx) || isChartFile(helmFileCtx) || isTplFile(helmFileCtx);
+    return isValuesFile(helmFileCtx) || isTplFile(helmFileCtx);
   }
 
   /**
@@ -106,18 +106,6 @@ public class HelmParser {
     var isValuesYaml = "values.yaml".equals(filename) || "values.yml".equals(filename);
     if (isValuesYaml && helmFileCtx.isInChartRootDirectory()) {
       LOG.debug("Helm values file detected, skipping parsing {}", helmFileCtx.inputFile);
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
-   */
-  private static boolean isChartFile(HelmInputFileContext helmFileCtx) {
-    var isChartYaml = "Chart.yaml".equals(helmFileCtx.inputFile.filename());
-    if (isChartYaml && helmFileCtx.isInChartRootDirectory()) {
-      LOG.debug("Helm Chart.yaml file detected, skipping parsing {}", helmFileCtx.inputFile);
       return true;
     }
     return false;

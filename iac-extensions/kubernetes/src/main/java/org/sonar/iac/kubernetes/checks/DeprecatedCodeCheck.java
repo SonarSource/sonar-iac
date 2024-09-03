@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -28,12 +29,13 @@ import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.VariableNode;
+import org.sonar.iac.helm.utils.Chart;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S1874")
 public class DeprecatedCodeCheck implements IacCheck {
-  private static final String MESSAGE = "Remove this deprecated use of \"Capabilities.KubeVersion.GitVersion\", use \"Capabilities" +
-    ".KubeVersion.Version\" instead.";
+  private static final String MESSAGE = "\"Capabilities.KubeVersion.GitVersion\" is deprecated since Helm 3, " +
+    "use \"Capabilities.KubeVersion.Version\" instead.";
 
   @Override
   public void initialize(InitContext init) {
@@ -42,6 +44,16 @@ public class DeprecatedCodeCheck implements IacCheck {
 
   private static void checkTree(CheckContext ctx, CommandNode commandNode) {
     var kubernetesContext = (KubernetesCheckContext) ctx;
+
+    boolean isNotDeprecated = Optional.ofNullable(kubernetesContext.projectContext().getChart())
+      .map(Chart::apiVersion)
+      .map("v1"::equals)
+      .orElse(true);
+    if (isNotDeprecated) {
+      // GitVersion is deprecated since Helm 3; if apiVersion is not v2, or absent, we assume it's not Helm >=3
+      return;
+    }
+
     for (Node node : commandNode.arguments()) {
       if (shouldReportNode(node)) {
         kubernetesContext.reportIssueNoLineShift(node.textRange(), MESSAGE);

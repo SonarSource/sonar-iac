@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+data:
+  myvalue: "Hello World"
+  {{- /*Noncompliant@+1 {{"Capabilities.KubeVersion.GitVersion" is deprecated since Helm 3, use "Capabilities.KubeVersion.Version" instead.}}*/}}
+  kubeVersionDeprecated: {{ .Capabilities.KubeVersion.GitVersion }}
+  {{- /*                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */}}
+  # Noncompliant@+1
+  kubeVersionDeprecatedUsedInMoreComplicatedSetup: {{ .Capabilities.KubeVersion.GitVersion | quote }}
+  kubeVersion: {{ .Capabilities.KubeVersion.Version }}
+  kubeVersionUsedInMoreComplicatedSetup: {{ .Capabilities.KubeVersion.Version | quote }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "name"
+spec:
+  # Noncompliant@+1
+  {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+  ingressClassName: {{ .Values.ingress.className |  default "nginx" }}
+  {{- end }}
+  # Noncompliant@+1
+  {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion)) }}
+  ingressClassName: "test"
+  {{- end }}
+  # It's not possible to raise inside the usage of "Capabilities.KubeVersion.GitVersion" inside the .tpl file
+  ingressClassName: {{ template "deployment.apiVersion" . }}
+# Noncompliant@+2
+{{- $defaultBinDir :=
+    (.Capabilities.KubeVersion.GitVersion | contains "-gke") | ternary
+      "/home/kubernetes/bin"
+      "/opt/cni/bin"
+}}
+  # Noncompliant@+1
+  {{- $kubeTargetVersion := default .Capabilities.KubeVersion.GitVersion .Values.kubeTargetVersionOverride }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: CompliantExamplesForCoverage
+data:
+  compliantSmallDifference2: {{ .Capabilities.KubeVersion }}
+  compliantSmallDifference3: {{ .Capabilities }}
+  compliantSmallDifference4: {{ .Capabilities.KubeVersion.Version}}
+  compliantSmallDifference5: {{ .Capabilities.HelmVersion.Version }}
+  compliantSmallDifference6: {{ .Values.KubeVersion.GitVersion }}
+  compliantSmallDifference7: {{ .Values.KubeVersion.Version.GitVersion }}
+  compliantSmallDifference8: {{ $.Capabilities.KubeVersion }}
+  compliantSmallDifference9: {{ $.Capabilities }}
+  compliantSmallDifference10: {{ $.Capabilities.KubeVersion.Version}}
+  compliantSmallDifference11: {{ $.Capabilities.HelmVersion.Version }}
+  compliantSmallDifference12: {{ $.Values.KubeVersion.GitVersion }}

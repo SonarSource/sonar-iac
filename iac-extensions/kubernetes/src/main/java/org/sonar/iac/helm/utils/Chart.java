@@ -17,22 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.checks;
+package org.sonar.iac.helm.utils;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.yaml.tree.FileTree;
 
-class DeprecatedCodeCheckTest {
-
-  IacCheck check = new DeprecatedCodeCheck();
-
-  @Test
-  void shouldNotRaiseForHelm2() {
-    KubernetesVerifier.verifyNoIssue("DeprecatedCodeCheck/helm/helm2/templates/deprecated_code.yaml", check);
-  }
-
-  @Test
-  void shouldRaiseForHelm3() {
-    KubernetesVerifier.verify("DeprecatedCodeCheck/helm/helm3/templates/deprecated_code.yaml", check);
+public record Chart(String apiVersion) {
+  @CheckForNull
+  public static Chart fromFileTree(FileTree fileTree) {
+    return fileTree.documents().stream().findFirst()
+      .flatMap(tree -> PropertyUtils.value(tree, "apiVersion", TextTree.class))
+      .map(TextTree::value)
+      .map(Chart::new)
+      .orElse(null);
   }
 }
