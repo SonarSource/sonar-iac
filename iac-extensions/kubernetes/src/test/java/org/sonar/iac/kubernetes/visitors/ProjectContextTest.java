@@ -130,8 +130,8 @@ class ProjectContextTest {
     var inputFile = mock(InputFile.class);
     when(inputFile.uri()).thenReturn(baseDir.resolve(path).toUri());
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(baseDir.resolve("path1"));
-      return new HelmInputFileContext(mock(SensorContext.class), inputFile);
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(baseDir.resolve("path1"));
+      return new HelmInputFileContext(mock(SensorContext.class), inputFile, null);
     }
   }
 

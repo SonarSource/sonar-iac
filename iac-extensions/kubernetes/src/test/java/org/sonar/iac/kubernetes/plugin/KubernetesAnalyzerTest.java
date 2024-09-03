@@ -77,7 +77,7 @@ class KubernetesAnalyzerTest {
   private final HelmParser helmParser = new HelmParser(helmProcessor);
   private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
     new DurationStatistics(mock(Configuration.class)),
-    helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class));
+    helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), null);
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -90,8 +90,8 @@ class KubernetesAnalyzerTest {
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
 
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
-      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(Path.of("/chart"));
+      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile, null));
     }
   }
 
@@ -105,7 +105,7 @@ class KubernetesAnalyzerTest {
     var helmParserLocal = new HelmParser(processor);
     KubernetesAnalyzer analyzerLocal = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
       new DurationStatistics(mock(Configuration.class)), helmParserLocal,
-      new KubernetesParserStatistics(), mock(TreeVisitor.class));
+      new KubernetesParserStatistics(), mock(TreeVisitor.class), null);
     return (FileTree) analyzerLocal.parse(originalCode, inputFileContext);
   }
 
@@ -482,7 +482,7 @@ class KubernetesAnalyzerTest {
   @Test
   void shouldSetHelmProjectDirectory() throws IOException, URISyntaxException {
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(Path.of("/chart"));
 
       InputFile helmFile = mock(InputFile.class);
       when(helmFile.contents()).thenReturn("foo: {{ .Values.foo }}");

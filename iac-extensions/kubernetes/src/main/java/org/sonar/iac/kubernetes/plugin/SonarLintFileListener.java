@@ -21,7 +21,9 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,7 @@ public class SonarLintFileListener implements ModuleFileListener {
   private KubernetesAnalyzer analyzer;
   private ProjectContext projectContext;
   private SonarLintFileSystemProvider fileSystemProvider;
+  private Map<String, String> inputFilesContents = new HashMap<>();
 
   public SonarLintFileListener(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
@@ -57,14 +60,16 @@ public class SonarLintFileListener implements ModuleFileListener {
     this.analyzer = analyzer;
     this.projectContext = projectContext;
     this.fileSystemProvider = fileSystemProvider;
-    var predicate = new KubernetesOrHelmFilePredicate(sensorContext);
-    var inputFiles = moduleFileSystem.files()
-      .filter(predicate::apply)
-      .toList();
+    if (inputFilesContents.isEmpty()) {
+      var predicate = new KubernetesOrHelmFilePredicate(sensorContext);
+      var inputFiles = moduleFileSystem.files()
+        .filter(predicate::apply)
+        .toList();
 
-    storeInputFilesContent(inputFiles);
-    analyzer.analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
-    LOG.info("Finished building Kubernetes Project Context");
+      storeInputFilesContent(inputFiles);
+      analyzer.analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
+      LOG.info("Finished building Kubernetes Project Context");
+    }
   }
 
   @Override
@@ -72,16 +77,15 @@ public class SonarLintFileListener implements ModuleFileListener {
     InputFile target = moduleFileEvent.getTarget();
     String language = target.language();
     if (language == null || !HelmFileSystem.INCLUDED_EXTENSIONS.contains(language)) {
-      LOG.debug("Module file event for {} for file {} has been ignored because it's not a Kubernetes file.",
+      LOG.info("Module file event for {} for file {} has been ignored because it's not a Kubernetes file.",
         moduleFileEvent.getType(), moduleFileEvent.getTarget());
       return;
     }
 
-    LOG.debug("Module file event {} for file {}", moduleFileEvent.getType(), moduleFileEvent.getTarget());
+    LOG.info("Module file event {} for file {}", moduleFileEvent.getType(), moduleFileEvent.getTarget());
     // the projectContext may be null if SonarLint calls this method before initContext()
     // it happens when starting IDE
     if (projectContext != null) {
-      var inputFilesContents = fileSystemProvider.getInputFilesContents();
       var uri = getPath(moduleFileEvent);
       projectContext.removeResource(uri);
       inputFilesContents.remove(moduleFileEvent.getTarget().filename());
@@ -89,11 +93,14 @@ public class SonarLintFileListener implements ModuleFileListener {
         inputFilesContents.put(moduleFileEvent.getTarget().filename(), content(moduleFileEvent.getTarget()));
         analyzer.analyseFiles(sensorContext, List.of(moduleFileEvent.getTarget()), KubernetesLanguage.KEY);
       }
-      fileSystemProvider.setInputFilesContents(inputFilesContents);
-      LOG.debug("Kubernetes Project Context updated");
+      LOG.info("Kubernetes Project Context updated");
     } else {
-      LOG.debug("Kubernetes Project Context not updated");
+      LOG.info("Kubernetes Project Context not updated");
     }
+  }
+
+  public Map<String, String> inputFilesContents() {
+    return inputFilesContents;
   }
 
   private static String getPath(ModuleFileEvent moduleFileEvent) {
@@ -105,9 +112,8 @@ public class SonarLintFileListener implements ModuleFileListener {
   }
 
   private void storeInputFilesContent(List<InputFile> inputFiles) {
-    var filenameToContent = inputFiles.stream()
+    inputFilesContents = inputFiles.stream()
       .collect(Collectors.toMap(SonarLintFileListener::getPath, SonarLintFileListener::content));
-    fileSystemProvider.setInputFilesContents(filenameToContent);
   }
 
   private static String content(InputFile inputFile) {

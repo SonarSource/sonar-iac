@@ -29,6 +29,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
+import org.sonar.iac.kubernetes.plugin.SonarLintFileListener;
 import org.sonar.iac.kubernetes.visitors.LocationShifter.LinesShifting;
 
 public class HelmInputFileContext extends InputFileContext {
@@ -43,9 +44,13 @@ public class HelmInputFileContext extends InputFileContext {
 
   private final LinesShifting linesShifting = new LinesShifting();
 
-  public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile) {
+  public HelmInputFileContext(SensorContext sensorContext, InputFile inputFile, @Nullable SonarLintFileListener sonarLintFileListener) {
     super(sensorContext, inputFile);
-    this.helmProjectDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
+    if (sonarLintFileListener == null) {
+      this.helmProjectDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem());
+    } else {
+      this.helmProjectDirectory = HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem(), sonarLintFileListener);
+    }
   }
 
   public void setAdditionalFiles(Map<String, String> additionalFiles) {

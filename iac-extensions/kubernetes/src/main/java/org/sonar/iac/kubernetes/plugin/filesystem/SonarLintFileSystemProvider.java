@@ -19,34 +19,30 @@
  */
 package org.sonar.iac.kubernetes.plugin.filesystem;
 
-import java.util.HashMap;
 import java.util.Map;
+import org.sonar.iac.kubernetes.plugin.SonarLintFileListener;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static java.util.stream.Collectors.toMap;
 
 public class SonarLintFileSystemProvider implements FileSystemProvider {
 
-  private Map<String, String> inputFilesContents = new HashMap<>();
+  private final SonarLintFileListener sonarLintFileListener;
+
+  public SonarLintFileSystemProvider(SonarLintFileListener sonarLintFileListener) {
+    this.sonarLintFileListener = sonarLintFileListener;
+  }
 
   @Override
   public Map<String, String> inputFilesForHelm(HelmInputFileContext inputFileContext) {
     var helmProjectDirectory = inputFileContext.getHelmProjectDirectory();
     if (helmProjectDirectory != null) {
       var helmProjectDirectoryAsText = helmProjectDirectory.toUri().toString();
-      return inputFilesContents.entrySet().stream()
+      return sonarLintFileListener.inputFilesContents().entrySet().stream()
         .filter(entry -> entry.getKey().startsWith(helmProjectDirectoryAsText))
         .filter(entry -> !entry.getKey().equals(inputFileContext.inputFile.uri().toString()))
         .collect(toMap(entry -> entry.getKey().substring(helmProjectDirectoryAsText.length()), Map.Entry::getValue));
     }
     return Map.of();
-  }
-
-  public void setInputFilesContents(Map<String, String> inputFilesContents) {
-    this.inputFilesContents = inputFilesContents;
-  }
-
-  public Map<String, String> getInputFilesContents() {
-    return inputFilesContents;
   }
 }

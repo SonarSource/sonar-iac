@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.kubernetes.plugin.SonarLintFileListener;
 import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
@@ -65,8 +66,27 @@ public final class HelmFileSystem {
 
     var helmProjectDirectoryPath = inputFilePath;
 
+    // TODO remove && helmProjectDirectoryPath.startsWith(baseDirPath) ??
     while (helmProjectDirectoryPath != null && helmProjectDirectoryPath.startsWith(baseDirPath)) {
       if (Files.exists(helmProjectDirectoryPath.resolve("Chart.yaml"))) {
+        break;
+      }
+      helmProjectDirectoryPath = helmProjectDirectoryPath.getParent();
+    }
+    if (helmProjectDirectoryPath != null && !helmProjectDirectoryPath.startsWith(baseDirPath)) {
+      return null;
+    }
+    return helmProjectDirectoryPath;
+  }
+
+  public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem, SonarLintFileListener sonarLintFileListener) {
+    var baseDirPath = fileSystem.baseDir().toPath();
+
+    var helmProjectDirectoryPath = inputFilePath;
+
+    // TODO remove && helmProjectDirectoryPath.startsWith(baseDirPath) ??
+    while (helmProjectDirectoryPath != null && helmProjectDirectoryPath.startsWith(baseDirPath)) {
+      if (sonarLintFileListener.inputFilesContents().containsKey(helmProjectDirectoryPath.resolve("Chart.yaml").toUri().toString())) {
         break;
       }
       helmProjectDirectoryPath = helmProjectDirectoryPath.getParent();

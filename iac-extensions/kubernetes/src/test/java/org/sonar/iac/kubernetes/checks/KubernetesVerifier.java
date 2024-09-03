@@ -139,7 +139,7 @@ public class KubernetesVerifier {
   public static void verifyContent(String content, IacCheck check) {
     var tempFile = contentToTmp(content);
     var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(),
-      KubernetesLanguage.NAME));
+      KubernetesLanguage.NAME), null);
     Verifier.verify(PARSER, tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext,
       new ProjectContext()));
   }
@@ -204,7 +204,7 @@ public class KubernetesVerifier {
       durationStatistics,
       helmParser,
       new KubernetesParserStatistics(),
-      new TreeVisitor<>());
+      new TreeVisitor<>(), null);
   }
 
   private static ProjectContext prepareProjectContext(InputFileContext inputFileContext, String... additionalFiles) {
@@ -223,7 +223,7 @@ public class KubernetesVerifier {
         String additionalContent = retrieveContent(additionalFile);
         InputFileContext additionalInputFileContext;
         if (KubernetesAnalyzer.hasHelmContent(additionalContent)) {
-          additionalInputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, additionalFile);
+          additionalInputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, additionalFile, null);
         } else {
           additionalInputFileContext = new InputFileContext(SENSOR_CONTEXT, additionalFile);
         }
@@ -263,7 +263,7 @@ public class KubernetesVerifier {
           filePath));
       }
       addDependentFilesToSensorContext(helmProjectPath);
-      return new HelmInputFileContext(SENSOR_CONTEXT, sourceInputFile);
+      return new HelmInputFileContext(SENSOR_CONTEXT, sourceInputFile, null);
     }
 
     public static void addDependentFilesToSensorContext(Path helmProjectPath) {

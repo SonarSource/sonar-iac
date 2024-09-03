@@ -74,8 +74,8 @@ class HelmProcessorTest {
   @BeforeEach
   void setUp() {
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(tempDir);
-      defaultInputFileContext = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE);
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(tempDir);
+      defaultInputFileContext = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE, null);
     }
   }
 
@@ -150,7 +150,7 @@ class HelmProcessorTest {
       .setResultTemplate(processedFile.contents())
       .build();
 
-    var fileContext = new HelmInputFileContext(context, inputFile);
+    var fileContext = new HelmInputFileContext(context, inputFile, null);
     var processor = new HelmProcessor(helmEvaluator, helmFileSystem);
     processor.initialize();
 
@@ -176,7 +176,7 @@ class HelmProcessorTest {
     when(inputFile.filename()).thenReturn("file\n.yaml");
     when(inputFile.uri()).thenReturn(URI.create("file:/file.yaml"));
     when(inputFile.toString()).thenReturn("file\n.yaml");
-    var inputFileContext = spy(new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile));
+    var inputFileContext = spy(new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile, null));
     when(inputFileContext.getHelmProjectDirectory()).thenReturn(Path.of("."));
 
     var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
@@ -193,7 +193,7 @@ class HelmProcessorTest {
     when(inputFile.filename()).thenReturn("file.yaml");
     when(inputFile.uri()).thenReturn(URI.create("file:/file.yaml"));
     when(inputFile.toString()).thenReturn("file.yaml");
-    var inputFileContext = new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile);
+    var inputFileContext = new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile, null);
 
     var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
     helmProcessor.initialize();
@@ -261,8 +261,8 @@ class HelmProcessorTest {
   private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {
     var inputFile = mockInputFile(filename, content);
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
-      return new HelmInputFileContext(mock(SensorContext.class), inputFile);
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(Path.of("/chart"));
+      return new HelmInputFileContext(mock(SensorContext.class), inputFile, null);
     }
   }
 

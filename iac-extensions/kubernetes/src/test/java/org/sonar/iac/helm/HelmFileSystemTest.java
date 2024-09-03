@@ -86,7 +86,7 @@ class HelmFileSystemTest {
     InputFile additionalFile = createInputFile(helmProjectPathPrefix + relativePath);
     addToFilesystem(context, helmTemplate, additionalFile);
 
-    Map<String, String> helmDependentFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate));
+    Map<String, String> helmDependentFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate, null));
     String resultingInputFile = helmDependentFiles.get(relativePath);
 
     if (shouldBeIncluded) {
@@ -116,7 +116,7 @@ class HelmFileSystemTest {
 
   @Test
   void shouldReturnNullWhenInputIsNull() {
-    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(null, context.fileSystem());
+    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(null, context.fileSystem(), null);
     assertThat(parentPath).isNull();
   }
 
@@ -128,7 +128,7 @@ class HelmFileSystemTest {
       Path inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(null);
 
-      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
+      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), null);
       assertThat(parentPath).isNull();
     }
   }
@@ -140,7 +140,7 @@ class HelmFileSystemTest {
     when(basePath.toRealPath()).thenThrow(IOException.class);
     File baseDir = mock(File.class);
     when(baseDir.toPath()).thenReturn(basePath);
-    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
+    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), null);
 
     assertThat(parentPath).isNull();
   }
@@ -154,7 +154,7 @@ class HelmFileSystemTest {
       when(inputFilePath.getParent()).thenReturn(mock(Path.class));
       when(inputFilePath.startsWith(any(Path.class))).thenReturn(false);
 
-      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
+      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), null);
       assertThat(parentPath).isNull();
     }
   }
@@ -162,7 +162,7 @@ class HelmFileSystemTest {
   @Test
   void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
     InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    Map<String, String> relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate));
+    Map<String, String> relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate, null));
 
     assertThat(relatedHelmFiles).isEmpty();
   }
@@ -184,7 +184,7 @@ class HelmFileSystemTest {
     InputFile inputFile = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
     InputFile chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
     addToFilesystem(context, inputFile, chartYamlFile);
-    HelmInputFileContext inputFileContext = new HelmInputFileContext(context, inputFile);
+    HelmInputFileContext inputFileContext = new HelmInputFileContext(context, inputFile, null);
 
     String result = helmFilesystem.getFileRelativePath(inputFileContext);
     assertEquals("templates/pod.yaml", result);
@@ -193,7 +193,7 @@ class HelmFileSystemTest {
   @Test
   void getFileRelativePathShouldReturnFilenameWhenHelmProjectFolderDoesNotExist() throws IOException {
     InputFile inputFile = createInputFile(helmProjectPathPrefix + "pod.yaml");
-    HelmInputFileContext inputFileContext = new HelmInputFileContext(context, inputFile);
+    HelmInputFileContext inputFileContext = new HelmInputFileContext(context, inputFile, null);
 
     String result = helmFilesystem.getFileRelativePath(inputFileContext);
     assertEquals("pod.yaml", result);
