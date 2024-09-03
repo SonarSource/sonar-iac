@@ -1,8 +1,8 @@
-# Noncompliant@+1 {{Omitting access_logs makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "access_logs" makes logs incomplete. Make sure it is safe here.}}
 resource "aws_lb" "noncompliant_missing" {
 }
 
-# Noncompliant@+1 {{Omitting access_logs makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "access_logs" makes logs incomplete. Make sure it is safe here.}}
 resource "aws_elb" "noncompliant_missing" {
 }
 

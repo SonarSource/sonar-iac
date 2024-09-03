@@ -30,7 +30,7 @@ import org.sonar.iac.terraform.checks.gcp.GcpDisabledLoggingCheckPart;
 public class DisabledLoggingCheck implements IacCheck {
 
   public static final String MESSAGE = "Make sure that disabling logging is safe here.";
-  public static final String MESSAGE_OMITTING = "Omitting %s makes logs incomplete. Make sure it is safe here.";
+  public static final String MESSAGE_OMITTING = "Omitting \"%s\" makes logs incomplete. Make sure it is safe here.";
 
   @Override
   public void initialize(InitContext init) {

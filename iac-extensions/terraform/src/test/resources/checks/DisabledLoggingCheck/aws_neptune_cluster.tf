@@ -3,7 +3,7 @@ resource "aws_neptune_cluster" "neptune_noncompliant_wrong" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting enable_cloudwatch_logs_exports makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "enable_cloudwatch_logs_exports" makes logs incomplete. Make sure it is safe here.}}
 resource "aws_neptune_cluster" "neptune_noncompliant_missing" {
 }
 

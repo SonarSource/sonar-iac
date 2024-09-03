@@ -32,7 +32,7 @@ import static org.sonar.iac.terraform.plugin.TerraformProviders.Provider.Identif
 @Rule(key = "S6383")
 public class RoleBasedAccessControlCheck extends AbstractNewResourceCheck {
 
-  private static final String MISSING_MESSAGE = "Omitting '%s' disables role-based access control for this resource. Make sure it is safe here.";
+  private static final String MISSING_MESSAGE = "Omitting \"%s\" disables role-based access control for this resource. Make sure it is safe here.";
   private static final String DISABLED_MESSAGE = "Make sure that disabling role-based access control is safe here.";
 
   private static final Version AZURE_V_3 = Version.create(3, 0);

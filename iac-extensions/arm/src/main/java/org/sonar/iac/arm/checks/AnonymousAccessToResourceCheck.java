@@ -37,11 +37,13 @@ import static org.sonar.iac.common.checks.TextUtils.isValue;
 public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static final String DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final String WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME = "authsettingsV2";
-  private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
+  private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting \"%s\" disables authentication. Make sure it is safe here."
+    .formatted(WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME);
   private static final String APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME = "signin";
   private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
-  private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting sign_in authorizes anonymous access. Make sure it is safe here.";
-  private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting authenticationSettings disables authentication. Make sure it is safe here.";
+  private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting \"%s\" authorizes anonymous access. Make sure it is safe here."
+    .formatted(APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME);
+  private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting \"authenticationSettings\" disables authentication. Make sure it is safe here.";
   private static final String STORAGE_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
   private static final String DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",

@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting xray_tracing_enabled makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "xray_tracing_enabled" makes logs incomplete. Make sure it is safe here.}}
 resource "aws_api_gateway_stage" "missing_tracing" {
   access_log_settings {
     destination_arn = ""
@@ -15,7 +15,7 @@ resource "aws_api_gateway_stage" "sensitive_tracing" {
   }
 }
 
-# Noncompliant@+1 {{Omitting access_log_settings makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "access_log_settings" makes logs incomplete. Make sure it is safe here.}}
 resource "aws_api_gateway_stage" "missing_access_log_settings" {
   xray_tracing_enabled = true
 }

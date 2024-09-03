@@ -40,7 +40,7 @@ resource "azurerm_kubernetes_cluster" "noncompliant_azure_active_directory_role_
 
 resource "azurerm_kubernetes_cluster" "incomplete_azure_active_directory_role_based_access_control" {
   azure_active_directory_role_based_access_control {
-    managed = true # Noncompliant {{Omitting 'azure_rbac_enabled' disables role-based access control for this resource. Make sure it is safe here.}}
+    managed = true # Noncompliant {{Omitting "azure_rbac_enabled" disables role-based access control for this resource. Make sure it is safe here.}}
   }
 }
 

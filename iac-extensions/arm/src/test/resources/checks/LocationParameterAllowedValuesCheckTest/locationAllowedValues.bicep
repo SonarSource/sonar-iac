@@ -1,4 +1,4 @@
-@allowed([ // Noncompliant {{Remove this @allowed decorator from the parameter specifying the location.}}
+@allowed([ // Noncompliant {{Remove this "@allowed" decorator from the parameter specifying the location.}}
 //^[sc=2;el=+7;ec=2]
   'eastus'
   'westus'
@@ -8,7 +8,7 @@
 ])
 param parameterWithAllowedValues string
 
-@allowed([ // Noncompliant {{Remove this @allowed decorator from the parameter specifying the location.}}
+@allowed([ // Noncompliant {{Remove this "@allowed" decorator from the parameter specifying the location.}}
 //^[sc=2;el=+3;ec=2]
   'eastus'
 ])

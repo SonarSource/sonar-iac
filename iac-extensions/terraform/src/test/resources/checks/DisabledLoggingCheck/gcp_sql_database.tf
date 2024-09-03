@@ -1,8 +1,8 @@
-resource "google_sql_database_instance" "sql-noncompliant" { # Noncompliant {{Omitting settings makes logs incomplete. Make sure it is safe here.}}
+resource "google_sql_database_instance" "sql-noncompliant" { # Noncompliant {{Omitting "settings" makes logs incomplete. Make sure it is safe here.}}
 }
 
 resource "google_sql_database_instance" "sql-noncompliant" {
-  settings { # Noncompliant {{Omitting database_flags.log_connections makes logs incomplete. Make sure it is safe here.}}
+  settings { # Noncompliant {{Omitting "database_flags.log_connections" makes logs incomplete. Make sure it is safe here.}}
   }
 }
 
@@ -28,7 +28,7 @@ resource "google_sql_database_instance" "sql-noncompliant" {
 }
 
 resource "google_sql_database_instance" "sql-noncompliant" {
-  settings { # Noncompliant {{Omitting database_flags.log_disconnections makes logs incomplete. Make sure it is safe here.}}
+  settings { # Noncompliant {{Omitting "database_flags.log_disconnections" makes logs incomplete. Make sure it is safe here.}}
     database_flags {
       name  = "log_connections"
       value = "on"
@@ -41,7 +41,7 @@ resource "google_sql_database_instance" "sql-noncompliant" {
 }
 
 resource "google_sql_database_instance" "sql-noncompliant" {
-  settings { # Noncompliant {{Omitting database_flags.log_checkpoints makes logs incomplete. Make sure it is safe here.}}
+  settings { # Noncompliant {{Omitting "database_flags.log_checkpoints" makes logs incomplete. Make sure it is safe here.}}
     database_flags {
       name  = "log_connections"
       value = "on"
@@ -54,7 +54,7 @@ resource "google_sql_database_instance" "sql-noncompliant" {
 }
 
 resource "google_sql_database_instance" "sql-noncompliant" {
-  settings { # Noncompliant {{Omitting database_flags.log_connections makes logs incomplete. Make sure it is safe here.}}
+  settings { # Noncompliant {{Omitting "database_flags.log_connections" makes logs incomplete. Make sure it is safe here.}}
     database_flags {
       name  = "log_checkpoints"
       value = "off" # Noncompliant

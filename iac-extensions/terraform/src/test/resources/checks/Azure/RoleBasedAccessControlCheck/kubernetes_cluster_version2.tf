@@ -40,7 +40,7 @@ resource "azurerm_kubernetes_cluster" "ac_rbac_enabled" { # Compliant
   }
 }
 
-# Noncompliant@+1 {{Omitting 'role_based_access_control' disables role-based access control for this resource. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "role_based_access_control" disables role-based access control for this resource. Make sure it is safe here.}}
 resource "azurerm_kubernetes_cluster" "missing_role_based_access_control" {
 }
 

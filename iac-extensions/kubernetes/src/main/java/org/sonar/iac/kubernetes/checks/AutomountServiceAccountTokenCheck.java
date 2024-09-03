@@ -19,13 +19,10 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.yaml.TreePredicates;
@@ -35,9 +32,11 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
 
+import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
+
 @Rule(key = "S6865")
 public class AutomountServiceAccountTokenCheck extends AbstractResourceManagementCheck<ServiceAccount> {
-  private static final String MESSAGE = "Set automountServiceAccountToken to false for this specification of kind %s.";
+  private static final String MESSAGE = "Set \"automountServiceAccountToken\" to false for this specification of kind %s.";
   private static final String KEY = "automountServiceAccountToken";
   private static final String KIND_POD = "Pod";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");

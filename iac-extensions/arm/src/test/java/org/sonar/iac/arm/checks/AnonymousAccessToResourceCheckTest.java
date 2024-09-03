@@ -33,7 +33,7 @@ class AnonymousAccessToResourceCheckTest {
   @Test
   void shouldFindIssuesInWebSitesResourceJson() {
     ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.json", check,
-      issue(6, 14, 6, 35, "Omitting authsettingsV2 disables authentication. Make sure it is safe here."),
+      issue(6, 14, 6, 35, "Omitting \"authsettingsV2\" disables authentication. Make sure it is safe here."),
       issue(21, 14, 21, 44, "Make sure that disabling authentication is safe here."),
       issue(22, 14, 22, 61, "Make sure that disabling authentication is safe here."),
       issue(39, 14, 39, 44, "Make sure that disabling authentication is safe here."),
@@ -52,13 +52,13 @@ class AnonymousAccessToResourceCheckTest {
   @Test
   void shouldFindIssuesInApiManagementServiceJson() {
     ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.ApiManagement_service.json", check,
-      issue(6, 14, 6, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."),
+      issue(6, 14, 6, 47, "Omitting \"signin\" authorizes anonymous access. Make sure it is safe here."),
       issue(20, 12, 20, 28, "Make sure that giving anonymous access without enforcing sign-in is safe here."),
-      issue(26, 14, 26, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."),
-      issue(31, 18, 31, 24, "Omitting authenticationSettings disables authentication. Make sure it is safe here."),
-      issue(53, 18, 53, 24, "Omitting authenticationSettings disables authentication. Make sure it is safe here."),
+      issue(26, 14, 26, 47, "Omitting \"signin\" authorizes anonymous access. Make sure it is safe here."),
+      issue(31, 18, 31, 24, "Omitting \"authenticationSettings\" disables authentication. Make sure it is safe here."),
+      issue(53, 18, 53, 24, "Omitting \"authenticationSettings\" disables authentication. Make sure it is safe here."),
       issue(69, 12, 69, 28, "Make sure that giving anonymous access without enforcing sign-in is safe here."),
-      issue(88, 14, 88, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."));
+      issue(88, 14, 88, 47, "Omitting \"signin\" authorizes anonymous access. Make sure it is safe here."));
   }
 
   @Test

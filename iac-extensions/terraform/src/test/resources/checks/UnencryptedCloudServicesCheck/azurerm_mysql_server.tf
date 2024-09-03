@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting infrastructure_encryption_enabled enables clear-text storage. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "infrastructure_encryption_enabled" enables clear-text storage. Make sure it is safe here.}}
 resource "azurerm_mysql_server" "non-concompliant-1" {
 }
 

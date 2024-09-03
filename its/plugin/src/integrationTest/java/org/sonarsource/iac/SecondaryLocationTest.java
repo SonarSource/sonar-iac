@@ -19,11 +19,10 @@
  */
 package org.sonarsource.iac;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.jupiter.api.Test;
 
-import com.sonar.orchestrator.build.SonarScanner;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SecondaryLocationTest extends TestBase {
 
@@ -41,7 +40,7 @@ class SecondaryLocationTest extends TestBase {
     assertThat(issues).hasSize(1);
     var issue = issues.get(0);
     assertThat(issue.getLine()).isEqualTo(6);
-    assertThat(issue.getMessage()).isEqualTo("Set automountServiceAccountToken to false for this specification of kind Pod.");
+    assertThat(issue.getMessage()).isEqualTo("Set \"automountServiceAccountToken\" to false for this specification of kind Pod.");
     var flows = issue.getFlowsList();
     assertThat(flows).hasSize(2);
 
@@ -69,7 +68,7 @@ class SecondaryLocationTest extends TestBase {
     assertThat(issues).hasSize(1);
     var issue = issues.get(0);
     assertThat(issue.getLine()).isEqualTo(6);
-    assertThat(issue.getMessage()).isEqualTo("Set automountServiceAccountToken to false for this specification of kind Pod.");
+    assertThat(issue.getMessage()).isEqualTo("Set \"automountServiceAccountToken\" to false for this specification of kind Pod.");
     var flows = issue.getFlowsList();
     assertThat(flows).hasSize(1);
 

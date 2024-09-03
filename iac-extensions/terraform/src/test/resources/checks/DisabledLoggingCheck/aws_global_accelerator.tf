@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting attributes.flow_logs_enabled makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "attributes.flow_logs_enabled" makes logs incomplete. Make sure it is safe here.}}
 resource "aws_globalaccelerator_accelerator" "noncompliant_missing1" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }

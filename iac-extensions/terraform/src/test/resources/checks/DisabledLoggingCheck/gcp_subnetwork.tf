@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting log_config makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "log_config" makes logs incomplete. Make sure it is safe here.}}
 resource "google_compute_subnetwork" "subnetwork-noncompliant" {
 }
 
