@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting disk_encryption_set_id enables clear-text storage. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "disk_encryption_set_id" enables clear-text storage. Make sure it is safe here.}}
 resource "azurerm_managed_disk" "non-concompliant" {
 }
 

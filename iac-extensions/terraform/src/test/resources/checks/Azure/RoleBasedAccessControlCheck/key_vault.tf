@@ -4,7 +4,7 @@ resource "azurerm_key_vault" "production" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting 'enable_rbac_authorization' disables role-based access control for this resource. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "enable_rbac_authorization" disables role-based access control for this resource. Make sure it is safe here.}}
 resource "azurerm_key_vault" "production2" {
   #      ^^^^^^^^^^^^^^^^^^^
   # enable_rbac_authorization is missing

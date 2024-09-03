@@ -37,8 +37,8 @@ import org.sonar.iac.common.api.checks.InitContext;
 @Rule(key = "S6953")
 public class LocationParameterAllowedValuesCheck implements IacCheck {
 
-  private static final String MESSAGE_BICEP = "Remove this @allowed decorator from the parameter specifying the location.";
-  private static final String MESSAGE_JSON = "Remove this allowedValues property from the parameter specifying the location.";
+  private static final String MESSAGE_BICEP = "Remove this \"@allowed\" decorator from the parameter specifying the location.";
+  private static final String MESSAGE_JSON = "Remove this \"allowedValues\" property from the parameter specifying the location.";
 
   @Override
   public void initialize(InitContext init) {

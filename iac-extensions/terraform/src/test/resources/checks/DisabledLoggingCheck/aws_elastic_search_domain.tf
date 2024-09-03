@@ -12,7 +12,7 @@ resource "aws_elasticsearch_domain" "noncompliant_enabled_false" {
   }
 }
 
-# Noncompliant@+1 {{Omitting log_publishing_options of type "AUDIT_LOGS" makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "log_publishing_options" of type "AUDIT_LOGS" makes logs incomplete. Make sure it is safe here.}}
 resource "aws_elasticsearch_domain" "noncompliant_missing_audit_log" {
       #  ^^^^^^^^^^^^^^^^^^^^^^^^^^
   domain_name = "sensitive_domain"

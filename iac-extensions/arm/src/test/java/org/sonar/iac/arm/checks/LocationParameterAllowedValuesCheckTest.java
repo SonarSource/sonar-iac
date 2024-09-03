@@ -21,7 +21,6 @@ package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class LocationParameterAllowedValuesCheckTest {
@@ -31,8 +30,8 @@ class LocationParameterAllowedValuesCheckTest {
   @Test
   void shouldRaiseSensitiveLocationParametersJson() {
     ArmVerifier.verify("LocationParameterAllowedValuesCheckTest/locationAllowedValues.json", CHECK,
-      issue(8, 23, 14, 7, "Remove this allowedValues property from the parameter specifying the location."),
-      issue(19, 23, 21, 7, "Remove this allowedValues property from the parameter specifying the location."));
+      issue(8, 23, 14, 7, "Remove this \"allowedValues\" property from the parameter specifying the location."),
+      issue(19, 23, 21, 7, "Remove this \"allowedValues\" property from the parameter specifying the location."));
   }
 
   @Test

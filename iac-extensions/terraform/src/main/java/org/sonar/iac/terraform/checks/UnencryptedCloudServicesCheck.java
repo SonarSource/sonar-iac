@@ -28,7 +28,7 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 @Rule(key = "S6388")
 public class UnencryptedCloudServicesCheck extends AbstractNewResourceCheck {
   public static final String UNENCRYPTED_MESSAGE = "Make sure using unencrypted cloud storage is safe here.";
-  public static final String FORMAT_OMITTING = "Omitting %s enables clear-text storage. Make sure it is safe here.";
+  public static final String FORMAT_OMITTING = "Omitting \"%s\" enables clear-text storage. Make sure it is safe here.";
 
   @Override
   protected void registerResourceConsumer() {

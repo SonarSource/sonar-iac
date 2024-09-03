@@ -1,4 +1,4 @@
-resource "google_compute_region_backend_service" "backend-noncompliant" { # Noncompliant {{Omitting log_config makes logs incomplete. Make sure it is safe here.}}
+resource "google_compute_region_backend_service" "backend-noncompliant" { # Noncompliant {{Omitting "log_config" makes logs incomplete. Make sure it is safe here.}}
 }
 
 resource "google_compute_region_backend_service" "backend-noncompliant" {

@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -33,7 +34,6 @@ import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ListSymbol;
-import org.sonar.iac.common.checkdsl.ContextualTree;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
 import static org.sonar.iac.terraform.checks.DisabledLoggingCheck.MESSAGE;
@@ -53,7 +53,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     register(S3_BUCKET, resource -> {
       BlockTree resourceBlock = resource.tree;
       if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4) && !isMaybeLoggingBucket(resourceBlock) && PropertyUtils.isMissing(resourceBlock, "logging")) {
-        resource.report(String.format(MESSAGE_OMITTING, "logging or acl=\"log-delivery-write\""));
+        resource.report(String.format(MESSAGE_OMITTING, "logging\" or acl=\"log-delivery-write"));
       }
     });
 
@@ -80,7 +80,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
         .map(l -> l.attribute("enabled"));
 
       if (logSettings.noneMatch(l -> l.is(isFalse().negate()))) {
-        brokerLogs.report(String.format(MESSAGE_OMITTING, "cloudwatch_logs, firehose or s3"));
+        brokerLogs.report(String.format(MESSAGE_OMITTING, "cloudwatch_logs\", \"firehose\" or \"s3"));
       }
     });
 
@@ -102,7 +102,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/mq_broker
     register("aws_mq_broker", resource -> {
       BlockSymbol logs = resource.block("logs")
-        .reportIfAbsent(String.format(MESSAGE_OMITTING, "logs.audit or logs.general"));
+        .reportIfAbsent(String.format(MESSAGE_OMITTING, "logs.audit\" or \"logs.general"));
 
       AttributeSymbol auditLog = logs.attribute("audit");
       AttributeSymbol generalLog = logs.attribute("general");
@@ -130,7 +130,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
       .filter(block -> block.attribute("log_type").is(notEqualTo("AUDIT_LOGS").negate()))
       .findFirst()
       .ifPresentOrElse(auditLog -> auditLog.attribute("enabled").reportIf(isFalse(), MESSAGE),
-        () -> resource.report(String.format(MESSAGE_OMITTING, "log_publishing_options of type \"AUDIT_LOGS\""))));
+        () -> resource.report(String.format(MESSAGE_OMITTING, "log_publishing_options\" of type \"AUDIT_LOGS"))));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
     register("aws_cloudfront_distribution", resource -> resource.block("logging_config")

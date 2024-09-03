@@ -12,7 +12,7 @@ resource "aws_redshift_cluster" "redshift_cluster_empty" {
   }
 }
 
-# Noncompliant@+1 {{Omitting logging.enable makes logs incomplete. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "logging.enable" makes logs incomplete. Make sure it is safe here.}}
 resource "aws_redshift_cluster" "redshift_cluster_missing" {
   cluster_identifier = "redshift-cluster"
 }

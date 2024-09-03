@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -30,17 +34,12 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 @Rule(key = "S6258")
 public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
   private static final List<String> MSK_LOGGER = Arrays.asList("CloudWatchLogs", "Firehose", "S3");
-  private static final String MESSAGE_OMITTING_FORMAT = "Omitting %s makes logs incomplete. Make sure it is safe here.";
+  private static final String MESSAGE_OMITTING_FORMAT = "Omitting \"%s\" makes logs incomplete. Make sure it is safe here.";
   private static final String ENABLED = "Enabled";
   private static final String ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY = "EnableCloudwatchLogsExports";
 
