@@ -21,9 +21,9 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class SyntaxTokenImpl extends AbstractDockerTreeImpl implements SyntaxToken {
@@ -60,5 +60,10 @@ public class SyntaxTokenImpl extends AbstractDockerTreeImpl implements SyntaxTok
   @Override
   public List<Comment> comments() {
     return comments;
+  }
+
+  @Override
+  public String toString() {
+    return value;
   }
 }

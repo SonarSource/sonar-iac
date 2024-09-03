@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
@@ -66,5 +67,10 @@ public class ExpandableStringLiteralImpl extends AbstractDockerTreeImpl implemen
   @Override
   public Kind getKind() {
     return Kind.EXPANDABLE_STRING_LITERAL;
+  }
+
+  @Override
+  public String toString() {
+    return openDoubleQuote + elements.stream().map(Expression::toString).collect(Collectors.joining()) + closeDoubleQuote;
   }
 }

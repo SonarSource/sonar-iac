@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -47,5 +48,10 @@ public class ArgumentImpl extends AbstractDockerTreeImpl implements Argument {
   @Override
   public Kind getKind() {
     return DockerTree.Kind.ARGUMENT;
+  }
+
+  @Override
+  public String toString() {
+    return expressions.stream().map(Expression::toString).collect(Collectors.joining());
   }
 }

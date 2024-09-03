@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.docker.symbols;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
@@ -30,11 +34,6 @@ import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
-
-import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Class dedicated to resolving {@link Argument}, which is a complex object used to represent most parameters of instruction.
@@ -249,5 +248,10 @@ public class ArgumentResolution {
       }
       return null;
     }
+  }
+
+  @Override
+  public String toString() {
+    return value;
   }
 }

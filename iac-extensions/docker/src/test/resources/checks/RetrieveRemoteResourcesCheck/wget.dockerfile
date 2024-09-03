@@ -1,4 +1,4 @@
-FROM sratch
+FROM scratch
 
 # -O flag first ====
 
@@ -102,7 +102,7 @@ RUN wget --limit-rate=100k https://example.com/resource --max-redirect=1 --outpu
 # Noncompliant@+1
 RUN wget --limit-rate=100k https://example.com/resource --max-redirect=1 --output-document=/path/to/resource --no-check-certificate
 
-# Compliant because ADD doesn’t support authentication =======
+# Compliant: ADD doesn’t support authentication =======
 
 RUN wget -O /path/to/resource https://example.com/resource --http-user=user
 RUN wget -O /path/to/resource https://example.com/resource --http-user=user --http-password=password
@@ -166,6 +166,6 @@ RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://e
 RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header "X-Auth-Token 123"
 RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header "X-Auth-Token 123" --quiet
 
-# Compliant no file save
+# Compliant: no file save
 RUN wget https://example.com/resource > file.html
 

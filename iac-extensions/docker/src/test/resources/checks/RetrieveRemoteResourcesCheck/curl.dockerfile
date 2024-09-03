@@ -1,4 +1,4 @@
-FROM sratch
+FROM scratch
 
 # -o flag ====================
 
@@ -352,7 +352,7 @@ RUN ["curl", "-L", "https://example.com/resource", "-s", "--output", "output.txt
 #    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-# Compliant, contains auth ==
+# Compliant: contains auth ==
 
 RUN curl --anyauth -o output.txt https://example.com/resource
 RUN curl -o output.txt https://example.com/resource -L --anyauth
@@ -428,7 +428,7 @@ RUN curl -L https://example.com/resource -s --output output.txt -k -H "X-Auth-To
 RUN curl --header "X-Auth-Token 123" https://example.com/resource --output output.txt -L
 RUN curl -L https://example.com/resource -s --output output.txt --header "X-Auth-Token 123" -k
 
-# Compliant save in /dev/null
+# Compliant: save in /dev/null
 RUN curl https://example.com/resource > /dev/null
 RUN curl -L https://example.com/resource >> /dev/null
 RUN curl -L https://example.com/resource -k 1> /dev/null
