@@ -27,8 +27,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.helm.utils.Chart;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 
 import static java.util.Objects.nonNull;
@@ -40,6 +42,15 @@ public final class ProjectContext {
 
   private final Map<String, Map<String, Set<ProjectResource>>> projectResourcePerPathPerNamespace = new HashMap<>();
   private final Map<String, InputFileContext> inputFileContextPerPath = new HashMap<>();
+  /**
+   * The Chart of the project, if the project is a Helm project.
+   */
+  @Nullable
+  private Chart chart;
+
+  public ProjectContext() {
+    this.chart = null;
+  }
 
   public void addResource(String namespace, String uri, ProjectResource resource) {
     projectResourcePerPathPerNamespace.computeIfAbsent(uri, k -> new HashMap<>())
@@ -83,5 +94,14 @@ public final class ProjectContext {
 
   public void addInputFileContext(String path, InputFileContext inputFileContext) {
     inputFileContextPerPath.put(path, inputFileContext);
+  }
+
+  public void setChart(@Nullable Chart chart) {
+    this.chart = chart;
+  }
+
+  @CheckForNull
+  public Chart getChart() {
+    return chart;
   }
 }
