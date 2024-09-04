@@ -19,6 +19,14 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
@@ -36,15 +44,6 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
@@ -178,6 +177,8 @@ public class BucketsInsecureHttpCheck implements IacCheck {
           // Extract last element of Join value list to be checked if it's insecure
           return sequence.elements().isEmpty() || isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
         }
+      } else if (resource instanceof SequenceTree sequenceTree) {
+        return sequenceTree.elements().stream().allMatch(PolicyValidator::isInsecureResource);
       }
       return !(resource instanceof ScalarTree scalar && scalar.value().endsWith("*"));
     }
