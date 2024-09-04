@@ -166,6 +166,44 @@ RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://e
 RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header "X-Auth-Token 123"
 RUN wget --limit-rate=100k -O /path/to/resource --no-check-certificate https://example.com/resource --max-redirect=1 --header "X-Auth-Token 123" --quiet
 
+# Compliant: ADD doesn’t support HTTP request options =======
+
+RUN wget --header="Content-Type: application/json" -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource --header="Content-Type: application/json" https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --header="Content-Type: application/json"
+
+RUN wget --method=POST -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource --method=POST https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --method=POST
+
+RUN wget --body-data='{"key":"value"}' -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource --body-data='{"key":"value"}' https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --body-data='{"key":"value"}'
+
+RUN wget --referer=https://example.com/referer -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource --referer=https://example.com/referer https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --referer=https://example.com/referer
+
+RUN wget --save-headers -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource --save-headers https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --save-headers
+
+RUN wget --user-agent="Mozilla/5.0" -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource --user-agent="Mozilla/5.0" https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --user-agent="Mozilla/5.0"
+
+RUN wget -U "Mozilla/5.0" -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource -U "Mozilla/5.0" https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource -U "Mozilla/5.0"
+
+RUN wget --post-data="key=value" -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource --post-data="key=value" https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --post-data="key=value"
+
+RUN wget --post-file=file.txt -O /path/to/resource https://example.com/resource
+RUN wget -O /path/to/resource --post-file=file.txt https://example.com/resource
+RUN wget -O /path/to/resource https://example.com/resource --post-file=file.txt
+
 # Compliant: no file save
 RUN wget https://example.com/resource > file.html
 

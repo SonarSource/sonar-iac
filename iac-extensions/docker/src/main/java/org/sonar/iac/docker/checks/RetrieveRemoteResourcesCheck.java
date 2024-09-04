@@ -44,6 +44,8 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static final String CURL = "curl";
 
   private static final List<String> WGET_AUTH_FLAGS = List.of("--http-user", "--http-password", "--proxy-user", "--proxy-password", "--load-cookies");
+  private static final List<String> WGET_REQUEST_FLAGS = List.of("--header", "--method", "--body-data", "--referer", "--save-headers",
+    "--user-agent", "-U", "--post-data", "--post-file");
   private static final Predicate<String> WGET_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-O", "--output-document");
   private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
 
@@ -61,15 +63,6 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     .with(WGET)
     .contains(URL_PREDICATE)
     .contains(WGET_DOWNLOAD_FLAG_PREDICATE)
-    .build();
-
-  private static final CommandDetector WGET_AUTH_HEADERS_EQUALS = CommandDetector.builder()
-    .with(startsWithIgnoreQuotes("--header=\"Authorization", "--header=\"X-Auth-Token"))
-    .build();
-
-  private static final CommandDetector WGET_AUTH_HEADERS_SPACE = CommandDetector.builder()
-    .with("--header")
-    .with(startsWithIgnoreQuotes("Authorization", "X-Auth-Token"))
     .build();
 
   // curl -o output.txt https://example.com/resource
@@ -109,37 +102,41 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static void check(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
-
     SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
-    splitCommands.elements().forEach(args -> checkArgumentForWget(ctx, args));
-
-    CURL_DETECTORS.forEach((CommandDetector detector) -> splitCommands.elements().forEach(args -> checkArgumentForCurl(ctx, detector, args)));
+    splitCommands.elements().forEach(args -> {
+      checkArgumentForWget(ctx, args);
+      checkArgumentForCurl(ctx, args);
+    });
   }
 
   private static void checkArgumentForWget(CheckContext ctx, List<ArgumentResolution> args) {
     WGET_DOWNLOAD_DETECTOR.search(args).forEach((CommandDetector.Command command) -> {
-      if (!containsWgetAuthenticationFlags(args)) {
+      if (!containsWgetAuthenticationFlags(args) && !containsWgetRequestFlags(args)) {
         reportIssue(ctx, args, WGET);
       }
     });
   }
 
   private static boolean containsWgetAuthenticationFlags(List<ArgumentResolution> args) {
-    var containsSimpleAuthFlag = args.stream().anyMatch(arg -> WGET_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
-    return containsSimpleAuthFlag || containsWgetAuthByHeader(args);
+    return args.stream().anyMatch(
+      arg -> WGET_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag))
+    );
   }
 
-  private static boolean containsWgetAuthByHeader(List<ArgumentResolution> args) {
-    return !WGET_AUTH_HEADERS_EQUALS.search(args).isEmpty() ||
-      !WGET_AUTH_HEADERS_SPACE.search(args).isEmpty();
+  private static boolean containsWgetRequestFlags(List<ArgumentResolution> args) {
+    return args.stream().anyMatch(
+      arg -> WGET_REQUEST_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag))
+    );
   }
 
-  private static void checkArgumentForCurl(CheckContext ctx, CommandDetector detector, List<ArgumentResolution> args) {
-    detector.search(args).forEach((CommandDetector.Command command) -> {
-      if (!containsCurlAuthenticationFlags(args)) {
-        reportIssue(ctx, args, CURL);
-      }
-    });
+  private static void checkArgumentForCurl(CheckContext ctx, List<ArgumentResolution> args) {
+    for (CommandDetector curlDetector : CURL_DETECTORS) {
+      curlDetector.search(args).forEach((CommandDetector.Command command) -> {
+        if (!containsCurlAuthenticationFlags(args)) {
+          reportIssue(ctx, args, CURL);
+        }
+      });
+    }
   }
 
   private static boolean containsCurlAuthenticationFlags(List<ArgumentResolution> args) {
