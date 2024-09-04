@@ -106,4 +106,10 @@ class ShellFormImplTest {
     assertThat(var.modifierSeparator()).isNull();
     assertThat(var.modifier()).hasValue("%%[a-z]+");
   }
+
+  @Test
+  void shouldConvertToString() {
+    ShellForm shellForm = DockerTestUtils.parse(" executable param1 param2", DockerLexicalGrammar.SHELL_FORM);
+    assertThat(shellForm.toString()).isEqualTo("executable param1 param2");
+  }
 }

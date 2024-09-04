@@ -520,4 +520,10 @@ class RunInstructionImplTest {
     assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
     assertArgumentsValue(tree.arguments(), "[", "/bin/bash”, “-c", "]");
   }
+
+  @Test
+  void shouldConvertToString() {
+    RunInstruction tree = DockerTestUtils.parse("RUN executable param1 param2", DockerLexicalGrammar.RUN);
+    assertThat(tree.toString()).isEqualTo("RUN executable param1 param2");
+  }
 }

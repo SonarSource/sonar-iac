@@ -101,7 +101,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void check(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
     SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
-    splitCommands.elements().forEach(args -> {
+    splitCommands.elements().forEach((List<ArgumentResolution> args) -> {
       checkArgumentsForWget(ctx, args);
       checkArgumentsForCurl(ctx, args);
     });

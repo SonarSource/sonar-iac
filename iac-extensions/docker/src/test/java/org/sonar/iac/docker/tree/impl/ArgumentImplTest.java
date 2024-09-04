@@ -87,4 +87,9 @@ class ArgumentImplTest {
       expression -> assertThat(expression.expressions()).hasSize(1));
   }
 
+  @Test
+  void shouldConvertToString() {
+    Argument argument = parse("foo", DockerLexicalGrammar.ARGUMENT);
+    assertThat(argument.toString()).isEqualTo("foo");
+  }
 }

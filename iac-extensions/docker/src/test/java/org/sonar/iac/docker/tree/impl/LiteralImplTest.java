@@ -96,4 +96,10 @@ class LiteralImplTest {
     Literal literal = parse("'foo'", REGULAR_STRING_LITERAL);
     assertThat(literal.value()).isEqualTo("foo");
   }
+
+  @Test
+  void shouldConvertToString() {
+    Literal literal = parse("foo", REGULAR_STRING_LITERAL);
+    assertThat(literal.toString()).isEqualTo("foo");
+  }
 }
