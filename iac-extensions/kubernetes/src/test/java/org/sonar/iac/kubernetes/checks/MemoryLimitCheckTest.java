@@ -47,8 +47,7 @@ class MemoryLimitCheckTest {
     '',true""")
   void testPodKindWithNamespace(String namespace, boolean noIssueExpected) {
     if (noIssueExpected) {
-      var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/memory_limit_pod_with_global_limit.yaml", "${namespace}",
-        namespace);
+      var content = TemplateFileReader.readContent("MemoryLimitCheck/memory_limit_pod_with_global_limit.yaml");
       KubernetesVerifier.verifyContentNoIssue(content, "MemoryLimitCheck", check, "MemoryLimitCheck/limit_ranges.yaml");
     } else {
       var content = TemplateFileReader.readTemplateAndReplace("MemoryLimitCheck/memory_limit_pod.yaml", "${namespace}", namespace);
