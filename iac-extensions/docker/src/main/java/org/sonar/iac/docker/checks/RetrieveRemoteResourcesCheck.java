@@ -40,7 +40,6 @@ import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWi
 public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static final String MESSAGE = "Replace this invocation of %s with the ADD instruction.";
-  private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
   private static final String WGET = "wget";
   private static final String CURL = "curl";
 
@@ -59,6 +58,8 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static final List<String> CURL_STDOUT_REDIRECT = List.of(">", ">>", "1>", "1>>");
   private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "-O", "--remote-name");
   private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = shortFlagPredicate('O');
+
+  private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
 
   // wget -O /path/to/resource https://example.com/resource
   // wget https://example.com/resource -O /path/to/resource
