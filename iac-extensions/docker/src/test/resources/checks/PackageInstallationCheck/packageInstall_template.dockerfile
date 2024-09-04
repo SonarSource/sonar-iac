@@ -22,14 +22,17 @@ RUN {$commandName} update
 
 
 # Required flag is set
-RUN {$commandName} install -y {$safe-flag} aptitude
-RUN {$commandName} install -y {$safe-flag} aptitude
-RUN {$commandName} -y {$safe-flag} install aptitude
+RUN {$commandName} install -y {$safeFlag} aptitude
+RUN {$commandName} install -y {$safeFlag} aptitude
+RUN {$commandName} -y {$safeFlag} install aptitude
+
+RUN {$commandName} update; \
+    {$commandName} -y {$safeFlag} install aptitude
 
 
 # Apt flag is set
-RUN {$commandName} --random-flag install -y {$safe-flag} geary
-RUN {$commandName} {$safe-flag} install -y --random-flag geary
+RUN {$commandName} --random-flag install -y {$safeFlag} geary
+RUN {$commandName} {$safeFlag} install -y --random-flag geary
 
 # Noncompliant@+1
 RUN {$commandName} --random-flag install geary
@@ -61,4 +64,3 @@ RUN {$commandName} install -y $UNRESOLVED && {$commandName} install -y geary
 ARG RESOLVED=geary
 # Noncompliant@+1
 RUN {$commandName} install -y $RESOLVED
-
