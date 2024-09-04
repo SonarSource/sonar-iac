@@ -38,6 +38,9 @@ public class TemplateFileReader {
 
   public static String readTemplateAndReplace(String path, String type) {
     String content = readContent(path);
+    if (!content.contains("${type}")) {
+      throw new RuntimeException("No variable \"${type}\" to replace found in the following template: " + path);
+    }
     return content.replace("${type}", type);
   }
 
@@ -47,6 +50,9 @@ public class TemplateFileReader {
     }
     String content = readContent(path);
     for (int i = 0; i < types.length; i = i + 2) {
+      if (!content.contains(types[i])) {
+        throw new RuntimeException("No variable \"" + types[i] + "\" to replace found in the following template: " + path);
+      }
       content = content.replace(types[i], types[i + 1]);
     }
     return content;
