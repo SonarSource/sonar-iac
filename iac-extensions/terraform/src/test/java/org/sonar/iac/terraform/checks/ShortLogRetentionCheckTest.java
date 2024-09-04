@@ -26,39 +26,44 @@ import static org.sonar.iac.terraform.checks.TerraformVerifier.verify;
 class ShortLogRetentionCheckTest {
 
   @Test
-  void gcp_logging() {
+  void shouldCheckGcpLogging() {
     verify("ShortLogRetentionCheck/gcp_logging.tf", new ShortLogRetentionCheck());
   }
 
   @Test
-  void gcp_logging_custom() {
+  void shouldCheckGcpLoggingCustom() {
     ShortLogRetentionCheck check = new ShortLogRetentionCheck();
     check.minimumLogRetentionDays = 300;
     verify("ShortLogRetentionCheck/gcp_logging_custom.tf", check);
   }
 
   @Test
-  void azure_mssql_auditing_policy() {
+  void shouldCheckAzureMssqlAuditingPolicy() {
     verify("ShortLogRetentionCheck/azure_mssql_auditing_policy.tf", new ShortLogRetentionCheck());
   }
 
   @Test
-  void azure_app_service() {
+  void shouldCheckAzureAppService() {
     verify("ShortLogRetentionCheck/azure_app_service.tf", new ShortLogRetentionCheck());
   }
 
   @Test
-  void azure_firewall_policy() {
+  void shouldCheckAzureFirewallPolicy() {
     verify("ShortLogRetentionCheck/azure_firewall_policy.tf", new ShortLogRetentionCheck());
   }
 
   @Test
-  void azure_monitor_log_profile() {
+  void shouldCheckAzureMonitorLogProfile() {
     verify("ShortLogRetentionCheck/azure_monitor_log_profile.tf", new ShortLogRetentionCheck());
   }
 
   @Test
-  void azure_mysql_server() {
+  void shouldCheckAzureMysqlServer() {
     verify("ShortLogRetentionCheck/azure_mysql_server.tf", new ShortLogRetentionCheck());
+  }
+
+  @Test
+  void shouldCheckAwsCloudwatch() {
+    verify("ShortLogRetentionCheck/aws_cloudwatch_log_group.tf", new ShortLogRetentionCheck());
   }
 }
