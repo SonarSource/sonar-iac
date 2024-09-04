@@ -116,14 +116,12 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static boolean containsWgetAuthenticationFlags(List<ArgumentResolution> args) {
     return args.stream().anyMatch(
-      arg -> WGET_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag))
-    );
+      arg -> WGET_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
   }
 
   private static boolean containsWgetRequestFlags(List<ArgumentResolution> args) {
     return args.stream().anyMatch(
-      arg -> WGET_REQUEST_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag))
-    );
+      arg -> WGET_REQUEST_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
   }
 
   private static void checkArgumentForCurl(CheckContext ctx, List<ArgumentResolution> args) {
@@ -138,14 +136,12 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static boolean containsCurlAuthenticationFlags(List<ArgumentResolution> args) {
     return args.stream().anyMatch(
-      arg -> CURL_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag))
-    );
+      arg -> CURL_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
   }
 
   private static boolean containsCurlRequestFlags(List<ArgumentResolution> args) {
     return args.stream().anyMatch(
-      arg -> CURL_REQUEST_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag))
-    );
+      arg -> CURL_REQUEST_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
   }
 
   private static void reportIssue(CheckContext ctx, List<ArgumentResolution> args, String command) {
