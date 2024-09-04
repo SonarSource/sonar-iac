@@ -318,39 +318,9 @@ RUN curl https://example.com/resource -L 1>> output.txt
 # Noncompliant@+1
 RUN curl -L https://example.com/resource -k 1>> output.txt
 
-# Non auth headers
-
 # Noncompliant@+1
-RUN curl -H "Content-Type: JSON" -L --output output.txt -s https://example.com/resource -k
-
-# Noncompliant@+1
-RUN curl https://example.com/resource --output output.txt -H "Content-Type: JSON"
-
-# Noncompliant@+1
-RUN curl --header "Content-Type: JSON" -L https://example.com/resource --output output.txt
-
-# Noncompliant@+1
-RUN curl https://example.com/resource -L --header "Content-Type: JSON" --output output.txt
-
-# Noncompliant@+1
-RUN curl -H "Custom-header: value" https://example.com/resource --output output.txt -L
-
-# Noncompliant@+1
-RUN curl -L https://example.com/resource -s --output output.txt -k -H "Custom-header: value"
-
-# Noncompliant@+1
-RUN curl --header "Custom-header: value". https://example.com/resource --output output.txt -L
-
-# Noncompliant@+1
-RUN curl -L https://example.com/resource -s --output output.txt --header "Custom-header: value" -k
-
-# Noncompliant@+1
-RUN curl -L https://example.com/resource -s --output output.txt --header "Custom-header: value" -k 1> log.txt
-
-# Noncompliant@+1
-RUN ["curl", "-L", "https://example.com/resource", "-s", "--output", "output.txt", "--header", "Custom-header: value", "-k"]
-#    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+RUN ["curl", "-L", "https://example.com/resource", "-s", "--output", "output.txt", "-k"]
+#    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Compliant: contains auth ==
 
@@ -427,6 +397,28 @@ RUN curl -H "X-Auth-Token 123" https://example.com/resource --output output.txt 
 RUN curl -L https://example.com/resource -s --output output.txt -k -H "X-Auth-Token 123"
 RUN curl --header "X-Auth-Token 123" https://example.com/resource --output output.txt -L
 RUN curl -L https://example.com/resource -s --output output.txt --header "X-Auth-Token 123" -k
+
+# Compliant: ADD doesn’t support HTTP request options =======
+
+RUN curl -o output.txt https://example.com/resource --data "param1=value1"
+RUN curl -o output.txt https://example.com/resource -d "param1=value1"
+RUN curl -o output.txt https://example.com/resource --data-ascii @file
+RUN curl -o output.txt https://example.com/resource --data-binary @file
+RUN curl -o output.txt https://example.com/resource --data-raw "param1=value1"
+RUN curl -o output.txt https://example.com/resource --data-urlencode param1=value1
+RUN curl -o output.txt https://example.com/resource --form param1=value1
+RUN curl -o output.txt https://example.com/resource -F param1=value1
+RUN curl -o output.txt https://example.com/resource --form-escape -F 'param1=value1'
+RUN curl -o output.txt https://example.com/resource --form-string "param1=value1"
+RUN curl -o output.txt https://example.com/resource --header "Content-Type: application/json"
+RUN curl -o output.txt https://example.com/resource -H "Content-Type: application/json"
+RUN curl -o output.txt https://example.com/resource --json '{"param1": "value1"}'
+RUN curl -o output.txt https://example.com/resource --referer "https://example.com/referer"
+RUN curl -o output.txt https://example.com/resource -e "https://example.com/referer"
+RUN curl -o output.txt https://example.com/resource --request POST
+RUN curl -o output.txt https://example.com/resource -X POST
+RUN curl -o output.txt https://example.com/resource --user-agent "Mozilla/5.0"
+RUN curl -o output.txt https://example.com/resource -A "Mozilla/5.0"
 
 # Compliant: save in /dev/null
 RUN curl https://example.com/resource > /dev/null

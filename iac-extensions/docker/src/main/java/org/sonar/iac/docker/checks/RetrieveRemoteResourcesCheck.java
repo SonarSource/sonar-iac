@@ -53,6 +53,9 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     "--proxy-anyauth", "--proxy-basic", "--proxy-digest", "--proxy-ntlm", "--proxy-negotiate", "--user", "-u", "--oauth2-bearer",
     "--proxy-user", "-U", "--tlsuser", "--proxy-tlspassword", "--tlspassword", "--proxy-tlspassword", "--proxy-tlsuser", "--tlsuser", "-b",
     "--cookie", "-c", "--cookie-jar");
+  private static final List<String> CURL_REQUEST_FLAGS = List.of("--data", "-d", "--data-raw", "--data-ascii", "--data-binary",
+    "--data-raw", "--data-urlencode", "--form", "-F", "--form-escape", "--form-string", "--header", "-H", "--json", "--referer", "-e",
+    "--request", "-X", "--user-agent", "-A");
   private static final List<String> CURL_STDOUT_REDIRECT = List.of(">", ">>", "1>", "1>>");
   private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "-O", "--remote-name");
   private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = shortFlagPredicate('O');
@@ -83,12 +86,6 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     .withOptionalRepeatingExcept(CURL_STDOUT_REDIRECT)
     .with(CURL_STDOUT_REDIRECT)
     .with(str -> !"/dev/null".equals(str))
-    .build();
-
-  // -H "Authorization: Bearer token"
-  private static final CommandDetector CURL_AUTH_HEADERS = CommandDetector.builder()
-    .with(List.of("-H", "--header"))
-    .with(startsWithIgnoreQuotes("Authorization", "X-Auth-Token"))
     .build();
 
   private static final List<CommandDetector> CURL_DETECTORS = List.of(
@@ -132,7 +129,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void checkArgumentForCurl(CheckContext ctx, List<ArgumentResolution> args) {
     for (CommandDetector curlDetector : CURL_DETECTORS) {
       curlDetector.search(args).forEach((CommandDetector.Command command) -> {
-        if (!containsCurlAuthenticationFlags(args)) {
+        if (!containsCurlAuthenticationFlags(args) && !containsCurlRequestFlags(args)) {
           reportIssue(ctx, args, CURL);
         }
       });
@@ -140,12 +137,15 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   }
 
   private static boolean containsCurlAuthenticationFlags(List<ArgumentResolution> args) {
-    var containsSimpleAuthFlag = args.stream().anyMatch(arg -> CURL_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
-    return containsSimpleAuthFlag || containsCurlAuthByHeader(args);
+    return args.stream().anyMatch(
+      arg -> CURL_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag))
+    );
   }
 
-  private static boolean containsCurlAuthByHeader(List<ArgumentResolution> args) {
-    return !CURL_AUTH_HEADERS.search(args).isEmpty();
+  private static boolean containsCurlRequestFlags(List<ArgumentResolution> args) {
+    return args.stream().anyMatch(
+      arg -> CURL_REQUEST_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag))
+    );
   }
 
   private static void reportIssue(CheckContext ctx, List<ArgumentResolution> args, String command) {
