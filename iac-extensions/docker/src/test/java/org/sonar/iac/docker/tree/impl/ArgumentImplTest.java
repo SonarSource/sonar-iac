@@ -90,6 +90,6 @@ class ArgumentImplTest {
   @Test
   void shouldConvertToString() {
     Argument argument = parse("foo", DockerLexicalGrammar.ARGUMENT);
-    assertThat(argument.toString()).isEqualTo("foo");
+    assertThat(argument).hasToString("foo");
   }
 }

@@ -80,6 +80,6 @@ class ExpandableStringLiteralImplTest {
   @Test
   void shouldConvertToString() {
     ExpandableStringLiteral literal = parse("\"foo$bar\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
-    assertThat(literal.toString()).isEqualTo("\"foo$bar\"");
+    assertThat(literal).hasToString("\"foo$bar\"");
   }
 }

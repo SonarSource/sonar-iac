@@ -100,6 +100,6 @@ class LiteralImplTest {
   @Test
   void shouldConvertToString() {
     Literal literal = parse("foo", REGULAR_STRING_LITERAL);
-    assertThat(literal.toString()).isEqualTo("foo");
+    assertThat(literal).hasToString("foo");
   }
 }

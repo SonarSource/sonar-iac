@@ -110,6 +110,6 @@ class ShellFormImplTest {
   @Test
   void shouldConvertToString() {
     ShellForm shellForm = DockerTestUtils.parse(" executable param1 param2", DockerLexicalGrammar.SHELL_FORM);
-    assertThat(shellForm.toString()).isEqualTo("executable param1 param2");
+    assertThat(shellForm).hasToString("executable param1 param2");
   }
 }
