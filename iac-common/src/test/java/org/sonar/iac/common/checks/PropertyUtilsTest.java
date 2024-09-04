@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -37,8 +38,9 @@ class PropertyUtilsTest {
   TextTree value1 = text("value1");
   TextTree value2 = text("value2");
   TextTree key2 = text("key2");
+  PropertyTree attribute1 = attribute("key1", value1);
   PropertyTree attribute2 = attribute(key2, value2);
-  TestPropertiesTree tree = properties(attribute("key1", value1), attribute2);
+  TestPropertiesTree tree = properties(attribute1, attribute2);
 
   @Test
   void has() {
@@ -64,6 +66,18 @@ class PropertyUtilsTest {
     assertThat(PropertyUtils.get(null, "key3")).isNotPresent();
     assertThat(PropertyUtils.get(tree, "key2", TestAttributeTree.class)).isPresent();
     assertThat(PropertyUtils.get(tree, "key2", OtherTree.class)).isNotPresent();
+  }
+
+  @Test
+  void testGetWithSet() {
+    assertThat(PropertyUtils.get(tree, Set.of("key2"), TestAttributeTree.class)).isPresent().get().isEqualTo(attribute2);
+    assertThat(PropertyUtils.get(tree, Set.of("key2", "key3"), TestAttributeTree.class)).isPresent().get().isEqualTo(attribute2);
+    assertThat(PropertyUtils.get(tree, Set.of("key3", "key2"), TestAttributeTree.class)).isPresent().get().isEqualTo(attribute2);
+    assertThat(PropertyUtils.get(tree, Set.of("key3"), TestAttributeTree.class)).isNotPresent();
+    assertThat(PropertyUtils.get(tree, Set.of("key2"), OtherTree.class)).isNotPresent();
+    assertThat(PropertyUtils.get(tree, Set.of(), TestAttributeTree.class)).isNotPresent();
+    assertThat(PropertyUtils.get(tree, Set.of("key1", "key2"), TestAttributeTree.class)).isPresent().get().isEqualTo(attribute1);
+    assertThat(PropertyUtils.get(tree, Set.of("key2", "key1"), TestAttributeTree.class)).isPresent().get().isEqualTo(attribute1);
   }
 
   @Test
