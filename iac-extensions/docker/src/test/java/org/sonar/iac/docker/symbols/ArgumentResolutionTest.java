@@ -260,7 +260,8 @@ class ArgumentResolutionTest {
   @Test
   void shouldConvertToString() {
     Argument argument = parseArgument("foo");
-    assertThat(argument).hasToString("foo");
+    ArgumentResolution argumentResolution = ArgumentResolution.of(argument);
+    assertThat(argumentResolution).hasToString("foo");
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {
