@@ -40,6 +40,7 @@ import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWi
 public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static final String MESSAGE = "Replace this invocation of %s with the ADD instruction.";
+  private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
   private static final String WGET = "wget";
   private static final String CURL = "curl";
 
@@ -47,7 +48,6 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static final List<String> WGET_REQUEST_FLAGS = List.of("--header", "--method", "--body-data", "--referer", "--save-headers",
     "--user-agent", "-U", "--post-data", "--post-file");
   private static final Predicate<String> WGET_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-O", "--output-document");
-  private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
 
   private static final List<String> CURL_AUTH_FLAGS = List.of("--anyauth", "--basic", "--digest", "--ntlm", "--negotiate",
     "--proxy-anyauth", "--proxy-basic", "--proxy-digest", "--proxy-ntlm", "--proxy-negotiate", "--user", "-u", "--oauth2-bearer",
@@ -101,47 +101,32 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
     SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(resolvedArgument);
     splitCommands.elements().forEach(args -> {
-      checkArgumentForWget(ctx, args);
-      checkArgumentForCurl(ctx, args);
+      checkArgumentsForWget(ctx, args);
+      checkArgumentsForCurl(ctx, args);
     });
   }
 
-  private static void checkArgumentForWget(CheckContext ctx, List<ArgumentResolution> args) {
+  private static void checkArgumentsForWget(CheckContext ctx, List<ArgumentResolution> args) {
     WGET_DOWNLOAD_DETECTOR.search(args).forEach((CommandDetector.Command command) -> {
-      if (!containsWgetAuthenticationFlags(args) && !containsWgetRequestFlags(args)) {
+      if (doesNotContainFlags(args, WGET_AUTH_FLAGS) && doesNotContainFlags(args, WGET_REQUEST_FLAGS)) {
         reportIssue(ctx, args, WGET);
       }
     });
   }
 
-  private static boolean containsWgetAuthenticationFlags(List<ArgumentResolution> args) {
-    return args.stream().anyMatch(
-      arg -> WGET_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
-  }
-
-  private static boolean containsWgetRequestFlags(List<ArgumentResolution> args) {
-    return args.stream().anyMatch(
-      arg -> WGET_REQUEST_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
-  }
-
-  private static void checkArgumentForCurl(CheckContext ctx, List<ArgumentResolution> args) {
+  private static void checkArgumentsForCurl(CheckContext ctx, List<ArgumentResolution> args) {
     for (CommandDetector curlDetector : CURL_DETECTORS) {
       curlDetector.search(args).forEach((CommandDetector.Command command) -> {
-        if (!containsCurlAuthenticationFlags(args) && !containsCurlRequestFlags(args)) {
+        if (doesNotContainFlags(args, CURL_AUTH_FLAGS) && doesNotContainFlags(args, CURL_REQUEST_FLAGS)) {
           reportIssue(ctx, args, CURL);
         }
       });
     }
   }
 
-  private static boolean containsCurlAuthenticationFlags(List<ArgumentResolution> args) {
-    return args.stream().anyMatch(
-      arg -> CURL_AUTH_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
-  }
-
-  private static boolean containsCurlRequestFlags(List<ArgumentResolution> args) {
-    return args.stream().anyMatch(
-      arg -> CURL_REQUEST_FLAGS.stream().anyMatch(flag -> arg.value().startsWith(flag)));
+  private static boolean doesNotContainFlags(List<ArgumentResolution> args, List<String> flags) {
+    return args.stream().noneMatch(
+      arg -> flags.stream().anyMatch(flag -> arg.value().startsWith(flag)));
   }
 
   private static void reportIssue(CheckContext ctx, List<ArgumentResolution> args, String command) {
