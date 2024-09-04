@@ -39,6 +39,7 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
 
   private static final String SHORT_RETENTION_MESSAGE = "Make sure that defining a short log retention duration is safe here.";
   private static final String DISABLING_MESSAGE_FORMAT = "Make sure that disabling %s is safe here.";
+  private static final String OMITTING_MESSAGE_FORMAT = "Omitting \"%s\" results in a short log retention duration. Make sure it is safe here.";
   private static final int FALLBACK_DEFAULT = 30;
   private static final int MIN_DEFAULT = 14;
 
@@ -104,6 +105,10 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
       resource -> resource.block("threat_detection_policy")
         .attribute("retention_days")
         .reportIf(lessThanMinimumButNotZero(), SHORT_RETENTION_MESSAGE));
+
+    register("aws_cloudwatch_log_group", resource -> resource.attribute("retention_in_days")
+      .reportIf(lessThan(minimumLogRetentionDays), SHORT_RETENTION_MESSAGE)
+      .reportIfAbsent(OMITTING_MESSAGE_FORMAT.formatted("retention_in_days")));
   }
 
   private void checkRetentionInDays(BlockSymbol block) {
