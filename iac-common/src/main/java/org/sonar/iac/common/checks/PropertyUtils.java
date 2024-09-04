@@ -90,8 +90,8 @@ public final class PropertyUtils {
     return get(tree, key).filter(clazz::isInstance).map(clazz::cast);
   }
 
-  public static <T extends Tree> Optional<T> get(@Nullable Tree tree, Set<String> key, Class<T> clazz) {
-    return get(tree, key::contains).filter(clazz::isInstance).map(clazz::cast);
+  public static <T extends Tree> Optional<T> get(@Nullable Tree tree, Set<String> keys, Class<T> clazz) {
+    return get(tree, keys::contains).filter(clazz::isInstance).map(clazz::cast);
   }
 
   public static Optional<Tree> key(@Nullable Tree tree, String key) {

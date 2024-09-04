@@ -41,8 +41,10 @@ public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
 
   private static final String DEFAULT_CLIENT_CERT_MODE = "client_certificate_mode";
   private static final String DEFAULT_CLIENT_CERT_ENABLED = "client_certificate_enabled";
-  private static final Set<String> CLIENT_CERT_MODE = Set.of("client_cert_mode", DEFAULT_CLIENT_CERT_MODE);
-  private static final Set<String> CLIENT_CERT_ENABLED = Set.of("client_cert_enabled", DEFAULT_CLIENT_CERT_ENABLED);
+  private static final String OLD_CLIENT_CERT_MODE = "client_cert_mode";
+  private static final String OLD_CLIENT_CERT_ENABLED = "client_cert_enabled";
+  private static final Set<String> CLIENT_CERT_MODE = Set.of(DEFAULT_CLIENT_CERT_MODE, OLD_CLIENT_CERT_MODE);
+  private static final Set<String> CLIENT_CERT_ENABLED = Set.of(DEFAULT_CLIENT_CERT_ENABLED, OLD_CLIENT_CERT_ENABLED);
 
   private static String messageWhenMissing(String propName) {
     return String.format(TEMPLATE_WHEN_MISSING, propName);
