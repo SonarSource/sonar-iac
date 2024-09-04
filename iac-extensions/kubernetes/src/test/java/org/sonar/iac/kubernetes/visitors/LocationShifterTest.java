@@ -391,7 +391,7 @@ final class LocationShifterTest {
   private HelmInputFileContext inputFileContextWithTree(FieldNode fieldNode) {
     HelmInputFileContext helmContext;
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      Mockito.when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(Path.of("."));
+      Mockito.when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("."));
       helmContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null), null);
     }
     helmContext.setAdditionalFiles(Map.of("values.yaml", "bar: baz"));

@@ -90,7 +90,7 @@ class KubernetesAnalyzerTest {
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
 
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(Path.of("/chart"));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
       inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile, null));
     }
   }
@@ -482,7 +482,7 @@ class KubernetesAnalyzerTest {
   @Test
   void shouldSetHelmProjectDirectory() throws IOException, URISyntaxException {
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(Path.of("/chart"));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
 
       InputFile helmFile = mock(InputFile.class);
       when(helmFile.contents()).thenReturn("foo: {{ .Values.foo }}");

@@ -89,7 +89,7 @@ class SonarLintFileListenerTest {
 
   @Test
   void shouldCallAnalyseFilesWhenInit() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
 
     verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
     assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
@@ -97,13 +97,13 @@ class SonarLintFileListenerTest {
 
   @Test
   void shouldCallRemoveResourceWhenRemoveEvent() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
     var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
 
     sonarLintFileListener.process(event);
 
     verify(projectContext).removeResource(uri(inputFile1));
-    assertThat(logTester.logs(Level.DEBUG)).contains(
+    assertThat(logTester.logs(Level.INFO)).contains(
       "Module file event DELETED for file limit_range.yaml",
       "Kubernetes Project Context updated");
   }
@@ -115,7 +115,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verifyNoInteractions(projectContext);
-    assertThat(logTester.logs(Level.DEBUG)).contains(
+    assertThat(logTester.logs(Level.INFO)).contains(
       "Module file event DELETED for file limit_range.yaml",
       "Kubernetes Project Context not updated");
   }
@@ -127,7 +127,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verifyNoInteractions(projectContext);
-    assertThat(logTester.logs(Level.DEBUG))
+    assertThat(logTester.logs(Level.INFO))
       .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
@@ -138,7 +138,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verifyNoInteractions(projectContext);
-    assertThat(logTester.logs(Level.DEBUG))
+    assertThat(logTester.logs(Level.INFO))
       .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
@@ -149,7 +149,7 @@ class SonarLintFileListenerTest {
   @ParameterizedTest
   @MethodSource
   void shouldCallRemoveResourceAndAnalyseFilesWhenEvent(ModuleFileEvent.Type eventType) {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
     var event = DefaultModuleFileEvent.of(inputFile2, eventType);
 
     sonarLintFileListener.process(event);
@@ -163,7 +163,7 @@ class SonarLintFileListenerTest {
 
   @Test
   void shouldThrowParseExceptionWhenIOException() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
     var event = DefaultModuleFileEvent.of(inputFileTOException, CREATED);
 
     var throwable = catchThrowable(() -> sonarLintFileListener.process(event));

@@ -99,7 +99,7 @@ public class KubernetesSensor extends YamlSensor {
     if (sonarLintFileListener != null) {
       var statistics = new DurationStatistics(sensorContext.config());
       var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
-      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext, (SonarLintFileSystemProvider) fileSystemProvider);
+      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext);
     }
   }
 

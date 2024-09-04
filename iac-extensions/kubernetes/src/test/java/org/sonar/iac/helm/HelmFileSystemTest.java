@@ -116,7 +116,7 @@ class HelmFileSystemTest {
 
   @Test
   void shouldReturnNullWhenInputIsNull() {
-    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(null, context.fileSystem(), null);
+    var parentPath = HelmFileSystem.retrieveHelmProjectFolder(null, context.fileSystem());
     assertThat(parentPath).isNull();
   }
 
@@ -125,22 +125,22 @@ class HelmFileSystemTest {
     try (var ignored = Mockito.mockStatic(Files.class)) {
       when(Files.exists(any())).thenReturn(false);
 
-      Path inputFilePath = mock(Path.class);
+      var inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(null);
 
-      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), null);
+      var parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
       assertThat(parentPath).isNull();
     }
   }
 
   @Test
   void shouldReturnNullIfRealPathOfBaseDirCantBeResolved() throws IOException {
-    Path inputFilePath = mock(Path.class);
-    Path basePath = mock(Path.class);
+    var inputFilePath = mock(Path.class);
+    var basePath = mock(Path.class);
     when(basePath.toRealPath()).thenThrow(IOException.class);
-    File baseDir = mock(File.class);
+    var baseDir = mock(File.class);
     when(baseDir.toPath()).thenReturn(basePath);
-    Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), null);
+    var parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
 
     assertThat(parentPath).isNull();
   }
@@ -150,19 +150,19 @@ class HelmFileSystemTest {
     try (var ignored = Mockito.mockStatic(Files.class)) {
       when(Files.exists(any())).thenReturn(false);
 
-      Path inputFilePath = mock(Path.class);
+      var inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(mock(Path.class));
       when(inputFilePath.startsWith(any(Path.class))).thenReturn(false);
 
-      Path parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), null);
+      var parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
       assertThat(parentPath).isNull();
     }
   }
 
   @Test
   void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
-    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    Map<String, String> relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate, null));
+    var helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+    var relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate, null));
 
     assertThat(relatedHelmFiles).isEmpty();
   }
@@ -171,8 +171,8 @@ class HelmFileSystemTest {
   void shouldReturnEmptyMapWhenOnlyChartYamlIsVeryHighAbove() throws IOException {
     Files.createFile(tmpDir.toPath().toRealPath().resolve("Chart.yaml"));
     FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4"));
-    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
-    InputFileContext templateInputFileContext = new InputFileContext(context, helmTemplate);
+    var helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
+    var templateInputFileContext = new InputFileContext(context, helmTemplate);
 
     var result = HelmFileSystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem());
 
@@ -181,21 +181,21 @@ class HelmFileSystemTest {
 
   @Test
   void getFileRelativePathShouldReturnCorrectPathWhenHelmProjectFolderExists() throws IOException {
-    InputFile inputFile = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    InputFile chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
+    var inputFile = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+    var chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
     addToFilesystem(context, inputFile, chartYamlFile);
-    HelmInputFileContext inputFileContext = new HelmInputFileContext(context, inputFile, null);
+    var inputFileContext = new HelmInputFileContext(context, inputFile, null);
 
-    String result = helmFilesystem.getFileRelativePath(inputFileContext);
+    var result = helmFilesystem.getFileRelativePath(inputFileContext);
     assertEquals("templates/pod.yaml", result);
   }
 
   @Test
   void getFileRelativePathShouldReturnFilenameWhenHelmProjectFolderDoesNotExist() throws IOException {
-    InputFile inputFile = createInputFile(helmProjectPathPrefix + "pod.yaml");
-    HelmInputFileContext inputFileContext = new HelmInputFileContext(context, inputFile, null);
+    var inputFile = createInputFile(helmProjectPathPrefix + "pod.yaml");
+    var inputFileContext = new HelmInputFileContext(context, inputFile, null);
 
-    String result = helmFilesystem.getFileRelativePath(inputFileContext);
+    var result = helmFilesystem.getFileRelativePath(inputFileContext);
     assertEquals("pod.yaml", result);
   }
 

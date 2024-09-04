@@ -173,7 +173,7 @@ class SecondaryLocationLocatorTest {
   private HelmInputFileContext inputFileContextWithTree() {
     HelmInputFileContext inputFileContext;
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(BASE_DIR);
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(BASE_DIR);
       inputFileContext = new HelmInputFileContext(
         mockSensorContextWithEnabledFeature(),
         inputFile("template/foo.yaml", BASE_DIR, "bar: {{ .Values.bar }}",
@@ -197,7 +197,7 @@ class SecondaryLocationLocatorTest {
   private TextRange getTextRangeFor(String valuesFileContent, ValuePath valuePath) {
     HelmInputFileContext inputFileContext;
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(Path.of("dir1"));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
       var inputFile = mock(InputFile.class);
       when(inputFile.uri()).thenReturn(Path.of("dir1/templates/something.yaml").toUri());
       inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile, null);

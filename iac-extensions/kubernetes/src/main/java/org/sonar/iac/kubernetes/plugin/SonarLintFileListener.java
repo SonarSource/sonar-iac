@@ -31,7 +31,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.helm.HelmFileSystem;
-import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -48,25 +47,26 @@ public class SonarLintFileListener implements ModuleFileListener {
   private SensorContext sensorContext;
   private KubernetesAnalyzer analyzer;
   private ProjectContext projectContext;
-  private SonarLintFileSystemProvider fileSystemProvider;
   private Map<String, String> inputFilesContents = new HashMap<>();
 
   public SonarLintFileListener(ModuleFileSystem moduleFileSystem) {
     this.moduleFileSystem = moduleFileSystem;
   }
 
-  public void initContext(SensorContext sensorContext, KubernetesAnalyzer analyzer, ProjectContext projectContext, SonarLintFileSystemProvider fileSystemProvider) {
+  public void initContext(SensorContext sensorContext, KubernetesAnalyzer analyzer, ProjectContext projectContext) {
     this.sensorContext = sensorContext;
     this.analyzer = analyzer;
     this.projectContext = projectContext;
-    this.fileSystemProvider = fileSystemProvider;
     if (inputFilesContents.isEmpty()) {
+      // The analysis is executed for the first time by SonarLint, the content of all relevant files has to be stored in inputFilesContents
       var predicate = new KubernetesOrHelmFilePredicate(sensorContext);
       var inputFiles = moduleFileSystem.files()
         .filter(predicate::apply)
         .toList();
 
-      storeInputFilesContent(inputFiles);
+      inputFilesContents = inputFiles.stream()
+        .collect(Collectors.toMap(SonarLintFileListener::getPath, SonarLintFileListener::content));
+      // it will fill the projectContext with the data needed for cross-file analysis
       analyzer.analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
       LOG.info("Finished building Kubernetes Project Context");
     }
@@ -109,11 +109,6 @@ public class SonarLintFileListener implements ModuleFileListener {
 
   private static String getPath(InputFile inputfile) {
     return Path.of(inputfile.uri()).normalize().toUri().toString();
-  }
-
-  private void storeInputFilesContent(List<InputFile> inputFiles) {
-    inputFilesContents = inputFiles.stream()
-      .collect(Collectors.toMap(SonarLintFileListener::getPath, SonarLintFileListener::content));
   }
 
   private static String content(InputFile inputFile) {

@@ -74,7 +74,7 @@ class HelmProcessorTest {
   @BeforeEach
   void setUp() {
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(tempDir);
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(tempDir);
       defaultInputFileContext = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE, null);
     }
   }
@@ -261,7 +261,7 @@ class HelmProcessorTest {
   private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {
     var inputFile = mockInputFile(filename, content);
     try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), null)).thenReturn(Path.of("/chart"));
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
       return new HelmInputFileContext(mock(SensorContext.class), inputFile, null);
     }
   }

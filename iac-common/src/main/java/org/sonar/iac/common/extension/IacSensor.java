@@ -86,6 +86,7 @@ public abstract class IacSensor implements Sensor {
 
   @Override
   public void execute(SensorContext sensorContext) {
+    //TODO to remove, it is for local tests in SonarLint
     LOG.info("AAAAA Starting sensor " + getClass().getName());
     if (!isActive(sensorContext)) {
       return;
