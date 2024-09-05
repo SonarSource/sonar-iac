@@ -1,4 +1,4 @@
-package org.sonar.iac.buildutil
+package org.sonar.iac
 
 data class Rule(val id: String, val title: String, val description: String, val tags: List<String>, val type: String, val severity: String)
 
@@ -13,12 +13,13 @@ fun extractRules(input: String): List<Rule> {
     val tableRows = input.lineSequence()
         .dropWhile { it != "## Rules" }
         .dropWhile { !it.startsWith("|") }
-        .takeWhile { it.startsWith("|") }
+        // drop table header and columns formatting line
         .drop(2)
+        .takeWhile { it.startsWith("|") }
     return tableRows.map(::extractRule).toList().plusElement(fallbackRule)
 }
 
-fun extractRule(line: String): Rule {
+private fun extractRule(line: String): Rule {
     val columns = line.split("|").map { it.trim() }
     // IDs also contain links: `E0000<a ...></a>`
     val id = columns[1].trimStart('[').takeWhile { it != '<' }
@@ -55,7 +56,7 @@ fun Rule.asJson(margin: Int): String {
         .joinToString(separator = "\n") { "|${" ".repeat(margin)}$it" }
 }
 
-val fallbackRule = Rule(
+private val fallbackRule = Rule(
     id = "cfn-lint.fallback",
     title = "Cfn-lint Rule",
     description = "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
