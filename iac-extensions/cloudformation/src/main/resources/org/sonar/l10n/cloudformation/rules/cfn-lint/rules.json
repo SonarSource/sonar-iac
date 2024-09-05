@@ -3,9 +3,7 @@
     "key": "E0000",
     "name": "Parsing error found when parsing the template",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "base"
-    ],
+    "tags": ["base"],
     "description": "Checks for JSON/YAML formatting errors in your template",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -15,10 +13,7 @@
     "key": "E0001",
     "name": "Error found when transforming the template",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "base",
-      "transform"
-    ],
+    "tags": ["base","transform"],
     "description": "Errors found when performing transformation on the template",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -28,10 +23,7 @@
     "key": "E0002",
     "name": "Error processing rule on the template",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "base",
-      "rule"
-    ],
+    "tags": ["base","rule"],
     "description": "Errors found when processing a rule on the template",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -41,9 +33,7 @@
     "key": "E1001",
     "name": "Basic CloudFormation Template Configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "base"
-    ],
+    "tags": ["base"],
     "description": "Making sure the basic CloudFormation template components are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -51,11 +41,9 @@
   },
   {
     "key": "E1002",
-    "name": "Template size limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "limits"
-    ],
+    "name": "Validate if a template size is too large",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["limits"],
     "description": "Check the size of the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -63,12 +51,9 @@
   },
   {
     "key": "E1003",
-    "name": "Template description limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "description",
-      "limits"
-    ],
+    "name": "Validate the max size of a description",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["description","limits"],
     "description": "Check if the size of the template description is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -77,11 +62,19 @@
   {
     "key": "E1004",
     "name": "Template description can only be a string",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-description-structure.html",
-    "tags": [
-      "description"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["description"],
     "description": "Template description can only be a string",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1005",
+    "name": "Validate Transform configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["transform"],
+    "description": "Validate that the transforms section of a template is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -89,11 +82,8 @@
   {
     "key": "E1010",
     "name": "GetAtt validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-getatt.html",
-    "tags": [
-      "functions",
-      "getatt"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","getatt"],
     "description": "Validates that GetAtt parameters are to valid resources and properties of those resources",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -102,25 +92,9 @@
   {
     "key": "E1011",
     "name": "FindInMap validation of configuration",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-findinmap.html",
-    "tags": [
-      "functions",
-      "findinmap"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","findinmap"],
     "description": "Making sure the function is a list of appropriate config",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E1012",
-    "name": "Check if Refs exist",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-ref.html",
-    "tags": [
-      "functions",
-      "ref"
-    ],
-    "description": "Making sure the refs exist",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -128,12 +102,9 @@
   {
     "key": "E1015",
     "name": "GetAz validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-getavailabilityzones.html",
-    "tags": [
-      "functions",
-      "getaz"
-    ],
-    "description": "Making sure the function not is of list",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","getaz"],
+    "description": "Making sure the GetAz function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -141,12 +112,9 @@
   {
     "key": "E1016",
     "name": "ImportValue validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html",
-    "tags": [
-      "functions",
-      "importvalue"
-    ],
-    "description": "Making sure the function not is of list",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","importvalue"],
+    "description": "Making sure the ImportValue function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -154,12 +122,9 @@
   {
     "key": "E1017",
     "name": "Select validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-select.html",
-    "tags": [
-      "functions",
-      "select"
-    ],
-    "description": "Making sure the function not is of list",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","select"],
+    "description": "Making sure the Select function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -167,11 +132,8 @@
   {
     "key": "E1018",
     "name": "Split validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-split.html",
-    "tags": [
-      "functions",
-      "split"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","split"],
     "description": "Making sure the split function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -180,11 +142,8 @@
   {
     "key": "E1019",
     "name": "Sub validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-sub.html",
-    "tags": [
-      "functions",
-      "sub"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","sub"],
     "description": "Making sure the sub function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -193,12 +152,9 @@
   {
     "key": "E1020",
     "name": "Ref validation of value",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-ref.html",
-    "tags": [
-      "functions",
-      "ref"
-    ],
-    "description": "Making the Ref has a value of String (no other functions are supported)",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","ref"],
+    "description": "Making sure the Ref has a String value (no other functions are supported)",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -206,12 +162,9 @@
   {
     "key": "E1021",
     "name": "Base64 validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-base64.html",
-    "tags": [
-      "functions",
-      "base64"
-    ],
-    "description": "Making sure the function not is of list",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","base64"],
+    "description": "Making sure the Base64 function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -219,25 +172,9 @@
   {
     "key": "E1022",
     "name": "Join validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-join.html",
-    "tags": [
-      "functions",
-      "join"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","join"],
     "description": "Making sure the join function is properly configured",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E1023",
-    "name": "Validation NOT function configuration",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-conditions.html#intrinsic-function-reference-conditions-not",
-    "tags": [
-      "functions",
-      "not"
-    ],
-    "description": "Making sure that NOT functions are list",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -245,26 +182,9 @@
   {
     "key": "E1024",
     "name": "Cidr validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-cidr.html",
-    "tags": [
-      "functions",
-      "cidr"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","cidr"],
     "description": "Making sure the function CIDR is a list with valid values",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E1026",
-    "name": "Cannot reference resources in the Conditions block of the template",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-conditions.html#w2ab2c21c28c21c45",
-    "tags": [
-      "conditions",
-      "functions",
-      "ref"
-    ],
-    "description": "Check that any Refs in the Conditions block uses no resources",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -272,11 +192,8 @@
   {
     "key": "E1027",
     "name": "Check dynamic references secure strings are in supported locations",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html",
-    "tags": [
-      "functions",
-      "dynamic-reference"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","dynamic-reference"],
     "description": "Dynamic References Secure Strings are only supported for a small set of resource properties.  Validate that they are being used in the correct location when checking values and Fn::Sub in resource properties. Currently doesn't check outputs, maps, conditions, parameters, and descriptions.",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -285,12 +202,9 @@
   {
     "key": "E1028",
     "name": "Check Fn::If structure for validity",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-conditions.html#intrinsic-function-reference-conditions-if",
-    "tags": [
-      "functions",
-      "if"
-    ],
-    "description": "Check Fn::If to make sure its valid. Condition has to be a string.",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","if"],
+    "description": "Check Fn::If to make sure its valid.  Condition has to be a string.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -298,12 +212,139 @@
   {
     "key": "E1029",
     "name": "Sub is required if a variable is used in a string",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-sub.html",
-    "tags": [
-      "functions",
-      "sub"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","sub"],
     "description": "If a substitution variable exists in a string but isn't wrapped with the Fn::Sub function the deployment will fail.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1030",
+    "name": "Length validation of parameters",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","length"],
+    "description": "Making sure Fn::Length is configured correctly",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1031",
+    "name": "ToJsonString validation of parameters",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","to-json-string"],
+    "description": "Making sure Fn::ToJsonString is configured correctly",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1032",
+    "name": "Validates ForEach functions",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","foreach"],
+    "description": "Validates that ForEach parameters have a valid configuration",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1040",
+    "name": "Check if GetAtt matches destination format",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","ec2","imageid"],
+    "description": "Validate that if source and destination format exists that they match",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1050",
+    "name": "Validate the structure of a dynamic reference",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","dynamic-reference"],
+    "description": "Make sure dynamic reference strings have the correct syntax",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1051",
+    "name": "Validate dynamic references to secrets manager are only in resource properties",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","dynamic-reference"],
+    "description": "Dynamic references from secrets manager can only be used in resource properties",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1052",
+    "name": "Validate dynamic references to SSM are in a valid location",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","dynamic-reference"],
+    "description": "Dynamic references to SSM parameters are only supported in certain locations",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1101",
+    "name": "Validate an item against additional checks",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [],
+    "description": "Use supplemental logic to validate properties against",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1103",
+    "name": "Validate the format of a value",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [],
+    "description": "Parent rule for validating the format keyword in schemas",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1150",
+    "name": "Validate security group format",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [],
+    "description": "Security groups have to ref/gettatt to a security group or has the valid pattern",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1151",
+    "name": "Validate VPC id format",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [],
+    "description": "Check that a VPC id matches a pattern",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1152",
+    "name": "Validate AMI id format",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [],
+    "description": "Check that a AMI id matches a pattern",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E1153",
+    "name": "Validate security group name",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [],
+    "description": "Security group names have to valid pattern",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -311,10 +352,8 @@
   {
     "key": "E2001",
     "name": "Parameters have appropriate properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html",
-    "tags": [
-      "parameters"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters"],
     "description": "Making sure the parameters are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -323,10 +362,8 @@
   {
     "key": "E2002",
     "name": "Parameters have appropriate type",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#parmtypes",
-    "tags": [
-      "parameters"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters"],
     "description": "Making sure the parameters have a correct type",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -335,10 +372,8 @@
   {
     "key": "E2003",
     "name": "Parameters have appropriate names",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html#parameters-section-structure-requirements",
-    "tags": [
-      "parameters"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","name"],
     "description": "Check if Parameters are properly named (A-Za-z0-9)",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -347,11 +382,8 @@
   {
     "key": "E2010",
     "name": "Parameter limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "parameters",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","limits"],
     "description": "Check the number of Parameters in the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -359,39 +391,10 @@
   },
   {
     "key": "E2011",
-    "name": "Parameter name limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "parameters",
-      "limits"
-    ],
-    "description": "Check the size of Parameter names in the template is less than the upper limit",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2012",
-    "name": "Parameter value limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "parameters",
-      "limits"
-    ],
-    "description": "Check if the size of Parameter values in the template is less than the upper limit",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2014",
-    "name": "Default value cannot use Refs",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html",
-    "tags": [
-      "parameters",
-      "ref"
-    ],
-    "description": "Check if Refs are not used in Parameter Defaults",
+    "name": "Validate the name for a parameter",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","limits"],
+    "description": "Validate the name of a parameter with special handling of the max length length",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -399,113 +402,9 @@
   {
     "key": "E2015",
     "name": "Default value is within parameter constraints",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html",
-    "tags": [
-      "parameters"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters"],
     "description": "Making sure the parameters have a default value inside AllowedValues, MinValue, MaxValue, AllowedPattern",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2503",
-    "name": "Resource ELB Properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-elb-listener.html",
-    "tags": [
-      "properties",
-      "elb"
-    ],
-    "description": "See if Elb Resource Properties are set correctly HTTPS has certificate HTTP has no certificate",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2504",
-    "name": "Check Ec2 Ebs Properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-blockdev-template.html",
-    "tags": [
-      "properties",
-      "ec2",
-      "ebs"
-    ],
-    "description": "See if Ec2 Ebs Properties are valid",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2506",
-    "name": "Resource EC2 Security Group Ingress Properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group-ingress.html",
-    "tags": [
-      "resources",
-      "ec2",
-      "securitygroup"
-    ],
-    "description": "See if EC2 Security Group Ingress Properties are set correctly. Check that \"SourceSecurityGroupId\" or \"SourceSecurityGroupName\" are  are exclusive and using the type of Ref or GetAtt ",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2507",
-    "name": "Check if IAM Policies are properly configured",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-policy.html",
-    "tags": [
-      "properties",
-      "iam"
-    ],
-    "description": "See if there elements inside an IAM policy are correct",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2520",
-    "name": "Check Properties that are mutually exclusive",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources"
-    ],
-    "description": "Making sure CloudFormation properties that are exclusive are not defined",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2521",
-    "name": "Check Properties that are required together",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources"
-    ],
-    "description": "Make sure CloudFormation resource properties are included together when required",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2522",
-    "name": "Check Properties that need at least one of a list of properties",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources"
-    ],
-    "description": "Making sure CloudFormation properties that require at least one property from a list. More than one can be included.",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E2523",
-    "name": "Check Properties that need only one of a list of properties",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources"
-    ],
-    "description": "Making sure CloudFormation properties that require only one property from a list. One has to be specified.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -513,39 +412,39 @@
   {
     "key": "E2529",
     "name": "Check for SubscriptionFilters have beyond 2 attachments to a CloudWatch Log Group",
-    "url": "https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#user-content-cloudwatchlogs",
-    "tags": [
-      "resources",
-      "lambda"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda"],
     "description": "The current limit for a CloudWatch Log Group is they can have 2 subscription filters. We will look for duplicate LogGroupNames inside Subscription Filters and make sure they are within 2. This doesn't account for any other subscription filters getting set.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
-    "key": "E2531",
-    "name": "Check if EOL Lambda Function Runtimes are used",
-    "url": "https://docs.aws.amazon.com/lambda/latest/dg/runtime-support-policy.html",
-    "tags": [
-      "resources",
-      "lambda",
-      "runtime"
-    ],
-    "description": "Check if an EOL Lambda Runtime is specified and give an error if used. ",
+    "key": "E2530",
+    "name": "SnapStart supports the configured runtime",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda"],
+    "description": "To properly leverage SnapStart, you must have a runtime of Java11 or greater",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
-    "key": "E2532",
-    "name": "Check State Machine Definition for proper syntax",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-stepfunctions-statemachine.html",
-    "tags": [
-      "resources",
-      "stepfunctions"
-    ],
-    "description": "Check the State Machine String Definition to make sure its JSON. Validate basic syntax of the file to determine validity.",
+    "key": "E2531",
+    "name": "Validate if lambda runtime is deprecated",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda","runtime"],
+    "description": "Check the lambda runtime has reached the end of life",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E2533",
+    "name": "Check if Lambda Function Runtimes are updatable",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda","runtime"],
+    "description": "Check if an EOL Lambda Runtime is specified and you cannot update the function",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -553,11 +452,8 @@
   {
     "key": "E2540",
     "name": "CodePipeline Stages",
-    "url": "https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html#pipeline-requirements",
-    "tags": [
-      "properties",
-      "codepipeline"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","codepipeline"],
     "description": "See if CodePipeline stages are set correctly",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -566,24 +462,9 @@
   {
     "key": "E2541",
     "name": "CodePipeline Stage Actions",
-    "url": "https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html#pipeline-requirements",
-    "tags": [
-      "resources",
-      "codepipeline"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","codepipeline"],
     "description": "See if CodePipeline stage actions are set correctly",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E3000",
-    "name": "Resource schema",
-    "url": "https://github.com/aws-cloudformation/aws-cloudformation-resource-schema/",
-    "tags": [
-      "resources"
-    ],
-    "description": "CloudFormation Registry resource schema validation",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -592,9 +473,7 @@
     "key": "E3001",
     "name": "Basic CloudFormation Resource Check",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources"
-    ],
+    "tags": ["resources"],
     "description": "Making sure the basic CloudFormation resources are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -602,11 +481,9 @@
   },
   {
     "key": "E3002",
-    "name": "Resource properties are valid",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#properties",
-    "tags": [
-      "resources"
-    ],
+    "name": "Resource properties are invalid",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
     "description": "Making sure that resources properties are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -615,11 +492,9 @@
   {
     "key": "E3003",
     "name": "Required Resource properties are missing",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#required",
-    "tags": [
-      "resources"
-    ],
-    "description": "Making sure that Resources properties that are required exist",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","properties","required"],
+    "description": "Make sure that Resources properties that are required exist",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -628,14 +503,7 @@
     "key": "E3004",
     "name": "Resource dependencies are not circular",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources",
-      "circularly",
-      "dependson",
-      "ref",
-      "sub",
-      "getatt"
-    ],
+    "tags": ["resources","circularly","dependson","ref","sub","getatt"],
     "description": "Check that Resources are not circularly dependent by DependsOn, Ref, Sub, or GetAtt",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -644,11 +512,8 @@
   {
     "key": "E3005",
     "name": "Check DependsOn values for Resources",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-dependson.html",
-    "tags": [
-      "resources",
-      "dependson"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","dependson"],
     "description": "Check that the DependsOn values are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -656,12 +521,10 @@
   },
   {
     "key": "E3006",
-    "name": "Resources have appropriate names",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html#resources-section-structure-logicalid",
-    "tags": [
-      "resources"
-    ],
-    "description": "Check if Resources are properly named (A-Za-z0-9)",
+    "name": "Validate the CloudFormation resource type",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Resource types are validated against the spec accounting for regions",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -669,11 +532,8 @@
   {
     "key": "E3007",
     "name": "Unique resource and parameter names",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html",
-    "tags": [
-      "parameters",
-      "resources"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","resources"],
     "description": "All resources and parameters must have unique names",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -681,14 +541,20 @@
   },
   {
     "key": "E3008",
-    "name": "Check values of properties for valid Refs and GetAtts",
-    "url": "",
-    "tags": [
-      "resources",
-      "ref",
-      "getatt"
-    ],
-    "description": "Checks resource properties for Ref and GetAtt values",
+    "name": "Validate an array in order",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","properties","array","prefix-items"],
+    "description": "Will validate arrays in order for schema validation",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3009",
+    "name": "Check CloudFormation init configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","cloudformation-init"],
+    "description": "Validate that the items in a CloudFormation init adhere to standards",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -696,11 +562,8 @@
   {
     "key": "E3010",
     "name": "Resource limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "resources",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","limits"],
     "description": "Check the number of Resources in the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -708,13 +571,10 @@
   },
   {
     "key": "E3011",
-    "name": "Resource name limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "resources",
-      "limits"
-    ],
-    "description": "Check the size of Resource names in the template is less than the upper limit",
+    "name": "Check property names in Resources",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","limits"],
+    "description": "Validate property names are property configured in Resources",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -722,10 +582,8 @@
   {
     "key": "E3012",
     "name": "Check resource properties values",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#valueprimitivetype",
-    "tags": [
-      "resources"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
     "description": "Checks resource property values with Primitive Types for values that match those types.",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -734,12 +592,29 @@
   {
     "key": "E3013",
     "name": "CloudFront Aliases",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-distributionconfig.html#cfn-cloudfront-distribution-distributionconfig-aliases",
-    "tags": [
-      "properties",
-      "cloudfront"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","cloudfront"],
     "description": "CloudFront aliases should contain valid domain names",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3014",
+    "name": "Validate only one of a set of required properties are specified",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Make sure that Resources properties that are required exist. Along with other properties not being specified",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3015",
+    "name": "Validate the resource condition is valid",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","conditions"],
+    "description": "Check the condition of a resource to make sure it exists inside the template",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -747,11 +622,8 @@
   {
     "key": "E3016",
     "name": "Check the configuration of a resources UpdatePolicy",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatepolicy.html",
-    "tags": [
-      "resources",
-      "updatepolicy"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","updatepolicy"],
     "description": "Make sure a resources UpdatePolicy is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -759,51 +631,50 @@
   },
   {
     "key": "E3017",
-    "name": "Property is required based on another properties value",
-    "url": "",
-    "tags": [
-      "resources"
-    ],
-    "description": "When certain properties have a certain value it results in other properties being required. This rule will validate those required properties are specified when those values are supplied",
+    "name": "Check Properties that need at least one of a list of properties",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Making sure CloudFormation properties that require at least one property from a list. More than one can be included.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
     "key": "E3018",
-    "name": "Property is unwanted based on another properties value",
-    "url": "",
-    "tags": [
-      "resources"
-    ],
-    "description": "When certain properties have a certain value it results in other properties not being needed. This rule will validate those unwanted properties are not specified when those values are supplied",
+    "name": "Check Properties that need only one of a list of properties",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Making sure CloudFormation properties that require only one property from a list. One has to be specified.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3019",
+    "name": "Validate that all resources have unique primary identifiers",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","resources"],
+    "description": "Use the primary identifiers in a resource schema to validate that resources inside the template are unique",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
     "key": "E3020",
-    "name": "Validate Route53 RecordSets",
-    "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html",
-    "tags": [
-      "resources",
-      "route53",
-      "record-set"
-    ],
-    "description": "Check if all RecordSets are correctly configured",
+    "name": "Validate that when a property is specified another property should be excluded",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When certain properties are specified other properties should not be included",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
     "key": "E3021",
-    "name": "Check Events Rule Targets are less than or equal to 5",
-    "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/cloudwatch_limits_cwe.html",
-    "tags": [
-      "resources",
-      "events"
-    ],
-    "description": "CloudWatch Events Rule can only support up to 5 targets",
+    "name": "Validate that when a property is specified that other properties should be included",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When certain properties are specified it results in other properties to be required",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -811,27 +682,39 @@
   {
     "key": "E3022",
     "name": "Resource SubnetRouteTableAssociation Properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-route-table-assoc.html",
-    "tags": [
-      "resources",
-      "ec2",
-      "subnet",
-      "route-table"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","ec2","subnet","route-table"],
     "description": "Validate there is only one SubnetRouteTableAssociation per subnet",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
+    "key": "E3023",
+    "name": "Validate Route53 RecordSets",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","route53","record-set"],
+    "description": "Check if all RecordSets are correctly configured",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3024",
+    "name": "Validate tag configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","resources","tags"],
+    "description": "Validates tag values to make sure they have unique keys and they follow pattern requirements",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
     "key": "E3025",
-    "name": "RDS instance type is compatible with the RDS type",
-    "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html",
-    "tags": [
-      "resources",
-      "rds"
-    ],
-    "description": "Check the RDS instance types are supported by the type of RDS engine. Only if the values are strings will this be checked.",
+    "name": "Validates RDS DB Instance Class",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the RDS DB instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -839,11 +722,8 @@
   {
     "key": "E3026",
     "name": "Check Elastic Cache Redis Cluster settings",
-    "url": "https://github.com/awslabs/cfn-python-lint",
-    "tags": [
-      "resources",
-      "elasticcache"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","elasticcache"],
     "description": "Evaluate Redis Cluster groups to make sure automatic failover is enabled when cluster mode is enabled",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -852,12 +732,29 @@
   {
     "key": "E3027",
     "name": "Validate AWS Event ScheduleExpression format",
-    "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html",
-    "tags": [
-      "resources",
-      "events"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","events"],
     "description": "Validate the formation of the AWS::Event ScheduleExpression",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3028",
+    "name": "Validate the metadata section of a resource",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "The metadata section can be unstructured but we do validate the items we can",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3029",
+    "name": "Validate Route53 record set aliases",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","route53","record-set"],
+    "description": "When using alias records you can't specify TTL or certain types are allowed",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -865,12 +762,8 @@
   {
     "key": "E3030",
     "name": "Check if properties have a valid value",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#allowedvalue",
-    "tags": [
-      "resources",
-      "property",
-      "allowed-value"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","property","allowed-value"],
     "description": "Check if properties have a valid value in case of an enumator",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -879,13 +772,8 @@
   {
     "key": "E3031",
     "name": "Check if property values adhere to a specific pattern",
-    "url": "https://github.com/awslabs/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#allowedpattern",
-    "tags": [
-      "resources",
-      "property",
-      "allowed-pattern",
-      "regex"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","property","allowed-pattern","regex"],
     "description": "Check if properties have a valid value in case of a pattern (Regular Expression)",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -893,15 +781,10 @@
   },
   {
     "key": "E3032",
-    "name": "Check if a list has between min and max number of values specified",
-    "url": "https://github.com/awslabs/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#allowedpattern",
-    "tags": [
-      "resources",
-      "property",
-      "list",
-      "size"
-    ],
-    "description": "Check lists for the number of items in the list to validate they are between the minimum and maximum",
+    "name": "Check if a array has between min and max number of values specified",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","property","array","length"],
+    "description": "Check array for the number of items in the list to validate they are between the minimum and maximum",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -909,13 +792,8 @@
   {
     "key": "E3033",
     "name": "Check if a string has between min and max number of values specified",
-    "url": "https://github.com/awslabs/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#allowedpattern",
-    "tags": [
-      "resources",
-      "property",
-      "string",
-      "size"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","property","string","size"],
     "description": "Check strings for its length between the minimum and maximum",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -924,13 +802,8 @@
   {
     "key": "E3034",
     "name": "Check if a number is between min and max",
-    "url": "https://github.com/awslabs/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#allowedpattern",
-    "tags": [
-      "resources",
-      "property",
-      "number",
-      "size"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","property","number","size"],
     "description": "Check numbers (integers and floats) for its value being between the minimum and maximum",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -939,11 +812,8 @@
   {
     "key": "E3035",
     "name": "Check DeletionPolicy values for Resources",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html",
-    "tags": [
-      "resources",
-      "deletionpolicy"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","deletionpolicy"],
     "description": "Check that the DeletionPolicy values are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -952,11 +822,8 @@
   {
     "key": "E3036",
     "name": "Check UpdateReplacePolicy values for Resources",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatereplacepolicy.html",
-    "tags": [
-      "resources",
-      "updatereplacepolicy"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","updatereplacepolicy"],
     "description": "Check that the UpdateReplacePolicy values are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -965,12 +832,8 @@
   {
     "key": "E3037",
     "name": "Check if a list has duplicate values",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#allowedvalue",
-    "tags": [
-      "resources",
-      "property",
-      "list"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","property","list"],
     "description": "Certain lists don't support duplicate items. Check when duplicates are provided but not supported.",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -980,10 +843,7 @@
     "key": "E3038",
     "name": "Check if Serverless Resources have Serverless Transform",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources",
-      "transform"
-    ],
+    "tags": ["resources","transform"],
     "description": "Check that a template with Serverless Resources also includes the Serverless Transform",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -992,42 +852,109 @@
   {
     "key": "E3039",
     "name": "AttributeDefinitions / KeySchemas mismatch",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html",
-    "tags": [
-      "resources",
-      "dynamodb"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","dynamodb"],
     "description": "Verify the set of Attributes in AttributeDefinitions and KeySchemas match",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
+    "key": "E3040",
+    "name": "Validate we aren't configuring read only properties",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","properties"],
+    "description": "Read only properties can be configured in a CloudFormation template but they aren't sent to the resource provider code and can cause drift.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
     "key": "E3041",
-    "name": "RecordSet HostedZoneName is a superdomain of Name",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-recordset.html#cfn-route53-recordset-name",
-    "tags": [
-      "resource",
-      "properties",
-      "route53"
-    ],
-    "description": "In a RecordSet, the HostedZoneName must be a superdomain of the Name being validated",
+    "name": "RecordSet HostedZoneName is a superdomain of or equal to Name",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resource","properties","route53"],
+    "description": "In a RecordSet, the HostedZoneName must be a superdomain of or equal to the Name being validated",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
     "key": "E3042",
-    "name": "Check at least one essential container is specified",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html#cfn-ecs-taskdefinition-containerdefinition-essential",
-    "tags": [
-      "properties",
-      "ecs",
-      "task",
-      "container",
-      "fargate"
-    ],
+    "name": "Validate at least one essential container is specified",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","ecs","task","container","fargate"],
     "description": "Check that every TaskDefinition specifies at least one essential container",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3043",
+    "name": "Validate parameters for in a nested stack",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","cloudformation"],
+    "description": "Evalute if parameters for a nested stack are specified and if parameters are specified for a nested stack that aren't required.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3044",
+    "name": "ECS service using FARGATE or EXTERNAL can only use SchedulingStrategy of REPLICA",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","ecs","service","container","fargate"],
+    "description": "When using a TargetType of Fargate or External the SchedulingStrategy has to be Replica",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3045",
+    "name": "Validate AccessControl are set with OwnershipControls",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","s3"],
+    "description": "When using AccessControl other than private you must also configure OwnershipControls. The default is bucket owner enforced which disables ACLs.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3046",
+    "name": "Validate ECS task logging configuration for awslogs",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When 'awslogs' the options 'awslogs-group' and 'awslogs-region' are required",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3047",
+    "name": "Validate ECS Fargate tasks have the right combination of CPU and memory",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","ecs","service","container","fargate"],
+    "description": "When using a ECS Fargate task there is a specfic combination of memory and cpu that can be used",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3048",
+    "name": "Validate ECS Fargate tasks have required properties and values",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","ecs","service","container","fargate"],
+    "description": "When using a ECS Fargate task there is a specfic combination of required properties and values",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3049",
+    "name": "Validate ECS tasks with dynamic host port have traffic-port ELB target groups",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When using an ECS task definition of host port 0 and associating that container to an ELB the target group has to have a 'HealthCheckPort' of 'traffic-port'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1035,26 +962,69 @@
   {
     "key": "E3050",
     "name": "Check if REFing to a IAM resource with path set",
-    "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html",
-    "tags": [
-      "properties",
-      "iam"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","iam"],
     "description": "Some resources don't support looking up the IAM resource by name. This check validates when a REF is being used and the Path is not '/'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
-    "key": "E3502",
-    "name": "Check if a JSON Object is within size limits",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "resources",
-      "limits",
-      "json"
-    ],
-    "description": "Validate properties that are JSON values so that their length is within the limits",
+    "key": "E3051",
+    "name": "Validate the structure of a SSM document",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","ssm","document"],
+    "description": "SSM documents are nested JSON/YAML in CloudFormation this rule adds validation to those documents",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3052",
+    "name": "Validate ECS service requires NetworkConfiguration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","ecs"],
+    "description": "When using an ECS task definition has NetworkMode set to 'awsvpc' then 'NetworkConfiguration' is required",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3053",
+    "name": "Validate ECS task definition is has correct values for 'HostPort'",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","ecs"],
+    "description": "The 'HostPort' must either be undefined or equal to the 'ContainerPort' value",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3054",
+    "name": "Validate ECS service using Fargate uses TaskDefinition that allows Fargate",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","ecs"],
+    "description": "When using an ECS service with 'LaunchType' of 'FARGATE' the associated task definition must have 'RequiresCompatibilities' specified with 'FARGATE' listed",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3055",
+    "name": "Check CreationPolicy values for Resources",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","creation-policy"],
+    "description": "Check that the CreationPolicy values are valid",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3057",
+    "name": "Validate that CloudFront TargetOriginId is a specified Origin",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","cloudfront"],
+    "description": "CloudFront TargetOriginId has to map to an Origin Id that is in the same DistributionConfig",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1062,14 +1032,449 @@
   {
     "key": "E3503",
     "name": "ValidationDomain is superdomain of DomainName",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-certificatemanager-certificate-domainvalidationoption.html#cfn-certificatemanager-certificate-domainvalidationoption-validationdomain",
-    "tags": [
-      "certificate",
-      "certificatemanager",
-      "domainvalidationoptions",
-      "validationdomain"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["certificate","certificatemanager","domainvalidationoptions","validationdomain"],
     "description": "In ValidationDomainOptions, the ValidationDomain must be a superdomain of the DomainName being validated",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3504",
+    "name": "Check minimum 90 period is met between BackupPlan cold and delete",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","backup","plan","lifecycle"],
+    "description": "Check that Backup plans with lifecycle rules have >= 90 days between cold and delete",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3510",
+    "name": "Validate identity based IAM polices",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","iam"],
+    "description": "IAM identity polices are embedded JSON in CloudFormation. This rule validates those embedded policies.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3511",
+    "name": "Validate IAM role arn pattern",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","iam"],
+    "description": "Validate an IAM role arn pattern matches",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3512",
+    "name": "Validate resource based IAM polices",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","iam"],
+    "description": "IAM resources polices are embedded JSON in CloudFormation. This rule validates those embedded policies.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3513",
+    "name": "Validate ECR repository policy",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","iam","ecr"],
+    "description": "Private ECR repositories have a policy. This rule validates those policies.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3601",
+    "name": "Validate the structure of a StateMachine definition",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","statemachine"],
+    "description": "Validate the Definition or DefinitionString inside a AWS::StepFunctions::StateMachine resource",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3615",
+    "name": "Validate the period is a valid value",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","cloudwatch"],
+    "description": "Valid values are 10, 30, 60, and any multiple of 60.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3617",
+    "name": "Validate ManagedBlockchain instance type",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the ManagedBlockchain instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3620",
+    "name": "Validate a DocDB DB Instance class",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the DocDB instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3621",
+    "name": "Validate the instance types for AppStream Fleet",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the AppStream Fleet instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3628",
+    "name": "Validate EC2 instance types based on region",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the EC2 instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3633",
+    "name": "Validate Lambda event source mapping StartingPosition is used correctly",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When 'EventSourceArn' is associate to Kinesis, Kafka, or DynamoDB you must specify 'StartingPosition",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3634",
+    "name": "Validate Lambda event source mapping starting position is used with SQS",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When 'EventSourceArn' is associated to SQS don't specify 'StartingPosition'",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3635",
+    "name": "Validate Neptune DB instance class",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the instance types for Neptune DB based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3638",
+    "name": "Validate DynamoDB BillingMode pay per request configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When 'BillingMode' is 'PAY_PER_REQUEST' don't specify 'ProvisionedThroughput'",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3639",
+    "name": "When BillingMode is Provisioned you must specify ProvisionedThroughput",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When 'BillingMode' is 'Provisioned' 'ProvisionedThroughput' is required",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3640",
+    "name": "Validate DynamoDB SSE Specification has required properties when using KMS",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When doing KMS encryption in an AWS DynamoDB table there are required properties.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3641",
+    "name": "Validate GameLift Fleet EC2 instance type",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the GameLift Fleet EC2 instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3647",
+    "name": "Validate ElastiCache cluster cache node type",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the ElastiCache instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3652",
+    "name": "Validate Elasticsearch domain cluster instance",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the Elasticsearch instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3660",
+    "name": "RestApi requires a name when not using an OpenAPI specification",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","apigateway"],
+    "description": "When using AWS::ApiGateway::RestApi you have to provide 'Name' if you don't provide 'Body' or 'BodyS3Location'",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3661",
+    "name": "Validate Route53 health check has AlarmIdentifier when using CloudWatch",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When 'Type' is 'CLOUDWATCH_METRIC' you must specify 'AlarmIdentifier'",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3663",
+    "name": "Validate Lambda environment variable names aren't reserved",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda","runtime"],
+    "description": "Lambda reserves a set of environment variable names for its use. This rule validates that the provided environment variable names don't use the reserved variable names",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3667",
+    "name": "Validate RedShift cluster node type",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the RedShift instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3670",
+    "name": "Validate the instance types for an AmazonMQ Broker",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the instance types for AmazonMQ broker based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3671",
+    "name": "Validate block device mapping configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","ec2"],
+    "description": "Certain volume types require Iops to be specified",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3672",
+    "name": "Validate the cluster node type for a DAX Cluster",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the DAX cluster instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3673",
+    "name": "Validate if an ImageId is required",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","ec2"],
+    "description": "Validate if an ImageID is required. It can be required if the associated LaunchTemplate doesn't specify an ImageID",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3675",
+    "name": "Validate EMR cluster instance type",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the EMR cluster instance types based on region and data gathered from the pricing APIs",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3676",
+    "name": "Validate ELBv2 protocols that require certificates have a certificate specified",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When using HTTP or TLS you must specify a certificate",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3677",
+    "name": "Validate Lambda using ZipFile requires an allowable runtime",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Using the ZipFile attribute requires a javascript or python runtime to be specified",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3678",
+    "name": "Using the ZipFile attribute requires a runtime to be specified",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Using the ZipFile attribute requires a runtime to be specified",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3679",
+    "name": "Validate ELB protocols that require certificates have a certificate specified",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When using HTTPS or SSL you must provide a certificate",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3680",
+    "name": "Application load balancers require at least 2 subnets",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3682",
+    "name": "Validate when using Aurora certain properies aren't required",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When creating an aurora DBInstance don't specify 'AllocatedStorage', 'BackupRetentionPeriod', 'CopyTagsToSnapshot', 'DeletionProtection', 'EnableIAMDatabaseAuthentication', 'MasterUserPassword', or 'StorageEncrypted'",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3686",
+    "name": "Validate allowed properties when using a serverless RDS DB cluster",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validate that when EngineMode is 'serverless' or 'provisioned' that the appropriate allowed properties are provided. If 'EngineMode' is not provided make sure serverless properties don't exist at all.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3687",
+    "name": "Validate to and from ports based on the protocol",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When using  icmp, icmpv6, tcp, or udp you have to specify the to and from port ranges",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3688",
+    "name": "Validate that to and from ports are both -1",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When ToPort or FromPort are -1 the other one must also be -1",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3689",
+    "name": "Validate MonitoringInterval and MonitoringRoleArn are used together",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When MonitoringInterval is greater than 0 you need to specify MonitoringRoleArn. If MonitoringRoleArn is specified MonitoringInterval has to be greather than 0.",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3690",
+    "name": "Validate DB Cluster Engine and Engine Version",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validate the DB Cluster engine along with the engine version",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3691",
+    "name": "Validate DB Instance Engine and Engine Version",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validate the DB Instance engine along with the engine version",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3692",
+    "name": "Validate Multi-AZ DB cluster configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When creating a Multi-AZ DB Cluster there are required fields and the allowed values are different",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3693",
+    "name": "Validate Aurora DB cluster configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When creating an Aurora DB Cluster there are required fields and the allowed values are different",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E3694",
+    "name": "Validates RDS DB Cluster instance class",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "Validates the RDS DB Cluster instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1077,11 +1482,19 @@
   {
     "key": "E4001",
     "name": "Metadata Interface have appropriate properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudformation-interface.html",
-    "tags": [
-      "metadata"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["metadata"],
     "description": "Metadata Interface properties are properly configured",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E4002",
+    "name": "Validate the configuration of the Metadata section",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["metadata"],
+    "description": "Validates that Metadata section is an object and has no null values",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1089,11 +1502,8 @@
   {
     "key": "E5001",
     "name": "Check that Modules resources are valid",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/",
-    "tags": [
-      "resources",
-      "modules"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","modules"],
     "description": "Check that Modules resources are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1101,12 +1511,10 @@
   },
   {
     "key": "E6001",
-    "name": "Outputs have appropriate properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html",
-    "tags": [
-      "outputs"
-    ],
-    "description": "Making sure the outputs are properly configured",
+    "name": "Check the properties of Outputs",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs"],
+    "description": "Validate the property structure for outputs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1114,10 +1522,8 @@
   {
     "key": "E6002",
     "name": "Outputs have required properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html",
-    "tags": [
-      "outputs"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs"],
     "description": "Making sure the outputs have required properties",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1125,12 +1531,10 @@
   },
   {
     "key": "E6003",
-    "name": "Outputs have values of strings",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html",
-    "tags": [
-      "outputs"
-    ],
-    "description": "Making sure the outputs have strings as values",
+    "name": "Check the type of Outputs",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs"],
+    "description": "Validate the type of properties in the Outputs section",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1138,10 +1542,8 @@
   {
     "key": "E6004",
     "name": "Outputs have appropriate names",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html",
-    "tags": [
-      "outputs"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs"],
     "description": "Check if Outputs are properly named (A-Za-z0-9)",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1149,12 +1551,10 @@
   },
   {
     "key": "E6005",
-    "name": "Outputs descriptions can only be strings",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html",
-    "tags": [
-      "outputs"
-    ],
-    "description": "Outputs descriptions can only be strings",
+    "name": "Validate the Output condition is valid",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs","conditions"],
+    "description": "Check the condition of an output to make sure it exists inside the template",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1162,11 +1562,8 @@
   {
     "key": "E6010",
     "name": "Output limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "outputs",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs","limits"],
     "description": "Check the number of Outputs in the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1174,26 +1571,30 @@
   },
   {
     "key": "E6011",
-    "name": "Output name limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "outputs",
-      "limits"
-    ],
-    "description": "Check the size of Output names in the template is less than the upper limit",
+    "name": "Check property names in Outputs",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs","limits"],
+    "description": "Validate property names are property configured in Outputs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
-    "key": "E6012",
-    "name": "Output description limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html",
-    "tags": [
-      "outputs",
-      "limits"
-    ],
-    "description": "Check the size of Output description in the template is less than the upper limit",
+    "key": "E6101",
+    "name": "Validate that outputs values are a string",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs"],
+    "description": "Make sure that output values have a type of string",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "E6102",
+    "name": "Validate that output exports have values of strings",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs"],
+    "description": "Make sure output exports have a value of type string",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1201,10 +1602,8 @@
   {
     "key": "E7001",
     "name": "Mappings are appropriately configured",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html",
-    "tags": [
-      "mappings"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["mappings"],
     "description": "Check if Mappings are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1212,63 +1611,20 @@
   },
   {
     "key": "E7002",
-    "name": "Mappings have appropriate names",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html",
-    "tags": [
-      "mappings"
-    ],
-    "description": "Check if Mappings are properly named (A-Za-z0-9)",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E7003",
-    "name": "Mapping keys are strings and alphanumeric",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html",
-    "tags": [
-      "mappings"
-    ],
-    "description": "Check if Mappings keys are properly typed as strings and alphanumeric",
+    "name": "Check property names in Mappings",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["mappings","limits"],
+    "description": "Validate property names are property configured in Mappings",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
     "key": "E7010",
-    "name": "Mapping limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "mappings",
-      "limits"
-    ],
+    "name": "Max number of properties for Mappings",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["mappings","limits"],
     "description": "Check the number of Mappings in the template is less than the upper limit",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E7011",
-    "name": "Mapping name limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "mappings",
-      "limits"
-    ],
-    "description": "Check the size of Mapping names in the template is less than the upper limit",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "E7012",
-    "name": "Mapping attribute limit not exceeded",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "mappings",
-      "limits"
-    ],
-    "description": "Check if the amount of Mapping attributes in the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1276,10 +1632,8 @@
   {
     "key": "E8001",
     "name": "Conditions have appropriate properties",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/conditions-section-structure.html",
-    "tags": [
-      "conditions"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["conditions"],
     "description": "Check if Conditions are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1288,10 +1642,8 @@
   {
     "key": "E8002",
     "name": "Check if the referenced Conditions are defined",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/conditions-section-structure.html",
-    "tags": [
-      "conditions"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["conditions"],
     "description": "Making sure the used conditions are actually defined in the Conditions section",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1300,11 +1652,8 @@
   {
     "key": "E8003",
     "name": "Check Fn::Equals structure for validity",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-conditions.html#intrinsic-function-reference-conditions-equals",
-    "tags": [
-      "functions",
-      "equals"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","equals"],
     "description": "Check Fn::Equals is a list of two elements",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1313,11 +1662,8 @@
   {
     "key": "E8004",
     "name": "Check Fn::And structure for validity",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-conditions.html#intrinsic-function-reference-conditions-and",
-    "tags": [
-      "functions",
-      "and"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","and"],
     "description": "Check Fn::And is a list of two elements",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1326,11 +1672,8 @@
   {
     "key": "E8005",
     "name": "Check Fn::Not structure for validity",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-conditions.html#intrinsic-function-reference-conditions-not",
-    "tags": [
-      "functions",
-      "not"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","not"],
     "description": "Check Fn::Not is a list of one element",
     "constantDebtMinutes": 0,
     "type": "BUG",
@@ -1339,23 +1682,28 @@
   {
     "key": "E8006",
     "name": "Check Fn::Or structure for validity",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-conditions.html#intrinsic-function-reference-conditions-or",
-    "tags": [
-      "functions",
-      "or"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","or"],
     "description": "Check Fn::Or is a list of two elements",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
   },
   {
+    "key": "E8007",
+    "name": "Check Condition structure for validity",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","and"],
+    "description": "Check Condition has a value of another condition",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
     "key": "I1002",
-    "name": "Template size limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "limits"
-    ],
+    "name": "Validate approaching the template size limit",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["limits"],
     "description": "Check the size of the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1363,12 +1711,9 @@
   },
   {
     "key": "I1003",
-    "name": "Template description limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "description",
-      "limits"
-    ],
+    "name": "Validate if we are approaching the max size of a description",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["description","limits"],
     "description": "Check if the size of the template description is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1377,12 +1722,8 @@
   {
     "key": "I1022",
     "name": "Use Sub instead of Join",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-sub.html",
-    "tags": [
-      "functions",
-      "sub",
-      "join"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","sub","join"],
     "description": "Prefer a sub instead of Join when using a join delimiter that is empty",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1391,11 +1732,8 @@
   {
     "key": "I2010",
     "name": "Parameter limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "parameters",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","limits"],
     "description": "Check the number of Parameters in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1404,25 +1742,19 @@
   {
     "key": "I2011",
     "name": "Parameter name limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "parameters",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","limits"],
     "description": "Check the size of Parameter names in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
   },
   {
-    "key": "I2012",
-    "name": "Parameter value limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "parameters",
-      "limits"
-    ],
-    "description": "Check if the size of Parameter values in the template is approaching the upper limit",
+    "key": "I2530",
+    "name": "Validate that SnapStart is configured for >= Java11 runtimes",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda"],
+    "description": "SnapStart is a no-cost feature that can increase performance up to 10x. Enable SnapStart for Java 11 and greater runtimes",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1430,11 +1762,8 @@
   {
     "key": "I3010",
     "name": "Resource limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "resources",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","limits"],
     "description": "Check the number of Resources in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1443,12 +1772,8 @@
   {
     "key": "I3011",
     "name": "Check stateful resources have a set UpdateReplacePolicy/DeletionPolicy",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html",
-    "tags": [
-      "resources",
-      "updatereplacepolicy",
-      "deletionpolicy"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","updatereplacepolicy","deletionpolicy"],
     "description": "The default action when replacing/removing a resource is to delete it. This check requires you to explicitly set policies",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1457,11 +1782,8 @@
   {
     "key": "I3012",
     "name": "Resource name limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "resources",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","limits"],
     "description": "Check the size of Resource names in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1471,10 +1793,7 @@
     "key": "I3013",
     "name": "Check resources with auto expiring content have explicit retention period",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources",
-      "retentionperiod"
-    ],
+    "tags": ["resources","retentionperiod"],
     "description": "The behaviour for data retention is different across AWS Services.If no retention period is specified the default for some services is to delete the data after a period of time.This check requires you to explicitly set the retention period for those resources to avoid unexpected data losses",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1483,12 +1802,8 @@
   {
     "key": "I3037",
     "name": "Check if a list that allows duplicates has any duplicates",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "resources",
-      "property",
-      "list"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","property","list"],
     "description": "Certain lists support duplicate items.Provide an alert when list of strings or numbers have repeats.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1497,11 +1812,19 @@
   {
     "key": "I3042",
     "name": "ARNs should use correctly placed Pseudo Parameters",
-    "url": "",
-    "tags": [
-      "resources"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
     "description": "Checks Resources if ARNs use correctly placed Pseudo Parameters instead of hardcoded Partition, Region, and Account Number",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "INFO"
+  },
+  {
+    "key": "I3100",
+    "name": "Checks for legacy instance type generations",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","ec2","rds","elasticcache","elasticsearch"],
+    "description": "New instance type generations increase performance and decrease cost",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1509,11 +1832,8 @@
   {
     "key": "I6010",
     "name": "Output limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "outputs",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs","limits"],
     "description": "Check the number of Outputs in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1522,25 +1842,19 @@
   {
     "key": "I6011",
     "name": "Output name limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "outputs",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["outputs","limits"],
     "description": "Check the size of Output names in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
   },
   {
-    "key": "I6012",
-    "name": "Output description limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html",
-    "tags": [
-      "outputs",
-      "limits"
-    ],
-    "description": "Check the size of Output description in the template is approaching the upper limit",
+    "key": "I7002",
+    "name": "Mapping name limit",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["mappings","limits"],
+    "description": "Check the size of Mapping names in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1548,38 +1862,9 @@
   {
     "key": "I7010",
     "name": "Mapping limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "mappings",
-      "limits"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["mappings","limits"],
     "description": "Check the number of Mappings in the template is approaching the upper limit",
-    "constantDebtMinutes": 0,
-    "type": "CODE_SMELL",
-    "severity": "INFO"
-  },
-  {
-    "key": "I7011",
-    "name": "Mapping name limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "mappings",
-      "limits"
-    ],
-    "description": "Check the size of Mapping names in the template is approaching the upper limit",
-    "constantDebtMinutes": 0,
-    "type": "CODE_SMELL",
-    "severity": "INFO"
-  },
-  {
-    "key": "I7012",
-    "name": "Mapping attribute limit",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html",
-    "tags": [
-      "mappings",
-      "limits"
-    ],
-    "description": "Check if the amount of Mapping attributes in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1587,14 +1872,8 @@
   {
     "key": "W1001",
     "name": "Ref/GetAtt to resource that is available when conditions are applied",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-ref.html",
-    "tags": [
-      "conditions",
-      "resources",
-      "relationships",
-      "ref",
-      "getatt"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["conditions","resources","relationships","ref","getatt","sub"],
     "description": "Check the Conditions that affect a Ref/GetAtt to make sure the resource being related to is available when there is a resource condition.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1602,25 +1881,19 @@
   },
   {
     "key": "W1011",
-    "name": "FindInMap keys exist in the map",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-findinmap.html",
-    "tags": [
-      "functions",
-      "findinmap"
-    ],
-    "description": "Checks the keys in a FindInMap to make sure they exist. Check only if the Map Name is a string and if the key is a string.",
+    "name": "Instead of REFing a parameter for a secret use a dynamic reference",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","dynamic-reference","ref"],
+    "description": "Instead of REFing a parameter for a secret use a dynamic reference. Solutions like SSM parameter store and secrets manager provide better security of sercrets",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
   },
   {
     "key": "W1019",
-    "name": "Sub validation of parameters",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-sub.html",
-    "tags": [
-      "functions",
-      "sub"
-    ],
+    "name": "Validate that parameters to a Fn::Sub are used",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","sub"],
     "description": "Validate that Fn::Sub Parameters are used",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1629,12 +1902,99 @@
   {
     "key": "W1020",
     "name": "Sub isn't needed if it doesn't have a variable defined",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-sub.html",
-    "tags": [
-      "functions",
-      "sub"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","sub"],
     "description": "Checks sub strings to see if a variable is defined.",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1028",
+    "name": "Check Fn::If has a path that cannot be reached",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","if"],
+    "description": "Check Fn::If path can be reached",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1030",
+    "name": "Validate the values that come from a Ref function",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","ref"],
+    "description": "Resolve the Ref and then validate the values against the schema",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1031",
+    "name": "Validate the values that come from a Fn::Sub function",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","sub"],
+    "description": "Resolve the Fn::Sub and then validate the values against the schema",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1032",
+    "name": "Validate the values that come from a Fn::Join function",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","join"],
+    "description": "Resolve the Fn::Join and then validate the values against the schema",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1033",
+    "name": "Validate the values that come from a Fn::Split function",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","split"],
+    "description": "Resolve the Fn::Split and then validate the values against the schema",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1034",
+    "name": "Validate the values that come from a Fn::FindInMap function",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","findinmap"],
+    "description": "Resolve the Fn::FindInMap and then validate the values against the schema",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1035",
+    "name": "Validate the values that come from a Fn::Select function",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","select"],
+    "description": "Resolve the Fn::Select and then validate the values against the schema",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1036",
+    "name": "Validate the values that come from a Fn::GetAZs function",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","getazs"],
+    "description": "Resolve the Fn::GetAZs and then validate the values against the schema",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W1040",
+    "name": "Validate the values that come from a Fn::ToJsonString function",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","tojsonstring"],
+    "description": "Resolve the Fn::ToJsonString and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1643,10 +2003,18 @@
     "key": "W2001",
     "name": "Check if Parameters are Used",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "parameters"
-    ],
+    "tags": ["parameters"],
     "description": "Making sure the parameters defined are used",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W2010",
+    "name": "NoEcho parameters are not masked when used in Metadata and Outputs",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["functions","dynamic-reference","ref"],
+    "description": "Using the NoEcho attribute does not mask any information stored in the following: Metadata, Outputs, Resource Metadata",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1654,13 +2022,8 @@
   {
     "key": "W2030",
     "name": "Check if parameters have a valid value",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#allowedvalue",
-    "tags": [
-      "parameters",
-      "resources",
-      "property",
-      "allowed-value"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","resources","property","allowed-value"],
     "description": "Check if parameters have a valid value in case of an enumator. The Parameter's allowed values is based on the usages in property (Ref)",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1669,13 +2032,8 @@
   {
     "key": "W2031",
     "name": "Check if parameters have a valid value based on an allowed pattern",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint/blob/main/docs/cfn-resource-specification.md#allowedpattern",
-    "tags": [
-      "parameters",
-      "resources",
-      "property",
-      "allowed-pattern"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","resources","property","pattern"],
     "description": "Check if parameters have a valid value in a pattern. The Parameter's allowed pattern is based on the usages in property (Ref)",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1684,13 +2042,8 @@
   {
     "key": "W2501",
     "name": "Check if Password Properties are correctly configured",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#creds",
-    "tags": [
-      "parameters",
-      "passwords",
-      "security",
-      "dynamic-reference"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","passwords","security","dynamic-reference"],
     "description": "Password properties should not be strings and if parameter using NoEcho",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1699,26 +2052,9 @@
   {
     "key": "W2506",
     "name": "Check if ImageId Parameters have the correct type",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#parmtypes",
-    "tags": [
-      "parameters",
-      "ec2",
-      "imageid"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["parameters","ec2","imageid"],
     "description": "See if there are any refs for ImageId to a parameter of inappropriate type. Appropriate Types are [AWS::EC2::Image::Id, AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>]",
-    "constantDebtMinutes": 0,
-    "type": "CODE_SMELL",
-    "severity": "MAJOR"
-  },
-  {
-    "key": "W2510",
-    "name": "Parameter Memory Size attributes should have max and min",
-    "url": "https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-MemorySize",
-    "tags": [
-      "parameters",
-      "lambda"
-    ],
-    "description": "Check if a parameter that is used for Lambda memory size  should have a min and max size that matches Lambda constraints",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1726,12 +2062,19 @@
   {
     "key": "W2511",
     "name": "Check IAM Resource Policies syntax",
-    "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html",
-    "tags": [
-      "properties",
-      "iam"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","iam"],
     "description": "See if the elements inside an IAM Resource policy are configured correctly.",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W2530",
+    "name": "Validate that SnapStart is properly configured",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda"],
+    "description": "To properly leverage SnapStart, you must configure both the lambda function and attach a Lambda version resource",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1739,13 +2082,19 @@
   {
     "key": "W2531",
     "name": "Check if EOL Lambda Function Runtimes are used",
-    "url": "https://docs.aws.amazon.com/lambda/latest/dg/runtime-support-policy.html",
-    "tags": [
-      "resources",
-      "lambda",
-      "runtime"
-    ],
-    "description": "Check if an EOL Lambda Runtime is specified and give a warning if used. ",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda","runtime"],
+    "description": "Check if an EOL Lambda Runtime is specified and give a warning if used.",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W2533",
+    "name": "Check required properties for Lambda if the deployment package is a .zip file",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda"],
+    "description": "When the package type is Zip, you must also specify the `handler` and `runtime` properties.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1753,10 +2102,8 @@
   {
     "key": "W3002",
     "name": "Warn when properties are configured to only work with the package command",
-    "url": "https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html",
-    "tags": [
-      "resources"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
     "description": "Some properties can be configured to only work with the CloudFormationpackage command. Warn when this is the case so user is aware.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1765,13 +2112,8 @@
   {
     "key": "W3005",
     "name": "Check obsolete DependsOn configuration for Resources",
-    "url": "https://aws.amazon.com/blogs/devops/optimize-aws-cloudformation-templates/",
-    "tags": [
-      "resources",
-      "dependson",
-      "ref",
-      "getatt"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","dependson","ref","getatt"],
     "description": "Check if DependsOn is specified if not needed. A Ref or a Fn::GetAtt already is an implicit dependency.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1779,12 +2121,9 @@
   },
   {
     "key": "W3010",
-    "name": "Availability Zone Parameters should not be hardcoded",
+    "name": "Availability zone properties should not be hardcoded",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "parameters",
-      "availabilityzone"
-    ],
+    "tags": ["parameters","availabilityzone"],
     "description": "Check if an Availability Zone property is hardcoded.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1793,27 +2132,79 @@
   {
     "key": "W3011",
     "name": "Check resources with UpdateReplacePolicy/DeletionPolicy have both",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html",
-    "tags": [
-      "resources",
-      "updatereplacepolicy",
-      "deletionpolicy"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","updatereplacepolicy","deletionpolicy"],
     "description": "Both UpdateReplacePolicy and DeletionPolicy are needed to protect resources from deletion",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
   },
   {
-    "key": "W3037",
+    "key": "W3034",
+    "name": "Check if parameter values are between min and max",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","property","number","size"],
+    "description": "Check if parameter values value being between the minimum and maximum",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W3037*",
     "name": "Check IAM Permission configuration",
-    "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_action.html",
-    "tags": [
-      "properties",
-      "iam",
-      "permissions"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["properties","iam","permissions"],
     "description": "Check for valid IAM Permissions",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W3045",
+    "name": "Controlling access to an S3 bucket should be done with bucket policies",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","s3"],
+    "description": "Nearly all access control configurations can be more successfully achieved with bucket policies. Consider using bucket policies instead of access control.",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W3663",
+    "name": "Validate SourceAccount is required property",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","lambda","permission"],
+    "description": "When configuration a Lambda permission with a SourceArn that doesn't have an AccountId you should also specify the SourceAccount",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W3687",
+    "name": "Validate that ports aren't specified for certain protocols",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources"],
+    "description": "When using a protocol other than icmp, icmpv6, tcp, or udp the port ranges properties are ignored",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W3688",
+    "name": "When restoring DBCluster certain properties are ignored",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","rds"],
+    "description": "When creating a DBCluster extra properties are ignored and could result in drift",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W3689",
+    "name": "When using a source DB certain properties are ignored",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["resources","rds"],
+    "description": "When creating a DBCluster from a source certain properties are ignored and could result in drift",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1821,24 +2212,19 @@
   {
     "key": "W4001",
     "name": "Metadata Interface parameters exist",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudformation-interface.html",
-    "tags": [
-      "metadata"
-    ],
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["metadata"],
     "description": "Metadata Interface parameters actually exist",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
   },
   {
-    "key": "W4002",
-    "name": "Check for NoEcho References",
-    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html#parameters-section-structure-properties",
-    "tags": [
-      "resources",
-      "noecho"
-    ],
-    "description": "Check if there is a NoEcho enabled parameter referenced within a resources Metadata section",
+    "key": "W4005",
+    "name": "Validate cfnlint configuration in the Metadata",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": ["metadata"],
+    "description": "Metadata cfn-lint configuration has many values and we want to validate that",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1847,10 +2233,7 @@
     "key": "W6001",
     "name": "Check Outputs using ImportValue",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "outputs",
-      "importvalue"
-    ],
+    "tags": ["outputs","importvalue"],
     "description": "Check if the Output value is set using ImportValue, so creating an Output of an Output",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1860,9 +2243,7 @@
     "key": "W7001",
     "name": "Check if Mappings are Used",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "mappings"
-    ],
+    "tags": ["mappings"],
     "description": "Making sure the mappings defined are used",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1872,9 +2253,7 @@
     "key": "W8001",
     "name": "Check if Conditions are Used",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "conditions"
-    ],
+    "tags": ["conditions"],
     "description": "Making sure the conditions defined are used",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
@@ -1882,12 +2261,10 @@
   },
   {
     "key": "W8003",
-    "name": "'Fn::Equals' will always return true or false",
+    "name": "Fn::Equals will always return true or false",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "conditions"
-    ],
-    "description": "Validate 'Fn::Equals' to see if its comparing two strings or two equal items. While this works it may not be intended.",
+    "tags": ["functions","equals"],
+    "description": "Validate Fn::Equals to see if its comparing two strings or two equal items. While this works it may not be intended.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1896,9 +2273,7 @@
     "key": "cfn-lint.fallback",
     "name": "Cfn-lint Rule",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
-    "tags": [
-      "cfn-lint"
-    ],
+    "tags": ["cfn-lint"],
     "description": "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
