@@ -118,6 +118,29 @@
           }
         }
       ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-09-01",
+      "name": "Compliant-with-external-child-resource/authsettingsV2",
+      "properties": {
+        "globalValidation": {
+          "requireAuthentication": true,
+          "unauthenticatedClientAction": "RedirectToLoginPage"
+        },
+        "platform": {
+          "enabled": true
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', 'Compliant-with-external-child-resource')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-09-01",
+      "name": "Compliant-with-external-child-resource",
+      "location": "[parameters('location')]"
     }
   ]
 }

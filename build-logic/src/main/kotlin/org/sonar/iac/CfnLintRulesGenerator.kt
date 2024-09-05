@@ -44,7 +44,7 @@ fun Rule.asJson(margin: Int): String {
         {
           "key": "$id",
           "name": "$title",
-          "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+          "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#$id",
           "tags": ${tags.takeIf { it.isNotEmpty() }?.joinToString(prefix = "[", postfix = "]", separator = ",") { "\"$it\"" } ?: "[]"},
           "description": "${DESCRIPTION_PREFIX.format(id, description)}",
           "constantDebtMinutes": 0,

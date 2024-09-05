@@ -21,9 +21,14 @@ package org.sonar.iac.arm.checkdsl;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.HasResources;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -66,6 +71,27 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
   }
 
   public ContextualResource childResourceBy(String type, Predicate<ResourceDeclaration> predicate) {
+    return Optional.ofNullable(nestedChildResourceBy(type, predicate))
+      .filter(ContextualResource::isPresent)
+      .orElseGet(() -> childResourceOutsideOfThisBy(type, predicate));
+  }
+
+  private ContextualResource childResourceOutsideOfThisBy(String type, Predicate<ResourceDeclaration> predicate) {
+    var topLevelResources = Optional.ofNullable(tree)
+      .map(ResourceDeclaration::parent)
+      .map(ContextualResource::getChildResources)
+      .orElse(Stream.empty());
+
+    return topLevelResources
+      .filter(this::isExternalChildOfThis)
+      .filter(it -> TextUtils.isValue(it.type(), this.type + "/" + type).isTrue())
+      .filter(predicate)
+      .findFirst()
+      .map(it -> new ContextualResource(ctx, it, it.type().value(), this))
+      .orElse(ContextualResource.fromAbsent(ctx, type, this));
+  }
+
+  private ContextualResource nestedChildResourceBy(String type, Predicate<ResourceDeclaration> predicate) {
     return Optional.ofNullable(tree)
       .flatMap(resource -> resource.childResources().stream()
         .filter(it -> TextUtils.isValue(it.type(), type).isTrue())
@@ -73,5 +99,20 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
         .findFirst())
       .map(it -> new ContextualResource(ctx, it, it.type().value(), this))
       .orElse(ContextualResource.fromAbsent(ctx, type, this));
+  }
+
+  private static Stream<ResourceDeclaration> getChildResources(ArmTree tree) {
+    if (tree instanceof File file) {
+      return file.statements().stream().filter(ResourceDeclaration.class::isInstance).map(ResourceDeclaration.class::cast);
+    } else if (tree instanceof ObjectExpression objectExpression) {
+      return objectExpression.nestedResources().stream();
+    } else {
+      return ((HasResources) tree).childResources().stream();
+    }
+  }
+
+  private boolean isExternalChildOfThis(ResourceDeclaration child) {
+    return TextUtils.matchesValue(child.type(), childType -> childType.startsWith(this.type + "/")).isTrue() &&
+      TextUtils.matchesValue(child.name(), childName -> childName.startsWith(this.name + "/")).isTrue();
   }
 }
