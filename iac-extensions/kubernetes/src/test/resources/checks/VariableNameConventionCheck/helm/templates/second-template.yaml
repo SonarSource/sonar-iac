@@ -1,4 +1,4 @@
-{{- /* Noncompliant@+1 {{Rename this variable "$my_Variable" to match the regular expression '^\$[a-z][a-zA-Z0-9]*$'.}} */}}
+{{- /* Noncompliant@+1 {{Rename this variable "$my_Variable" to match the regular expression '^\$([a-z][a-zA-Z0-9]*)?$'.}} */}}
 {{- $my_Variable := .Values.myVariableValue }}
 {{- /* ^[sc=5;ec=16] */}}
 ---

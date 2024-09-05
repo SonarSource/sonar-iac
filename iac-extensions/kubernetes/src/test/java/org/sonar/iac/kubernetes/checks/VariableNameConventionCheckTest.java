@@ -37,6 +37,6 @@ class VariableNameConventionCheckTest {
   @Test
   void shouldDetectIssuesInFileWithNotOnlyDeclarations() {
     KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/pod.yaml", new VariableNameConventionCheck(), List.of(
-      issue(1, 4, 1, 17, "Rename this variable \"$my_local_var\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.")));
+      issue(1, 4, 1, 17, "Rename this variable \"$my_local_var\" to match the regular expression '^\\$([a-z][a-zA-Z0-9]*)?$'.")));
   }
 }

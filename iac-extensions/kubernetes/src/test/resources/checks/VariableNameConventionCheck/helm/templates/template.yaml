@@ -1,15 +1,23 @@
-{{- $my_Variable := .Values.myVariableValue }} {{- /* Noncompliant {{Rename this variable "$my_Variable" to match the regular expression '^\$[a-z][a-zA-Z0-9]*$'.}} */}}
-{{- $ := .Values.myVariableValue }} {{- /* Noncompliant {{Rename this variable "$" to match the regular expression '^\$[a-z][a-zA-Z0-9]*$'.}} */}}
+{{- $my_Variable := .Values.myVariableValue }} {{- /* Noncompliant {{Rename this variable "$my_Variable" to match the regular expression '^\$([a-z][a-zA-Z0-9]*)?$'.}} */}}
+{{- $ := .Values.myVariableValue }} {{- /* Compliant */}}
 {{- $myVariable2 := .Values.myVariableValue }} {{- /* Compliant */}}
 
 data:
-{{- range $KeyNc, $VAL_NC := .Values.favorite }} {{- /* Noncompliant {{Rename this variable "$KeyNc" to match the regular expression '^\$[a-z][a-zA-Z0-9]*$'.}} {{Rename this variable "$VAL_NC" to match the regular expression '^\$[a-z][a-zA-Z0-9]*$'.}} */}}
+{{- range $KeyNc, $VAL_NC := .Values.favorite }} {{- /* Noncompliant {{Rename this variable "$KeyNc" to match the regular expression '^\$([a-z][a-zA-Z0-9]*)?$'.}} {{Rename this variable "$VAL_NC" to match the regular expression '^\$([a-z][a-zA-Z0-9]*)?$'.}} */}}
   {{ $KeyNc }}:
-  {{ $NON_COMPLIANT := "foo" }} {{- /* Noncompliant {{Rename this variable "$NON_COMPLIANT" to match the regular expression '^\$[a-z][a-zA-Z0-9]*$'.}} */}}
+  {{ $NON_COMPLIANT := "foo" }} {{- /* Noncompliant {{Rename this variable "$NON_COMPLIANT" to match the regular expression '^\$([a-z][a-zA-Z0-9]*)?$'.}} */}}
     - {{ $VAL_NC | quote }}
   {{ $VAL_NC = "foo" }} {{- /* Compliant: reassignment of an existing variable */}}
 {{- end }}
 
 {{- range $keyNc, $valNc := .Values.favorite }} {{- /* Compliant */}}
   {{ $keyNc }}: {{ $valNc | quote }}
+{{- end }}
+
+{{- /* Compliant used to override root context locally */}}
+{{- $ := . }}
+
+{{- define "mychart.namedTemplate" -}}
+{{- /* Compliant used to override root context in named template */}}
+{{- $ := index . 0 -}}
 {{- end }}
