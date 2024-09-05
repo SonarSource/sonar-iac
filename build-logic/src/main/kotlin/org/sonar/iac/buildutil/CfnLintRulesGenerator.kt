@@ -2,6 +2,10 @@ package org.sonar.iac.buildutil
 
 data class Rule(val id: String, val title: String, val description: String, val tags: List<String>, val type: String, val severity: String)
 
+const val DESCRIPTION_PREFIX = "This issue is raised by the rule [%s] from \\\"AWS CloudFormation Linter\\\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/>" +
+    "<br/>" +
+    "AWS CloudFormation Linter Message: %s"
+
 /**
  * Extract rules from the Markdown table in the [list of rules](https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1)
  */
@@ -41,7 +45,7 @@ fun Rule.asJson(margin: Int): String {
           "name": "$title",
           "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
           "tags": ${tags.takeIf { it.isNotEmpty() }?.joinToString(prefix = "[", postfix = "]", separator = ",") { "\"$it\"" } ?: "[]"},
-          "description": "$description",
+          "description": "${DESCRIPTION_PREFIX.format(id, description)}",
           "constantDebtMinutes": 0,
           "type": "$type",
           "severity": "$severity"

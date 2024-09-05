@@ -4,7 +4,7 @@
     "name": "Parsing error found when parsing the template",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["base"],
-    "description": "Checks for JSON/YAML formatting errors in your template",
+    "description": "This issue is raised by the rule [E0000] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Checks for JSON/YAML formatting errors in your template",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -14,7 +14,7 @@
     "name": "Error found when transforming the template",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["base","transform"],
-    "description": "Errors found when performing transformation on the template",
+    "description": "This issue is raised by the rule [E0001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Errors found when performing transformation on the template",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -24,7 +24,7 @@
     "name": "Error processing rule on the template",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["base","rule"],
-    "description": "Errors found when processing a rule on the template",
+    "description": "This issue is raised by the rule [E0002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Errors found when processing a rule on the template",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -34,7 +34,7 @@
     "name": "Basic CloudFormation Template Configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["base"],
-    "description": "Making sure the basic CloudFormation template components are properly configured",
+    "description": "This issue is raised by the rule [E1001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the basic CloudFormation template components are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -44,7 +44,7 @@
     "name": "Validate if a template size is too large",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["limits"],
-    "description": "Check the size of the template is less than the upper limit",
+    "description": "This issue is raised by the rule [E1002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the size of the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -54,7 +54,7 @@
     "name": "Validate the max size of a description",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["description","limits"],
-    "description": "Check if the size of the template description is less than the upper limit",
+    "description": "This issue is raised by the rule [E1003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if the size of the template description is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -64,7 +64,7 @@
     "name": "Template description can only be a string",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["description"],
-    "description": "Template description can only be a string",
+    "description": "This issue is raised by the rule [E1004] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Template description can only be a string",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -74,7 +74,7 @@
     "name": "Validate Transform configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["transform"],
-    "description": "Validate that the transforms section of a template is properly configured",
+    "description": "This issue is raised by the rule [E1005] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate that the transforms section of a template is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -84,7 +84,7 @@
     "name": "GetAtt validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","getatt"],
-    "description": "Validates that GetAtt parameters are to valid resources and properties of those resources",
+    "description": "This issue is raised by the rule [E1010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates that GetAtt parameters are to valid resources and properties of those resources",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -94,7 +94,7 @@
     "name": "FindInMap validation of configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","findinmap"],
-    "description": "Making sure the function is a list of appropriate config",
+    "description": "This issue is raised by the rule [E1011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the function is a list of appropriate config",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -104,7 +104,7 @@
     "name": "GetAz validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","getaz"],
-    "description": "Making sure the GetAz function is properly configured",
+    "description": "This issue is raised by the rule [E1015] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the GetAz function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -114,7 +114,7 @@
     "name": "ImportValue validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","importvalue"],
-    "description": "Making sure the ImportValue function is properly configured",
+    "description": "This issue is raised by the rule [E1016] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the ImportValue function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -124,7 +124,7 @@
     "name": "Select validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","select"],
-    "description": "Making sure the Select function is properly configured",
+    "description": "This issue is raised by the rule [E1017] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the Select function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -134,7 +134,7 @@
     "name": "Split validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","split"],
-    "description": "Making sure the split function is properly configured",
+    "description": "This issue is raised by the rule [E1018] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the split function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -144,7 +144,7 @@
     "name": "Sub validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","sub"],
-    "description": "Making sure the sub function is properly configured",
+    "description": "This issue is raised by the rule [E1019] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the sub function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -154,7 +154,7 @@
     "name": "Ref validation of value",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","ref"],
-    "description": "Making sure the Ref has a String value (no other functions are supported)",
+    "description": "This issue is raised by the rule [E1020] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the Ref has a String value (no other functions are supported)",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -164,7 +164,7 @@
     "name": "Base64 validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","base64"],
-    "description": "Making sure the Base64 function is properly configured",
+    "description": "This issue is raised by the rule [E1021] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the Base64 function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -174,7 +174,7 @@
     "name": "Join validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","join"],
-    "description": "Making sure the join function is properly configured",
+    "description": "This issue is raised by the rule [E1022] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the join function is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -184,7 +184,7 @@
     "name": "Cidr validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","cidr"],
-    "description": "Making sure the function CIDR is a list with valid values",
+    "description": "This issue is raised by the rule [E1024] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the function CIDR is a list with valid values",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -194,7 +194,7 @@
     "name": "Check dynamic references secure strings are in supported locations",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","dynamic-reference"],
-    "description": "Dynamic References Secure Strings are only supported for a small set of resource properties.  Validate that they are being used in the correct location when checking values and Fn::Sub in resource properties. Currently doesn't check outputs, maps, conditions, parameters, and descriptions.",
+    "description": "This issue is raised by the rule [E1027] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Dynamic References Secure Strings are only supported for a small set of resource properties.  Validate that they are being used in the correct location when checking values and Fn::Sub in resource properties. Currently doesn't check outputs, maps, conditions, parameters, and descriptions.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -204,7 +204,7 @@
     "name": "Check Fn::If structure for validity",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","if"],
-    "description": "Check Fn::If to make sure its valid.  Condition has to be a string.",
+    "description": "This issue is raised by the rule [E1028] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check Fn::If to make sure its valid.  Condition has to be a string.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -214,7 +214,7 @@
     "name": "Sub is required if a variable is used in a string",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","sub"],
-    "description": "If a substitution variable exists in a string but isn't wrapped with the Fn::Sub function the deployment will fail.",
+    "description": "This issue is raised by the rule [E1029] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: If a substitution variable exists in a string but isn't wrapped with the Fn::Sub function the deployment will fail.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -224,7 +224,7 @@
     "name": "Length validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","length"],
-    "description": "Making sure Fn::Length is configured correctly",
+    "description": "This issue is raised by the rule [E1030] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure Fn::Length is configured correctly",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -234,7 +234,7 @@
     "name": "ToJsonString validation of parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","to-json-string"],
-    "description": "Making sure Fn::ToJsonString is configured correctly",
+    "description": "This issue is raised by the rule [E1031] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure Fn::ToJsonString is configured correctly",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -244,7 +244,7 @@
     "name": "Validates ForEach functions",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","foreach"],
-    "description": "Validates that ForEach parameters have a valid configuration",
+    "description": "This issue is raised by the rule [E1032] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates that ForEach parameters have a valid configuration",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -254,7 +254,7 @@
     "name": "Check if GetAtt matches destination format",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","ec2","imageid"],
-    "description": "Validate that if source and destination format exists that they match",
+    "description": "This issue is raised by the rule [E1040] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate that if source and destination format exists that they match",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -264,7 +264,7 @@
     "name": "Validate the structure of a dynamic reference",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","dynamic-reference"],
-    "description": "Make sure dynamic reference strings have the correct syntax",
+    "description": "This issue is raised by the rule [E1050] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure dynamic reference strings have the correct syntax",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -274,7 +274,7 @@
     "name": "Validate dynamic references to secrets manager are only in resource properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","dynamic-reference"],
-    "description": "Dynamic references from secrets manager can only be used in resource properties",
+    "description": "This issue is raised by the rule [E1051] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Dynamic references from secrets manager can only be used in resource properties",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -284,7 +284,7 @@
     "name": "Validate dynamic references to SSM are in a valid location",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","dynamic-reference"],
-    "description": "Dynamic references to SSM parameters are only supported in certain locations",
+    "description": "This issue is raised by the rule [E1052] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Dynamic references to SSM parameters are only supported in certain locations",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -294,7 +294,7 @@
     "name": "Validate an item against additional checks",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [],
-    "description": "Use supplemental logic to validate properties against",
+    "description": "This issue is raised by the rule [E1101] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Use supplemental logic to validate properties against",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -304,7 +304,7 @@
     "name": "Validate the format of a value",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [],
-    "description": "Parent rule for validating the format keyword in schemas",
+    "description": "This issue is raised by the rule [E1103] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Parent rule for validating the format keyword in schemas",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -314,7 +314,7 @@
     "name": "Validate security group format",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [],
-    "description": "Security groups have to ref/gettatt to a security group or has the valid pattern",
+    "description": "This issue is raised by the rule [E1150] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Security groups have to ref/gettatt to a security group or has the valid pattern",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -324,7 +324,7 @@
     "name": "Validate VPC id format",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [],
-    "description": "Check that a VPC id matches a pattern",
+    "description": "This issue is raised by the rule [E1151] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that a VPC id matches a pattern",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -334,7 +334,7 @@
     "name": "Validate AMI id format",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [],
-    "description": "Check that a AMI id matches a pattern",
+    "description": "This issue is raised by the rule [E1152] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that a AMI id matches a pattern",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -344,7 +344,7 @@
     "name": "Validate security group name",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [],
-    "description": "Security group names have to valid pattern",
+    "description": "This issue is raised by the rule [E1153] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Security group names have to valid pattern",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -354,7 +354,7 @@
     "name": "Parameters have appropriate properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters"],
-    "description": "Making sure the parameters are properly configured",
+    "description": "This issue is raised by the rule [E2001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the parameters are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -364,7 +364,7 @@
     "name": "Parameters have appropriate type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters"],
-    "description": "Making sure the parameters have a correct type",
+    "description": "This issue is raised by the rule [E2002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the parameters have a correct type",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -374,7 +374,7 @@
     "name": "Parameters have appropriate names",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","name"],
-    "description": "Check if Parameters are properly named (A-Za-z0-9)",
+    "description": "This issue is raised by the rule [E2003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if Parameters are properly named (A-Za-z0-9)",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -384,7 +384,7 @@
     "name": "Parameter limit not exceeded",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","limits"],
-    "description": "Check the number of Parameters in the template is less than the upper limit",
+    "description": "This issue is raised by the rule [E2010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the number of Parameters in the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -394,7 +394,7 @@
     "name": "Validate the name for a parameter",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","limits"],
-    "description": "Validate the name of a parameter with special handling of the max length length",
+    "description": "This issue is raised by the rule [E2011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the name of a parameter with special handling of the max length length",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -404,7 +404,7 @@
     "name": "Default value is within parameter constraints",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters"],
-    "description": "Making sure the parameters have a default value inside AllowedValues, MinValue, MaxValue, AllowedPattern",
+    "description": "This issue is raised by the rule [E2015] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the parameters have a default value inside AllowedValues, MinValue, MaxValue, AllowedPattern",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -414,7 +414,7 @@
     "name": "Check for SubscriptionFilters have beyond 2 attachments to a CloudWatch Log Group",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda"],
-    "description": "The current limit for a CloudWatch Log Group is they can have 2 subscription filters. We will look for duplicate LogGroupNames inside Subscription Filters and make sure they are within 2. This doesn't account for any other subscription filters getting set.",
+    "description": "This issue is raised by the rule [E2529] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: The current limit for a CloudWatch Log Group is they can have 2 subscription filters. We will look for duplicate LogGroupNames inside Subscription Filters and make sure they are within 2. This doesn't account for any other subscription filters getting set.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -424,7 +424,7 @@
     "name": "SnapStart supports the configured runtime",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda"],
-    "description": "To properly leverage SnapStart, you must have a runtime of Java11 or greater",
+    "description": "This issue is raised by the rule [E2530] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: To properly leverage SnapStart, you must have a runtime of Java11 or greater",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -434,7 +434,7 @@
     "name": "Validate if lambda runtime is deprecated",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda","runtime"],
-    "description": "Check the lambda runtime has reached the end of life",
+    "description": "This issue is raised by the rule [E2531] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the lambda runtime has reached the end of life",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -444,7 +444,7 @@
     "name": "Check if Lambda Function Runtimes are updatable",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda","runtime"],
-    "description": "Check if an EOL Lambda Runtime is specified and you cannot update the function",
+    "description": "This issue is raised by the rule [E2533] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if an EOL Lambda Runtime is specified and you cannot update the function",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -454,7 +454,7 @@
     "name": "CodePipeline Stages",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","codepipeline"],
-    "description": "See if CodePipeline stages are set correctly",
+    "description": "This issue is raised by the rule [E2540] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: See if CodePipeline stages are set correctly",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -464,7 +464,7 @@
     "name": "CodePipeline Stage Actions",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","codepipeline"],
-    "description": "See if CodePipeline stage actions are set correctly",
+    "description": "This issue is raised by the rule [E2541] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: See if CodePipeline stage actions are set correctly",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -474,7 +474,7 @@
     "name": "Basic CloudFormation Resource Check",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Making sure the basic CloudFormation resources are properly configured",
+    "description": "This issue is raised by the rule [E3001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the basic CloudFormation resources are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -484,7 +484,7 @@
     "name": "Resource properties are invalid",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Making sure that resources properties are properly configured",
+    "description": "This issue is raised by the rule [E3002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure that resources properties are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -494,7 +494,7 @@
     "name": "Required Resource properties are missing",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","properties","required"],
-    "description": "Make sure that Resources properties that are required exist",
+    "description": "This issue is raised by the rule [E3003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure that Resources properties that are required exist",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -504,7 +504,7 @@
     "name": "Resource dependencies are not circular",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","circularly","dependson","ref","sub","getatt"],
-    "description": "Check that Resources are not circularly dependent by DependsOn, Ref, Sub, or GetAtt",
+    "description": "This issue is raised by the rule [E3004] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that Resources are not circularly dependent by DependsOn, Ref, Sub, or GetAtt",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -514,7 +514,7 @@
     "name": "Check DependsOn values for Resources",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","dependson"],
-    "description": "Check that the DependsOn values are valid",
+    "description": "This issue is raised by the rule [E3005] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that the DependsOn values are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -524,7 +524,7 @@
     "name": "Validate the CloudFormation resource type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Resource types are validated against the spec accounting for regions",
+    "description": "This issue is raised by the rule [E3006] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resource types are validated against the spec accounting for regions",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -534,7 +534,7 @@
     "name": "Unique resource and parameter names",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","resources"],
-    "description": "All resources and parameters must have unique names",
+    "description": "This issue is raised by the rule [E3007] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: All resources and parameters must have unique names",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -544,7 +544,7 @@
     "name": "Validate an array in order",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","properties","array","prefix-items"],
-    "description": "Will validate arrays in order for schema validation",
+    "description": "This issue is raised by the rule [E3008] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Will validate arrays in order for schema validation",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -554,7 +554,7 @@
     "name": "Check CloudFormation init configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","cloudformation-init"],
-    "description": "Validate that the items in a CloudFormation init adhere to standards",
+    "description": "This issue is raised by the rule [E3009] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate that the items in a CloudFormation init adhere to standards",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -564,7 +564,7 @@
     "name": "Resource limit not exceeded",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","limits"],
-    "description": "Check the number of Resources in the template is less than the upper limit",
+    "description": "This issue is raised by the rule [E3010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the number of Resources in the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -574,7 +574,7 @@
     "name": "Check property names in Resources",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","limits"],
-    "description": "Validate property names are property configured in Resources",
+    "description": "This issue is raised by the rule [E3011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate property names are property configured in Resources",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -584,7 +584,7 @@
     "name": "Check resource properties values",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Checks resource property values with Primitive Types for values that match those types.",
+    "description": "This issue is raised by the rule [E3012] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Checks resource property values with Primitive Types for values that match those types.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -594,7 +594,7 @@
     "name": "CloudFront Aliases",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","cloudfront"],
-    "description": "CloudFront aliases should contain valid domain names",
+    "description": "This issue is raised by the rule [E3013] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: CloudFront aliases should contain valid domain names",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -604,7 +604,7 @@
     "name": "Validate only one of a set of required properties are specified",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Make sure that Resources properties that are required exist. Along with other properties not being specified",
+    "description": "This issue is raised by the rule [E3014] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure that Resources properties that are required exist. Along with other properties not being specified",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -614,7 +614,7 @@
     "name": "Validate the resource condition is valid",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","conditions"],
-    "description": "Check the condition of a resource to make sure it exists inside the template",
+    "description": "This issue is raised by the rule [E3015] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the condition of a resource to make sure it exists inside the template",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -624,7 +624,7 @@
     "name": "Check the configuration of a resources UpdatePolicy",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","updatepolicy"],
-    "description": "Make sure a resources UpdatePolicy is properly configured",
+    "description": "This issue is raised by the rule [E3016] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure a resources UpdatePolicy is properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -634,7 +634,7 @@
     "name": "Check Properties that need at least one of a list of properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Making sure CloudFormation properties that require at least one property from a list. More than one can be included.",
+    "description": "This issue is raised by the rule [E3017] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure CloudFormation properties that require at least one property from a list. More than one can be included.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -644,7 +644,7 @@
     "name": "Check Properties that need only one of a list of properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Making sure CloudFormation properties that require only one property from a list. One has to be specified.",
+    "description": "This issue is raised by the rule [E3018] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure CloudFormation properties that require only one property from a list. One has to be specified.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -654,7 +654,7 @@
     "name": "Validate that all resources have unique primary identifiers",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","resources"],
-    "description": "Use the primary identifiers in a resource schema to validate that resources inside the template are unique",
+    "description": "This issue is raised by the rule [E3019] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Use the primary identifiers in a resource schema to validate that resources inside the template are unique",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -664,7 +664,7 @@
     "name": "Validate that when a property is specified another property should be excluded",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When certain properties are specified other properties should not be included",
+    "description": "This issue is raised by the rule [E3020] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When certain properties are specified other properties should not be included",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -674,7 +674,7 @@
     "name": "Validate that when a property is specified that other properties should be included",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When certain properties are specified it results in other properties to be required",
+    "description": "This issue is raised by the rule [E3021] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When certain properties are specified it results in other properties to be required",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -684,7 +684,7 @@
     "name": "Resource SubnetRouteTableAssociation Properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","ec2","subnet","route-table"],
-    "description": "Validate there is only one SubnetRouteTableAssociation per subnet",
+    "description": "This issue is raised by the rule [E3022] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate there is only one SubnetRouteTableAssociation per subnet",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -694,7 +694,7 @@
     "name": "Validate Route53 RecordSets",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","route53","record-set"],
-    "description": "Check if all RecordSets are correctly configured",
+    "description": "This issue is raised by the rule [E3023] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if all RecordSets are correctly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -704,7 +704,7 @@
     "name": "Validate tag configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","resources","tags"],
-    "description": "Validates tag values to make sure they have unique keys and they follow pattern requirements",
+    "description": "This issue is raised by the rule [E3024] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates tag values to make sure they have unique keys and they follow pattern requirements",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -714,7 +714,7 @@
     "name": "Validates RDS DB Instance Class",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the RDS DB instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3025] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the RDS DB instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -724,7 +724,7 @@
     "name": "Check Elastic Cache Redis Cluster settings",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","elasticcache"],
-    "description": "Evaluate Redis Cluster groups to make sure automatic failover is enabled when cluster mode is enabled",
+    "description": "This issue is raised by the rule [E3026] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Evaluate Redis Cluster groups to make sure automatic failover is enabled when cluster mode is enabled",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -734,7 +734,7 @@
     "name": "Validate AWS Event ScheduleExpression format",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","events"],
-    "description": "Validate the formation of the AWS::Event ScheduleExpression",
+    "description": "This issue is raised by the rule [E3027] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the formation of the AWS::Event ScheduleExpression",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -744,7 +744,7 @@
     "name": "Validate the metadata section of a resource",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "The metadata section can be unstructured but we do validate the items we can",
+    "description": "This issue is raised by the rule [E3028] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: The metadata section can be unstructured but we do validate the items we can",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -754,7 +754,7 @@
     "name": "Validate Route53 record set aliases",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","route53","record-set"],
-    "description": "When using alias records you can't specify TTL or certain types are allowed",
+    "description": "This issue is raised by the rule [E3029] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using alias records you can't specify TTL or certain types are allowed",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -764,7 +764,7 @@
     "name": "Check if properties have a valid value",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","property","allowed-value"],
-    "description": "Check if properties have a valid value in case of an enumator",
+    "description": "This issue is raised by the rule [E3030] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if properties have a valid value in case of an enumator",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -774,7 +774,7 @@
     "name": "Check if property values adhere to a specific pattern",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","property","allowed-pattern","regex"],
-    "description": "Check if properties have a valid value in case of a pattern (Regular Expression)",
+    "description": "This issue is raised by the rule [E3031] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if properties have a valid value in case of a pattern (Regular Expression)",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -784,7 +784,7 @@
     "name": "Check if a array has between min and max number of values specified",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","property","array","length"],
-    "description": "Check array for the number of items in the list to validate they are between the minimum and maximum",
+    "description": "This issue is raised by the rule [E3032] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check array for the number of items in the list to validate they are between the minimum and maximum",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -794,7 +794,7 @@
     "name": "Check if a string has between min and max number of values specified",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","property","string","size"],
-    "description": "Check strings for its length between the minimum and maximum",
+    "description": "This issue is raised by the rule [E3033] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check strings for its length between the minimum and maximum",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -804,7 +804,7 @@
     "name": "Check if a number is between min and max",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","property","number","size"],
-    "description": "Check numbers (integers and floats) for its value being between the minimum and maximum",
+    "description": "This issue is raised by the rule [E3034] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check numbers (integers and floats) for its value being between the minimum and maximum",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -814,7 +814,7 @@
     "name": "Check DeletionPolicy values for Resources",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","deletionpolicy"],
-    "description": "Check that the DeletionPolicy values are valid",
+    "description": "This issue is raised by the rule [E3035] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that the DeletionPolicy values are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -824,7 +824,7 @@
     "name": "Check UpdateReplacePolicy values for Resources",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","updatereplacepolicy"],
-    "description": "Check that the UpdateReplacePolicy values are valid",
+    "description": "This issue is raised by the rule [E3036] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that the UpdateReplacePolicy values are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -834,7 +834,7 @@
     "name": "Check if a list has duplicate values",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","property","list"],
-    "description": "Certain lists don't support duplicate items. Check when duplicates are provided but not supported.",
+    "description": "This issue is raised by the rule [E3037] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Certain lists don't support duplicate items. Check when duplicates are provided but not supported.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -844,7 +844,7 @@
     "name": "Check if Serverless Resources have Serverless Transform",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","transform"],
-    "description": "Check that a template with Serverless Resources also includes the Serverless Transform",
+    "description": "This issue is raised by the rule [E3038] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that a template with Serverless Resources also includes the Serverless Transform",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -854,7 +854,7 @@
     "name": "AttributeDefinitions / KeySchemas mismatch",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","dynamodb"],
-    "description": "Verify the set of Attributes in AttributeDefinitions and KeySchemas match",
+    "description": "This issue is raised by the rule [E3039] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Verify the set of Attributes in AttributeDefinitions and KeySchemas match",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -864,7 +864,7 @@
     "name": "Validate we aren't configuring read only properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","properties"],
-    "description": "Read only properties can be configured in a CloudFormation template but they aren't sent to the resource provider code and can cause drift.",
+    "description": "This issue is raised by the rule [E3040] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Read only properties can be configured in a CloudFormation template but they aren't sent to the resource provider code and can cause drift.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -874,7 +874,7 @@
     "name": "RecordSet HostedZoneName is a superdomain of or equal to Name",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resource","properties","route53"],
-    "description": "In a RecordSet, the HostedZoneName must be a superdomain of or equal to the Name being validated",
+    "description": "This issue is raised by the rule [E3041] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: In a RecordSet, the HostedZoneName must be a superdomain of or equal to the Name being validated",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -884,7 +884,7 @@
     "name": "Validate at least one essential container is specified",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","ecs","task","container","fargate"],
-    "description": "Check that every TaskDefinition specifies at least one essential container",
+    "description": "This issue is raised by the rule [E3042] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that every TaskDefinition specifies at least one essential container",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -894,7 +894,7 @@
     "name": "Validate parameters for in a nested stack",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","cloudformation"],
-    "description": "Evalute if parameters for a nested stack are specified and if parameters are specified for a nested stack that aren't required.",
+    "description": "This issue is raised by the rule [E3043] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Evalute if parameters for a nested stack are specified and if parameters are specified for a nested stack that aren't required.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -904,7 +904,7 @@
     "name": "ECS service using FARGATE or EXTERNAL can only use SchedulingStrategy of REPLICA",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","ecs","service","container","fargate"],
-    "description": "When using a TargetType of Fargate or External the SchedulingStrategy has to be Replica",
+    "description": "This issue is raised by the rule [E3044] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using a TargetType of Fargate or External the SchedulingStrategy has to be Replica",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -914,7 +914,7 @@
     "name": "Validate AccessControl are set with OwnershipControls",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","s3"],
-    "description": "When using AccessControl other than private you must also configure OwnershipControls. The default is bucket owner enforced which disables ACLs.",
+    "description": "This issue is raised by the rule [E3045] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using AccessControl other than private you must also configure OwnershipControls. The default is bucket owner enforced which disables ACLs.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -924,7 +924,7 @@
     "name": "Validate ECS task logging configuration for awslogs",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When 'awslogs' the options 'awslogs-group' and 'awslogs-region' are required",
+    "description": "This issue is raised by the rule [E3046] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When 'awslogs' the options 'awslogs-group' and 'awslogs-region' are required",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -934,7 +934,7 @@
     "name": "Validate ECS Fargate tasks have the right combination of CPU and memory",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","ecs","service","container","fargate"],
-    "description": "When using a ECS Fargate task there is a specfic combination of memory and cpu that can be used",
+    "description": "This issue is raised by the rule [E3047] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using a ECS Fargate task there is a specfic combination of memory and cpu that can be used",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -944,7 +944,7 @@
     "name": "Validate ECS Fargate tasks have required properties and values",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","ecs","service","container","fargate"],
-    "description": "When using a ECS Fargate task there is a specfic combination of required properties and values",
+    "description": "This issue is raised by the rule [E3048] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using a ECS Fargate task there is a specfic combination of required properties and values",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -954,7 +954,7 @@
     "name": "Validate ECS tasks with dynamic host port have traffic-port ELB target groups",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When using an ECS task definition of host port 0 and associating that container to an ELB the target group has to have a 'HealthCheckPort' of 'traffic-port'",
+    "description": "This issue is raised by the rule [E3049] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using an ECS task definition of host port 0 and associating that container to an ELB the target group has to have a 'HealthCheckPort' of 'traffic-port'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -964,7 +964,7 @@
     "name": "Check if REFing to a IAM resource with path set",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","iam"],
-    "description": "Some resources don't support looking up the IAM resource by name. This check validates when a REF is being used and the Path is not '/'",
+    "description": "This issue is raised by the rule [E3050] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Some resources don't support looking up the IAM resource by name. This check validates when a REF is being used and the Path is not '/'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -974,7 +974,7 @@
     "name": "Validate the structure of a SSM document",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","ssm","document"],
-    "description": "SSM documents are nested JSON/YAML in CloudFormation this rule adds validation to those documents",
+    "description": "This issue is raised by the rule [E3051] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: SSM documents are nested JSON/YAML in CloudFormation this rule adds validation to those documents",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -984,7 +984,7 @@
     "name": "Validate ECS service requires NetworkConfiguration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","ecs"],
-    "description": "When using an ECS task definition has NetworkMode set to 'awsvpc' then 'NetworkConfiguration' is required",
+    "description": "This issue is raised by the rule [E3052] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using an ECS task definition has NetworkMode set to 'awsvpc' then 'NetworkConfiguration' is required",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -994,7 +994,7 @@
     "name": "Validate ECS task definition is has correct values for 'HostPort'",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","ecs"],
-    "description": "The 'HostPort' must either be undefined or equal to the 'ContainerPort' value",
+    "description": "This issue is raised by the rule [E3053] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: The 'HostPort' must either be undefined or equal to the 'ContainerPort' value",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1004,7 +1004,7 @@
     "name": "Validate ECS service using Fargate uses TaskDefinition that allows Fargate",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","ecs"],
-    "description": "When using an ECS service with 'LaunchType' of 'FARGATE' the associated task definition must have 'RequiresCompatibilities' specified with 'FARGATE' listed",
+    "description": "This issue is raised by the rule [E3054] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using an ECS service with 'LaunchType' of 'FARGATE' the associated task definition must have 'RequiresCompatibilities' specified with 'FARGATE' listed",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1014,7 +1014,7 @@
     "name": "Check CreationPolicy values for Resources",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","creation-policy"],
-    "description": "Check that the CreationPolicy values are valid",
+    "description": "This issue is raised by the rule [E3055] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that the CreationPolicy values are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1024,7 +1024,7 @@
     "name": "Validate that CloudFront TargetOriginId is a specified Origin",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","cloudfront"],
-    "description": "CloudFront TargetOriginId has to map to an Origin Id that is in the same DistributionConfig",
+    "description": "This issue is raised by the rule [E3057] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: CloudFront TargetOriginId has to map to an Origin Id that is in the same DistributionConfig",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1034,7 +1034,7 @@
     "name": "ValidationDomain is superdomain of DomainName",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["certificate","certificatemanager","domainvalidationoptions","validationdomain"],
-    "description": "In ValidationDomainOptions, the ValidationDomain must be a superdomain of the DomainName being validated",
+    "description": "This issue is raised by the rule [E3503] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: In ValidationDomainOptions, the ValidationDomain must be a superdomain of the DomainName being validated",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1044,7 +1044,7 @@
     "name": "Check minimum 90 period is met between BackupPlan cold and delete",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","backup","plan","lifecycle"],
-    "description": "Check that Backup plans with lifecycle rules have >= 90 days between cold and delete",
+    "description": "This issue is raised by the rule [E3504] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that Backup plans with lifecycle rules have >= 90 days between cold and delete",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1054,7 +1054,7 @@
     "name": "Validate identity based IAM polices",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","iam"],
-    "description": "IAM identity polices are embedded JSON in CloudFormation. This rule validates those embedded policies.",
+    "description": "This issue is raised by the rule [E3510] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: IAM identity polices are embedded JSON in CloudFormation. This rule validates those embedded policies.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1064,7 +1064,7 @@
     "name": "Validate IAM role arn pattern",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","iam"],
-    "description": "Validate an IAM role arn pattern matches",
+    "description": "This issue is raised by the rule [E3511] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate an IAM role arn pattern matches",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1074,7 +1074,7 @@
     "name": "Validate resource based IAM polices",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","iam"],
-    "description": "IAM resources polices are embedded JSON in CloudFormation. This rule validates those embedded policies.",
+    "description": "This issue is raised by the rule [E3512] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: IAM resources polices are embedded JSON in CloudFormation. This rule validates those embedded policies.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1084,7 +1084,7 @@
     "name": "Validate ECR repository policy",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","iam","ecr"],
-    "description": "Private ECR repositories have a policy. This rule validates those policies.",
+    "description": "This issue is raised by the rule [E3513] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Private ECR repositories have a policy. This rule validates those policies.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1094,7 +1094,7 @@
     "name": "Validate the structure of a StateMachine definition",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","statemachine"],
-    "description": "Validate the Definition or DefinitionString inside a AWS::StepFunctions::StateMachine resource",
+    "description": "This issue is raised by the rule [E3601] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the Definition or DefinitionString inside a AWS::StepFunctions::StateMachine resource",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1104,7 +1104,7 @@
     "name": "Validate the period is a valid value",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","cloudwatch"],
-    "description": "Valid values are 10, 30, 60, and any multiple of 60.",
+    "description": "This issue is raised by the rule [E3615] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Valid values are 10, 30, 60, and any multiple of 60.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1114,7 +1114,7 @@
     "name": "Validate ManagedBlockchain instance type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the ManagedBlockchain instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3617] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the ManagedBlockchain instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1124,7 +1124,7 @@
     "name": "Validate a DocDB DB Instance class",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the DocDB instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3620] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the DocDB instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1134,7 +1134,7 @@
     "name": "Validate the instance types for AppStream Fleet",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the AppStream Fleet instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3621] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the AppStream Fleet instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1144,7 +1144,7 @@
     "name": "Validate EC2 instance types based on region",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the EC2 instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3628] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the EC2 instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1154,7 +1154,7 @@
     "name": "Validate Lambda event source mapping StartingPosition is used correctly",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When 'EventSourceArn' is associate to Kinesis, Kafka, or DynamoDB you must specify 'StartingPosition",
+    "description": "This issue is raised by the rule [E3633] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When 'EventSourceArn' is associate to Kinesis, Kafka, or DynamoDB you must specify 'StartingPosition",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1164,7 +1164,7 @@
     "name": "Validate Lambda event source mapping starting position is used with SQS",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When 'EventSourceArn' is associated to SQS don't specify 'StartingPosition'",
+    "description": "This issue is raised by the rule [E3634] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When 'EventSourceArn' is associated to SQS don't specify 'StartingPosition'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1174,7 +1174,7 @@
     "name": "Validate Neptune DB instance class",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the instance types for Neptune DB based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3635] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the instance types for Neptune DB based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1184,7 +1184,7 @@
     "name": "Validate DynamoDB BillingMode pay per request configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When 'BillingMode' is 'PAY_PER_REQUEST' don't specify 'ProvisionedThroughput'",
+    "description": "This issue is raised by the rule [E3638] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When 'BillingMode' is 'PAY_PER_REQUEST' don't specify 'ProvisionedThroughput'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1194,7 +1194,7 @@
     "name": "When BillingMode is Provisioned you must specify ProvisionedThroughput",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When 'BillingMode' is 'Provisioned' 'ProvisionedThroughput' is required",
+    "description": "This issue is raised by the rule [E3639] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When 'BillingMode' is 'Provisioned' 'ProvisionedThroughput' is required",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1204,7 +1204,7 @@
     "name": "Validate DynamoDB SSE Specification has required properties when using KMS",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When doing KMS encryption in an AWS DynamoDB table there are required properties.",
+    "description": "This issue is raised by the rule [E3640] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When doing KMS encryption in an AWS DynamoDB table there are required properties.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1214,7 +1214,7 @@
     "name": "Validate GameLift Fleet EC2 instance type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the GameLift Fleet EC2 instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3641] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the GameLift Fleet EC2 instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1224,7 +1224,7 @@
     "name": "Validate ElastiCache cluster cache node type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the ElastiCache instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3647] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the ElastiCache instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1234,7 +1234,7 @@
     "name": "Validate Elasticsearch domain cluster instance",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the Elasticsearch instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3652] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the Elasticsearch instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1244,7 +1244,7 @@
     "name": "RestApi requires a name when not using an OpenAPI specification",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","apigateway"],
-    "description": "When using AWS::ApiGateway::RestApi you have to provide 'Name' if you don't provide 'Body' or 'BodyS3Location'",
+    "description": "This issue is raised by the rule [E3660] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using AWS::ApiGateway::RestApi you have to provide 'Name' if you don't provide 'Body' or 'BodyS3Location'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1254,7 +1254,7 @@
     "name": "Validate Route53 health check has AlarmIdentifier when using CloudWatch",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When 'Type' is 'CLOUDWATCH_METRIC' you must specify 'AlarmIdentifier'",
+    "description": "This issue is raised by the rule [E3661] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When 'Type' is 'CLOUDWATCH_METRIC' you must specify 'AlarmIdentifier'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1264,7 +1264,7 @@
     "name": "Validate Lambda environment variable names aren't reserved",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda","runtime"],
-    "description": "Lambda reserves a set of environment variable names for its use. This rule validates that the provided environment variable names don't use the reserved variable names",
+    "description": "This issue is raised by the rule [E3663] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Lambda reserves a set of environment variable names for its use. This rule validates that the provided environment variable names don't use the reserved variable names",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1274,7 +1274,7 @@
     "name": "Validate RedShift cluster node type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the RedShift instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3667] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the RedShift instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1284,7 +1284,7 @@
     "name": "Validate the instance types for an AmazonMQ Broker",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the instance types for AmazonMQ broker based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3670] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the instance types for AmazonMQ broker based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1294,7 +1294,7 @@
     "name": "Validate block device mapping configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","ec2"],
-    "description": "Certain volume types require Iops to be specified",
+    "description": "This issue is raised by the rule [E3671] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Certain volume types require Iops to be specified",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1304,7 +1304,7 @@
     "name": "Validate the cluster node type for a DAX Cluster",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the DAX cluster instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3672] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the DAX cluster instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1314,7 +1314,7 @@
     "name": "Validate if an ImageId is required",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","ec2"],
-    "description": "Validate if an ImageID is required. It can be required if the associated LaunchTemplate doesn't specify an ImageID",
+    "description": "This issue is raised by the rule [E3673] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate if an ImageID is required. It can be required if the associated LaunchTemplate doesn't specify an ImageID",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1324,7 +1324,7 @@
     "name": "Validate EMR cluster instance type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the EMR cluster instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3675] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the EMR cluster instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1334,7 +1334,7 @@
     "name": "Validate ELBv2 protocols that require certificates have a certificate specified",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When using HTTP or TLS you must specify a certificate",
+    "description": "This issue is raised by the rule [E3676] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using HTTP or TLS you must specify a certificate",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1344,7 +1344,7 @@
     "name": "Validate Lambda using ZipFile requires an allowable runtime",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Using the ZipFile attribute requires a javascript or python runtime to be specified",
+    "description": "This issue is raised by the rule [E3677] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Using the ZipFile attribute requires a javascript or python runtime to be specified",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1354,7 +1354,7 @@
     "name": "Using the ZipFile attribute requires a runtime to be specified",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Using the ZipFile attribute requires a runtime to be specified",
+    "description": "This issue is raised by the rule [E3678] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Using the ZipFile attribute requires a runtime to be specified",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1364,7 +1364,7 @@
     "name": "Validate ELB protocols that require certificates have a certificate specified",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When using HTTPS or SSL you must provide a certificate",
+    "description": "This issue is raised by the rule [E3679] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using HTTPS or SSL you must provide a certificate",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1374,7 +1374,7 @@
     "name": "Application load balancers require at least 2 subnets",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "",
+    "description": "This issue is raised by the rule [E3680] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: ",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1384,7 +1384,7 @@
     "name": "Validate when using Aurora certain properies aren't required",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When creating an aurora DBInstance don't specify 'AllocatedStorage', 'BackupRetentionPeriod', 'CopyTagsToSnapshot', 'DeletionProtection', 'EnableIAMDatabaseAuthentication', 'MasterUserPassword', or 'StorageEncrypted'",
+    "description": "This issue is raised by the rule [E3682] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When creating an aurora DBInstance don't specify 'AllocatedStorage', 'BackupRetentionPeriod', 'CopyTagsToSnapshot', 'DeletionProtection', 'EnableIAMDatabaseAuthentication', 'MasterUserPassword', or 'StorageEncrypted'",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1394,7 +1394,7 @@
     "name": "Validate allowed properties when using a serverless RDS DB cluster",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validate that when EngineMode is 'serverless' or 'provisioned' that the appropriate allowed properties are provided. If 'EngineMode' is not provided make sure serverless properties don't exist at all.",
+    "description": "This issue is raised by the rule [E3686] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate that when EngineMode is 'serverless' or 'provisioned' that the appropriate allowed properties are provided. If 'EngineMode' is not provided make sure serverless properties don't exist at all.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1404,7 +1404,7 @@
     "name": "Validate to and from ports based on the protocol",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When using  icmp, icmpv6, tcp, or udp you have to specify the to and from port ranges",
+    "description": "This issue is raised by the rule [E3687] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using  icmp, icmpv6, tcp, or udp you have to specify the to and from port ranges",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1414,7 +1414,7 @@
     "name": "Validate that to and from ports are both -1",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When ToPort or FromPort are -1 the other one must also be -1",
+    "description": "This issue is raised by the rule [E3688] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When ToPort or FromPort are -1 the other one must also be -1",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1424,7 +1424,7 @@
     "name": "Validate MonitoringInterval and MonitoringRoleArn are used together",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When MonitoringInterval is greater than 0 you need to specify MonitoringRoleArn. If MonitoringRoleArn is specified MonitoringInterval has to be greather than 0.",
+    "description": "This issue is raised by the rule [E3689] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When MonitoringInterval is greater than 0 you need to specify MonitoringRoleArn. If MonitoringRoleArn is specified MonitoringInterval has to be greather than 0.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1434,7 +1434,7 @@
     "name": "Validate DB Cluster Engine and Engine Version",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validate the DB Cluster engine along with the engine version",
+    "description": "This issue is raised by the rule [E3690] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the DB Cluster engine along with the engine version",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1444,7 +1444,7 @@
     "name": "Validate DB Instance Engine and Engine Version",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validate the DB Instance engine along with the engine version",
+    "description": "This issue is raised by the rule [E3691] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the DB Instance engine along with the engine version",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1454,7 +1454,7 @@
     "name": "Validate Multi-AZ DB cluster configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When creating a Multi-AZ DB Cluster there are required fields and the allowed values are different",
+    "description": "This issue is raised by the rule [E3692] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When creating a Multi-AZ DB Cluster there are required fields and the allowed values are different",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1464,7 +1464,7 @@
     "name": "Validate Aurora DB cluster configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When creating an Aurora DB Cluster there are required fields and the allowed values are different",
+    "description": "This issue is raised by the rule [E3693] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When creating an Aurora DB Cluster there are required fields and the allowed values are different",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1474,7 +1474,7 @@
     "name": "Validates RDS DB Cluster instance class",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Validates the RDS DB Cluster instance types based on region and data gathered from the pricing APIs",
+    "description": "This issue is raised by the rule [E3694] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the RDS DB Cluster instance types based on region and data gathered from the pricing APIs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1484,7 +1484,7 @@
     "name": "Metadata Interface have appropriate properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["metadata"],
-    "description": "Metadata Interface properties are properly configured",
+    "description": "This issue is raised by the rule [E4001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Metadata Interface properties are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1494,7 +1494,7 @@
     "name": "Validate the configuration of the Metadata section",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["metadata"],
-    "description": "Validates that Metadata section is an object and has no null values",
+    "description": "This issue is raised by the rule [E4002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates that Metadata section is an object and has no null values",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1504,7 +1504,7 @@
     "name": "Check that Modules resources are valid",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","modules"],
-    "description": "Check that Modules resources are valid",
+    "description": "This issue is raised by the rule [E5001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that Modules resources are valid",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1514,7 +1514,7 @@
     "name": "Check the properties of Outputs",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs"],
-    "description": "Validate the property structure for outputs",
+    "description": "This issue is raised by the rule [E6001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the property structure for outputs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1524,7 +1524,7 @@
     "name": "Outputs have required properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs"],
-    "description": "Making sure the outputs have required properties",
+    "description": "This issue is raised by the rule [E6002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the outputs have required properties",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1534,7 +1534,7 @@
     "name": "Check the type of Outputs",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs"],
-    "description": "Validate the type of properties in the Outputs section",
+    "description": "This issue is raised by the rule [E6003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the type of properties in the Outputs section",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1544,7 +1544,7 @@
     "name": "Outputs have appropriate names",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs"],
-    "description": "Check if Outputs are properly named (A-Za-z0-9)",
+    "description": "This issue is raised by the rule [E6004] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if Outputs are properly named (A-Za-z0-9)",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1554,7 +1554,7 @@
     "name": "Validate the Output condition is valid",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs","conditions"],
-    "description": "Check the condition of an output to make sure it exists inside the template",
+    "description": "This issue is raised by the rule [E6005] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the condition of an output to make sure it exists inside the template",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1564,7 +1564,7 @@
     "name": "Output limit not exceeded",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs","limits"],
-    "description": "Check the number of Outputs in the template is less than the upper limit",
+    "description": "This issue is raised by the rule [E6010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the number of Outputs in the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1574,7 +1574,7 @@
     "name": "Check property names in Outputs",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs","limits"],
-    "description": "Validate property names are property configured in Outputs",
+    "description": "This issue is raised by the rule [E6011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate property names are property configured in Outputs",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1584,7 +1584,7 @@
     "name": "Validate that outputs values are a string",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs"],
-    "description": "Make sure that output values have a type of string",
+    "description": "This issue is raised by the rule [E6101] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure that output values have a type of string",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1594,7 +1594,7 @@
     "name": "Validate that output exports have values of strings",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs"],
-    "description": "Make sure output exports have a value of type string",
+    "description": "This issue is raised by the rule [E6102] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure output exports have a value of type string",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1604,7 +1604,7 @@
     "name": "Mappings are appropriately configured",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["mappings"],
-    "description": "Check if Mappings are properly configured",
+    "description": "This issue is raised by the rule [E7001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if Mappings are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1614,7 +1614,7 @@
     "name": "Check property names in Mappings",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["mappings","limits"],
-    "description": "Validate property names are property configured in Mappings",
+    "description": "This issue is raised by the rule [E7002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate property names are property configured in Mappings",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1624,7 +1624,7 @@
     "name": "Max number of properties for Mappings",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["mappings","limits"],
-    "description": "Check the number of Mappings in the template is less than the upper limit",
+    "description": "This issue is raised by the rule [E7010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the number of Mappings in the template is less than the upper limit",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1634,7 +1634,7 @@
     "name": "Conditions have appropriate properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["conditions"],
-    "description": "Check if Conditions are properly configured",
+    "description": "This issue is raised by the rule [E8001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if Conditions are properly configured",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1644,7 +1644,7 @@
     "name": "Check if the referenced Conditions are defined",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["conditions"],
-    "description": "Making sure the used conditions are actually defined in the Conditions section",
+    "description": "This issue is raised by the rule [E8002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the used conditions are actually defined in the Conditions section",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1654,7 +1654,7 @@
     "name": "Check Fn::Equals structure for validity",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","equals"],
-    "description": "Check Fn::Equals is a list of two elements",
+    "description": "This issue is raised by the rule [E8003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check Fn::Equals is a list of two elements",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1664,7 +1664,7 @@
     "name": "Check Fn::And structure for validity",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","and"],
-    "description": "Check Fn::And is a list of two elements",
+    "description": "This issue is raised by the rule [E8004] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check Fn::And is a list of two elements",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1674,7 +1674,7 @@
     "name": "Check Fn::Not structure for validity",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","not"],
-    "description": "Check Fn::Not is a list of one element",
+    "description": "This issue is raised by the rule [E8005] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check Fn::Not is a list of one element",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1684,7 +1684,7 @@
     "name": "Check Fn::Or structure for validity",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","or"],
-    "description": "Check Fn::Or is a list of two elements",
+    "description": "This issue is raised by the rule [E8006] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check Fn::Or is a list of two elements",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1694,7 +1694,7 @@
     "name": "Check Condition structure for validity",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","and"],
-    "description": "Check Condition has a value of another condition",
+    "description": "This issue is raised by the rule [E8007] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check Condition has a value of another condition",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1704,7 +1704,7 @@
     "name": "Validate approaching the template size limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["limits"],
-    "description": "Check the size of the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I1002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the size of the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1714,7 +1714,7 @@
     "name": "Validate if we are approaching the max size of a description",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["description","limits"],
-    "description": "Check if the size of the template description is approaching the upper limit",
+    "description": "This issue is raised by the rule [I1003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if the size of the template description is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1724,7 +1724,7 @@
     "name": "Use Sub instead of Join",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","sub","join"],
-    "description": "Prefer a sub instead of Join when using a join delimiter that is empty",
+    "description": "This issue is raised by the rule [I1022] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Prefer a sub instead of Join when using a join delimiter that is empty",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1734,7 +1734,7 @@
     "name": "Parameter limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","limits"],
-    "description": "Check the number of Parameters in the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I2010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the number of Parameters in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1744,7 +1744,7 @@
     "name": "Parameter name limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","limits"],
-    "description": "Check the size of Parameter names in the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I2011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the size of Parameter names in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1754,7 +1754,7 @@
     "name": "Validate that SnapStart is configured for >= Java11 runtimes",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda"],
-    "description": "SnapStart is a no-cost feature that can increase performance up to 10x. Enable SnapStart for Java 11 and greater runtimes",
+    "description": "This issue is raised by the rule [I2530] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: SnapStart is a no-cost feature that can increase performance up to 10x. Enable SnapStart for Java 11 and greater runtimes",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1764,7 +1764,7 @@
     "name": "Resource limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","limits"],
-    "description": "Check the number of Resources in the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I3010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the number of Resources in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1774,7 +1774,7 @@
     "name": "Check stateful resources have a set UpdateReplacePolicy/DeletionPolicy",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","updatereplacepolicy","deletionpolicy"],
-    "description": "The default action when replacing/removing a resource is to delete it. This check requires you to explicitly set policies",
+    "description": "This issue is raised by the rule [I3011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: The default action when replacing/removing a resource is to delete it. This check requires you to explicitly set policies",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1784,7 +1784,7 @@
     "name": "Resource name limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","limits"],
-    "description": "Check the size of Resource names in the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I3012] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the size of Resource names in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1794,7 +1794,7 @@
     "name": "Check resources with auto expiring content have explicit retention period",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","retentionperiod"],
-    "description": "The behaviour for data retention is different across AWS Services.If no retention period is specified the default for some services is to delete the data after a period of time.This check requires you to explicitly set the retention period for those resources to avoid unexpected data losses",
+    "description": "This issue is raised by the rule [I3013] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: The behaviour for data retention is different across AWS Services.If no retention period is specified the default for some services is to delete the data after a period of time.This check requires you to explicitly set the retention period for those resources to avoid unexpected data losses",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1804,7 +1804,7 @@
     "name": "Check if a list that allows duplicates has any duplicates",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","property","list"],
-    "description": "Certain lists support duplicate items.Provide an alert when list of strings or numbers have repeats.",
+    "description": "This issue is raised by the rule [I3037] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Certain lists support duplicate items.Provide an alert when list of strings or numbers have repeats.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1814,7 +1814,7 @@
     "name": "ARNs should use correctly placed Pseudo Parameters",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Checks Resources if ARNs use correctly placed Pseudo Parameters instead of hardcoded Partition, Region, and Account Number",
+    "description": "This issue is raised by the rule [I3042] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Checks Resources if ARNs use correctly placed Pseudo Parameters instead of hardcoded Partition, Region, and Account Number",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1824,7 +1824,7 @@
     "name": "Checks for legacy instance type generations",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","ec2","rds","elasticcache","elasticsearch"],
-    "description": "New instance type generations increase performance and decrease cost",
+    "description": "This issue is raised by the rule [I3100] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: New instance type generations increase performance and decrease cost",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1834,7 +1834,7 @@
     "name": "Output limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs","limits"],
-    "description": "Check the number of Outputs in the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I6010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the number of Outputs in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1844,7 +1844,7 @@
     "name": "Output name limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs","limits"],
-    "description": "Check the size of Output names in the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I6011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the size of Output names in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1854,7 +1854,7 @@
     "name": "Mapping name limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["mappings","limits"],
-    "description": "Check the size of Mapping names in the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I7002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the size of Mapping names in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1864,7 +1864,7 @@
     "name": "Mapping limit",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["mappings","limits"],
-    "description": "Check the number of Mappings in the template is approaching the upper limit",
+    "description": "This issue is raised by the rule [I7010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the number of Mappings in the template is approaching the upper limit",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "INFO"
@@ -1874,7 +1874,7 @@
     "name": "Ref/GetAtt to resource that is available when conditions are applied",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["conditions","resources","relationships","ref","getatt","sub"],
-    "description": "Check the Conditions that affect a Ref/GetAtt to make sure the resource being related to is available when there is a resource condition.",
+    "description": "This issue is raised by the rule [W1001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check the Conditions that affect a Ref/GetAtt to make sure the resource being related to is available when there is a resource condition.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1884,7 +1884,7 @@
     "name": "Instead of REFing a parameter for a secret use a dynamic reference",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","dynamic-reference","ref"],
-    "description": "Instead of REFing a parameter for a secret use a dynamic reference. Solutions like SSM parameter store and secrets manager provide better security of sercrets",
+    "description": "This issue is raised by the rule [W1011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Instead of REFing a parameter for a secret use a dynamic reference. Solutions like SSM parameter store and secrets manager provide better security of sercrets",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1894,7 +1894,7 @@
     "name": "Validate that parameters to a Fn::Sub are used",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","sub"],
-    "description": "Validate that Fn::Sub Parameters are used",
+    "description": "This issue is raised by the rule [W1019] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate that Fn::Sub Parameters are used",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1904,7 +1904,7 @@
     "name": "Sub isn't needed if it doesn't have a variable defined",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","sub"],
-    "description": "Checks sub strings to see if a variable is defined.",
+    "description": "This issue is raised by the rule [W1020] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Checks sub strings to see if a variable is defined.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1914,7 +1914,7 @@
     "name": "Check Fn::If has a path that cannot be reached",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","if"],
-    "description": "Check Fn::If path can be reached",
+    "description": "This issue is raised by the rule [W1028] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check Fn::If path can be reached",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1924,7 +1924,7 @@
     "name": "Validate the values that come from a Ref function",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","ref"],
-    "description": "Resolve the Ref and then validate the values against the schema",
+    "description": "This issue is raised by the rule [W1030] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resolve the Ref and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1934,7 +1934,7 @@
     "name": "Validate the values that come from a Fn::Sub function",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","sub"],
-    "description": "Resolve the Fn::Sub and then validate the values against the schema",
+    "description": "This issue is raised by the rule [W1031] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resolve the Fn::Sub and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1944,7 +1944,7 @@
     "name": "Validate the values that come from a Fn::Join function",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","join"],
-    "description": "Resolve the Fn::Join and then validate the values against the schema",
+    "description": "This issue is raised by the rule [W1032] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resolve the Fn::Join and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1954,7 +1954,7 @@
     "name": "Validate the values that come from a Fn::Split function",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","split"],
-    "description": "Resolve the Fn::Split and then validate the values against the schema",
+    "description": "This issue is raised by the rule [W1033] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resolve the Fn::Split and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1964,7 +1964,7 @@
     "name": "Validate the values that come from a Fn::FindInMap function",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","findinmap"],
-    "description": "Resolve the Fn::FindInMap and then validate the values against the schema",
+    "description": "This issue is raised by the rule [W1034] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resolve the Fn::FindInMap and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1974,7 +1974,7 @@
     "name": "Validate the values that come from a Fn::Select function",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","select"],
-    "description": "Resolve the Fn::Select and then validate the values against the schema",
+    "description": "This issue is raised by the rule [W1035] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resolve the Fn::Select and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1984,7 +1984,7 @@
     "name": "Validate the values that come from a Fn::GetAZs function",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","getazs"],
-    "description": "Resolve the Fn::GetAZs and then validate the values against the schema",
+    "description": "This issue is raised by the rule [W1036] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resolve the Fn::GetAZs and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -1994,7 +1994,7 @@
     "name": "Validate the values that come from a Fn::ToJsonString function",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","tojsonstring"],
-    "description": "Resolve the Fn::ToJsonString and then validate the values against the schema",
+    "description": "This issue is raised by the rule [W1040] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Resolve the Fn::ToJsonString and then validate the values against the schema",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2004,7 +2004,7 @@
     "name": "Check if Parameters are Used",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters"],
-    "description": "Making sure the parameters defined are used",
+    "description": "This issue is raised by the rule [W2001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the parameters defined are used",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2014,7 +2014,7 @@
     "name": "NoEcho parameters are not masked when used in Metadata and Outputs",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","dynamic-reference","ref"],
-    "description": "Using the NoEcho attribute does not mask any information stored in the following: Metadata, Outputs, Resource Metadata",
+    "description": "This issue is raised by the rule [W2010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Using the NoEcho attribute does not mask any information stored in the following: Metadata, Outputs, Resource Metadata",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2024,7 +2024,7 @@
     "name": "Check if parameters have a valid value",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","resources","property","allowed-value"],
-    "description": "Check if parameters have a valid value in case of an enumator. The Parameter's allowed values is based on the usages in property (Ref)",
+    "description": "This issue is raised by the rule [W2030] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if parameters have a valid value in case of an enumator. The Parameter's allowed values is based on the usages in property (Ref)",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2034,7 +2034,7 @@
     "name": "Check if parameters have a valid value based on an allowed pattern",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","resources","property","pattern"],
-    "description": "Check if parameters have a valid value in a pattern. The Parameter's allowed pattern is based on the usages in property (Ref)",
+    "description": "This issue is raised by the rule [W2031] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if parameters have a valid value in a pattern. The Parameter's allowed pattern is based on the usages in property (Ref)",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2044,7 +2044,7 @@
     "name": "Check if Password Properties are correctly configured",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","passwords","security","dynamic-reference"],
-    "description": "Password properties should not be strings and if parameter using NoEcho",
+    "description": "This issue is raised by the rule [W2501] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Password properties should not be strings and if parameter using NoEcho",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2054,7 +2054,7 @@
     "name": "Check if ImageId Parameters have the correct type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","ec2","imageid"],
-    "description": "See if there are any refs for ImageId to a parameter of inappropriate type. Appropriate Types are [AWS::EC2::Image::Id, AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>]",
+    "description": "This issue is raised by the rule [W2506] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: See if there are any refs for ImageId to a parameter of inappropriate type. Appropriate Types are [AWS::EC2::Image::Id, AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>]",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2064,7 +2064,7 @@
     "name": "Check IAM Resource Policies syntax",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","iam"],
-    "description": "See if the elements inside an IAM Resource policy are configured correctly.",
+    "description": "This issue is raised by the rule [W2511] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: See if the elements inside an IAM Resource policy are configured correctly.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2074,7 +2074,7 @@
     "name": "Validate that SnapStart is properly configured",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda"],
-    "description": "To properly leverage SnapStart, you must configure both the lambda function and attach a Lambda version resource",
+    "description": "This issue is raised by the rule [W2530] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: To properly leverage SnapStart, you must configure both the lambda function and attach a Lambda version resource",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2084,7 +2084,7 @@
     "name": "Check if EOL Lambda Function Runtimes are used",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda","runtime"],
-    "description": "Check if an EOL Lambda Runtime is specified and give a warning if used.",
+    "description": "This issue is raised by the rule [W2531] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if an EOL Lambda Runtime is specified and give a warning if used.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2094,7 +2094,7 @@
     "name": "Check required properties for Lambda if the deployment package is a .zip file",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda"],
-    "description": "When the package type is Zip, you must also specify the `handler` and `runtime` properties.",
+    "description": "This issue is raised by the rule [W2533] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When the package type is Zip, you must also specify the `handler` and `runtime` properties.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2104,7 +2104,7 @@
     "name": "Warn when properties are configured to only work with the package command",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "Some properties can be configured to only work with the CloudFormationpackage command. Warn when this is the case so user is aware.",
+    "description": "This issue is raised by the rule [W3002] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Some properties can be configured to only work with the CloudFormationpackage command. Warn when this is the case so user is aware.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2114,7 +2114,7 @@
     "name": "Check obsolete DependsOn configuration for Resources",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","dependson","ref","getatt"],
-    "description": "Check if DependsOn is specified if not needed. A Ref or a Fn::GetAtt already is an implicit dependency.",
+    "description": "This issue is raised by the rule [W3005] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if DependsOn is specified if not needed. A Ref or a Fn::GetAtt already is an implicit dependency.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2124,7 +2124,7 @@
     "name": "Availability zone properties should not be hardcoded",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["parameters","availabilityzone"],
-    "description": "Check if an Availability Zone property is hardcoded.",
+    "description": "This issue is raised by the rule [W3010] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if an Availability Zone property is hardcoded.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2134,7 +2134,7 @@
     "name": "Check resources with UpdateReplacePolicy/DeletionPolicy have both",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","updatereplacepolicy","deletionpolicy"],
-    "description": "Both UpdateReplacePolicy and DeletionPolicy are needed to protect resources from deletion",
+    "description": "This issue is raised by the rule [W3011] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Both UpdateReplacePolicy and DeletionPolicy are needed to protect resources from deletion",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2144,7 +2144,7 @@
     "name": "Check if parameter values are between min and max",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","property","number","size"],
-    "description": "Check if parameter values value being between the minimum and maximum",
+    "description": "This issue is raised by the rule [W3034] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if parameter values value being between the minimum and maximum",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2154,7 +2154,7 @@
     "name": "Check IAM Permission configuration",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["properties","iam","permissions"],
-    "description": "Check for valid IAM Permissions",
+    "description": "This issue is raised by the rule [W3037*] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check for valid IAM Permissions",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2164,7 +2164,7 @@
     "name": "Controlling access to an S3 bucket should be done with bucket policies",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","s3"],
-    "description": "Nearly all access control configurations can be more successfully achieved with bucket policies. Consider using bucket policies instead of access control.",
+    "description": "This issue is raised by the rule [W3045] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Nearly all access control configurations can be more successfully achieved with bucket policies. Consider using bucket policies instead of access control.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2174,7 +2174,7 @@
     "name": "Validate SourceAccount is required property",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","lambda","permission"],
-    "description": "When configuration a Lambda permission with a SourceArn that doesn't have an AccountId you should also specify the SourceAccount",
+    "description": "This issue is raised by the rule [W3663] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When configuration a Lambda permission with a SourceArn that doesn't have an AccountId you should also specify the SourceAccount",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2184,7 +2184,7 @@
     "name": "Validate that ports aren't specified for certain protocols",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources"],
-    "description": "When using a protocol other than icmp, icmpv6, tcp, or udp the port ranges properties are ignored",
+    "description": "This issue is raised by the rule [W3687] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using a protocol other than icmp, icmpv6, tcp, or udp the port ranges properties are ignored",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2194,7 +2194,7 @@
     "name": "When restoring DBCluster certain properties are ignored",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","rds"],
-    "description": "When creating a DBCluster extra properties are ignored and could result in drift",
+    "description": "This issue is raised by the rule [W3688] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When creating a DBCluster extra properties are ignored and could result in drift",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2204,7 +2204,7 @@
     "name": "When using a source DB certain properties are ignored",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["resources","rds"],
-    "description": "When creating a DBCluster from a source certain properties are ignored and could result in drift",
+    "description": "This issue is raised by the rule [W3689] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When creating a DBCluster from a source certain properties are ignored and could result in drift",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2214,7 +2214,7 @@
     "name": "Metadata Interface parameters exist",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["metadata"],
-    "description": "Metadata Interface parameters actually exist",
+    "description": "This issue is raised by the rule [W4001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Metadata Interface parameters actually exist",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2224,7 +2224,7 @@
     "name": "Validate cfnlint configuration in the Metadata",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["metadata"],
-    "description": "Metadata cfn-lint configuration has many values and we want to validate that",
+    "description": "This issue is raised by the rule [W4005] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Metadata cfn-lint configuration has many values and we want to validate that",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2234,7 +2234,7 @@
     "name": "Check Outputs using ImportValue",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["outputs","importvalue"],
-    "description": "Check if the Output value is set using ImportValue, so creating an Output of an Output",
+    "description": "This issue is raised by the rule [W6001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check if the Output value is set using ImportValue, so creating an Output of an Output",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2244,7 +2244,7 @@
     "name": "Check if Mappings are Used",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["mappings"],
-    "description": "Making sure the mappings defined are used",
+    "description": "This issue is raised by the rule [W7001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the mappings defined are used",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2254,7 +2254,7 @@
     "name": "Check if Conditions are Used",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["conditions"],
-    "description": "Making sure the conditions defined are used",
+    "description": "This issue is raised by the rule [W8001] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the conditions defined are used",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2264,7 +2264,7 @@
     "name": "Fn::Equals will always return true or false",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["functions","equals"],
-    "description": "Validate Fn::Equals to see if its comparing two strings or two equal items. While this works it may not be intended.",
+    "description": "This issue is raised by the rule [W8003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate Fn::Equals to see if its comparing two strings or two equal items. While this works it may not be intended.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
@@ -2274,7 +2274,7 @@
     "name": "Cfn-lint Rule",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": ["cfn-lint"],
-    "description": "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
+    "description": "This issue is raised by the rule [cfn-lint.fallback] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
