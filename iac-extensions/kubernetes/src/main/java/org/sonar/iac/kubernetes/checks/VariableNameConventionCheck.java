@@ -35,7 +35,7 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 @Rule(key = "S117")
 public class VariableNameConventionCheck implements IacCheck {
   private static final String MESSAGE = "Rename this variable \"%s\" to match the regular expression '%s'.";
-  private static final String DEFAULT_FORMAT = "^\\$[a-z][a-zA-Z0-9]*$";
+  private static final String DEFAULT_FORMAT = "^\\$(([a-z][a-zA-Z0-9]*$)|$)";
 
   @RuleProperty(
     key = "format",
