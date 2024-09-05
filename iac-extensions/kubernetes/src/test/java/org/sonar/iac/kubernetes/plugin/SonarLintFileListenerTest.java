@@ -33,12 +33,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,7 +66,6 @@ class SonarLintFileListenerTest {
   private InputFile inputFileNoLanguage;
   private InputFile inputFileTOException;
   private List<InputFile> inputFiles;
-  private SonarLintFileSystemProvider fileSystemProvider;
 
   @BeforeEach
   public void init() throws IOException {
@@ -84,7 +81,6 @@ class SonarLintFileListenerTest {
     context = SensorContextTester.create(BASE_DIR);
     projectContext = mock(ProjectContext.class);
     analyzer = mock(KubernetesAnalyzer.class);
-    fileSystemProvider = mock(SonarLintFileSystemProvider.class);
   }
 
   @Test
@@ -92,6 +88,8 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.initContext(context, analyzer, projectContext);
 
     verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
+    assertThat(sonarLintFileListener.inputFilesContents().keySet())
+      .allMatch(key -> key.endsWith("limit_range.yaml") || key.endsWith("memory_limit_pod.yaml"));
     assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
   }
 
@@ -171,6 +169,13 @@ class SonarLintFileListenerTest {
     assertThat(throwable)
       .isInstanceOf(ParseException.class)
       .hasMessage("Cannot read 'memory_limit_pod.yaml'");
+  }
+
+  @Test
+  void shouldNotCallAnalyseFilesWhenSecondCallOfInitContext() {
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    verify(analyzer).analyseFiles(any(), any(), any());
   }
 
   private String uri(InputFile inputFile) {

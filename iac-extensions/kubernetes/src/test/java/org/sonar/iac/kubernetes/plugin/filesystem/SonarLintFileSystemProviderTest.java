@@ -37,16 +37,6 @@ class SonarLintFileSystemProviderTest {
 
   private static final Path BASE_DIR = Path.of("src/test/resources/SonarLintFileSystemProvider");
 
-  // @Test
-  // void shouldSetAndGetInputFilesContents() {
-  // Map<String, String> map = new HashMap<>();
-  // provider.setInputFilesContents(map);
-  //
-  // var actual = provider.getInputFilesContents();
-  //
-  // assertThat(actual).isSameAs(map);
-  // }
-
   @Test
   void shouldFilterFilesByHelmProjectDirectoryAndExcludeInputFile() {
     Map<String, String> map = new HashMap<>();
@@ -73,12 +63,15 @@ class SonarLintFileSystemProviderTest {
     assertThat(actual).containsOnlyKeys("templates/pod.yaml", "Chart.yaml", "values.yaml");
   }
 
-  // @Test
-  // void shouldNotFailWhenHelmProjectDirectoryIsNull() {
-  // var inputFileContext = mock(HelmInputFileContext.class);
-  // var actual = provider.inputFilesForHelm(inputFileContext);
-  // assertThat(actual).isEmpty();
-  // }
+  @Test
+  void shouldNotFailWhenHelmProjectDirectoryIsNull() {
+    var inputFileContext = mock(HelmInputFileContext.class);
+    var sonarLintFileListener = mock(SonarLintFileListener.class);
+    var provider = new SonarLintFileSystemProvider(sonarLintFileListener);
+
+    var actual = provider.inputFilesForHelm(inputFileContext);
+    assertThat(actual).isEmpty();
+  }
 
   private String toUri(String path) {
     return BASE_DIR.resolve(path).toUri().toString();

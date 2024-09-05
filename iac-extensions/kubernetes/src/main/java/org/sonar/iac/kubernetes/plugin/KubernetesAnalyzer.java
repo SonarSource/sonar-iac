@@ -49,9 +49,13 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
   @Nullable
   private final SonarLintFileListener sonarLintFileListener;
 
-  public KubernetesAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors,
+  public KubernetesAnalyzer(String repositoryKey,
+    TreeParser<? extends Tree> parser,
+    List<TreeVisitor<InputFileContext>> visitors,
     DurationStatistics statistics,
-    HelmParser helmParser, KubernetesParserStatistics kubernetesParserStatistics, TreeVisitor<InputFileContext> checksVisitor,
+    HelmParser helmParser,
+    KubernetesParserStatistics kubernetesParserStatistics,
+    TreeVisitor<InputFileContext> checksVisitor,
     @Nullable SonarLintFileListener sonarLintFileListener) {
     super(repositoryKey, parser, visitors, checksVisitor, statistics);
     this.helmParser = helmParser;

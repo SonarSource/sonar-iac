@@ -495,6 +495,28 @@ class KubernetesAnalyzerTest {
     }
   }
 
+  @Test
+  void shouldSetHelmProjectDirectoryForSonarLint() throws IOException, URISyntaxException {
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), any())).thenReturn(Path.of("/chart"));
+
+      var helmFile = mock(InputFile.class);
+      when(helmFile.contents()).thenReturn("foo: {{ .Values.foo }}");
+      when(helmFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(helmFile);
+      var sonarLintFileListener = mock(SonarLintFileListener.class);
+
+      var analyzerSonarLint = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
+        new DurationStatistics(mock(Configuration.class)),
+        helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), sonarLintFileListener);
+
+      var ctx = analyzerSonarLint.createInputFileContext(sensorContext, helmFile);
+
+      assertThat(ctx).isInstanceOf(HelmInputFileContext.class);
+      assertThat(((HelmInputFileContext) ctx).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
+    }
+  }
+
   private void assertEmptyFileTree(FileTree fileTree) {
     SoftAssertions.assertSoftly(softly -> {
       softly.assertThat(fileTree.metadata().textRange()).hasToString("[1:0/1:2]");

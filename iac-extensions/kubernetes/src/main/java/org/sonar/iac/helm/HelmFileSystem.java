@@ -66,8 +66,7 @@ public final class HelmFileSystem {
 
     var helmProjectDirectoryPath = inputFilePath;
 
-    // TODO remove && helmProjectDirectoryPath.startsWith(baseDirPath) ??
-    while (helmProjectDirectoryPath != null && helmProjectDirectoryPath.startsWith(baseDirPath)) {
+    while (helmProjectDirectoryPath != null) {
       if (Files.exists(helmProjectDirectoryPath.resolve("Chart.yaml"))) {
         break;
       }
@@ -84,8 +83,7 @@ public final class HelmFileSystem {
 
     var helmProjectDirectoryPath = inputFilePath;
 
-    // TODO remove && helmProjectDirectoryPath.startsWith(baseDirPath) ??
-    while (helmProjectDirectoryPath != null && helmProjectDirectoryPath.startsWith(baseDirPath)) {
+    while (helmProjectDirectoryPath != null) {
       if (sonarLintFileListener.inputFilesContents().containsKey(helmProjectDirectoryPath.resolve("Chart.yaml").toUri().toString())) {
         break;
       }
