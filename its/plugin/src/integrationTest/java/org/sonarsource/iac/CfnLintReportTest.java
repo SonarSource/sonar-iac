@@ -20,12 +20,11 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.build.SonarScanner;
+import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +33,7 @@ class CfnLintReportTest extends TestBase {
   private static final String BASE_DIRECTORY = "projects/" + PROJECT + "/";
 
   @Test
-  void import_report() {
+  void shouldImportIssuesFromCfnLintReport() {
     SonarScanner sonarScanner = getSonarScanner(PROJECT, BASE_DIRECTORY, "cloudformation", "no_rules");
     // start analysis of the project
     var logs = executeBuildAndReadLogs(ORCHESTRATOR, sonarScanner);
@@ -64,29 +63,29 @@ class CfnLintReportTest extends TestBase {
 
     issue = issues.get(2);
     softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
-    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:cfn-lint.fallback");
+    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:E1152");
     softly.assertThat(issue.getMessage()).isEqualTo("'ami-123456' is not a 'AWS::EC2::Image.Id'");
-    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
     softly.assertThat(issue.getLine()).isEqualTo(28);
 
     issue = issues.get(3);
     softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
-    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:cfn-lint.fallback");
+    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:E1152");
     softly.assertThat(issue.getMessage()).isEqualTo("'ami-123456' is not a 'AWS::EC2::Image.Id'");
-    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
     softly.assertThat(issue.getLine()).isEqualTo(32);
 
     issue = issues.get(4);
     softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
-    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:cfn-lint.fallback");
+    softly.assertThat(issue.getRule()).isEqualTo("external_cfn-lint:E3024");
     softly.assertThat(issue.getMessage())
       .isEqualTo("[{'Key': 'environment', 'Value': {'Ref': 'Environment'}}, {'Key': 'environment', 'Value': " +
         "{'Ref': 'TestEnvironment'}}] has non-unique elements for keys ['Key']");
-    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
     softly.assertThat(issue.getLine()).isEqualTo(33);
