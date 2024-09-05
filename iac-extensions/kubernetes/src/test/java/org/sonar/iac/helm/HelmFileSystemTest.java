@@ -237,7 +237,7 @@ class HelmFileSystemTest {
 
     var templateInputFileContext = new InputFileContext(context, helmTemplate);
     var inputFiles = Map.of(chartPath.toAbsolutePath().toUri().toString(), "",
-      "file://" + helmTemplate.absolutePath(), "");
+      helmTemplate.uri().toString(), "");
     var sonarLintFileListener = mock(SonarLintFileListener.class);
     when(sonarLintFileListener.inputFilesContents()).thenReturn(inputFiles);
 
@@ -255,8 +255,8 @@ class HelmFileSystemTest {
     addToFilesystem(context, helmTemplate);
 
     var templateInputFileContext = new InputFileContext(context, helmTemplate);
-    var inputFiles = Map.of("file://" + chartYaml.absolutePath(), "",
-      "file://" + helmTemplate.absolutePath(), "");
+    var inputFiles = Map.of(chartYaml.uri().toString(), "",
+      helmTemplate.uri().toString(), "");
     var sonarLintFileListener = mock(SonarLintFileListener.class);
     when(sonarLintFileListener.inputFilesContents()).thenReturn(inputFiles);
 
