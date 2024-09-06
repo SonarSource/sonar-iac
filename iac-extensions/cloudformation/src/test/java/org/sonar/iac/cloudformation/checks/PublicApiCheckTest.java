@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class PublicApiCheckTest {
 
   @Test
-  void test_yaml() {
-    CloudformationVerifier.verify("PublicApiCheck/test.yaml", new PublicApiCheck());
+  void shouldVerifyPublicApiCheck() {
+    CloudformationVerifier.verify("PublicApiCheck/publicApiCheck.yaml", new PublicApiCheck());
   }
 }
