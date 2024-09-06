@@ -39,28 +39,6 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
     "Microsoft.DBforMariaDB/servers",
     "Microsoft.DBforPostgreSQL/servers");
 
-  private static void checkHttpsOnly(ContextualResource resource) {
-    resource.property("httpsOnly")
-      .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
-      .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
-  }
-
-  private static Consumer<ContextualResource> checkPropertyHasValue(String propertyName, String value) {
-    return resource -> resource.property(propertyName)
-      .reportIf(isEqual(value), GENERAL_ISSUE_MESSAGE);
-  }
-
-  private static void checkHttpAllowed(ContextualResource resource) {
-    resource.property("isHttpAllowed")
-      .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
-      .reportIf(isTrue(), GENERAL_ISSUE_MESSAGE);
-  }
-
-  private static void checkHttpsTrafficOnly(ContextualResource resource) {
-    resource.property("supportsHttpsTrafficOnly")
-      .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
-  }
-
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", ClearTextProtocolsCheck::checkHttpsOnly);
@@ -72,8 +50,30 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
     register(DATABASE_SERVER_TYPES, checkPropertyHasValue("sslEnforcement", "Disabled"));
   }
 
+  private static Consumer<ContextualResource> checkPropertyHasValue(String propertyName, String value) {
+    return resource -> resource.property(propertyName)
+      .reportIf(isEqual(value), GENERAL_ISSUE_MESSAGE);
+  }
+
+  private static void checkHttpsOnly(ContextualResource resource) {
+    resource.property("httpsOnly")
+      .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
+      .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
+  }
+
+  private static void checkHttpsTrafficOnly(ContextualResource resource) {
+    resource.property("supportsHttpsTrafficOnly")
+      .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
+  }
+
   private static void checkProtocols(ContextualResource resource) {
     resource.list("protocols")
       .reportItemIf(isEqual("http"), GENERAL_ISSUE_MESSAGE);
+  }
+
+  private static void checkHttpAllowed(ContextualResource resource) {
+    resource.property("isHttpAllowed")
+      .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
+      .reportIf(isTrue(), GENERAL_ISSUE_MESSAGE);
   }
 }
