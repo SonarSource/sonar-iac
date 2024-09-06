@@ -26,6 +26,7 @@ import org.sonar.iac.arm.checkdsl.ContextualResource;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isTrue;
 
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
@@ -40,19 +41,13 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Web/sites", checkPropertyIsNotSetOrFalse("httpsOnly"));
+    register("Microsoft.Web/sites", ClearTextProtocolsCheck::checkHttpsOnly);
     register("Microsoft.Web/sites/config", checkPropertyHasValue("ftpsState", "AllAllowed"));
-    register("Microsoft.Storage/storageAccounts", ClearTextProtocolsCheck::checkHttpsTraffic);
+    register("Microsoft.Storage/storageAccounts", ClearTextProtocolsCheck::checkHttpsTrafficOnly);
     register("Microsoft.ApiManagement/service/apis", ClearTextProtocolsCheck::checkProtocols);
-    register("Microsoft.Cdn/profiles/endpoints", checkPropertyIsNotSetOrFalse("isHttpAllowed"));
+    register("Microsoft.Cdn/profiles/endpoints", ClearTextProtocolsCheck::checkHttpAllowed);
     register("Microsoft.Cache/redisEnterprise/databases", checkPropertyHasValue("clientProtocol", "Plaintext"));
     register(DATABASE_SERVER_TYPES, checkPropertyHasValue("sslEnforcement", "Disabled"));
-  }
-
-  private static Consumer<ContextualResource> checkPropertyIsNotSetOrFalse(String propertyName) {
-    return resource -> resource.property(propertyName)
-      .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
-      .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
   }
 
   private static Consumer<ContextualResource> checkPropertyHasValue(String propertyName, String value) {
@@ -60,7 +55,13 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
       .reportIf(isEqual(value), GENERAL_ISSUE_MESSAGE);
   }
 
-  private static void checkHttpsTraffic(ContextualResource resource) {
+  private static void checkHttpsOnly(ContextualResource resource) {
+    resource.property("httpsOnly")
+      .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
+      .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
+  }
+
+  private static void checkHttpsTrafficOnly(ContextualResource resource) {
     resource.property("supportsHttpsTrafficOnly")
       .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
   }
@@ -68,5 +69,11 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
   private static void checkProtocols(ContextualResource resource) {
     resource.list("protocols")
       .reportItemIf(isEqual("http"), GENERAL_ISSUE_MESSAGE);
+  }
+
+  private static void checkHttpAllowed(ContextualResource resource) {
+    resource.property("isHttpAllowed")
+      .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
+      .reportIf(isTrue(), GENERAL_ISSUE_MESSAGE);
   }
 }

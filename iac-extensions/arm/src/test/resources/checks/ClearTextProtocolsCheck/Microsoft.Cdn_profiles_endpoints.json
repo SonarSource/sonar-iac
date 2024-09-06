@@ -2,11 +2,11 @@
   "contentVersion": "1.0.0.0",
   "resources": [
     {
-      "name": "Raise issue as httpsOnly is set to false",
+      "name": "Raise issue as isHttpAllowed is set to true",
       "type": "Microsoft.Cdn/profiles/endpoints",
       "apiVersion": "2022-07-01",
       "properties": {
-        "isHttpAllowed": false
+        "isHttpAllowed": true
       }
     },
     {
@@ -21,7 +21,7 @@
       "type": "Microsoft.Cdn/profiles/endpoints",
       "apiVersion": "2022-07-01",
       "properties": {
-        "isHttpAllowed": true
+        "isHttpAllowed": false
       }
     },
     {
