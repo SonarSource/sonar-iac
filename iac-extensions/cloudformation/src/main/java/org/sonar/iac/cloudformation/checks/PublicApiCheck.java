@@ -19,41 +19,25 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.tree.FunctionCallTree;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6333")
-public class PublicApiCheck extends AbstractResourceCheck {
+public class PublicApiCheck extends AbstractCrossResourceCheck {
 
   private static final String MESSAGE = "Make sure creating a public API is safe here.";
   private static final String RELATED_API_MESSAGE = "Related API";
-
-  private Map<String, Resource> resourceNameToResource = new HashMap<>();
-
-  @Override
-  public void initialize(InitContext init) {
-    init.register(FileTree.class, (ctx, tree) -> {
-      var fileResources = getFileResources(tree);
-      resourceNameToResource.clear();
-      fileResources.forEach(r -> resourceNameToResource.put(r.name().value(), r));
-      fileResources.forEach(r -> checkResource(ctx, r));
-    });
-  }
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -70,22 +54,20 @@ public class PublicApiCheck extends AbstractResourceCheck {
 
   private void checkApiGatewayV2Api(CheckContext ctx, Resource resource) {
     checkAuthorizationTypeIsNone(resource)
-      .ifPresent(routeTree -> {
+      .ifPresent((Tree routeTree) -> {
         var apiIdRefs = getApiIdRefs(resource);
         apiIdRefs.ifPresent(refList -> checkReferencedResourceForProtocolTypeHttp(ctx, routeTree, refList));
 
         PropertyUtils.value(resource.properties(), "RouteKey")
-          .filter(routeTree1 -> TextUtils.isValue(routeTree1, "$connect").isTrue())
+          .filter(routeKey -> TextUtils.isValue(routeKey, "$connect").isTrue())
           .ifPresent(routeKey -> apiIdRefs
             .ifPresent(refList -> checkReferencedResourceForProtocolTypeWebsocket(ctx, routeTree, refList, routeKey)));
       });
   }
 
   private static Optional<List<YamlTree>> getApiIdRefs(Resource resource) {
-    return PropertyUtils.value(resource.properties(), "ApiId")
-      .filter(FunctionCallTree.class::isInstance)
-      .map(FunctionCallTree.class::cast)
-      .filter(a -> a.name().equals("Ref"))
+    return PropertyUtils.value(resource.properties(), "ApiId", FunctionCallTree.class)
+      .filter(tree -> "Ref".equals(tree.name()))
       .map(FunctionCallTree::arguments);
   }
 

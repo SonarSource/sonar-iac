@@ -23,21 +23,48 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S6333")
-public class PublicApiCheck extends AbstractResourceCheck {
+public class PublicApiCheck extends AbstractCrossResourceCheck {
 
   private static final String MESSAGE = "Make sure creating a public API is safe here.";
 
   @Override
   protected void registerResourceChecks() {
     register(PublicApiCheck::checkApiGatewayMethod, "aws_api_gateway_method");
+    register(this::checkApiGatewayV2Route, "aws_apigatewayv2_route");
   }
 
   private static void checkApiGatewayMethod(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "authorization", AttributeTree.class)
-      .ifPresent(authorization -> reportSensitiveValue(ctx, authorization, "NONE", MESSAGE, new SecondaryLocation(resource.labels().get(0), "Related method")));
+      .ifPresent(authorization -> reportSensitiveValue(ctx, authorization, "NONE", MESSAGE,
+        new SecondaryLocation(resource.labels().get(0), "Related method")));
+  }
+
+  private void checkApiGatewayV2Route(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "authorization_type", AttributeTree.class)
+      .ifPresentOrElse(authTypeNone -> {
+        PropertyUtils.get(resource, "api_id", AttributeTree.class)
+          .ifPresent(apiId -> {
+            var resourceName = ((AttributeAccessTree) ((AttributeAccessTree) apiId.value()).object()).attribute().value();
+            var blockTree = blockNameToBlockTree.get(resourceName);
+            if (blockTree != null) {
+              // value or property
+              PropertyUtils.value(blockTree, "protocol_type", AttributeTree.class)
+                .filter(protocolType -> TextUtils.isValue(protocolType.value(), "HTTP").isTrue())
+                .ifPresent(protocolType -> {
+                  // TODO secondary locations
+                  reportSensitiveValue(ctx, authTypeNone, "NONE", MESSAGE);
+                });
+            }
+          });
+      }, () -> {
+        System.out.println("TODO");
+        // TODO
+      });
   }
 }
