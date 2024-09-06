@@ -22,7 +22,6 @@ package org.sonar.iac.arm.checks;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
@@ -34,19 +33,27 @@ class ClearTextProtocolsCheckTest {
 
   IacCheck check = new ClearTextProtocolsCheck();
 
-  @ParameterizedTest
-  @CsvSource({"Microsoft.Web_sites.json,httpsOnly", "Microsoft.Cdn_profiles_endpoints.json,isHttpAllowed"})
-  void testClearTextProtocolWithHttpsFlagJson(String fileName, String propertyName) {
-    int endColumnForProperty = 17 + propertyName.length();
-    int endColumnForType = 11 + fileName.length();
-    ArmVerifier.verify("ClearTextProtocolsCheck/" + fileName, check,
-      issue(range(9, 8, 9, endColumnForProperty), "Make sure that using clear-text protocols is safe here."),
-      issue(range(14, 14, 14, endColumnForType), "Omitting \"" + propertyName + "\" allows the use of clear-text protocols. Make sure it is safe here."));
+  @Test
+  void testClearTextProtocolWithHttpsOnlyJson() {
+    ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Web_sites.json", check,
+      issue(range(9, 8, 9, 26), "Make sure that using clear-text protocols is safe here."),
+      issue(range(14, 14, 14, 35), "Omitting \"httpsOnly\" allows the use of clear-text protocols. Make sure it is safe here."));
   }
 
   @Test
-  void testClearTextProtocolWithHttpsFlagBicep() {
+  void testClearTextProtocolWithHttpsOnlyBicep() {
     BicepVerifier.verify("ClearTextProtocolsCheck/Microsoft.Web_sites.bicep", check);
+  }
+
+  @Test
+  void testClearTextProtocolWithHttpAllowedJson() {
+    ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Cdn_profiles_endpoints.json", check,
+      issue(range(9, 8, 9, 29), "Make sure that using clear-text protocols is safe here."),
+      issue(range(14, 14, 14, 48), "Omitting \"isHttpAllowed\" allows the use of clear-text protocols. Make sure it is safe here."));
+  }
+
+  @Test
+  void testClearTextProtocolWithHttpAllowedBicep() {
     BicepVerifier.verify("ClearTextProtocolsCheck/Microsoft.Cdn_profiles_endpoints.bicep", check);
   }
 
