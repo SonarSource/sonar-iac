@@ -116,6 +116,54 @@ class ContextualResourceTest {
   }
 
   @Test
+  void shouldFindChildResourcesOutsideOfParentInBicepWithSymbolicName() {
+    // language=bicep
+    var code = """
+      resource myResource 'parentType' = {
+        name: 'parent'
+      }
+      resource myChildResource 'parentType/childType' = {
+        name: 'child'
+        parent: myResource
+      }
+      """;
+    var file = ArmTestUtils.parseBicep(code);
+    var parent = ContextualResource.fromPresent(CTX, (ResourceDeclaration) file.statements().get(0), "parentType");
+
+    var child = parent.childResourceBy("childType", it -> TextUtils.isValue(it.name(), "child").isTrue());
+
+    assertThat(child)
+      .returns(true, from(ContextualResource::isPresent))
+      .returns("child", from(it -> it.name))
+      .returns("parentType/childType", from(it -> it.type));
+  }
+
+  @Test
+  void shouldFindChildResourcesOutsideOfParentInBicepNested() {
+    // language=bicep
+    var code = """
+      resource myResource 'outerType' = {
+        name: 'outer'
+        resource parent 'outerType/parentType' = {
+          name: 'outer/parent'
+        }
+      }
+      resource myChildResource 'outerType/parentType/childType' = {
+        name: 'outer/parent/child'
+      }
+      """;
+    var file = ArmTestUtils.parseBicep(code);
+    var parent = ContextualResource.fromPresent(CTX, ((ResourceDeclaration) file.statements().get(0)).childResources().get(0), "outerType/parentType");
+
+    var child = parent.childResourceBy("childType", it -> TextUtils.isValue(it.name(), "outer/parent/child").isTrue());
+
+    assertThat(child)
+      .returns(true, from(ContextualResource::isPresent))
+      .returns("outer/parent/child", from(it -> it.name))
+      .returns("outerType/parentType/childType", from(it -> it.type));
+  }
+
+  @Test
   void shouldFindChildResourcesOutsideOfParentInJson() {
     // language=json
     var code = """
@@ -151,6 +199,7 @@ class ContextualResourceTest {
   void shouldFindChildResourcesNestedInTheSameParentInBicep() {
     // language=bicep
     var code = """
+      param forCoverage string
       resource myResource 'outerType' = {
         name: 'outer'
         resource parent 'parentType' = {
@@ -162,7 +211,7 @@ class ContextualResourceTest {
       }
       """;
     var file = ArmTestUtils.parseBicep(code);
-    var parent = ContextualResource.fromPresent(CTX, ((ResourceDeclaration) file.statements().get(0)).childResources().get(0), "parentType");
+    var parent = ContextualResource.fromPresent(CTX, ((ResourceDeclaration) file.statements().get(1)).childResources().get(0), "parentType");
 
     var child = parent.childResourceBy("childType", it -> TextUtils.isValue(it.name(), "parent/child").isTrue());
 

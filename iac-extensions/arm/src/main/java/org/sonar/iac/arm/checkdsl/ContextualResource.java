@@ -24,12 +24,14 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.HasResources;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.TextUtils;
@@ -76,19 +78,19 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
       .orElseGet(() -> childResourceOutsideOfThisBy(type, predicate));
   }
 
-  private ContextualResource childResourceOutsideOfThisBy(String type, Predicate<ResourceDeclaration> predicate) {
+  private ContextualResource childResourceOutsideOfThisBy(String childType, Predicate<ResourceDeclaration> predicate) {
     var topLevelResources = Optional.ofNullable(tree)
-      .map(ResourceDeclaration::parent)
+      .map(ArmTreeUtils::getRootNode)
       .map(ContextualResource::getChildResources)
       .orElse(Stream.empty());
 
     return topLevelResources
       .filter(this::isExternalChildOfThis)
-      .filter(it -> TextUtils.isValue(it.type(), this.type + "/" + type).isTrue())
+      .filter(it -> TextUtils.isValue(it.type(), this.type + "/" + childType).isTrue())
       .filter(predicate)
       .findFirst()
       .map(it -> new ContextualResource(ctx, it, it.type().value(), this))
-      .orElse(ContextualResource.fromAbsent(ctx, type, this));
+      .orElse(ContextualResource.fromAbsent(ctx, childType, this));
   }
 
   private ContextualResource nestedChildResourceBy(String type, Predicate<ResourceDeclaration> predicate) {
@@ -103,16 +105,29 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
 
   private static Stream<ResourceDeclaration> getChildResources(ArmTree tree) {
     if (tree instanceof File file) {
-      return file.statements().stream().filter(ResourceDeclaration.class::isInstance).map(ResourceDeclaration.class::cast);
-    } else if (tree instanceof ObjectExpression objectExpression) {
-      return objectExpression.nestedResources().stream();
+      return Stream.concat(
+        file.statements().stream().filter(ResourceDeclaration.class::isInstance).map(ResourceDeclaration.class::cast),
+        file.statements().stream().flatMap(ContextualResource::getChildResources));
+    } else if (tree instanceof HasResources hasResources) {
+      return Stream.concat(
+        hasResources.childResources().stream(),
+        hasResources.childResources().stream().flatMap(ContextualResource::getChildResources));
     } else {
-      return ((HasResources) tree).childResources().stream();
+      return Stream.empty();
     }
   }
 
   private boolean isExternalChildOfThis(ResourceDeclaration child) {
-    return TextUtils.matchesValue(child.type(), childType -> childType.startsWith(this.type + "/")).isTrue() &&
+    // this can apply for both JSON and Bicep
+    boolean isExternalChildByFullResourceName = TextUtils.matchesValue(child.type(), childType -> childType.startsWith(this.type + "/")).isTrue() &&
       TextUtils.matchesValue(child.name(), childName -> childName.startsWith(this.name + "/")).isTrue();
+    // Bicep-specific; https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/child-resource-name-type#outside-parent-resource
+    var explicitParent = child.getResourceProperty("parent")
+      .map(Property::value)
+      .filter(Variable.class::isInstance)
+      .map(it -> ((Variable) it).identifier());
+    var symbolicName = this.tree.symbolicName();
+    boolean isExternalChildByExplicitRelationship = explicitParent.isPresent() && symbolicName != null && TextUtils.isValue(explicitParent.get(), symbolicName.value()).isTrue();
+    return isExternalChildByFullResourceName || isExternalChildByExplicitRelationship;
   }
 }
