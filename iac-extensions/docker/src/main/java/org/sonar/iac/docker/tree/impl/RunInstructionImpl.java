@@ -57,4 +57,9 @@ public class RunInstructionImpl extends AbstractCommandInstructionImpl implement
   public List<Flag> options() {
     return options;
   }
+
+  @Override
+  public String toString() {
+    return keyword + " " + arguments;
+  }
 }

@@ -65,4 +65,9 @@ public class RegularVariableImpl extends AbstractDockerTreeImpl implements Regul
     }
     this.symbol = symbol;
   }
+
+  @Override
+  public String toString() {
+    return dollar + identifier.toString();
+  }
 }

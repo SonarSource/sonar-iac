@@ -76,4 +76,10 @@ class ExpandableStringLiteralImplTest {
       assertThat(variable.identifier()).isEqualTo("bar");
     });
   }
+
+  @Test
+  void shouldConvertToString() {
+    ExpandableStringLiteral literal = parse("\"foo$bar\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
+    assertThat(literal).hasToString("\"foo$bar\"");
+  }
 }

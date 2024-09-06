@@ -19,18 +19,9 @@
  */
 package org.sonar.iac.docker.symbols;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.EMPTY;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
-import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,6 +42,14 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.EMPTY;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
+import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class ArgumentResolutionTest {
 
@@ -256,6 +255,13 @@ class ArgumentResolutionTest {
     ArgumentResolution resolution = ArgumentResolution.of(label);
     assertThat(resolution.status()).isEqualTo(status);
     assertThat(resolution.value()).isEqualTo(expectedValue);
+  }
+
+  @Test
+  void shouldConvertToString() {
+    Argument argument = parseArgument("foo");
+    ArgumentResolution argumentResolution = ArgumentResolution.of(argument);
+    assertThat(argumentResolution).hasToString("foo");
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {

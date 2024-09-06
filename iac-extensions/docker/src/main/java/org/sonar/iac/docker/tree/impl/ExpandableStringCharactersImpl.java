@@ -46,4 +46,9 @@ public class ExpandableStringCharactersImpl extends AbstractDockerTreeImpl imple
   public Kind getKind() {
     return Kind.EXPANDABLE_STRING_CHARACTERS;
   }
+
+  @Override
+  public String toString() {
+    return token.value();
+  }
 }

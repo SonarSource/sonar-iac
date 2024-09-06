@@ -59,4 +59,9 @@ public class LiteralImpl extends AbstractDockerTreeImpl implements Literal {
   public Kind getKind() {
     return DockerTree.Kind.STRING_LITERAL;
   }
+
+  @Override
+  public String toString() {
+    return token.toString();
+  }
 }
