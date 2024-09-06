@@ -43,18 +43,15 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static final String WGET = "wget";
   private static final String CURL = "curl";
 
-  private static final List<String> WGET_AUTH_FLAGS = List.of("--http-user", "--http-password", "--proxy-user", "--proxy-password", "--load-cookies");
-  private static final List<String> WGET_REQUEST_FLAGS = List.of("--header", "--method", "--body-data", "--referer", "--save-headers",
-    "--user-agent", "-U", "--post-data", "--post-file");
+  private static final List<String> WGET_FORBIDDEN_FLAGS = List.of("--http-user", "--http-password", "--proxy-user", "--proxy-password",
+    "--load-cookies", "--header", "--method", "--body-data", "--referer", "--save-headers", "--user-agent", "-U", "--post-data", "--post-file");
   private static final Predicate<String> WGET_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-O", "--output-document");
 
-  private static final List<String> CURL_AUTH_FLAGS = List.of("--anyauth", "--basic", "--digest", "--ntlm", "--negotiate",
+  private static final List<String> CURL_FORBIDDEN_FLAGS = List.of("--anyauth", "--basic", "--digest", "--ntlm", "--negotiate",
     "--proxy-anyauth", "--proxy-basic", "--proxy-digest", "--proxy-ntlm", "--proxy-negotiate", "--user", "-u", "--oauth2-bearer",
     "--proxy-user", "-U", "--tlsuser", "--proxy-tlspassword", "--tlspassword", "--proxy-tlspassword", "--proxy-tlsuser", "--tlsuser", "-b",
-    "--cookie", "-c", "--cookie-jar");
-  private static final List<String> CURL_REQUEST_FLAGS = List.of("--data", "-d", "--data-raw", "--data-ascii", "--data-binary",
-    "--data-raw", "--data-urlencode", "--form", "-F", "--form-escape", "--form-string", "--header", "-H", "--json", "--referer", "-e",
-    "--request", "-X", "--user-agent", "-A");
+    "--cookie", "-c", "--cookie-jar", "--data", "-d", "--data-raw", "--data-ascii", "--data-binary", "--data-raw", "--data-urlencode",
+    "--form", "-F", "--form-escape", "--form-string", "--header", "-H", "--json", "--referer", "-e", "--request", "-X", "--user-agent", "-A");
   private static final List<String> CURL_STDOUT_REDIRECT = List.of(">", ">>", "1>", "1>>");
   private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "-O", "--remote-name");
   private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = shortFlagPredicate('O');
@@ -109,7 +106,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static void checkArgumentsForWget(CheckContext ctx, List<ArgumentResolution> args) {
     WGET_DOWNLOAD_DETECTOR.search(args).forEach((CommandDetector.Command command) -> {
-      if (doesNotContainFlags(args, WGET_AUTH_FLAGS) && doesNotContainFlags(args, WGET_REQUEST_FLAGS)) {
+      if (doesNotContainFlags(args, WGET_FORBIDDEN_FLAGS)) {
         reportIssue(ctx, args, WGET);
       }
     });
@@ -118,7 +115,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void checkArgumentsForCurl(CheckContext ctx, List<ArgumentResolution> args) {
     for (CommandDetector curlDetector : CURL_DETECTORS) {
       curlDetector.search(args).forEach((CommandDetector.Command command) -> {
-        if (doesNotContainFlags(args, CURL_AUTH_FLAGS) && doesNotContainFlags(args, CURL_REQUEST_FLAGS)) {
+        if (doesNotContainFlags(args, CURL_FORBIDDEN_FLAGS)) {
           reportIssue(ctx, args, CURL);
         }
       });

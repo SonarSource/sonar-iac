@@ -401,6 +401,9 @@ RUN curl -L https://example.com/resource -s --output output.txt --header "X-Auth
 # Compliant: ADD doesn’t support HTTP request options =======
 
 RUN curl -o output.txt https://example.com/resource --data "param1=value1"
+RUN curl --data "param1=value1" -o output.txt https://example.com/resource
+RUN curl -o output.txt --data "param1=value1" https://example.com/resource
+RUN curl -o output.txt --data "param1=value1" https://example.com/resource --data "param2=value2"
 RUN curl -o output.txt https://example.com/resource -d "param1=value1"
 RUN curl -o output.txt https://example.com/resource --data-ascii @file
 RUN curl -o output.txt https://example.com/resource --data-binary @file
