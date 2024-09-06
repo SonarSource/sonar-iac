@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.docker.checks.utils;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HasArguments;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 
 public final class CheckUtils {
 
@@ -39,15 +38,6 @@ public final class CheckUtils {
 
   public static List<ArgumentResolution> resolveInstructionArguments(HasArguments instructionWithArguments) {
     return instructionWithArguments.arguments().stream().map(ArgumentResolution::ofWithoutStrippingQuotes).toList();
-  }
-
-  public static String getFileExtension(String name) {
-    int lastIndexOf = name.lastIndexOf(".");
-    if (lastIndexOf == -1) {
-      // empty extension
-      return "";
-    }
-    return name.substring(lastIndexOf + 1);
   }
 
   public static Optional<Flag> getParamByName(Collection<Flag> params, String name) {

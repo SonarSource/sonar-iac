@@ -131,6 +131,8 @@ COPY --chown=root:bar --chmod=664 foo.jar /
 # Noncompliant@+1
 COPY --chown=root:bar --chmod=674 foo.jar /
 
+# Noncompliant@+1
+COPY --chown=root:appgroup --chmod=666 src.txt dst.txt
 
 ## Compliant use cases because of root user
 ADD --chown=root               file.sh  target/
