@@ -52,3 +52,12 @@ RUN apt-get update \
   && apt-get install -y ${MONGO_PACKAGE}=$MONGO_VERSION
 # This is a FN, but with curent implementation we can't disinguish strings from commands
 RUN apt-get update && echo Ready for apt-get install
+
+# Compliant: `install` command is part of an argument
+ARG APT_INSTALL="apt-get install --yes"
+RUN apt-get update && $APT_INSTALL gnupg
+# Compliant; for coverage
+RUN apt-get update && apt-get install $UNRESOLVED
+# Compliant: a case when `Argument.expressions` will contain mutliple expressions
+ARG APT_INSTALL_SPACE="apt-get install --yes "
+RUN apt-get update && ${APT_INSTALL_SPACE}gnupg

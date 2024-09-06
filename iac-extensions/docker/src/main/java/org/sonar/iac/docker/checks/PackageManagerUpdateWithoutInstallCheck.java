@@ -21,6 +21,7 @@ package org.sonar.iac.docker.checks;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -29,11 +30,16 @@ import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
+import org.sonar.iac.docker.parser.DockerParser;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.ShellForm;
+import org.sonar.iac.docker.tree.api.Variable;
 
 @Rule(key = "S6595")
 public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
+  private static final DockerParser RESOLVED_COMMAND_PART_PARSER = DockerParser.create(DockerLexicalGrammar.SHELL_FORM_GENERIC);
   private static final String MESSAGE = "Update cache and install packages in single RUN instruction.";
   private static final Set<String> PACKAGE_MANAGERS = Set.of("apk", "apt", "apt-get", "aptitude");
   private static final CommandDetector PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
@@ -53,7 +59,18 @@ public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
   }
 
   private static void checkPackageManagerInvocations(CheckContext ctx, RunInstruction runInstruction) {
-    SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(CheckUtils.resolveInstructionArguments(runInstruction));
+    var arguments = CheckUtils.resolveInstructionArguments(runInstruction).stream()
+      .flatMap((ArgumentResolution argument) -> {
+        var expressions = argument.argument().expressions();
+        if (argument.isResolved() && expressions.stream().anyMatch(Variable.class::isInstance)) {
+          // If the argument represents a resolved variable, it may in fact be a part of the command and not just a single value.
+          var shellForm = (ShellForm) RESOLVED_COMMAND_PART_PARSER.parse(" " + argument.value());
+          return shellForm.arguments().stream().map(ArgumentResolution::ofWithoutStrippingQuotes);
+        } else {
+          return Stream.of(argument);
+        }
+      }).toList();
+    SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(arguments);
     for (var i = 0; i < splitCommands.elements().size(); i++) {
       List<ArgumentResolution> argumentResolutions = splitCommands.elements().get(i);
       for (CommandDetector.Command command : PACKAGE_MANAGER_UPDATE_DETECTOR.search(argumentResolutions)) {

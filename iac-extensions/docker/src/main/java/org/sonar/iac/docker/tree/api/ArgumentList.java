@@ -24,9 +24,9 @@ package org.sonar.iac.docker.tree.api;
  * It is currently implemented by {@link HereDocument}, {@link ExecForm} and {@link ShellForm}.
  * They all have in common that they provide a List of Argument, they just follow different format.
  * Examples :
- * {@code arg1 arg2 arg3}
- * {@code ["arg1", "arg2", "arg3"]}
- * {@code <<INPUT arg1\narg2\nINPUT\n }
+ * <li/> {@code arg1 arg2 arg3}
+ * <li/> {@code ["arg1", "arg2", "arg3"]}
+ * <li/> {@code <<INPUT arg1\narg2\nINPUT\n }
  */
 public interface ArgumentList extends HasArguments, DockerTree {
 }
