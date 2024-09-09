@@ -27,6 +27,7 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 
@@ -36,14 +37,14 @@ import static org.sonar.api.rules.CleanCodeAttribute.LOGICAL;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertExistingRepository;
 import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertNoRepositoryIsDefined;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class TFLintRulesDefinitionTest {
 
-  @MethodSource(value = "org.sonar.iac.common.testing" +
-    ".AbstractExternalRulesDefinitionAssertions#externalRepositoryShouldBeInitializedWithSonarRuntime")
+  @MethodSource(value = "org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions#externalRepositoryShouldBeInitializedWithSonarRuntime")
   @ParameterizedTest
   void externalRepositoryShouldBeInitializedWithSonarRuntime(SonarRuntime sonarRuntime, boolean shouldSupportCCT) {
     var context = new RulesDefinition.Context();
@@ -73,35 +74,30 @@ class TFLintRulesDefinitionTest {
   }
 
   @Test
-  void externalRulesShouldBeLoadedCorrectly() {
+  void externalRulesShouldCarryTheCorrectAttributeAndImpact() {
     var context = new RulesDefinition.Context();
     AbstractExternalRulesDefinition rulesDefinition = new TFLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
     rulesDefinition.define(context);
     var repository = context.repository("external_tflint");
 
-    RulesDefinition.Rule ruleCodeSmell = repository.rule("terraform_comment_syntax");
-    assertThat(ruleCodeSmell).isNotNull();
-    assertThat(ruleCodeSmell.name()).isEqualTo("Terraform comment syntax");
-    assertThat(ruleCodeSmell.tags()).isEmpty();
-    assertThat(ruleCodeSmell.type()).isEqualTo(CODE_SMELL);
-    assertThat(ruleCodeSmell.cleanCodeAttribute()).isEqualTo(CONVENTIONAL);
-    assertThat(ruleCodeSmell.defaultImpacts()).containsOnly(Map.entry(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
-
-    RulesDefinition.Rule ruleBug = repository.rule("azurerm_linux_virtual_machine_invalid_size");
-    assertThat(ruleBug).isNotNull();
-    assertThat(ruleBug.name()).isEqualTo("Azurerm linux virtual machine invalid size");
-    assertThat(ruleBug.tags()).isEmpty();
-    assertThat(ruleBug.type()).isEqualTo(BUG);
-    assertThat(ruleBug.cleanCodeAttribute()).isEqualTo(LOGICAL);
-    assertThat(ruleBug.defaultImpacts()).containsOnly(Map.entry(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
-
-    RulesDefinition.Rule ruleSecurityHotspot = repository.rule("terraform_module_pinned_source");
-    assertThat(ruleSecurityHotspot).isNotNull();
-    assertThat(ruleSecurityHotspot.name()).isEqualTo("Terraform module pinned source");
-    assertThat(ruleSecurityHotspot.tags()).isEmpty();
-    assertThat(ruleSecurityHotspot.type()).isEqualTo(SECURITY_HOTSPOT);
-    // Security Hotspots do not have a clean code attribute or impacts
-    assertThat(ruleSecurityHotspot.cleanCodeAttribute()).isNull();
-    assertThat(ruleSecurityHotspot.defaultImpacts()).isEmpty();
+    for (String ruleKey : rulesDefinition.getRuleLoader().ruleKeys()) {
+      var rule = repository.rule(ruleKey);
+      var ruleType = rule.type();
+      CleanCodeAttribute cleanCodeAttribute = rule.cleanCodeAttribute();
+      Map<SoftwareQuality, Severity> impacts = rule.defaultImpacts();
+      if (ruleType == CODE_SMELL) {
+        assertThat(cleanCodeAttribute).isEqualTo(CONVENTIONAL);
+        assertThat(impacts).containsOnly(Map.entry(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+      } else if (ruleType == BUG) {
+        assertThat(cleanCodeAttribute).isEqualTo(LOGICAL);
+        assertThat(impacts).containsOnly(Map.entry(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
+      } else if (ruleType == SECURITY_HOTSPOT) {
+        // Security Hotspots do not have a clean code attribute or impacts
+        assertThat(cleanCodeAttribute).isNull();
+        assertThat(impacts).isEmpty();
+      } else if (ruleType == VULNERABILITY) {
+        throw new IllegalStateException("No rule should have type VULNERABILITY");
+      }
+    }
   }
 }
