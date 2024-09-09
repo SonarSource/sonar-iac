@@ -155,6 +155,58 @@
           }
         }
       ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/portalsettings",
+      "apiVersion": "2022-09-01-preview",
+      "name": "signin-without-parent-for-coverage",
+      "properties": {
+        "enabled": true
+      }
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/portalsettings",
+      "apiVersion": "2022-09-01-preview",
+      "name": "compliant-with-child-outside/signin",
+      "properties": {
+        "enabled": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service', 'compliant-with-child-outside')]"
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2022-09-01-preview",
+      "name": "compliant-with-child-outside/compliant-apis",
+      "properties": {
+        "path": "/test",
+        "authenticationSettings": {
+          "openid": {
+            "bearerTokenSendingMethods": [
+              "authorizationHeader"
+            ],
+            "openidProviderId": "<an OpenID provider ID>"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service', 'compliant-with-child-outside')]"
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "compliant-with-child-outside",
+      "location": "location",
+      "sku": {
+        "name": "sku",
+        "capacity": "skuCount"
+      },
+      "properties": {
+        "publisherEmail": "publisherEmail",
+        "publisherName": "publisherName"
+      }
     }
   ]
 }

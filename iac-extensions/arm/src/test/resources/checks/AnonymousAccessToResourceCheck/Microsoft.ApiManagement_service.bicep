@@ -51,8 +51,6 @@ resource apiService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
   }
 }
 
-// false positive due to child resource not being recognized - will be fixed by https://sonarsource.atlassian.net/browse/SONARIAC-1044
-// Noncompliant@+1 {{Omitting "signin" authorizes anonymous access. Make sure it is safe here.}}
 resource apiServiceParent 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
   name: 'apiService'
 }
