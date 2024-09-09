@@ -56,7 +56,6 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", AnonymousAccessToResourceCheck::checkWebSites);
     register("Microsoft.Web/sites/config", AnonymousAccessToResourceCheck::checkWebSitesAuthSettings);
-    register("Microsoft.ApiManagement/service", AnonymousAccessToResourceCheck::checkApiManagementService);
     register("Microsoft.ApiManagement/service", skipReferencingResources(AnonymousAccessToResourceCheck::checkApiManagementService));
     register("Microsoft.ApiManagement/service/portalsettings", AnonymousAccessToResourceCheck::checkApiManagementPortalSettings);
     register("Microsoft.ApiManagement/service/apis", AnonymousAccessToResourceCheck::checkApiManagementServiceApis);
@@ -82,9 +81,6 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkApiManagementService(ContextualResource resource) {
-    if (resource.isReferencingResource()) {
-      return;
-    }
     ContextualResource signIn = resource.childResourceBy("portalsettings", it -> isChildResourceWithName(resource, it, APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME));
 
     if (signIn.isAbsent()) {

@@ -102,7 +102,7 @@ public final class CheckUtils {
   }
 
   public static Consumer<ContextualResource> skipReferencingResources(Consumer<ContextualResource> consumer) {
-    return resource -> {
+    return (ContextualResource resource) -> {
       if (!resource.isReferencingResource()) {
         consumer.accept(resource);
       }
