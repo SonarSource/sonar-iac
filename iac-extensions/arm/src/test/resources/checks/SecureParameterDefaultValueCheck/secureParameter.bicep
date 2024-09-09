@@ -18,6 +18,10 @@ param nonCompliant4 string = uniqueString('secret') // Noncompliant
 param nonCompliant5 string = normalString // Noncompliant
 @secure()
 param nonCompliant6 string = unknownParam // Noncompliant
+@secure()
+param nonCompliant7 string = unknownFunction('string') // Noncompliant
+@secure()
+param nonCompliant8 string = other(1, 2, 3, 'string') // Noncompliant
 
 // Compliant use cases
 @secure()
@@ -39,3 +43,7 @@ param compliant8 string = 'secret'
 param compliant9 unknown = 'secret'
 @secure()
 param compliant10 string = secureString
+@secure()
+param compliant11 string = uniqueString(newGuid())
+@secure()
+param compliant12 string = uniqueString(89, null)
