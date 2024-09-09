@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
@@ -36,6 +39,7 @@ import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
@@ -257,6 +261,28 @@ class RunInstructionImplTest {
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldCheckParseRunShellFormTreeWithEnvVariable(String code, String[] expectedArguments) {
+    RunInstruction tree = DockerTestUtils.parse(code, DockerLexicalGrammar.RUN);
+
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.textRange()).hasRange(1, 0, 1, code.length());
+
+    assertArgumentsValue(tree.arguments(), expectedArguments);
+
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
+    assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);
+  }
+
+  public static Stream<Arguments> shouldCheckParseRunShellFormTreeWithEnvVariable() {
+    return Stream.of(
+      arguments("RUN VAR=value executable param", new String[] {"VAR=value", "executable", "param"}),
+      arguments("RUN VAR='value and more' executable param", new String[] {"VAR=value and more", "executable", "param"}),
+      arguments("RUN VAR=\"value and more\" executable param", new String[] {"VAR=value and more", "executable", "param"}));
   }
 
   @Test

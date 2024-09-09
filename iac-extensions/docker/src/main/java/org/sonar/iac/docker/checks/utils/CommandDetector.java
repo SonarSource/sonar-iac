@@ -22,9 +22,12 @@ package org.sonar.iac.docker.checks.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -38,12 +41,17 @@ import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.split
 
 public final class CommandDetector {
 
+  private static final Predicate<String> envVariablePredicate = Pattern.compile("\\w++=.++").asMatchPredicate();
+
   private final List<CommandPredicate> predicates;
   private final List<Predicate<ArgumentResolution>> containsPredicates;
+  private final Map<String, Predicate<String>> withoutEnvPredicates;
+  private Map<String, String> globalEnvironmentVariables = Collections.emptyMap();
 
-  CommandDetector(List<CommandPredicate> predicates, List<Predicate<ArgumentResolution>> containsPredicates) {
+  CommandDetector(List<CommandPredicate> predicates, List<Predicate<ArgumentResolution>> containsPredicates, Map<String, Predicate<String>> withoutEnvPredicates) {
     this.predicates = predicates;
     this.containsPredicates = containsPredicates;
+    this.withoutEnvPredicates = withoutEnvPredicates;
   }
 
   public static CommandDetectorBuilder builder() {
@@ -59,13 +67,13 @@ public final class CommandDetector {
    * This stack is processed until there are no more usable elements.
    * The foremost element is taken from the stack and checked to see if it matches the command to be searched for.
    */
-  public List<Command> searchWithoutSplit(List<ArgumentResolution> resolvedArguments) {
+  private List<Command> searchWithoutSplit(List<ArgumentResolution> resolvedArguments, Map<String, String> exportedVariables) {
     List<Command> commands = new ArrayList<>();
     Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolvedArguments);
 
     var context = new PredicateContext(argumentStack, predicates);
 
-    if (containsAllRequiredArguments(context, resolvedArguments)) {
+    if (containsAllRequiredArguments(context, resolvedArguments) && checkEnvironmentVariable(resolvedArguments, exportedVariables)) {
       while (!argumentStack.isEmpty()) {
         List<ArgumentResolution> commandArguments = fullMatch(context);
         if (!commandArguments.isEmpty()) {
@@ -74,6 +82,10 @@ public final class CommandDetector {
       }
     }
     return commands;
+  }
+
+  public List<Command> searchWithoutSplit(List<ArgumentResolution> resolvedArguments) {
+    return searchWithoutSplit(resolvedArguments, Collections.emptyMap());
   }
 
   /**
@@ -92,19 +104,34 @@ public final class CommandDetector {
    * It will find only {@code echo} and {@code foo} and return as result.
    * <p>
    * This method split arguments at the beginning i.e.: {@code echo foo && echo bar} will be searched individually.
+   * It will store exported variable in exportedVariables and retain them in memory for the next commands., i.e.: {@code export MY_FLAG=true && command param},
+   * the "command param" will have knowledge about the variable 'MY_FLAG' and its value 'true'.
    */
   public List<Command> search(List<ArgumentResolution> resolvedArguments) {
+    var exportedVariables = new HashMap<String, String>();
     SeparatedList<List<ArgumentResolution>, String> splitCommands = splitCommands(resolvedArguments);
     List<Command> commands = new ArrayList<>();
 
     for (List<ArgumentResolution> resolved : splitCommands.elements()) {
-      commands.addAll(searchWithoutSplit(resolved));
+      if (!resolved.isEmpty() && isExportCommand(resolved.get(0))) {
+        exportedVariables.putAll(parseEnvShellVariable(resolved.subList(1, resolved.size())));
+      } else {
+        commands.addAll(searchWithoutSplit(resolved, exportedVariables));
+      }
     }
     return commands;
   }
 
+  private static boolean isExportCommand(ArgumentResolution argumentResolution) {
+    return argumentResolution.isResolved() && "export".equals(argumentResolution.value());
+  }
+
+  public void setGlobalEnvironmentVariables(Map<String, String> globalEnvironmentVariables) {
+    this.globalEnvironmentVariables = globalEnvironmentVariables;
+  }
+
   /**
-   * Scans the whole list of resolved arguments and check if it contains all arguments defined by containsPredicates.
+   * Scans the whole list of resolved arguments and check if it contains all arguments defined by {@link #containsPredicates}.
    */
   private boolean containsAllRequiredArguments(PredicateContext context, List<ArgumentResolution> resolvedArguments) {
     for (Predicate<ArgumentResolution> containsPredicate : containsPredicates) {
@@ -126,6 +153,45 @@ public final class CommandDetector {
   }
 
   /**
+   * Scans the whole list of resolved arguments and check if all predicates related to environment variables are verified.
+   * Environment variables comes from 3 sources: global variables defined by {@code ENV} docker instruction, exported variables that are provided
+   * in the same set of command through the {@code export} shell command, and local variables that are provided directly before the command.
+   * The order of precedence is the following: local variables > exported variables > global variables.
+   */
+  private boolean checkEnvironmentVariable(List<ArgumentResolution> resolvedArguments, Map<String, String> exportedVariables) {
+    var localVariables = parseEnvShellVariable(resolvedArguments);
+    var allVariables = new HashMap<>(globalEnvironmentVariables);
+    allVariables.putAll(exportedVariables);
+    allVariables.putAll(localVariables);
+
+    for (Map.Entry<String, Predicate<String>> withoutEnvPredicate : withoutEnvPredicates.entrySet()) {
+      String variableName = withoutEnvPredicate.getKey();
+      Predicate<String> excludePredicate = withoutEnvPredicate.getValue();
+      if (allVariables.containsKey(variableName) && excludePredicate.test(allVariables.get(variableName))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private static Map<String, String> parseEnvShellVariable(List<ArgumentResolution> resolvedArguments) {
+    Map<String, String> envVariables = new HashMap<>();
+
+    for (ArgumentResolution resolvedArgument : resolvedArguments) {
+      String resolved = resolvedArgument.value();
+      if (envVariablePredicate.test(resolved)) {
+        String[] split = resolved.split("=", 2);
+        envVariables.put(split[0], split[1]);
+      } else {
+        break;
+      }
+    }
+
+    return envVariables;
+  }
+
+  /**
    * Process and reduce the stack of arguments. Within the loop, which iterates over a stack of predicates,
    * each argument from the stack is consumed and tested to see if the corresponding predicate is a match.
    * Each consumed argument that matches is added to the list of arguments that will later form the suitable command.
@@ -138,10 +204,9 @@ public final class CommandDetector {
   // S1541 Cyclomatic Complexity of functions should not be too high
   @SuppressWarnings({"java:S3776", "java:S1142", "java:S1541"})
   private static List<ArgumentResolution> fullMatch(PredicateContext context) {
-    context.startNewFullMatchOn(context.getDetectorPredicates());
+    context.startNewFullMatch();
 
     while (context.arePredicatesToDetectLeft()) {
-
       context.provideNextPredicate();
 
       // resolution is removed from stack during match-methods, here it is only peeked to see if it is null or UNRESOLVED

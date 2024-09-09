@@ -42,7 +42,7 @@ public class PredicateContext {
     this.containsArgumentsToReport = new ArrayList<>();
   }
 
-  public void startNewFullMatchOn(List<CommandPredicate> detectorPredicates) {
+  public void startNewFullMatch() {
     this.predicatesStack = new LinkedList<>(detectorPredicates);
     this.argumentsToReport = new ArrayList<>();
   }
