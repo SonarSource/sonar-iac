@@ -52,8 +52,9 @@ public class HardcodedResourceLocationCheck implements IacCheck {
   }
 
   private static boolean isNotGlobalLocation(Expression tree) {
-    if (!tree.is(ArmTree.Kind.STRING_LITERAL))
+    if (!tree.is(ArmTree.Kind.STRING_LITERAL)) {
       return true;
+    }
     StringLiteral stringLiteral = (StringLiteral) tree;
     return !"global".equals(stringLiteral.value());
   }
