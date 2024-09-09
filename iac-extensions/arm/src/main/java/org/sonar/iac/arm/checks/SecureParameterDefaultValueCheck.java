@@ -25,6 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualParameter;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
@@ -35,7 +36,6 @@ import org.sonar.iac.common.api.checks.InitContext;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isBlankString;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyObject;
-import static org.sonar.iac.arm.checks.utils.CheckUtils.isFunctionCall;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
 import static org.sonar.iac.arm.tree.ArmTreeUtils.getParametersByNames;
 
@@ -46,6 +46,11 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
   private static final Map<ParameterType, String> SENSITIVE_TYPE_WITH_DISPLAY_TYPE = Map.of(
     ParameterType.SECURE_STRING, "string",
     ParameterType.SECURE_OBJECT, "object");
+  private static final Predicate<Expression> predicateCompliantValue = isBlankString()
+    .or(isEmptyObject())
+    .or(isNull())
+    .or(isSecureParameterReference())
+    .or(isFunctionCallWithoutHardcodedString());
 
   @Override
   public void initialize(InitContext init) {
@@ -57,17 +62,8 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
 
     if (type != null && SENSITIVE_TYPE_WITH_DISPLAY_TYPE.containsKey(type)) {
       ContextualParameter param = ContextualParameter.fromPresent(ctx, parameterDeclaration, null);
-      param.reportIf(isSensitiveDefaultValue(), String.format(MESSAGE, SENSITIVE_TYPE_WITH_DISPLAY_TYPE.get(type)));
+      param.reportIf(predicateCompliantValue.negate(), String.format(MESSAGE, SENSITIVE_TYPE_WITH_DISPLAY_TYPE.get(type)));
     }
-  }
-
-  private static Predicate<Expression> isSensitiveDefaultValue() {
-    return isBlankString()
-      .or(isEmptyObject())
-      .or(isNull())
-      .or(isFunctionCall("newGuid"))
-      .or(isSecureParameterReference())
-      .negate();
   }
 
   private static Predicate<Expression> isSecureParameterReference() {
@@ -80,5 +76,10 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
   private static boolean isSecureParameter(ArmTree tree, String parameterName) {
     ParameterDeclaration param = getParametersByNames(tree).get(parameterName);
     return param != null && SENSITIVE_TYPE_WITH_DISPLAY_TYPE.containsKey(param.type());
+  }
+
+  private static Predicate<Expression> isFunctionCallWithoutHardcodedString() {
+    return (Expression expression) -> expression instanceof FunctionCall functionCall
+      && functionCall.argumentList().elements().stream().noneMatch(arg -> arg.is(ArmTree.Kind.STRING_LITERAL));
   }
 }
