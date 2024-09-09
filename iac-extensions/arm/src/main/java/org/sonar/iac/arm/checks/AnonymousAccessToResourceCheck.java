@@ -57,8 +57,6 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     register("Microsoft.Web/sites", AnonymousAccessToResourceCheck::checkWebSites);
     register("Microsoft.Web/sites/config", AnonymousAccessToResourceCheck::checkWebSitesAuthSettings);
     register("Microsoft.ApiManagement/service", skipReferencingResources(AnonymousAccessToResourceCheck::checkApiManagementService));
-    register("Microsoft.ApiManagement/service/portalsettings", AnonymousAccessToResourceCheck::checkApiManagementPortalSettings);
-    register("Microsoft.ApiManagement/service/apis", AnonymousAccessToResourceCheck::checkApiManagementServiceApis);
     register("Microsoft.Storage/storageAccounts", AnonymousAccessToResourceCheck::checkStorageAccounts);
     register("Microsoft.Storage/storageAccounts/blobServices/containers", AnonymousAccessToResourceCheck::checkStorageAccountContainers);
     register("Microsoft.Cache/redis", AnonymousAccessToResourceCheck::checkRedisCache);
