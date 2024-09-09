@@ -13,6 +13,10 @@ resource nonCompliant2 'Microsoft.Kusto/clusters@2022-12-29' = {
   properties: {}
 }
 
+resource compliant_existing 'Microsoft.Kusto/clusters@2022-12-29' existing = {
+  name: 'Compliant: existing'
+}
+
 resource compliant1 'Microsoft.Kusto/clusters@2022-12-29' = {
   name: 'Compliant: enableDiskEncryption is set to true'
   properties: {

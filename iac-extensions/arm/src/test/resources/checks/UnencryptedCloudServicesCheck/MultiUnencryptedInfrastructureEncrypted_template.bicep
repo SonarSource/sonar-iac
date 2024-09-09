@@ -40,3 +40,7 @@ resource nonCompliant4 '${type}@2022-07-01' = {
 resource nonCompliant5 '${type}@2022-07-01' = {
   name: 'Non-compliant: encryption property is not set'
 }
+
+resource Compliant_existing 'Microsoft.DataLakeStore/accounts@2022-07-01' existing = {
+  name: 'Non-compliant: encryption property is not set'
+}

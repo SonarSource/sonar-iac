@@ -26,7 +26,7 @@ import static org.sonar.iac.common.testing.Verifier.issue;
 class RoleBasedAccessControlCheckTest {
   @Test
   void checkRbacPresentAndEnabledForManagedClustersJson() {
-    ArmVerifier.verify("RbacAzureResourceCheck/Microsoft.ContainerService_managedClusters.json",
+    ArmVerifier.verify("RoleBasedAccessControlCheck/Microsoft.ContainerService_managedClusters.json",
       new RoleBasedAccessControlCheck(),
       issue(28, 10, 28, 34, "Make sure that disabling role-based access control is safe here."),
       issue(30, 8, 30, 27, "Make sure that disabling role-based access control is safe here."),
@@ -36,12 +36,12 @@ class RoleBasedAccessControlCheckTest {
 
   @Test
   void checkRbacPresentAndEnabledForManagedClustersBicep() {
-    BicepVerifier.verify("RbacAzureResourceCheck/Microsoft.ContainerService_managedClusters.bicep", new RoleBasedAccessControlCheck());
+    BicepVerifier.verify("RoleBasedAccessControlCheck/Microsoft.ContainerService_managedClusters.bicep", new RoleBasedAccessControlCheck());
   }
 
   @Test
   void checkRbacPresentAndEnabledForKeyVaultJson() {
-    ArmVerifier.verify("RbacAzureResourceCheck/Microsoft.KeyVault_vaults.json",
+    ArmVerifier.verify("RoleBasedAccessControlCheck/Microsoft.KeyVault_vaults.json",
       new RoleBasedAccessControlCheck(),
       issue(18, 8, 18, 40, "Make sure that disabling role-based access control is safe here."),
       issue(22, 14, 22, 41, "Omitting 'enableRbacAuthorization' disables role-based access control for this resource. Make sure it is safe here."));
@@ -49,6 +49,6 @@ class RoleBasedAccessControlCheckTest {
 
   @Test
   void checkRbacPresentAndEnabledForKeyVaultBicep() {
-    BicepVerifier.verify("RbacAzureResourceCheck/Microsoft.KeyVault_vaults.bicep", new RoleBasedAccessControlCheck());
+    BicepVerifier.verify("RoleBasedAccessControlCheck/Microsoft.KeyVault_vaults.bicep", new RoleBasedAccessControlCheck());
   }
 }

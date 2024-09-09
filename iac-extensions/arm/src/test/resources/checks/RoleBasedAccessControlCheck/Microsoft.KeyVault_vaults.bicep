@@ -17,3 +17,7 @@ resource noncompliant2 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: 'One issue: property is missing'
   properties: {}
 }
+
+resource compliant_existing 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: 'One issue: property is missing'
+}

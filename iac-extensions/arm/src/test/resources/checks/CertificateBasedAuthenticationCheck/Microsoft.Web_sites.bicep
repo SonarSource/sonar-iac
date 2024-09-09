@@ -5,6 +5,10 @@ resource noncompliant1 'Microsoft.Web/sites@2015-08-01' = {
   properties: {}
 }
 
+resource compliant_existing 'Microsoft.Web/sites@2015-08-01' existing = {
+  name: 'Compliant: existing'
+}
+
 // Noncompliant@+1{{Omitting "clientCertMode" disables certificate-based authentication. Make sure it is safe here.}}
 resource noncompliant2 'Microsoft.Web/sites@2015-08-01' = {
   name: 'Sensitive: clientCertEnabled is false and clientCertMode is missing'

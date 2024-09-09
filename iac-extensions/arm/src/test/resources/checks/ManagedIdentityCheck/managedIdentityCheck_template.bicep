@@ -19,7 +19,7 @@ resource sensitiveApiManagementService3 '${type}@2021-08-01' = {
   }
 }
 
-resource sensitiveApiManagementService3 '${type}@2021-08-01' = {
+resource sensitiveApiManagementService4 '${type}@2021-08-01' = {
   name: 'Compliant: identity.type is not string literal'
   location: location
   identity: {
@@ -27,10 +27,15 @@ resource sensitiveApiManagementService3 '${type}@2021-08-01' = {
   }
 }
 
-resource sensitiveApiManagementService3 '${type}@2021-08-01' = {
+resource sensitiveApiManagementService5 '${type}@2021-08-01' = {
   name: 'Sensitive: identity is defined but identity.type not'
   location: location
   identity: {
     foo: 'bar'
   }
+}
+
+resource compliant_existing '${type}@2021-08-01' existing = {
+  name: 'Compliant: existing'
+  location: location
 }

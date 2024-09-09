@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -28,11 +32,6 @@ import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.PropertyUtils;
-
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends HasProperties & Tree> extends ContextualTree<ContextualMap<S, T>, T> {
 

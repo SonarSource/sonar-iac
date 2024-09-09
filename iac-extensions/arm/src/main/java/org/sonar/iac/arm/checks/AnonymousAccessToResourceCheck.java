@@ -32,6 +32,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.inCollection;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.skipReferencingResources;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6380")
@@ -55,7 +56,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", AnonymousAccessToResourceCheck::checkWebSites);
     register("Microsoft.Web/sites/config", AnonymousAccessToResourceCheck::checkWebSitesAuthSettings);
-    register("Microsoft.ApiManagement/service", AnonymousAccessToResourceCheck::checkApiManagementService);
+    register("Microsoft.ApiManagement/service", skipReferencingResources(AnonymousAccessToResourceCheck::checkApiManagementService));
     register("Microsoft.Storage/storageAccounts", AnonymousAccessToResourceCheck::checkStorageAccounts);
     register("Microsoft.Storage/storageAccounts/blobServices/containers", AnonymousAccessToResourceCheck::checkStorageAccountContainers);
     register("Microsoft.Cache/redis", AnonymousAccessToResourceCheck::checkRedisCache);
@@ -63,11 +64,8 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkWebSites(ContextualResource resource) {
-    ContextualResource authSettingsV2 = resource.childResourceBy("config", it -> isChildResourceWithName(resource, it, WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME));
-
-    if (authSettingsV2.isAbsent()) {
-      resource.report(WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
-    }
+    resource.childResourceBy("config", it -> isChildResourceWithName(resource, it, WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME))
+      .reportIfAbsent(WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
   }
 
   private static void checkWebSitesAuthSettings(ContextualResource contextualResource) {

@@ -12,6 +12,10 @@ resource Raise_issue_as_httpsOnly_is_missing 'Microsoft.Web/sites@2022-07-01' = 
   properties: {}
 }
 
+resource Compliant_existing 'Microsoft.Web/sites@2022-07-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource Microsoft_Web_sites_Compliant_1 'Microsoft.Web/sites@2022-07-01' = {
   name: 'Compliant_1'
   properties: {

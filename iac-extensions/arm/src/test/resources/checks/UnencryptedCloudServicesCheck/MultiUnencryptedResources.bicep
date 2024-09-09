@@ -6,6 +6,10 @@ resource nonCompliant1 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-
   }
 }
 
+resource compliant_existing 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-01' existing = {
+  name: 'Compliant: existing'
+}
+
 // Noncompliant@+1 {{Omitting "backupStorageCustomerKeyUri" enables clear-text storage. Make sure it is safe here.}}
 resource nonCompliant2 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-01' = {
   name: 'Noncompliant'

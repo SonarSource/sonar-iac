@@ -3,6 +3,10 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
     name: 'example'
 }
 
+resource appService 'Microsoft.Web/sites@2022-09-01' existing = {
+    name: 'example'
+}
+
 resource appService2 'Microsoft.Web/sites@2022-09-01' = {
     name: 'example'
 }

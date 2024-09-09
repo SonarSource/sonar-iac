@@ -4,6 +4,10 @@ resource noncompliant1 'Microsoft.Network/applicationGateways@2020-06-01' = {
   properties: {}
 }
 
+resource compliant_existing 'Microsoft.Network/applicationGateways@2020-06-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource noncompliant2 'Microsoft.Network/applicationGateways@2020-06-01' = {
   name: 'Sensitive: trustedRootCertificates array is empty'
   properties: {

@@ -6,6 +6,18 @@ resource raise_an_issue_the_certificate_boolean_is_missing 'Microsoft.ApiManagem
   }
 }
 
+// Noncompliant@+1{{Omitting "negotiateClientCertificate" disables certificate-based authentication. Make sure it is safe here.}}
+resource raise_an_issue_the_properties_is_missing 'Microsoft.ApiManagement/service/gateways/hostnameConfigurations@2022-11-01' = {
+  name: 'Raise an issue: properties are not present'
+  properties: {
+    otherProperty: 'test'
+  }
+}
+
+resource compliant_existing 'Microsoft.ApiManagement/service/gateways/hostnameConfigurations@2022-11-01' existing = {
+  name: 'Compliant existing'
+}
+
 resource raise_an_issue_the_certificate_boolean_is_set_to_false 'Microsoft.ApiManagement/service/gateways/hostnameConfigurations@2022-11-01' = {
   name: 'Raise an issue: the certificate boolean is set to false'
   properties: {

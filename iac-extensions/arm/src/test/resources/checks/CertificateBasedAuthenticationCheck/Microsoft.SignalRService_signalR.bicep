@@ -6,6 +6,10 @@ resource noncompliant1 'Microsoft.SignalRService/signalR@2021-10-01' = {
   }
 }
 
+resource compliant_existing 'Microsoft.SignalRService/signalR@2021-10-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource noncompliant2 'Microsoft.SignalRService/signalR@2021-10-01' = {
   name: 'Sensitive: clientCertEnabled is set to false'
   properties: {

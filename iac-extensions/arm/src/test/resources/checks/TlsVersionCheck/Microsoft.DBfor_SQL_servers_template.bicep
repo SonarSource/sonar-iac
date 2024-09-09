@@ -10,6 +10,10 @@ resource nonCompliant2 '${type}@2017-12-01' = {
   properties: {}
 }
 
+resource compliant_existing '${type}@2017-12-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource Compliant '${type}@2017-12-01' = {
   name: 'Compliant'
   properties: {
