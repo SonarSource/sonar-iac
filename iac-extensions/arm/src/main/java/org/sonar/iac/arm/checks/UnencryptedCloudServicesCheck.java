@@ -45,9 +45,15 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
   protected void registerResourceConsumer() {
     register("Microsoft.Compute/virtualMachines",
       resource -> Stream.of(
-        "storageProfile/dataDisks/*/managedDisk",
-        "storageProfile/osDisk/managedDisk",
-        "storageProfile/osDisk/managedDisk/securityProfile")
+        "storageProfile/dataDisks/*/managedDisk")
+        .map(resource::objectsByPath)
+        .flatMap(List::stream)
+        .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
+
+    register("Microsoft.Compute/virtualMachines",
+      resource -> Stream.of(
+          "storageProfile/osDisk/managedDisk",
+          "storageProfile/osDisk/managedDisk/securityProfile")
         .map(resource::objectsByPath)
         .flatMap(List::stream)
         .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
