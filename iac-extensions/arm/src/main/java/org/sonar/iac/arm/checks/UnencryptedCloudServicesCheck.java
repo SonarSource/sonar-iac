@@ -28,12 +28,12 @@ import org.sonar.iac.arm.checkdsl.ContextualMap;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
 
 @Rule(key = "S6388")
 public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
@@ -44,7 +44,8 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Compute/virtualMachines",
-      resource -> Stream.of("storageProfile/dataDisks/*/managedDisk",
+      resource -> Stream.of(
+        "storageProfile/dataDisks/*/managedDisk",
         "storageProfile/osDisk/managedDisk",
         "storageProfile/osDisk/managedDisk/securityProfile")
         .map(resource::objectsByPath)
@@ -146,10 +147,6 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   private static void checkIfIsDisabledOrAbsent(ContextualProperty property) {
     property.reportIf(isDisabled(), UNENCRYPTED_MESSAGE).reportIfAbsent(FORMAT_OMITTING);
-  }
-
-  private static Predicate<Expression> isNull() {
-    return e -> e.is(ArmTree.Kind.NULL_LITERAL);
   }
 
   private static Predicate<Expression> isDisabled() {
