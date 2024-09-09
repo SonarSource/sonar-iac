@@ -25,10 +25,9 @@ resource nonCompliant1 'Microsoft.Compute/virtualMachines@2022-07-01' = {
       ]
       // Noncompliant@+1 {{Omitting "encryptionSettings" enables clear-text storage. Make sure it is safe here.}}
       osDisk: {
-//            ^[el=+6;ec=7]
-        managedDisk: { // Noncompliant {{Omitting "diskEncryptionSet" enables clear-text storage. Make sure it is safe here.}}
-//                   ^[el=+3;ec=9]
-          securityProfile: {} // Noncompliant {{Omitting "diskEncryptionSet" enables clear-text storage. Make sure it is safe here.}}
+//            ^[el=+5;ec=7]
+        managedDisk: {
+          securityProfile: {}
         }
       }
     }
@@ -41,6 +40,76 @@ resource nonCompliant2 'Microsoft.Compute/virtualMachines@2022-07-01' = {
     storageProfile: {
       osDisk: {
         encryptionSettings: false // Noncompliant {{Make sure that using unencrypted cloud storage is safe here.}}
+      }
+    }
+  }
+}
+
+resource nonCompliant3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant'
+  properties: {
+    storageProfile: {
+      // Noncompliant@+1 {{Omitting "encryptionSettings" enables clear-text storage. Make sure it is safe here.}}
+      osDisk: {}
+    }
+  }
+}
+
+resource nonCompliant3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant'
+  properties: {
+    storageProfile: {
+      // Noncompliant@+1 {{Omitting "encryptionSettings" enables clear-text storage. Make sure it is safe here.}}
+      osDisk: {
+          managedDisk: {}
+      }
+    }
+  }
+}
+
+resource nonCompliant3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant'
+  properties: {
+    storageProfile: {
+      // Noncompliant@+1 {{Omitting "encryptionSettings" enables clear-text storage. Make sure it is safe here.}}
+      osDisk: {
+          managedDisk: {
+              diskEncryptionSet: {}
+          }
+      }
+    }
+  }
+}
+
+resource nonCompliant3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant'
+  properties: {
+    storageProfile: {
+      // Noncompliant@+1 {{Omitting "encryptionSettings" enables clear-text storage. Make sure it is safe here.}}
+      osDisk: {
+          managedDisk: {
+              diskEncryptionSet: {
+                  id: ''
+              }
+          }
+      }
+    }
+  }
+}
+
+resource nonCompliant3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant'
+  properties: {
+    storageProfile: {
+      // Noncompliant@+1 {{Omitting "encryptionSettings" enables clear-text storage. Make sure it is safe here.}}
+      osDisk: {
+          managedDisk: {
+              securityProfile: {
+                  diskEncryptionSet: {
+                      id: ''
+                  }
+              }
+          }
       }
     }
   }

@@ -39,8 +39,6 @@ class UnencryptedCloudServicesCheckTest {
       issue(19, 18, 19, 26, "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
       issue(25, 37, 26, 17),
       issue(30, 20, 34, 11, "Omitting \"encryptionSettings\" enables clear-text storage. Make sure it is safe here."),
-      issue(31, 27, 33, 13, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
-      issue(32, 33, 32, 35),
       issue(45, 12, 45, 39, "Make sure that using unencrypted cloud storage is safe here."),
       issue(78, 10, 78, 35, "Make sure that using unencrypted cloud storage is safe here."),
       issue(87, 27, 88, 9, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));

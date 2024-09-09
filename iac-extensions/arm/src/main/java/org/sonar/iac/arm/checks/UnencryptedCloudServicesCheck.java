@@ -50,18 +50,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
         .flatMap(List::stream)
         .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
 
-    register("Microsoft.Compute/virtualMachines",
-      resource -> Stream.of(
-          "storageProfile/osDisk/managedDisk",
-          "storageProfile/osDisk/managedDisk/securityProfile")
-        .map(resource::objectsByPath)
-        .flatMap(List::stream)
-        .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
-
-    register("Microsoft.Compute/virtualMachines",
-      resource -> resource.object("storageProfile").object("osDisk").property("encryptionSettings")
-        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
-        .reportIfAbsent(FORMAT_OMITTING));
+    register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineOsDisk);
 
     register("Microsoft.Compute/virtualMachineScaleSets",
       resource -> Stream.of("virtualMachineProfile/storageProfile/dataDisks/*/managedDisk",
@@ -126,6 +115,19 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     register("Microsoft.HDInsight/clusters", checkEncryptionFromPath("diskEncryptionProperties", "encryptionAtHost"));
     register("Microsoft.HDInsight/clusters/applications", checkEncryptionFromPath("computeProfile/roles/*", "encryptDataDisks"));
     register("Microsoft.Kusto/clusters", resource -> checkEncryptionObject(resource, "enableDiskEncryption"));
+  }
+
+  private static void checkVirtualMachineOsDisk(ContextualResource resource) {
+    ContextualObject osDisk = resource.object("storageProfile").object("osDisk");
+    if (osDisk.isAbsent()) return;
+    boolean isDiskEncryptionSetIdSet = Stream.of("managedDisk/diskEncryptionSet/id", "managedDisk/securityProfile/diskEncryptionSet/id")
+      .map(osDisk::objectsByPath)
+      .flatMap(List::stream)
+      .anyMatch(ContextualMap::isPresent);
+    if (isDiskEncryptionSetIdSet) return;
+    osDisk.property("encryptionSettings")
+      .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
+      .reportIfAbsent(FORMAT_OMITTING);
   }
 
   private static Consumer<ContextualResource> checkComputeComponent() {
