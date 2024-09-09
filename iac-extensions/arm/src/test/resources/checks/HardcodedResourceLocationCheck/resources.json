@@ -34,6 +34,16 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
+      "name": "nonCompliant3",
+      "location": "Global",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
       "name": "compliant1",
       "location": "[parameters('location')]",
       "sku": {
@@ -46,6 +56,16 @@
       "apiVersion": "2022-09-01",
       "name": "compliant2",
       "location": "[parameters('unresolved')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "compliant3",
+      "location": "global",
       "sku": {
         "name": "Standard_LRS"
       },

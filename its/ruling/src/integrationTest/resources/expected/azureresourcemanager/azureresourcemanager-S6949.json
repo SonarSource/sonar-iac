@@ -11,14 +11,7 @@
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops/multiplesecurityrules.bicep": [
 21
 ],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-logical-parameter/resources.bicep": [
-51,
-60
-],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/activity-log-alert.bicep": [
-10
-],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/resource-health-alerts.bicep": [
 10
 ],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/fullnamedeclaration.bicep": [
