@@ -65,3 +65,7 @@ RUN apt-get update && ${APT_INSTALL_SPACE}gnupg
 ARG APT_UPDATE="apt-get update"
 RUN $APT_UPDATE && echo "Skipping installation in this noncompliant example"
 #   ^^^^^^^^^^^
+# Noncompliant@+2
+ARG COMMAND="apt-get"
+RUN $COMMAND update && echo "Skipping installation in this noncompliant example"
+#   ^^^^^^^^^^^^^^^
