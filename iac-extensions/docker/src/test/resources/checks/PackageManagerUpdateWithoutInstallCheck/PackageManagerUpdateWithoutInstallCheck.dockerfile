@@ -61,3 +61,7 @@ RUN apt-get update && apt-get install $UNRESOLVED
 # Compliant: a case when `Argument.expressions` will contain mutliple expressions
 ARG APT_INSTALL_SPACE="apt-get install --yes "
 RUN apt-get update && ${APT_INSTALL_SPACE}gnupg
+# Noncompliant@+2{{Update cache and install packages in single RUN instruction.}}
+ARG APT_UPDATE="apt-get update"
+RUN $APT_UPDATE && echo "Skipping installation in this noncompliant example"
+#   ^^^^^^^^^^^
