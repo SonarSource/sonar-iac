@@ -55,7 +55,7 @@ public class HardcodedResourceLocationCheck implements IacCheck {
     if (!tree.is(ArmTree.Kind.STRING_LITERAL)) {
       return true;
     }
-    StringLiteral stringLiteral = (StringLiteral) tree;
+    var stringLiteral = (StringLiteral) tree;
     return !"global".equals(stringLiteral.value());
   }
 }
