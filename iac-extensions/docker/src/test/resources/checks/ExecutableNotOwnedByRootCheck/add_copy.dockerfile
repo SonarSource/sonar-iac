@@ -29,11 +29,11 @@ ADD --chown=other --chmod=u+wx file.sh  target/
 ADD --chown=other --chmod=u+wx file.txt target/
 
 ## Error messages + locations
-# Noncompliant@+1 {{Make sure no write permissions are assigned to the executable.}}
+# Noncompliant@+1 {{Make sure no write permissions are assigned to the copied resource.}}
   ADD --chown=other --chmod=u+w file1.sh file2.sh  target/
 #     ^^^^^^^^^^^^^> {{Sensitive file owner.}}
 #                               ^^^^^^^^@-1
-#                                        ^^^^^^^^@-2< {{Other executable file.}}
+#                                        ^^^^^^^^@-2< {{Other copied resource.}}
 
 ## Other sensitive use cases
 # Noncompliant@+1
