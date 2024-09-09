@@ -21,7 +21,9 @@ package org.sonar.iac.arm.checks.utils;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
@@ -97,6 +99,14 @@ public final class CheckUtils {
 
   public static Predicate<Expression> isFunctionCall(String functionName) {
     return expr -> expr.is(ArmTree.Kind.FUNCTION_CALL) && ((FunctionCall) expr).name().value().equals(functionName);
+  }
+
+  public static Consumer<ContextualResource> skipReferencingResources(Consumer<ContextualResource> consumer) {
+    return resource -> {
+      if (!resource.isReferencingResource()) {
+        consumer.accept(resource);
+      }
+    };
   }
 
   /**

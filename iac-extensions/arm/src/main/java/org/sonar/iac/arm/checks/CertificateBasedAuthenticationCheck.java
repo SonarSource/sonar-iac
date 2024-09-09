@@ -36,6 +36,7 @@ import static org.sonar.iac.arm.checks.utils.CheckUtils.isArrayWithValues;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyArray;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.skipReferencingResources;
 
 @Rule(key = "S6382")
 public class CertificateBasedAuthenticationCheck extends AbstractArmResourceCheck {
@@ -64,7 +65,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.DataFactory/factories/linkedservices", CertificateBasedAuthenticationCheck::checkLinkedServices);
     register("Microsoft.DocumentDB/cassandraClusters", CertificateBasedAuthenticationCheck::checkCassandraClusters);
     register("Microsoft.Scheduler/jobCollections/jobs", CertificateBasedAuthenticationCheck::checkJobCollections);
-    register("Microsoft.ServiceFabric/clusters", CertificateBasedAuthenticationCheck::checkServiceFabric);
+    register("Microsoft.ServiceFabric/clusters", skipReferencingResources(CertificateBasedAuthenticationCheck::checkServiceFabric));
     register("Microsoft.Web/sites", CertificateBasedAuthenticationCheck::checkWebSites);
     register("Microsoft.Web/sites/slots", CertificateBasedAuthenticationCheck::checkWebSitesSlots);
     register("Microsoft.DataFactory/factories/pipelines", CertificateBasedAuthenticationCheck::checkPipelines);
@@ -131,9 +132,6 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   }
 
   private static void checkServiceFabric(ContextualResource resource) {
-    if (resource.isReferencingResource()) {
-      return;
-    }
     ContextualProperty clientCertificateCommonNames = resource.property("clientCertificateCommonNames");
     ContextualProperty clientCertificateThumbprints = resource.property("clientCertificateThumbprints");
 

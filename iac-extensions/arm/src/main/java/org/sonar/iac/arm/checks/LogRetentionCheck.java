@@ -31,6 +31,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.skipReferencingResources;
 
 @Rule(key = "S6413")
 public class LogRetentionCheck extends AbstractArmResourceCheck {
@@ -58,19 +59,16 @@ public class LogRetentionCheck extends AbstractArmResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Network/firewallPolicies",
-      checkLogRetention("insights", "isEnabled", RETENTION_DAY_NAME));
+      skipReferencingResources(checkLogRetention("insights", "isEnabled", RETENTION_DAY_NAME)));
 
     register("Microsoft.Network/networkWatchers/flowLogs",
-      checkLogRetention("retentionPolicy", "enabled", "days"));
+      skipReferencingResources(checkLogRetention("retentionPolicy", "enabled", "days")));
 
     register(SIMPLE_LOG_RETENTION_RESOURCES, this::checkLogRetentionAsSimpleProperty);
   }
 
   private Consumer<ContextualResource> checkLogRetention(String propertyName, String enablingTypeName, String retentionDayTypeName) {
     return resource -> {
-      if (resource.isReferencingResource()) {
-        return;
-      }
       ContextualObject object = resource
         .object(propertyName);
       object.reportIfAbsent(String.format(PROPERTY_OR_TYPE_OMITTED_MESSAGE, propertyName));

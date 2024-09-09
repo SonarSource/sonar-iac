@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -33,6 +34,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.TextUtils;
 
@@ -60,6 +62,14 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
 
   public static ContextualResource fromAbsent(CheckContext ctx, String resourceType, ContextualMap<?, ?> parent) {
     return new ContextualResource(ctx, null, resourceType, parent);
+  }
+
+  @Override
+  public ContextualMap<ContextualResource, ResourceDeclaration> reportIfAbsent(String message, List<SecondaryLocation> secondaries) {
+    if (parent != null && parent instanceof ContextualResource contextualResource && !contextualResource.isReferencingResource()) {
+      super.reportIfAbsent(message, secondaries);
+    }
+    return this;
   }
 
   public boolean isReferencingResource() {
