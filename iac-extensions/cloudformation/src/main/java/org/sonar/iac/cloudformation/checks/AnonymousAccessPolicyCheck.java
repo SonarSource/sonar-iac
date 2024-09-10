@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.checks.utils.PolicyUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -30,10 +33,6 @@ import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Rule(key = "S6270")
 public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
@@ -48,8 +47,15 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
   }
 
   private static void checkInsecurePolicy(CheckContext ctx, Policy policy) {
-    PolicyValidator.findInsecureStatements(policy)
+    Optional.of(policy)
+      .filter(AnonymousAccessPolicyCheck::hasNoConditions)
+      .map(PolicyValidator::findInsecureStatements)
+      .orElse(List.of())
       .forEach(statement -> ctx.reportIssue(statement.principal, MESSAGE, new SecondaryLocation(statement.effect, SECONDARY_MESSAGE)));
+  }
+
+  private static boolean hasNoConditions(Policy policy) {
+    return policy.statement().stream().noneMatch(statement -> statement.condition().isPresent());
   }
 
   private record InsecureStatement(Tree principal, Tree effect) {
