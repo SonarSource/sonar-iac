@@ -39,7 +39,6 @@ import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
@@ -81,6 +80,10 @@ class ExternalReportWildcardProviderTest {
       Arguments.of("/ext-json-report/**", List.of("noArray.json", "parseError.json", "validIssue.json")),
       Arguments.of("**/ext-json-report/**", List.of("noArray.json", "parseError.json", "validIssue.json")),
       Arguments.of("**/rules/**", List.of("S1.html", "S1.json", "Sonar_way_profile.json")),
+      Arguments.of("**/rules/**/S?.json", List.of("S1.json")),
+      Arguments.of("org/sonar/l10n/test/rules/test/S?.json", List.of("S1.json")),
+      Arguments.of("ext-json-report/noArray.json", List.of("noArray.json")),
+      Arguments.of(Path.of("src/test/resources").toAbsolutePath() + "/ext-json-report/noArray.json", List.of("noArray.json")),
       Arguments.of("**/doesnt-exist/**", List.of()),
       Arguments.of("doesnt-exist.txt", List.of()),
       Arguments.of("none*", List.of()),
@@ -106,7 +109,7 @@ class ExternalReportWildcardProviderTest {
     context.settings().setProperty(EXTERNAL_REPORTS_PROPERTY, "foo*");
 
     try (var ignored = mockStatic(Files.class)) {
-      when(Files.find(any(Path.class), anyInt(), any())).thenThrow(new IOException("boom"));
+      when(Files.walk(any(Path.class))).thenThrow(new IOException("boom"));
 
       var reportFiles = ExternalReportWildcardProvider.getReportFiles(context, EXTERNAL_REPORTS_PROPERTY);
 
