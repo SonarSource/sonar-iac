@@ -35,13 +35,29 @@ class UnencryptedCloudServicesCheckTest {
   @Test
   void testVirtualMachinesJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachines.json", check,
-      issue(13, 29, 14, 15, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
-      issue(19, 18, 19, 26, "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
-      issue(25, 37, 26, 17),
-      issue(30, 20, 34, 11, "Omitting \"encryptionSettings\" enables clear-text storage. Make sure it is safe here."),
-      issue(45, 12, 45, 39, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(78, 10, 78, 35, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(87, 27, 88, 9, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
+      // dataDisks
+      issue(12, 12, 14, 13,
+        "Omitting \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
+      issue(15, 12, 17, 13),
+      issue(18, 12, 22, 13),
+      issue(23, 12, 29, 13),
+      issue(30, 12, 36, 13),
+      issue(37, 12, 45, 13),
+      issue(46, 12, 48, 13),
+      // osDisk
+      issue(122, 20, 122, 22,
+        "Omitting \"encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
+      issue(133, 12, 133, 39, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(144, 20, 146, 11),
+      issue(156, 20, 160, 11),
+      issue(170, 20, 176, 11),
+      issue(186, 20, 190, 11),
+      issue(200, 20, 206, 11),
+      issue(216, 20, 224, 11),
+      issue(235, 12, 235, 39),
+      // encryptionAtHost
+      issue(335, 10, 335, 35, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(344, 27, 344, 29, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test

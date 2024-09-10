@@ -43,12 +43,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Compute/virtualMachines",
-      resource -> Stream.of(
-        "storageProfile/dataDisks/*/managedDisk")
-        .map(resource::objectsByPath)
-        .flatMap(List::stream)
-        .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
+    register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineDataDisks);
 
     register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineOsDisk);
 
@@ -117,16 +112,44 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     register("Microsoft.Kusto/clusters", resource -> checkEncryptionObject(resource, "enableDiskEncryption"));
   }
 
+  private static void checkVirtualMachineDataDisks(ContextualResource resource) {
+    List<ContextualObject> dataDisks = resource.objectsByPath("storageProfile/dataDisks/*");
+    for (ContextualObject dataDisk : dataDisks) {
+      if (isDiskEncryptionSetIdSet(dataDisk))
+        continue;
+      dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    }
+  }
+
   private static void checkVirtualMachineOsDisk(ContextualResource resource) {
     ContextualObject osDisk = resource.object("storageProfile").object("osDisk");
-    if (osDisk.isAbsent()) return;
-    boolean isDiskEncryptionSetIdSet = Stream.of("managedDisk/diskEncryptionSet/id", "managedDisk/securityProfile/diskEncryptionSet/id")
-      .map(osDisk::objectsByPath)
+    if (osDisk.isAbsent())
+      return;
+    if (isDiskEncryptionSetIdSet(osDisk))
+      return;
+    ContextualProperty encryptionSettings = osDisk.property("encryptionSettings");
+    if (encryptionSettings.isPresent() && encryptionSettings.is(isFalse())) {
+      encryptionSettings.report(UNENCRYPTED_MESSAGE);
+      return;
+    }
+    if (encryptionSettings.isAbsent()) {
+      osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    }
+  }
+
+  private static boolean isDiskEncryptionSetIdSet(ContextualObject disk) {
+    return Stream.of("managedDisk/diskEncryptionSet", "managedDisk/securityProfile/diskEncryptionSet")
+      .map(disk::objectsByPath)
       .flatMap(List::stream)
-      .anyMatch(ContextualMap::isPresent);
-    if (isDiskEncryptionSetIdSet) return;
-    osDisk.property("encryptionSettings")
-      .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
+      .map(diskEncryptionSet -> diskEncryptionSet.property("id"))
+      .anyMatch(id -> id.isPresent() && id.is(isNotEmpty()));
+  }
+
+  private static void checkForDiskEncryptionSet(ContextualObject profile) {
+    profile.object("diskEncryptionSet")
+      .reportIfAbsent(FORMAT_OMITTING)
+      .property("id")
+      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
       .reportIfAbsent(FORMAT_OMITTING);
   }
 
@@ -153,14 +176,6 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       && secureVMDiskEncryptionSetId.isAbsent();
   }
 
-  private static void checkIfIsDisabledOrAbsent(ContextualProperty property) {
-    property.reportIf(isDisabled(), UNENCRYPTED_MESSAGE).reportIfAbsent(FORMAT_OMITTING);
-  }
-
-  private static Predicate<Expression> isDisabled() {
-    return isEqual("Disabled");
-  }
-
   private static Consumer<ContextualResource> checkEncryptionFromPath(String objectsPath, String encryptionProperty) {
     return resource -> resource.objectsByPath(objectsPath)
       .forEach(obj -> checkEncryptionObject(obj, encryptionProperty));
@@ -172,15 +187,19 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       .reportIfAbsent(FORMAT_OMITTING);
   }
 
-  private static void checkForDiskEncryptionSet(ContextualObject profile) {
-    profile.object("diskEncryptionSet")
-      .reportIfAbsent(FORMAT_OMITTING)
-      .property("id")
-      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
-      .reportIfAbsent(FORMAT_OMITTING);
+  private static void checkIfIsDisabledOrAbsent(ContextualProperty property) {
+    property.reportIf(isDisabled(), UNENCRYPTED_MESSAGE).reportIfAbsent(FORMAT_OMITTING);
+  }
+
+  private static Predicate<Expression> isDisabled() {
+    return isEqual("Disabled");
   }
 
   private static Predicate<Expression> isEmpty() {
     return e -> TextUtils.matchesValue(e, ""::equals).isTrue();
+  }
+
+  private static Predicate<Expression> isNotEmpty() {
+    return isEmpty().negate();
   }
 }
