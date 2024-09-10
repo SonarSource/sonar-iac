@@ -79,7 +79,15 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
   @CheckForNull
   @Override
   protected HasTextRange toHighlight() {
-    return tree != null ? tree.type() : null;
+    if (tree != null) {
+      if (tree.symbolicName() != null) {
+        return tree.symbolicName();
+      } else {
+        return tree.type();
+      }
+    } else {
+      return null;
+    }
   }
 
   public ContextualResource childResourceBy(String type, Predicate<ResourceDeclaration> predicate) {

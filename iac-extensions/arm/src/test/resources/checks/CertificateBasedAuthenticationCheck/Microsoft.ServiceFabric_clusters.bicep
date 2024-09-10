@@ -10,7 +10,7 @@ resource compliant_existing 'Microsoft.ServiceFabric/clusters@2016-03-01' existi
 
 // Noncompliant@+1{{Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.}}
 resource noncompliant2 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
-//                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//       ^^^^^^^^^^^^^
   name: 'Sensitive: both properties are defined but empty'
   properties: {
     clientCertificateCommonNames: []
