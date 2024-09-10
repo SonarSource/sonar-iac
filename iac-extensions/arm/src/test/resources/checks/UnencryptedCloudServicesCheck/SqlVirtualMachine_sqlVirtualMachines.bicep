@@ -17,6 +17,10 @@ resource nonCompliant2 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-0
   }
 }
 
+resource compliant_existing 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-01-preview' existing = {
+  name: 'Compliant: existing'
+}
+
 resource nonCompliant3 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-01-preview' = {
   name: 'Noncompliant: enableEncryption is not set'
   properties: {

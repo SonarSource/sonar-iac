@@ -8,6 +8,10 @@ resource nonCompliant1 'Microsoft.Compute/disks@2022-07-02' = {
   }
 }
 
+resource compliant_existing 'Microsoft.Compute/disks@2022-07-02' existing = {
+  name: 'Compliant: existing'
+}
+
 resource nonCompliant2 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Sensitive: diskEncryptionSetId, and secureVMDiskEncryptionSetId are not set, encryptionSettingsCollection is false'
   properties: {

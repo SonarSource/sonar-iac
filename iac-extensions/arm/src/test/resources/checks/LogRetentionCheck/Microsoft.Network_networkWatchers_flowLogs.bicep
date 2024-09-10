@@ -19,6 +19,10 @@ resource flowLogs2 'Microsoft.Network/networkWatchers/flowLogs@2022-07-01' = {
   }
 }
 
+resource compliant_existing 'Microsoft.Network/networkWatchers/flowLogs@2022-07-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource flowLogs3 'Microsoft.Network/networkWatchers/flowLogs@2022-07-01' = {
   name: 'Noncompliant: Raise Issue as enabled is missing'
   properties: {

@@ -19,6 +19,10 @@ resource firewallPolicy2 'Microsoft.Network/firewallPolicies@2023-02-01' = {
   }
 }
 
+resource compliant_existing 'Microsoft.Network/firewallPolicies@2023-02-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource firewallPolicy3 'Microsoft.Network/firewallPolicies@2023-02-01' = {
   name: 'Noncompliant: Raise Issue as isEnabled is missing'
   properties: {

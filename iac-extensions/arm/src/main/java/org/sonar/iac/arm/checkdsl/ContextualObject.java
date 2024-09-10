@@ -19,14 +19,17 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
+import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checkdsl.ContextualTree;
 
 import javax.annotation.Nullable;
 import java.util.stream.Stream;
+import org.sonar.iac.common.checks.Trilean;
 
 public class ContextualObject extends ContextualMap<ContextualObject, ObjectExpression> {
   protected ContextualObject(CheckContext ctx, @Nullable ObjectExpression tree, @Nullable String name, ContextualTree<?, ?> parent) {
@@ -52,5 +55,24 @@ public class ContextualObject extends ContextualMap<ContextualObject, ObjectExpr
           return Stream.of(ContextualProperty.fromPresent(ctx, p, this));
         }
       });
+  }
+
+  @Override
+  public ContextualMap<ContextualObject, ObjectExpression> reportIfAbsent(String message, List<SecondaryLocation> secondaries) {
+    if (isResourceReferencing().isTrue()) {
+      return this;
+    }
+    return super.reportIfAbsent(message, secondaries);
+  }
+
+  private Trilean isResourceReferencing() {
+    ContextualTree<?, ?> parentTree = this.parent;
+    while (parentTree != null) {
+      if (parentTree instanceof ContextualResource resource) {
+        return Trilean.fromBoolean(resource.isReferencingResource());
+      }
+      parentTree = parentTree.parent;
+    }
+    return Trilean.UNKNOWN;
   }
 }

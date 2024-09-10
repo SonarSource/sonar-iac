@@ -42,6 +42,14 @@
       "type": "securestring",
       "defaultValue": "[parameters('normalString')]"
     },
+    "nonCompliant9": {
+      "type": "securestring",
+      "defaultValue": "[unknownFunction('string')]"
+    },
+    "nonCompliant10": {
+      "type": "securestring",
+      "defaultValue": "[other(1, 2, 3, 'string')]"
+    },
     "compliant1": {
       "type": "securestring"
     },
@@ -95,6 +103,14 @@
     "compliant11": {
       "type": "securestring",
       "defaultValue": "[parameters(concat('secure', 'String'))]"
+    },
+    "compliant12": {
+      "type": "securestring",
+      "defaultValue": "[uniqueString(newGuid())]"
+    },
+    "compliant13": {
+      "type": "securestring",
+      "defaultValue": "[uniqueString(89, null)]"
     }
   }
 }

@@ -22,6 +22,10 @@ resource nonCompliant3 'Microsoft.DataLakeStore/accounts@2022-07-01' = {
   properties: {}
 }
 
+resource compliant_existing 'Microsoft.DataLakeStore/accounts@2022-07-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource nonCompliant4 'Microsoft.DBforMySQL/servers@2022-07-01' = {
   name: 'Noncompliant'
   properties: {

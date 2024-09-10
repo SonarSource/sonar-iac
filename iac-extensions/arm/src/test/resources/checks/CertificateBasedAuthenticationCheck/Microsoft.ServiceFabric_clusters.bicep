@@ -4,6 +4,10 @@ resource noncompliant1 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
   properties: {}
 }
 
+resource compliant_existing 'Microsoft.ServiceFabric/clusters@2016-03-01' existing = {
+  name: 'Compliant: existing'
+}
+
 // Noncompliant@+1{{Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.}}
 resource noncompliant2 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
 //                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

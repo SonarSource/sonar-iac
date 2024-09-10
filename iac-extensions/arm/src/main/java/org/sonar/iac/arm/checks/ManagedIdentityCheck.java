@@ -21,13 +21,11 @@ package org.sonar.iac.arm.checks;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -218,19 +216,13 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register(RESOURCE_NAMES, checkManagedIdentity());
+    register(RESOURCE_NAMES, ManagedIdentityCheck::checkManagedIdentity);
   }
 
-  private static BiConsumer<CheckContext, ResourceDeclaration> checkManagedIdentity() {
-    return (ctx, resource) -> {
-      Optional<Property> identityProperty = resource.getResourceProperty("identity");
-      if (identityProperty.isEmpty()) {
-        HasTextRange nameToHighlight = resource.symbolicName() != null ? resource.symbolicName() : resource.name();
-        ctx.reportIssue(nameToHighlight, OMITTING_IDENTITY_MESSAGE);
-      } else {
-        checkIdentityBlock(ctx, identityProperty.get());
-      }
-    };
+  private static void checkManagedIdentity(ContextualResource resource) {
+    resource.resourceProperty("identity")
+      .reportIfAbsent(OMITTING_IDENTITY_MESSAGE)
+      .ifPresent(property -> checkIdentityBlock(resource.ctx, property));
   }
 
   private static void checkIdentityBlock(CheckContext ctx, Property identityProperty) {

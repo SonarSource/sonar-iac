@@ -35,6 +35,10 @@ resource Sensitive_certificates_property_is_missing 'Microsoft.ContainerRegistry
   }
 }
 
+resource Compliant_existing 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
+  name: 'Compliant existing'
+}
+
 resource Sensitive_both_certificates_and_password_property_are_missing 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
   name: 'Sensitive: both certificates and password property are missing'
   properties: {

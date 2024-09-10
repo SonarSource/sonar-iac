@@ -11,6 +11,10 @@ resource type2 '${type}@dummy' = {
   }
 }
 
+resource compliant_existing '${type}@dummy' existing = {
+  name: 'Compliant: existing'
+}
+
 resource type3 '${type}@dummy' = {
   name: 'Compliant: retentionDays is zero (no limit)'
   properties: {

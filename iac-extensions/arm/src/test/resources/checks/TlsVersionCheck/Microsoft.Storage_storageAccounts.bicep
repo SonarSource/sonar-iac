@@ -13,6 +13,10 @@ resource nonCompliant2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'Raise an issue: TLS version is absent'
 }
 
+resource compliant_existing 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource compliant 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'Compliant'
   properties: {

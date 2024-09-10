@@ -42,6 +42,10 @@ resource nonCompliant1 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = 
   }
 }
 
+resource compliant_existing 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' existing = {
+  name: 'Compliant: existing'
+}
+
 resource compliant 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
   name: 'Compliant'
   properties: {

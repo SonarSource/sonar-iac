@@ -1,3 +1,7 @@
+resource compliantExisting 'Microsoft.Compute/virtualMachines@2022-07-01' existing = {
+  name: 'Compliant: existing'
+}
+
 // dataDisks ---
 
 resource nonCompliantDataDisks 'Microsoft.Compute/virtualMachines@2022-07-01' = {

@@ -17,6 +17,15 @@ resource nonCompliant2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
 }
 
+resource nonCompliant3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: 'Global' // Noncompliant
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
 param location string = resourceGroup().location
 
 resource compliant1 'Microsoft.Storage/storageAccounts@2022-09-01' = {
@@ -31,6 +40,15 @@ resource compliant1 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 resource compliant2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: unresolved
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+resource compliant3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: 'global'
   sku: {
     name: 'Standard_LRS'
   }

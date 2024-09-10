@@ -20,9 +20,6 @@
 package org.sonar.iac.common.reports;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.WildcardPattern;
+import org.sonarsource.analyzer.commons.FileProvider;
 
 /**
  * It is alternative implementation of {@link org.sonarsource.analyzer.commons.ExternalReportProvider} but it accepts wildcards in filenames.
@@ -60,26 +57,36 @@ public final class ExternalReportWildcardProvider {
 
     List<File> result = new ArrayList<>();
     for (String reportPath : reportPaths) {
-      var reports = getIOFiles(context.fileSystem().baseDir(), reportPath);
-      result.addAll(reports);
+      try {
+        var reports = getIOFiles(context.fileSystem().baseDir(), reportPath);
+        result.addAll(reports);
+      } catch (IllegalStateException e) {
+        LOG.debug("Exception when searching for report files to import.", e);
+      }
     }
 
     return result;
   }
 
+  private static boolean isWildcard(String path) {
+    return path.contains("*") || path.contains("?");
+  }
+
   private static List<File> getIOFiles(File baseDir, String reportPath) {
-    var pattern = WildcardPattern.create(reportPath, File.separatorChar + "");
-    try {
-      var baseDirPath = baseDir.toPath();
-      try (var stream = Files.find(baseDirPath,
-        Integer.MAX_VALUE,
-        (filePath, fileAttr) -> fileAttr.isRegularFile() && pattern.match(baseDirPath.relativize(filePath).toFile().getPath()))) {
-        return stream.map(Path::toFile)
-          .toList();
-      }
-    } catch (IOException e) {
-      LOG.debug("Exception when searching for report files to import.", e);
-      return Collections.emptyList();
+    if (!isWildcard(reportPath)) {
+      return List.of(getSpecificFile(baseDir, reportPath));
+    } else {
+      var fileProvider = new FileProvider(baseDir, reportPath);
+      return fileProvider.getMatchingFiles();
     }
+  }
+
+  private static File getSpecificFile(File baseDir, String path) {
+    var file = new File(path);
+    if (!file.isAbsolute()) {
+      file = new File(baseDir, path);
+    }
+
+    return file;
   }
 }

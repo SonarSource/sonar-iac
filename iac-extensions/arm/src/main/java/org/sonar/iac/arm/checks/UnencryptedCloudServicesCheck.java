@@ -34,6 +34,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.skipReferencingResources;
 
 @Rule(key = "S6388")
 public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
@@ -99,7 +100,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
       .reportIfAbsent(FORMAT_OMITTING));
 
-    register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
+    register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), skipReferencingResources(UnencryptedCloudServicesCheck::checkComputeComponent));
 
     register("Microsoft.Compute/virtualMachineScaleSets", checkEncryptionFromPath("virtualMachineProfile/securityProfile", "encryptionAtHost"));
     register("Microsoft.Compute/virtualMachines", checkEncryptionFromPath("securityProfile", "encryptionAtHost"));
@@ -151,20 +152,18 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       .reportIfAbsent(FORMAT_OMITTING);
   }
 
-  private static Consumer<ContextualResource> checkComputeComponent() {
-    return resource -> {
-      ContextualProperty diskEncryptionSetId = resource.object("encryption").property("diskEncryptionSetId");
-      ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
-      ContextualProperty secureVMDiskEncryptionSetId = resource.object("securityProfile").property("secureVMDiskEncryptionSetId");
+  private static void checkComputeComponent(ContextualResource resource) {
+    ContextualProperty diskEncryptionSetId = resource.object("encryption").property("diskEncryptionSetId");
+    ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
+    ContextualProperty secureVMDiskEncryptionSetId = resource.object("securityProfile").property("secureVMDiskEncryptionSetId");
 
-      if (isUnencryptedComputeComponent(diskEncryptionSetId, encryptionSettingsCollectionEnabled, secureVMDiskEncryptionSetId)) {
-        if (encryptionSettingsCollectionEnabled.isPresent() && encryptionSettingsCollectionEnabled.is(isFalse())) {
-          encryptionSettingsCollectionEnabled.report(UNENCRYPTED_MESSAGE);
-        } else {
-          resource.report(String.format(FORMAT_OMITTING, "encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" or \"securityProfile.secureVMDiskEncryptionSetId"));
-        }
+    if (isUnencryptedComputeComponent(diskEncryptionSetId, encryptionSettingsCollectionEnabled, secureVMDiskEncryptionSetId)) {
+      if (encryptionSettingsCollectionEnabled.isPresent() && encryptionSettingsCollectionEnabled.is(isFalse())) {
+        encryptionSettingsCollectionEnabled.report(UNENCRYPTED_MESSAGE);
+      } else {
+        resource.report(String.format(FORMAT_OMITTING, "encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" or \"securityProfile.secureVMDiskEncryptionSetId"));
       }
-    };
+    }
   }
 
   private static boolean isUnencryptedComputeComponent(ContextualProperty diskEncryptionSetId, ContextualProperty encryptionSettingsCollectionEnabled,
