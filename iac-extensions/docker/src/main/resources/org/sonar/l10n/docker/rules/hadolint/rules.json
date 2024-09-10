@@ -3,6 +3,12 @@
     "key": "DL1001",
     "severity": "INFO",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Please refrain from using inline ignore pragmas `# hadolint ignore=DLxxxx`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL1001"
   },
@@ -10,6 +16,12 @@
     "key": "DL3000",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Use absolute WORKDIR.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3000"
   },
@@ -17,13 +29,25 @@
     "key": "DL3001",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "For some bash commands it makes no sense running them in a Docker container like ssh, vim, shutdown, service, ps, free, top, kill, mount, ifconfig.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3001"
   },
   {
     "key": "DL3002",
     "severity": "MAJOR",
-    "type": "CODE_SMELL",
+    "type": "SECURITY_HOTSPOT",
+    "code": {
+      "attribute": "TRUSTWORTHY",
+      "impacts": {
+        "SECURITY": "MEDIUM"
+      }
+    },
     "name": "Last user should not be root.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3002"
   },
@@ -31,6 +55,12 @@
     "key": "DL3003",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Use WORKDIR to switch to a directory.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3003"
   },
@@ -38,6 +68,12 @@
     "key": "DL3004",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Do not use sudo as it leads to unpredictable behavior. Use a tool like gosu to enforce root.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3004"
   },
@@ -45,6 +81,12 @@
     "key": "DL3005",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Do not use apt-get dist-upgrade.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3005"
   },
@@ -52,6 +94,12 @@
     "key": "DL3006",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Always tag the version of an image explicitly.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3006"
   },
@@ -59,6 +107,12 @@
     "key": "DL3007",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3007"
   },
@@ -66,6 +120,12 @@
     "key": "DL3008",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Pin versions in `apt-get install`.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3008"
   },
@@ -73,6 +133,12 @@
     "key": "DL3009",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Delete the apt-get lists after installing something.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3009"
   },
@@ -80,6 +146,12 @@
     "key": "DL3010",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Use ADD for extracting archives into an image.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3010"
   },
@@ -87,6 +159,12 @@
     "key": "DL3011",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Valid UNIX ports range from 0 to 65535.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3011"
   },
@@ -94,6 +172,12 @@
     "key": "DL3012",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Multiple `HEALTHCHECK` instructions.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3012"
   },
@@ -101,6 +185,12 @@
     "key": "DL3013",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Pin versions in pip.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3013"
   },
@@ -108,6 +198,12 @@
     "key": "DL3014",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Use the `-y` switch.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3014"
   },
@@ -115,6 +211,12 @@
     "key": "DL3015",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Avoid additional packages by specifying `--no-install-recommends`.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3015"
   },
@@ -122,6 +224,12 @@
     "key": "DL3016",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Pin versions in `npm`.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3016"
   },
@@ -129,6 +237,12 @@
     "key": "DL3018",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Pin versions in `apk add`. Instead of `apk add <package>` use `apk add <package>=<version>`.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3018"
   },
@@ -136,6 +250,12 @@
     "key": "DL3019",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Use the `--no-cache` switch to avoid the need to use `--update` and remove `/var/cache/apk/*` when done installing packages.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3019"
   },
@@ -143,6 +263,12 @@
     "key": "DL3020",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Use `COPY` instead of `ADD` for files and folders.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3020"
   },
@@ -150,6 +276,12 @@
     "key": "DL3021",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "`COPY` with more than 2 arguments requires the last argument to end with `/`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3021"
   },
@@ -157,6 +289,12 @@
     "key": "DL3022",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "`COPY --from` should reference a previously defined `FROM` alias",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3022"
   },
@@ -164,6 +302,12 @@
     "key": "DL3023",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "`COPY --from` cannot reference its own `FROM` alias",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3023"
   },
@@ -171,6 +315,12 @@
     "key": "DL3024",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "`FROM` aliases (stage names) must be unique",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3024"
   },
@@ -178,6 +328,12 @@
     "key": "DL3025",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Use arguments JSON notation for CMD and ENTRYPOINT arguments",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3025"
   },
@@ -185,6 +341,12 @@
     "key": "DL3026",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Use only an allowed registry in the `FROM image`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3026"
   },
@@ -192,6 +354,12 @@
     "key": "DL3027",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Do not use `apt` as it is meant to be an end-user tool, use `apt-get` or `apt-cache` instead",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3027"
   },
@@ -199,6 +367,12 @@
     "key": "DL3028",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Pin versions in gem install. Instead of `gem install <gem>` use `gem install <gem>:<version>`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3028"
   },
@@ -206,6 +380,12 @@
     "key": "DL3029",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Do not use --platform flag with FROM.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3029"
   },
@@ -213,6 +393,12 @@
     "key": "DL3030",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Use the `-y` switch to avoid manual input `yum install -y <package>`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3030"
   },
@@ -220,6 +406,12 @@
     "key": "DL3032",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "`yum clean all` missing after yum command.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3032"
   },
@@ -227,6 +419,12 @@
     "key": "DL3033",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Specify version with `yum install -y <package>-<version>`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3033"
   },
@@ -234,6 +432,12 @@
     "key": "DL3034",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Non-interactive switch missing from `zypper` command: `zypper install -y`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3034"
   },
@@ -241,6 +445,12 @@
     "key": "DL3035",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Do not use `zypper dist-upgrade`.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3035"
   },
@@ -248,6 +458,12 @@
     "key": "DL3036",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "`zypper clean` missing after zypper use.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3036"
   },
@@ -255,6 +471,12 @@
     "key": "DL3037",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Specify version with `zypper install -y <package>[=]<version>`.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3037"
   },
@@ -262,6 +484,12 @@
     "key": "DL3038",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Use the `-y` switch to avoid manual input `dnf install -y <package>`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3038"
   },
@@ -269,6 +497,12 @@
     "key": "DL3040",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "`dnf clean all` missing after dnf command.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3040"
   },
@@ -276,6 +510,12 @@
     "key": "DL3041",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Specify version with `dnf install -y <package>-<version>`",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3041"
   },
@@ -283,6 +523,12 @@
     "key": "DL3042",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Avoid cache directory with `pip install --no-cache-dir <package>`.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3042"
   },
@@ -290,6 +536,12 @@
     "key": "DL3043",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "`ONBUILD`, `FROM` or `MAINTAINER` triggered from within `ONBUILD` instruction.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3043"
   },
@@ -297,6 +549,12 @@
     "key": "DL3044",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Do not refer to an environment variable within the same `ENV` statement where it is defined.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3044"
   },
@@ -304,6 +562,12 @@
     "key": "DL3045",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "`COPY` to a relative destination without `WORKDIR` set.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3045"
   },
@@ -311,6 +575,12 @@
     "key": "DL3046",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "`useradd` without flag `-l` and high UID will result in excessively large Image.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3046"
   },
@@ -318,6 +588,12 @@
     "key": "DL3047",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "`wget` without flag `--progress` will result in excessively bloated build logs when downloading larger files.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3047"
   },
@@ -325,6 +601,12 @@
     "key": "DL3048",
     "severity": "INFO",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Invalid Label Key",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3048"
   },
@@ -332,6 +614,12 @@
     "key": "DL3049",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Label `<label>` is missing.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3049"
   },
@@ -339,6 +627,12 @@
     "key": "DL3050",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Superfluous label(s) present.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3050"
   },
@@ -346,6 +640,12 @@
     "key": "DL3051",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Label `<label>` is empty.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3051"
   },
@@ -353,6 +653,12 @@
     "key": "DL3052",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Label `<label>` is not a valid URL.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3052"
   },
@@ -360,6 +666,12 @@
     "key": "DL3053",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Label `<label>` is not a valid time format - must conform to RFC3339.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3053"
   },
@@ -367,6 +679,12 @@
     "key": "DL3054",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Label `<label>` is not a valid SPDX license identifier.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3054"
   },
@@ -374,6 +692,12 @@
     "key": "DL3055",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Label `<label>` is not a valid git hash.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3055"
   },
@@ -381,6 +705,12 @@
     "key": "DL3056",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Label `<label>` does not conform to semantic versioning.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3056"
   },
@@ -388,6 +718,12 @@
     "key": "DL3057",
     "severity": "INFO",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "`HEALTHCHECK` instruction missing.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3057"
   },
@@ -395,6 +731,12 @@
     "key": "DL3058",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Label `<label>` is not a valid email format - must conform to RFC5322.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3058"
   },
@@ -402,6 +744,12 @@
     "key": "DL3059",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Multiple consecutive `RUN` instructions. Consider consolidation.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3059"
   },
@@ -409,6 +757,12 @@
     "key": "DL3060",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "`yarn cache clean` missing after `yarn install` was run.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3060"
   },
@@ -416,6 +770,12 @@
     "key": "DL3061",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Invalid instruction order. Dockerfile must begin with `FROM`, `ARG` or comment.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL3061"
   },
@@ -423,6 +783,12 @@
     "key": "DL4000",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "`MAINTAINER` is deprecated.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL4000"
   },
@@ -430,6 +796,12 @@
     "key": "DL4001",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Either use Wget or Curl but not both.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL4001"
   },
@@ -437,6 +809,12 @@
     "key": "DL4003",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Multiple `CMD` instructions found.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL4003"
   },
@@ -444,6 +822,12 @@
     "key": "DL4004",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Multiple `ENTRYPOINT` instructions found.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL4004"
   },
@@ -451,6 +835,12 @@
     "key": "DL4005",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Use `SHELL` to change the default shell.",
     "url": "https://github.com/hadolint/hadolint/wiki/DL4005"
   },
@@ -458,6 +848,12 @@
     "key": "DL4006",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Set the `SHELL` option -o pipefail before `RUN` with a pipe in it",
     "url": "https://github.com/hadolint/hadolint/wiki/DL4006"
   },
@@ -465,6 +861,12 @@
     "key": "SC1000",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "`$` is not used specially and should therefore be escaped.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1000"
   },
@@ -472,6 +874,12 @@
     "key": "SC1001",
     "severity": "INFO",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "This `\\c` will be a regular `'c'` in this context.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1001"
   },
@@ -479,6 +887,12 @@
     "key": "SC1007",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Remove space after `=` if trying to assign a value (or for empty string, use `var='' ...`).",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1007"
   },
@@ -486,6 +900,12 @@
     "key": "SC1010",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Use semicolon or linefeed before `done` (or quote to make it literal).",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1010"
   },
@@ -493,6 +913,12 @@
     "key": "SC1018",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "This is a unicode non-breaking space. Delete it and retype as space.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1018"
   },
@@ -500,6 +926,12 @@
     "key": "SC1035",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "You need a space here",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1035"
   },
@@ -507,6 +939,12 @@
     "key": "SC1045",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "It's not `foo &; bar`, just `foo & bar`.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1045"
   },
@@ -514,6 +952,12 @@
     "key": "SC1065",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Trying to declare parameters? Don't. Use `()` and refer to params as `$1`, `$2` etc.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1065"
   },
@@ -521,6 +965,12 @@
     "key": "SC1066",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Don't use $ on the left side of assignments.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1066"
   },
@@ -528,6 +978,12 @@
     "key": "SC1068",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Don't put spaces around the `=` in assignments.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1068"
   },
@@ -535,6 +991,12 @@
     "key": "SC1077",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "For command expansion, the tick should slant left (` vs ´).",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1077"
   },
@@ -542,6 +1004,12 @@
     "key": "SC1078",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Did you forget to close this double-quoted string?",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1078"
   },
@@ -549,6 +1017,12 @@
     "key": "SC1079",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "This is actually an end quote, but due to next char, it looks suspect.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1079"
   },
@@ -556,6 +1030,12 @@
     "key": "SC1081",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Scripts are case sensitive. Use `if`, not `If`.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1081"
   },
@@ -563,6 +1043,12 @@
     "key": "SC1083",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "This `{/}` is literal. Check expression (missing `;/\\n`?) or quote it.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1083"
   },
@@ -570,6 +1056,12 @@
     "key": "SC1086",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Don't use `$` on the iterator name in for loops.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1086"
   },
@@ -577,6 +1069,12 @@
     "key": "SC1087",
     "severity": "CRITICAL",
     "type": "BUG",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "HIGH"
+      }
+    },
     "name": "Braces are required when expanding arrays, as in `${array[idx]}`.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1087"
   },
@@ -584,6 +1082,12 @@
     "key": "SC1095",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "You need a space or linefeed between the function name and body.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1095"
   },
@@ -591,6 +1095,12 @@
     "key": "SC1097",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Unexpected `==`. For assignment, use `=`. For comparison, use `[ .. ]` or `[[ .. ]]`.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1097"
   },
@@ -598,6 +1108,12 @@
     "key": "SC1098",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Quote/escape special characters when using `eval`, e.g. `eval \"a=(b)\"`.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1098"
   },
@@ -605,6 +1121,12 @@
     "key": "SC1099",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "You need a space before the `#`.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC1099"
   },
@@ -612,6 +1134,12 @@
     "key": "SC2002",
     "severity": "INFO",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Useless cat. Consider `cmd < file | ..` or `cmd file | ..` instead.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2002"
   },
@@ -619,6 +1147,12 @@
     "key": "SC2015",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Note that `A && B || C` is not if-then-else. C may run when A is true.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2015"
   },
@@ -626,6 +1160,12 @@
     "key": "SC2026",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "This word is outside of quotes. Did you intend to 'nest '\"'single quotes\"'\"' instead'?",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2026"
   },
@@ -633,6 +1173,12 @@
     "key": "SC2028",
     "severity": "MINOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "`echo` won't expand escape sequences. Consider `printf`.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2028"
   },
@@ -640,6 +1186,12 @@
     "key": "SC2035",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Use `./*glob*` or `-- *glob*` so names with dashes won't become options.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2035"
   },
@@ -647,6 +1199,12 @@
     "key": "SC2039",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "In POSIX sh, something is undefined.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2039"
   },
@@ -654,6 +1212,12 @@
     "key": "SC2046",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Quote this to prevent word splitting",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2046"
   },
@@ -661,6 +1225,12 @@
     "key": "SC2086",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Double quote to prevent globbing and word splitting.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2086"
   },
@@ -668,6 +1238,12 @@
     "key": "SC2140",
     "severity": "INFO",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Word is in the form \"A\"B\"C\" (B indicated). Did you mean \"ABC\" or \"A\\\"B\\\"C\"?",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2140"
   },
@@ -675,6 +1251,12 @@
     "key": "SC2154",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "var is referenced but not assigned.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2154"
   },
@@ -682,6 +1264,12 @@
     "key": "SC2155",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    },
     "name": "Declare and assign separately to avoid masking return values.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2155"
   },
@@ -689,6 +1277,12 @@
     "key": "SC2164",
     "severity": "INFO",
     "type": "CODE_SMELL",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
+      }
+    },
     "name": "Use <code>cd ... &#124;&#124; exit</code> in case `cd` fails.",
     "url": "https://github.com/koalaman/shellcheck/wiki/SC2164"
   }
