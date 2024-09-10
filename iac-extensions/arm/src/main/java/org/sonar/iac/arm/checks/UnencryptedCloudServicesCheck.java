@@ -115,24 +115,22 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
   private static void checkVirtualMachineDataDisks(ContextualResource resource) {
     List<ContextualObject> dataDisks = resource.objectsByPath("storageProfile/dataDisks/*");
     for (ContextualObject dataDisk : dataDisks) {
-      if (isDiskEncryptionSetIdSet(dataDisk))
+      if (isDiskEncryptionSetIdSet(dataDisk)) {
         continue;
+      }
       dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
     }
   }
 
   private static void checkVirtualMachineOsDisk(ContextualResource resource) {
     ContextualObject osDisk = resource.object("storageProfile").object("osDisk");
-    if (osDisk.isAbsent())
+    if (osDisk.isAbsent() || isDiskEncryptionSetIdSet(osDisk)) {
       return;
-    if (isDiskEncryptionSetIdSet(osDisk))
-      return;
+    }
     ContextualProperty encryptionSettings = osDisk.property("encryptionSettings");
     if (encryptionSettings.isPresent() && encryptionSettings.is(isFalse())) {
       encryptionSettings.report(UNENCRYPTED_MESSAGE);
-      return;
-    }
-    if (encryptionSettings.isAbsent()) {
+    } else if (encryptionSettings.isAbsent()) {
       osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
     }
   }
