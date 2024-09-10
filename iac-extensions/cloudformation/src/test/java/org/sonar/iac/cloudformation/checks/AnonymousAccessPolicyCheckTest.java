@@ -28,12 +28,12 @@ import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 class AnonymousAccessPolicyCheckTest {
 
   @Test
-  void test_yaml() {
+  void shouldRaiseIssuesInYaml() {
     CloudformationVerifier.verify("AnonymousAccessPolicyCheck/test.yaml", new AnonymousAccessPolicyCheck());
   }
 
   @Test
-  void test_json() {
+  void shouldRaiseIssuesInJson() {
     String message = "Make sure granting public access is safe here.";
     String secondaryMessage = "Related effect.";
     CloudformationVerifier.verify("AnonymousAccessPolicyCheck/test.json", new AnonymousAccessPolicyCheck(),

@@ -124,6 +124,32 @@
           ]
         }
       }
+    },
+    "SafePolicyWithConditionsPolicy": {
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties": {
+          "PolicyDocument": {
+            "Statement": [
+              {
+                "Effect" : "Allow",
+                "Principal": ["*"],
+                "Action" : [
+                  "kms:Decrypt",
+                  "kms:GenerateDataKey"
+                ],
+                "Resource" : "*",
+                "Condition" : {
+                  "StringLike" : {
+                    "aws:PrincipalArn" : [
+                      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_ssss_*",
+                      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/tf-iam-role-k8s-*"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
     }
   }
 }
