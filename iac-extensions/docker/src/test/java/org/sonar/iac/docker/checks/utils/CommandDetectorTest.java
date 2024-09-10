@@ -222,6 +222,9 @@ class CommandDetectorTest {
       Arguments.of("MY_VAR=true other_command && command opt1 opt2", noGlobalEnvVariables, false),
       // Other cases
       Arguments.of("MY_VAR= command opt1 opt2", noGlobalEnvVariables, false),
+      Arguments.of("= command opt1 opt2", noGlobalEnvVariables, false),
+      Arguments.of("=true command opt1 opt2", noGlobalEnvVariables, false),
+      Arguments.of("=== command opt1 opt2", noGlobalEnvVariables, false),
       Arguments.of("MY_VAR_1=true MY_VAR=true command opt1 opt2", noGlobalEnvVariables, true),
       Arguments.of("other MY_VAR=true command opt1 opt2", noGlobalEnvVariables, false),
       Arguments.of("MY_VAR=true=true command opt1 opt2", noGlobalEnvVariables, false),

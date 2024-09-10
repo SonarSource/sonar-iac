@@ -31,7 +31,7 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 
 public abstract class AbstractEnvVariableMonitorCheck implements IacCheck {
-  private final Map<String, String> envVariables = new HashMap<>();
+  private final Map<String, String> globalEnvironmentVariables = new HashMap<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -41,7 +41,7 @@ public abstract class AbstractEnvVariableMonitorCheck implements IacCheck {
   }
 
   private void cleanEnvVariables(CheckContext checkContext, FromInstruction fromInstruction) {
-    envVariables.clear();
+    globalEnvironmentVariables.clear();
   }
 
   private void updateEnvVariable(CheckContext checkContext, EnvInstruction envInstruction) {
@@ -49,13 +49,13 @@ public abstract class AbstractEnvVariableMonitorCheck implements IacCheck {
       var variableName = ArgumentResolution.of(keyValuePair.key());
       if (variableName.isResolved()) {
         var value = ArgumentResolution.of(keyValuePair.value());
-        envVariables.put(variableName.value(), value.value());
+        globalEnvironmentVariables.put(variableName.value(), value.value());
       }
     });
   }
 
-  protected Map<String, String> getEnvVariables() {
-    return Collections.unmodifiableMap(envVariables);
+  protected Map<String, String> getGlobalEnvironmentVariables() {
+    return Collections.unmodifiableMap(globalEnvironmentVariables);
   }
 
   public abstract void init(InitContext init);

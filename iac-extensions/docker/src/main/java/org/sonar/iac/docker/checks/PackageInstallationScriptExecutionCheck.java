@@ -67,7 +67,7 @@ public class PackageInstallationScriptExecutionCheck extends AbstractEnvVariable
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
     List<CommandDetector.Command> sensitiveCommands = new ArrayList<>(NPM_PACKAGE_INSTALLATION.search(resolvedArgument));
-    YARN_PACKAGE_INSTALL.setGlobalEnvironmentVariables(getEnvVariables());
+    YARN_PACKAGE_INSTALL.setGlobalEnvironmentVariables(getGlobalEnvironmentVariables());
     sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.search(resolvedArgument));
     sensitiveCommands.addAll(YARN_PACKAGE_DEFAULT.search(resolvedArgument).stream()
       // matched starting with the start of the input

@@ -112,7 +112,7 @@ class AbstractEnvVariableMonitorCheckTest {
     }
 
     private void onRunInstruction(CheckContext checkContext, RunInstruction runInstruction) {
-      envVariableChecker.checkVariables(getEnvVariables());
+      envVariableChecker.checkVariables(getGlobalEnvironmentVariables());
     }
   }
 

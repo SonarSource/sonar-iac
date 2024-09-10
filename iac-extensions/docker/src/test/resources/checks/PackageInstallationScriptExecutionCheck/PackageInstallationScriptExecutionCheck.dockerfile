@@ -86,3 +86,17 @@ FROM scratch
 ENV YARN_ENABLE_SCRIPTS=true
 # Noncompliant@+1
 RUN yarn install
+
+FROM scratch
+RUN YARN_ENABLE_SCRIPTS=true
+RUN YARN_ENABLE_SCRIPTS=false yarn install
+
+FROM scratch
+RUN YARN_ENABLE_SCRIPTS=false
+# Noncompliant@+1
+RUN YARN_ENABLE_SCRIPTS=true yarn install
+
+FROM scratch
+RUN YARN_ENABLE_SCRIPTS=false
+# Noncompliant@+1
+RUN yarn install
