@@ -57,4 +57,9 @@ public class SyntaxTokenImpl extends AbstractArmTreeImpl implements SyntaxToken 
   public Kind getKind() {
     throw new UnsupportedOperationException("No kind for SyntaxToken");
   }
+
+  @Override
+  public String toString() {
+    return value;
+  }
 }
