@@ -60,11 +60,19 @@ public final class ExternalReportWildcardProvider {
 
     List<File> result = new ArrayList<>();
     for (String reportPath : reportPaths) {
-      var reports = getIOFiles(context.fileSystem().baseDir(), reportPath);
-      result.addAll(reports);
+      if (isWildcard(reportPath)) {
+        var reports = getIOFiles(context.fileSystem().baseDir(), reportPath);
+        result.addAll(reports);
+      } else {
+        result.add(getSpecificFile(context.fileSystem().baseDir(), reportPath));
+      }
     }
 
     return result;
+  }
+
+  private static boolean isWildcard(String path) {
+    return path.contains("*") || path.contains("?");
   }
 
   private static List<File> getIOFiles(File baseDir, String reportPath) {
@@ -81,5 +89,14 @@ public final class ExternalReportWildcardProvider {
       LOG.debug("Exception when searching for report files to import.", e);
       return Collections.emptyList();
     }
+  }
+
+  private static File getSpecificFile(File baseDir, String path) {
+    var file = new File(path);
+    if (!file.isAbsolute()) {
+      file = new File(baseDir, path);
+    }
+
+    return file;
   }
 }

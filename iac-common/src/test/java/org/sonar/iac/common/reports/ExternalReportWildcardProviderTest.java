@@ -103,7 +103,7 @@ class ExternalReportWildcardProviderTest {
   @Test
   void shouldReturnEmptyListWhenIOException() throws IOException {
     var context = SensorContextTester.create(new File("."));
-    context.settings().setProperty(EXTERNAL_REPORTS_PROPERTY, "foo");
+    context.settings().setProperty(EXTERNAL_REPORTS_PROPERTY, "foo*");
 
     try (var ignored = mockStatic(Files.class)) {
       when(Files.find(any(Path.class), anyInt(), any())).thenThrow(new IOException("boom"));
