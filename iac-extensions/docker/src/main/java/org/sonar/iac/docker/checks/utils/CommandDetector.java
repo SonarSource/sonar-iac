@@ -115,6 +115,7 @@ public final class CommandDetector {
     for (List<ArgumentResolution> resolved : splitCommands.elements()) {
       if (!resolved.isEmpty() && isExportCommand(resolved.get(0))) {
         exportedVariables.putAll(parseEnvShellVariable(resolved.subList(1, resolved.size())));
+        // Note: we don't search for commands in case of 'export' command. This should be added here if we want to do it at some point.
       } else {
         commands.addAll(searchWithoutSplit(resolved, exportedVariables));
       }
