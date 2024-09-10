@@ -43,7 +43,7 @@ val generateCfnLintRules by tasks.registering(Task::class) {
                 |[
                 ${rules.joinToString(separator = ",\n") { it.asJson(margin = 2) }}
                 |]
-            """.trimMargin()
+            """.trimMargin().plus("\n")
         )
     }
 }

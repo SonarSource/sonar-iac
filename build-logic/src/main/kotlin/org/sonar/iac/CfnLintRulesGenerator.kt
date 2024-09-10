@@ -1,10 +1,21 @@
 package org.sonar.iac
 
-data class Rule(val id: String, val title: String, val description: String, val tags: List<String>, val type: String, val severity: String)
+data class Rule(
+    val id: String,
+    val title: String,
+    val description: String,
+    val tags: List<String>,
+    val type: String,
+    val severity: String,
+    val attribute: String,
+    val softwareQuality: String,
+    val qualityImpact: String,
+)
 
-const val DESCRIPTION_PREFIX = "This issue is raised by the rule [%s] from \\\"AWS CloudFormation Linter\\\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/>" +
-    "<br/>" +
-    "AWS CloudFormation Linter Message: %s"
+const val DESCRIPTION_PREFIX =
+    "This issue is raised by the rule [%s] from \\\"AWS CloudFormation Linter\\\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/>" +
+        "<br/>" +
+        "AWS CloudFormation Linter Message: %s"
 
 /**
  * Extract rules from the Markdown table in the [list of rules](https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1)
@@ -36,7 +47,19 @@ private fun extractRule(line: String): Rule {
         .filterNot { it.isBlank() }
         // Plugin API requires tags to match `^[a-z0-9\+#\-\.]+$`
         .map { it.replace(" ", "-").replace("_", "-").toCamelCase() }
-    return Rule(id, columns[2], columns[3], tags, type, severity)
+    val attribute = when {
+        type == "BUG" -> "LOGICAL"
+        else -> "CONVENTIONAL"
+    }
+    val softwareQuality = when {
+        type == "BUG" -> "RELIABILITY"
+        else -> "MAINTAINABILITY"
+    }
+    val qualitySeverity = when {
+        severity == "INFO" -> "LOW"
+        else -> "MEDIUM"
+    }
+    return Rule(id, columns[2], columns[3], tags, type, severity, attribute, softwareQuality, qualitySeverity)
 }
 
 /**
@@ -55,7 +78,13 @@ fun Rule.asJson(margin: Int): String {
           "description": "${DESCRIPTION_PREFIX.format(id, description)}",
           "constantDebtMinutes": 0,
           "type": "$type",
-          "severity": "$severity"
+          "severity": "$severity",
+          "code": {
+            "attribute": "$attribute",
+            "impacts": {
+                "$softwareQuality": "$qualityImpact"
+            }
+          }
         }
     """.trimIndent()
         .lineSequence()
@@ -68,7 +97,10 @@ private val fallbackRule = Rule(
     description = "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
     tags = listOf("cfn-lint"),
     type = "CODE_SMELL",
-    severity = "MAJOR"
+    severity = "MAJOR",
+    attribute = "CONVENTIONAL",
+    softwareQuality = "MAINTAINABILITY",
+    qualityImpact = "MEDIUM"
 )
 
 private fun String.toCamelCase() = replace("[a-z][A-Z]".toRegex()) { it.value.first() + "-" + it.value.last().lowercase() }
