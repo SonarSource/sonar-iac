@@ -124,7 +124,7 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldConvertToString() {
-    String code =  """
+    String code = """
       {
         key1: 'value1'
         key2: 'value2'
