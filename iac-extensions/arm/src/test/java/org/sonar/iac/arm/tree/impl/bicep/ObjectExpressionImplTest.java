@@ -57,7 +57,8 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
       {
         key1: value1
         'key2': value2
-      }""";
+      }
+      """;
 
     ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     assertThat(tree)
