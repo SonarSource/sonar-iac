@@ -50,6 +50,13 @@ class TFLintReportTest extends TestBase {
     softly.assertThat(first.getMessage()).isEqualTo("Single line comments should begin with #");
     softly.assertThat(first.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
     softly.assertThat(first.getSeverity()).isEqualTo(Common.Severity.MINOR);
+    softly.assertThat(first.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.CONVENTIONAL);
+    softly.assertThat(first.getImpactsList())
+      .hasSize(1)
+      .allSatisfy(impact -> {
+        softly.assertThat(impact.getSoftwareQuality()).isEqualTo(Common.SoftwareQuality.MAINTAINABILITY);
+        softly.assertThat(impact.getSeverity()).isEqualTo(Common.ImpactSeverity.MEDIUM);
+      });
     softly.assertThat(first.getEffort()).isEqualTo("5min");
     softly.assertThat(first.getLine()).isEqualTo(2);
     softly.assertThat(first.getTextRange().getStartLine()).isEqualTo(2);

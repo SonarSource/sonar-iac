@@ -52,6 +52,13 @@ class HadolintReportTest extends TestBase {
     softly.assertThat(issue.getMessage()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
     softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.CONVENTIONAL);
+    softly.assertThat(issue.getImpactsList())
+      .hasSize(1)
+      .allSatisfy(impact -> {
+        softly.assertThat(impact.getSoftwareQuality()).isEqualTo(Common.SoftwareQuality.MAINTAINABILITY);
+        softly.assertThat(impact.getSeverity()).isEqualTo(Common.ImpactSeverity.MEDIUM);
+      });
     softly.assertThat(issue.getEffort()).isEqualTo("5min");
     softly.assertThat(issue.getLine()).isEqualTo(10);
     softly.assertAll();

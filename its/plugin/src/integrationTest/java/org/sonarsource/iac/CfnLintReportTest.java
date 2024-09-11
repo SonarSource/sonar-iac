@@ -49,6 +49,13 @@ class CfnLintReportTest extends TestBase {
     softly.assertThat(issue.getMessage()).isEqualTo("Default should be a value within AllowedValues");
     softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.LOGICAL);
+    softly.assertThat(issue.getImpactsList())
+      .hasSize(1)
+      .allSatisfy(impact -> {
+        softly.assertThat(impact.getSoftwareQuality()).isEqualTo(Common.SoftwareQuality.RELIABILITY);
+        softly.assertThat(impact.getSeverity()).isEqualTo(Common.ImpactSeverity.MEDIUM);
+      });
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
     softly.assertThat(issue.getLine()).isEqualTo(13);
 
@@ -58,6 +65,13 @@ class CfnLintReportTest extends TestBase {
     softly.assertThat(issue.getMessage()).isEqualTo("Parameter UnusedParam not used.");
     softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.CONVENTIONAL);
+    softly.assertThat(issue.getImpactsList())
+      .hasSize(1)
+      .allSatisfy(impact -> {
+        softly.assertThat(impact.getSoftwareQuality()).isEqualTo(Common.SoftwareQuality.MAINTAINABILITY);
+        softly.assertThat(impact.getSeverity()).isEqualTo(Common.ImpactSeverity.MEDIUM);
+      });
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
     softly.assertThat(issue.getLine()).isEqualTo(19);
 
@@ -67,6 +81,13 @@ class CfnLintReportTest extends TestBase {
     softly.assertThat(issue.getMessage()).isEqualTo("'ami-123456' is not a 'AWS::EC2::Image.Id'");
     softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.LOGICAL);
+    softly.assertThat(issue.getImpactsList())
+      .hasSize(1)
+      .allSatisfy(impact -> {
+        softly.assertThat(impact.getSoftwareQuality()).isEqualTo(Common.SoftwareQuality.RELIABILITY);
+        softly.assertThat(impact.getSeverity()).isEqualTo(Common.ImpactSeverity.MEDIUM);
+      });
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
     softly.assertThat(issue.getLine()).isEqualTo(28);
 
@@ -76,6 +97,13 @@ class CfnLintReportTest extends TestBase {
     softly.assertThat(issue.getMessage()).isEqualTo("'ami-123456' is not a 'AWS::EC2::Image.Id'");
     softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.LOGICAL);
+    softly.assertThat(issue.getImpactsList())
+      .hasSize(1)
+      .allSatisfy(impact -> {
+        softly.assertThat(impact.getSoftwareQuality()).isEqualTo(Common.SoftwareQuality.RELIABILITY);
+        softly.assertThat(impact.getSeverity()).isEqualTo(Common.ImpactSeverity.MEDIUM);
+      });
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
     softly.assertThat(issue.getLine()).isEqualTo(32);
 
@@ -87,6 +115,13 @@ class CfnLintReportTest extends TestBase {
         "{'Ref': 'TestEnvironment'}}] has non-unique elements for keys ['Key']");
     softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
     softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.LOGICAL);
+    softly.assertThat(issue.getImpactsList())
+      .hasSize(1)
+      .allSatisfy(impact -> {
+        softly.assertThat(impact.getSoftwareQuality()).isEqualTo(Common.SoftwareQuality.RELIABILITY);
+        softly.assertThat(impact.getSeverity()).isEqualTo(Common.ImpactSeverity.MEDIUM);
+      });
     softly.assertThat(issue.getEffort()).isEqualTo("0min");
     softly.assertThat(issue.getLine()).isEqualTo(33);
 
