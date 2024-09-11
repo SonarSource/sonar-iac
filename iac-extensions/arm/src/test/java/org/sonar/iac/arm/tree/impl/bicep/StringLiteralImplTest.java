@@ -71,4 +71,11 @@ class StringLiteralImplTest extends BicepTreeModelTest {
     assertThat(tree.value()).isEqualTo("abc123DEF");
     assertThat(tree.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
   }
+
+  @Test
+  void shouldConvertToString() {
+    String code = code("'abc123DEF'");
+    StringLiteral stringLiteral = parse(code, BicepLexicalGrammar.STRING_LITERAL);
+    assertThat(stringLiteral).hasToString("'abc123DEF'");
+  }
 }

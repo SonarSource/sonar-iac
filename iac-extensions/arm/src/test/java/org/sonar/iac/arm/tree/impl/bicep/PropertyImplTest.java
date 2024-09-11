@@ -109,4 +109,11 @@ class PropertyImplTest extends BicepTreeModelTest {
 
     assertThat(tree.children()).hasSize(3);
   }
+
+  @Test
+  void shouldConvertToString() {
+    String code = code("key: 'value'");
+    Property property = parse(code, BicepLexicalGrammar.PROPERTY);
+    assertThat(property).hasToString("key: 'value'");
+  }
 }

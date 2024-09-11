@@ -67,4 +67,11 @@ class IdentifierImplTest extends BicepTreeModelTest {
     assertThat(token.children()).isEmpty();
     assertThat(token.comments()).isEmpty();
   }
+
+  @Test
+  void shouldConvertToString() {
+    String code = code("abc123DEF");
+    Identifier identifier = parse(code, BicepLexicalGrammar.IDENTIFIER);
+    assertThat(identifier).hasToString("abc123DEF");
+  }
 }

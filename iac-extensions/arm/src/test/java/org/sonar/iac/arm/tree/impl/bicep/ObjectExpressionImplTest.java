@@ -117,4 +117,11 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
       "=", "{", "name", ":", "subnet1Name", "}", "key2", ":", "value2", "resource", "subnet2", "subnets", "=", "{", "name",
       ":", "subnet2Name", "}", "}");
   }
+
+  @Test
+  void shouldConvertToString() {
+    String code = code("{\n key1: 'value1'\n key2: 'value2'\n}\n");
+    ObjectExpression objectExpression = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
+    assertThat(objectExpression).hasToString("{key1: 'value1', key2: 'value2'}");
+  }
 }
