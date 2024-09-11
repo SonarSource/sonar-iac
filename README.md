@@ -108,7 +108,7 @@ To fetch static files for a rule SXXXX from RSPEC for one of the languages, exec
 ```
 
 #### Ruling integration tests
-These integration tests verify that, given a set of files, when the analyzer is run on them, all the expected issues get raised in a prepared SonarQube instance. 
+These integration tests ("ITS") verify that, given a set of files, when the analyzer is run on them, all the expected issues get raised in a prepared SonarQube instance. 
 The expected findings are saved in `its/ruling/src/integrationTest/resources/expected`, while the actual ones are saved in `its/ruling/build/reports/lits/actual`. To run the ruling ITS:
 - Make sure the project is built with the latest changes
 - Load/update the analyzed files:
@@ -130,7 +130,7 @@ For this use:
   ./gradlew :its:ruling:integrationTest -DkeepSonarqubeRunning=true
   ```
 
-SonarQube's URL can be found in the logs of the test execution, and the instance can be stopped at any time by pressing "Ctrl+C".
+The SonarQube URL can be found in the logs of the test execution, and the instance can be stopped at any time by pressing "Ctrl+C".
 
 #### Plugin integration tests
 
