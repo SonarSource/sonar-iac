@@ -34,6 +34,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isTrue;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.skipReferencingResources;
 
 @Rule(key = "S6388")
@@ -127,12 +128,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     if (osDisk.isAbsent() || isDiskEncryptionSetIdSet(osDisk)) {
       return;
     }
-    ContextualProperty encryptionSettings = osDisk.property("encryptionSettings");
-    if (encryptionSettings.isPresent() && encryptionSettings.is(isFalse())) {
-      encryptionSettings.report(UNENCRYPTED_MESSAGE);
-    } else if (encryptionSettings.isAbsent()) {
-      osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
-    }
+    checkEncryptionSettings(osDisk);
   }
 
   private static boolean isDiskEncryptionSetIdSet(ContextualObject disk) {
@@ -141,6 +137,18 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       .flatMap(List::stream)
       .map(diskEncryptionSet -> diskEncryptionSet.property("id"))
       .anyMatch(id -> id.isPresent() && id.is(isNotEmpty()));
+  }
+
+  private static void checkEncryptionSettings(ContextualObject osDisk) {
+    ContextualProperty encryptionSettings = osDisk.property("encryptionSettings");
+    ContextualProperty encryptionSettingsEnabled = osDisk.object("encryptionSettings").property("enabled");
+    if (encryptionSettings.isAbsent()) {
+      osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    } else if (!encryptionSettings.is(isTrue()) && encryptionSettingsEnabled.isAbsent()) {
+      encryptionSettings.report(UNENCRYPTED_MESSAGE);
+    } else if (encryptionSettingsEnabled.isPresent() && encryptionSettingsEnabled.is(isFalse())) {
+      encryptionSettingsEnabled.report(UNENCRYPTED_MESSAGE);
+    }
   }
 
   private static void checkForDiskEncryptionSet(ContextualObject profile) {
