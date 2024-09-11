@@ -53,7 +53,11 @@ public class PackageInstallationCacheCheck implements IacCheck {
   private static final Set<String> APT_COMMANDS = Set.of("apt", "apt-get", "aptitude");
   private static final Set<String> APT_CACHE_LOCATIONS = Set.of("/var/lib/apt/lists/*");
   private static final Map<String, Set<String>> CACHE_TO_COMMANDS = Map.of(
-    "/var/lib/apt/lists", APT_COMMANDS,
+    // Default value of `Dir::State` in `apt.conf`
+    "/var/lib/apt", APT_COMMANDS,
+    // Default value of `Dir::Cache` in `apt.conf`
+    "/var/cache/apt", APT_COMMANDS,
+    // See e.g. https://man.archlinux.org/man/apk-cache.5.en regarding apk cache locations
     "/etc/apk/cache", Set.of("apk"),
     "/var/cache/apk", Set.of("apk"));
   private static final Predicate<String> containsROrF = s -> s.toLowerCase(Locale.ROOT).contains("r") || s.contains("f");
@@ -182,9 +186,12 @@ public class PackageInstallationCacheCheck implements IacCheck {
   private static Set<String> computeCachedCommands(Collection<String> cachedPaths) {
     Set<String> result = new HashSet<>();
     for (String cachedPath : cachedPaths) {
-      if (CACHE_TO_COMMANDS.containsKey(cachedPath)) {
-        result.addAll(CACHE_TO_COMMANDS.get(cachedPath));
-      }
+      CACHE_TO_COMMANDS.keySet().stream()
+        // Allowing also to cache sub-paths of the base cache path
+        .filter(cachedPath::startsWith)
+        .findFirst()
+        .map(CACHE_TO_COMMANDS::get)
+        .ifPresent(result::addAll);
     }
     return result;
   }

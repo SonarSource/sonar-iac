@@ -76,12 +76,15 @@ RUN apt-get install wget && rm -rf /var/lib/apt/lists/*
 # Compliant - the cache is mounted
 RUN --mount=type=cache,target=/etc/apk/cache apk add nginx
 RUN --mount=type=cache,target=/etc/apk/cache \
-    apk add nginx \
+    apk add nginx
 
 RUN --mount=type=cache,target=/var/cache/apk apk add nginx
+RUN --mount=type=cache,target=/var/cache/apk/subpath apk add nginx
 RUN --mount=type=cache,target=/var/lib/apt/lists apt install nginx
 RUN --mount=type=cache,target=/var/lib/apt/lists apt-get install nginx
+RUN --mount=type=cache,target=/var/lib/apt apt-get install nginx
 RUN --mount=type=cache,target=/var/lib/apt/lists aptitude install nginx
+RUN --mount=type=cache,target=/var/cache/apt apt-get install nginx
 
 # Sensitive because the mount type is not cache
 # Noncompliant@+1
