@@ -85,7 +85,7 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
    *
    * For call {@code object("key1")} it will return {@code ContextualObject} for {@code {"key11": ...}}.
    * <p>
-   * The call can be chained: {@code object("key1").object("key11)} will return {@code {"key111": ...}}.
+   * The call can be chained: {@code object("key1").object("key11")} will return {@code {"key111": ...}}.
    */
   public ContextualObject object(String name) {
     return Optional.ofNullable(tree)

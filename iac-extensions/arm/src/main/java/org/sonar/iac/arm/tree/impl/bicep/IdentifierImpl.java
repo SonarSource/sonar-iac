@@ -50,4 +50,9 @@ public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
   public SyntaxToken getToken() {
     return token;
   }
+
+  @Override
+  public String toString() {
+    return token.toString();
+  }
 }

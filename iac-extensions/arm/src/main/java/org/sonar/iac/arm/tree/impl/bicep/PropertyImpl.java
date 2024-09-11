@@ -53,4 +53,9 @@ public class PropertyImpl extends AbstractArmTreeImpl implements Property {
   public Expression value() {
     return value;
   }
+
+  @Override
+  public String toString() {
+    return key + ": " + value;
+  }
 }

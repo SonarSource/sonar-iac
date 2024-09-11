@@ -26,7 +26,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class StringLiteralImplTest extends BicepTreeModelTest {
 
@@ -65,10 +64,17 @@ class StringLiteralImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleStringLiteral() {
-    String code = code("'abc123DEF'");
+    String code = "'abc123DEF'";
 
     StringLiteral tree = parse(code, BicepLexicalGrammar.STRING_LITERAL);
     assertThat(tree.value()).isEqualTo("abc123DEF");
     assertThat(tree.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+  }
+
+  @Test
+  void shouldConvertToString() {
+    String code = "'abc123DEF'";
+    StringLiteral stringLiteral = parse(code, BicepLexicalGrammar.STRING_LITERAL);
+    assertThat(stringLiteral).hasToString("'abc123DEF'");
   }
 }

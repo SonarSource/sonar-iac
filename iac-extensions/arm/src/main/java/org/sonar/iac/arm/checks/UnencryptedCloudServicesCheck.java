@@ -28,12 +28,12 @@ import org.sonar.iac.arm.checkdsl.ContextualMap;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.skipReferencingResources;
 
 @Rule(key = "S6388")
@@ -44,18 +44,9 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Compute/virtualMachines",
-      resource -> Stream.of("storageProfile/dataDisks/*/managedDisk",
-        "storageProfile/osDisk/managedDisk",
-        "storageProfile/osDisk/managedDisk/securityProfile")
-        .map(resource::objectsByPath)
-        .flatMap(List::stream)
-        .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
+    register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineDataDisks);
 
-    register("Microsoft.Compute/virtualMachines",
-      resource -> resource.object("storageProfile").object("osDisk").property("encryptionSettings")
-        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
-        .reportIfAbsent(FORMAT_OMITTING));
+    register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineOsDisk);
 
     register("Microsoft.Compute/virtualMachineScaleSets",
       resource -> Stream.of("virtualMachineProfile/storageProfile/dataDisks/*/managedDisk",
@@ -122,6 +113,44 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     register("Microsoft.Kusto/clusters", resource -> checkEncryptionObject(resource, "enableDiskEncryption"));
   }
 
+  private static void checkVirtualMachineDataDisks(ContextualResource resource) {
+    List<ContextualObject> dataDisks = resource.objectsByPath("storageProfile/dataDisks/*");
+    for (ContextualObject dataDisk : dataDisks) {
+      if (!isDiskEncryptionSetIdSet(dataDisk)) {
+        dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+      }
+    }
+  }
+
+  private static void checkVirtualMachineOsDisk(ContextualResource resource) {
+    ContextualObject osDisk = resource.object("storageProfile").object("osDisk");
+    if (osDisk.isAbsent() || isDiskEncryptionSetIdSet(osDisk)) {
+      return;
+    }
+    ContextualProperty encryptionSettings = osDisk.property("encryptionSettings");
+    if (encryptionSettings.isPresent() && encryptionSettings.is(isFalse())) {
+      encryptionSettings.report(UNENCRYPTED_MESSAGE);
+    } else if (encryptionSettings.isAbsent()) {
+      osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    }
+  }
+
+  private static boolean isDiskEncryptionSetIdSet(ContextualObject disk) {
+    return Stream.of("managedDisk/diskEncryptionSet", "managedDisk/securityProfile/diskEncryptionSet")
+      .map(disk::objectsByPath)
+      .flatMap(List::stream)
+      .map(diskEncryptionSet -> diskEncryptionSet.property("id"))
+      .anyMatch(id -> id.isPresent() && id.is(isNotEmpty()));
+  }
+
+  private static void checkForDiskEncryptionSet(ContextualObject profile) {
+    profile.object("diskEncryptionSet")
+      .reportIfAbsent(FORMAT_OMITTING)
+      .property("id")
+      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
+      .reportIfAbsent(FORMAT_OMITTING);
+  }
+
   private static void checkComputeComponent(ContextualResource resource) {
     ContextualProperty diskEncryptionSetId = resource.object("encryption").property("diskEncryptionSetId");
     ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
@@ -143,18 +172,6 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       && secureVMDiskEncryptionSetId.isAbsent();
   }
 
-  private static void checkIfIsDisabledOrAbsent(ContextualProperty property) {
-    property.reportIf(isDisabled(), UNENCRYPTED_MESSAGE).reportIfAbsent(FORMAT_OMITTING);
-  }
-
-  private static Predicate<Expression> isNull() {
-    return e -> e.is(ArmTree.Kind.NULL_LITERAL);
-  }
-
-  private static Predicate<Expression> isDisabled() {
-    return isEqual("Disabled");
-  }
-
   private static Consumer<ContextualResource> checkEncryptionFromPath(String objectsPath, String encryptionProperty) {
     return resource -> resource.objectsByPath(objectsPath)
       .forEach(obj -> checkEncryptionObject(obj, encryptionProperty));
@@ -166,15 +183,19 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       .reportIfAbsent(FORMAT_OMITTING);
   }
 
-  private static void checkForDiskEncryptionSet(ContextualObject profile) {
-    profile.object("diskEncryptionSet")
-      .reportIfAbsent(FORMAT_OMITTING)
-      .property("id")
-      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
-      .reportIfAbsent(FORMAT_OMITTING);
+  private static void checkIfIsDisabledOrAbsent(ContextualProperty property) {
+    property.reportIf(isDisabled(), UNENCRYPTED_MESSAGE).reportIfAbsent(FORMAT_OMITTING);
+  }
+
+  private static Predicate<Expression> isDisabled() {
+    return isEqual("Disabled");
   }
 
   private static Predicate<Expression> isEmpty() {
     return e -> TextUtils.matchesValue(e, ""::equals).isTrue();
+  }
+
+  private static Predicate<Expression> isNotEmpty() {
+    return isEmpty().negate();
   }
 }
