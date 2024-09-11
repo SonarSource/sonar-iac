@@ -33,13 +33,12 @@ import org.sonar.iac.common.api.tree.TextTree;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ObjectExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMinimumObjectExpression() {
-    String code = code("{}\n");
+    String code = "{}\n";
 
     ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     assertThat(tree.properties()).isEmpty();
@@ -54,7 +53,11 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseObjectExpressionWithOneProperty() {
-    String code = code("{\n key1: value1\n 'key2': value2\n}\n");
+    String code = """
+      {
+        key1: value1
+        'key2': value2
+      }""";
 
     ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     assertThat(tree)
@@ -85,16 +88,17 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseObjectExpressionWithNestedResource() {
-    String code = code("{",
-      "  key1: value1",
-      "  resource subnet1 'subnets' = {",
-      "    name: 'subnet1Name'",
-      "  }",
-      "  key2: value2",
-      "  resource subnet2 'subnets' = {",
-      "    name: 'subnet2Name'",
-      "  }",
-      "}");
+    String code = """
+      {
+        key1: value1
+        resource subnet1 'subnets' = {
+          name: 'subnet1Name'
+        }
+        key2: value2
+        resource subnet2 'subnets' = {
+          name: 'subnet2Name'
+        }
+      }""";
     ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
 
     assertThat(tree).hasRange(1, 0, 10, 1);
@@ -120,7 +124,11 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldConvertToString() {
-    String code = code("{\n key1: 'value1'\n key2: 'value2'\n}\n");
+    String code =  """
+      {
+        key1: 'value1'
+        key2: 'value2'
+      }""";
     ObjectExpression objectExpression = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     assertThat(objectExpression).hasToString("{key1: 'value1', key2: 'value2'}");
   }

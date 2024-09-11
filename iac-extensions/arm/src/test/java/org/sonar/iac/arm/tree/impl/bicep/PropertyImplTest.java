@@ -32,7 +32,6 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class PropertyImplTest extends BicepTreeModelTest {
 
@@ -63,7 +62,7 @@ class PropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParsePropertyIdentifier() {
-    String code = code("key:value");
+    String code = "key:value";
 
     Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
     assertThat(tree.value()).asWrappedIdentifier().hasValue("value");
@@ -88,7 +87,7 @@ class PropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParsePropertyInterpString() {
-    String code = code("'key':value");
+    String code = "'key':value";
 
     Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
     assertThat(tree.value()).asWrappedIdentifier().hasValue("value");
@@ -112,7 +111,7 @@ class PropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldConvertToString() {
-    String code = code("key: 'value'");
+    String code = "key: 'value'";
     Property property = parse(code, BicepLexicalGrammar.PROPERTY);
     assertThat(property).hasToString("key: 'value'");
   }

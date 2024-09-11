@@ -27,7 +27,6 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class IdentifierImplTest extends BicepTreeModelTest {
 
@@ -56,7 +55,7 @@ class IdentifierImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleIdentifier() {
-    String code = code("abc123DEF");
+    String code = "abc123DEF";
 
     Identifier tree = parse(code, BicepLexicalGrammar.IDENTIFIER);
     assertThat(tree.value()).isEqualTo("abc123DEF");
@@ -70,7 +69,7 @@ class IdentifierImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldConvertToString() {
-    String code = code("abc123DEF");
+    String code = "abc123DEF";
     Identifier identifier = parse(code, BicepLexicalGrammar.IDENTIFIER);
     assertThat(identifier).hasToString("abc123DEF");
   }
