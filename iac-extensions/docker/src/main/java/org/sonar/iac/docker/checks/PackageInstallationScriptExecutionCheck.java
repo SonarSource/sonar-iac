@@ -19,22 +19,19 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 @Rule(key = "S6505")
-public class PackageInstallationScriptExecutionCheck implements IacCheck {
+public class PackageInstallationScriptExecutionCheck extends AbstractEnvVariableMonitorCheck {
 
   private static final String MESSAGE = "Omitting --ignore-scripts can lead to the execution of shell scripts. Make sure it is safe here.";
 
@@ -52,6 +49,7 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
     .with("yarn")
     .with("install")
     .withAnyFlagExcept(REQUIRED_FLAG)
+    .withoutEnv("YARN_ENABLE_SCRIPTS", "false"::equals)
     .build();
 
   // https://classic.yarnpkg.com/en/docs/cli/#toc-default-command: `yarn` invocation without any command is equivalent to `yarn install`
@@ -61,24 +59,22 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
     .build();
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(RunInstruction.class, PackageInstallationScriptExecutionCheck::checkRunInstruction);
+  public void init(InitContext init) {
+    init.register(RunInstruction.class, this::checkRunInstruction);
   }
 
-  private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
-    List<List<ArgumentResolution>> resolvedArguments = ArgumentResolutionSplitter.splitCommands(CheckUtils.resolveInstructionArguments(runInstruction)).elements();
-    List<CommandDetector.Command> sensitiveCommands = new ArrayList<>();
+  private void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
+    List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
-    for (List<ArgumentResolution> resolvedArgument : resolvedArguments) {
-      sensitiveCommands.addAll(NPM_PACKAGE_INSTALLATION.search(resolvedArgument));
-      sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.search(resolvedArgument));
-      sensitiveCommands.addAll(YARN_PACKAGE_DEFAULT.search(resolvedArgument).stream()
-        // matched starting with the start of the input
-        .filter(c -> c.getResolvedArguments().get(0).equals(resolvedArgument.get(0)))
-        // matched till the end of input
-        .filter(c -> c.getResolvedArguments().get(c.getResolvedArguments().size() - 1).equals(resolvedArgument.get(resolvedArgument.size() - 1)))
-        .toList());
-    }
+    List<CommandDetector.Command> sensitiveCommands = new ArrayList<>(NPM_PACKAGE_INSTALLATION.search(resolvedArgument));
+    YARN_PACKAGE_INSTALL.setGlobalEnvironmentVariables(getGlobalEnvironmentVariables());
+    sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.search(resolvedArgument));
+    sensitiveCommands.addAll(YARN_PACKAGE_DEFAULT.search(resolvedArgument).stream()
+      // matched starting with the start of the input
+      .filter(c -> c.getResolvedArguments().get(0).equals(resolvedArgument.get(0)))
+      // matched till the end of input
+      .filter(c -> c.getResolvedArguments().get(c.getResolvedArguments().size() - 1).equals(resolvedArgument.get(resolvedArgument.size() - 1)))
+      .toList());
 
     sensitiveCommands.forEach(command -> ctx.reportIssue(command, MESSAGE));
   }

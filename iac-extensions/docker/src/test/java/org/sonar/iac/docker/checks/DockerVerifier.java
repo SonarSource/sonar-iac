@@ -42,11 +42,6 @@ public class DockerVerifier {
     verify(path, check);
   }
 
-  public static void verifyContent(String content, IacCheck check) {
-    Path path = Verifier.contentToTmp(content).toPath();
-    verify(path, check);
-  }
-
   private static void verify(Path path, IacCheck check) {
     Tree root = Verifier.parse(PARSER, path);
     DockerSymbolVisitor symbolVisitor = new DockerSymbolVisitor();
@@ -54,11 +49,25 @@ public class DockerVerifier {
     Verifier.verify(root, path, check, Verifier.TestContext::new);
   }
 
+  public static void verifyContent(String content, IacCheck check) {
+    Path path = Verifier.contentToTmp(content).toPath();
+    verify(path, check);
+  }
+
   public static void verifyNoIssue(String fileName, IacCheck check) {
     Path path = BASE_DIR.resolve(fileName);
+    verifyNoIssue(path, check);
+  }
+
+  public static void verifyNoIssue(Path path, IacCheck check) {
     Tree root = Verifier.parse(PARSER, path);
     DockerSymbolVisitor symbolVisitor = new DockerSymbolVisitor();
     symbolVisitor.scan(mock(InputFileContext.class), root);
     Verifier.verifyNoIssue(root, path, check, Verifier.TestContext::new);
+  }
+
+  public static void verifyContentNoIssue(String content, IacCheck check) {
+    Path path = Verifier.contentToTmp(content).toPath();
+    verifyNoIssue(path, check);
   }
 }

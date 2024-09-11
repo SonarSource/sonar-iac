@@ -22,7 +22,9 @@ package org.sonar.iac.docker.checks.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
@@ -32,6 +34,7 @@ public class CommandDetectorBuilder {
 
   private final List<CommandPredicate> predicates = new ArrayList<>();
   private final List<Predicate<ArgumentResolution>> containsPredicates = new ArrayList<>();
+  private final Map<String, Predicate<String>> withoutEnvPredicates = new HashMap<>();
   private boolean isContainsCalled;
 
   public CommandDetectorBuilder with(Predicate<String> predicate) {
@@ -119,8 +122,19 @@ public class CommandDetectorBuilder {
     return this;
   }
 
+  /**
+   * Allow to define an exclude clause based on an environment variable.
+   * This exclude will take effect only of the environment variable with provided name is defined and if the valuePredicate is verified.
+   * In case this method is called at least once, the resulting CommandDetector should be provided with environment variables using {@link CommandDetector#setGlobalEnvironmentVariables(Map)}
+   * computed from {@code ENV} instructions to allow complete detection logic.
+   */
+  public CommandDetectorBuilder withoutEnv(String name, Predicate<String> valuePredicate) {
+    withoutEnvPredicates.put(name, valuePredicate);
+    return this;
+  }
+
   public CommandDetector build() {
-    return new CommandDetector(predicates, containsPredicates);
+    return new CommandDetector(predicates, containsPredicates, withoutEnvPredicates);
   }
 
   private void addPredicate(CommandPredicate commandPredicate) {

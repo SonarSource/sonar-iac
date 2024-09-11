@@ -62,3 +62,41 @@ RUN foobar
 RUN npm install $UNRESOLVED
 
 RUN apk add python3 make g++ nodejs yarn
+
+# Use cases with YARN_ENABLE_SCRIPTS
+FROM scratch
+RUN YARN_ENABLE_SCRIPTS=false yarn install
+RUN export YARN_ENABLE_SCRIPTS=false && yarn install
+
+FROM scratch
+ENV YARN_ENABLE_SCRIPTS=false
+RUN yarn install
+
+FROM scratch
+# Noncompliant@+1
+RUN yarn install
+ENV YARN_ENABLE_SCRIPTS=false
+
+FROM scratch
+ENV YARN_ENABLE_SCRIPTS=false
+# Noncompliant@+1
+RUN YARN_ENABLE_SCRIPTS=true yarn install
+
+FROM scratch
+ENV YARN_ENABLE_SCRIPTS=true
+# Noncompliant@+1
+RUN yarn install
+
+FROM scratch
+RUN YARN_ENABLE_SCRIPTS=true
+RUN YARN_ENABLE_SCRIPTS=false yarn install
+
+FROM scratch
+RUN YARN_ENABLE_SCRIPTS=false
+# Noncompliant@+1
+RUN YARN_ENABLE_SCRIPTS=true yarn install
+
+FROM scratch
+RUN YARN_ENABLE_SCRIPTS=false
+# Noncompliant@+1
+RUN yarn install
