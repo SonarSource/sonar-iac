@@ -70,6 +70,6 @@ class TlsVersionCheckTest {
     BicepVerifier.verifyContent(content,
       CHECK,
       issue(4, 4, 4, 31, "Change this code to disable support of older TLS versions."),
-      issue(8, 24, 8, 24 + resourceType.length(), "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
+      issue(8, 9, 8, 9 + "NonCompliantN".length(), "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
   }
 }

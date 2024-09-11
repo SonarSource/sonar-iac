@@ -222,13 +222,12 @@ class UnencryptedCloudServicesCheckTest {
   void testResourcesWithInfrastructureEncryptionBicep(String resourceType) {
     String content = readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted_template.bicep", resourceType);
 
-    int resourceTypeLength = resourceType.length();
     BicepVerifier.verifyContent(content, check,
       issue(18, 4, 18, 31, "Make sure that using unencrypted cloud storage is safe here."),
       issue(25, 4, 25, 25, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(29, 24, 29, 56, "Omitting \"encryptionState\" enables clear-text storage. Make sure it is safe here."),
+      issue(29, 9, 29, 22, "Omitting \"encryptionState\" enables clear-text storage. Make sure it is safe here."),
       issue(36, 4, 36, 40, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(40, 24, 40, 24 + resourceTypeLength, "Omitting \"infrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
+      issue(40, 9, 40, 22, "Omitting \"infrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test

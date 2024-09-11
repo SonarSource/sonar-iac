@@ -1,6 +1,6 @@
 // Noncompliant@+1{{Narrow the number of actions or the assignable scope of this custom role.}}
 resource noncompliant1 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-//                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//       ^^^^^^^^^^^^^
   name: 'Issue: any action is allowed with sensitive assignable scope and subscription.id()'
   properties: {
     permissions: [
@@ -39,7 +39,7 @@ resource noncompliant2 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
 
 // Noncompliant@+1
 resource noncompliant3 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-//                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//       ^^^^^^^^^^^^^
   name: 'Issue: any action is allowed with sensitive assignable scope and sensitive subscription path'
   properties: {
     permissions: [

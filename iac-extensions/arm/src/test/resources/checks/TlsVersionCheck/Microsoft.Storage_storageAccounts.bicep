@@ -9,7 +9,7 @@ resource nonCompliant1 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 
 // Noncompliant@+1 {{Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions.}}
 resource nonCompliant2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//       ^^^^^^^^^^^^^
   name: 'Raise an issue: TLS version is absent'
 }
 
