@@ -36,28 +36,29 @@ class UnencryptedCloudServicesCheckTest {
   void testVirtualMachinesJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachines.json", check,
       // dataDisks
-      issue(12, 12, 14, 13,
+      issue(18, 12, 20, 13,
         "Omitting \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
-      issue(15, 12, 17, 13),
-      issue(18, 12, 22, 13),
-      issue(23, 12, 29, 13),
-      issue(30, 12, 36, 13),
-      issue(37, 12, 45, 13),
-      issue(46, 12, 48, 13),
+      issue(21, 12, 23, 13),
+      issue(24, 12, 28, 13),
+      issue(29, 12, 35, 13),
+      issue(36, 12, 42, 13),
+      issue(43, 12, 51, 13),
+      issue(52, 12, 54, 13),
       // osDisk
-      issue(122, 20, 122, 22,
-        "Omitting \"encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
-      issue(133, 12, 133, 39, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(144, 20, 146, 11),
-      issue(156, 20, 160, 11),
-      issue(170, 20, 176, 11),
-      issue(186, 20, 190, 11),
-      issue(200, 20, 206, 11),
-      issue(216, 20, 224, 11),
-      issue(235, 12, 235, 39),
+      issue(128, 20, 128, 22,
+        "Omitting \"encryptionSettings.enabled\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
+      issue(138, 20, 140, 11),
+      issue(152, 14, 152, 30),
+      issue(164, 20, 166, 11),
+      issue(176, 20, 180, 11),
+      issue(190, 20, 196, 11),
+      issue(206, 20, 210, 11),
+      issue(220, 20, 226, 11),
+      issue(236, 20, 244, 11),
+      issue(256, 14, 256, 30),
       // encryptionAtHost
-      issue(335, 10, 335, 35, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(344, 27, 344, 29, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
+      issue(363, 10, 363, 35, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(372, 27, 372, 29, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test

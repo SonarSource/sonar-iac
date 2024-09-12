@@ -127,11 +127,11 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     if (osDisk.isAbsent() || isDiskEncryptionSetIdSet(osDisk)) {
       return;
     }
-    ContextualProperty encryptionSettings = osDisk.property("encryptionSettings");
-    if (encryptionSettings.isPresent() && encryptionSettings.is(isFalse())) {
-      encryptionSettings.report(UNENCRYPTED_MESSAGE);
-    } else if (encryptionSettings.isAbsent()) {
-      osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    ContextualProperty encryptionSettingsEnabled = osDisk.object("encryptionSettings").property("enabled");
+    if (encryptionSettingsEnabled.isAbsent()) {
+      osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings.enabled\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    } else if (encryptionSettingsEnabled.is(isFalse())) {
+      encryptionSettingsEnabled.report(UNENCRYPTED_MESSAGE);
     }
   }
 
