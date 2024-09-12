@@ -96,6 +96,13 @@ public class AttributeObject extends YamlObject<TupleTree> {
     return this;
   }
 
+  public AttributeObject reportOnValue(String message, List<SecondaryLocation> secondaryLocations) {
+    if (tree != null) {
+      report(tree.value().toHighlight(), message, secondaryLocations);
+    }
+    return this;
+  }
+
   public boolean isAbsent() {
     return this.status == Status.ABSENT;
   }

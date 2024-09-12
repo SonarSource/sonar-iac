@@ -97,13 +97,11 @@ public final class Verifier {
     verifier.assertOneOrMoreIssues();
   }
 
-  public static File contentToTmp(@Nullable String content) {
+  public static File contentToTmp(String content) {
     File tempFile;
     try {
       tempFile = File.createTempFile("tmp-parser-", "");
-      if (content != null) {
-        Files.writeString(tempFile.toPath(), content, StandardOpenOption.WRITE);
-      }
+      Files.writeString(tempFile.toPath(), content, StandardOpenOption.WRITE);
       tempFile.deleteOnExit();
       return tempFile;
     } catch (IOException e) {
@@ -118,7 +116,7 @@ public final class Verifier {
 
   public static void verify(TreeParser<? extends Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
     Tree root = parser.parse(content, null);
-    var tempFile = contentToTmp(null);
+    var tempFile = contentToTmp(content);
     var actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
@@ -129,8 +127,9 @@ public final class Verifier {
     IacCheck check,
     Function<MultiFileVerifier, TestContext> contextSupplier,
     BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
-    Tree root = parser.parse(readFile(inputFileContext.inputFile.path()), inputFileContext);
-    var tempFile = contentToTmp(null);
+    String content = readFile(inputFileContext.inputFile.path());
+    Tree root = parser.parse(content, inputFileContext);
+    var tempFile = contentToTmp(content);
     MultiFileVerifier verifier = createVerifier(tempFile.toPath(), root, commentsVisitor);
     runAnalysis(contextSupplier.apply(verifier), check, root);
     verifier.assertOneOrMoreIssues();
@@ -143,8 +142,9 @@ public final class Verifier {
     Function<MultiFileVerifier, TestContext> contextSupplier,
     BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor,
     List<Issue> expectedIssues) {
-    Tree root = parser.parse(readFile(inputFileContext.inputFile.path()), inputFileContext);
-    var tempFile = contentToTmp(null);
+    String content = readFile(inputFileContext.inputFile.path());
+    Tree root = parser.parse(content, inputFileContext);
+    var tempFile = contentToTmp(content);
     MultiFileVerifier verifier = createVerifier(tempFile.toPath(), root, commentsVisitor);
     var actualIssues = runAnalysis(contextSupplier.apply(verifier), check, root);
     compare(actualIssues, expectedIssues);
@@ -156,8 +156,9 @@ public final class Verifier {
     IacCheck check,
     Function<MultiFileVerifier, TestContext> contextSupplier,
     BiConsumer<Tree, Map<Integer, Set<Comment>>> commentsVisitor) {
-    Tree root = parser.parse(readFile(inputFileContext.inputFile.path()), inputFileContext);
-    var tempFile = contentToTmp(null);
+    String content = readFile(inputFileContext.inputFile.path());
+    Tree root = parser.parse(content, inputFileContext);
+    var tempFile = contentToTmp(content);
     MultiFileVerifier verifier = createVerifier(tempFile.toPath(), root, commentsVisitor);
     runAnalysis(contextSupplier.apply(verifier), check, root);
     verifier.assertNoIssues();

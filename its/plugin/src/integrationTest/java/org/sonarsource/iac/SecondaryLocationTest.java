@@ -39,20 +39,15 @@ class SecondaryLocationTest extends TestBase {
     var issues = getIssuesForRule(projectKey, "kubernetes:S6865");
     assertThat(issues).hasSize(1);
     var issue = issues.get(0);
-    assertThat(issue.getLine()).isEqualTo(6);
-    assertThat(issue.getMessage()).isEqualTo("Set \"automountServiceAccountToken\" to false for this specification of kind Pod.");
+    assertThat(issue.getLine()).isEqualTo(10);
+    assertThat(issue.getMessage()).isEqualTo("Bind this Service Account to RBAC or disable \"automountServiceAccountToken\".");
     var flows = issue.getFlowsList();
-    assertThat(flows).hasSize(2);
+    assertThat(flows).hasSize(1);
 
-    var flow1 = flows.get(0);
-    var location1 = flow1.getLocations(0);
-    assertThat(location1.getComponent()).isEqualTo("kubernetes_secondary_with_helm:SecondaryLocationChart/templates/automount_service_account_token_pod_linked.yaml");
-    assertThat(location1.getMsg()).isEqualTo("Through this service account");
-
-    var flow2 = flows.get(1);
-    var location2 = flow2.getLocations(0);
-    assertThat(location2.getComponent()).isEqualTo("kubernetes_secondary_with_helm:SecondaryLocationChart/templates/linked_account_service_token.yaml");
-    assertThat(location2.getMsg()).isEqualTo("Change this setting");
+    var flow = flows.get(0);
+    var location = flow.getLocations(0);
+    assertThat(location.getComponent()).isEqualTo("kubernetes_secondary_with_helm:SecondaryLocationChart/templates/linked_account_service_token.yaml");
+    assertThat(location.getMsg()).isEqualTo("Change this setting");
   }
 
   @Test
@@ -67,14 +62,9 @@ class SecondaryLocationTest extends TestBase {
     var issues = getIssuesForRule(projectKey, "kubernetes:S6865");
     assertThat(issues).hasSize(1);
     var issue = issues.get(0);
-    assertThat(issue.getLine()).isEqualTo(6);
-    assertThat(issue.getMessage()).isEqualTo("Set \"automountServiceAccountToken\" to false for this specification of kind Pod.");
+    assertThat(issue.getLine()).isEqualTo(10);
+    assertThat(issue.getMessage()).isEqualTo("Bind this Service Account to RBAC or disable \"automountServiceAccountToken\".");
     var flows = issue.getFlowsList();
-    assertThat(flows).hasSize(1);
-
-    var flow1 = flows.get(0);
-    var location1 = flow1.getLocations(0);
-    assertThat(location1.getComponent()).isEqualTo("kubernetes_external_secondary_disabled:SecondaryLocationChart/templates/automount_service_account_token_pod_linked.yaml");
-    assertThat(location1.getMsg()).isEqualTo("Through this service account");
+    assertThat(flows).isEmpty();
   }
 }

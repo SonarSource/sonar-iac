@@ -21,14 +21,11 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.object.BlockObject;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
@@ -53,7 +50,7 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
   }
 
   private void computeNamespace(BlockObject document) {
-    this.namespace = retrieveNamespace(document);
+    this.namespace = CheckUtils.retrieveNamespace(document);
   }
 
   @Nullable
@@ -74,20 +71,6 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
     var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
     var inputFileContext = ((KubernetesCheckContext) document.ctx).inputFileContext();
     return projectContext.getProjectResources(namespace, inputFileContext, getGlobalResourceType());
-  }
-
-  /**
-   * Retrieve the namespace of the document from the `metadata.namespace` attribute.<br/>
-   * If it is not set, the objects are installed in the namespace `default`. However, a namespace can be set during deployment using the
-   * `--namespace [custom-name]` flag. Because of that, an empty string is returned if the namespace is not set.
-   */
-  private static String retrieveNamespace(BlockObject document) {
-    return Optional.ofNullable(document.block("metadata").attribute("namespace").tree)
-      .map(TupleTree::value)
-      .filter(ScalarTree.class::isInstance)
-      .map(ScalarTree.class::cast)
-      .map(ScalarTree::value)
-      .orElse("");
   }
 
   static boolean isSet(@Nullable String value) {
