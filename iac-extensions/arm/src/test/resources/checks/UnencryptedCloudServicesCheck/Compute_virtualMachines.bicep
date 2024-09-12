@@ -137,8 +137,9 @@ resource nonCompliantOsDisk2 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   name: 'Noncompliant osDisk 2'
   properties: {
     storageProfile: {
+      // Noncompliant@+1
       osDisk: {
-        encryptionSettings: false // Noncompliant {{Make sure that using unencrypted cloud storage is safe here.}}
+        encryptionSettings: {}
       }
     }
   }
@@ -146,17 +147,6 @@ resource nonCompliantOsDisk2 'Microsoft.Compute/virtualMachines@2022-07-01' = {
 
 resource nonCompliantOsDisk3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   name: 'Noncompliant osDisk 3'
-  properties: {
-    storageProfile: {
-      osDisk: {
-        encryptionSettings: {} // Noncompliant {{Make sure that using unencrypted cloud storage is safe here.}}
-      }
-    }
-  }
-}
-
-resource nonCompliantOsDisk4 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Noncompliant osDisk 4'
   properties: {
     storageProfile: {
       osDisk: {
@@ -168,11 +158,11 @@ resource nonCompliantOsDisk4 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource nonCompliantOsDisk5 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Noncompliant osDisk 5'
+resource nonCompliantOsDisk4 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant osDisk 4'
   properties: {
     storageProfile: {
-      // Noncompliant@+1 {{Omitting "encryptionSettings", "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+      // Noncompliant@+1 {{Omitting "encryptionSettings.enabled", "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
       osDisk: {
 //            ^[el=+3;ec=7]
         managedDisk: {}
@@ -181,8 +171,8 @@ resource nonCompliantOsDisk5 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource nonCompliantOsDisk6 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Noncompliant osDisk 6'
+resource nonCompliantOsDisk5 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant osDisk 5'
   properties: {
     storageProfile: {
       // Noncompliant@+1
@@ -195,11 +185,11 @@ resource nonCompliantOsDisk6 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource nonCompliantOsDisk7 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Noncompliant osDisk 7'
+resource nonCompliantOsDisk6 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant osDisk 6'
   properties: {
     storageProfile: {
-      // Noncompliant@+1 {{Omitting "encryptionSettings", "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+      // Noncompliant@+1 {{Omitting "encryptionSettings.enabled", "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
       osDisk: {
 //            ^[el=+7;ec=7]
         managedDisk: {
@@ -212,8 +202,8 @@ resource nonCompliantOsDisk7 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource nonCompliantOsDisk8 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Noncompliant osDisk 8'
+resource nonCompliantOsDisk7 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant osDisk 7'
   properties: {
     storageProfile: {
       // Noncompliant@+1
@@ -226,8 +216,8 @@ resource nonCompliantOsDisk8 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource nonCompliantOsDisk9 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Noncompliant osDisk 9'
+resource nonCompliantOsDisk8 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant osDisk 8'
   properties: {
     storageProfile: {
       // Noncompliant@+1
@@ -242,8 +232,8 @@ resource nonCompliantOsDisk9 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource nonCompliantOsDisk10 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Noncompliant osDisk 10'
+resource nonCompliantOsDisk9 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant osDisk 9'
   properties: {
     storageProfile: {
       // Noncompliant@+1
@@ -260,12 +250,14 @@ resource nonCompliantOsDisk10 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource nonCompliantOsDisk11 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Noncompliant osDisk 11'
+resource nonCompliantOsDisk10 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Noncompliant osDisk 10'
   properties: {
     storageProfile: {
       osDisk: {
-        encryptionSettings: false // Noncompliant {{Make sure that using unencrypted cloud storage is safe here.}}
+        encryptionSettings: {
+          enabled: false // Noncompliant {{Make sure that using unencrypted cloud storage is safe here.}}
+        }
         managedDisk: {
           securityProfile: {
             diskEncryptionSet: {
@@ -283,17 +275,6 @@ resource compliantOsDisk1 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   properties: {
     storageProfile: {
       osDisk: {
-        encryptionSettings: true
-      }
-    }
-  }
-}
-
-resource compliantOsDisk2 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Compliant osDisk 2'
-  properties: {
-    storageProfile: {
-      osDisk: {
         encryptionSettings: {
           enabled: true
         }
@@ -302,8 +283,8 @@ resource compliantOsDisk2 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource compliantOsDisk3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Compliant osDisk 3'
+resource compliantOsDisk2 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Compliant osDisk 2'
   properties: {
     storageProfile: {
       osDisk: {
@@ -317,8 +298,8 @@ resource compliantOsDisk3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource compliantOsDisk4 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Compliant osDisk 4'
+resource compliantOsDisk3 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Compliant osDisk 3'
   properties: {
     storageProfile: {
       osDisk: {
@@ -334,12 +315,14 @@ resource compliantOsDisk4 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource compliantOsDisk5 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Compliant osDisk 5'
+resource compliantOsDisk4 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Compliant osDisk 4'
   properties: {
     storageProfile: {
       osDisk: {
-        encryptionSettings: false
+        encryptionSettings: {
+          enabled: false
+        }
         managedDisk: {
           diskEncryptionSet: {
             id: 'testId'
@@ -350,12 +333,14 @@ resource compliantOsDisk5 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource compliantOsDisk6 'Microsoft.Compute/virtualMachines@2022-07-01' = {
-  name: 'Compliant osDisk 6'
+resource compliantOsDisk5 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+  name: 'Compliant osDisk 5'
   properties: {
     storageProfile: {
       osDisk: {
-        encryptionSettings: false
+        encryptionSettings: {
+          enabled: false
+        }
         managedDisk: {
           securityProfile: {
             diskEncryptionSet: {

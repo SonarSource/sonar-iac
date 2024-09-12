@@ -136,25 +136,13 @@
       "properties": {
         "storageProfile": {
           "osDisk": {
-            "encryptionSettings": false
-          }
-        }
-      }
-    },
-    {
-      "name": "Noncompliant osDisk 3",
-      "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "storageProfile": {
-          "osDisk": {
             "encryptionSettings": {}
           }
         }
       }
     },
     {
-      "name": "Noncompliant osDisk 4",
+      "name": "Noncompliant osDisk 3",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -168,7 +156,7 @@
       }
     },
     {
-      "name": "Noncompliant osDisk 5",
+      "name": "Noncompliant osDisk 4",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -180,7 +168,7 @@
       }
     },
     {
-      "name": "Noncompliant osDisk 6",
+      "name": "Noncompliant osDisk 5",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -194,7 +182,7 @@
       }
     },
     {
-      "name": "Noncompliant osDisk 7",
+      "name": "Noncompliant osDisk 6",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -210,7 +198,7 @@
       }
     },
     {
-      "name": "Noncompliant osDisk 8",
+      "name": "Noncompliant osDisk 7",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -224,7 +212,7 @@
       }
     },
     {
-      "name": "Noncompliant osDisk 9",
+      "name": "Noncompliant osDisk 8",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -240,7 +228,7 @@
       }
     },
     {
-      "name": "Noncompliant osDisk 10",
+      "name": "Noncompliant osDisk 9",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -258,13 +246,15 @@
       }
     },
     {
-      "name": "Noncompliant osDisk 11",
+      "name": "Noncompliant osDisk 10",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
         "storageProfile": {
           "osDisk": {
-            "encryptionSettings": false,
+            "encryptionSettings": {
+              "enabled": false
+            },
             "managedDisk": {
               "securityProfile": {
                 "diskEncryptionSet": {
@@ -283,18 +273,6 @@
       "properties": {
         "storageProfile": {
           "osDisk": {
-            "encryptionSettings": true
-          }
-        }
-      }
-    },
-    {
-      "name": "Compliant osDisk 2",
-      "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "storageProfile": {
-          "osDisk": {
             "encryptionSettings": {
               "enabled": true
             }
@@ -303,7 +281,7 @@
       }
     },
     {
-      "name": "Compliant osDisk 3",
+      "name": "Compliant osDisk 2",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -319,7 +297,7 @@
       }
     },
     {
-      "name": "Compliant osDisk 4",
+      "name": "Compliant osDisk 3",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -337,13 +315,15 @@
       }
     },
     {
-      "name": "Compliant osDisk 5",
+      "name": "Compliant osDisk 4",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
         "storageProfile": {
           "osDisk": {
-            "encryptionSettings": false,
+            "encryptionSettings": {
+              "enabled": false
+            },
             "managedDisk": {
               "diskEncryptionSet": {
                 "id": "testId"
@@ -354,13 +334,15 @@
       }
     },
     {
-      "name": "Compliant osDisk 6",
+      "name": "Compliant osDisk 5",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2022-07-01",
       "properties": {
         "storageProfile": {
           "osDisk": {
-            "encryptionSettings": false,
+            "encryptionSettings": {
+              "enabled": false
+            },
             "managedDisk": {
               "securityProfile": {
                 "diskEncryptionSet": {

@@ -46,20 +46,19 @@ class UnencryptedCloudServicesCheckTest {
       issue(52, 12, 54, 13),
       // osDisk
       issue(128, 20, 128, 22,
-        "Omitting \"encryptionSettings\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
-      issue(139, 12, 139, 39),
-      issue(151, 12, 151, 36),
-      issue(164, 14, 164, 30),
-      issue(176, 20, 178, 11),
-      issue(188, 20, 192, 11),
-      issue(202, 20, 208, 11),
-      issue(218, 20, 222, 11),
-      issue(232, 20, 238, 11),
-      issue(248, 20, 256, 11),
-      issue(267, 12, 267, 39),
+        "Omitting \"encryptionSettings.enabled\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
+      issue(138, 20, 140, 11),
+      issue(152, 14, 152, 30),
+      issue(164, 20, 166, 11),
+      issue(176, 20, 180, 11),
+      issue(190, 20, 196, 11),
+      issue(206, 20, 210, 11),
+      issue(220, 20, 226, 11),
+      issue(236, 20, 244, 11),
+      issue(256, 14, 256, 30),
       // encryptionAtHost
-      issue(381, 10, 381, 35, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(390, 27, 390, 29, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
+      issue(363, 10, 363, 35, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(372, 27, 372, 29, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test
