@@ -69,15 +69,27 @@ class UnencryptedCloudServicesCheckTest {
   @Test
   void testVirtualMachineScaleSetsJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachineScaleSets.json", check,
-      issue(14, 31, 14, 33, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
-      issue(19, 20, 19, 28, "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
-      issue(25, 39, 26, 19),
-      issue(30, 31, 36, 17),
-      issue(33, 22, 33, 30),
-      issue(40, 29, 43, 15),
-      issue(41, 35, 42, 17),
-      issue(82, 12, 82, 37, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(93, 29, 94, 11, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
+      // dataDisks
+      issue(13, 14, 15, 15,
+        "Omitting \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
+      issue(16, 14, 18, 15),
+      issue(19, 14, 23, 15),
+      issue(24, 14, 30, 15),
+      issue(31, 14, 37, 15),
+      issue(38, 14, 46, 15),
+      issue(47, 14, 49, 15),
+      // osDisk
+      issue(127, 22, 127, 24,
+        "Omitting \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id\" enables clear-text storage. Make sure it is safe here."),
+      issue(139, 22, 141, 13),
+      issue(153, 22, 157, 13),
+      issue(169, 22, 175, 13),
+      issue(187, 22, 191, 13),
+      issue(203, 22, 209, 13),
+      issue(221, 22, 229, 13),
+      // encryptionAtHost
+      issue(302, 12, 302, 37, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(313, 29, 313, 31, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test

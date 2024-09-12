@@ -45,17 +45,10 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineDataDisks);
-
     register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineOsDisk);
 
-    register("Microsoft.Compute/virtualMachineScaleSets",
-      resource -> Stream.of("virtualMachineProfile/storageProfile/dataDisks/*/managedDisk",
-        "virtualMachineProfile/storageProfile/dataDisks/*/managedDisk/securityProfile",
-        "virtualMachineProfile/storageProfile/osDisk/managedDisk/",
-        "virtualMachineProfile/storageProfile/osDisk/managedDisk/securityProfile")
-        .map(resource::objectsByPath)
-        .flatMap(List::stream)
-        .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
+    register("Microsoft.Compute/virtualMachineScaleSets", UnencryptedCloudServicesCheck::checkVirtualMachineScaleSetDataDisks);
+    register("Microsoft.Compute/virtualMachineScaleSets", UnencryptedCloudServicesCheck::checkVirtualMachineScaleSetOsDisk);
 
     register("Microsoft.DocumentDB/cassandraClusters/dataCenters", resource -> {
       resource.property("backupStorageCustomerKeyUri").reportIfAbsent(FORMAT_OMITTING);
@@ -102,8 +95,8 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
     register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), skipReferencingResources(UnencryptedCloudServicesCheck::checkComputeComponent));
 
-    register("Microsoft.Compute/virtualMachineScaleSets", checkEncryptionFromPath("virtualMachineProfile/securityProfile", "encryptionAtHost"));
     register("Microsoft.Compute/virtualMachines", checkEncryptionFromPath("securityProfile", "encryptionAtHost"));
+    register("Microsoft.Compute/virtualMachineScaleSets", checkEncryptionFromPath("virtualMachineProfile/securityProfile", "encryptionAtHost"));
     register("Microsoft.SqlVirtualMachine/sqlVirtualMachines", checkEncryptionFromPath("autoBackupSettings", "enableEncryption"));
     register("Microsoft.ContainerService/managedClusters", checkEncryptionFromPath("agentPoolProfiles/*", "enableEncryptionAtHost"));
     register("Microsoft.AzureArcData/sqlServerInstances/databases", checkEncryptionFromPath("databaseOptions", "isEncrypted"));
@@ -115,11 +108,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   private static void checkVirtualMachineDataDisks(ContextualResource resource) {
     List<ContextualObject> dataDisks = resource.objectsByPath("storageProfile/dataDisks/*");
-    for (ContextualObject dataDisk : dataDisks) {
-      if (!isDiskEncryptionSetIdSet(dataDisk)) {
-        dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
-      }
-    }
+    dataDisks.forEach(UnencryptedCloudServicesCheck::checkDataDisk);
   }
 
   private static void checkVirtualMachineOsDisk(ContextualResource resource) {
@@ -135,20 +124,31 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     }
   }
 
+  private static void checkVirtualMachineScaleSetDataDisks(ContextualResource resource) {
+    List<ContextualObject> dataDisks = resource.objectsByPath("virtualMachineProfile/storageProfile/dataDisks/*");
+    dataDisks.forEach(UnencryptedCloudServicesCheck::checkDataDisk);
+  }
+
+  private static void checkVirtualMachineScaleSetOsDisk(ContextualResource resource) {
+    ContextualObject osDisk = resource.object("virtualMachineProfile").object("storageProfile").object("osDisk");
+    if (osDisk.isAbsent() || isDiskEncryptionSetIdSet(osDisk)) {
+      return;
+    }
+    osDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+  }
+
+  private static void checkDataDisk(ContextualObject dataDisk) {
+    if (!isDiskEncryptionSetIdSet(dataDisk)) {
+      dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    }
+  }
+
   private static boolean isDiskEncryptionSetIdSet(ContextualObject disk) {
     return Stream.of("managedDisk/diskEncryptionSet", "managedDisk/securityProfile/diskEncryptionSet")
       .map(disk::objectsByPath)
       .flatMap(List::stream)
       .map(diskEncryptionSet -> diskEncryptionSet.property("id"))
       .anyMatch(id -> id.isPresent() && id.is(isNotEmpty()));
-  }
-
-  private static void checkForDiskEncryptionSet(ContextualObject profile) {
-    profile.object("diskEncryptionSet")
-      .reportIfAbsent(FORMAT_OMITTING)
-      .property("id")
-      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
-      .reportIfAbsent(FORMAT_OMITTING);
   }
 
   private static void checkComputeComponent(ContextualResource resource) {
