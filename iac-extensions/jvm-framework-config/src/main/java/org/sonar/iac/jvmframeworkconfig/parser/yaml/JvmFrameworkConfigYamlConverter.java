@@ -35,6 +35,7 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.yaml.IacYamlConverter;
+import org.sonar.iac.common.yaml.YamlConverter;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 import org.sonar.iac.jvmframeworkconfig.tree.api.File;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
@@ -48,7 +49,7 @@ import org.sonar.iac.jvmframeworkconfig.tree.impl.TupleImpl;
 import static org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigProfileNameUtil.profileName;
 
 public class JvmFrameworkConfigYamlConverter implements IacYamlConverter<File, Stream<JvmFrameworkConfigYamlConverter.TupleBuilder>> {
-
+  private final YamlConverter yamlConverter = new YamlConverter();
   private List<Comment> commentsPerProfile = new ArrayList<>();
 
   @Override
@@ -68,7 +69,11 @@ public class JvmFrameworkConfigYamlConverter implements IacYamlConverter<File, S
     commentsPerProfile = new ArrayList<>();
     List<Tuple> tuples = convert(node).map(TupleBuilder::build).toList();
 
-    return new ProfileImpl(tuples, commentsPerProfile, profileName(tuples), true);
+    var profile = new ProfileImpl(tuples, commentsPerProfile, profileName(tuples), true);
+    // This step is needed for syntax highlighting later. Keeping track of YAML nodes in the leaves would be more complicated,
+    // because in the flattened structure leaves would have a lot of common ancestors, and they would need to be filtered later.
+    profile.setOriginalYamlTree(yamlConverter.convert(node));
+    return profile;
   }
 
   @Override

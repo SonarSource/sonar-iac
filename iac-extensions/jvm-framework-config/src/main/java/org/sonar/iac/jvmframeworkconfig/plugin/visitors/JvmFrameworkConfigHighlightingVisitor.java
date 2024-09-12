@@ -19,9 +19,14 @@
  */
 package org.sonar.iac.jvmframeworkconfig.plugin.visitors;
 
+import java.util.List;
+import java.util.stream.Stream;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigSensor;
+import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Scalar;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
@@ -39,6 +44,15 @@ public class JvmFrameworkConfigHighlightingVisitor extends SyntaxHighlightingVis
         highlight(tree.key(), KEYWORD);
       }
     });
+    register(Profile.class, (InputFileContext ctx, Profile tree) -> {
+      var yamlTree = tree.originalYamlTree();
+      if (yamlTree != null) {
+        retrieveAllChildren(yamlTree)
+          .filter(TupleTree.class::isInstance)
+          .map(TupleTree.class::cast)
+          .forEach(tuple -> highlight(tuple.key(), KEYWORD));
+      }
+    });
     register(Scalar.class, (ctx, tree) -> ctx.ancestors().stream().findFirst()
       // we always build the tree in such a way that Scalars are children of Tuples
       .map(Tuple.class::cast)
@@ -50,5 +64,12 @@ public class JvmFrameworkConfigHighlightingVisitor extends SyntaxHighlightingVis
   private static boolean hasAbsentOrEmptyValue(Tuple tuple) {
     var stringValue = getStringValue(tuple);
     return stringValue == null || stringValue.isEmpty();
+  }
+
+  private static Stream<YamlTree> retrieveAllChildren(YamlTree yamlTree) {
+    return Stream.iterate(List.of(yamlTree),
+      list -> !list.isEmpty(),
+      list -> list.stream().flatMap(t -> t.children().stream().map(YamlTree.class::cast)).toList())
+      .flatMap(List::stream);
   }
 }

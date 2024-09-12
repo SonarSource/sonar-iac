@@ -20,9 +20,11 @@
 package org.sonar.iac.jvmframeworkconfig.tree.api;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 /**
  * Represents a Spring configuration profile.
@@ -48,4 +50,10 @@ public interface Profile extends JvmFrameworkConfig, HasProperties, HasComments 
    * @return true if this profile is active.
    */
   boolean isActive();
+
+  /**
+   * @return the original yaml tree of this profile, or null if it was not parsed from a yaml file.
+   */
+  @CheckForNull
+  YamlTree originalYamlTree();
 }
