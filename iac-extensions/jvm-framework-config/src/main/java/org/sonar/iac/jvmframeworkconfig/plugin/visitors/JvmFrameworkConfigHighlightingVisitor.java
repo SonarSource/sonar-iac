@@ -25,13 +25,13 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigSensor;
-import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
+import org.sonar.iac.jvmframeworkconfig.tree.api.File;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Scalar;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
+import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigSensor.isPropertiesFile;
 import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
 
 public class JvmFrameworkConfigHighlightingVisitor extends SyntaxHighlightingVisitor {
@@ -40,11 +40,11 @@ public class JvmFrameworkConfigHighlightingVisitor extends SyntaxHighlightingVis
     register(Tuple.class, (InputFileContext ctx, Tuple tree) -> {
       // When flattening the YAML tree into SpringConfig representation, we sometimes produce overlapping text ranges.
       // Example: key of a YAML array. To be on a safe side, let's only highlight keys of properties in properties files now.
-      if (JvmFrameworkConfigSensor.isPropertiesFile(ctx)) {
+      if (isPropertiesFile(ctx)) {
         highlight(tree.key(), KEYWORD);
       }
     });
-    register(Profile.class, (InputFileContext ctx, Profile tree) -> {
+    register(File.class, (InputFileContext ctx, File tree) -> {
       var yamlTree = tree.originalYamlTree();
       if (yamlTree != null) {
         retrieveAllChildren(yamlTree)

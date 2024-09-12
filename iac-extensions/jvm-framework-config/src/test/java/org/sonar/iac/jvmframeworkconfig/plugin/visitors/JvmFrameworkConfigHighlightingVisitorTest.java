@@ -74,6 +74,7 @@ class JvmFrameworkConfigHighlightingVisitorTest extends AbstractHighlightingTest
         key1:
           key2:
             key3: value
+          key4: value
         """,
       Path.of("application.yaml"),
       YamlLanguage.KEY);
@@ -89,5 +90,7 @@ class JvmFrameworkConfigHighlightingVisitorTest extends AbstractHighlightingTest
     assertHighlighting(9, 2, 5, KEYWORD);
     assertHighlighting(10, 4, 7, KEYWORD);
     assertHighlighting(10, 10, 14, STRING);
+    assertHighlighting(11, 2, 5, KEYWORD);
+    assertHighlighting(11, 8, 12, STRING);
   }
 }

@@ -45,7 +45,7 @@ class FileImplTest {
 
     ProfileImpl profileTree = new ProfileImpl(List.of(tupleTree, tupleTree2), List.of(), "profileName", true);
 
-    FileImpl fileTree = new FileImpl(List.of(profileTree));
+    FileImpl fileTree = new FileImpl(List.of(profileTree), null);
 
     assertThat(fileTree.profiles()).containsExactly(profileTree);
     assertThat(fileTree.children()).containsExactly(profileTree);
@@ -56,7 +56,7 @@ class FileImplTest {
 
   @Test
   void constructorTestWhenEmpty() {
-    FileImpl fileTree = new FileImpl(List.of());
+    FileImpl fileTree = new FileImpl(List.of(), null);
 
     assertThat(fileTree.profiles()).isEmpty();
     assertThat(fileTree.children()).isEmpty();

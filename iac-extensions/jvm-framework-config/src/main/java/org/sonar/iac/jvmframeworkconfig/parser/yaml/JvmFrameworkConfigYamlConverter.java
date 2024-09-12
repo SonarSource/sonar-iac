@@ -62,18 +62,17 @@ public class JvmFrameworkConfigYamlConverter implements IacYamlConverter<File, S
       .map(this::convertToProfile)
       .toList();
 
-    return new FileImpl(profiles);
+    // This step is needed for syntax highlighting later. Keeping track of YAML nodes in the leaves would be more complicated,
+    // because in the flattened structure leaves would have a lot of common ancestors, and they would need to be filtered later.
+    var yamlFileTree = yamlConverter.convertFile(nodes);
+    return new FileImpl(profiles, yamlFileTree);
   }
 
   private Profile convertToProfile(Node node) {
     commentsPerProfile = new ArrayList<>();
     List<Tuple> tuples = convert(node).map(TupleBuilder::build).toList();
 
-    var profile = new ProfileImpl(tuples, commentsPerProfile, profileName(tuples), true);
-    // This step is needed for syntax highlighting later. Keeping track of YAML nodes in the leaves would be more complicated,
-    // because in the flattened structure leaves would have a lot of common ancestors, and they would need to be filtered later.
-    profile.setOriginalYamlTree(yamlConverter.convert(node));
-    return profile;
+    return new ProfileImpl(tuples, commentsPerProfile, profileName(tuples), true);
   }
 
   @Override

@@ -21,10 +21,8 @@ package org.sonar.iac.jvmframeworkconfig.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
@@ -33,7 +31,6 @@ public class ProfileImpl extends AbstractJvmFrameworkConfigImpl implements Profi
   private final List<Comment> comments;
   private final String name;
   private final boolean active;
-  private YamlTree originalYamlTree;
 
   public ProfileImpl(List<Tuple> properties, List<Comment> comments, String name, boolean active) {
     this.properties = properties;
@@ -65,15 +62,5 @@ public class ProfileImpl extends AbstractJvmFrameworkConfigImpl implements Profi
   @Override
   public boolean isActive() {
     return active;
-  }
-
-  @CheckForNull
-  @Override
-  public YamlTree originalYamlTree() {
-    return originalYamlTree;
-  }
-
-  public void setOriginalYamlTree(YamlTree originalYamlTree) {
-    this.originalYamlTree = originalYamlTree;
   }
 }
