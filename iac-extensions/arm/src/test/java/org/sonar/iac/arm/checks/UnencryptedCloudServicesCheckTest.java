@@ -88,8 +88,8 @@ class UnencryptedCloudServicesCheckTest {
       issue(203, 22, 209, 13),
       issue(221, 22, 229, 13),
       // encryptionAtHost
-      issue(302, 12, 302, 37, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(313, 29, 313, 31, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
+      issue(312, 12, 312, 37, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(323, 29, 323, 31, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test

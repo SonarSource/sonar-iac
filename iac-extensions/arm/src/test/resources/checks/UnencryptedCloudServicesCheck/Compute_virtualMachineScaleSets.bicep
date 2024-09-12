@@ -297,6 +297,15 @@ resource compliantOsDisk3 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01'
   }
 }
 
+resource compliantOsDisk4 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Compliant osDisk 4'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {}
+    }
+  }
+}
+
 // encryptionAtHost ---
 
 resource nonCompliantEncryptionAtHost1 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
