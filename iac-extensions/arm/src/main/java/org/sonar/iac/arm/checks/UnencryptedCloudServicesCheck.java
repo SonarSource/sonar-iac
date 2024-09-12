@@ -44,10 +44,12 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineDataDisks);
+    register("Microsoft.Compute/virtualMachines",
+      resource -> resource.objectsByPath("storageProfile/dataDisks/*").forEach(UnencryptedCloudServicesCheck::checkDataDisk));
     register("Microsoft.Compute/virtualMachines", UnencryptedCloudServicesCheck::checkVirtualMachineOsDisk);
 
-    register("Microsoft.Compute/virtualMachineScaleSets", UnencryptedCloudServicesCheck::checkVirtualMachineScaleSetDataDisks);
+    register("Microsoft.Compute/virtualMachineScaleSets",
+      resource -> resource.objectsByPath("virtualMachineProfile/storageProfile/dataDisks/*").forEach(UnencryptedCloudServicesCheck::checkDataDisk));
     register("Microsoft.Compute/virtualMachineScaleSets", UnencryptedCloudServicesCheck::checkVirtualMachineScaleSetOsDisk);
 
     register("Microsoft.DocumentDB/cassandraClusters/dataCenters", resource -> {
@@ -106,9 +108,10 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     register("Microsoft.Kusto/clusters", resource -> checkEncryptionObject(resource, "enableDiskEncryption"));
   }
 
-  private static void checkVirtualMachineDataDisks(ContextualResource resource) {
-    List<ContextualObject> dataDisks = resource.objectsByPath("storageProfile/dataDisks/*");
-    dataDisks.forEach(UnencryptedCloudServicesCheck::checkDataDisk);
+  private static void checkDataDisk(ContextualObject dataDisk) {
+    if (!isDiskEncryptionSetIdSet(dataDisk)) {
+      dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    }
   }
 
   private static void checkVirtualMachineOsDisk(ContextualResource resource) {
@@ -124,23 +127,12 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     }
   }
 
-  private static void checkVirtualMachineScaleSetDataDisks(ContextualResource resource) {
-    List<ContextualObject> dataDisks = resource.objectsByPath("virtualMachineProfile/storageProfile/dataDisks/*");
-    dataDisks.forEach(UnencryptedCloudServicesCheck::checkDataDisk);
-  }
-
   private static void checkVirtualMachineScaleSetOsDisk(ContextualResource resource) {
     ContextualObject osDisk = resource.object("virtualMachineProfile").object("storageProfile").object("osDisk");
     if (osDisk.isAbsent() || isDiskEncryptionSetIdSet(osDisk)) {
       return;
     }
     osDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
-  }
-
-  private static void checkDataDisk(ContextualObject dataDisk) {
-    if (!isDiskEncryptionSetIdSet(dataDisk)) {
-      dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
-    }
   }
 
   private static boolean isDiskEncryptionSetIdSet(ContextualObject disk) {
