@@ -38,8 +38,8 @@ import org.sonar.iac.docker.tree.api.TransferInstruction;
 @Rule(key = "S6504")
 public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
-  private static final String MESSAGE = "Make sure no write permissions are assigned to the executable.";
-  private static final String MESSAGE_SECONDARY_OTHER_EXEC = "Other executable file.";
+  private static final String MESSAGE = "Make sure no write permissions are assigned to the copied resource.";
+  private static final String MESSAGE_SECONDARY_OTHER_EXEC = "Other copied resource.";
   private static final String MESSAGE_SECONDARY_CHOWN = "Sensitive file owner.";
 
   private static final Set<String> COMPLIANT_CHOWN_VALUES = Set.of("root", "0", "");
