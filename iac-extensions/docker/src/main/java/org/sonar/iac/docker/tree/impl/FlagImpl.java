@@ -70,4 +70,14 @@ public class FlagImpl extends AbstractDockerTreeImpl implements Flag {
   public Kind getKind() {
     return Kind.PARAM;
   }
+
+  @Override
+  public String toString() {
+    return "FlagImpl{" +
+      "prefix=" + prefix +
+      ", name=" + name +
+      ", equals=" + equals +
+      ", value=" + value +
+      '}';
+  }
 }

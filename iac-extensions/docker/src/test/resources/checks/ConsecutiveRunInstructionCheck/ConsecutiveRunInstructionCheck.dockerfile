@@ -89,3 +89,29 @@ RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-lin
 && tar -xzf "nodejs.tar.gz" -C /usr/local --strip-components=1 \
 && rm nodejs.tar.gz \
 && ln -s /usr/local/bin/node /usr/local/bin/nodejs
+
+FROM scratch
+# Noncompliant@+1
+RUN my command
+RUN other command
+
+FROM scratch
+# Compliant, different options cannot be merged
+RUN --security=insecure my command
+RUN other command
+
+FROM scratch
+# Compliant, different options cannot be merged
+RUN --security=insecure my command
+RUN --mount=type=bind,source=/tmp,target=/tmp other command
+
+FROM scratch
+# Noncompliant@+1
+RUN --security=insecure my command
+RUN --security=insecure other command
+
+FROM scratch
+RUN --security=insecure my command
+# Noncompliant@+1
+RUN other command
+RUN yet another command

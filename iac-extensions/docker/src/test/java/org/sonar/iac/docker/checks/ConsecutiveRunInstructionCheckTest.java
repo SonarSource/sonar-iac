@@ -25,6 +25,6 @@ class ConsecutiveRunInstructionCheckTest {
 
   @Test
   void shouldVerifyCheck() {
-    DockerVerifier.verify("ConsecutiveRunInstructionCheck/Dockerfile", new ConsecutiveRunInstructionCheck());
+    DockerVerifier.verify("ConsecutiveRunInstructionCheck/ConsecutiveRunInstructionCheck.dockerfile", new ConsecutiveRunInstructionCheck());
   }
 }
