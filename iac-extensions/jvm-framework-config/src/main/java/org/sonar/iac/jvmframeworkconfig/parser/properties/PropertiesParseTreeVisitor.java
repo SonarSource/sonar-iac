@@ -25,9 +25,9 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.jvmframeworkconfig.tree.api.JvmFrameworkConfig;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Scalar;
-import org.sonar.iac.jvmframeworkconfig.tree.api.JvmFrameworkConfig;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 import org.sonar.iac.jvmframeworkconfig.tree.impl.FileImpl;
 import org.sonar.iac.jvmframeworkconfig.tree.impl.ProfileImpl;
@@ -64,7 +64,7 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<JvmF
     }
     var profile = new ProfileImpl(properties, comments, profileName(properties), true);
     profiles.add(profile);
-    return new FileImpl(profiles);
+    return new FileImpl(profiles, null);
   }
 
   private static Scalar createKeyScalar(PropertiesParser.RowContext row) {

@@ -71,12 +71,26 @@ class JvmFrameworkConfigHighlightingVisitorTest extends AbstractHighlightingTest
         foo-arr:
           - bar1
           - bar2
+        key1:
+          key2:
+            key3: value
+          key4: value
         """,
       Path.of("application.yaml"),
       YamlLanguage.KEY);
+    assertHighlighting(1, 0, 2, KEYWORD);
+    assertHighlighting(2, 2, 4, KEYWORD);
+    assertHighlighting(3, 2, 4, KEYWORD);
     assertHighlighting(3, 7, 9, STRING);
-    assertHighlighting(4, 0, 7, COMMENT);
+    assertHighlighting(4, 0, 13, COMMENT);
+    assertHighlighting(5, 0, 5, KEYWORD);
     assertHighlighting(6, 4, 7, STRING);
     assertHighlighting(7, 4, 7, STRING);
+    assertHighlighting(8, 0, 3, KEYWORD);
+    assertHighlighting(9, 2, 5, KEYWORD);
+    assertHighlighting(10, 4, 7, KEYWORD);
+    assertHighlighting(10, 10, 14, STRING);
+    assertHighlighting(11, 2, 5, KEYWORD);
+    assertHighlighting(11, 8, 12, STRING);
   }
 }
