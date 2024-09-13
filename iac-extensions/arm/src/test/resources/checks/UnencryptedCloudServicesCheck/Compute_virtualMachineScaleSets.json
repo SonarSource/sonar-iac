@@ -3,15 +3,23 @@
   "contentVersion": "1.0.0.0",
   "resources": [
     {
-      "name": "Noncompliant",
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-07-01",
+      "name": "Noncompliant dataDisks",
       "properties": {
         "virtualMachineProfile": {
           "storageProfile": {
             "dataDisks": [
               {
+                "name": "myDataDisk"
+              },
+              {
                 "managedDisk": {}
+              },
+              {
+                "managedDisk": {
+                  "diskEncryptionSet": {}
+                }
               },
               {
                 "managedDisk": {
@@ -22,7 +30,8 @@
               },
               {
                 "managedDisk": {
-                  "diskEncryptionSet": {
+                  "securityProfile": {
+                    "diskEncryptionSet": {}
                   }
                 }
               },
@@ -34,24 +43,31 @@
                     }
                   }
                 }
-              }
-            ],
-            "osDisk": {
-              "managedDisk": {
-                "securityProfile": {
+              },
+              {
+                "managedDisk": {
+                  "diskEncryptionSet": {
+                    "id": ""
+                  },
+                  "securityProfile": {
+                    "diskEncryptionSet": {
+                      "id": ""
+                    }
+                  }
                 }
               },
-              "securityProfile": {
+              {
+                "anotherKindOfDisk": {}
               }
-            }
+            ]
           }
         }
       }
     },
     {
-      "name": "Compliant",
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-07-01",
+      "name": "Compliant dataDisks",
       "properties": {
         "virtualMachineProfile": {
           "storageProfile": {
@@ -64,7 +80,48 @@
                 }
               },
               {
-                "anotherKindOfDisk": {
+                "managedDisk": {
+                  "securityProfile": {
+                    "diskEncryptionSet": {
+                      "id": "testId"
+                    }
+                  }
+                }
+              },
+              {
+                "managedDisk": {
+                  "diskEncryptionSet": {
+                    "id": "testId"
+                  },
+                  "securityProfile": {
+                    "diskEncryptionSet": {
+                      "id": ""
+                    }
+                  }
+                }
+              },
+              {
+                "managedDisk": {
+                  "diskEncryptionSet": {
+                    "id": ""
+                  },
+                  "securityProfile": {
+                    "diskEncryptionSet": {
+                      "id": "testId"
+                    }
+                  }
+                }
+              },
+              {
+                "managedDisk": {
+                  "diskEncryptionSet": {
+                    "id": "testId1"
+                  },
+                  "securityProfile": {
+                    "diskEncryptionSet": {
+                      "id": "testId2"
+                    }
+                  }
                 }
               }
             ]
@@ -73,9 +130,194 @@
       }
     },
     {
-      "name": "Noncompliant: encryptionAtHost is set to false",
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Noncompliant osDisk 1",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {}
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Noncompliant osDisk 2",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Noncompliant osDisk 3",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {
+                "diskEncryptionSet": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Noncompliant osDisk 4",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {
+                "diskEncryptionSet": {
+                  "id": ""
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Noncompliant osDisk 5",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {
+                "securityProfile": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Noncompliant osDisk 6",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {
+                "securityProfile": {
+                  "diskEncryptionSet": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Noncompliant osDisk 7",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {
+                "securityProfile": {
+                  "diskEncryptionSet": {
+                    "id": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Compliant osDisk 1",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {
+                "diskEncryptionSet": {
+                  "id": "testId"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Compliant osDisk 2",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {
+                "securityProfile": {
+                  "diskEncryptionSet": {
+                    "id": "testId"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Compliant osDisk 3",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "managedDisk": {
+                "diskEncryptionSet": {
+                  "id": "testId"
+                },
+                "securityProfile": {
+                  "diskEncryptionSet": {
+                    "id": "testId"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-07-01",
+      "name": "Compliant osDisk 4",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {}
+        }
+      }
+    },
+    {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-11-01",
+      "name": "Noncompliant: encryptionAtHost is set to false",
       "properties": {
         "virtualMachineProfile": {
           "securityProfile": {
@@ -85,20 +327,19 @@
       }
     },
     {
-      "name": "Noncompliant: encryptionAtHost is missing",
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-11-01",
+      "name": "Noncompliant: encryptionAtHost is missing",
       "properties": {
         "virtualMachineProfile": {
-          "securityProfile": {
-          }
+          "securityProfile": {}
         }
       }
     },
     {
-      "name": "Compliant: encryptionAtHost is set to true",
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-11-01",
+      "name": "Compliant: encryptionAtHost is set to true",
       "properties": {
         "virtualMachineProfile": {
           "securityProfile": {
@@ -109,4 +350,3 @@
     }
   ]
 }
-

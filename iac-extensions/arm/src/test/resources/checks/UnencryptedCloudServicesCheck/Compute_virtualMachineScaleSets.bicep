@@ -1,53 +1,77 @@
-resource nonCompliant1 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
-  name: 'Noncompliant'
+// dataDisks ---
+
+resource nonCompliantDataDisks 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Noncompliant dataDisks'
   properties: {
     virtualMachineProfile: {
       storageProfile: {
         dataDisks: [
+          // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
           {
-            managedDisk: {} // Noncompliant {{Omitting "diskEncryptionSet" enables clear-text storage. Make sure it is safe here.}}
+  //      ^[el=+3;ec=11]
+            name: 'myDataDisk'
           }
+          // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+          {
+            managedDisk: {}
+          }
+          // Noncompliant@+1
+          {
+            managedDisk: {
+              diskEncryptionSet: {}
+            }
+          }
+          // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
           {
             managedDisk: {
               diskEncryptionSet: {
-                id: '' // Noncompliant {{Omitting "id" enables clear-text storage. Make sure it is safe here.}}
+                id: ''
               }
             }
           }
+          // Noncompliant@+1
           {
             managedDisk: {
-              diskEncryptionSet: {} // Noncompliant {{Omitting "id" enables clear-text storage. Make sure it is safe here.}}
+              securityProfile: {
+                diskEncryptionSet: {}
+              }
             }
           }
+          // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
           {
-            managedDisk: { // Noncompliant {{Omitting "diskEncryptionSet" enables clear-text storage. Make sure it is safe here.}}
-//                       ^[el=+7;ec=13]
+            managedDisk: {
               securityProfile: {
                 diskEncryptionSet: {
-                  id: '' // Noncompliant {{Omitting "id" enables clear-text storage. Make sure it is safe here.}}
+                  id: ''
                 }
               }
             }
           }
-        ]
-        osDisk: {
-          managedDisk: { // Noncompliant {{Omitting "diskEncryptionSet" enables clear-text storage. Make sure it is safe here.}}
-//                     ^[el=+3;ec=11]
-            securityProfile: {} // Noncompliant {{Omitting "diskEncryptionSet" enables clear-text storage. Make sure it is safe here.}}
+          // Noncompliant@+1
+          {
+            managedDisk: {
+              diskEncryptionSet: {
+                id: ''
+              }
+              securityProfile: {
+                diskEncryptionSet: {
+                  id: ''
+                }
+              }
+            }
           }
-          securityProfile: {}
-        }
+          // Noncompliant@+1
+          {
+            anotherKindOfDisk: {}
+          }
+        ]
       }
     }
   }
 }
 
-resource compliant_existing 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' existing = {
-  name: 'Compliant: existing'
-}
-
-resource compliant 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
-  name: 'Compliant'
+resource compliantDataDisks 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Compliant dataDisks'
   properties: {
     virtualMachineProfile: {
       storageProfile: {
@@ -60,7 +84,49 @@ resource compliant 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
             }
           }
           {
-            anotherKindOfDisk: {}
+            managedDisk: {
+              securityProfile : {
+                diskEncryptionSet: {
+                  id: 'testId'
+                }
+              }
+            }
+          }
+          {
+            managedDisk: {
+              diskEncryptionSet: {
+                id: 'testId'
+              }
+              securityProfile : {
+                diskEncryptionSet: {
+                  id: ''
+                }
+              }
+            }
+          }
+          {
+            managedDisk: {
+              diskEncryptionSet: {
+                id: ''
+              }
+              securityProfile : {
+                diskEncryptionSet: {
+                  id: 'testId'
+                }
+              }
+            }
+          }
+          {
+            managedDisk: {
+              diskEncryptionSet: {
+                id: 'testId1'
+              }
+              securityProfile : {
+                diskEncryptionSet: {
+                  id: 'testId2'
+                }
+              }
+            }
           }
         ]
       }
@@ -68,7 +134,194 @@ resource compliant 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
   }
 }
 
-resource nonCompliant2 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
+// osDisk ---
+
+resource nonCompliantOsDisk1 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Noncompliant osDisk 1'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        // Noncompliant@+1
+        osDisk: {}
+      }
+    }
+  }
+}
+
+resource nonCompliantOsDisk2 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Noncompliant osDisk 2'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+        osDisk: {
+  //            ^[el=+3;ec=9]
+          managedDisk: {}
+        }
+      }
+    }
+  }
+}
+
+resource nonCompliantOsDisk3 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Noncompliant osDisk 3'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        // Noncompliant@+1
+        osDisk: {
+          managedDisk: {
+            diskEncryptionSet: {}
+          }
+        }
+      }
+    }
+  }
+}
+
+resource nonCompliantOsDisk4 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Noncompliant osDisk 4'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+        osDisk: {
+  //            ^[el=+7;ec=9]
+          managedDisk: {
+            diskEncryptionSet: {
+              id: ''
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource nonCompliantOsDisk5 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Noncompliant osDisk 5'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        // Noncompliant@+1
+        osDisk: {
+          managedDisk: {
+            securityProfile: {}
+          }
+        }
+      }
+    }
+  }
+}
+
+resource nonCompliantOsDisk6 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Noncompliant osDisk 6'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        // Noncompliant@+1
+        osDisk: {
+          managedDisk: {
+            securityProfile: {
+              diskEncryptionSet: {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource nonCompliantOsDisk7 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Noncompliant osDisk 7'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        // Noncompliant@+1
+        osDisk: {
+          managedDisk: {
+            securityProfile: {
+              diskEncryptionSet: {
+                id: ''
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource compliantOsDisk1 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Compliant osDisk 1'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        osDisk: {
+          managedDisk: {
+            diskEncryptionSet: {
+              id: 'testId'
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource compliantOsDisk2 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Compliant osDisk 2'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        osDisk: {
+          managedDisk: {
+            securityProfile: {
+              diskEncryptionSet: {
+                id: 'testId'
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource compliantOsDisk3 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Compliant osDisk 3'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {
+        osDisk: {
+          managedDisk: {
+            diskEncryptionSet: {
+              id: 'testId'
+            }
+            securityProfile: {
+              diskEncryptionSet: {
+                id: 'testId'
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource compliantOsDisk4 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+  name: 'Compliant osDisk 4'
+  properties: {
+    virtualMachineProfile: {
+      storageProfile: {}
+    }
+  }
+}
+
+// encryptionAtHost ---
+
+resource nonCompliantEncryptionAtHost1 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
   name: 'Noncompliant: encryptionAtHost is set to false'
   properties: {
     virtualMachineProfile: {
@@ -79,7 +332,7 @@ resource nonCompliant2 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = 
   }
 }
 
-resource nonCompliant3 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
+resource nonCompliantEncryptionAtHost2 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
   name: 'Noncompliant: encryptionAtHost is missing'
   properties: {
     virtualMachineProfile: {
@@ -88,7 +341,7 @@ resource nonCompliant3 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = 
   }
 }
 
-resource compliant2 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
+resource compliantEncryptionAtHost 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
   name: 'Compliant: encryptionAtHost is set to true'
   properties: {
     virtualMachineProfile: {

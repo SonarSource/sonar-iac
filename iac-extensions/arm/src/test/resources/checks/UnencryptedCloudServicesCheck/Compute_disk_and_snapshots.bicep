@@ -1,4 +1,4 @@
-// Noncompliant@+1 {{Omitting "encryption.diskEncryptionSetId", "encryptionSettingsCollection" or "securityProfile.secureVMDiskEncryptionSetId" enables clear-text storage. Make sure it is safe here.}}
+// Noncompliant@+1 {{Omitting "encryption.diskEncryptionSetId", "encryptionSettingsCollection" and "securityProfile.secureVMDiskEncryptionSetId" enables clear-text storage. Make sure it is safe here.}}
 resource nonCompliant1 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Sensitive: diskEncryptionSetId, encryptionSettingsCollection and secureVMDiskEncryptionSetId are not set'
   properties: {
@@ -73,7 +73,7 @@ resource compliant5 'Microsoft.Compute/disks@2022-07-02' = {
   }
 }
 
-// Noncompliant@+1 {{Omitting "encryption.diskEncryptionSetId", "encryptionSettingsCollection" or "securityProfile.secureVMDiskEncryptionSetId" enables clear-text storage. Make sure it is safe here.}}
+// Noncompliant@+1 {{Omitting "encryption.diskEncryptionSetId", "encryptionSettingsCollection" and "securityProfile.secureVMDiskEncryptionSetId" enables clear-text storage. Make sure it is safe here.}}
 resource nonCompliant3 'Microsoft.Compute/snapshots@2022-07-02' = {
   name: 'Sensitive: diskEncryptionSetId, encryptionSettingsCollection and secureVMDiskEncryptionSetId are not set'
   properties: {
