@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyApiGatewayMethodNone:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+
+  MyApiGatewayMethodSafe:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: AWS_IAM # Compliant
+
+  OpenApiDefault:
+    Type: AWS::Serverless::Api # Noncompliant
+    Properties:
+      StageName: Prod
+
+  OpenApi:
+    Type: AWS::Serverless::Api
+    #     ^^^^^^^^^^^^^^^^^^^^> {{Related API}}
+    Properties:
+      StageName: Prod
+      Auth:
+        ApiKeyRequired: false # Noncompliant {{Make sure creating a public API is safe here.}}
+        #               ^^^^^
+
+  ApiSafe:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        ApiKeyRequired: false
+        ResourcePolicy: foo
+
+  ApiSafe2:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth: foo
+
+  ApiSafe3:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        ApiKeyRequired: true
+
+  MyDefaultHttpApi:
+    Type: AWS::Serverless::HttpApi # Noncompliant
+    Properties:
+      StageName: Prod
+
+  SafeHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: Prod
+      Auth: foo
+
+  NoneOfThisChecksBusiness:
+    Type: AWS::NoneOfThisChecksBusiness
+
+  S6333Route:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333Api
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      RouteKey: GET /no-auth
+
+  S6333Api:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: S6333API-name
+      ProtocolType: HTTP
+#                   ^^^^< {{Related API}}
+
+  S6333ApiWebSocket:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: S6333APIWebSocket-name
+      ProtocolType: WEBSOCKET
+      #             ^^^^^^^^^> {{Related API}}
+
+  S6333RouteWebSocket:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333ApiWebSocket
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      RouteKey: $connect
+      #         ^^^^^^^^< {{Related RouteKey}}
+
+  S6333ApiCompliantHttp:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: S6333API-name
+      ProtocolType: HTTP
+
+  S6333RouteCompliantAuthorizationTypeIsJWT:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333ApiCompliant
+      AuthorizationType: JWT
+      RouteKey: GET /jwt
+
+  S6333ApiCompliantWebsocket:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: S6333API-name
+      ProtocolType: WEBSOCKET
+
+  S6333RouteCompliantRouteKeyIsDisconnect:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333ApiCompliantWebsocket
+      AuthorizationType: NONE
+      RouteKey: $disconnect

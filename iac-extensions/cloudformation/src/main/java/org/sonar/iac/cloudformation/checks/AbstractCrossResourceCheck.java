@@ -19,12 +19,24 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import org.junit.jupiter.api.Test;
+import java.util.HashMap;
+import java.util.Map;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.yaml.tree.FileTree;
 
-class PublicApiCheckTest {
+public abstract class AbstractCrossResourceCheck extends AbstractResourceCheck {
 
-  @Test
-  void shouldVerifyPublicApiCheck() {
-    CloudformationVerifier.verify("PublicApiCheck/publicApiCheck.yaml", new PublicApiCheck());
+  protected Map<String, Resource> resourceNameToResource = new HashMap<>();
+
+  @Override
+  public void initialize(InitContext init) {
+    init.register(FileTree.class, (CheckContext ctx, FileTree tree) -> {
+      var fileResources = getFileResources(tree);
+      resourceNameToResource.clear();
+      fileResources.forEach(r -> resourceNameToResource.put(r.name().value(), r));
+      fileResources.forEach(r -> checkResource(ctx, r));
+    });
   }
+
 }
