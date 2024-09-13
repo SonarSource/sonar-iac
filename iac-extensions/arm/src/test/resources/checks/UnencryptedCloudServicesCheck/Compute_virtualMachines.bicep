@@ -9,12 +9,12 @@ resource nonCompliantDataDisks 'Microsoft.Compute/virtualMachines@2022-07-01' = 
   properties: {
     storageProfile: {
       dataDisks: [
-        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
         {
 //      ^[el=+3;ec=9]
           name: 'myDataDisk'
         }
-        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
         {
           managedDisk: {}
         }
@@ -24,7 +24,7 @@ resource nonCompliantDataDisks 'Microsoft.Compute/virtualMachines@2022-07-01' = 
             diskEncryptionSet: {}
           }
         }
-        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
         {
           managedDisk: {
             diskEncryptionSet: {
@@ -40,9 +40,22 @@ resource nonCompliantDataDisks 'Microsoft.Compute/virtualMachines@2022-07-01' = 
             }
           }
         }
-        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+        // Noncompliant@+1 {{Omitting "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
         {
           managedDisk: {
+            securityProfile: {
+              diskEncryptionSet: {
+                id: ''
+              }
+            }
+          }
+        }
+        // Noncompliant@+1
+        {
+          managedDisk: {
+            diskEncryptionSet: {
+              id: ''
+            }
             securityProfile: {
               diskEncryptionSet: {
                 id: ''
@@ -162,7 +175,7 @@ resource nonCompliantOsDisk4 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   name: 'Noncompliant osDisk 4'
   properties: {
     storageProfile: {
-      // Noncompliant@+1 {{Omitting "encryptionSettings.enabled", "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+      // Noncompliant@+1 {{Omitting "encryptionSettings.enabled", "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
       osDisk: {
 //            ^[el=+3;ec=7]
         managedDisk: {}
@@ -189,7 +202,7 @@ resource nonCompliantOsDisk6 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   name: 'Noncompliant osDisk 6'
   properties: {
     storageProfile: {
-      // Noncompliant@+1 {{Omitting "encryptionSettings.enabled", "managedDisk.diskEncryptionSet.id" or "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
+      // Noncompliant@+1 {{Omitting "encryptionSettings.enabled", "managedDisk.diskEncryptionSet.id" and "managedDisk.securityProfile.diskEncryptionSet.id" enables clear-text storage. Make sure it is safe here.}}
       osDisk: {
 //            ^[el=+7;ec=7]
         managedDisk: {

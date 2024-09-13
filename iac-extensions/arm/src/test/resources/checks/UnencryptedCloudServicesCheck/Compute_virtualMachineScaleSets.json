@@ -45,6 +45,18 @@
                 }
               },
               {
+                "managedDisk": {
+                  "diskEncryptionSet": {
+                    "id": ""
+                  },
+                  "securityProfile": {
+                    "diskEncryptionSet": {
+                      "id": ""
+                    }
+                  }
+                }
+              },
+              {
                 "anotherKindOfDisk": {}
               }
             ]

@@ -110,7 +110,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   private static void checkDataDisk(ContextualObject dataDisk) {
     if (!isDiskEncryptionSetIdSet(dataDisk)) {
-      dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+      dataDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" and \"managedDisk.securityProfile.diskEncryptionSet.id"));
     }
   }
 
@@ -121,7 +121,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     }
     ContextualProperty encryptionSettingsEnabled = osDisk.object("encryptionSettings").property("enabled");
     if (encryptionSettingsEnabled.isAbsent()) {
-      osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings.enabled\", \"managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+      osDisk.report(String.format(FORMAT_OMITTING, "encryptionSettings.enabled\", \"managedDisk.diskEncryptionSet.id\" and \"managedDisk.securityProfile.diskEncryptionSet.id"));
     } else if (encryptionSettingsEnabled.is(isFalse())) {
       encryptionSettingsEnabled.report(UNENCRYPTED_MESSAGE);
     }
@@ -132,7 +132,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     if (osDisk.isAbsent() || isDiskEncryptionSetIdSet(osDisk)) {
       return;
     }
-    osDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" or \"managedDisk.securityProfile.diskEncryptionSet.id"));
+    osDisk.report(String.format(FORMAT_OMITTING, "managedDisk.diskEncryptionSet.id\" and \"managedDisk.securityProfile.diskEncryptionSet.id"));
   }
 
   private static boolean isDiskEncryptionSetIdSet(ContextualObject disk) {
@@ -152,7 +152,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       if (encryptionSettingsCollectionEnabled.isPresent() && encryptionSettingsCollectionEnabled.is(isFalse())) {
         encryptionSettingsCollectionEnabled.report(UNENCRYPTED_MESSAGE);
       } else {
-        resource.report(String.format(FORMAT_OMITTING, "encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" or \"securityProfile.secureVMDiskEncryptionSetId"));
+        resource.report(String.format(FORMAT_OMITTING, "encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" and \"securityProfile.secureVMDiskEncryptionSetId"));
       }
     }
   }
