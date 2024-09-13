@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.symbols.Symbol;
@@ -99,5 +100,23 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
       throw new IllegalArgumentException("A symbol is already set");
     }
     this.symbol = symbol;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof EncapsulatedVariableImpl that)) {
+      return false;
+    }
+    // By the grammar, curly braces are always present
+    return Objects.equals(identifier, that.identifier) && Objects.equals(modifierSeparator, that.modifierSeparator) && Objects.equals(modifier, that.modifier)
+      && Objects.equals(symbol, that.symbol);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(openDollarCurly, identifier, modifierSeparator, modifier, closeCurly, symbol);
   }
 }

@@ -23,6 +23,9 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
+
 class RegularVariableImplTest {
 
   @Test
@@ -36,5 +39,21 @@ class RegularVariableImplTest {
 
       .notMatches("$foo=")
       .notMatches("$foo.bar");
+  }
+
+  @Test
+  void shouldCheckEquality() {
+    RegularVariableImpl variable1 = parse("$foo", DockerLexicalGrammar.REGULAR_VARIABLE);
+    RegularVariableImpl variable2 = parse("$foo", DockerLexicalGrammar.REGULAR_VARIABLE);
+    RegularVariableImpl variable3 = parse("$bar", DockerLexicalGrammar.REGULAR_VARIABLE);
+
+    assertThat(variable1)
+      .isEqualTo(variable1)
+      .isEqualTo(variable2)
+      .hasSameHashCodeAs(variable2)
+      .isNotEqualTo(variable3)
+      .doesNotHaveSameHashCodeAs(variable3)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
   }
 }

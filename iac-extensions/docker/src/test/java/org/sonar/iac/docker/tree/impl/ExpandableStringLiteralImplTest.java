@@ -82,4 +82,40 @@ class ExpandableStringLiteralImplTest {
     ExpandableStringLiteral literal = parse("\"foo$bar\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
     assertThat(literal).hasToString("\"foo$bar\"");
   }
+
+  @Test
+  void shouldCheckEquality() {
+    ExpandableStringLiteral literal1 = parse("\"foo$bar\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
+    ExpandableStringLiteral literal2 = parse("\"foo$bar\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
+    ExpandableStringLiteral literal3 = parse("\"bar$baz\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
+
+    assertThat(literal1)
+      .isEqualTo(literal1)
+      .isEqualTo(literal2)
+      .hasSameHashCodeAs(literal2)
+      .isNotEqualTo(literal3)
+      .doesNotHaveSameHashCodeAs(literal3)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
+  }
+
+  @Test
+  void shouldCheckEqualityForStringCharacters() {
+    ExpandableStringCharacters characters1 = parseCharacters("\"foo$bar\"");
+    ExpandableStringCharacters characters2 = parseCharacters("\"foo$bar\"");
+    ExpandableStringCharacters characters3 = parseCharacters("\"bar$baz\"");
+
+    assertThat(characters1)
+      .isEqualTo(characters1)
+      .isEqualTo(characters2)
+      .hasSameHashCodeAs(characters2)
+      .isNotEqualTo(characters3)
+      .doesNotHaveSameHashCodeAs(characters3)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
+  }
+
+  private static ExpandableStringCharacters parseCharacters(String input) {
+    return (ExpandableStringCharacters) ((ExpandableStringLiteral) parse(input, DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL)).expressions().get(0);
+  }
 }

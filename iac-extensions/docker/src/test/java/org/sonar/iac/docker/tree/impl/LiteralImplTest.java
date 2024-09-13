@@ -102,4 +102,19 @@ class LiteralImplTest {
     Literal literal = parse("foo", REGULAR_STRING_LITERAL);
     assertThat(literal).hasToString("foo");
   }
+
+  @Test
+  void shouldCheckEquality() {
+    Literal literal1 = parse("foo", REGULAR_STRING_LITERAL);
+    Literal literal2 = parse("foo", REGULAR_STRING_LITERAL);
+    Literal literal3 = parse("bar", REGULAR_STRING_LITERAL);
+
+    assertThat(literal1)
+      .isEqualTo(literal1)
+      .isEqualTo(literal2)
+      .hasSameHashCodeAs(literal2)
+      .isNotEqualTo(literal3)
+      .doesNotHaveSameHashCodeAs(literal3)
+      .isNotEqualTo(new Object());
+  }
 }

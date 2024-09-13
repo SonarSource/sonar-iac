@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
+import java.util.Objects;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -50,5 +51,21 @@ public class ExpandableStringCharactersImpl extends AbstractDockerTreeImpl imple
   @Override
   public String toString() {
     return token.value();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ExpandableStringCharactersImpl that)) {
+      return false;
+    }
+    return Objects.equals(token, that.token);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(token);
   }
 }

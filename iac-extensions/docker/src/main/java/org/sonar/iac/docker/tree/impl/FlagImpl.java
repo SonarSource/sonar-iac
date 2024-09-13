@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -79,5 +80,22 @@ public class FlagImpl extends AbstractDockerTreeImpl implements Flag {
       ", equals=" + equals +
       ", value=" + value +
       '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof FlagImpl flag)) {
+      return false;
+    }
+    // By the grammar, flags always have same prefix and equals token
+    return Objects.equals(name, flag.name) && Objects.equals(value, flag.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(prefix, name, equals, value);
   }
 }

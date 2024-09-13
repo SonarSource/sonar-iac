@@ -105,13 +105,25 @@ FROM scratch
 RUN --security=insecure my command
 RUN --mount=type=bind,source=/tmp,target=/tmp other command
 
+# Compliant; instructions with the same options are not consecutive
+FROM scratch
+RUN --security=insecure my command
+RUN --mount=type=bind,source=/tmp,target=/tmp other command
+RUN --security=insecure my other command
+
 FROM scratch
 # Noncompliant@+1
 RUN --security=insecure my command
 RUN --security=insecure other command
 
 FROM scratch
+# Noncompliant@+1
+RUN --security=insecure --network=none my command
+RUN --network=none --security=insecure other command
+
+FROM scratch
 RUN --security=insecure my command
+
 # Noncompliant@+1
 RUN other command
 RUN yet another command

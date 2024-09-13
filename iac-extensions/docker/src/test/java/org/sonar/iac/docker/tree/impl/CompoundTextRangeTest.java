@@ -106,6 +106,7 @@ class CompoundTextRangeTest {
       .isNotEqualTo(compoundTextRangeDifferent2)
       .isNotEqualTo(compoundTextRangeEmpty)
       .isNotEqualTo(null)
+      .isNotEqualTo(null)
       .isNotEqualTo(new Object());
   }
 

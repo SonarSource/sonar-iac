@@ -20,8 +20,9 @@
 package org.sonar.iac.docker.checks;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -70,17 +71,14 @@ public class ConsecutiveRunInstructionCheck implements IacCheck {
 
   private static int nextIteration(int i, List<Instruction> instructions, List<List<RunInstruction>> result) {
     var subList = new ArrayList<RunInstruction>();
-    subList.add((RunInstruction) instructions.get(i));
-    i++;
-    while (i < instructions.size() && instructions.get(i) instanceof RunInstruction current) {
-      var previous = subList.get(subList.size() - 1);
-      if (haveEqualOptions(current, previous)) {
-        subList.add(current);
+    RunInstruction currentInstruction = (RunInstruction) instructions.get(i);
+    subList.add(currentInstruction);
+    while (i + 1 < instructions.size() && instructions.get(i + 1) instanceof RunInstruction nextInstruction) {
+      if (haveEqualOptions(currentInstruction, nextInstruction)) {
+        subList.add(nextInstruction);
+        currentInstruction = nextInstruction;
         i++;
       } else {
-        // start next iteration from the current instruction; on the next iteration of the outer loop,
-        // the next instruction will be compared with the current one
-        i--;
         break;
       }
     }
@@ -91,15 +89,8 @@ public class ConsecutiveRunInstructionCheck implements IacCheck {
   }
 
   private static boolean haveEqualOptions(RunInstruction first, RunInstruction second) {
-    if (first.options().size() != second.options().size()) {
-      return false;
-    }
-    if (first.options().isEmpty()) {
-      return true;
-    }
-
-    var firstOptions = first.options().stream().map(Flag::toString).collect(Collectors.toSet());
-    var secondOptions = second.options().stream().map(Flag::toString).collect(Collectors.toSet());
+    Set<Flag> firstOptions = new HashSet<>(first.options());
+    Set<Flag> secondOptions = new HashSet<>(second.options());
     return firstOptions.equals(secondOptions);
   }
 }
