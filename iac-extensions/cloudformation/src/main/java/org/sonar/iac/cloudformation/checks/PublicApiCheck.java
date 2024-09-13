@@ -92,15 +92,19 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
   }
 
   private Stream<Tree> checkReferencedResourceForProtocolType(List<YamlTree> refList, String protocol) {
+    return getResourcesByRefs(refList)
+      .map(resource -> value(resource.properties(), "ProtocolType")
+        .filter(protocolTypeTree -> isValue(protocolTypeTree, protocol).isTrue()))
+      .filter(Optional::isPresent)
+      .map(Optional::get);
+  }
+
+  private Stream<Resource> getResourcesByRefs(List<YamlTree> refList) {
     return refList.stream()
       .filter(ScalarTree.class::isInstance)
       .map(ScalarTree.class::cast)
       .map(scalarTree -> resourceNameToResource.get(scalarTree.value()))
-      .filter(Objects::nonNull)
-      .map(resourceByName -> value(resourceByName.properties(), "ProtocolType")
-        .filter(protocolTypeTree -> isValue(protocolTypeTree, protocol).isTrue()))
-      .filter(Optional::isPresent)
-      .map(Optional::get);
+      .filter(Objects::nonNull);
   }
 
   private static void checkApiGatewayMethod(CheckContext ctx, Resource resource) {
