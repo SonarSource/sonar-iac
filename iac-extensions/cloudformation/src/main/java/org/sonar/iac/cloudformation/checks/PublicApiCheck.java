@@ -33,6 +33,9 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
+import static org.sonar.iac.common.checks.PropertyUtils.value;
+import static org.sonar.iac.common.checks.TextUtils.isValue;
+
 @Rule(key = "S6333")
 public class PublicApiCheck extends AbstractCrossResourceCheck {
 
@@ -58,22 +61,22 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
         var apiIdRefs = getApiIdRefs(resource);
         apiIdRefs.ifPresent(refList -> checkReferencedResourceForProtocolTypeHttp(ctx, routeTree, refList));
 
-        PropertyUtils.value(resource.properties(), "RouteKey")
-          .filter(routeKey -> TextUtils.isValue(routeKey, "$connect").isTrue())
+        value(resource.properties(), "RouteKey")
+          .filter(routeKey -> isValue(routeKey, "$connect").isTrue())
           .ifPresent(routeKey -> apiIdRefs
             .ifPresent(refList -> checkReferencedResourceForProtocolTypeWebsocket(ctx, routeTree, refList, routeKey)));
       });
   }
 
   private static Optional<List<YamlTree>> getApiIdRefs(Resource resource) {
-    return PropertyUtils.value(resource.properties(), "ApiId", FunctionCallTree.class)
+    return value(resource.properties(), "ApiId", FunctionCallTree.class)
       .filter(tree -> "Ref".equals(tree.name()))
       .map(FunctionCallTree::arguments);
   }
 
   private static Optional<Tree> checkAuthorizationTypeIsNone(Resource resource) {
-    return PropertyUtils.value(resource.properties(), "AuthorizationType")
-      .filter(routeTree -> TextUtils.isValue(routeTree, "NONE").isTrue());
+    return value(resource.properties(), "AuthorizationType")
+      .filter(routeTree -> isValue(routeTree, "NONE").isTrue());
   }
 
   private void checkReferencedResourceForProtocolTypeHttp(CheckContext ctx, Tree routeTree, List<YamlTree> refList) {
@@ -94,8 +97,8 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
       .map(ScalarTree.class::cast)
       .map(scalarTree -> resourceNameToResource.get(scalarTree.value()))
       .filter(Objects::nonNull)
-      .map(resourceByName -> PropertyUtils.value(resourceByName.properties(), "ProtocolType")
-        .filter(routeTree1 -> TextUtils.isValue(routeTree1, protocol).isTrue()))
+      .map(resourceByName -> value(resourceByName.properties(), "ProtocolType")
+        .filter(protocolTypeTree -> isValue(protocolTypeTree, protocol).isTrue()))
       .filter(Optional::isPresent)
       .map(Optional::get);
   }
@@ -106,21 +109,21 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
   }
 
   private static void checkServerlessApi(CheckContext ctx, Resource resource) {
-    Optional<Tree> optionalAuthProperty = PropertyUtils.value(resource.properties(), "Auth");
+    Optional<Tree> optionalAuthProperty = value(resource.properties(), "Auth");
     if (optionalAuthProperty.isEmpty()) {
       ctx.reportIssue(resource.type(), MESSAGE);
       return;
     }
 
     Tree authProperty = optionalAuthProperty.get();
-    Optional<Tree> keyRequirementProperty = PropertyUtils.value(authProperty, "ApiKeyRequired");
+    Optional<Tree> keyRequirementProperty = value(authProperty, "ApiKeyRequired");
     if (keyRequirementProperty.isPresent() && TextUtils.isValueFalse(keyRequirementProperty.get()) && noRequiredAuthPropertySet(authProperty)) {
       ctx.reportIssue(keyRequirementProperty.get(), MESSAGE, new SecondaryLocation(resource.type(), RELATED_API_MESSAGE));
     }
   }
 
   private static void checkServerlessHttpApi(CheckContext ctx, Resource resource) {
-    Optional<Tree> optionalAuthProperty = PropertyUtils.value(resource.properties(), "Auth");
+    Optional<Tree> optionalAuthProperty = value(resource.properties(), "Auth");
     if (optionalAuthProperty.isEmpty()) {
       ctx.reportIssue(resource.type(), MESSAGE);
     }

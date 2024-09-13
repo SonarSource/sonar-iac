@@ -19,14 +19,19 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.LiteralExprTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
+
+import static org.sonar.iac.common.checks.PropertyUtils.value;
+import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6333")
 public class PublicApiCheck extends AbstractCrossResourceCheck {
@@ -46,25 +51,50 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
   }
 
   private void checkApiGatewayV2Route(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "authorization_type", AttributeTree.class)
-      .ifPresentOrElse(authTypeNone -> {
-        PropertyUtils.get(resource, "api_id", AttributeTree.class)
-          .ifPresent(apiId -> {
-            var resourceName = ((AttributeAccessTree) ((AttributeAccessTree) apiId.value()).object()).attribute().value();
-            var blockTree = blockNameToBlockTree.get(resourceName);
-            if (blockTree != null) {
-              // value or property
-              PropertyUtils.value(blockTree, "protocol_type", AttributeTree.class)
-                .filter(protocolType -> TextUtils.isValue(protocolType.value(), "HTTP").isTrue())
-                .ifPresent(protocolType -> {
-                  // TODO secondary locations
-                  reportSensitiveValue(ctx, authTypeNone, "NONE", MESSAGE);
-                });
-            }
-          });
-      }, () -> {
-        System.out.println("TODO");
-        // TODO
-      });
+    var authorizationTypeNoneOrAbsent = PropertyUtils.get(resource, "authorization_type", AttributeTree.class)
+      .filter(authType -> !isValue(authType.value(), "NONE").isTrue())
+      .isEmpty();
+    if (!authorizationTypeNoneOrAbsent) {
+      return;
+    }
+
+    var relatedProtocolType = PropertyUtils.get(resource, "api_id", AttributeTree.class)
+      .map((AttributeTree apiId) -> {
+        var resourceName = ((AttributeAccessTree) ((AttributeAccessTree) apiId.value()).object()).attribute().value();
+        return blockNameToBlockTree.get(resourceName);
+      })
+      .flatMap(blockTree -> value(blockTree, "protocol_type", LiteralExprTree.class));
+
+    var primaryLocation = PropertyUtils.get(resource, "authorization_type", AttributeTree.class)
+      .filter(authType -> isValue(authType.value(), "NONE").isTrue())
+      .map(TerraformTree.class::cast)
+      .orElse(resource);
+
+    boolean isHttp = relatedProtocolType.map(protocolType -> isValue(protocolType, "HTTP").isTrue()).orElse(false);
+    if (isHttp) {
+      var secondaryLocations = List.of(new SecondaryLocation(relatedProtocolType.get(), "Related API"));
+      reportTreeOrResource(primaryLocation, ctx, MESSAGE, secondaryLocations);
+    }
+
+    boolean isWebsocket = relatedProtocolType.map(protocolType -> isValue(protocolType, "WEBSOCKET").isTrue()).orElse(false);
+    if (isWebsocket) {
+      var routeKey = value(resource, "route_key", LiteralExprTree.class)
+        .filter(routeKeyTree -> isValue(routeKeyTree, "$connect").isTrue());
+
+      if (routeKey.isPresent()) {
+        var secondaryLocations = List.of(
+          new SecondaryLocation(routeKey.get(), "Related route_key"),
+          new SecondaryLocation(relatedProtocolType.get(), "Related API"));
+        reportTreeOrResource(primaryLocation, ctx, MESSAGE, secondaryLocations);
+      }
+    }
+  }
+
+  private static void reportTreeOrResource(TerraformTree tree, CheckContext ctx, String message, List<SecondaryLocation> secondaries) {
+    if (tree instanceof BlockTree blockTree) {
+      reportResource(ctx, blockTree, message, secondaries);
+    } else {
+      ctx.reportIssue(tree, message, secondaries);
+    }
   }
 }

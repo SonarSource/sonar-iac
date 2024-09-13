@@ -22,24 +22,28 @@ package org.sonar.iac.terraform.checks;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 
-public class AbstractCrossResourceCheck extends AbstractResourceCheck {
+import static java.util.stream.Collectors.toMap;
+
+public abstract class AbstractCrossResourceCheck extends AbstractResourceCheck {
 
   protected Map<String, BlockTree> blockNameToBlockTree = new HashMap<>();
 
   @Override
   public void initialize(InitContext init) {
-    init.register(FileTree.class, (ctx, tree) -> {
-      blockNameToBlockTree = tree.properties().stream()
-        .filter(BlockTree.class::isInstance)
-        .map(BlockTree.class::cast)
-        .collect(Collectors.toMap(AbstractResourceCheck::getReferenceLabel, Function.identity()));
-    });
-    init.register(BlockTree.class, (ctx, tree) -> {
+    init.register(FileTree.class, (CheckContext ctx, FileTree tree) -> blockNameToBlockTree = tree.properties().stream()
+      .filter(BlockTree.class::isInstance)
+      .map(BlockTree.class::cast)
+      .filter(AbstractResourceCheck::hasReferenceLabel)
+      .collect(toMap(AbstractResourceCheck::getReferenceLabel, Function.identity(), (block1, block2) ->
+      // In theory, a valid Terraform file should not contain two blocks with the same name. This check is to be on the safe side.
+      block1)));
+
+    init.register(BlockTree.class, (CheckContext ctx, BlockTree tree) -> {
       if (isResource(tree)) {
         checkResource(ctx, tree);
       }
