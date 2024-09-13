@@ -20,91 +20,100 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.yaml.TreePredicates;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.kubernetes.model.ClusterRoleBinding;
+import org.sonar.iac.kubernetes.model.RoleBinding;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
-
-import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
+import org.sonar.iac.kubernetes.model.Subject;
 
 @Rule(key = "S6865")
-public class AutomountServiceAccountTokenCheck extends AbstractResourceManagementCheck<ServiceAccount> {
-  private static final String MESSAGE = "Set \"automountServiceAccountToken\" to false for this specification of kind %s.";
-  private static final String KEY = "automountServiceAccountToken";
+public class AutomountServiceAccountTokenCheck extends AbstractGlobalResourceCheck {
+  private static final String MESSAGE_BIND_ACCOUNT_RESOURCE = "Bind this Service Account to RBAC or disable \"automountServiceAccountToken\".";
+  private static final String MESSAGE_BIND_ACCOUNT_NAME = "Bind this resource's automounted service account to RBAC or disable automounting.";
   private static final String KIND_POD = "Pod";
+  private static final String SERVICE_ACCOUNT_NAME = "serviceAccountName";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  private static final Predicate<YamlTree> IS_FALSE = tree -> "false".equals(TextUtils.getValue(tree).orElse(""));
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, document -> checkAndReport(document, String.format(MESSAGE, KIND_POD)));
+    register(KIND_POD, document -> checkResource(document, document.block("spec")));
+    register(KIND_WITH_TEMPLATE, document -> checkResource(document, document.block("spec").block("template").block("spec")));
+  }
 
-    for (String kind : KIND_WITH_TEMPLATE) {
-      register(kind, (BlockObject document) -> checkAndReport(document.block("spec").block("template"), String.format(MESSAGE, kind)));
+  private void checkResource(BlockObject document, BlockObject spec) {
+    if (isAutomountDisabled(spec) || isContainersAbsent(spec)) {
+      return;
     }
+    var namespace = CheckUtils.retrieveNamespace(document);
+    var accountName = CheckUtils.retrieveAttributeAsString(spec, SERVICE_ACCOUNT_NAME);
+    checkAccountSecurity(document, spec, namespace, accountName);
   }
 
-  @Override
-  Class<ServiceAccount> getGlobalResourceType() {
-    return ServiceAccount.class;
+  private static boolean isAutomountDisabled(BlockObject spec) {
+    return spec.attribute("automountServiceAccountToken").isValue(IS_FALSE);
   }
 
-  private void checkAndReport(BlockObject blockObject, String message) {
-    var specAsBlockObject = blockObject.block("spec");
-    var specAsAttributeObject = blockObject.attribute("spec");
-    if (specAsAttributeObject.tree != null && isContainersPresentInSpecBlock(specAsBlockObject)) {
-      var tokenAttribute = specAsBlockObject.attribute(KEY);
-      if (!tokenAttribute.isAbsent()) {
-        tokenAttribute.reportIfValue(TreePredicates.isSet().negate(), message);
-        tokenAttribute.reportIfValue(isTrue(), message);
-        return;
-      }
+  private static boolean isContainersAbsent(BlockObject spec) {
+    return spec.attribute("containers").isAbsent();
+  }
 
-      List<ServiceAccount> linkedServiceAccounts = retrieveLinkedServiceAccount(blockObject);
-      if (linkedServiceAccounts.isEmpty()) {
-        specAsAttributeObject.reportOnKey(message);
+  private void checkAccountSecurity(BlockObject document, BlockObject spec, String namespace, @Nullable String accountName) {
+    // If we can find any RoleBinding or ClusterRoleBinding that references the service account, it's compliant and we stop there
+    if (hasAnyBoundRole(document, namespace, accountName)) {
+      return;
+    }
+
+    // If we can find a ServiceAccount of that name with automountServiceAccountToken set to false, it's compliant and we stop there
+    var serviceAccounts = findGlobalResources(ServiceAccount.class, namespace, document).stream()
+      .filter(serviceAccount -> serviceAccount.name().equals(accountName))
+      .toList();
+    if (serviceAccounts.stream().anyMatch(serviceAccount -> serviceAccount.automountServiceAccountToken().isFalse())) {
+      return;
+    }
+
+    // If we reach there, then we couldn't find any security measure in place -> raise an issue
+    if (serviceAccounts.isEmpty()) {
+      if (accountName == null) {
+        spec.attribute("containers")
+          .reportOnKey(MESSAGE_BIND_ACCOUNT_NAME);
       } else {
-        boolean hasAtLeastOneAccountCompliant = linkedServiceAccounts.stream().anyMatch(account -> account.automountServiceAccountToken().isFalse());
-        if (!hasAtLeastOneAccountCompliant) {
-          // report on first linked account - there should be only one
-          reportIssueWithLinkedAccount(linkedServiceAccounts.get(0), blockObject, message);
-        }
+        spec.attribute(SERVICE_ACCOUNT_NAME)
+          .reportOnValue(MESSAGE_BIND_ACCOUNT_RESOURCE);
       }
+    } else {
+      // report on first account - there should be only one
+      reportIssueWithLinkedAccount(spec.attribute(SERVICE_ACCOUNT_NAME), serviceAccounts.iterator().next());
     }
   }
 
-  private static void reportIssueWithLinkedAccount(ServiceAccount linkedAccount, BlockObject blockObject, String message) {
-    var blockSpec = blockObject.block("spec");
-    var serviceAccountNameAttr = blockSpec.attribute("serviceAccountName");
+  private boolean hasAnyBoundRole(BlockObject document, String namespace, @Nullable String accountName) {
+    var roleBindings = findGlobalResources(RoleBinding.class, namespace, document);
+    var clusterRoleBindings = findGlobalResources(ClusterRoleBinding.class, namespace, document);
+    Stream<Subject> subjects = Stream.concat(
+      roleBindings.stream().flatMap(roleBinding -> roleBinding.subjects().stream()),
+      clusterRoleBindings.stream().flatMap(clusterRoleBinding -> clusterRoleBinding.subjects().stream()));
+    return subjects.anyMatch(subject -> isValidSubject(subject, namespace, accountName));
+  }
+
+  private static boolean isValidSubject(Subject subject, String namespace, @Nullable String accountName) {
+    return "ServiceAccount".equals(subject.kind()) && namespace.equals(subject.namespace()) && accountName != null && accountName.equals(subject.name());
+  }
+
+  private static void reportIssueWithLinkedAccount(AttributeObject accountNameAttribute, ServiceAccount linkedAccount) {
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-    secondaryLocations.add(new SecondaryLocation(serviceAccountNameAttr.tree.value(), "Through this service account"));
     if (linkedAccount.automountServiceAccountToken().isTrue()) {
       secondaryLocations.add(new SecondaryLocation(linkedAccount.valueLocation(), "Change this setting", linkedAccount.filePath()));
     }
-    blockObject.attribute("spec").reportOnKey(message, secondaryLocations);
-  }
-
-  private static boolean isContainersPresentInSpecBlock(BlockObject blockObject) {
-    return blockObject.attribute("containers").tree != null;
-  }
-
-  private List<ServiceAccount> retrieveLinkedServiceAccount(BlockObject rootBlock) {
-    AttributeObject serviceAccountNameAttr = rootBlock.block("spec").attribute("serviceAccountName");
-    if (!serviceAccountNameAttr.isAbsent()) {
-      YamlTree tree = serviceAccountNameAttr.tree.value();
-      if (tree instanceof ScalarTree scalarTree) {
-        Collection<ServiceAccount> accounts = getGlobalResources(rootBlock);
-        return accounts.stream()
-          .filter(account -> account.name().equals(scalarTree.value()))
-          .toList();
-      }
-    }
-    return Collections.emptyList();
+    accountNameAttribute.reportOnValue(MESSAGE_BIND_ACCOUNT_RESOURCE, secondaryLocations);
   }
 }

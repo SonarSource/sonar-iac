@@ -1,48 +1,48 @@
 {
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-admission-controller/src/test/k8s/nginx.yaml": [
-18
-],
-"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-intro/src/k8s/create-http-server.yml": [
-28,
-53
-],
-"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-java-heap-dump/src/k8s/prime-deploy.yaml": [
-5
-],
-"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-operator/k8s/deptrack-controller.yaml": [
-27
-],
-"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-operator/src/main/resources/templates/api-server-deployment.yaml": [
-17
-],
-"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-operator/src/main/resources/templates/frontend-deployment.yaml": [
-17
-],
-"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/kubernetes-spring/serviceDeployment.yaml": [
 19
 ],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-intro/src/k8s/create-http-server.yml": [
+29,
+54
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-java-heap-dump/src/k8s/prime-deploy.yaml": [
+6
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-operator/k8s/deptrack-controller.yaml": [
+28
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-operator/src/main/resources/templates/api-server-deployment.yaml": [
+18
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/k8s-operator/src/main/resources/templates/frontend-deployment.yaml": [
+18
+],
+"jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/kubernetes-modules/kubernetes-spring/serviceDeployment.yaml": [
+20
+],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-guide/client-service/client-service-deployment.yaml": [
-27
+28
 ],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-guide/travel-agency-service/mongo-deployment.yaml": [
-31
+32
 ],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-guide/travel-agency-service/travel-agency-deployment.yaml": [
-27
+28
 ],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-minikube/object-configurations/backend-deployment.yaml": [
-29
+30
 ],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-minikube/object-configurations/frontend-deployment.yaml": [
-27
+28
 ],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-selfhealing/object-configurations/liveness-example-k8s-template.yaml": [
-28
+29
 ],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-cloud-modules/spring-cloud-kubernetes/kubernetes-selfhealing/object-configurations/readiness-example-k8s-template.yaml": [
-28
+29
 ],
 "jvm-framework-config-project:sources/jvm-framework-config/baeldung-tutorials/spring-vault/src/main/k8s/vault-csi-example.yaml": [
-33
+32
 ]
 }

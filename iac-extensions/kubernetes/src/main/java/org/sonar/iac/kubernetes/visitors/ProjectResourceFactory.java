@@ -19,6 +19,11 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -29,16 +34,15 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.kubernetes.model.ClusterRoleBinding;
 import org.sonar.iac.kubernetes.model.ConfigMap;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
 import org.sonar.iac.kubernetes.model.ProjectResource;
+import org.sonar.iac.kubernetes.model.RoleBinding;
 import org.sonar.iac.kubernetes.model.Secret;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
-
-import javax.annotation.CheckForNull;
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.sonar.iac.kubernetes.model.Subject;
 
 public final class ProjectResourceFactory {
   private ProjectResourceFactory() {
@@ -56,19 +60,17 @@ public final class ProjectResourceFactory {
       case "LimitRange" -> createLimitRange(tree);
       case "ConfigMap" -> createConfigMap(path, tree);
       case "Secret" -> createSecret(path, tree);
+      case "RoleBinding" -> createRoleBinding(tree);
+      case "ClusterRoleBinding" -> createClusterRoleBinding(tree);
       default -> null;
     };
   }
 
   private static ProjectResource createServiceAccount(String path, MappingTree tree) {
-    var name = PropertyUtils.value(tree, "metadata", MappingTree.class)
-      .flatMap(metadata -> PropertyUtils.value(metadata, "name"))
-      .map(ScalarTree.class::cast)
-      .map(ScalarTree::value);
-    if (name.isEmpty()) {
+    var name = retrieveNameFromMetadata(tree);
+    if (name == null) {
       return null;
     }
-
     var automountServiceAccountTokenTree = PropertyUtils.value(tree, "automountServiceAccountToken")
       .map(ScalarTree.class::cast);
     var automountServiceAccountToken = automountServiceAccountTokenTree
@@ -76,7 +78,7 @@ public final class ProjectResourceFactory {
       .orElse(Trilean.UNKNOWN);
     var valueLocation = automountServiceAccountTokenTree.map(HasTextRange::textRange).orElse(null);
 
-    return new ServiceAccount(path, name.get(), automountServiceAccountToken, valueLocation);
+    return new ServiceAccount(path, name, automountServiceAccountToken, valueLocation);
   }
 
   private static ProjectResource createLimitRange(MappingTree tree) {
@@ -104,6 +106,36 @@ public final class ProjectResourceFactory {
     return new Secret(filePath, name, map);
   }
 
+  private static ProjectResource createRoleBinding(MappingTree tree) {
+    return new RoleBinding(computeSubjectList(tree));
+  }
+
+  private static ProjectResource createClusterRoleBinding(MappingTree tree) {
+    return new ClusterRoleBinding(computeSubjectList(tree));
+  }
+
+  private static List<Subject> computeSubjectList(MappingTree tree) {
+    return PropertyUtils.value(tree, "subjects")
+      .filter(SequenceTree.class::isInstance)
+      .map(SequenceTree.class::cast)
+      .stream()
+      .flatMap(sequence -> sequence.elements().stream())
+      .map(ProjectResourceFactory::computeSubject)
+      .filter(Objects::nonNull)
+      .toList();
+  }
+
+  @CheckForNull
+  private static Subject computeSubject(YamlTree tree) {
+    if (tree instanceof MappingTree mappingTree) {
+      String kind = retrieveField(mappingTree, "kind");
+      String name = retrieveField(mappingTree, "name");
+      String namespace = retrieveField(mappingTree, "namespace");
+      return new Subject(kind, name, namespace);
+    }
+    return null;
+  }
+
   private static Map<String, TupleTree> computeDataMap(MappingTree tree) {
     return PropertyUtils.value(tree, "data")
       .stream()
@@ -118,6 +150,15 @@ public final class ProjectResourceFactory {
   private static String retrieveNameFromMetadata(MappingTree tree) {
     return PropertyUtils.value(tree, "metadata")
       .flatMap(it -> PropertyUtils.value(it, "name"))
+      .filter(ScalarTree.class::isInstance)
+      .map(ScalarTree.class::cast)
+      .map(TextTree::value)
+      .orElse(null);
+  }
+
+  @CheckForNull
+  private static String retrieveField(MappingTree tree, String fieldName) {
+    return PropertyUtils.value(tree, fieldName)
       .filter(ScalarTree.class::isInstance)
       .map(ScalarTree.class::cast)
       .map(TextTree::value)

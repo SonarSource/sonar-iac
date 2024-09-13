@@ -180,6 +180,29 @@ class AttributeObjectTest extends YamlTreeTest {
   }
 
   @Test
+  void shouldReportOnValueWithSecondaries() {
+    TupleTree tree = parseTuple("a: b");
+    SecondaryLocation secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
+    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
+    attributeObject.reportOnValue("message", List.of(secondaryLocation));
+
+    assertThat(raisedIssues).hasSize(1);
+    TestIssue issue = raisedIssues.get(0);
+    assertThat(issue.message).isEqualTo("message");
+    assertThat(issue.secondaryLocations).hasSize(1);
+    assertThat(issue.textRange).isEqualTo(tree.value().textRange());
+  }
+
+  @Test
+  void shouldNotReportOnValueWithSecondariesForMissingTree() {
+    SecondaryLocation secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
+    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
+    attributeObject.reportOnValue("message", List.of(secondaryLocation));
+
+    assertThat(raisedIssues).isEmpty();
+  }
+
+  @Test
   void shouldNotReportOnValueForMissingTree() {
     AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnValue("message");
