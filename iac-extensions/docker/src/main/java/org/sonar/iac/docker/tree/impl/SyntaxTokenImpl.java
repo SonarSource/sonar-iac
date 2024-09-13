@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -65,5 +66,21 @@ public class SyntaxTokenImpl extends AbstractDockerTreeImpl implements SyntaxTok
   @Override
   public String toString() {
     return value;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof SyntaxTokenImpl that)) {
+      return false;
+    }
+    return Objects.equals(value, that.value) && Objects.equals(comments, that.comments);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(value, comments);
   }
 }

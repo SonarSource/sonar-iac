@@ -17,14 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-class ConsecutiveRunInstructionCheckTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
+class SyntaxTokenImplTest {
   @Test
-  void shouldVerifyCheck() {
-    DockerVerifier.verify("ConsecutiveRunInstructionCheck/ConsecutiveRunInstructionCheck.dockerfile", new ConsecutiveRunInstructionCheck());
+  void shouldCheckEquality() {
+    SyntaxToken token1 = new SyntaxTokenImpl("foo", range(1, 0, 1, 5), List.of());
+    SyntaxToken token2 = new SyntaxTokenImpl("foo", range(1, 0, 1, 5), List.of());
+    SyntaxToken token3 = new SyntaxTokenImpl("bar", range(1, 0, 1, 5), List.of());
+
+    assertThat(token1)
+      .isEqualTo(token1)
+      .isEqualTo(token2)
+      .hasSameHashCodeAs(token2)
+      .isNotEqualTo(token3)
+      .doesNotHaveSameHashCodeAs(token3)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
   }
 }

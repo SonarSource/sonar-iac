@@ -89,4 +89,26 @@ class EncapsulatedVariableImplTest {
     assertThat(variable.modifierSeparator()).isEqualTo(":-");
     assertThat(variable.modifier()).isNull();
   }
+
+  @Test
+  void shouldCheckEquality() {
+    EncapsulatedVariable variable1 = parse("${foo:-bar}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+    EncapsulatedVariable variable2 = parse("${foo:-bar}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+    EncapsulatedVariable variable3 = parse("${foo:-baz}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+    EncapsulatedVariable variable4 = parse("${foo:+}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+    EncapsulatedVariable variable5 = parse("${foo}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+    EncapsulatedVariable variable6 = parse("${bar}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+
+    assertThat(variable1)
+      .isEqualTo(variable1)
+      .isEqualTo(variable2)
+      .hasSameHashCodeAs(variable2)
+      .isNotEqualTo(variable3)
+      .doesNotHaveSameHashCodeAs(variable3)
+      .isNotEqualTo(variable4)
+      .isNotEqualTo(variable5)
+      .isNotEqualTo(variable6)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
+  }
 }

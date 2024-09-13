@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
@@ -72,5 +73,21 @@ public class ExpandableStringLiteralImpl extends AbstractDockerTreeImpl implemen
   @Override
   public String toString() {
     return openDoubleQuote + elements.stream().map(Expression::toString).collect(Collectors.joining()) + closeDoubleQuote;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ExpandableStringLiteralImpl that)) {
+      return false;
+    }
+    return Objects.equals(openDoubleQuote, that.openDoubleQuote) && Objects.equals(elements, that.elements) && Objects.equals(closeDoubleQuote, that.closeDoubleQuote);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(openDoubleQuote, elements, closeDoubleQuote);
   }
 }

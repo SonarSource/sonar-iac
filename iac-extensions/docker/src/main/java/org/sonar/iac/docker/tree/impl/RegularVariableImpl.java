@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.symbols.Symbol;
@@ -69,5 +70,21 @@ public class RegularVariableImpl extends AbstractDockerTreeImpl implements Regul
   @Override
   public String toString() {
     return dollar + identifier.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof RegularVariableImpl that)) {
+      return false;
+    }
+    return Objects.equals(dollar, that.dollar) && Objects.equals(identifier, that.identifier) && Objects.equals(symbol, that.symbol);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(dollar, identifier, symbol);
   }
 }

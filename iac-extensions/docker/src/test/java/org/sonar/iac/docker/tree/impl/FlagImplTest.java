@@ -63,4 +63,27 @@ class FlagImplTest {
     assertThat(param.textRange()).hasRange(1, 1, 1, 15);
   }
 
+  @Test
+  void shouldConvertToString() {
+    Flag param = parse(" --platform=foo", DockerLexicalGrammar.FLAG);
+    assertThat(param).hasToString("FlagImpl{prefix=--, name=platform, equals==, value=foo}");
+  }
+
+  @Test
+  void shouldCheckEquality() {
+    Flag param1 = parse(" --platform=foo", DockerLexicalGrammar.FLAG);
+    Flag param2 = parse(" --platform=foo", DockerLexicalGrammar.FLAG);
+    Flag param3 = parse(" --platform=bar", DockerLexicalGrammar.FLAG);
+    Flag param4 = parse(" --option=baz", DockerLexicalGrammar.FLAG);
+
+    assertThat(param1)
+      .isEqualTo(param1)
+      .isEqualTo(param2)
+      .hasSameHashCodeAs(param2)
+      .isNotEqualTo(param3)
+      .isNotEqualTo(param4)
+      .doesNotHaveSameHashCodeAs(param3)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
+  }
 }

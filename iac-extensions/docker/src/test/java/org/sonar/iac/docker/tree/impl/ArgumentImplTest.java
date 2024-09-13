@@ -92,4 +92,20 @@ class ArgumentImplTest {
     Argument argument = parse("foo", DockerLexicalGrammar.ARGUMENT);
     assertThat(argument).hasToString("foo");
   }
+
+  @Test
+  void shouldCheckEquality() {
+    Argument argument1 = parse("foo", DockerLexicalGrammar.ARGUMENT);
+    Argument argument2 = parse("foo", DockerLexicalGrammar.ARGUMENT);
+    Argument argument3 = parse("bar", DockerLexicalGrammar.ARGUMENT);
+
+    assertThat(argument1)
+      .isEqualTo(argument1)
+      .isEqualTo(argument2)
+      .hasSameHashCodeAs(argument2)
+      .isNotEqualTo(argument3)
+      .doesNotHaveSameHashCodeAs(argument3)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
+  }
 }
