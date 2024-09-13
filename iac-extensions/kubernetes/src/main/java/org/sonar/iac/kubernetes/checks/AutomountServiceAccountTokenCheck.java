@@ -64,12 +64,12 @@ public class AutomountServiceAccountTokenCheck extends AbstractGlobalResourceChe
   }
 
   private static boolean isContainersAbsent(BlockObject spec) {
-    return spec.attribute("containers").tree == null;
+    return spec.attribute("containers").isAbsent();
   }
 
   private void checkAccountSecurity(BlockObject document, BlockObject spec, String namespace, @Nullable String accountName) {
     // If we can find any RoleBinding or ClusterRoleBinding that references the service account, it's compliant and we stop there
-    if (hasAnyBondedRole(document, namespace, accountName)) {
+    if (hasAnyBoundRole(document, namespace, accountName)) {
       return;
     }
 
@@ -96,7 +96,7 @@ public class AutomountServiceAccountTokenCheck extends AbstractGlobalResourceChe
     }
   }
 
-  private boolean hasAnyBondedRole(BlockObject document, String namespace, @Nullable String accountName) {
+  private boolean hasAnyBoundRole(BlockObject document, String namespace, @Nullable String accountName) {
     var roleBindings = findGlobalResources(RoleBinding.class, namespace, document);
     var clusterRoleBindings = findGlobalResources(ClusterRoleBinding.class, namespace, document);
     Stream<Subject> subjects = Stream.concat(
