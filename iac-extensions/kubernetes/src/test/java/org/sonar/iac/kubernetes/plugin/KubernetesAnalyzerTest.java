@@ -77,7 +77,7 @@ class KubernetesAnalyzerTest {
   private final HelmParser helmParser = new HelmParser(helmProcessor);
   private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
     new DurationStatistics(mock(Configuration.class)),
-    helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class));
+    helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), null);
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -91,7 +91,7 @@ class KubernetesAnalyzerTest {
 
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
-      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile, null));
     }
   }
 
@@ -105,7 +105,7 @@ class KubernetesAnalyzerTest {
     var helmParserLocal = new HelmParser(processor);
     KubernetesAnalyzer analyzerLocal = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
       new DurationStatistics(mock(Configuration.class)), helmParserLocal,
-      new KubernetesParserStatistics(), mock(TreeVisitor.class));
+      new KubernetesParserStatistics(), mock(TreeVisitor.class), null);
     return (FileTree) analyzerLocal.parse(originalCode, inputFileContext);
   }
 
@@ -466,6 +466,28 @@ class KubernetesAnalyzerTest {
       when(helmFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(helmFile);
       var ctx = analyzer.createInputFileContext(sensorContext, helmFile);
+
+      assertThat(ctx).isInstanceOf(HelmInputFileContext.class);
+      assertThat(((HelmInputFileContext) ctx).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
+    }
+  }
+
+  @Test
+  void shouldSetHelmProjectDirectoryForSonarLint() throws IOException, URISyntaxException {
+    try (var ignored = mockStatic(HelmFileSystem.class)) {
+      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), any())).thenReturn(Path.of("/chart"));
+
+      var helmFile = mock(InputFile.class);
+      when(helmFile.contents()).thenReturn("foo: {{ .Values.foo }}");
+      when(helmFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
+      when(sensorContext.fileSystem().inputFile(any())).thenReturn(helmFile);
+      var sonarLintFileListener = mock(SonarLintFileListener.class);
+
+      var analyzerSonarLint = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
+        new DurationStatistics(mock(Configuration.class)),
+        helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), sonarLintFileListener);
+
+      var ctx = analyzerSonarLint.createInputFileContext(sensorContext, helmFile);
 
       assertThat(ctx).isInstanceOf(HelmInputFileContext.class);
       assertThat(((HelmInputFileContext) ctx).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));

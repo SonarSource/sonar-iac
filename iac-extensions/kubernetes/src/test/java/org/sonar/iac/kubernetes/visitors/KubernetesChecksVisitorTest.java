@@ -225,7 +225,7 @@ class KubernetesChecksVisitorTest {
     var sensorContext = createSensorContextMock(inputFile);
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
-      return new HelmInputFileContext(sensorContext, inputFile);
+      return new HelmInputFileContext(sensorContext, inputFile, null);
     }
   }
 

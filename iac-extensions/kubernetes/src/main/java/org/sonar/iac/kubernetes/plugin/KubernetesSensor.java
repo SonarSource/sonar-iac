@@ -99,13 +99,13 @@ public class KubernetesSensor extends YamlSensor {
     if (sonarLintFileListener != null) {
       var statistics = new DurationStatistics(sensorContext.config());
       var analyzer = createAnalyzerForUpdatingProjectContext(statistics);
-      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext, (SonarLintFileSystemProvider) fileSystemProvider);
+      sonarLintFileListener.initContext(sensorContext, analyzer, projectContext);
     }
   }
 
   private FileSystemProvider createFileSystemProvider(SensorContext sensorContext) {
     if (sonarLintFileListener != null) {
-      return new SonarLintFileSystemProvider();
+      return new SonarLintFileSystemProvider(sonarLintFileListener);
     }
     return new DefaultFileSystemProvider(sensorContext.fileSystem());
   }
@@ -157,7 +157,8 @@ public class KubernetesSensor extends YamlSensor {
       statistics,
       new HelmParser(helmProcessor),
       kubernetesParserStatistics,
-      new KubernetesChecksVisitor(checks, statistics, projectContext));
+      new KubernetesChecksVisitor(checks, statistics, projectContext),
+      sonarLintFileListener);
   }
 
   /**
@@ -173,7 +174,8 @@ public class KubernetesSensor extends YamlSensor {
       statistics,
       new HelmParser(helmProcessor),
       kubernetesParserStatistics,
-      new EmptyChecksVisitor());
+      new EmptyChecksVisitor(),
+      sonarLintFileListener);
   }
 
   void setHelmProcessorForTesting(HelmProcessor helmProcessor) {

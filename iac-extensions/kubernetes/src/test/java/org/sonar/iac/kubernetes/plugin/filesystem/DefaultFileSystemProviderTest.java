@@ -74,7 +74,7 @@ class DefaultFileSystemProviderTest {
   void shouldReturnEmptyMapWhenHelmProjectDirectoryIsNull() throws IOException {
     FileUtils.forceMkdir(new File(baseDir + File.separator + HELM_PROJECT_PATH_PREFIX + "foo/bar"));
     var helmTemplate = createInputFile(HELM_PROJECT_PATH_PREFIX + "templates/pod.yaml");
-    var inputFileContext = new HelmInputFileContext(context, helmTemplate);
+    var inputFileContext = new HelmInputFileContext(context, helmTemplate, null);
 
     var result = fileSystemProvider.inputFilesForHelm(inputFileContext);
 
@@ -88,7 +88,7 @@ class DefaultFileSystemProviderTest {
 
     var chartYamlFile = createInputFile(HELM_PROJECT_PATH_PREFIX + File.separator + "Chart.yaml");
     addToFilesystem(context, helmTemplate, chartYamlFile);
-    var inputFileContext = new HelmInputFileContext(context, helmTemplate);
+    var inputFileContext = new HelmInputFileContext(context, helmTemplate, null);
 
     var result = fileSystemProvider.inputFilesForHelm(inputFileContext);
 
@@ -113,7 +113,7 @@ class DefaultFileSystemProviderTest {
     when(inputFileThrowIoException.uri()).thenReturn(pathValues.toUri());
     addToFilesystem(context, helmTemplate, inputFileThrowIoException);
 
-    var inputFileContext = new HelmInputFileContext(context, helmTemplate);
+    var inputFileContext = new HelmInputFileContext(context, helmTemplate, null);
 
     assertThatThrownBy(() -> fileSystemProvider.inputFilesForHelm(inputFileContext))
       .isInstanceOf(ParseException.class)

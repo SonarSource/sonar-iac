@@ -33,12 +33,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,7 +66,6 @@ class SonarLintFileListenerTest {
   private InputFile inputFileNoLanguage;
   private InputFile inputFileTOException;
   private List<InputFile> inputFiles;
-  private SonarLintFileSystemProvider fileSystemProvider;
 
   @BeforeEach
   public void init() throws IOException {
@@ -84,26 +81,27 @@ class SonarLintFileListenerTest {
     context = SensorContextTester.create(BASE_DIR);
     projectContext = mock(ProjectContext.class);
     analyzer = mock(KubernetesAnalyzer.class);
-    fileSystemProvider = mock(SonarLintFileSystemProvider.class);
   }
 
   @Test
   void shouldCallAnalyseFilesWhenInit() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
 
     verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
+    assertThat(sonarLintFileListener.inputFilesContents().keySet())
+      .allMatch(key -> key.endsWith("limit_range.yaml") || key.endsWith("memory_limit_pod.yaml"));
     assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
   }
 
   @Test
   void shouldCallRemoveResourceWhenRemoveEvent() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
     var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
 
     sonarLintFileListener.process(event);
 
     verify(projectContext).removeResource(uri(inputFile1));
-    assertThat(logTester.logs(Level.DEBUG)).contains(
+    assertThat(logTester.logs(Level.INFO)).contains(
       "Module file event DELETED for file limit_range.yaml",
       "Kubernetes Project Context updated");
   }
@@ -115,7 +113,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verifyNoInteractions(projectContext);
-    assertThat(logTester.logs(Level.DEBUG)).contains(
+    assertThat(logTester.logs(Level.INFO)).contains(
       "Module file event DELETED for file limit_range.yaml",
       "Kubernetes Project Context not updated");
   }
@@ -127,7 +125,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verifyNoInteractions(projectContext);
-    assertThat(logTester.logs(Level.DEBUG))
+    assertThat(logTester.logs(Level.INFO))
       .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
@@ -138,7 +136,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     verifyNoInteractions(projectContext);
-    assertThat(logTester.logs(Level.DEBUG))
+    assertThat(logTester.logs(Level.INFO))
       .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
@@ -149,7 +147,7 @@ class SonarLintFileListenerTest {
   @ParameterizedTest
   @MethodSource
   void shouldCallRemoveResourceAndAnalyseFilesWhenEvent(ModuleFileEvent.Type eventType) {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
     var event = DefaultModuleFileEvent.of(inputFile2, eventType);
 
     sonarLintFileListener.process(event);
@@ -163,7 +161,7 @@ class SonarLintFileListenerTest {
 
   @Test
   void shouldThrowParseExceptionWhenIOException() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext, fileSystemProvider);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
     var event = DefaultModuleFileEvent.of(inputFileTOException, CREATED);
 
     var throwable = catchThrowable(() -> sonarLintFileListener.process(event));
@@ -171,6 +169,13 @@ class SonarLintFileListenerTest {
     assertThat(throwable)
       .isInstanceOf(ParseException.class)
       .hasMessage("Cannot read 'memory_limit_pod.yaml'");
+  }
+
+  @Test
+  void shouldNotCallAnalyseFilesWhenSecondCallOfInitContext() {
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    verify(analyzer).analyseFiles(any(), any(), any());
   }
 
   private String uri(InputFile inputFile) {

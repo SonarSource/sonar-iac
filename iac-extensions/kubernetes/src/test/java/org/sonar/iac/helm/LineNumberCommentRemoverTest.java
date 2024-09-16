@@ -41,7 +41,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class LineNumberCommentRemoverTest {
   private final InputFile inputFile = mock(InputFile.class);
@@ -58,42 +57,42 @@ class LineNumberCommentRemoverTest {
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("chart"));
-      inputFileContext = new HelmInputFileContext(sensorContext, inputFile);
+      inputFileContext = new HelmInputFileContext(sensorContext, inputFile, null);
     }
   }
 
   @Test
   void shouldRemoveEmptyLinesAfterEvaluation() {
-    String evaluated = code(
-      "apiVersion: apps/v1 #1",
-      "kind: StatefulSet #2",
-      "metadata: #3",
-      "  name: helm-chart-sonarqube-dce-search #4",
-      "spec: #5",
-      "  livenessProbe: #6",
-      "    exec: #7",
-      "      command: #8",
-      "        - sh #9",
-      "        - -c #10",
-      "        #14",
-      "        - | #15",
-      "          bar #16 #17",
-      "    initialDelaySeconds: 60 #18",
-      "  #19");
-    var expected = code(
-      "apiVersion: apps/v1",
-      "kind: StatefulSet",
-      "metadata:",
-      "  name: helm-chart-sonarqube-dce-search",
-      "spec:",
-      "  livenessProbe:",
-      "    exec:",
-      "      command:",
-      "        - sh",
-      "        - -c",
-      "        - |",
-      "          bar",
-      "    initialDelaySeconds: 60");
+    String evaluated = """
+      apiVersion: apps/v1 #1
+      kind: StatefulSet #2
+      metadata: #3
+        name: helm-chart-sonarqube-dce-search #4
+      spec: #5
+        livenessProbe: #6
+          exec: #7
+            command: #8
+              - sh #9
+              - -c #10
+              #14
+              - | #15
+                bar #16 #17
+          initialDelaySeconds: 60 #18
+        #19""";
+    var expected = """
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: helm-chart-sonarqube-dce-search
+      spec:
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - |
+                bar
+          initialDelaySeconds: 60""";
     var actual = cleanSource(evaluated);
 
     assertThat(actual).isEqualTo(expected);
@@ -108,18 +107,18 @@ class LineNumberCommentRemoverTest {
 
   @Test
   void shouldRemoveNewDocumentAfterEvaluation() {
-    var evaluated = code(
-      "--- #5",
-      "apiVersion: v1 #6",
-      "kind: Pod #7",
-      "metadata: #8",
-      "spec: #9");
-    var expected = code(
-      "---",
-      "apiVersion: v1",
-      "kind: Pod",
-      "metadata:",
-      "spec:");
+    var evaluated = """
+      --- #5
+      apiVersion: v1 #6
+      kind: Pod #7
+      metadata: #8
+      spec: #9""";
+    var expected = """
+      ---
+      apiVersion: v1
+      kind: Pod
+      metadata:
+      spec:""";
     var actual = cleanSource(evaluated);
 
     assertThat(actual).isEqualTo(expected);
@@ -134,18 +133,18 @@ class LineNumberCommentRemoverTest {
 
   @Test
   void shouldRemoveLineNumberCommentForNewDocumentAtEndAfterEvaluation() {
-    var evaluated = code(
-      "apiVersion: v1 #6",
-      "kind: Pod #7",
-      "metadata: #8",
-      "spec: #9",
-      "--- #12");
-    var expected = code(
-      "apiVersion: v1",
-      "kind: Pod",
-      "metadata:",
-      "spec:",
-      "---");
+    var evaluated = """
+      apiVersion: v1 #6
+      kind: Pod #7
+      metadata: #8
+      spec: #9
+      --- #12""";
+    var expected = """
+      apiVersion: v1
+      kind: Pod
+      metadata:
+      spec:
+      ---""";
     var actual = cleanSource(evaluated);
 
     assertThat(actual).isEqualTo(expected);
@@ -160,18 +159,18 @@ class LineNumberCommentRemoverTest {
 
   @Test
   void shouldRemoveLineNumberCommentForEndDocumentAfterEvaluation() {
-    var evaluated = code(
-      "apiVersion: v1 #6",
-      "kind: Pod #7",
-      "metadata: #8",
-      "spec: #9",
-      "... #10");
-    var expected = code(
-      "apiVersion: v1",
-      "kind: Pod",
-      "metadata:",
-      "spec:",
-      "...");
+    var evaluated = """
+      apiVersion: v1 #6
+      kind: Pod #7
+      metadata: #8
+      spec: #9
+      ... #10""";
+    var expected = """
+      apiVersion: v1
+      kind: Pod
+      metadata:
+      spec:
+      ...""";
     var actual = cleanSource(evaluated);
 
     assertThat(actual).isEqualTo(expected);
@@ -186,20 +185,20 @@ class LineNumberCommentRemoverTest {
 
   @Test
   void shouldRemoveLineNumberCommentForMissingWhitespaceBetweenLineNumberComments() {
-    var evaluated = code(
-      "#1",
-      "apiVersion: v1 #2",
-      "rules: #3",
-      "  - resources: # Comment #4",
-      "      - '*' #5",
-      "    verbs: [\"*\"] # Comment #6#7",
-      "#8");
-    var expected = code(
-      "apiVersion: v1",
-      "rules:",
-      "  - resources: # Comment",
-      "      - '*'",
-      "    verbs: [\"*\"] # Comment");
+    var evaluated = """
+      #1
+      apiVersion: v1 #2
+      rules: #3
+        - resources: # Comment #4
+            - '*' #5
+          verbs: ["*"] # Comment #6#7
+      #8""";
+    var expected = """
+      apiVersion: v1
+      rules:
+        - resources: # Comment
+            - '*'
+          verbs: ["*"] # Comment""";
     var actual = cleanSource(evaluated);
 
     assertThat(actual).isEqualTo(expected);

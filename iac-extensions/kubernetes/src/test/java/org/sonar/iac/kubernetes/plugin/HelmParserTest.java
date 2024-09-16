@@ -66,7 +66,7 @@ class HelmParserTest {
 
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
-      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile));
+      inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile, null));
     }
   }
 

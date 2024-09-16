@@ -86,7 +86,7 @@ final class LocationShifterTest {
   @BeforeEach
   void setUp() {
     InputFile file = createInputFile("primaryFile", EMPTY_CONTENT);
-    ctx = new HelmInputFileContext(context, file);
+    ctx = new HelmInputFileContext(context, file, null);
   }
 
   @Test
@@ -170,7 +170,7 @@ final class LocationShifterTest {
     setLinesSizes(ctx, 5, 10, 15);
     LocationShifter.addShiftedLine(ctx, 3, 1, 1);
 
-    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2", EMPTY_CONTENT));
+    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2", EMPTY_CONTENT), null);
 
     TextRange shiftedRange = LocationShifter.computeShiftedLocation(differentCtx, range(1, 1, 1, 3));
 
@@ -179,7 +179,7 @@ final class LocationShifterTest {
 
   @Test
   void shouldNotAccessShiftedRangeOfDifferentContext() {
-    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2", EMPTY_CONTENT));
+    HelmInputFileContext differentCtx = new HelmInputFileContext(context, createInputFile("file_2", EMPTY_CONTENT), null);
 
     setLinesSizes(ctx, 5, 10, 15);
     setLinesSizes(differentCtx, 6, 11, 16, 21);
@@ -346,7 +346,7 @@ final class LocationShifterTest {
       1234567890123
       abc""";
     InputFile file = createInputFile("primaryFile", content);
-    ctx = new HelmInputFileContext(context, file);
+    ctx = new HelmInputFileContext(context, file, null);
     setLinesSizes(ctx, 5, 10);
     LocationShifter.addShiftedLine(ctx, 1, 2, 2);
     TextRange shiftedRange = LocationShifter.shiftLocation(ctx, range(1, 1, 1, 3));
@@ -392,7 +392,7 @@ final class LocationShifterTest {
     HelmInputFileContext helmContext;
     try (var ignored = mockStatic(HelmFileSystem.class)) {
       Mockito.when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("."));
-      helmContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null));
+      helmContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null), null);
     }
     helmContext.setAdditionalFiles(Map.of("values.yaml", "bar: baz"));
 

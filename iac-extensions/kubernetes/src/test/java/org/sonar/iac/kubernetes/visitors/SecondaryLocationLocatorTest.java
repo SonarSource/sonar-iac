@@ -177,7 +177,8 @@ class SecondaryLocationLocatorTest {
       inputFileContext = new HelmInputFileContext(
         mockSensorContextWithEnabledFeature(),
         inputFile("template/foo.yaml", BASE_DIR, "bar: {{ .Values.bar }}",
-          null));
+          null),
+        null);
     }
     inputFileContext.setAdditionalFiles(Map.of("values.yaml", "bar: baz"));
 
@@ -199,7 +200,7 @@ class SecondaryLocationLocatorTest {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
       var inputFile = mock(InputFile.class);
       when(inputFile.uri()).thenReturn(Path.of("dir1/templates/something.yaml").toUri());
-      inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile);
+      inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile, null);
     }
     inputFileContext.setAdditionalFiles(Map.of("values.yaml", valuesFileContent));
 
