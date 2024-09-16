@@ -118,8 +118,7 @@ public class LongRunInstructionCheck implements IacCheck {
   }
 
   private static void incrementWordCountOnLine(Map<Integer, Integer> wordsPerLine, int line) {
-    wordsPerLine.putIfAbsent(line, 0);
-    wordsPerLine.compute(line, (key, value) -> value + 1);
+    wordsPerLine.merge(line, 1, Integer::sum);
   }
 
   record RunInstructionData(Map<Integer, Integer> firstOffsetPerLine, Map<Integer, Integer> tooLongLinesWithLastOffset, Map<Integer, Integer> wordsPerLine) {
