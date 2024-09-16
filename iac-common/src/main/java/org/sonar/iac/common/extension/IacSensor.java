@@ -21,8 +21,6 @@ package org.sonar.iac.common.extension;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -39,8 +37,6 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
 public abstract class IacSensor implements Sensor {
-
-  private static final Logger LOG = LoggerFactory.getLogger(IacSensor.class);
 
   public static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
 
@@ -86,8 +82,6 @@ public abstract class IacSensor implements Sensor {
 
   @Override
   public void execute(SensorContext sensorContext) {
-    // TODO to remove, it is for local tests in SonarLint
-    LOG.info("AAAAA Starting sensor " + getClass().getName());
     if (!isActive(sensorContext)) {
       return;
     }

@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -61,13 +62,29 @@ public final class HelmFileSystem {
     return fileSystemProvider.inputFilesForHelm(inputFileContext);
   }
 
+  /**
+   * Returns a path where Chart.yaml file is located.
+   * This is a version for SonarQube and SonarCloud context.
+   */
   public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem) {
+    return retrieveHelmProjectFolder(inputFilePath, fileSystem, Files::exists);
+  }
+
+  /**
+   * Returns a path where Chart.yaml file is located.
+   * This is a version for SonarLint context.
+   */
+  public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem, SonarLintFileListener sonarLintFileListener) {
+    return retrieveHelmProjectFolder(inputFilePath, fileSystem, path -> fileExistInSonarLint(sonarLintFileListener, path));
+  }
+
+  private static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem, Predicate<Path> chartYamlExist) {
     var baseDirPath = fileSystem.baseDir().toPath();
 
     var helmProjectDirectoryPath = inputFilePath;
 
     while (helmProjectDirectoryPath != null) {
-      if (Files.exists(helmProjectDirectoryPath.resolve("Chart.yaml"))) {
+      if (chartYamlExist.test(helmProjectDirectoryPath.resolve("Chart.yaml"))) {
         break;
       }
       helmProjectDirectoryPath = helmProjectDirectoryPath.getParent();
@@ -78,20 +95,7 @@ public final class HelmFileSystem {
     return helmProjectDirectoryPath;
   }
 
-  public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem, SonarLintFileListener sonarLintFileListener) {
-    var baseDirPath = fileSystem.baseDir().toPath();
-
-    var helmProjectDirectoryPath = inputFilePath;
-
-    while (helmProjectDirectoryPath != null) {
-      if (sonarLintFileListener.inputFilesContents().containsKey(helmProjectDirectoryPath.resolve("Chart.yaml").toUri().toString())) {
-        break;
-      }
-      helmProjectDirectoryPath = helmProjectDirectoryPath.getParent();
-    }
-    if (helmProjectDirectoryPath != null && !helmProjectDirectoryPath.startsWith(baseDirPath)) {
-      return null;
-    }
-    return helmProjectDirectoryPath;
+  private static boolean fileExistInSonarLint(SonarLintFileListener sonarLintFileListener, Path helmProjectDirectoryPath) {
+    return sonarLintFileListener.inputFilesContents().containsKey(helmProjectDirectoryPath.toUri().toString());
   }
 }
