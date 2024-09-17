@@ -1,5 +1,12 @@
 import org.gradle.configurationcache.extensions.capitalized
 
+/**
+ * An empty build service to serve as a synchronization point for rule-api tasks.
+ * Because rule-api requires exclusive access to `$HOME/.sonar/rule-api/rspec`, we force tasks to never run in parallel
+ * by configuring this service.
+ */
+abstract class RuleApiService : BuildService<BuildServiceParameters.None>
+
 val rulApiVersion = "2.7.0.2612"
 
 repositories {
@@ -38,6 +45,12 @@ fun registerApiUpdate(name: String): TaskProvider<JavaExec> {
     return tasks.register<JavaExec>("ruleApiUpdate${name.toCamelCase()}") {
         description = "Update ${name.capitalized()} rules description"
         group = "Rule API"
+        usesService(
+            gradle.sharedServices.registerIfAbsent("ruleApiRepoProvider", RuleApiService::class) {
+                // because rule-api requires exclusive access to `$HOME/.sonar/rule-api/rspec`, we force tasks to never run in parallel
+                maxParallelUsages = 1
+            }
+        )
         workingDir = file("$projectDir/iac-extensions/$name")
         classpath = ruleApi
 

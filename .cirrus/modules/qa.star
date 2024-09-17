@@ -61,7 +61,7 @@ def qa_task(env):
     return {
         "only_if": is_branch_qa_eligible(),
         "depends_on": "build",
-        "eks_container": base_image_container_builder(memory="10G"),
+        "eks_container": base_image_container_builder(cpu=6, memory="12G"),
         "env": env,
         "gradle_cache": gradle_cache(),
         "gradle_wrapper_cache": gradle_wrapper_cache(),
@@ -69,6 +69,14 @@ def qa_task(env):
         "mkdir_orchestrator_home_script": mkdir_orchestrator_home_script(),
         "orchestrator_cache": orchestrator_cache(),
         "run_its_script": run_its_script(),
+        "cleanup_orchestrator_cache_script": [
+          "ls -t ${ORCHESTRATOR_HOME} | tail -n +2 | head -n -1 | xargs -I {} rm -rf -- ${ORCHESTRATOR_HOME}/{}"
+        ],
+        "on_success": {
+            "java_test_report_artifacts": {
+                "path": "**/build/reports/tests/**"
+            }
+        },
         "on_failure": {
             "junit_artifacts": {
                 "path": "**/test-results/**/*.xml",

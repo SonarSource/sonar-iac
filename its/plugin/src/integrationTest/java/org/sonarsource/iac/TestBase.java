@@ -25,6 +25,18 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,18 +50,6 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,6 +60,7 @@ public abstract class TestBase {
   static final String KEEP_ORCHESTRATOR_RUNNING_ENV = "KEEP_ORCHESTRATOR_RUNNING";
 
   static final AtomicInteger REQUESTED_ORCHESTRATORS_KEY = new AtomicInteger();
+  static final CountDownLatch IS_ORCHESTRATOR_READY = new CountDownLatch(1);
   public static final FileLocation IAC_PLUGIN_LOCATION = FileLocation.byWildcardFilename(new File("../../sonar-iac-plugin/build/libs"), "sonar-iac-plugin-*-all.jar");
   public static boolean KEEP_ORCHESTRATOR_RUNNING = "true".equals(System.getenv(KEEP_ORCHESTRATOR_RUNNING_ENV));
   private static final String JAVA_VERSION = "7.34.0.35958";
@@ -84,6 +85,13 @@ public abstract class TestBase {
     // See https://github.com/junit-team/junit5/issues/2421
     if (REQUESTED_ORCHESTRATORS_KEY.getAndIncrement() == 0) {
       ORCHESTRATOR.start();
+      IS_ORCHESTRATOR_READY.countDown();
+    } else {
+      try {
+        IS_ORCHESTRATOR_READY.await();
+      } catch (InterruptedException e) {
+        throw new IllegalStateException(e);
+      }
     }
   }
 
