@@ -1,4 +1,4 @@
-<p>In Dockerfiles, a common use case is to download remote resources to use during the build. This is often done using third-party tools inside the
+<p>In Dockerfiles, a common use case is downloading remote resources to use during the build. This is often done using third-party tools inside the
 image, like <code>wget</code> or <code>curl</code>. However, this practice can lead to inefficient use of Docker’s build cache and unnecessary
 complexity. The <code>ADD</code> instruction is a built-in feature of Docker that is specifically designed for this purpose, making it a more
 efficient and safer choice.</p>
@@ -7,28 +7,35 @@ efficient and safer choice.</p>
 lead to several issues, particularly related to the inefficient use of Docker’s build cache.</p>
 <p>Docker’s build cache is a powerful feature that can significantly speed up the build process by reusing intermediate layers from previous builds if
 no changes were detected. When you use <code>wget</code>, <code>curl</code>, or similar commands, these commands are run during the build process, and
-Docker has no way of knowing if the remote content has changed without executing the commands. This makes it impossible to effectively cache the
-results of these commands.</p>
-<p>Moreover, the installation of third-party tools inside the image can introduce unnecessary complexity, dependency on external tools and increase
-the size of the final image.</p>
+Docker has no way of knowing if the remote content has changed without executing the commands. This makes it impossible to cache the results of these
+commands efficiently.</p>
+<p>Moreover, installing third-party tools inside the image can introduce unnecessary complexity, dependency on external tools and increase the size of
+the final image.</p>
+<h3>Exceptions</h3>
+<p>In some cases, the <code>ADD</code> instruction is not able to replace the <code>wget</code> or <code>curl</code> command, especially if specific
+HTTP parameters are required: method, headers, body, etc.</p>
+<pre>
+FROM ubuntu:20.04
+RUN wget --header="Authorization: Bearer your_token" --method=POST https://example.com/resource
+</pre>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-FROM ununtu:20.04
+FROM ubuntu:20.04
 RUN wget https://example.com/resource -O /path/to/resource
 </pre>
 <pre data-diff-id="2" data-diff-type="noncompliant">
-FROM ununtu:20.04
+FROM ubuntu:20.04
 RUN curl -o /path/to/resource https://example.com/resource &amp;&amp; echo "123456abcdef /path/to/resource" | sha256sum --check
 </pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
-FROM ununtu:20.04
+FROM ubuntu:20.04
 ADD https://example.com/resource /path/to/resource
 </pre>
 <pre data-diff-id="2" data-diff-type="compliant">
-FROM ununtu:20.04
+FROM ubuntu:20.04
 ADD --checksum=sha256:123456abcdef https://example.com/resource /path/to/resource
 </pre>
 <h2>Resources</h2>

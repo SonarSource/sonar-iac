@@ -29,7 +29,7 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Sensitive
     Properties:
-      BucketName: "mynoncompliantbucket"
+      BucketName: "bucketname"
 
   S3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
@@ -43,7 +43,9 @@ Resources:
               AWS: # Sensitive: only one principal is forced to use https
                 - 'arn:aws:iam::123456789123:root'
             Action: "*"
-            Resource: arn:aws:s3:::mynoncompliantbuckets6249/*
+            Resource:
+              - arn:aws:s3:::bucketname
+              - arn:aws:s3:::bucketname/*
             Condition:
               Bool:
                 "aws:SecureTransport": false
@@ -56,12 +58,12 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Compliant
     Properties:
-      BucketName: "mycompliantbucket"
+      BucketName: "bucketname"
 
   S3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
-      Bucket: "mycompliantbucket"
+      Bucket: !Ref S3Bucket
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -69,7 +71,9 @@ Resources:
             Principal:
               AWS: "*" # all principals should use https
             Action: "*" # for any actions
-            Resource: arn:aws:s3:::mycompliantbucket/* # for any resources
+            Resource: # for the bucket and all its objects
+              - arn:aws:s3:::bucketname
+              - arn:aws:s3:::bucketname/*
             Condition:
               Bool:
                 "aws:SecureTransport": false

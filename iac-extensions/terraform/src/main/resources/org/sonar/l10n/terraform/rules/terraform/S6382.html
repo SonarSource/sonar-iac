@@ -17,10 +17,14 @@ issued to become untrusted.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>Enable certificate-based authentication.</p>
 <h2>Sensitive Code Example</h2>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/containers/">Linux and Windows Web Apps</a>:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-resource "azurerm_app_service" "example" {
+resource "azurerm_linux_web_app" "example" {
   client_cert_enabled = false # Sensitive
+}
+resource "azurerm_linux_web_app" "example2" {
+  client_certificate_enabled = true
+  client_certificate_mode = "Optional" # Sensitive
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
@@ -43,21 +47,18 @@ resource "azurerm_api_management" "example" {
   client_certificate_mode = "Optional" # Sensitive
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/containers/">Linux and Windows Web Apps</a>:</p>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
 <pre data-diff-id="5" data-diff-type="noncompliant">
-resource "azurerm_linux_web_app" "example" {
+resource "azurerm_app_service" "example" {
   client_cert_enabled = false # Sensitive
-}
-resource "azurerm_linux_web_app" "exemple2" {
-  client_cert_enabled = true
-  client_cert_mode = "Optional" # Sensitive
 }
 </pre>
 <h2>Compliant Solution</h2>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/containers/">Linux and Windows Web Apps</a>:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
-resource "azurerm_app_service" "example" {
-  client_cert_enabled = true
+resource "azurerm_linux_web_app" "example" {
+  client_certificate_enabled = true
+  client_certificate_mode = "Required"
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
@@ -80,11 +81,10 @@ resource "azurerm_api_management" "example" {
   client_certificate_mode = "Required"
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/containers/">Linux and Windows Web Apps</a>:</p>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
 <pre data-diff-id="5" data-diff-type="compliant">
-resource "azurerm_linux_web_app" "exemple" {
+resource "azurerm_app_service" "example" {
   client_cert_enabled = true
-  client_cert_mode = "Required"
 }
 </pre>
 <h2>See</h2>
