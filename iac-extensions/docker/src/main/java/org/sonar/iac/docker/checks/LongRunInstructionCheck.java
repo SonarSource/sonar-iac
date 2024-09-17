@@ -19,11 +19,15 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -33,6 +37,11 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
+import org.sonar.iac.docker.tree.api.Expression;
+import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -67,9 +76,10 @@ public class LongRunInstructionCheck implements IacCheck {
 
     for (Map.Entry<Integer, Integer> linesWithOffsets : runInstructionData.tooLongLinesWithLastOffset.entrySet()) {
       int line = linesWithOffsets.getKey();
-      int startOffset = runInstructionData.firstOffsetPerLine.get(line);
-      int endOffset = linesWithOffsets.getValue();
-      if (runInstructionData.wordsPerLine.getOrDefault(line, 0) >= MIN_WORD_TO_TRIGGER) {
+      if (runInstructionData.wordsPerLine.getOrDefault(line, 0) >= MIN_WORD_TO_TRIGGER
+        && !runInstructionData.linesWithUrl.contains(line)) {
+        int startOffset = runInstructionData.firstOffsetPerLine.get(line);
+        int endOffset = linesWithOffsets.getValue();
         result.add(new TooLongLine(line, startOffset, endOffset));
       }
     }
@@ -84,7 +94,8 @@ public class LongRunInstructionCheck implements IacCheck {
    */
   private RunInstructionData computeRunInstructionDataPerLines(RunInstruction runInstruction) {
     Map<Integer, Integer> wordsPerLine = countWordsPerLine(runInstruction);
-    var runInstructionData = new RunInstructionData(new HashMap<>(), new HashMap<>(), wordsPerLine);
+    Set<Integer> linesWithUrl = getLinesWithUrl(runInstruction);
+    var runInstructionData = new RunInstructionData(new HashMap<>(), new HashMap<>(), wordsPerLine, linesWithUrl);
 
     TreeVisitor<TreeContext> visitor = new TreeVisitor<>();
     visitor.register(SyntaxToken.class, (TreeContext ctx, SyntaxToken token) -> {
@@ -121,7 +132,44 @@ public class LongRunInstructionCheck implements IacCheck {
     wordsPerLine.merge(line, 1, Integer::sum);
   }
 
-  record RunInstructionData(Map<Integer, Integer> firstOffsetPerLine, Map<Integer, Integer> tooLongLinesWithLastOffset, Map<Integer, Integer> wordsPerLine) {
+  private static Set<Integer> getLinesWithUrl(RunInstruction runInstruction) {
+    return runInstruction.arguments().stream()
+      .filter(LongRunInstructionCheck::isArgumentUrl)
+      .flatMap(urlArgument -> {
+        int startLine = urlArgument.textRange().start().line();
+        int endLine = urlArgument.textRange().end().line();
+        return IntStream.rangeClosed(startLine, endLine).boxed();
+      })
+      .collect(Collectors.toSet());
+  }
+
+  private static boolean isArgumentUrl(Argument argument) {
+    return argument.expressions().stream().anyMatch(LongRunInstructionCheck::isExpressionUrl);
+  }
+
+  private static boolean isExpressionUrl(Expression expression) {
+    return switch (expression.getKind()) {
+      case STRING_LITERAL -> isStringUrl(((Literal) expression).value());
+      case EXPANDABLE_STRING_LITERAL -> ((ExpandableStringLiteral) expression).expressions().stream().anyMatch(LongRunInstructionCheck::isExpressionUrl);
+      case EXPANDABLE_STRING_CHARACTERS -> isStringUrl(((ExpandableStringCharacters) expression).value());
+      default -> false;
+    };
+  }
+
+  private static boolean isStringUrl(String value) {
+    try {
+      new URL(value);
+      return true;
+    } catch (MalformedURLException e) {
+      return false;
+    }
+  }
+
+  record RunInstructionData(
+    Map<Integer, Integer> firstOffsetPerLine,
+    Map<Integer, Integer> tooLongLinesWithLastOffset,
+    Map<Integer, Integer> wordsPerLine,
+    Set<Integer> linesWithUrl) {
   }
 
   record TooLongLine(int line, int startOffset, int endOffset) {
