@@ -26,8 +26,6 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 
-import static org.sonar.iac.common.testing.IacTestUtils.code;
-
 class ImportDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseValidStatement() {
@@ -38,7 +36,10 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
       .matches("import 'foo' with {} as bar")
       .matches("@decorator('parameter') import 'foo' with {} as bar")
       .matches("@sys.decorator('parameter') import 'foo' with {} as bar")
-      .matches(code("@sys.decorator('parameter')", "@decorator()", "import 'foo' with {} as bar"))
+      .matches("""
+        @sys.decorator('parameter')
+        @decorator()
+        import 'foo' with {} as bar""")
       // defining an import as of name the same as keyword is possible
       .matches("import 'kubernetes@1.0.0' with {namespace: 'default'} as if")
       .matches("import 'kubernetes@1.0.0' with {namespace: 'default'} as type")

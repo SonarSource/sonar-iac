@@ -37,6 +37,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
@@ -63,6 +64,8 @@ import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportFromClause;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
@@ -100,6 +103,7 @@ public class BicepGrammar {
       b.firstOf(
         TARGET_SCOPE_DECLARATION(),
         IMPORT_DECLARATION(),
+        COMPILE_TIME_IMPORT_DECLARATION(),
         METADATA_DECLARATION(),
         PARAMETER_DECLARATION(),
         TYPE_DECLARATION(),
@@ -235,6 +239,48 @@ public class BicepGrammar {
     return b.<ImportAsClause>nonterminal(BicepLexicalGrammar.IMPORT_AS_CLAUSE).is(f.importAsClause(
       b.token(BicepKeyword.AS),
       IDENTIFIER()));
+  }
+
+  public CompileTimeImportDeclaration COMPILE_TIME_IMPORT_DECLARATION() {
+    return b.<CompileTimeImportDeclaration>nonterminal(BicepLexicalGrammar.COMPILE_TIME_IMPORT_DECLARATION).is(
+      f.compileTimeImportDeclaration(
+        b.zeroOrMore(DECORATOR()),
+        b.token(BicepKeyword.IMPORT),
+        COMPILE_TIME_IMPORT_TARGET(),
+        COMPILE_TIME_IMPORT_FROM_CLAUSE()));
+  }
+
+  public CompileTimeImportTarget COMPILE_TIME_IMPORT_TARGET() {
+    return b.<CompileTimeImportTarget>nonterminal().is(
+      b.firstOf(
+        IMPORTED_SYMBOLS_LIST(),
+        WILDCARD_IMPORT()));
+  }
+
+  public CompileTimeImportTarget IMPORTED_SYMBOLS_LIST() {
+    return b.<CompileTimeImportTarget>nonterminal().is(
+      f.importedSymbolsList(
+        b.token(Punctuator.LCURLYBRACE),
+        b.zeroOrMore(
+          f.tuple(
+            b.optional(b.token(Punctuator.COMMA)),
+            f.importedSymbolListItem(
+              IDENTIFIER(),
+              b.optional(IMPORT_AS_CLAUSE())))),
+        b.token(Punctuator.RCURLYBRACE)));
+  }
+
+  public CompileTimeImportTarget WILDCARD_IMPORT() {
+    return b.<CompileTimeImportTarget>nonterminal().is(
+      f.wildcardImport(
+        b.token(Punctuator.STAR), IMPORT_AS_CLAUSE()));
+  }
+
+  public CompileTimeImportFromClause COMPILE_TIME_IMPORT_FROM_CLAUSE() {
+    return b.<CompileTimeImportFromClause>nonterminal().is(
+      f.compileTimeImportFromClause(
+        b.token(BicepKeyword.FROM),
+        INTERPOLATED_STRING()));
   }
 
   public ModuleDeclaration MODULE_DECLARATION() {

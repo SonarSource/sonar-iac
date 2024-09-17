@@ -17,37 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.arm.tree.impl.bicep.importdecl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.List;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportedSymbolsListItem;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.Tree;
 
-public enum BicepKeyword implements GrammarRuleKey {
+public class ImportedSymbolsList extends AbstractArmTreeImpl implements CompileTimeImportTarget {
+  private final SeparatedList<ImportedSymbolsListItem, SyntaxToken> importedSymbols;
 
-  EXISTING("existing"),
-  RESOURCE("resource"),
-  TYPE("type"),
-  OUTPUT("output"),
-  TARGET_SCOPE("targetScope"),
-  FOR("for"),
-  IN("in"),
-  IF("if"),
-  PARAMETER("param"),
-  FUNC("func"),
-  METADATA("metadata"),
-  VARIABLE("var"),
-  IMPORT("import"),
-  WITH("with"),
-  AS("as"),
-  FROM("from"),
-  MODULE("module");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
+  public ImportedSymbolsList(SeparatedList<ImportedSymbolsListItem, SyntaxToken> importedSymbols) {
+    this.importedSymbols = importedSymbols;
   }
 
-  public String getValue() {
-    return value;
+  @Override
+  public List<Tree> children() {
+    return importedSymbols.elementsAndSeparators();
   }
 }

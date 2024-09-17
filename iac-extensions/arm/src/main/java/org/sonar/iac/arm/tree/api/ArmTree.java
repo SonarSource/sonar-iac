@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
@@ -52,8 +53,11 @@ import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportFromClause;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportedSymbolsListItem;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
@@ -99,6 +103,10 @@ public interface ArmTree extends Tree {
     IMPORT_DECLARATION(ImportDeclaration.class),
     IMPORT_WITH_CLAUSE(ImportWithClause.class),
     IMPORT_AS_CLAUSE(ImportAsClause.class),
+    COMPILE_TIME_IMPORT_DECLARATION(CompileTimeImportDeclaration.class),
+    COMPILE_TIME_IMPORT_TARGET(CompileTimeImportTarget.class),
+    COMPILE_TIME_IMPORT_FROM_CLAUSE(CompileTimeImportFromClause.class),
+    IMPORTED_SYMBOLS_LIST_ITEM(ImportedSymbolsListItem.class),
     FUNCTION_CALL(FunctionCall.class),
     FOR_EXPRESSION(ForExpression.class),
     FOR_VARIABLE_BLOCK(ForVariableBlock.class),
