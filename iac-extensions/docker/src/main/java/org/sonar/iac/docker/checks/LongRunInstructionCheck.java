@@ -135,7 +135,7 @@ public class LongRunInstructionCheck implements IacCheck {
   private static Set<Integer> getLinesWithUrl(RunInstruction runInstruction) {
     return runInstruction.arguments().stream()
       .filter(LongRunInstructionCheck::isArgumentUrl)
-      .flatMap(urlArgument -> {
+      .flatMap((Argument urlArgument) -> {
         int startLine = urlArgument.textRange().start().line();
         int endLine = urlArgument.textRange().end().line();
         return IntStream.rangeClosed(startLine, endLine).boxed();

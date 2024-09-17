@@ -77,6 +77,9 @@ RUN wget -O file.txt -firstFlag -secondFlag -thirdFlag -fourthFlag -fifthFlag -s
 RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc"
 RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*} \
     /Python-$PYTHON_VERSION.tar.xz.asc" -fourthFlag -fifthFlag -sixthFlag -seventhFlag -eighthFlag -ninthFlag -tenthFlag -eleventhFlag
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*/Python-$PYTHON_VERSION.tar.xz.asc}" \
+    && -fourthFlag -fifthFlag -sixthFlag -seventhFlag -eighthFlag -ninthFlag -tenthFlag -eleventhFlag -twelfthFlag -thirteenthFlag $variable
+# NonCompliant@-1
 
 # FP, URL not detected
 # Noncompliant@+1
