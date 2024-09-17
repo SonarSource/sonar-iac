@@ -20,6 +20,8 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportFromClause;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
 
 /**
  * Compile-time import declaration.
@@ -29,4 +31,17 @@ public interface CompileTimeImportDeclaration extends Statement, HasDecorators, 
   default Kind getKind() {
     return Kind.COMPILE_TIME_IMPORT_DECLARATION;
   }
+
+  /**
+   * Import target.
+   * @return import target
+   */
+  CompileTimeImportTarget target();
+
+  /**
+   * Import from clause.
+   * @return import from clause
+   */
+  CompileTimeImportFromClause fromClause();
+
 }

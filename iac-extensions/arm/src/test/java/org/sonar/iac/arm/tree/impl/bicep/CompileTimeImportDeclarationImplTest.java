@@ -32,8 +32,8 @@ class CompileTimeImportDeclarationImplTest extends BicepTreeModelTest {
     ArmAssertions.assertThat(BicepLexicalGrammar.COMPILE_TIME_IMPORT_DECLARATION)
       .matches("import {foo} from 'imports.bicep'")
       .matches("import { foo } from 'imports.bicep'")
-      // .matches("import {foo,bar} from 'imports.bicep'")
-      // .matches("import {foo, bar} from 'imports.bicep'")
+      .matches("import {foo,bar} from 'imports.bicep'")
+      .matches("import {foo, bar} from 'imports.bicep'")
       .matches("""
         import {
           foo as fizz
@@ -41,7 +41,9 @@ class CompileTimeImportDeclarationImplTest extends BicepTreeModelTest {
         } from 'imports.bicep'""")
       .matches("import * as baz from 'imports.bicep'")
 
-      .notMatches("TODO");
+      .notMatches("import *")
+      .notMatches("import {foo, *} from 'imports.bicep'")
+      .notMatches("import foo from 'imports.bicep'");
   }
 
   @Test
@@ -54,6 +56,25 @@ class CompileTimeImportDeclarationImplTest extends BicepTreeModelTest {
     softly.assertThat(tree.decorators()).isNotNull().hasSize(1);
     softly.assertThat(tree.children()).hasSize(4);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.COMPILE_TIME_IMPORT_DECLARATION);
+    softly.assertThat(tree.target().getKind()).isEqualTo(ArmTree.Kind.COMPILE_TIME_IMPORT_TARGET);
+    softly.assertThat(tree.target().children()).hasSize(2);
+    softly.assertThat(tree.fromClause().getKind()).isEqualTo(ArmTree.Kind.COMPILE_TIME_IMPORT_FROM_CLAUSE);
+    softly.assertThat(tree.fromClause().keyword().value()).isEqualTo("from");
+    softly.assertAll();
+  }
+
+  @Test
+  void shouldParseSymbolsListInImportStatement() {
+    var tree = (CompileTimeImportDeclaration) createParser(BicepLexicalGrammar.COMPILE_TIME_IMPORT_DECLARATION)
+      .parse("import {foo, bar} from 'imports.bicep'");
+
+    var softly = new SoftAssertions();
+    softly.assertThat(tree.decorators()).isEmpty();
+    softly.assertThat(tree.children()).hasSize(3);
+    softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.COMPILE_TIME_IMPORT_DECLARATION);
+    softly.assertThat(tree.target().getKind()).isEqualTo(ArmTree.Kind.COMPILE_TIME_IMPORT_TARGET);
+    softly.assertThat(tree.target().children()).hasSize(5);
+    softly.assertThat(((ArmTree) tree.target().children().get(1)).getKind()).isEqualTo(ArmTree.Kind.IMPORTED_SYMBOLS_LIST_ITEM);
     softly.assertAll();
   }
 }

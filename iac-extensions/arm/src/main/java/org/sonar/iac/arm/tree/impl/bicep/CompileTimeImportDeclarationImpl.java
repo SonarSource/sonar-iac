@@ -64,4 +64,14 @@ public class CompileTimeImportDeclarationImpl extends AbstractArmTreeImpl implem
     result.add(fromClause);
     return result;
   }
+
+  @Override
+  public CompileTimeImportTarget target() {
+    return target;
+  }
+
+  @Override
+  public CompileTimeImportFromClause fromClause() {
+    return fromClause;
+  }
 }

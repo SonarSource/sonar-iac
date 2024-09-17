@@ -422,7 +422,7 @@ public class TreeFactory {
     SyntaxToken openCurly,
     Optional<List<Tuple<Optional<SyntaxToken>, ImportedSymbolsListItem>>> importedSymbols,
     SyntaxToken closingCurly) {
-    return new ImportedSymbolsList(toSeparatedList(importedSymbols));
+    return new ImportedSymbolsList(openCurly, toSeparatedList(importedSymbols), closingCurly);
   }
 
   public ImportedSymbolsListItem importedSymbolListItem(

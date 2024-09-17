@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep.importdecl;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
@@ -28,14 +29,22 @@ import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ImportedSymbolsList extends AbstractArmTreeImpl implements CompileTimeImportTarget {
+  private final SyntaxToken openCurly;
   private final SeparatedList<ImportedSymbolsListItem, SyntaxToken> importedSymbols;
+  private final SyntaxToken closeCurly;
 
-  public ImportedSymbolsList(SeparatedList<ImportedSymbolsListItem, SyntaxToken> importedSymbols) {
+  public ImportedSymbolsList(SyntaxToken openCurly, SeparatedList<ImportedSymbolsListItem, SyntaxToken> importedSymbols, SyntaxToken closeCurly) {
+    this.openCurly = openCurly;
     this.importedSymbols = importedSymbols;
+    this.closeCurly = closeCurly;
   }
 
   @Override
   public List<Tree> children() {
-    return importedSymbols.elementsAndSeparators();
+    var result = new ArrayList<Tree>();
+    result.add(openCurly);
+    result.addAll(importedSymbols.elementsAndSeparators());
+    result.add(closeCurly);
+    return result;
   }
 }
