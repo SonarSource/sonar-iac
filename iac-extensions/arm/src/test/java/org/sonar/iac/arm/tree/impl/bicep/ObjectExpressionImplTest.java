@@ -133,4 +133,26 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
     ObjectExpression objectExpression = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     assertThat(objectExpression).hasToString("{key1: 'value1', key2: 'value2'}");
   }
+
+  @Test
+  void shouldParseCommaSeparatedObject() {
+    var code = "{ name: 'web', network: '127.0.0.1' }";
+
+    ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
+
+    assertThat(tree.properties()).hasSize(2);
+    assertThat(tree.children()).hasSize(5);
+  }
+
+  @Test
+  void shouldParseObjectWithMixedSeparators() {
+    var code = """
+      { name: 'web', network: '127.0.0.1'
+      port: 80 }""";
+
+    ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
+
+    assertThat(tree.properties()).hasSize(3);
+    assertThat(tree.children()).hasSize(6);
+  }
 }

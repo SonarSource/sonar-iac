@@ -255,7 +255,10 @@ public class BicepGrammar {
     return b.<ObjectExpression>nonterminal(BicepLexicalGrammar.OBJECT_EXPRESSION).is(
       f.objectExpression(
         b.token(Punctuator.LCURLYBRACE),
-        b.zeroOrMore(OBJECT_PROPERTY()),
+        b.zeroOrMore(
+          f.tuple(
+            b.optional(b.token(Punctuator.COMMA)),
+            OBJECT_PROPERTY())),
         b.token(Punctuator.RCURLYBRACE)));
   }
 

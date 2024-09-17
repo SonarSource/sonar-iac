@@ -29,30 +29,63 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ArrayExpressionImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseMultilineArrays() {
     ArmAssertions.assertThat(BicepLexicalGrammar.ARRAY_EXPRESSION)
-      .matches(code("[", "]"))
-      .matches(code("[", "'a'", "]"))
-      .matches(code("['a', 'b']"))
-      .matches(code("[", "'a', 'b'", "'c'", "]"))
-      .matches(code("[", "'a'", "'b'", "]"))
-      .matches(code("[", "    'a'", "    'b'", "]"))
-      .matches(code("[", "", "", "   'a'", "", "    'b'", "]"))
-      .matches(code("[]"))
-      .matches(code("['a'", "]"))
-      .matches(code("['a']"))
-      .matches(code("[", "'a']"))
+      .matches("""
+        [
+        ]""")
+      .matches("""
+        [
+        'a'
+        ]""")
+      .matches("['a', 'b']")
+      .matches("""
+        [
+        'a', 'b'
+        'c'
+        ]""")
+      .matches("""
+        [
+        'a'
+        'b'
+        ]""")
+      .matches("""
+        [
+            'a'
+            'b'
+        ]""")
+      .matches("""
+        [
 
-      .notMatches(code("[", "}"));
+
+           'a'
+
+            'b'
+        ]""")
+      .matches("[]")
+      .matches("""
+        ['a'
+        ]""")
+      .matches("['a']")
+      .matches("""
+        [
+        'a']""")
+
+      .notMatches("""
+        [
+        }""");
   }
 
   @Test
   void shouldParseValidExpression() {
-    ArrayExpression tree = parse(code("[", "'a'", "'b'", "]"), BicepLexicalGrammar.ARRAY_EXPRESSION);
+    ArrayExpression tree = parse("""
+      [
+      'a'
+      'b'
+      ]""", BicepLexicalGrammar.ARRAY_EXPRESSION);
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ArrayExpression.class);
@@ -63,10 +96,11 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMixedInlineAndMultilineArray() {
-    String code = code("[",
-      "'a', 'b'",
-      "'c'",
-      "]");
+    String code = """
+      [
+      'a', 'b'
+      'c'
+      ]""";
     ArrayExpression tree = parse(code, BicepLexicalGrammar.ARRAY_EXPRESSION);
 
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
