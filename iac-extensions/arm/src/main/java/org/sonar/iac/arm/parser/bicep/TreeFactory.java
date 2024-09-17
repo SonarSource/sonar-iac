@@ -527,15 +527,15 @@ public class TreeFactory {
   }
 
   private static <T extends ArmTree> SeparatedList<T, SyntaxToken> toSeparatedList(Optional<List<Tuple<Optional<SyntaxToken>, T>>> elements) {
-    SeparatedList<T, SyntaxToken> arrayContent = emptySeparatedList();
+    SeparatedList<T, SyntaxToken> result = emptySeparatedList();
     if (elements.isPresent()) {
       // replace Optional<SyntaxToken> by SyntaxToken or null
       List<Tuple<SyntaxToken, T>> elementsWithNullSeparators = elements.get().stream()
         .map(tuple -> new Tuple<>(tuple.first().orNull(), tuple.second()))
         .collect(Collectors.toList());
       var firstElement = elementsWithNullSeparators.remove(0).second();
-      arrayContent = separatedList(firstElement, elementsWithNullSeparators);
+      result = separatedList(firstElement, elementsWithNullSeparators);
     }
-    return arrayContent;
+    return result;
   }
 }
