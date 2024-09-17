@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.checks;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,9 +159,9 @@ public class LongRunInstructionCheck implements IacCheck {
 
   private static boolean isStringUrl(String value) {
     try {
-      new URL(value);
+      new URL(value).toURI();
       return true;
-    } catch (MalformedURLException e) {
+    } catch (MalformedURLException | URISyntaxException e) {
       return false;
     }
   }
