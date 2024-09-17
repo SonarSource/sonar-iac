@@ -40,7 +40,7 @@ RUN the very long instruction is both on the current and on the next line aaaaaa
                                                                                                                         RUN a b c d e f g h i j k
 #                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-# FN: We cannot detect a too long line in the case where there is no spaces befoer/after the multilne operator '\' and on the next line.
+# FN: We cannot detect a too long line in the case where there is no spaces before/after the multilne operator '\' and on the next line.
 # This is because due to the preprocessing, it create a single token starting on the first line and ending on the next line, with a content
 # concatenated and without spaces or multiline operator.
 # This single token has insufficient data in the TextRange to determine the precise location of any of its characters.
@@ -48,7 +48,7 @@ RUN false positive because there is no spaces before and after the continous cha
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 # Noncompliant@+1
-  RUN the issue location is invalid and ignore the last strings for the sams reasons as stated before: the TextRange data available is insufficient aaaa\
+  RUN the issue location is invalid and ignore the last strings for the same reasons as stated before: the TextRange data available is insufficient aaaa\
 aaa
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^@-1
 
@@ -67,3 +67,20 @@ RUN test \
   && wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc"
 
 RUN Invoke-WebRequest "https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-$($env:GRAFANA_VERSION).windows-amd64.zip"  -OutFile grafana.zip -UseBasicParsing;
+
+# Compliant: contain URLs
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag -fourthFlag -fifthFlag "https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz.asc"
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag -fourthFlag -fifthFlag "https://www.python.org:8080/ftp/python/3.12.0/Python-3.12.0.tar.xz.asc?key=value"
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag -fourthFlag -fifthFlag "http://www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz.asc"
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag -fourthFlag -fifthFlag "ftp://www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz.asc"
+RUN wget -O file.txt -firstFlag -secondFlag -thirdFlag -fourthFlag -fifthFlag -sixthFlag -seventhFlag -eighthFlag "file:///path/to/your/file.txt"
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc"
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*} \
+    /Python-$PYTHON_VERSION.tar.xz.asc" -fourthFlag -fifthFlag -sixthFlag -seventhFlag -eighthFlag -ninthFlag -tenthFlag -eleventhFlag
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*/Python-$PYTHON_VERSION.tar.xz.asc}" \
+    && -fourthFlag -fifthFlag -sixthFlag -seventhFlag -eighthFlag -ninthFlag -tenthFlag -eleventhFlag -twelfthFlag -thirteenthFlag $variable
+# NonCompliant@-1
+
+# FP, URL not detected
+# Noncompliant@+1
+RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag -fourthFlag -fifthFlag "www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz.asc"
