@@ -364,21 +364,12 @@ public class TreeFactory {
     return new PropertyImpl(key, colon, value);
   }
 
-  public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<ObjectProperty>> properties, SyntaxToken rightCurlyBrace) {
-    return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
+  public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Tuple<Optional<SyntaxToken>, ObjectProperty>>> properties, SyntaxToken rightCurlyBrace) {
+    return new ObjectExpressionImpl(leftCurlyBrace, toSeparatedList(properties), rightCurlyBrace);
   }
 
   public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<List<Tuple<Optional<SyntaxToken>, Expression>>> elements, SyntaxToken rBracket) {
-    SeparatedList<Expression, SyntaxToken> arrayContent = emptySeparatedList();
-    if (elements.isPresent()) {
-      // replace Optional<SyntaxToken> by SyntaxToken or null
-      List<Tuple<SyntaxToken, Expression>> elementsWithNullSeparators = elements.get().stream()
-        .map(tuple -> new Tuple<>(tuple.first().orNull(), tuple.second()))
-        .collect(Collectors.toList());
-      Expression firstElement = elementsWithNullSeparators.remove(0).second();
-      arrayContent = separatedList(firstElement, elementsWithNullSeparators);
-    }
-    return new ArrayExpressionImpl(lBracket, arrayContent, rBracket);
+    return new ArrayExpressionImpl(lBracket, toSeparatedList(elements), rBracket);
   }
 
   public NumericLiteral numericLiteral(SyntaxToken token) {
@@ -533,5 +524,18 @@ public class TreeFactory {
 
   public TernaryExpression ternaryExpression(Expression condition, SyntaxToken query, Expression ifTrueExpression, SyntaxToken colon, Expression elseExpression) {
     return new TernaryExpressionImpl(condition, query, ifTrueExpression, colon, elseExpression);
+  }
+
+  private static <T extends ArmTree> SeparatedList<T, SyntaxToken> toSeparatedList(Optional<List<Tuple<Optional<SyntaxToken>, T>>> elements) {
+    SeparatedList<T, SyntaxToken> result = emptySeparatedList();
+    if (elements.isPresent()) {
+      // replace Optional<SyntaxToken> by SyntaxToken or null
+      List<Tuple<SyntaxToken, T>> elementsWithNullSeparators = elements.get().stream()
+        .map(tuple -> new Tuple<>(tuple.first().orNull(), tuple.second()))
+        .collect(Collectors.toList());
+      var firstElement = elementsWithNullSeparators.remove(0).second();
+      result = separatedList(firstElement, elementsWithNullSeparators);
+    }
+    return result;
   }
 }

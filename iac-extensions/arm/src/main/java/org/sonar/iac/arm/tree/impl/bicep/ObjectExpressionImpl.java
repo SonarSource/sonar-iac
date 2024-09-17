@@ -28,23 +28,24 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectExpression {
 
   private final SyntaxToken leftCurlyBrace;
-  private final List<ObjectProperty> objectProperties;
+  private final SeparatedList<ObjectProperty, SyntaxToken> objectPropertiesWithSeparators;
   private final SyntaxToken rightCurlyBrace;
 
-  public ObjectExpressionImpl(SyntaxToken leftCurlyBrace, List<ObjectProperty> objectProperties, SyntaxToken rightCurlyBrace) {
+  public ObjectExpressionImpl(SyntaxToken leftCurlyBrace, SeparatedList<ObjectProperty, SyntaxToken> objectPropertiesWithSeparators, SyntaxToken rightCurlyBrace) {
     this.leftCurlyBrace = leftCurlyBrace;
-    this.objectProperties = objectProperties;
+    this.objectPropertiesWithSeparators = objectPropertiesWithSeparators;
     this.rightCurlyBrace = rightCurlyBrace;
   }
 
   @Override
   public List<Property> properties() {
-    return objectProperties.stream()
+    return objectPropertiesWithSeparators.elements().stream()
       .filter(Property.class::isInstance)
       .map(Property.class::cast)
       .toList();
@@ -52,7 +53,7 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
 
   @Override
   public List<ResourceDeclaration> nestedResources() {
-    return objectProperties.stream()
+    return objectPropertiesWithSeparators.elements().stream()
       .filter(ResourceDeclaration.class::isInstance)
       .map(ResourceDeclaration.class::cast)
       .toList();
@@ -62,7 +63,7 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
   public List<Tree> children() {
     List<Tree> list = new ArrayList<>();
     list.add(leftCurlyBrace);
-    list.addAll(objectProperties);
+    list.addAll(objectPropertiesWithSeparators.elementsAndSeparators());
     list.add(rightCurlyBrace);
     return list;
   }
@@ -74,7 +75,7 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
 
   @Override
   public String toString() {
-    String propertiesString = objectProperties.stream()
+    String propertiesString = objectPropertiesWithSeparators.elements().stream()
       .map(ObjectProperty::toString)
       .collect(Collectors.joining(", "));
     return "{" + propertiesString + "}";
