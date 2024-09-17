@@ -78,4 +78,8 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
     return memberAccess;
   }
 
+  @Override
+  public String toString() {
+    return memberAccess.toString() + separatingToken.value() + (expression != null ? expression.toString() : "") + (closingBracket != null ? closingBracket.value() : "");
+  }
 }

@@ -67,4 +67,10 @@ class BinaryExpressionImplTest extends BicepTreeModelTest {
     assertThat(separatedList.elements().get(2)).asNumericLiteral().hasValue(3);
     assertThat(separatedList.elements().get(3)).asNumericLiteral().hasValue(4);
   }
+
+  @Test
+  void shouldConvertToString() {
+    BinaryExpression expression = parse("1 && 2 || 3 ?? 4", BicepLexicalGrammar.BINARY_EXPRESSION);
+    assertThat(expression).hasToString("1 && 2 || 3 ?? 4");
+  }
 }

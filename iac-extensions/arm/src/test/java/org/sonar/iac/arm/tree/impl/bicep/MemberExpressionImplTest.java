@@ -142,4 +142,10 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo("[");
     assertThat(((TextTree) tree.children().get(3)).value()).isEqualTo("]");
   }
+
+  @Test
+  void shouldConvertToString() {
+    MemberExpression tree = parse("memberExpression[stringLiteral].identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
+    assertThat(tree).hasToString("memberExpression[stringLiteral].identifier123");
+  }
 }

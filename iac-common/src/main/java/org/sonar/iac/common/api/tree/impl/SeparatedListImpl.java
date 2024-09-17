@@ -79,4 +79,11 @@ public record SeparatedListImpl<T extends Tree, U extends IacToken> (List<T> ele
     return new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
   }
 
+  @Override
+  public String toString() {
+    return elementsAndSeparators().stream()
+      .map(Object::toString)
+      .reduce((a, b) -> a + " " + b)
+      .orElse("");
+  }
 }
