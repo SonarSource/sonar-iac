@@ -37,13 +37,16 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
   @CheckForNull
   private final Expression expression;
   @CheckForNull
+  private final SyntaxToken safeDereference;
+  @CheckForNull
   private final SyntaxToken closingBracket;
 
   private Expression memberAccess;
 
-  public MemberExpressionImpl(SyntaxToken separatingToken, @Nullable Expression expression, @Nullable SyntaxToken closingBracket) {
+  public MemberExpressionImpl(SyntaxToken separatingToken, @Nullable Expression expression, @Nullable SyntaxToken safeDereference, @Nullable SyntaxToken closingBracket) {
     this.separatingToken = separatingToken;
     this.expression = expression;
+    this.safeDereference = safeDereference;
     this.closingBracket = closingBracket;
   }
 
@@ -57,6 +60,7 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
     List<Tree> result = new ArrayList<>();
     result.add(memberAccess);
     result.add(separatingToken);
+    addChildrenIfPresent(result, safeDereference);
     addChildrenIfPresent(result, expression);
     addChildrenIfPresent(result, closingBracket);
     return result;
@@ -78,4 +82,12 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
     return memberAccess;
   }
 
+  @Override
+  public String toString() {
+    return memberAccess.toString()
+      + separatingToken
+      + (safeDereference != null ? safeDereference : "")
+      + (expression != null ? expression : "")
+      + (closingBracket != null ? closingBracket : "");
+  }
 }

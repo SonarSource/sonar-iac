@@ -659,7 +659,8 @@ public class BicepGrammar {
           b.firstOf(
             MEMBER_EXPRESSION_EXCLAMATION_COMPONENT(),
             MEMBER_EXPRESSION_FUNCTION_CALL_COMPONENT(),
-            MEMBER_EXPRESSION_IDENTIFIER_COMPONENT(),
+            MEMBER_EXPRESSION_DOT_IDENTIFIER_COMPONENT(),
+            MEMBER_EXPRESSION_DOUBLE_COLON_IDENTIFIER_COMPONENT(),
             MEMBER_EXPRESSION_ENCLOSED_EXPRESSION_COMPONENT()))));
   }
 
@@ -680,12 +681,18 @@ public class BicepGrammar {
 
   // Sections of code should not be commented out
   @SuppressWarnings("java:S125")
-  public MemberExpression MEMBER_EXPRESSION_IDENTIFIER_COMPONENT() {
+  public MemberExpression MEMBER_EXPRESSION_DOT_IDENTIFIER_COMPONENT() {
     return b.<MemberExpression>nonterminal().is(
       f.memberExpressionComponent(
-        b.firstOf(
-          b.token(Punctuator.DOT),
-          b.token(Punctuator.DOUBLE_COLON)),
+        b.token(Punctuator.DOT),
+        b.optional(b.token(Punctuator.QUERY)),
+        IDENTIFIER()));
+  }
+
+  public MemberExpression MEMBER_EXPRESSION_DOUBLE_COLON_IDENTIFIER_COMPONENT() {
+    return b.<MemberExpression>nonterminal().is(
+      f.memberExpressionComponent(
+        b.token(Punctuator.DOUBLE_COLON),
         IDENTIFIER()));
   }
 
@@ -693,6 +700,7 @@ public class BicepGrammar {
     return b.<MemberExpression>nonterminal().is(
       f.memberExpressionComponent(
         b.token(Punctuator.LBRACKET),
+        b.optional(b.token(Punctuator.QUERY)),
         EXPRESSION(),
         b.token(Punctuator.RBRACKET)));
   }

@@ -68,8 +68,15 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
       .matches("memberExpression!.functionCall()")
       .matches("memberExpression!::identifier123")
 
+      .matches("memberExpression.?identifier123")
+      .matches("memberExpression[?stringLiteral]")
+      .matches("memberExpression[?stringLiteral].?identifier123")
+
       .notMatches("memberExpression[stringLiteral")
-      .notMatches("memberExpression!identifier123");
+      .notMatches("memberExpression!identifier123")
+      .notMatches("memberExpression:?identifier123")
+      .notMatches("memberExpression??identifier123")
+      .notMatches("memberExpression.??identifier123");
   }
 
   @Test
@@ -129,6 +136,20 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
   }
 
   @Test
+  void shouldParseMemberExpressionWithSafeDereference() {
+    MemberExpression tree = parse("memberExpression.?identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
+
+    assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
+
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.VARIABLE);
+    assertThat(tree.expression()).hasKind(ArmTree.Kind.IDENTIFIER);
+
+    assertThat(tree.children()).hasSize(4);
+    assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
+    assertThat(((TextTree) tree.children().get(2)).value()).isEqualTo("?");
+  }
+
+  @Test
   void shouldParseMemberExpressionWithExpression() {
     MemberExpression tree = parse("memberExpression[stringLiteral]", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
@@ -141,5 +162,13 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
     assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo("[");
     assertThat(((TextTree) tree.children().get(3)).value()).isEqualTo("]");
+  }
+
+  @Test
+  void shouldConvertToString() {
+    MemberExpression tree1 = parse("memberExpression[?stringLiteral].?identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
+    MemberExpression tree2 = parse("memberExpression!", BicepLexicalGrammar.MEMBER_EXPRESSION);
+    assertThat(tree1).hasToString("memberExpression[?stringLiteral].?identifier123");
+    assertThat(tree2).hasToString("memberExpression!");
   }
 }

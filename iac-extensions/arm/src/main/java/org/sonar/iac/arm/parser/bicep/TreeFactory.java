@@ -342,19 +342,23 @@ public class TreeFactory {
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken separatingToken, Identifier identifier) {
-    return new MemberExpressionImpl(separatingToken, identifier, null);
+    return new MemberExpressionImpl(separatingToken, identifier, null, null);
   }
 
-  public MemberExpression memberExpressionComponent(SyntaxToken openingBracket, Expression expression, SyntaxToken closingBracket) {
-    return new MemberExpressionImpl(openingBracket, expression, closingBracket);
+  public MemberExpression memberExpressionComponent(SyntaxToken separatingToken, Optional<SyntaxToken> safeDereference, Identifier identifier) {
+    return new MemberExpressionImpl(separatingToken, identifier, safeDereference.orNull(), null);
+  }
+
+  public MemberExpression memberExpressionComponent(SyntaxToken openingBracket, Optional<SyntaxToken> safeDereference, Expression expression, SyntaxToken closingBracket) {
+    return new MemberExpressionImpl(openingBracket, expression, safeDereference.orNull(), closingBracket);
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken dotKeyword, FunctionCall functionCall) {
-    return new MemberExpressionImpl(dotKeyword, functionCall, null);
+    return new MemberExpressionImpl(dotKeyword, functionCall, null, null);
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken exclamationKeyword) {
-    return new MemberExpressionImpl(exclamationKeyword, null, null);
+    return new MemberExpressionImpl(exclamationKeyword, null, null, null);
   }
 
   public ParenthesizedExpression parenthesizedExpression(SyntaxToken leftParenthesis, Expression expression, SyntaxToken rightParenthesis) {

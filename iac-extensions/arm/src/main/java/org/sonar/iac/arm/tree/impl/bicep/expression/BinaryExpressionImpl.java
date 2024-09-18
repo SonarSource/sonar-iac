@@ -29,4 +29,9 @@ public class BinaryExpressionImpl extends AbstractBinaryOperation implements Bin
   public BinaryExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
     super(separatedList);
   }
+
+  @Override
+  public String toString() {
+    return separatedList().toString();
+  }
 }

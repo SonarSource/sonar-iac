@@ -90,4 +90,20 @@ class SeparatedListImplTest {
     assertThat(resultingSeparatedList.elements()).containsExactly(firstElement);
     assertThat(resultingSeparatedList.separators()).isEmpty();
   }
+
+  @Test
+  void shouldConvertToString() {
+    Tree element1 = CommonTestUtils.TestTree.tree();
+    IacToken separator1 = CommonTestUtils.TestIacToken.token();
+    Tree element2 = CommonTestUtils.TestTree.tree();
+    IacToken separator2 = CommonTestUtils.TestIacToken.token();
+    Tree element3 = CommonTestUtils.TestTree.tree();
+
+    SeparatedList<Tree, IacToken> separatedList = SeparatedListImpl.separatedList(element1, Optional.of(List.of(
+      new Tuple<>(separator1, element2),
+      new Tuple<>(separator2, element3))));
+
+    String expected = element1 + " " + separator1 + " " + element2 + " " + separator2 + " " + element3;
+    assertThat(separatedList).hasToString(expected);
+  }
 }

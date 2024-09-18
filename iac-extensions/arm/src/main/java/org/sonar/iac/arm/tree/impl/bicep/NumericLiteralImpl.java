@@ -53,4 +53,9 @@ public class NumericLiteralImpl extends AbstractArmTreeImpl implements NumericLi
   public SyntaxToken token() {
     return token;
   }
+
+  @Override
+  public String toString() {
+    return token.toString();
+  }
 }
