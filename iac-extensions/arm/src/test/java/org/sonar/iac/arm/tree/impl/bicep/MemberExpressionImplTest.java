@@ -163,7 +163,9 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldConvertToString() {
-    MemberExpression tree = parse("memberExpression[?stringLiteral].?identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
-    assertThat(tree).hasToString("memberExpression[?stringLiteral].?identifier123");
+    MemberExpression tree1 = parse("memberExpression[?stringLiteral].?identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
+    MemberExpression tree2 = parse("memberExpression!", BicepLexicalGrammar.MEMBER_EXPRESSION);
+    assertThat(tree1).hasToString("memberExpression[?stringLiteral].?identifier123");
+    assertThat(tree2).hasToString("memberExpression!");
   }
 }
