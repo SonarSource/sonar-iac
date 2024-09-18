@@ -333,23 +333,25 @@ public class TreeFactory {
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken separatingToken, Identifier identifier) {
-    return new MemberExpressionImpl(separatingToken, identifier, null);
+    return new MemberExpressionImpl(separatingToken, identifier, null, null);
   }
 
-  public MemberExpression memberExpressionComponent(Tuple<SyntaxToken, Optional<SyntaxToken>> separatingToken, Identifier identifier) {
-    return new MemberExpressionImpl(separatingToken.first(), identifier, null);
+  public MemberExpression memberExpressionComponent(Tuple<SyntaxToken, Optional<SyntaxToken>> separatingTokens, Identifier identifier) {
+    SyntaxToken dot = separatingTokens.first();
+    SyntaxToken optionalSafeDereference = separatingTokens.second().orNull();
+    return new MemberExpressionImpl(dot, identifier, optionalSafeDereference, null);
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken openingBracket, Optional<SyntaxToken> safeDereference, Expression expression, SyntaxToken closingBracket) {
-    return new MemberExpressionImpl(openingBracket, expression, closingBracket);
+    return new MemberExpressionImpl(openingBracket, expression, safeDereference.orNull(), closingBracket);
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken dotKeyword, FunctionCall functionCall) {
-    return new MemberExpressionImpl(dotKeyword, functionCall, null);
+    return new MemberExpressionImpl(dotKeyword, functionCall, null, null);
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken exclamationKeyword) {
-    return new MemberExpressionImpl(exclamationKeyword, null, null);
+    return new MemberExpressionImpl(exclamationKeyword, null, null, null);
   }
 
   public ParenthesizedExpression parenthesizedExpression(SyntaxToken leftParenthesis, Expression expression, SyntaxToken rightParenthesis) {

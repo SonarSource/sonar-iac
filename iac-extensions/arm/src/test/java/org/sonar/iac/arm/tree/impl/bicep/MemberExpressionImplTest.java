@@ -69,7 +69,8 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
       .matches("memberExpression!::identifier123")
 
       .matches("memberExpression.?identifier123")
-      .matches("memberExpression[?identifier123]")
+      .matches("memberExpression[?stringLiteral]")
+      .matches("memberExpression[?stringLiteral].?identifier123")
 
       .notMatches("memberExpression[stringLiteral")
       .notMatches("memberExpression!identifier123");
@@ -132,6 +133,20 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
   }
 
   @Test
+  void shouldParseMemberExpressionWithSafeDereference() {
+    MemberExpression tree = parse("memberExpression.?identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
+
+    assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
+
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.VARIABLE);
+    assertThat(tree.expression()).hasKind(ArmTree.Kind.IDENTIFIER);
+
+    assertThat(tree.children()).hasSize(4);
+    assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
+    assertThat(((TextTree) tree.children().get(2)).value()).isEqualTo("?");
+  }
+
+  @Test
   void shouldParseMemberExpressionWithExpression() {
     MemberExpression tree = parse("memberExpression[stringLiteral]", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
@@ -148,7 +163,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldConvertToString() {
-    MemberExpression tree = parse("memberExpression[stringLiteral].identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
-    assertThat(tree).hasToString("memberExpression[stringLiteral].identifier123");
+    MemberExpression tree = parse("memberExpression[?stringLiteral].?identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
+    assertThat(tree).hasToString("memberExpression[?stringLiteral].?identifier123");
   }
 }
