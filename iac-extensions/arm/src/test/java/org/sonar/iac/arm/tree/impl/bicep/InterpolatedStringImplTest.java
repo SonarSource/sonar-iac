@@ -44,6 +44,9 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
       .matches("'a${123}b\\'b${456}c'")
       .matches("'a${1 > 2}b${1 != 2}c'")
       .matches("'a${123}${456}c'")
+      .matches("'#${x}'")
+      .matches("'${x}#${y}'")
+      .matches("'#\"${updateKey}\"'")
 
       .notMatches("123")
       .notMatches("\\'123'")
