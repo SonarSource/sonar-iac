@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
@@ -83,7 +84,6 @@ public record SeparatedListImpl<T extends Tree, U extends IacToken> (List<T> ele
   public String toString() {
     return elementsAndSeparators().stream()
       .map(Object::toString)
-      .reduce((a, b) -> a + " " + b)
-      .orElse("");
+      .collect(Collectors.joining(" "));
   }
 }

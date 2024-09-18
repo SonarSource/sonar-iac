@@ -73,7 +73,10 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
       .matches("memberExpression[?stringLiteral].?identifier123")
 
       .notMatches("memberExpression[stringLiteral")
-      .notMatches("memberExpression!identifier123");
+      .notMatches("memberExpression!identifier123")
+      .notMatches("memberExpression:?identifier123")
+      .notMatches("memberExpression??identifier123")
+      .notMatches("memberExpression.??identifier123");
   }
 
   @Test
