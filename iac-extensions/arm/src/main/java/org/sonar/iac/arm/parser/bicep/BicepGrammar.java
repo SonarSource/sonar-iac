@@ -653,6 +653,7 @@ public class BicepGrammar {
     return b.<MemberExpression>nonterminal().is(
       f.memberExpressionComponent(
         b.token(Punctuator.LBRACKET),
+        b.optional(b.token(Punctuator.SAFE_DEREFERENCE)),
         EXPRESSION(),
         b.token(Punctuator.RBRACKET)));
   }

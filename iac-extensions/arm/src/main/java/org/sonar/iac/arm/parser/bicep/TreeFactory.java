@@ -340,7 +340,7 @@ public class TreeFactory {
     return new MemberExpressionImpl(separatingToken.first(), identifier, null);
   }
 
-  public MemberExpression memberExpressionComponent(SyntaxToken openingBracket, Expression expression, SyntaxToken closingBracket) {
+  public MemberExpression memberExpressionComponent(SyntaxToken openingBracket, Optional<SyntaxToken> safeDereference, Expression expression, SyntaxToken closingBracket) {
     return new MemberExpressionImpl(openingBracket, expression, closingBracket);
   }
 
