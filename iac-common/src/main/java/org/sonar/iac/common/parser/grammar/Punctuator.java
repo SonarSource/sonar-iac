@@ -27,6 +27,7 @@ public enum Punctuator implements GrammarRuleKey {
   COMMA(","),
   DOUBLEARROW("=>"),
   DOT("."),
+  SAFE_DEREFERENCE("?"),
   EQU("="),
   ELLIPSIS("..."),
   LBRACKET("["),

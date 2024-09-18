@@ -336,6 +336,10 @@ public class TreeFactory {
     return new MemberExpressionImpl(separatingToken, identifier, null);
   }
 
+  public MemberExpression memberExpressionComponent(Tuple<SyntaxToken, Optional<SyntaxToken>> separatingToken, Identifier identifier) {
+    return new MemberExpressionImpl(separatingToken.first(), identifier, null);
+  }
+
   public MemberExpression memberExpressionComponent(SyntaxToken openingBracket, Expression expression, SyntaxToken closingBracket) {
     return new MemberExpressionImpl(openingBracket, expression, closingBracket);
   }
