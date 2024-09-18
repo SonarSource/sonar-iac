@@ -17,37 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.arm.tree.api.bicep.importdecl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-public enum BicepKeyword implements GrammarRuleKey {
-
-  EXISTING("existing"),
-  RESOURCE("resource"),
-  TYPE("type"),
-  OUTPUT("output"),
-  TARGET_SCOPE("targetScope"),
-  FOR("for"),
-  IN("in"),
-  IF("if"),
-  PARAMETER("param"),
-  FUNC("func"),
-  METADATA("metadata"),
-  VARIABLE("var"),
-  IMPORT("import"),
-  WITH("with"),
-  AS("as"),
-  FROM("from"),
-  MODULE("module");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
+/**
+ * An item in the list of imported symbols.
+ */
+public interface ImportedSymbolsListItem extends ArmTree {
+  @Override
+  default ArmTree.Kind getKind() {
+    return Kind.IMPORTED_SYMBOLS_LIST_ITEM;
   }
 }
