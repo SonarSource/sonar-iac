@@ -27,7 +27,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +54,9 @@ class PropertyImplTest extends BicepTreeModelTest {
       .matches("for: 'string'")
       .matches("metadata: 'string'")
       .matches("func: 'string'")
+
+      .matches("...identifier123")
+      .matches("... identifier123")
 
       .notMatches("1key: 1value")
       .notMatches("@abc x value");
@@ -94,7 +96,6 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
     Assertions.assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
-    InterpolatedString key = (InterpolatedString) tree.children().get(0);
 
     SyntaxToken colon = (SyntaxToken) tree.children().get(1);
     assertThat(colon.children()).isEmpty();
@@ -111,8 +112,9 @@ class PropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldConvertToString() {
-    String code = "key: 'value'";
-    Property property = parse(code, BicepLexicalGrammar.PROPERTY);
-    assertThat(property).hasToString("key: 'value'");
+    Property property1 = parse("key: 'value'", BicepLexicalGrammar.PROPERTY);
+    Property property2 = parse("...identifier123", BicepLexicalGrammar.PROPERTY);
+    assertThat(property1).hasToString("key: 'value'");
+    assertThat(property2).hasToString("...identifier123");
   }
 }

@@ -364,6 +364,10 @@ public class TreeFactory {
     return new PropertyImpl(key, colon, value);
   }
 
+  public Property objectProperty(SyntaxToken spreadOperator, Expression expression) {
+    return new PropertyImpl(null, spreadOperator, expression);
+  }
+
   public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Tuple<Optional<SyntaxToken>, ObjectProperty>>> properties, SyntaxToken rightCurlyBrace) {
     return new ObjectExpressionImpl(leftCurlyBrace, toSeparatedList(properties), rightCurlyBrace);
   }

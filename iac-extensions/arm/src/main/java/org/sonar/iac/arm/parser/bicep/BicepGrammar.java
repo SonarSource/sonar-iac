@@ -269,6 +269,9 @@ public class BicepGrammar {
           b.firstOf(IDENTIFIER(), INTERPOLATED_STRING()),
           b.token(Punctuator.COLON),
           EXPRESSION()),
+        f.objectProperty(
+          b.token(Punctuator.ELLIPSIS),
+          EXPRESSION()),
         RESOURCE_DECLARATION()));
   }
 

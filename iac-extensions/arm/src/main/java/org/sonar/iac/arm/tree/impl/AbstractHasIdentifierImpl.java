@@ -50,4 +50,9 @@ public abstract class AbstractHasIdentifierImpl extends AbstractArmTreeImpl impl
   public List<Tree> children() {
     return List.of(expression);
   }
+
+  @Override
+  public String toString() {
+    return expression.toString();
+  }
 }

@@ -20,6 +20,8 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -29,19 +31,23 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class PropertyImpl extends AbstractArmTreeImpl implements Property {
 
+  @CheckForNull
   private final TextTree key;
-  private final SyntaxToken colon;
+  private final SyntaxToken separatingToken;
   private final Expression value;
 
-  public PropertyImpl(TextTree key, SyntaxToken colon, Expression value) {
+  public PropertyImpl(@Nullable TextTree key, SyntaxToken separatingToken, Expression value) {
     this.key = key;
-    this.colon = colon;
+    this.separatingToken = separatingToken;
     this.value = value;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(key, colon, value);
+    if (key == null) {
+      return List.of(separatingToken, value);
+    }
+    return List.of(key, separatingToken, value);
   }
 
   @Override
@@ -56,6 +62,9 @@ public class PropertyImpl extends AbstractArmTreeImpl implements Property {
 
   @Override
   public String toString() {
-    return key + ": " + value;
+    if (key == null) {
+      return separatingToken + value.toString();
+    }
+    return key.toString() + separatingToken + " " + value;
   }
 }
