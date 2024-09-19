@@ -11,13 +11,11 @@ load(
     "set_orchestrator_home_script",
     "mkdir_orchestrator_home_script",
 )
+load("conditions.star", "is_rule_metadata_update_pr")
 
 QA_PLUGIN_GRADLE_TASK = ":its:plugin:integrationTest"
 QA_RULING_GRADLE_TASK = ":its:ruling:integrationTest"
 QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
-
-def is_rule_metadata_update_pr():
-    return "$CIRRUS_PR != \"\" && changesIncludeOnly(\"iac-extensions/*/src/main/resources/org/sonar/l10n/*/rules/**\", \"iac-extensions/*/sonarpedia.json\")"
 
 def qa_win_script():
     return [
@@ -35,8 +33,7 @@ def qa_win_script():
 def qa_os_win_task():
     return {
         "qa_os_win_task": {
-            "only_if": is_branch_qa_eligible(),
-            "skip": is_rule_metadata_update_pr(),
+            "only_if": "({}) && !({})".format(is_branch_qa_eligible(), is_rule_metadata_update_pr()),
             "depends_on": "build",
             "ec2_instance": ec2_instance_builder(),
             "env": artifactory_reader_env(),
@@ -62,8 +59,7 @@ def qa_os_win_task():
 
 def qa_task(env):
     return {
-        "only_if": is_branch_qa_eligible(),
-        "skip": is_rule_metadata_update_pr(),
+        "only_if": "({}) && !({})".format(is_branch_qa_eligible(), is_rule_metadata_update_pr()),
         "depends_on": "build",
         "eks_container": base_image_container_builder(memory="10G"),
         "env": env,
