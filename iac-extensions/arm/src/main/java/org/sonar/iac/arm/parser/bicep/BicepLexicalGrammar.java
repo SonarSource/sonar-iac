@@ -76,6 +76,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   OBJECT_TYPE,
   OBJECT_TYPE_PROPERTY,
   AMBIENT_TYPE_REFERENCE,
+  ARRAY_TYPE_REFERENCE,
   IF_CONDITION,
   EXPRESSION,
   BINARY_EXPRESSION,
@@ -119,6 +120,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   IMPORT_AS_CLAUSE,
   IMPORT_WITH_CLAUSE,
   AMBIENT_TYPE_REFERENCE_VALUE,
+  ARRAY_TYPE_REFERENCE_VALUE,
   UNARY_OPERATOR_VALUE,
   TUPLE_TYPE,
   TUPLE_ITEM,
@@ -165,6 +167,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(FALSE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.FALSE));
     b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
     b.rule(AMBIENT_TYPE_REFERENCE_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.AMBIENT_TYPE));
+    b.rule(ARRAY_TYPE_REFERENCE_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.ARRAY_TYPE));
     b.rule(UNARY_OPERATOR_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.UNARY_OPERATOR));
   }
 

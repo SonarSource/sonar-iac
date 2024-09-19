@@ -40,6 +40,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
@@ -90,6 +91,7 @@ import org.sonar.iac.arm.tree.impl.ParameterImpl;
 import org.sonar.iac.arm.tree.impl.VariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ArrayTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.CompileTimeImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
@@ -474,6 +476,10 @@ public class TreeFactory {
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {
     return new AmbientTypeReferenceImpl(token);
+  }
+
+  public ArrayTypeReference arrayTypeReference(SyntaxToken token) {
+    return new ArrayTypeReferenceImpl(token);
   }
 
   public UnaryOperator unaryOperator(SyntaxToken token) {

@@ -23,6 +23,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.parser.utils.ParserAssert;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -38,13 +39,12 @@ import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class PrimaryTypeExpressionTest extends BicepTreeModelTest {
   @Test
   void shouldParseUnaryExpression() {
-    ArmAssertions.assertThat(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION)
-      // ambient Type Reference
+    ParserAssert parserAssert = ArmAssertions.assertThat(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION)
+      // ambient type reference
       .matches("array")
       .matches("  array")
       .matches("bool")
@@ -55,6 +55,21 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .matches("  object")
       .matches("string")
       .matches("  string")
+      // array type reference
+      .matches("array[]")
+      .matches("bool[]")
+      .matches("int[]")
+      .matches("object[]")
+      .matches("string[]")
+      .matches("  string[]")
+      .matches("abc[]")
+      .matches("string[0]")
+      .matches("string[3]")
+      .matches("string[][]")
+      .matches("string[][3]")
+      .matches("string[3][]")
+      .matches("string[3][7]")
+      .matches("string[3][7][10]")
       // identifier
       .matches("abc")
       .matches("A")
@@ -100,29 +115,35 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .matches("''''''")
       .matches("'''python main.py'''")
       .matches("'''python main.py --abc ${{input.abc}} --def ${xyz}'''")
-      .matches(code("'''",
-        "first line",
-        "second line",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "// inline comment",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "/* inline comment */",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "/* inline",
-        "comment */",
-        "'''"))
-      .matches(code("'''",
-        "it's awesome",
-        "'''"))
-      .matches(code("'''",
-        "it''s awesome",
-        "'''"))
+      .matches("""
+        '''
+        first line
+        second line
+        '''""")
+      .matches("""
+        '''
+        first line
+        // inline comment
+        '''""")
+      .matches("""
+        '''
+        first line
+        /* inline comment */
+        '''""")
+      .matches("""
+        '''
+        first line
+        /* inline
+        comment */
+        '''""")
+      .matches("""
+        '''
+        it's awesome
+        '''""")
+      .matches("""
+        '''
+        it''s awesome
+        '''""")
       // object type
       .matches("{}")
       .matches("{ }")
@@ -179,7 +200,11 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .notMatches("identifier = {}")
       .notMatches("[]typeExpr")
       .notMatches("[\ntypeExpr")
+      .notMatches("typeExpr[")
       .notMatches("typeExpr]")
+      .notMatches("typeExpr[][")
+      .notMatches("typeExpr[]]")
+      .notMatches("typeExpr[[]]")
       .notMatches("{typeExpr}");
   }
 
@@ -237,11 +262,12 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleMultilineString() {
-    String code = code("'''",
-      "a",
-      "123",
-      "BBB",
-      "'''");
+    String code = """
+      '''
+      a
+      123
+      BBB
+      '''""";
 
     MultilineString tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
 
@@ -265,9 +291,10 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleTupleType() {
-    String code = code("[",
-      "@functionName123() typeExpr",
-      "]");
+    String code = """
+      [
+      @functionName123() typeExpr
+      ]""";
     TupleType tree = parse(code, BicepLexicalGrammar.TUPLE_TYPE);
     assertThat(tree.is(ArmTree.Kind.TUPLE_TYPE)).isTrue();
     Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))

@@ -37,6 +37,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
@@ -431,6 +432,7 @@ public class BicepGrammar {
     return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION).is(
       b.firstOf(
         AMBIENT_TYPE_REFERENCE(),
+        ARRAY_TYPE_REFERENCE(),
         // The literal value needs to be before identifier
         LITERAL_VALUE_AS_TYPE_EXPRESSION_ABLE(),
         IDENTIFIER(),
@@ -515,6 +517,11 @@ public class BicepGrammar {
   public AmbientTypeReference AMBIENT_TYPE_REFERENCE() {
     return b.<AmbientTypeReference>nonterminal(BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE).is(
       f.ambientTypeReference(b.token(BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE_VALUE)));
+  }
+
+  public ArrayTypeReference ARRAY_TYPE_REFERENCE() {
+    return b.<ArrayTypeReference>nonterminal(BicepLexicalGrammar.ARRAY_TYPE_REFERENCE).is(
+      f.arrayTypeReference(b.token(BicepLexicalGrammar.ARRAY_TYPE_REFERENCE_VALUE)));
   }
 
   public UnaryExpression UNARY_OPERATOR_LITERAL_VALUE() {
