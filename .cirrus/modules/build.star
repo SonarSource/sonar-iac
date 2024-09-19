@@ -25,7 +25,6 @@ load(
     "project_version_cache",
     "store_project_version_script"
 )
-load("conditions.star", "is_rule_metadata_update_pr")
 
 
 #
@@ -98,7 +97,7 @@ def build_test_env():
 def build_test_analyze_task():
     return {
         "build_test_analyze_task": {
-            "only_if": "({}) && !({})".format(is_branch_qa_eligible(), is_rule_metadata_update_pr()),
+            "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "env": build_test_env(),
             "eks_container": custom_image_container_builder(cpu=6, memory="6G"),
