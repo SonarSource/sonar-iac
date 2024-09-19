@@ -23,7 +23,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.ParserAssert;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -43,7 +42,7 @@ import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildr
 class PrimaryTypeExpressionTest extends BicepTreeModelTest {
   @Test
   void shouldParseUnaryExpression() {
-    ParserAssert parserAssert = ArmAssertions.assertThat(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION)
+    ArmAssertions.assertThat(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION)
       // ambient type reference
       .matches("array")
       .matches("  array")
