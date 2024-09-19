@@ -21,14 +21,21 @@ package org.sonar.iac.arm.checks.elementsorder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.checks.ElementsOrderResourceCheck;
+import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.FunctionCall;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 /**
@@ -63,7 +70,9 @@ public class ElementsOrderResourceCheckBicep implements IacCheck {
     ELEMENTS_ORDER.put("properties", 100);
 
     DECORATORS_ORDER.put("description", 1);
+    DECORATORS_ORDER.put("sys.description", 1);
     DECORATORS_ORDER.put("batchSize", 2);
+    DECORATORS_ORDER.put("sys.batchSize", 2);
   }
 
   @Override
@@ -87,16 +96,52 @@ public class ElementsOrderResourceCheckBicep implements IacCheck {
   private static void checkResourceDecorators(CheckContext checkContext, ResourceDeclarationImpl resourceDeclaration) {
     var prevIndex = 0;
     for (Decorator decorator : resourceDeclaration.decorators()) {
-      var identifier = ((FunctionCall) decorator.expression()).name();
-      var index = DECORATORS_ORDER.getOrDefault(identifier.value(), DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
+      var valueAndHighlight = toValueAndHighlight(decorator);
+      if (valueAndHighlight == null) {
+        continue;
+      }
+      var index = DECORATORS_ORDER.getOrDefault(valueAndHighlight.value, DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY);
       if (index < prevIndex) {
         var textRange = TextRanges.merge(
           decorator.keyword().textRange(),
-          identifier.textRange());
+          valueAndHighlight.highlight);
         checkContext.reportIssue(textRange, MESSAGE_DECORATOR);
         break;
       }
       prevIndex = index;
     }
+  }
+
+  @CheckForNull
+  private static ValueAndHighlight toValueAndHighlight(Decorator decorator) {
+    if (decorator.expression() instanceof FunctionCall functionCall) {
+      var identifier = ArmTreeUtils.functionNameOrNull(functionCall);
+      return new ValueAndHighlight(identifier.value(), identifier.textRange());
+    } else if (decorator.expression() instanceof MemberExpression memberExpression) {
+      var prefix = Optional.ofNullable(memberExpression.memberAccess())
+        .filter(Variable.class::isInstance)
+        .map(it -> ((Variable) it).identifier())
+        .filter(Identifier.class::isInstance)
+        .map(it -> ((Identifier) it).value())
+        .map(it -> it + memberExpression.separatingToken().value())
+        .orElse(null);
+
+      var identifier = Optional.ofNullable(memberExpression.expression())
+        .filter(FunctionCall.class::isInstance)
+        .map(it -> ((FunctionCall) it).name())
+        .orElse(null);
+
+      if (identifier != null && prefix != null) {
+        var highlight = TextRanges.merge(
+          memberExpression.memberAccess().textRange(),
+          memberExpression.separatingToken().textRange(),
+          identifier.textRange());
+        return new ValueAndHighlight(prefix + identifier.value(), highlight);
+      }
+    }
+    return null;
+  }
+
+  record ValueAndHighlight(String value, TextRange highlight) {
   }
 }

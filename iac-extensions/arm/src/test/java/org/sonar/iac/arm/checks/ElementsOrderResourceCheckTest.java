@@ -93,9 +93,11 @@ class ElementsOrderResourceCheckTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"decoratorExpected.bicep",
+    "decoratorExpectedFullyQualified.bicep",
     "decoratorExpectedAndOthers.bicep",
     "decoratorExpectedBatchSizeOnly.bicep",
-    "decoratorExpectedDescriptionOnly.bicep"})
+    "decoratorExpectedDescriptionOnly.bicep"
+  })
   void shouldVerifyDecorator(String filename) {
     BicepVerifier.verifyNoIssue(DIR + filename, CHECK);
   }
