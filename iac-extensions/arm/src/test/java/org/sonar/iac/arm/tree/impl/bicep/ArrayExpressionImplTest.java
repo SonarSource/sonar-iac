@@ -42,6 +42,7 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
         'a'
         ]""")
       .matches("['a', 'b']")
+      .matches("['a', 'b',]")
       .matches("""
         [
         'a', 'b'
@@ -74,6 +75,7 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
         [
         'a']""")
 
+      .notMatches("[,'a', 'b']")
       .notMatches("""
         [
         }""");

@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
@@ -35,6 +36,32 @@ import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
 class ObjectExpressionImplTest extends BicepTreeModelTest {
+
+  @Test
+  void shouldParseValidObjectExpressions() {
+    ArmAssertions.assertThat(BicepLexicalGrammar.OBJECT_EXPRESSION)
+      .matches("{}")
+      .matches("{ key1: value1 }")
+      .matches("{ key1: value1, key2: value2 }")
+      .matches("{ key1: value1, key2: value2, }")
+      .matches("""
+        {
+          key1: value1
+          key2: value2
+        }""")
+      .matches("""
+        {
+          key1: value1, key2: value2
+          key3: value3
+        }""")
+      .matches("""
+        {
+          key1: value1,
+          key2: value2
+        }""")
+
+      .notMatches("{ , key1: value1 }");
+  }
 
   @Test
   void shouldParseMinimumObjectExpression() {

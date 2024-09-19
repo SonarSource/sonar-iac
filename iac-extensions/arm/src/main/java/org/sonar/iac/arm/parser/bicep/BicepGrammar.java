@@ -263,10 +263,10 @@ public class BicepGrammar {
         b.token(Punctuator.LCURLYBRACE),
         b.zeroOrMore(
           f.tuple(
-            b.optional(b.token(Punctuator.COMMA)),
             f.importedSymbolListItem(
               IDENTIFIER(),
-              b.optional(IMPORT_AS_CLAUSE())))),
+              b.optional(IMPORT_AS_CLAUSE())),
+            b.optional(b.token(Punctuator.COMMA)))),
         b.token(Punctuator.RCURLYBRACE)));
   }
 
@@ -303,8 +303,8 @@ public class BicepGrammar {
         b.token(Punctuator.LCURLYBRACE),
         b.zeroOrMore(
           f.tuple(
-            b.optional(b.token(Punctuator.COMMA)),
-            OBJECT_PROPERTY())),
+            OBJECT_PROPERTY(),
+            b.optional(b.token(Punctuator.COMMA)))),
         b.token(Punctuator.RCURLYBRACE)));
   }
 
@@ -477,8 +477,8 @@ public class BicepGrammar {
         b.token(Punctuator.LBRACKET),
         b.zeroOrMore(
           f.tuple(
-            b.optional(b.token(Punctuator.COMMA)),
-            EXPRESSION())),
+            EXPRESSION(),
+            b.optional(b.token(Punctuator.COMMA)))),
         b.token(Punctuator.RBRACKET)));
   }
 

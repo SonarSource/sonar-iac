@@ -21,7 +21,6 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
@@ -377,11 +376,11 @@ public class TreeFactory {
     return new PropertyImpl(key, colon, value);
   }
 
-  public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Tuple<Optional<SyntaxToken>, ObjectProperty>>> properties, SyntaxToken rightCurlyBrace) {
+  public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Tuple<ObjectProperty, Optional<SyntaxToken>>>> properties, SyntaxToken rightCurlyBrace) {
     return new ObjectExpressionImpl(leftCurlyBrace, toSeparatedList(properties), rightCurlyBrace);
   }
 
-  public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<List<Tuple<Optional<SyntaxToken>, Expression>>> elements, SyntaxToken rBracket) {
+  public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<List<Tuple<Expression, Optional<SyntaxToken>>>> elements, SyntaxToken rBracket) {
     return new ArrayExpressionImpl(lBracket, toSeparatedList(elements), rBracket);
   }
 
@@ -424,7 +423,7 @@ public class TreeFactory {
 
   public CompileTimeImportTarget importedSymbolsList(
     SyntaxToken openCurly,
-    Optional<List<Tuple<Optional<SyntaxToken>, ImportedSymbolsListItem>>> importedSymbols,
+    Optional<List<Tuple<ImportedSymbolsListItem, Optional<SyntaxToken>>>> importedSymbols,
     SyntaxToken closingCurly) {
     return new ImportedSymbolsList(openCurly, toSeparatedList(importedSymbols), closingCurly);
   }
@@ -568,16 +567,12 @@ public class TreeFactory {
     return new TernaryExpressionImpl(condition, query, ifTrueExpression, colon, elseExpression);
   }
 
-  private static <T extends ArmTree> SeparatedList<T, SyntaxToken> toSeparatedList(Optional<List<Tuple<Optional<SyntaxToken>, T>>> elements) {
-    SeparatedList<T, SyntaxToken> result = emptySeparatedList();
-    if (elements.isPresent()) {
-      // replace Optional<SyntaxToken> by SyntaxToken or null
-      List<Tuple<SyntaxToken, T>> elementsWithNullSeparators = elements.get().stream()
-        .map(tuple -> new Tuple<>(tuple.first().orNull(), tuple.second()))
-        .collect(Collectors.toList());
-      var firstElement = elementsWithNullSeparators.remove(0).second();
-      result = separatedList(firstElement, elementsWithNullSeparators);
+  private static <T extends ArmTree> SeparatedList<T, SyntaxToken> toSeparatedList(Optional<List<Tuple<T, Optional<SyntaxToken>>>> elementsWithSeparators) {
+    if (elementsWithSeparators.isPresent()) {
+      var elements = elementsWithSeparators.get().stream().map(Tuple::first).toList();
+      var separators = elementsWithSeparators.get().stream().map(tuple -> tuple.second().orNull()).toList();
+      return new SeparatedListImpl<>(elements, separators);
     }
-    return result;
+    return emptySeparatedList();
   }
 }
