@@ -34,6 +34,7 @@ class CompileTimeImportDeclarationImplTest extends BicepTreeModelTest {
       .matches("import { foo } from 'imports.bicep'")
       .matches("import {foo,bar} from 'imports.bicep'")
       .matches("import {foo, bar} from 'imports.bicep'")
+      .matches("import {foo, bar,} from 'imports.bicep'")
       .matches("""
         import {
           foo as fizz
@@ -43,6 +44,7 @@ class CompileTimeImportDeclarationImplTest extends BicepTreeModelTest {
 
       .notMatches("import *")
       .notMatches("import {foo, *} from 'imports.bicep'")
+      .notMatches("import {,foo} from 'imports.bicep'")
       .notMatches("import foo from 'imports.bicep'");
   }
 
