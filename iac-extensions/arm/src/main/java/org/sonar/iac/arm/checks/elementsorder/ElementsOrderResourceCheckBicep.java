@@ -115,7 +115,7 @@ public class ElementsOrderResourceCheckBicep implements IacCheck {
   @CheckForNull
   private static ValueAndHighlight toValueAndHighlight(Decorator decorator) {
     if (decorator.expression() instanceof FunctionCall functionCall) {
-      var identifier = ArmTreeUtils.functionNameOrNull(functionCall);
+      var identifier = ArmTreeUtils.functionCallNameOrNull(functionCall);
       return new ValueAndHighlight(identifier.value(), identifier.textRange());
     } else if (decorator.expression() instanceof MemberExpression memberExpression) {
       var prefix = Optional.ofNullable(memberExpression.memberAccess())
@@ -127,8 +127,7 @@ public class ElementsOrderResourceCheckBicep implements IacCheck {
         .orElse(null);
 
       var identifier = Optional.ofNullable(memberExpression.expression())
-        .filter(FunctionCall.class::isInstance)
-        .map(it -> ((FunctionCall) it).name())
+        .map(ArmTreeUtils::functionCallNameOrNull)
         .orElse(null);
 
       if (identifier != null && prefix != null) {

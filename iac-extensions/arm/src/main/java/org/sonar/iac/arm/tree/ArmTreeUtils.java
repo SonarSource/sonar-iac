@@ -137,7 +137,7 @@ public class ArmTreeUtils {
   /**
    * If the provided expression is a function call, return the function name, otherwise return null.
    */
-  public static Identifier functionNameOrNull(Expression expression) {
+  public static Identifier functionCallNameOrNull(Expression expression) {
     if (expression instanceof FunctionCall functionCall) {
       return functionCall.name();
     }

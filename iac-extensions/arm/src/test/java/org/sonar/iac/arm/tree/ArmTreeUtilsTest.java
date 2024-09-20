@@ -20,22 +20,31 @@
 package org.sonar.iac.arm.tree;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Identifier;
 
 class ArmTreeUtilsTest {
-  @ParameterizedTest
-  @CsvSource(textBlock = """
-    foo(), false
-    bar, true
-    """)
-  void shouldReturnFunctionName(String code, boolean isNull) {
+  @Test
+  void shouldReturnFunctionNameForFunctionCall() {
+    var code = "foo()";
     var expression = (Expression) BicepParser.create(BicepLexicalGrammar.EXPRESSION).parse(code);
-    var functionName = ArmTreeUtils.functionNameOrNull(expression);
+    var functionName = ArmTreeUtils.functionCallNameOrNull(expression);
 
-    Assertions.assertThat(functionName == null).isEqualTo(isNull);
+    Assertions.assertThat(functionName)
+      .isNotNull()
+      .extracting(Identifier::value)
+      .isEqualTo("foo");
+  }
+
+  @Test
+  void shouldReturnNullForNonFunctionCall() {
+    var code = "bar";
+    var expression = (Expression) BicepParser.create(BicepLexicalGrammar.EXPRESSION).parse(code);
+    var functionName = ArmTreeUtils.functionCallNameOrNull(expression);
+
+    Assertions.assertThat(functionName).isNull();
   }
 }
