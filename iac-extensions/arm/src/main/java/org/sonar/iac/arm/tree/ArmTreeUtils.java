@@ -34,6 +34,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
@@ -131,5 +132,15 @@ public class ArmTreeUtils {
       .flatMap(child -> findAllNodes((ArmTree) child, type))
       .filter(type::isInstance)
       .map(type::cast));
+  }
+
+  /**
+   * If the provided expression is a function call, return the function name, otherwise return null.
+   */
+  public static Identifier functionCallNameOrNull(Expression expression) {
+    if (expression instanceof FunctionCall functionCall) {
+      return functionCall.name();
+    }
+    return null;
   }
 }
