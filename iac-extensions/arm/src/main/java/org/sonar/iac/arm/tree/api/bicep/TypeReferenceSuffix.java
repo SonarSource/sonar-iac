@@ -19,10 +19,7 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.common.api.tree.TextTree;
+public interface TypeReferenceSuffix extends TypeExpressionAble {
 
-/**
- * Marker interface for array types (e.g. {@code string[]})
- */
-public interface ArrayTypeReference extends TypeExpressionAble, TextTree {
+  void setType(TypeExpressionAble type);
 }

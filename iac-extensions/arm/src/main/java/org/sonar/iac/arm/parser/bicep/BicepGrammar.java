@@ -37,7 +37,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
-import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
@@ -62,6 +62,7 @@ import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
+import org.sonar.iac.arm.tree.api.bicep.TypeReferenceSuffix;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
@@ -428,14 +429,39 @@ public class BicepGrammar {
             b.token(Punctuator.QUERY)))));
   }
 
+  public TypeExpressionAble TYPE_REFERENCE() {
+    return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.TYPE_REFERENCE).is(
+      f.typeReference(
+        b.firstOf(
+          AMBIENT_TYPE_REFERENCE(),
+          IDENTIFIER()),
+        b.optional(TYPE_REFERENCE_SUFFIX())));
+  }
+
+  // Not an infinite recursion, SSLR can handle it
+  @SuppressWarnings("javabugs:S2190")
+  public TypeReferenceSuffix TYPE_REFERENCE_SUFFIX() {
+    return b.<TypeReferenceSuffix>nonterminal(BicepLexicalGrammar.TYPE_REFERENCE_SUFFIX).is(
+      f.typeReferenceSuffix(
+        b.firstOf(
+          ARRAY_TYPE_SUFFIX()),
+        b.optional(TYPE_REFERENCE_SUFFIX())));
+  }
+
+  public ArrayTypeSuffix ARRAY_TYPE_SUFFIX() {
+    return b.<ArrayTypeSuffix>nonterminal(BicepLexicalGrammar.ARRAY_TYPE_SUFFIX).is(
+      f.arrayTypeSuffix(
+        b.token(Punctuator.LBRACKET),
+        b.optional(NUMERIC_LITERAL()),
+        b.token(Punctuator.RBRACKET)));
+  }
+
   public TypeExpressionAble PRIMARY_TYPE_EXPRESSION() {
     return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION).is(
       b.firstOf(
-        AMBIENT_TYPE_REFERENCE(),
-        ARRAY_TYPE_REFERENCE(),
-        // The literal value needs to be before identifier
+        // The literal value needs to be before identifier, which is in type reference
         LITERAL_VALUE_AS_TYPE_EXPRESSION_ABLE(),
-        IDENTIFIER(),
+        TYPE_REFERENCE(),
         UNARY_OPERATOR_LITERAL_VALUE(),
         MULTILINE_STRING(),
         STRING_LITERAL(),
@@ -517,11 +543,6 @@ public class BicepGrammar {
   public AmbientTypeReference AMBIENT_TYPE_REFERENCE() {
     return b.<AmbientTypeReference>nonterminal(BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE).is(
       f.ambientTypeReference(b.token(BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE_VALUE)));
-  }
-
-  public ArrayTypeReference ARRAY_TYPE_REFERENCE() {
-    return b.<ArrayTypeReference>nonterminal(BicepLexicalGrammar.ARRAY_TYPE_REFERENCE).is(
-      f.arrayTypeReference(b.token(BicepLexicalGrammar.ARRAY_TYPE_REFERENCE_VALUE)));
   }
 
   public UnaryExpression UNARY_OPERATOR_LITERAL_VALUE() {

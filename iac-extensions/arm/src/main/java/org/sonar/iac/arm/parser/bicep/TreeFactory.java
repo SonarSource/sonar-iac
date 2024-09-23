@@ -40,7 +40,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
-import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
@@ -65,6 +65,7 @@ import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
+import org.sonar.iac.arm.tree.api.bicep.TypeReferenceSuffix;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
@@ -91,7 +92,7 @@ import org.sonar.iac.arm.tree.impl.ParameterImpl;
 import org.sonar.iac.arm.tree.impl.VariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
-import org.sonar.iac.arm.tree.impl.bicep.ArrayTypeReferenceImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ArrayTypeSuffixImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.CompileTimeImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
@@ -478,8 +479,26 @@ public class TreeFactory {
     return new AmbientTypeReferenceImpl(token);
   }
 
-  public ArrayTypeReference arrayTypeReference(SyntaxToken token) {
-    return new ArrayTypeReferenceImpl(token);
+  public TypeExpressionAble typeReference(TypeExpressionAble type, Optional<TypeReferenceSuffix> optionalSuffix) {
+    if (!optionalSuffix.isPresent()) {
+      return type;
+    }
+    var suffix = optionalSuffix.get();
+    suffix.setType(type);
+    return suffix;
+  }
+
+  public TypeReferenceSuffix typeReferenceSuffix(TypeReferenceSuffix type, Optional<TypeReferenceSuffix> optionalSuffix) {
+    if (!optionalSuffix.isPresent()) {
+      return type;
+    }
+    var suffix = optionalSuffix.get();
+    suffix.setType(type);
+    return suffix;
+  }
+
+  public ArrayTypeSuffix arrayTypeSuffix(SyntaxToken lBracket, Optional<NumericLiteral> length, SyntaxToken rBracket) {
+    return new ArrayTypeSuffixImpl(lBracket, length.orNull(), rBracket);
   }
 
   public UnaryOperator unaryOperator(SyntaxToken token) {
