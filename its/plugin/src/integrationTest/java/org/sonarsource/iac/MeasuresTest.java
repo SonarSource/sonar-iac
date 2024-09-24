@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarsource.iac.measures;
+package org.sonarsource.iac;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -29,7 +30,22 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Execution(ExecutionMode.CONCURRENT)
-class MeasuresTest extends AbstractMeasuresTest {
+class MeasuresTest extends TestBase {
+
+  protected static final String BASE_DIRECTORY = "projects/measures/";
+
+  @Nested
+  class CloudFormationMeasuresTest {
+    @ParameterizedTest
+    @CsvSource({
+      "cloudformationYamlMeasures, cloudformation, file1.yaml, 2, 5, 1, 1=1;4=1;5=1;6=1;7=1",
+      "cloudformationJsonMeasures, cloudformation, file1.json, 2, 9, 0, 1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;9=1",
+    })
+    @Execution(ExecutionMode.SAME_THREAD)
+    void testCloudformationMeasures(String projectKey, String languageKey, String file, int expectedFiles, int expectedNcloc, int expectedCommentLines, String expectedNclocData) {
+      testMeasures(projectKey, languageKey, file, expectedFiles, expectedNcloc, expectedCommentLines, expectedNclocData);
+    }
+  }
 
   @ParameterizedTest
   @CsvSource({
@@ -37,6 +53,35 @@ class MeasuresTest extends AbstractMeasuresTest {
   })
   void testDockerMeasures(String projectKey, String languageKey, String file, int expectedFiles, int expectedNcloc, int expectedCommentLines, String expectedNclocData) {
     testMeasures(projectKey, languageKey, file, expectedFiles, expectedNcloc, expectedCommentLines, expectedNclocData);
+  }
+
+  @Nested
+  class HelmMeasuresTest {
+    @ParameterizedTest
+    @CsvSource({
+      "kubernetesYamlMeasures, kubernetes, file_with_indicators.yml, 6, 10, 1, 1=1;2=1;3=1;4=1;5=1;7=1;8=1;9=1;10=1;11=1",
+      "helmTemplateMeasures, kubernetes, helm/templates/helm_example.yaml, 6, 16, 11, 1=1;2=1;3=1;4=1;5=1;9=1;13=1;14=1;16=1;17=1;18=1;23=1;24=1;25=1;26=1;27=1",
+      "helmTplMeasures, kubernetes, helm/templates/_helpers.tpl, 6, 13, 0, 1=1;2=1;3=1;4=1;5=1;6=1;7=1;9=1;10=1;11=1;12=1;13=1;14=1",
+      "helmChartMeasures, kubernetes, helm/Chart.yaml, 6, 3, 2, 3=1;4=1;5=1",
+      "helmValuesMeasures, kubernetes, helm/values.yaml, 6, 2, 1, 2=1;3=1",
+    })
+    @Execution(ExecutionMode.SAME_THREAD)
+    void testHelmMeasures(String projectKey, String languageKey, String file, int expectedFiles, int expectedNcloc, int expectedCommentLines, String expectedNclocData) {
+      testMeasures(projectKey, languageKey, file, expectedFiles, expectedNcloc, expectedCommentLines, expectedNclocData);
+    }
+  }
+
+  @Nested
+  class ArmMeasuresTest {
+    @ParameterizedTest
+    @CsvSource({
+      "armJson, arm, mysql.json, 2, 20, 0, 1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;9=1;10=1;11=1;12=1;13=1;14=1;15=1;16=1;17=1;18=1;19=1;20=1",
+      "armBicep, arm, mysql.bicep, 2, 10, 2, 2=1;3=1;4=1;5=1;6=1;7=1;10=1;11=1;12=1;13=1",
+    })
+    @Execution(ExecutionMode.SAME_THREAD)
+    void testArmMeasures(String projectKey, String languageKey, String file, int expectedFiles, int expectedNcloc, int expectedCommentLines, String expectedNclocData) {
+      testMeasures(projectKey, languageKey, file, expectedFiles, expectedNcloc, expectedCommentLines, expectedNclocData);
+    }
   }
 
   @Test
@@ -94,6 +139,19 @@ class MeasuresTest extends AbstractMeasuresTest {
     softly.assertThat(getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(4);
     softly.assertThat(getMeasure(projectKey, "src/main/resources/application.properties", "ncloc_data").getValue()).isEqualTo("1=1;3=1;5=1;6=1");
     softly.assertThat(getMeasure(projectKey, "src/main/resources/application.yaml", "ncloc_data").getValue()).isEqualTo("1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;10=1");
+    softly.assertAll();
+  }
+
+  protected void testMeasures(String projectKey, String languageKey, String file, int expectedFiles, int expectedNcloc, int expectedCommentLines, String expectedNclocData) {
+    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, languageKey));
+
+    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
+
+    var fileKey = projectKey + ":" + file;
+    var softly = new SoftAssertions();
+    softly.assertThat(getMeasureAsInt(fileKey, "ncloc")).describedAs("ncloc").isEqualTo(expectedNcloc);
+    softly.assertThat(getMeasureAsInt(fileKey, "comment_lines")).describedAs("comment_lines").isEqualTo(expectedCommentLines);
+    softly.assertThat(getMeasure(fileKey, "ncloc_data").getValue()).describedAs("ncloc_data").isEqualTo(expectedNclocData);
     softly.assertAll();
   }
 }

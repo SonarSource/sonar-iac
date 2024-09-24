@@ -22,9 +22,12 @@ package org.sonarsource.iac;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.build.SonarScannerInstaller;
+import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import com.sonar.orchestrator.version.Version;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +68,8 @@ public abstract class TestBase {
   public static boolean KEEP_ORCHESTRATOR_RUNNING = "true".equals(System.getenv(KEEP_ORCHESTRATOR_RUNNING_ENV));
   private static final String JAVA_VERSION = "7.34.0.35958";
 
-  public static Orchestrator ORCHESTRATOR = OrchestratorExtension.builderEnv()
+  public static final Configuration CONFIGURATION = Configuration.createEnv();
+  public static Orchestrator ORCHESTRATOR = OrchestratorExtension.builder(CONFIGURATION)
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(IAC_PLUGIN_LOCATION)
@@ -85,6 +89,8 @@ public abstract class TestBase {
     // See https://github.com/junit-team/junit5/issues/2421
     if (REQUESTED_ORCHESTRATORS_KEY.getAndIncrement() == 0) {
       ORCHESTRATOR.start();
+      // installed scanner will be shared by all tests
+      new SonarScannerInstaller(CONFIGURATION.locators()).install(Version.create(SCANNER_VERSION), CONFIGURATION.fileSystem().workspace());
       IS_ORCHESTRATOR_READY.countDown();
     } else {
       try {

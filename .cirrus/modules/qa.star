@@ -70,7 +70,7 @@ def qa_task(env):
         "orchestrator_cache": orchestrator_cache(),
         "run_its_script": run_its_script(),
         "cleanup_orchestrator_cache_script": [
-          "ls -t ${ORCHESTRATOR_HOME} | tail -n +2 | head -n -1 | xargs -I {} rm -rf -- ${ORCHESTRATOR_HOME}/{}"
+          "ls -t ${ORCHESTRATOR_HOME} | tail -n +2 | head -n -1 | xargs -I {} rm -rfv -- ${ORCHESTRATOR_HOME}/{}"
         ],
         "on_success": {
             "java_test_report_artifacts": {
