@@ -70,13 +70,8 @@ def qa_task(env):
         "orchestrator_cache": orchestrator_cache(),
         "run_its_script": run_its_script(),
         "cleanup_orchestrator_cache_script": [
-          "ls -t ${ORCHESTRATOR_HOME} | tail -n +2 | head -n -1 | xargs -I {} rm -rfv -- ${ORCHESTRATOR_HOME}/{}"
+          "find ${ORCHESTRATOR_HOME} -name \"sonar-application*\" -printf \"%T@ %p\\n\" | sort -n | tail -n +2 | head -n -1 | xargs -I {} rm -rfv -- {}"
         ],
-        "on_success": {
-            "java_test_report_artifacts": {
-                "path": "**/build/reports/tests/**"
-            }
-        },
         "on_failure": {
             "junit_artifacts": {
                 "path": "**/test-results/**/*.xml",
