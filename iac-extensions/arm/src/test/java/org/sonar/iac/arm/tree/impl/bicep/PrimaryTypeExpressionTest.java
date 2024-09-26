@@ -30,7 +30,7 @@ import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
-import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
@@ -304,18 +304,18 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
   @Test
   void shouldParseArrayType() {
     String code = "string[3]";
-    ArrayTypeSuffix tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
+    ArrayTypeReference tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
     assertThat(tree.value()).isEqualTo("string[3]");
-    assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_SUFFIX)).isTrue();
+    assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_REFERENCE)).isTrue();
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("string", "[", "3", "]");
   }
 
   @Test
   void shouldParseMultiDimensionalArrayType() {
     String code = "string[3][5][7]";
-    ArrayTypeSuffix tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
+    ArrayTypeReference tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
     assertThat(tree.value()).isEqualTo("string[3][5][7]");
-    assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_SUFFIX)).isTrue();
+    assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_REFERENCE)).isTrue();
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("string", "[", "3", "]", "[", "5", "]", "[", "7", "]");
   }
 }

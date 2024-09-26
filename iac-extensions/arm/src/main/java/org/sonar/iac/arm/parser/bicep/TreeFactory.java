@@ -479,22 +479,12 @@ public class TreeFactory {
     return new AmbientTypeReferenceImpl(token);
   }
 
-  public TypeExpressionAble typeReference(TypeExpressionAble type, Optional<TypeReferenceSuffix> optionalSuffix) {
-    if (!optionalSuffix.isPresent()) {
-      return type;
+  public TypeExpressionAble typeReference(TypeExpressionAble type, Optional<List<TypeReferenceSuffix>> optionalSuffixes) {
+    List<TypeReferenceSuffix> suffixes = optionalSuffixes.or(List.of());
+    for (TypeReferenceSuffix suffix : suffixes) {
+      type = suffix.setType(type);
     }
-    var suffix = optionalSuffix.get();
-    suffix.setType(type);
-    return suffix;
-  }
-
-  public TypeReferenceSuffix typeReferenceSuffix(TypeReferenceSuffix type, Optional<TypeReferenceSuffix> optionalSuffix) {
-    if (!optionalSuffix.isPresent()) {
-      return type;
-    }
-    var suffix = optionalSuffix.get();
-    suffix.setType(type);
-    return suffix;
+    return type;
   }
 
   public ArrayTypeSuffix arrayTypeSuffix(SyntaxToken lBracket, Optional<NumericLiteral> length, SyntaxToken rBracket) {

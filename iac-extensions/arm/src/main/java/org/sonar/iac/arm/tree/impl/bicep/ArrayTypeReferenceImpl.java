@@ -19,27 +19,65 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
-import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.Tree;
 
-public class ArrayTypeSuffixImpl implements ArrayTypeSuffix {
+public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements ArrayTypeReference {
+  private final TypeExpressionAble type;
   private final SyntaxToken lBracket;
   @CheckForNull
   private final NumericLiteral length;
   private final SyntaxToken rBracket;
 
-  public ArrayTypeSuffixImpl(SyntaxToken lBracket, @Nullable NumericLiteral length, SyntaxToken rBracket) {
+  public ArrayTypeReferenceImpl(TypeExpressionAble type, SyntaxToken lBracket, @Nullable NumericLiteral length, SyntaxToken rBracket) {
+    this.type = type;
     this.lBracket = lBracket;
     this.length = length;
     this.rBracket = rBracket;
   }
 
   @Override
-  public TypeExpressionAble setType(TypeExpressionAble type) {
-    return new ArrayTypeReferenceImpl(type, lBracket, length, rBracket);
+  public String value() {
+    String value = ((TextTree) type).value() + lBracket.value();
+    if (length != null) {
+      value += length.value();
+    }
+    return value + rBracket.value();
+  }
+
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>(type.children());
+    children.add(lBracket);
+    if (length != null) {
+      children.add(length);
+    }
+    children.add(rBracket);
+    return children;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.ARRAY_TYPE_REFERENCE;
+  }
+
+  @Override
+  public String toString() {
+    String result = type.toString();
+    result += lBracket.toString();
+    if (length != null) {
+      result += length.toString();
+    }
+    result += rBracket.toString();
+    return result;
   }
 }

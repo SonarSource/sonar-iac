@@ -435,17 +435,15 @@ public class BicepGrammar {
         b.firstOf(
           AMBIENT_TYPE_REFERENCE(),
           IDENTIFIER()),
-        b.optional(TYPE_REFERENCE_SUFFIX())));
+        b.zeroOrMore(TYPE_REFERENCE_SUFFIX())));
   }
 
   // Not an infinite recursion, SSLR can handle it
   @SuppressWarnings("javabugs:S2190")
   public TypeReferenceSuffix TYPE_REFERENCE_SUFFIX() {
     return b.<TypeReferenceSuffix>nonterminal(BicepLexicalGrammar.TYPE_REFERENCE_SUFFIX).is(
-      f.typeReferenceSuffix(
-        b.firstOf(
-          ARRAY_TYPE_SUFFIX()),
-        b.optional(TYPE_REFERENCE_SUFFIX())));
+      b.firstOf(
+        ARRAY_TYPE_SUFFIX()));
   }
 
   public ArrayTypeSuffix ARRAY_TYPE_SUFFIX() {
