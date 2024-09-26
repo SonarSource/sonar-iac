@@ -72,7 +72,7 @@ public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements Array
 
   @Override
   public String toString() {
-    String result = type.toString();
+    var result = type.toString();
     result += lBracket.toString();
     if (length != null) {
       result += length.toString();

@@ -17,12 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-/**
- * Interface for type suffix that build into {@link TypeExpressionAble}.
- */
-public interface TypeReferenceSuffix {
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 
-  TypeExpressionAble setType(TypeExpressionAble type);
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
+
+class ArrayTypeReferenceImplTest extends BicepTreeModelTest {
+
+  @Test
+  void shouldConvertToString() {
+    ArrayTypeReference tree = parse("string[5][15][]", BicepLexicalGrammar.TYPE_REFERENCE);
+    assertThat(tree).hasToString("string[5][15][]");
+  }
 }

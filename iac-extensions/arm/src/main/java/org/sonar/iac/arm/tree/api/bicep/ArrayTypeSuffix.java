@@ -19,5 +19,8 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
+/**
+ * Interface for array type suffix that build into {@link ArrayTypeReference}.
+ */
 public interface ArrayTypeSuffix extends TypeReferenceSuffix {
 }

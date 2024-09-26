@@ -311,6 +311,15 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
   }
 
   @Test
+  void shouldParseArrayTypeWithoutLength() {
+    String code = "string[]";
+    ArrayTypeReference tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
+    assertThat(tree.value()).isEqualTo("string[]");
+    assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_REFERENCE)).isTrue();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("string", "[", "]");
+  }
+
+  @Test
   void shouldParseMultiDimensionalArrayType() {
     String code = "string[3][5][7]";
     ArrayTypeReference tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
