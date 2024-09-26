@@ -19,9 +19,6 @@ load(
     "gradle_cache",
     "cleanup_gradle_script",
     "gradle_wrapper_cache",
-    "orchestrator_cache",
-    "set_orchestrator_home_script",
-    "mkdir_orchestrator_home_script",
     "project_version_cache",
     "store_project_version_script"
 )
