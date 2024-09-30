@@ -1,7 +1,7 @@
 load(
     "github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master",
     "pgp_signing_env",
-    "sonarcloud_env",
+    "next_env",
     "whitesource_api_env"
 )
 
@@ -56,7 +56,7 @@ def build_script():
 
 def build_env():
     env = pgp_signing_env()
-    env |= sonarcloud_env()
+    env |= next_env()
     env |= {
         "DEPLOY_PULL_REQUEST": "true",
         "BUILD_ARGUMENTS": "-DtrafficInspection=false --parallel --profile -x test -x sonar"
@@ -86,7 +86,7 @@ def build_task():
 
 def build_test_env():
     env = pgp_signing_env()
-    env |= sonarcloud_env()
+    env |= next_env()
     env |= {
         "DEPLOY_PULL_REQUEST": "false",
         "BUILD_ARGUMENTS": "-x artifactoryPublish"
