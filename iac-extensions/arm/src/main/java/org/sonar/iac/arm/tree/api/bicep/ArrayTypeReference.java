@@ -19,10 +19,15 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.common.api.tree.TextTree;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 
 /**
  * Marker interface for array types (e.g. {@code string[]})
  */
-public interface ArrayTypeReference extends TypeExpressionAble, TextTree {
+public interface ArrayTypeReference extends TypeExpressionAble {
+  TypeExpressionAble getType();
+
+  @CheckForNull
+  NumericLiteral getLength();
 }

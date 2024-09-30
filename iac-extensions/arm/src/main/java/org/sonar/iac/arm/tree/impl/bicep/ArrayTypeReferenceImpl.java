@@ -28,7 +28,6 @@ import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements ArrayTypeReference {
@@ -46,12 +45,14 @@ public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements Array
   }
 
   @Override
-  public String value() {
-    String value = ((TextTree) type).value() + lBracket.value();
-    if (length != null) {
-      value += length.value();
-    }
-    return value + rBracket.value();
+  public TypeExpressionAble getType() {
+    return type;
+  }
+
+  @CheckForNull
+  @Override
+  public NumericLiteral getLength() {
+    return length;
   }
 
   @Override

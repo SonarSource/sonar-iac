@@ -24,5 +24,5 @@ package org.sonar.iac.arm.tree.api.bicep;
  */
 public interface TypeReferenceSuffix {
 
-  TypeExpressionAble setType(TypeExpressionAble type);
+  TypeExpressionAble buildType(TypeExpressionAble type);
 }

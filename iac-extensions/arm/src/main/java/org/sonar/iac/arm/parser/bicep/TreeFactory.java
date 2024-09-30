@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -480,9 +481,9 @@ public class TreeFactory {
   }
 
   public TypeExpressionAble typeReference(TypeExpressionAble type, Optional<List<TypeReferenceSuffix>> optionalSuffixes) {
-    List<TypeReferenceSuffix> suffixes = optionalSuffixes.or(List.of());
+    List<TypeReferenceSuffix> suffixes = optionalSuffixes.or(Collections.emptyList());
     for (TypeReferenceSuffix suffix : suffixes) {
-      type = suffix.setType(type);
+      type = suffix.buildType(type);
     }
     return type;
   }

@@ -30,7 +30,6 @@ import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
-import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
@@ -205,6 +204,7 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .notMatches("typeExpr[][")
       .notMatches("typeExpr[]]")
       .notMatches("typeExpr[[]]")
+      .notMatches("typeExpr[-3]")
       .notMatches("{typeExpr}");
   }
 
@@ -299,32 +299,5 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
     assertThat(tree.is(ArmTree.Kind.TUPLE_TYPE)).isTrue();
     Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("[", "@", "functionName123", "(", ")", "typeExpr", "]");
-  }
-
-  @Test
-  void shouldParseArrayType() {
-    String code = "string[3]";
-    ArrayTypeReference tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
-    assertThat(tree.value()).isEqualTo("string[3]");
-    assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_REFERENCE)).isTrue();
-    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("string", "[", "3", "]");
-  }
-
-  @Test
-  void shouldParseArrayTypeWithoutLength() {
-    String code = "string[]";
-    ArrayTypeReference tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
-    assertThat(tree.value()).isEqualTo("string[]");
-    assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_REFERENCE)).isTrue();
-    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("string", "[", "]");
-  }
-
-  @Test
-  void shouldParseMultiDimensionalArrayType() {
-    String code = "string[3][5][7]";
-    ArrayTypeReference tree = parse(code, BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION);
-    assertThat(tree.value()).isEqualTo("string[3][5][7]");
-    assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_REFERENCE)).isTrue();
-    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("string", "[", "3", "]", "[", "5", "]", "[", "7", "]");
   }
 }

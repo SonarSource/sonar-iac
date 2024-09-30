@@ -46,4 +46,9 @@ public class AmbientTypeReferenceImpl extends AbstractArmTreeImpl implements Amb
   public Kind getKind() {
     return Kind.AMBIENT_TYPE_REFERENCE;
   }
+
+  @Override
+  public String toString() {
+    return token.toString();
+  }
 }
