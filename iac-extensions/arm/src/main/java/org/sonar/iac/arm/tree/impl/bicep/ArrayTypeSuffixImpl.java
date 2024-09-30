@@ -19,36 +19,27 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.List;
-import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 
-public class AmbientTypeReferenceImpl extends AbstractArmTreeImpl implements AmbientTypeReference {
-  private final SyntaxToken token;
+public class ArrayTypeSuffixImpl implements ArrayTypeSuffix {
+  private final SyntaxToken lBracket;
+  @CheckForNull
+  private final NumericLiteral length;
+  private final SyntaxToken rBracket;
 
-  public AmbientTypeReferenceImpl(SyntaxToken token) {
-    this.token = token;
+  public ArrayTypeSuffixImpl(SyntaxToken lBracket, @Nullable NumericLiteral length, SyntaxToken rBracket) {
+    this.lBracket = lBracket;
+    this.length = length;
+    this.rBracket = rBracket;
   }
 
   @Override
-  public String value() {
-    return token.value();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of(token);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.AMBIENT_TYPE_REFERENCE;
-  }
-
-  @Override
-  public String toString() {
-    return token.toString();
+  public TypeExpressionAble applyTo(TypeExpressionAble baseType) {
+    return new ArrayTypeReferenceImpl(baseType, lBracket, length, rBracket);
   }
 }

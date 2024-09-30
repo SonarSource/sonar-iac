@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -40,6 +41,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
@@ -64,6 +66,7 @@ import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
+import org.sonar.iac.arm.tree.api.bicep.TypeReferenceSuffix;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
@@ -90,6 +93,7 @@ import org.sonar.iac.arm.tree.impl.ParameterImpl;
 import org.sonar.iac.arm.tree.impl.VariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ArrayTypeSuffixImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.CompileTimeImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
@@ -474,6 +478,18 @@ public class TreeFactory {
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {
     return new AmbientTypeReferenceImpl(token);
+  }
+
+  public TypeExpressionAble typeReference(TypeExpressionAble type, Optional<List<TypeReferenceSuffix>> optionalSuffixes) {
+    List<TypeReferenceSuffix> suffixes = optionalSuffixes.or(Collections.emptyList());
+    for (TypeReferenceSuffix suffix : suffixes) {
+      type = suffix.applyTo(type);
+    }
+    return type;
+  }
+
+  public ArrayTypeSuffix arrayTypeSuffix(SyntaxToken lBracket, Optional<NumericLiteral> length, SyntaxToken rBracket) {
+    return new ArrayTypeSuffixImpl(lBracket, length.orNull(), rBracket);
   }
 
   public UnaryOperator unaryOperator(SyntaxToken token) {

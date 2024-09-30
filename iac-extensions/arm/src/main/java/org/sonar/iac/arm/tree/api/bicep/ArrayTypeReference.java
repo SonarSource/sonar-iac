@@ -17,38 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
-import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 
-public class AmbientTypeReferenceImpl extends AbstractArmTreeImpl implements AmbientTypeReference {
-  private final SyntaxToken token;
+/**
+ * Marker interface for array types (e.g. {@code string[]})
+ */
+public interface ArrayTypeReference extends TypeExpressionAble {
+  TypeExpressionAble getType();
 
-  public AmbientTypeReferenceImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public String value() {
-    return token.value();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of(token);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.AMBIENT_TYPE_REFERENCE;
-  }
-
-  @Override
-  public String toString() {
-    return token.toString();
-  }
+  @CheckForNull
+  NumericLiteral getLength();
 }

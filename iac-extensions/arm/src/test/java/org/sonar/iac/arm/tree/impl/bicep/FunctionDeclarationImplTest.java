@@ -27,7 +27,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class FunctionDeclarationImplTest extends BicepTreeModelTest {
 
@@ -38,6 +37,7 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
       .matches("func myFunction () string =>   'result'")
       .matches("func myFunction(foo int) string => '${foo}'")
       .matches("func myFunction(foo int, bar object) int => 0")
+      .matches("func typedArg(input string[]) int => length(input)")
       // defining a function of name the same as keyword is possible
       .matches("func func() string => 'result'")
       .matches("func if() string => 'result'")
@@ -45,10 +45,10 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
       .matches("func param() string => 'result'")
       .matches("@description('comment') func myFunction(foo int, bar object) int => 0")
       .matches("@sys.description('comment') func myFunction(foo int, bar object) int => 0")
-      .matches(code(
-        "@description('comment')",
-        "@allowed([42])",
-        "func myFunction(foo int, bar object) int => 0"))
+      .matches("""
+        @description('comment')
+        @allowed([42])
+        func myFunction(foo int, bar object) int => 0""")
 
       .notMatches("func myFunction() => 'result'")
       .notMatches("func myFunction")
@@ -58,7 +58,7 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleFunctionDeclaration() {
-    String code = code("@description('comment') func myFunction() string => 'result'");
+    String code = "@description('comment') func myFunction() string => 'result'";
     FunctionDeclaration tree = parse(code, BicepLexicalGrammar.FUNCTION_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.FUNCTION_DECLARATION)).isTrue();
     assertThat(tree.lambdaExpression().is(ArmTree.Kind.TYPED_LAMBDA_EXPRESSION)).isTrue();
