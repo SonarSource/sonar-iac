@@ -59,8 +59,22 @@ class ArrayTypeReferenceImplTest extends BicepTreeModelTest {
   void shouldParseMultiDimensionalArrayType() {
     String code = "int[3][5][7]";
     ArrayTypeReference tree = parse(code, BicepLexicalGrammar.TYPE_REFERENCE);
+
     assertThat(tree.is(ArmTree.Kind.ARRAY_TYPE_REFERENCE)).isTrue();
-    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("int", "[", "3", "]", "[", "5", "]", "[", "7", "]");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("int", "[", "3", "]", "[", "5", "]", "[", "7", "]");
+
+    ArrayTypeReference innerType1 = (ArrayTypeReference) tree.getType();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(innerType1))
+      .containsExactly("int", "[", "3", "]", "[", "5", "]");
+
+    ArrayTypeReference innerType2 = (ArrayTypeReference) innerType1.getType();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(innerType2))
+      .containsExactly("int", "[", "3", "]");
+
+    AmbientTypeReference innerType3 = (AmbientTypeReference) innerType2.getType();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(innerType3))
+      .containsExactly("int");
   }
 
   @Test
