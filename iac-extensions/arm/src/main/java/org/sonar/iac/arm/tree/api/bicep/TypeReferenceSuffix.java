@@ -24,5 +24,8 @@ package org.sonar.iac.arm.tree.api.bicep;
  */
 public interface TypeReferenceSuffix {
 
+  /**
+   * Build a complete {@link TypeExpressionAble} type from the suffix.
+   */
   TypeExpressionAble buildType(TypeExpressionAble type);
 }
