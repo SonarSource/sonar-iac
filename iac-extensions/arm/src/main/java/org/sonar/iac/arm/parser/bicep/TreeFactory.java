@@ -483,7 +483,7 @@ public class TreeFactory {
   public TypeExpressionAble typeReference(TypeExpressionAble type, Optional<List<TypeReferenceSuffix>> optionalSuffixes) {
     List<TypeReferenceSuffix> suffixes = optionalSuffixes.or(Collections.emptyList());
     for (TypeReferenceSuffix suffix : suffixes) {
-      type = suffix.buildType(type);
+      type = suffix.applyTo(type);
     }
     return type;
   }

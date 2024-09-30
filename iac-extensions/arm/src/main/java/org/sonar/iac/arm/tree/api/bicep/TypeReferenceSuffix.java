@@ -20,12 +20,15 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 /**
- * Interface for type suffix that build into {@link TypeExpressionAble}.
+ * Interface for type suffix that get applied to {@link TypeExpressionAble} types.
  */
 public interface TypeReferenceSuffix {
 
   /**
-   * Build a complete {@link TypeExpressionAble} type from the suffix.
+   * Apply the suffix to another type.
+   *
+   * @param baseType the base type to which the suffix will be applied
+   * @return the base type with the suffix
    */
-  TypeExpressionAble buildType(TypeExpressionAble type);
+  TypeExpressionAble applyTo(TypeExpressionAble baseType);
 }

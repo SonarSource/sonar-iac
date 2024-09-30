@@ -39,7 +39,7 @@ public class ArrayTypeSuffixImpl implements ArrayTypeSuffix {
   }
 
   @Override
-  public TypeExpressionAble buildType(TypeExpressionAble type) {
-    return new ArrayTypeReferenceImpl(type, lBracket, length, rBracket);
+  public TypeExpressionAble applyTo(TypeExpressionAble baseType) {
+    return new ArrayTypeReferenceImpl(baseType, lBracket, length, rBracket);
   }
 }
