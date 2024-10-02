@@ -25,6 +25,8 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
+import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
+
 public class CloudformationSettings {
 
   private static final String CLOUDFORMATION_CATEGORY = "CloudFormation";
@@ -33,9 +35,7 @@ public class CloudformationSettings {
 
   static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
-
-  static final String FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
-  static final String FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
+  static final String CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
 
   static final String CFN_LINT_REPORTS_KEY = "sonar.cloudformation.cfn-lint.reportPaths";
 
@@ -55,9 +55,9 @@ public class CloudformationSettings {
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
 
-      PropertyDefinition.builder(FILE_IDENTIFIER_KEY)
+      PropertyDefinition.builder(CLOUDFORMATION_FILE_IDENTIFIER_KEY)
         .index(4)
-        .defaultValue(FILE_IDENTIFIER_DEFAULT_VALUE)
+        .defaultValue(CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE)
         .name("File Identifier")
         .description("Files without the identifier are excluded from the analysis. The identifier can be anywhere in the file.")
         .onQualifiers(Qualifiers.PROJECT)

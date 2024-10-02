@@ -19,25 +19,25 @@
  */
 package org.sonar.iac.kubernetes.visitors;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
-
 import java.net.URI;
 import java.nio.file.Path;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ProjectContextTest {
   @TempDir
@@ -129,8 +129,8 @@ class ProjectContextTest {
   private static HelmInputFileContext toHelmInputFileContext(String path) {
     var inputFile = mock(InputFile.class);
     when(inputFile.uri()).thenReturn(baseDir.resolve(path).toUri());
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(baseDir.resolve("path1"));
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(retrieveHelmProjectFolder(any(), any())).thenReturn(baseDir.resolve("path1"));
       return new HelmInputFileContext(mock(SensorContext.class), inputFile, null);
     }
   }

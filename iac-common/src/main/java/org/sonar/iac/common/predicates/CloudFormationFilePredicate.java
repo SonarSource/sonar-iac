@@ -17,24 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.plugin.predicates;
+package org.sonar.iac.common.predicates;
 
-import java.nio.file.Path;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.common.extension.FileIdentificationPredicate;
 
-public class HelmProjectMemberPredicate implements FilePredicate {
-  private final SensorContext sensorContext;
+public class CloudFormationFilePredicate implements FilePredicate {
+  public static final String CLOUDFORMATION_FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
+  private final FilePredicate delegate;
 
-  public HelmProjectMemberPredicate(SensorContext sensorContext) {
-    this.sensorContext = sensorContext;
+  public CloudFormationFilePredicate(SensorContext sensorContext, boolean isDebugEnabled) {
+    this.delegate = new FileIdentificationPredicate(sensorContext.config().get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(""), isDebugEnabled);
   }
 
   @Override
   public boolean apply(InputFile inputFile) {
-    return HelmFileSystem.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem()) != null;
+    return delegate.apply(inputFile);
   }
-
 }

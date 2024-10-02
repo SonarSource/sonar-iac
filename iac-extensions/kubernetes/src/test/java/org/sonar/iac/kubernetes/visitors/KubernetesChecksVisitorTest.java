@@ -43,7 +43,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.common.filesystem.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,6 +54,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
 
 class KubernetesChecksVisitorTest {
 
@@ -223,8 +224,8 @@ class KubernetesChecksVisitorTest {
   public static HelmInputFileContext createHelmInputFileContextMock(String filename) {
     var inputFile = createInputFileMock(filename);
     var sensorContext = createSensorContextMock(inputFile);
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
       return new HelmInputFileContext(sensorContext, inputFile, null);
     }
   }

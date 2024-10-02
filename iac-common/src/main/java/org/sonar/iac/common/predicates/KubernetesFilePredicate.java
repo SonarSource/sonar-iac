@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.plugin.predicates;
+package org.sonar.iac.common.predicates;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -38,10 +38,19 @@ public class KubernetesFilePredicate implements FilePredicate {
   private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata");
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
   private static final int DEFAULT_BUFFER_SIZE = 8192;
+  private final boolean isDebugEnabled;
+
+  public KubernetesFilePredicate(boolean isDebugEnabled) {
+    this.isDebugEnabled = isDebugEnabled;
+  }
 
   @Override
   public boolean apply(InputFile inputFile) {
-    return hasKubernetesObjectStructure(inputFile);
+    var matches = hasKubernetesObjectStructure(inputFile);
+    if (!matches && isDebugEnabled) {
+      LOG.debug("File without Kubernetes identifier: {}", inputFile);
+    }
+    return matches;
   }
 
   private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
@@ -67,11 +76,6 @@ public class KubernetesFilePredicate implements FilePredicate {
       LOG.error(e.getMessage());
     }
 
-    if (hasExpectedIdentifier) {
-      return true;
-    } else {
-      LOG.debug("File without Kubernetes identifier: {}", inputFile);
-      return false;
-    }
+    return hasExpectedIdentifier;
   }
 }

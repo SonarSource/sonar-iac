@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -55,8 +56,8 @@ class LineNumberCommentRemoverTest {
     when(inputFile.filename()).thenReturn("foo.yaml");
     when(inputFile.toString()).thenReturn("chart/templates/foo.yaml");
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("chart"));
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(FileSystemUtils.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("chart"));
       inputFileContext = new HelmInputFileContext(sensorContext, inputFile, null);
     }
   }

@@ -7,7 +7,7 @@ description = "SonarSource IaC Analyzer :: Extensions :: Kubernetes"
 
 dependencies {
     api(project(":iac-common"))
-    api(libs.sonar.lint.core)
+    api(libs.sonar.lint.plugin.api)
     implementation(project(":sonar-helm-for-iac", "goBinaries"))
     implementation(project(":sonar-helm-for-iac"))
     implementation(libs.google.protobuf)
@@ -20,5 +20,5 @@ dependencies {
     testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
     testImplementation(libs.apache.commons.lang)
-    testImplementation(libs.sonar.lint)
+    testImplementation(libs.sonar.lint.core)
 }

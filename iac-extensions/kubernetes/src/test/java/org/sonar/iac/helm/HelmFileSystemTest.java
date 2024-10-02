@@ -144,50 +144,6 @@ class HelmFileSystemTest {
   }
 
   @Test
-  void shouldReturnNullWhenInputIsNull() {
-    var parentPath = HelmFileSystem.retrieveHelmProjectFolder(null, context.fileSystem());
-    assertThat(parentPath).isNull();
-  }
-
-  @Test
-  void shouldReturnNullIfParentIsNull() {
-    try (var ignored = Mockito.mockStatic(Files.class)) {
-      when(Files.exists(any())).thenReturn(false);
-
-      var inputFilePath = mock(Path.class);
-      when(inputFilePath.getParent()).thenReturn(null);
-
-      var parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
-      assertThat(parentPath).isNull();
-    }
-  }
-
-  @Test
-  void shouldReturnNullIfParentIsNotNullAndDirectoryIsIncorrect() {
-    try (var ignored = Mockito.mockStatic(Files.class)) {
-      when(Files.exists(any())).thenReturn(false);
-
-      var inputFilePath = mock(Path.class);
-      when(inputFilePath.getParent()).thenReturn(mock(Path.class));
-
-      var parentPath = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
-      assertThat(parentPath).isNull();
-    }
-  }
-
-  @Test
-  void shouldReturnNullWhenOnlyChartYamlIsVeryHighAbove() throws IOException {
-    Files.createFile(tmpDir.toPath().toRealPath().resolve("Chart.yaml"));
-    FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4"));
-    var helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
-    var templateInputFileContext = new InputFileContext(context, helmTemplate);
-
-    var result = HelmFileSystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem());
-
-    assertThat(result).isNull();
-  }
-
-  @Test
   void shouldReturnNullWhenInputIsNullSonarLint() {
     var sonarLintFileListener = mock(SonarLintFileListener.class);
     var actual = HelmFileSystem.retrieveHelmProjectFolder(null, context.fileSystem(), sonarLintFileListener);

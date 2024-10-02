@@ -20,18 +20,16 @@
 package org.sonar.iac.common.extension;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
 class FileIdentificationPredicateTest {
 
@@ -41,29 +39,29 @@ class FileIdentificationPredicateTest {
   private static final String IDENTIFIER = "myidentifier";
 
   @Test
-  void emptyIdentifierAlwaysTrue() {
-    FileIdentificationPredicate filePredicate = new FileIdentificationPredicate("");
-    assertThat(filePredicate.apply(IacTestUtils.inputFile("small_file.txt", "text"))).isTrue();
-    assertThat(filePredicate.apply(IacTestUtils.inputFile("big_file_identifier_in_buffer.txt", "text"))).isTrue();
-    assertThat(filePredicate.apply(IacTestUtils.inputFile("big_file_identifier_after_buffer.txt", "text"))).isTrue();
+  void shouldReturnTrueForEmptyIdentifier() {
+    var filePredicate = new FileIdentificationPredicate("", true);
+    assertThat(filePredicate.apply(inputFile("small_file.txt", "text"))).isTrue();
+    assertThat(filePredicate.apply(inputFile("big_file_identifier_in_buffer.txt", "text"))).isTrue();
+    assertThat(filePredicate.apply(inputFile("big_file_identifier_after_buffer.txt", "text"))).isTrue();
   }
 
   @Test
   void shouldFindIdentifierInSmallFile() {
-    FileIdentificationPredicate filePredicate = new FileIdentificationPredicate(IDENTIFIER);
-    assertThat(filePredicate.apply(IacTestUtils.inputFile("small_file.txt", "text"))).isTrue();
+    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
+    assertThat(filePredicate.apply(inputFile("small_file.txt", "text"))).isTrue();
   }
 
   @Test
   void shouldFindIdentifierInBigFileIdentifierInBuffer() {
-    FileIdentificationPredicate filePredicate = new FileIdentificationPredicate(IDENTIFIER);
-    assertThat(filePredicate.apply(IacTestUtils.inputFile("big_file_identifier_in_buffer.txt", "text"))).isTrue();
+    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
+    assertThat(filePredicate.apply(inputFile("big_file_identifier_in_buffer.txt", "text"))).isTrue();
   }
 
   @Test
   void shouldNotFindIdentifierInBigFileIdentifierAfterBuffer() {
-    FileIdentificationPredicate filePredicate = new FileIdentificationPredicate(IDENTIFIER);
-    assertThat(filePredicate.apply(IacTestUtils.inputFile("big_file_identifier_after_buffer.txt", "text"))).isFalse();
+    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
+    assertThat(filePredicate.apply(inputFile("big_file_identifier_after_buffer.txt", "text"))).isFalse();
   }
 
   @Test
@@ -72,13 +70,27 @@ class FileIdentificationPredicateTest {
     when(noFile.inputStream()).thenThrow(new IOException("File not found mock"));
     when(noFile.toString()).thenReturn("nofile.txt");
 
-    FileIdentificationPredicate filePredicate = new FileIdentificationPredicate(IDENTIFIER);
+    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
     assertThat(filePredicate.apply(noFile)).isFalse();
     assertThat(logTester.logs(Level.ERROR)).hasSize(2);
     assertThat(logTester.logs(Level.ERROR).get(0)).isEqualTo("Unable to read file: nofile.txt.");
     assertThat(logTester.logs(Level.ERROR).get(1)).startsWith("File not found mock");
     assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
     assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("File without identifier '" + IDENTIFIER + "': nofile.txt");
+  }
+
+  @Test
+  void shouldNotErrorMessageWhenFileNotFoundAndLogDisabled() throws IOException {
+    InputFile noFile = mock(InputFile.class);
+    when(noFile.inputStream()).thenThrow(new IOException("File not found mock"));
+    when(noFile.toString()).thenReturn("nofile.txt");
+
+    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, false);
+    assertThat(filePredicate.apply(noFile)).isFalse();
+    assertThat(logTester.logs(Level.ERROR)).hasSize(2);
+    assertThat(logTester.logs(Level.ERROR).get(0)).isEqualTo("Unable to read file: nofile.txt.");
+    assertThat(logTester.logs(Level.ERROR).get(1)).startsWith("File not found mock");
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
 }

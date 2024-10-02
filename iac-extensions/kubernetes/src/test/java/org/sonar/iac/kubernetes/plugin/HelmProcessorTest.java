@@ -39,6 +39,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmEvaluatorMock;
@@ -59,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
 
 class HelmProcessorTest {
   private final HelmEvaluator helmEvaluator = mock(HelmEvaluator.class);
@@ -73,8 +75,8 @@ class HelmProcessorTest {
 
   @BeforeEach
   void setUp() {
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(tempDir);
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(retrieveHelmProjectFolder(any(), any())).thenReturn(tempDir);
       defaultInputFileContext = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE, null);
     }
   }
@@ -260,8 +262,8 @@ class HelmProcessorTest {
 
   private static HelmInputFileContext mockInputFileContext(String filename, String content) throws IOException {
     var inputFile = mockInputFile(filename, content);
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
       return new HelmInputFileContext(mock(SensorContext.class), inputFile, null);
     }
   }

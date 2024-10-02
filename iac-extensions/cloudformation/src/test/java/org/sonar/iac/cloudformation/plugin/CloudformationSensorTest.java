@@ -32,6 +32,8 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.cloudformation.plugin.CloudformationSettings.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class CloudformationSensorTest extends ExtensionSensorTest {
@@ -62,7 +64,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   @Test
   void should_raise_no_parsing_issue_in_file_without_identifier() {
     MapSettings settings = new MapSettings();
-    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, "myIdentifier");
+    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
     settings.setProperty(getActivationSettingKey(), true);
     context.setSettings(settings);
 
@@ -78,7 +80,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   @Test
   void should_raise_parsing_issue_in_file_with_identifier() {
     MapSettings settings = new MapSettings();
-    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, "myIdentifier");
+    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
     settings.setProperty(getActivationSettingKey(), true);
     context.setSettings(settings);
 
@@ -97,7 +99,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.json", "json");
 
     MapSettings settings = new MapSettings();
-    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, CloudformationSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
+    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
     context.setSettings(settings);
 
     FilePredicate filePredicate = sensor().customFilePredicate(context);

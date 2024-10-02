@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.plugin.predicates;
+package org.sonar.iac.common.predicates;
 
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -29,9 +29,9 @@ import static org.sonar.iac.common.yaml.YamlSensor.YAML_LANGUAGE_KEY;
 public class KubernetesOrHelmFilePredicate implements FilePredicate {
   private final FilePredicate delegate;
 
-  public KubernetesOrHelmFilePredicate(SensorContext sensorContext) {
+  public KubernetesOrHelmFilePredicate(SensorContext sensorContext, boolean isDebugEnabled) {
     delegate = sensorContext.fileSystem().predicates().or(
-      yamlK8sOrHelmFilePredicate(sensorContext),
+      yamlK8sOrHelmFilePredicate(sensorContext, isDebugEnabled),
       tplHelmFilePredicate(sensorContext));
   }
 
@@ -40,7 +40,7 @@ public class KubernetesOrHelmFilePredicate implements FilePredicate {
     return delegate.apply(inputFile);
   }
 
-  private static FilePredicate yamlK8sOrHelmFilePredicate(SensorContext sensorContext) {
+  private static FilePredicate yamlK8sOrHelmFilePredicate(SensorContext sensorContext, boolean isDebugEnabled) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
     var helmTemplatePredicate = predicates.and(
       predicates.matchesPathPattern("**/templates/**"),
@@ -51,7 +51,7 @@ public class KubernetesOrHelmFilePredicate implements FilePredicate {
     return predicates.and(
       predicates.hasLanguage(YAML_LANGUAGE_KEY),
       predicates.or(
-        new KubernetesFilePredicate(),
+        new KubernetesFilePredicate(isDebugEnabled),
         helmTemplatePredicate,
         valuesYamlOrChartYamlPredicate));
   }

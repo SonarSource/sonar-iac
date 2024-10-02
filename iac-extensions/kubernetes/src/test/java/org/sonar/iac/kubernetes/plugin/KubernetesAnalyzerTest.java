@@ -47,6 +47,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
@@ -64,6 +65,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
 
 class KubernetesAnalyzerTest {
 
@@ -89,8 +91,8 @@ class KubernetesAnalyzerTest {
     when(inputFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
     when(inputFile.toString()).thenReturn("/chart/templates/foo.yaml");
 
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
       inputFileContext = spy(new HelmInputFileContext(sensorContext, inputFile, null));
     }
   }
@@ -458,8 +460,8 @@ class KubernetesAnalyzerTest {
 
   @Test
   void shouldSetHelmProjectDirectory() throws IOException, URISyntaxException {
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("/chart"));
 
       InputFile helmFile = mock(InputFile.class);
       when(helmFile.contents()).thenReturn("foo: {{ .Values.foo }}");
@@ -474,7 +476,7 @@ class KubernetesAnalyzerTest {
 
   @Test
   void shouldSetHelmProjectDirectoryForSonarLint() throws IOException, URISyntaxException {
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
       when(HelmFileSystem.retrieveHelmProjectFolder(any(), any(), any())).thenReturn(Path.of("/chart"));
 
       var helmFile = mock(InputFile.class);

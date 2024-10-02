@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.helm.HelmFileSystem;
-import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
@@ -59,7 +59,7 @@ public class SonarLintFileListener implements ModuleFileListener {
     this.projectContext = projectContext;
     if (inputFilesContents.isEmpty()) {
       // The analysis is executed for the first time by SonarLint, the content of all relevant files has to be stored in inputFilesContents
-      var predicate = new KubernetesOrHelmFilePredicate(sensorContext);
+      var predicate = new KubernetesOrHelmFilePredicate(sensorContext, true);
       var inputFiles = moduleFileSystem.files()
         .filter(predicate::apply)
         .toList();

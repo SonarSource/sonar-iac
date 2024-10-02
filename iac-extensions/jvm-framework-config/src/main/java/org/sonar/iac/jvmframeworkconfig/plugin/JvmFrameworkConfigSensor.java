@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.jvmframeworkconfig.plugin;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -29,26 +33,21 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.cloudformation.plugin.CloudformationSensor;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
+import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.jvmframeworkconfig.checks.micronaut.MicronautConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.checks.spring.SpringConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigParser;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigHighlightingVisitor;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigMetricsVisitor;
-import org.sonar.iac.kubernetes.plugin.predicates.KubernetesOrHelmFilePredicate;
-import org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigParser;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY;
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension.SENSOR_NAME;
@@ -148,8 +147,8 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     var fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().not(
       fileSystem.predicates().or(
-        new KubernetesOrHelmFilePredicate(sensorContext),
-        new CloudformationSensor.CloudFormationFilePredicate(sensorContext)));
+        new KubernetesOrHelmFilePredicate(sensorContext, false),
+        new CloudFormationFilePredicate(sensorContext, false)));
   }
 
   private static class ProfileNameFilePredicate implements FilePredicate {

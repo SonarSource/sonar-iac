@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.plugin;
+package org.sonar.iac.common.predicates;
 
 import java.nio.file.Path;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,7 +25,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.iac.kubernetes.plugin.predicates.HelmProjectMemberPredicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
@@ -38,7 +37,7 @@ class HelmProjectMemberPredicateTest {
     "helm/templates/pod.yaml,true",
     "helm/templates/nested/pod.yaml,true",
     "helm/templates/nested/double-nested/pod.yaml,true",
-    "large_file_with_identifier.yaml,false",
+    "small_file.txt,false",
   })
   void shouldDetectFilesInHelmProject(String filePath, boolean shouldMatch) {
     InputFile templateFile = inputFile(filePath, "yaml");

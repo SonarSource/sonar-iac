@@ -37,7 +37,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.helm.HelmFileSystem;
+import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
 import org.sonar.iac.helm.tree.impl.CommandNodeImpl;
 import org.sonar.iac.helm.tree.impl.FieldNodeImpl;
@@ -53,6 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
 
@@ -172,8 +173,8 @@ class SecondaryLocationLocatorTest {
 
   private HelmInputFileContext inputFileContextWithTree() {
     HelmInputFileContext inputFileContext;
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(BASE_DIR);
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(retrieveHelmProjectFolder(any(), any())).thenReturn(BASE_DIR);
       inputFileContext = new HelmInputFileContext(
         mockSensorContextWithEnabledFeature(),
         inputFile("template/foo.yaml", BASE_DIR, "bar: {{ .Values.bar }}",
@@ -196,8 +197,8 @@ class SecondaryLocationLocatorTest {
 
   private TextRange getTextRangeFor(String valuesFileContent, ValuePath valuePath) {
     HelmInputFileContext inputFileContext;
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      when(retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("dir1"));
       var inputFile = mock(InputFile.class);
       when(inputFile.uri()).thenReturn(Path.of("dir1/templates/something.yaml").toUri());
       inputFileContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile, null);

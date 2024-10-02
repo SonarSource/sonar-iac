@@ -43,8 +43,8 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.common.testing.IacTestUtils;
-import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.ShiftedMarkedYamlEngineException;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.impl.ActionNodeImpl;
@@ -60,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
 
@@ -390,8 +391,8 @@ final class LocationShifterTest {
 
   private HelmInputFileContext inputFileContextWithTree(FieldNode fieldNode) {
     HelmInputFileContext helmContext;
-    try (var ignored = mockStatic(HelmFileSystem.class)) {
-      Mockito.when(HelmFileSystem.retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("."));
+    try (var ignored = mockStatic(FileSystemUtils.class)) {
+      Mockito.when(retrieveHelmProjectFolder(any(), any())).thenReturn(Path.of("."));
       helmContext = new HelmInputFileContext(mockSensorContextWithEnabledFeature(), inputFile("foo.yaml", Path.of("."), "bar: {{ .Values.bar }}", null), null);
     }
     helmContext.setAdditionalFiles(Map.of("values.yaml", "bar: baz"));

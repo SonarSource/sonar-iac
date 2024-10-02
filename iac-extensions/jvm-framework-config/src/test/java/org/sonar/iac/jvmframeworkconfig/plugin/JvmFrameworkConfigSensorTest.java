@@ -90,7 +90,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(4);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
     String message1 = """
       while scanning a quoted scalar
        in reader, line 1, column 1:
@@ -105,8 +105,8 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'src/main/resources/application.yaml:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
-    assertThat(logTester.logs(Level.DEBUG).get(2)).isEqualTo(message1);
-    assertThat(logTester.logs(Level.DEBUG).get(3)).startsWith(message2);
+    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(1)).startsWith(message2);
   }
 
   @BeforeEach

@@ -21,7 +21,6 @@ package org.sonar.iac.cloudformation.plugin;
 
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
@@ -30,8 +29,8 @@ import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.common.extension.DurationStatistics;
-import org.sonar.iac.common.extension.FileIdentificationPredicate;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
+import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
 import org.sonar.iac.common.reports.ExternalReportWildcardProvider;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlSensor;
@@ -68,7 +67,7 @@ public class CloudformationSensor extends YamlSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
-    return new CloudFormationFilePredicate(sensorContext);
+    return new CloudFormationFilePredicate(sensorContext, true);
   }
 
   @Override
@@ -90,18 +89,5 @@ public class CloudformationSensor extends YamlSensor {
   @Override
   protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
     return new SingleFileAnalyzer(repositoryKey(), new CloudformationParser(), visitors(sensorContext, statistics), statistics);
-  }
-
-  public static class CloudFormationFilePredicate implements FilePredicate {
-    private final FilePredicate delegate;
-
-    public CloudFormationFilePredicate(SensorContext sensorContext) {
-      this.delegate = new FileIdentificationPredicate(sensorContext.config().get(CloudformationSettings.FILE_IDENTIFIER_KEY).orElse(""));
-    }
-
-    @Override
-    public boolean apply(InputFile inputFile) {
-      return delegate.apply(inputFile);
-    }
   }
 }

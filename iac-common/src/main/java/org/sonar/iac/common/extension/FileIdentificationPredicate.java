@@ -34,9 +34,11 @@ public class FileIdentificationPredicate implements FilePredicate {
   private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
 
   private final String fileIdentifier;
+  private final boolean isDebugEnabled;
 
-  public FileIdentificationPredicate(String fileIdentifier) {
+  public FileIdentificationPredicate(String fileIdentifier, boolean isDebugEnabled) {
     this.fileIdentifier = fileIdentifier;
+    this.isDebugEnabled = isDebugEnabled;
   }
 
   @Override
@@ -45,7 +47,7 @@ public class FileIdentificationPredicate implements FilePredicate {
   }
 
   private boolean hasFileIdentifier(InputFile inputFile) {
-    if ("".equals(fileIdentifier)) {
+    if (fileIdentifier.isEmpty()) {
       return true;
     }
 
@@ -63,7 +65,9 @@ public class FileIdentificationPredicate implements FilePredicate {
       LOG.error("Unable to read file: {}.", inputFile);
       LOG.error(e.getMessage());
     }
-    LOG.debug("File without identifier '{}': {}", fileIdentifier, inputFile);
+    if (isDebugEnabled) {
+      LOG.debug("File without identifier '{}': {}", fileIdentifier, inputFile);
+    }
     return false;
   }
 }
