@@ -1,6 +1,10 @@
+import org.sonar.iac.enforceJarSize
+import org.sonar.iac.registerCleanupTask
+
 plugins {
     id("org.sonarsource.iac.java-conventions")
     id("org.sonarsource.iac.artifactory-configuration")
+    id("org.sonarsource.iac.code-style-convention")
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -15,7 +19,6 @@ dependencies {
     implementation(project(":iac-extensions:jvm-framework-config"))
     implementation(project(":sonar-helm-for-iac", "goBinaries"))
     api(libs.sonar.analyzer.commons)
-
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
@@ -54,15 +57,7 @@ tasks.jar {
     }
 }
 
-val cleanupTask = tasks.register<Delete>("cleanupOldVersion") {
-    group = "build"
-    description = "Clean up jars of old plugin version"
-
-    delete(fileTree(project.layout.buildDirectory.dir("libs")).matching {
-        include("${project.name}-*.jar")
-        exclude("${project.name}-${project.version}-*.jar")
-    })
-}
+val cleanupTask = registerCleanupTask()
 
 tasks.shadowJar {
     dependsOn(cleanupTask)
@@ -106,15 +101,15 @@ publishing {
     }
 }
 
-fun enforceJarSize(
-    file: File,
-    minSize: Long,
-    maxSize: Long,
-) {
-    val size = file.length()
-    if (size < minSize) {
-        throw GradleException("${file.path} size ($size) too small. Min is $minSize")
-    } else if (size > maxSize) {
-        throw GradleException("${file.path} size ($size) too large. Max is $maxSize")
+artifactoryConfiguration {
+    license {
+        name.set("GNU LPGL 3")
+        url.set("http://www.gnu.org/licenses/lgpl.txt")
+        distribution.set("repo")
     }
+    artifactsToPublish = "org.sonarsource.iac:sonar-iac-plugin:jar"
+    artifactsToDownload = ""
+    repoKeyEnv = "ARTIFACTORY_DEPLOY_REPO"
+    usernameEnv = "ARTIFACTORY_DEPLOY_USERNAME"
+    passwordEnv = "ARTIFACTORY_DEPLOY_PASSWORD"
 }

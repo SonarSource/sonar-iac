@@ -88,7 +88,7 @@ public class ArchUnitTest {
           var method = item.getMethod("children");
           if (!method.getOwner().equals(item)) {
             var message = String.format("The %s doesn't override the method children() and contains Node as fields. " +
-            "The AbstractNode.children() implementation will be not sufficient", item.getName());
+              "The AbstractNode.children() implementation will be not sufficient", item.getName());
             events.add(SimpleConditionEvent.violated(item, message));
           }
         } catch (IllegalArgumentException e) {

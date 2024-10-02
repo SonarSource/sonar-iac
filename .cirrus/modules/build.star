@@ -45,7 +45,7 @@ def profile_report_artifacts():
 
 def build_script():
     return [
-        "source cirrus-env BUILD",
+        "source cirrus-env BUILD-PRIVATE",
         "source .cirrus/use-gradle-wrapper.sh",
         "regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}",
         "echo 'Checking if any files are uncommitted in the Go code (this may happen to the generated code)'",

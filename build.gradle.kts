@@ -1,9 +1,9 @@
 plugins {
-    id("java-gradle-plugin")
-    alias(libs.plugins.diffplug.spotless)
+    alias(libs.plugins.spotless)
     id("org.sonarsource.iac.artifactory-configuration")
     id("org.sonarsource.iac.rule-api")
     id("org.sonarsource.iac.sonarqube")
+    id("com.diffplug.blowdryer")
 }
 
 spotless {
@@ -39,3 +39,12 @@ listOf(":its:plugin", ":its:ruling").forEach { path ->
 }
 
 tasks.artifactoryPublish { skip = true }
+
+// This configuration needs to be here and override in another modules, otherwise it doesn't work
+artifactoryConfiguration {
+    artifactsToPublish = "org.sonarsource.iac:sonar-iac-plugin:jar"
+    artifactsToDownload = ""
+    repoKeyEnv = "ARTIFACTORY_DEPLOY_REPO"
+    usernameEnv = "ARTIFACTORY_DEPLOY_USERNAME"
+    passwordEnv = "ARTIFACTORY_DEPLOY_PASSWORD"
+}

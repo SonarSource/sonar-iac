@@ -1,4 +1,6 @@
-load("github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master", "base_image_container_builder", "ec2_instance_builder")
+load("github.com/SonarSource/cirrus-modules/cloud-native/actions.star@analysis/master", "default_gradle_on_failure")
+load("github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master", "base_image_container_builder",
+     "ec2_instance_builder")
 load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master", "is_branch_qa_eligible")
 load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master", "artifactory_reader_env")
 load("build.star", "profile_report_artifacts")
@@ -15,6 +17,15 @@ load(
 QA_PLUGIN_GRADLE_TASK = ":its:plugin:integrationTest"
 QA_RULING_GRADLE_TASK = ":its:ruling:integrationTest"
 QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
+
+
+def on_failure():
+    return default_gradle_on_failure() | {
+        "junit_artifacts": {
+            "path": "**/test-results/**/*.xml",
+            "format": "junit"
+        }
+    }
 
 
 def qa_win_script():
@@ -41,14 +52,7 @@ def qa_os_win_task():
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": qa_win_script(),
             "on_success": profile_report_artifacts(),
-            "on_failure": {
-                "go_test_report_artifacts": {
-                    "path": "sonar-helm-for-iac/build/test-report.json",
-                },
-                "java_test_report_artifacts": {
-                    "path": "**/build/reports/tests/**/*.html"
-                }
-            },
+            "on_failure": on_failure(),
         }
     }
 
@@ -69,12 +73,7 @@ def qa_task(env):
         "mkdir_orchestrator_home_script": mkdir_orchestrator_home_script(),
         "orchestrator_cache": orchestrator_cache(),
         "run_its_script": run_its_script(),
-        "on_failure": {
-            "junit_artifacts": {
-                "path": "**/test-results/**/*.xml",
-                "format": "junit"
-            }
-        },
+        "on_failure": on_failure(),
         "cleanup_gradle_script": cleanup_gradle_script(),
     }
 
