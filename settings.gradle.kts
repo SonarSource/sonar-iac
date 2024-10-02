@@ -80,6 +80,7 @@ dependencyResolutionManagement {
     }
 }
 
+// "extraSettings.gradle" should not be renamed "settings.gradle" to not create a wrong project rootDir
 var extraSettings = File(rootDir, "private/extraSettings.gradle.kts")
 if (extraSettings.exists()) {
     apply(extraSettings)

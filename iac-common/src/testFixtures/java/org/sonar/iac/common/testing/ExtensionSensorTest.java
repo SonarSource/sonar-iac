@@ -54,7 +54,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void shouldRaiseIssueOnParsingErrorWhenIssueActive() {
+  protected void shouldRaiseIssueOnParsingErrorWhenIssueActive() {
     InputFile inputFile = fileWithParsingError();
     analyze(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), inputFile);
 
