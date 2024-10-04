@@ -21,6 +21,7 @@ google-protobuf-gradle = "0.9.4"
 google-protobuf-go = "1.34.1"
 apache-commons-lang = "2.6"
 antlr4 = "4.13.2"
+yguard = "4.1.1"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
@@ -50,6 +51,7 @@ google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = 
 apache-commons-lang = { module = "commons-lang:commons-lang", version.ref = "apache-commons-lang" }
 antlr4 = { module = "org.antlr:antlr4", version.ref = "antlr4" }
 antlr4-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr4" }
+yguard = { module = "com.yworks:yguard", version.ref = "yguard"}
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless-gradle" }

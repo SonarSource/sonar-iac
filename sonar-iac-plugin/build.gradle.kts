@@ -18,7 +18,7 @@ dependencies {
     implementation(project(":iac-extensions:arm"))
     implementation(project(":iac-extensions:jvm-framework-config"))
     implementation(project(":sonar-helm-for-iac", "goBinaries"))
-    api(libs.sonar.analyzer.commons)
+    implementation(libs.sonar.analyzer.commons)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
