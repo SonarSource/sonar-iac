@@ -560,6 +560,54 @@
     }
   },
   {
+    "key": "E1700",
+    "name": "Rules have the appropriate configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E1700",
+    "tags": ["rules"],
+    "description": "This issue is raised by the rule [E1700] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Making sure the Rules section is properly configured",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+          "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E1701",
+    "name": "Validate the configuration of Assertions",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E1701",
+    "tags": ["rules"],
+    "description": "This issue is raised by the rule [E1701] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure the Assert value in a Rule is properly configured",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+          "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E1702",
+    "name": "Validate the configuration of Rules RuleCondition",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E1702",
+    "tags": ["rules"],
+    "description": "This issue is raised by the rule [E1702] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure the RuleCondition in a Rule is properly configured",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+          "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
     "key": "E2001",
     "name": "Parameters have appropriate properties",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E2001",
@@ -1664,6 +1712,22 @@
     }
   },
   {
+    "key": "E3058",
+    "name": "Validate at least one of the properties are required",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3058",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [E3058] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Make sure at least one of the resource properties are included",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+          "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
     "key": "E3503",
     "name": "ValidationDomain is superdomain of DomainName",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3503",
@@ -1925,22 +1989,6 @@
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3639",
     "tags": ["resources"],
     "description": "This issue is raised by the rule [E3639] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When 'BillingMode' is 'Provisioned' 'ProvisionedThroughput' is required",
-    "constantDebtMinutes": 0,
-    "type": "BUG",
-    "severity": "MAJOR",
-    "code": {
-      "attribute": "LOGICAL",
-      "impacts": {
-          "RELIABILITY": "MEDIUM"
-      }
-    }
-  },
-  {
-    "key": "E3640",
-    "name": "Validate DynamoDB SSE Specification has required properties when using KMS",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3640",
-    "tags": ["resources"],
-    "description": "This issue is raised by the rule [E3640] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When doing KMS encryption in an AWS DynamoDB table there are required properties.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR",
@@ -3557,6 +3605,22 @@
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W3689",
     "tags": ["resources","rds"],
     "description": "This issue is raised by the rule [W3689] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When creating a DBCluster from a source certain properties are ignored and could result in drift",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+          "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "W3693",
+    "name": "Validate Aurora DB cluster configuration for ignored properties",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W3693",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [W3693] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When creating an Aurora DB Cluster there are fields that will allow for successful deployment but are ignored",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR",
