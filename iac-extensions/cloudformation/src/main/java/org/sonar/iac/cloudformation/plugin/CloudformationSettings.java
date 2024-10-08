@@ -25,6 +25,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
+import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 
 public class CloudformationSettings {
@@ -35,7 +36,6 @@ public class CloudformationSettings {
 
   static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
-  static final String CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
 
   static final String CFN_LINT_REPORTS_KEY = "sonar.cloudformation.cfn-lint.reportPaths";
 

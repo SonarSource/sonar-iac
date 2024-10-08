@@ -41,6 +41,8 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
+import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 
 public abstract class AbstractSensorTest {
@@ -62,7 +64,9 @@ public abstract class AbstractSensorTest {
     Mockito.when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
     var settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
+    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
     context = SensorContextTester.create(baseDir).setSettings(settings);
+    context.setSettings(settings);
     sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SONARLINT_RUNTIME_9_9).setSettings(settings);
   }
 

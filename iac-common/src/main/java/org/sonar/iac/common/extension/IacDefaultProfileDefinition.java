@@ -25,16 +25,21 @@ import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 public abstract class IacDefaultProfileDefinition implements BuiltInQualityProfilesDefinition, ProvideLanguageKey {
 
   private static final String PROFILE_NAME = "Sonar way";
-  private static final String SONAR_WAY_PATH_FORMAT = "org/sonar/l10n/%1$s/rules/%1$s/Sonar_way_profile.json";
+  private static final String PATH_PREFIX = "org";
+  private static final String SONAR_WAY_PATH_FORMAT = "%s/sonar/l10n/%s/rules/%s/Sonar_way_profile.json";
 
   @Override
   public void define(Context context) {
     String languageKey = languageKey();
     NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, languageKey);
-    String sonarWayPath = String.format(SONAR_WAY_PATH_FORMAT, languageKey);
+    String sonarWayPath = SONAR_WAY_PATH_FORMAT.formatted(pathPrefix(), languageKey, languageKey);
     BuiltInQualityProfileJsonLoader.load(profile, languageKey, sonarWayPath);
     profile.setDefault(true);
     profile.done();
+  }
+
+  public String pathPrefix() {
+    return PATH_PREFIX;
   }
 
 }

@@ -32,7 +32,7 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.cloudformation.plugin.CloudformationSettings.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
@@ -44,8 +44,11 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Test
   void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
-    analyze(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("loop.yaml", "foo: &fooanchor\n" +
-      " bar: *fooanchor"));
+    analyze(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("loop.yaml",
+      """
+        AWSTemplateFormatVersion: 2010-09-09
+        foo: &fooanchor
+          bar: *fooanchor"""));
 
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(context.allIssues()).hasSize(1);
@@ -139,12 +142,12 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected InputFile fileWithParsingError() {
-    return inputFile("error.json", "\"a'");
+    return inputFile("error.json", "AWSTemplateFormatVersion: \"a'");
   }
 
   @Override
   protected InputFile validFile() {
-    return inputFile("comment.yaml", "# Some Comment");
+    return inputFile("comment.yaml", "AWSTemplateFormatVersion: 2010-09-09\n# Some Comment");
   }
 
   @Override
@@ -152,13 +155,13 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
     String message1 = """
       while scanning a quoted scalar
-       in reader, line 1, column 1:
-          "a'
-          ^
+       in reader, line 1, column 27:
+          AWSTemplateFormatVersion: "a'
+                                    ^
       found unexpected end of stream
-       in reader, line 1, column 4:
-          "a'
-             ^
+       in reader, line 1, column 30:
+          AWSTemplateFormatVersion: "a'
+                                       ^
       """;
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'" +
       System.lineSeparator() +

@@ -26,10 +26,12 @@ import org.sonar.iac.common.extension.FileIdentificationPredicate;
 
 public class CloudFormationFilePredicate implements FilePredicate {
   public static final String CLOUDFORMATION_FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
+  public static final String CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
   private final FilePredicate delegate;
 
   public CloudFormationFilePredicate(SensorContext sensorContext, boolean isDebugEnabled) {
-    this.delegate = new FileIdentificationPredicate(sensorContext.config().get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(""), isDebugEnabled);
+    this.delegate = new FileIdentificationPredicate(sensorContext.config().get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(""),
+      isDebugEnabled);
   }
 
   @Override
