@@ -24,12 +24,12 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
+import static org.sonar.iac.common.predicates.JvmConfigFilePredicate.JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE;
+import static org.sonar.iac.common.predicates.JvmConfigFilePredicate.JVM_CONFIG_FILE_PATTERNS_KEY;
+
 public final class JvmFrameworkConfigSettings {
   static final String ACTIVATION_KEY = "sonar.java.jvmframeworkconfig.activate";
   private static final String ACTIVATION_DEFAULT_VALUE = "true";
-  static final String FILE_PATTERNS_KEY = "sonar.java.jvmframeworkconfig.file.patterns";
-  static final String FILE_PATTERNS_DEFAULT_VALUE = "**/src/main/resources/**/application*.properties," +
-    "**/src/main/resources/**/application*.yaml,**/src/main/resources/**/application*.yml";
   private static final String JAVA_CATEGORY = "Java";
   private static final String GENERAL_SUBCATEGORY = "JVM Framework";
 
@@ -49,8 +49,8 @@ public final class JvmFrameworkConfigSettings {
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
 
-      PropertyDefinition.builder(FILE_PATTERNS_KEY)
-        .defaultValue(FILE_PATTERNS_DEFAULT_VALUE)
+      PropertyDefinition.builder(JVM_CONFIG_FILE_PATTERNS_KEY)
+        .defaultValue(JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE)
         .name("File Patterns")
         .description("List of file patterns of JVM Framework configuration files to be indexed.")
         .onQualifiers(Qualifiers.PROJECT)

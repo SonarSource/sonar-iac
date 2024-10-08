@@ -20,24 +20,18 @@
 package org.sonar.iac.jvmframeworkconfig.plugin;
 
 import java.util.List;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.yaml.YamlLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
@@ -90,7 +84,8 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(3);
+    String message0 = "Identified as JVM Config file: src/main/resources/application.yaml";
     String message1 = """
       while scanning a quoted scalar
        in reader, line 1, column 1:
@@ -105,8 +100,9 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'src/main/resources/application.yaml:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
-    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(message1);
-    assertThat(logTester.logs(Level.DEBUG).get(1)).startsWith(message2);
+    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(message0);
+    assertThat(logTester.logs(Level.DEBUG).get(1)).isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(2)).startsWith(message2);
   }
 
   @BeforeEach
@@ -129,23 +125,6 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   void shouldReturnVisitors() {
     var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
     assertThat(sensor.visitors(context, null)).hasSize(4);
-  }
-
-  @ParameterizedTest
-  @MethodSource
-  void shouldUseDefaultFilePatternsIfProvidedAreEmpty(List<String> input) {
-    var config = mock(Configuration.class);
-    when(config.getStringArray(JvmFrameworkConfigSettings.FILE_PATTERNS_KEY)).thenReturn(input.toArray(new String[0]));
-
-    var patterns = JvmFrameworkConfigSensor.getFilePatterns(config);
-
-    assertThat(patterns).containsExactly(JvmFrameworkConfigSettings.FILE_PATTERNS_DEFAULT_VALUE.split(","));
-  }
-
-  static Stream<List<String>> shouldUseDefaultFilePatternsIfProvidedAreEmpty() {
-    return Stream.of(
-      List.of(""),
-      List.of("", ""));
   }
 
   @Test

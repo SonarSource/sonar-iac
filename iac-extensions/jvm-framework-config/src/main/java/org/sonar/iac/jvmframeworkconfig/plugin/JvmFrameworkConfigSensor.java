@@ -19,18 +19,13 @@
  */
 package org.sonar.iac.jvmframeworkconfig.plugin;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -41,6 +36,7 @@ import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
+import org.sonar.iac.common.predicates.JvmConfigFilePredicate;
 import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.jvmframeworkconfig.checks.micronaut.MicronautConfigCheckList;
@@ -53,7 +49,6 @@ import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtensio
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension.SENSOR_NAME;
 
 public class JvmFrameworkConfigSensor extends IacSensor {
-  private static final Set<String> EXCLUDED_PROFILES = Set.of("dev", "test");
   private final Checks<IacCheck> springConfigChecks;
   private final Checks<IacCheck> micronautConfigChecks;
 
@@ -108,12 +103,8 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     var fileSystem = sensorContext.fileSystem();
-    var config = sensorContext.config();
-
-    var patterns = getFilePatterns(config);
     return fileSystem.predicates().and(
-      fileSystem.predicates().matchesPathPatterns(patterns),
-      new ProfileNameFilePredicate(),
+      new JvmConfigFilePredicate(sensorContext, true),
       notMatchedByAnotherYamlSensor(sensorContext));
   }
 
@@ -131,16 +122,6 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     return JvmFrameworkConfigSettings.ACTIVATION_KEY;
   }
 
-  static String[] getFilePatterns(Configuration config) {
-    var patterns = Arrays.stream(config.getStringArray(JvmFrameworkConfigSettings.FILE_PATTERNS_KEY))
-      .filter(s -> !s.isBlank())
-      .toArray(String[]::new);
-    if (patterns.length == 0) {
-      patterns = JvmFrameworkConfigSettings.FILE_PATTERNS_DEFAULT_VALUE.split(",");
-    }
-    return patterns;
-  }
-
   private static FilePredicate notMatchedByAnotherYamlSensor(SensorContext sensorContext) {
     // We don't have a good criterion to match Spring YAML files, so at least we do not want to overlap with YAML files analyzed by
     // other sensors: CloudFormation and Kubernetes.
@@ -149,20 +130,6 @@ public class JvmFrameworkConfigSensor extends IacSensor {
       fileSystem.predicates().or(
         new KubernetesOrHelmFilePredicate(sensorContext, false),
         new CloudFormationFilePredicate(sensorContext, false)));
-  }
-
-  private static class ProfileNameFilePredicate implements FilePredicate {
-    private static final Pattern SPRING_CONFIG_FILENAME_PATTERN = Pattern.compile("application-(?<name>[^.]++).(properties|yaml|yml)");
-
-    @Override
-    public boolean apply(InputFile inputFile) {
-      var matcher = SPRING_CONFIG_FILENAME_PATTERN.matcher(inputFile.filename());
-      if (matcher.matches()) {
-        var profileName = matcher.group("name");
-        return !EXCLUDED_PROFILES.contains(profileName);
-      }
-      return true;
-    }
   }
 
   public static boolean isYamlFile(InputFileContext inputFileContext) {
