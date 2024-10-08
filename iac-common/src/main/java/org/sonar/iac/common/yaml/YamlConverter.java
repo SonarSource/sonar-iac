@@ -100,6 +100,8 @@ public class YamlConverter implements IacYamlConverter<FileTree, YamlTree> {
       case LITERAL -> ScalarTree.Style.LITERAL;
       case FOLDED -> ScalarTree.Style.FOLDED;
       case PLAIN -> ScalarTree.Style.PLAIN;
+      // As of version 2.8, JSON_SCALAR_STYLE is only used when serializing as JSON
+      case JSON_SCALAR_STYLE -> ScalarTree.Style.PLAIN;
     };
   }
 
