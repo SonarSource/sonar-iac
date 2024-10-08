@@ -42,8 +42,6 @@ include(":iac-extensions:kubernetes")
 include(":iac-extensions:arm")
 include(":iac-extensions:cloudformation")
 include(":iac-extensions:jvm-framework-config")
-include(":its:ruling")
-include(":its:plugin")
 
 gradle.allprojects {
     // this value is present on CI

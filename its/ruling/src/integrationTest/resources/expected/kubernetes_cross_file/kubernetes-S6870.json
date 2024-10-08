@@ -1,8 +1,0 @@
-{
-"kubernetes_cross_file-project:ruling/src/integrationTest/resources/sources/kubernetes_cross_file/helm/templates/pod.yaml": [
-8
-],
-"kubernetes_cross_file-project:ruling/src/integrationTest/resources/sources/kubernetes_cross_file/pod-no-limit-range.yaml": [
-9
-]
-}

@@ -1,48 +1,48 @@
 [submodule "its/sources/terraform/tool-compare"]
-	path = its/sources/terraform/tool-compare
+	path = private/its/sources/terraform/tool-compare
 	url = https://github.com/iacsecurity/tool-compare.git
 [submodule "its/sources/terraform/ibm-tf-training"]
-	path = its/sources/terraform/ibm-tf-training
+	path = private/its/sources/terraform/ibm-tf-training
 	url = https://github.com/venkateshk111/IBM-TF-Training.git
 [submodule "its/sources/terraform/terraform-aws-secure-baseline"]
-	path = its/sources/terraform/terraform-aws-secure-baseline
+	path = private/its/sources/terraform/terraform-aws-secure-baseline
 	url = https://github.com/nozaq/terraform-aws-secure-baseline.git
 [submodule "its/sources/terraform/terragoat"]
-	path = its/sources/terraform/terragoat
+	path = private/its/sources/terraform/terragoat
 	url = https://github.com/bridgecrewio/terragoat.git
 [submodule "its/sources/cloudformation/taskcat"]
-	path = its/sources/cloudformation/taskcat
+	path = private/its/sources/cloudformation/taskcat
 	url = https://github.com/aws-ia/taskcat.git
 [submodule "its/sources/kubernetes/examples"]
-	path = its/sources/kubernetes/examples
+	path = private/its/sources/kubernetes/examples
 	url = https://github.com/kubernetes/examples
 [submodule "its/sources/kubernetes/helm-chart-sonarqube"]
-	path = its/sources/kubernetes/helm-chart-sonarqube
+	path = private/its/sources/kubernetes/helm-chart-sonarqube
 	url = https://github.com/SonarSource/helm-chart-sonarqube.git
 [submodule "its/sources/docker/dockerfile-examples"]
-	path = its/sources/docker/dockerfile-examples
+	path = private/its/sources/docker/dockerfile-examples
 	url = https://github.com/komljen/dockerfile-examples.git
 [submodule "its/sources/docker/docker-containers"]
-	path = its/sources/docker/docker-containers
+	path = private/its/sources/docker/docker-containers
 	url = https://github.com/sudeepgupta90/DockerContainers.git
 [submodule "its/sources/docker/compose-dev-env"]
-	path = its/sources/docker/compose-dev-env
+	path = private/its/sources/docker/compose-dev-env
 	url = https://github.com/dockersamples/compose-dev-env
 [submodule "its/sources/docker/awesome-compose"]
-	path = its/sources/docker/awesome-compose
+	path = private/its/sources/docker/awesome-compose
 	url = https://github.com/docker/awesome-compose.git
 [submodule "its/sources/docker/k8s-wordsmith-demo"]
-	path = its/sources/docker/k8s-wordsmith-demo
+	path = private/its/sources/docker/k8s-wordsmith-demo
 	url = https://github.com/dockersamples/k8s-wordsmith-demo.git
 [submodule "its/sources/docker/dockercoins"]
-	path = its/sources/docker/dockercoins
+	path = private/its/sources/docker/dockercoins
 	url = https://github.com/dockersamples/dockercoins.git
 [submodule "its/sources/docker/aspnet-monitoring"]
-	path = its/sources/docker/aspnet-monitoring
+	path = private/its/sources/docker/aspnet-monitoring
 	url = https://github.com/dockersamples/aspnet-monitoring.git
 [submodule "its/sources/azureresourcemanager/azure-docs-bicep-samples"]
-	path = its/sources/azureresourcemanager/azure-docs-bicep-samples
+	path = private/its/sources/azureresourcemanager/azure-docs-bicep-samples
 	url = https://github.com/azure/azure-docs-bicep-samples.git
 [submodule "its/sources/jvm-framework-config/baeldung-tutorials"]
-	path = its/sources/jvm-framework-config/baeldung-tutorials
+	path = private/its/sources/jvm-framework-config/baeldung-tutorials
 	url = https://github.com/eugenp/tutorials

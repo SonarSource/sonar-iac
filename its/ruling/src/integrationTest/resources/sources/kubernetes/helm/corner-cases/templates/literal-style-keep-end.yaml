@@ -1,5 +1,0 @@
-apiVersion: v1
-kind: {{ print "ConfigMap" }}
-metadata:
-data:
-  nginx.conf: |+

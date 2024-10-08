@@ -28,16 +28,6 @@ project(":sonar-helm-for-iac") {
     }
 }
 
-listOf(":its:plugin", ":its:ruling").forEach { path ->
-    project(path) {
-        sonar {
-            properties {
-                property("sonar.tests", "src/integrationTest")
-            }
-        }
-    }
-}
-
 tasks.artifactoryPublish { skip = true }
 
 // This configuration needs to be here and override in another modules, otherwise it doesn't work

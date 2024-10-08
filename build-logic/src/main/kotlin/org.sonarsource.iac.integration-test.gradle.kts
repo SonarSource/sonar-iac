@@ -16,7 +16,7 @@ val integrationTestTask =
     tasks.register<Test>("integrationTest") {
         description = "Runs integration tests."
         group = "verification"
-        inputs.dir("$rootDir/its/sources")
+        inputs.dir("$rootDir/private/its/sources")
         inputs.property("SQ version", System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
         inputs.property("keep SQ running", System.getProperty("keepSonarqubeRunning", "false"))
         useJUnitPlatform()
