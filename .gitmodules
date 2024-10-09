@@ -46,3 +46,9 @@
 [submodule "its/sources/jvm-framework-config/baeldung-tutorials"]
 	path = private/its/sources/jvm-framework-config/baeldung-tutorials
 	url = https://github.com/eugenp/tutorials
+[submodule "private/its/sources/ansible/ansible-examples"]
+	path = private/its/sources/ansible/ansible-examples
+	url = https://github.com/ansible/ansible-examples
+[submodule "private/its/sources/ansible/ansible-lint"]
+	path = private/its/sources/ansible/ansible-lint
+	url = https://github.com/ansible/ansible-lint
