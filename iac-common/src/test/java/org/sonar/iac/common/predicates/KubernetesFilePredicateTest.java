@@ -21,16 +21,23 @@ package org.sonar.iac.common.predicates;
 
 import java.nio.file.Path;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
 
 class KubernetesFilePredicateTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   @TempDir
   Path tempDir;
 
@@ -39,6 +46,12 @@ class KubernetesFilePredicateTest {
   void shouldDetectKubernetesFile(String content, boolean shouldMatch) {
     var predicate = new KubernetesFilePredicate(true);
     assertThat(predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, content, "kubernetes"))).isEqualTo(shouldMatch);
+
+    if (shouldMatch) {
+      assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    } else {
+      assertThat(logTester.logs(Level.DEBUG)).contains("File without Kubernetes identifier: test.yaml");
+    }
   }
 
   static Stream<Arguments> shouldDetectKubernetesFile() {
@@ -69,5 +82,12 @@ class KubernetesFilePredicateTest {
           labels:
             foo: bar
         """, false));
+  }
+
+  @Test
+  void shouldNotLogWhenDebugDisabled() {
+    var predicateNoLog = new KubernetesFilePredicate(false);
+    assertThat(predicateNoLog.apply(IacTestUtils.inputFile("test.yaml", tempDir, "apiVersion: v1", "kubernetes"))).isFalse();
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 }

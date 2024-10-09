@@ -23,20 +23,26 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.extension.AbstractYamlFileIdentifier;
+import org.sonar.iac.common.extension.YamlIdentifierFilePredicate;
 
-public class KubernetesFilePredicate extends AbstractYamlFileIdentifier {
+public class KubernetesFilePredicate extends YamlIdentifierFilePredicate {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
 
   // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
-  private static final Set<String> IDENTIFIERS = Set.of("apiVersion", "kind", "metadata");
+  private static final Set<String> IDENTIFIER_PATTERNS = Set.of("^apiVersion", "^kind", "^metadata");
+  private final boolean isDebugEnabled;
 
   public KubernetesFilePredicate(boolean isDebugEnabled) {
-    super(IDENTIFIERS, isDebugEnabled);
+    super(IDENTIFIER_PATTERNS);
+    this.isDebugEnabled = isDebugEnabled;
   }
 
   @Override
-  protected void logDebugMessage(InputFile inputFile) {
-    LOG.debug("File without Kubernetes identifier: {}", inputFile);
+  public boolean apply(InputFile inputFile) {
+    var result = super.apply(inputFile);
+    if (!result && isDebugEnabled) {
+      LOG.debug("File without Kubernetes identifier: {}", inputFile);
+    }
+    return result;
   }
 }

@@ -19,48 +19,29 @@
  */
 package org.sonar.iac.common.extension;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
-import java.util.stream.Stream;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
 import static org.mockito.Mockito.when;
 
-class AbstractYamlFileIdentifierTest {
+class YamlIdentifierFilePredicateTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
-
-  private static class TestYamlFileIdentifier extends AbstractYamlFileIdentifier {
-    private static final Logger LOG = LoggerFactory.getLogger(TestYamlFileIdentifier.class);
-
-    private final String debugMessage;
-
-    TestYamlFileIdentifier(Set<String> identifiers, boolean isDebugEnabled, String debugMessage) {
-      super(identifiers, isDebugEnabled);
-      this.debugMessage = debugMessage;
-    }
-
-    @Override
-    protected void logDebugMessage(InputFile inputFile) {
-      LOG.debug(debugMessage, inputFile);
-    }
-  }
 
   @ParameterizedTest
   @MethodSource("provideTestCases")
@@ -70,24 +51,20 @@ class AbstractYamlFileIdentifierTest {
     when(inputFile.charset()).thenReturn(StandardCharsets.UTF_8);
     when(inputFile.toString()).thenReturn("filename.txt");
 
-    var yamlFileIdentifier = new TestYamlFileIdentifier(identifiers, true, "File without some identifier: {}");
+    var yamlFileIdentifier = new YamlIdentifierFilePredicate(identifiers);
     assertThat(yamlFileIdentifier.apply(inputFile)).isEqualTo(expectedResult);
-    if (expectedResult) {
-      assertThat(logTester.logs(Level.DEBUG)).isEmpty();
-    } else {
-      assertThat(logTester.logs(Level.DEBUG)).contains("File without some identifier: filename.txt");
-    }
   }
 
   private static Stream<Arguments> provideTestCases() {
     return Stream.of(
-      of("foo:\nbar:", Set.of("foo:", "bar"), true),
-      of("foo:\nbar:", Set.of("foo:", "baz"), false),
-      of("foo:\n---\nbar:\n", Set.of("foo:", "bar"), false),
-      of("foo:\n  bar:", Set.of("foo:", "bar"), false),
-      of("foo:\n  bar:", Set.of("foo:"), true),
-      of("- foo:\n  bar:", Set.of("foo:"), false),
-      of("", Set.of("foo:", "bar"), false));
+      of("foo:\nbar:", Set.of("^foo:", "^bar"), true),
+      of("foo:\nbar:", Set.of("^foo:", "^baz"), false),
+      of("foo:\n---\nbar:\n", Set.of("^foo:", "^bar"), false),
+      of("foo:\n  bar:", Set.of("^foo:", "^bar"), false),
+      of("foo:\n  bar:", Set.of("foo:", "bar"), true),
+      of("foo:\n  bar:", Set.of("^foo:"), true),
+      of("- foo:\n  bar:", Set.of("^foo:"), false),
+      of("", Set.of("^foo:", "^bar"), false));
   }
 
   @Test
@@ -96,19 +73,8 @@ class AbstractYamlFileIdentifierTest {
     when(inputFile.inputStream()).thenThrow(new IOException("boom"));
     when(inputFile.toString()).thenReturn("filename.txt");
 
-    var yamlFileIdentifier = new TestYamlFileIdentifier(Set.of("foo"), true, "foo");
+    var yamlFileIdentifier = new YamlIdentifierFilePredicate(Set.of("foo"));
     assertThat(yamlFileIdentifier.apply(inputFile)).isFalse();
     assertThat(logTester.logs(Level.ERROR)).contains("Unable to read file: filename.txt.");
-  }
-
-  @Test
-  void shouldNotLogWhenDebugDisabled() throws IOException {
-    var inputFile = Mockito.mock(InputFile.class);
-    when(inputFile.inputStream()).thenReturn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)));
-    when(inputFile.charset()).thenReturn(StandardCharsets.UTF_8);
-
-    var yamlFileIdentifier = new TestYamlFileIdentifier(Set.of("foo"), false, "File without some identifier: {}");
-    assertThat(yamlFileIdentifier.apply(inputFile)).isFalse();
-    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 }

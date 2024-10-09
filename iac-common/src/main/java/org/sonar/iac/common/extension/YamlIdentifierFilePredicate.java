@@ -21,10 +21,10 @@ package org.sonar.iac.common.extension;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -32,33 +32,21 @@ import org.sonar.api.batch.fs.InputFile;
 
 import static org.sonar.iac.common.yaml.YamlSensor.FILE_SEPARATOR;
 
-public abstract class AbstractYamlFileIdentifier implements FilePredicate {
+public class YamlIdentifierFilePredicate implements FilePredicate {
 
   private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
   private static final int DEFAULT_BUFFER_SIZE = 8192;
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractYamlFileIdentifier.class);
-  private final boolean isDebugEnabled;
-  private Set<String> identifiers;
+  private static final Logger LOG = LoggerFactory.getLogger(YamlIdentifierFilePredicate.class);
+  private final List<Predicate<String>> identifierPatterns;
+  private final int requiredMatches;
 
-  protected AbstractYamlFileIdentifier(boolean isDebugEnabled) {
-    this.isDebugEnabled = isDebugEnabled;
+  public YamlIdentifierFilePredicate(Set<String> patternsIdentifiers, int requiredMatches) {
+    this.identifierPatterns = patternsIdentifiers.stream().map(pattern -> Pattern.compile(pattern).asPredicate()).toList();
+    this.requiredMatches = requiredMatches;
   }
 
-  protected AbstractYamlFileIdentifier(Set<String> identifiers, boolean isDebugEnabled) {
-    this.identifiers = identifiers;
-    this.isDebugEnabled = isDebugEnabled;
-  }
-
-  protected abstract void logDebugMessage(InputFile inputFile);
-
-  protected Set<Predicate<String>> getIdentifiers() {
-    return identifiers.stream()
-      .map(id -> (Predicate<String>) s -> s.startsWith(id))
-      .collect(Collectors.toSet());
-  }
-
-  protected int getRequiredMatches() {
-    return getIdentifiers().size();
+  public YamlIdentifierFilePredicate(Set<String> patternsIdentifiers) {
+    this(patternsIdentifiers, patternsIdentifiers.size());
   }
 
   @Override
@@ -71,7 +59,7 @@ public abstract class AbstractYamlFileIdentifier implements FilePredicate {
       // Only first 8k bytes is read to avoid slow execution for big one-line files
       byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
       var text = new String(bytes, inputFile.charset());
-      return checkIdentifiers(inputFile, text);
+      return isTextMatchingRequiredIdentifiers(text);
     } catch (IOException e) {
       LOG.error("Unable to read file: {}.", inputFile);
       LOG.error(e.getMessage());
@@ -79,25 +67,19 @@ public abstract class AbstractYamlFileIdentifier implements FilePredicate {
     }
   }
 
-  private boolean checkIdentifiers(InputFile inputFile, String text) {
+  private boolean isTextMatchingRequiredIdentifiers(String text) {
     var identifierCount = 0;
-    var hasExpectedIdentifier = false;
     String[] lines = LINE_TERMINATOR.split(text);
     for (String line : lines) {
-      if (getIdentifiers().stream().anyMatch(pred -> pred.test(line))) {
+      if (identifierPatterns.stream().anyMatch(pred -> pred.test(line))) {
         identifierCount++;
       } else if (FILE_SEPARATOR.equals(line)) {
         identifierCount = 0;
       }
-      if (identifierCount == getRequiredMatches()) {
-        hasExpectedIdentifier = true;
-        break;
+      if (identifierCount == requiredMatches) {
+        return true;
       }
     }
-
-    if (!hasExpectedIdentifier && isDebugEnabled) {
-      logDebugMessage(inputFile);
-    }
-    return hasExpectedIdentifier;
+    return false;
   }
 }
