@@ -19,26 +19,38 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-import org.junit.jupiter.api.Test;
+import java.util.function.Consumer;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarRuntime;
+import org.sonar.iac.common.testing.AbstractExtensionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
-class TerraformExtensionTest {
+class TerraformExtensionTest extends AbstractExtensionTest {
 
-  @Test
-  void shouldDefineExtensionsOnSonarqube() {
-    Plugin.Context context = new Plugin.Context(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
-    TerraformExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(11);
+  @Override
+  protected SonarRuntime sonarQubeRuntime() {
+    return SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
   }
 
-  @Test
-  void shouldDefineExtensionsOnSonarlint() {
-    Plugin.Context context = new Plugin.Context(SONARLINT_RUNTIME_9_9);
-    TerraformExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(10);
+  @Override
+  protected SonarRuntime sonarLintRuntime() {
+    return SONARLINT_RUNTIME_9_9;
+  }
+
+  @Override
+  protected Consumer<Plugin.Context> extensionDefiner() {
+    return TerraformExtension::define;
+  }
+
+  @Override
+  protected int extensionsCountOnSQ() {
+    return 11;
+  }
+
+  @Override
+  protected int extensionsCountOnSL() {
+    return 10;
   }
 }

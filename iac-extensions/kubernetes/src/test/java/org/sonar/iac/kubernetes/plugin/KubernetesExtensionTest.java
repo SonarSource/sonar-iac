@@ -19,33 +19,43 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.junit.jupiter.api.Test;
+import java.util.function.Consumer;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.common.testing.AbstractExtensionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 
-class KubernetesExtensionTest {
+class KubernetesExtensionTest extends AbstractExtensionTest {
 
   private static final Version VERSION_9_5 = Version.create(9, 5);
 
-  @Test
-  void shouldVerifySonarqubeExtensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_5, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    KubernetesExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(6);
+  @Override
+  protected SonarRuntime sonarQubeRuntime() {
+    return SonarRuntimeImpl.forSonarQube(VERSION_9_5, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
   }
 
-  @Test
-  void shouldVerifySonarLint() {
-    Plugin.Context context = new Plugin.Context(SONARLINT_RUNTIME_9_9);
-    KubernetesExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(7);
+  @Override
+  protected SonarRuntime sonarLintRuntime() {
+    return SONARLINT_RUNTIME_9_9;
+  }
+
+  @Override
+  protected Consumer<Plugin.Context> extensionDefiner() {
+    return KubernetesExtension::define;
+  }
+
+  @Override
+  protected int extensionsCountOnSQ() {
+    return 6;
+  }
+
+  @Override
+  protected int extensionsCountOnSL() {
+    return 7;
   }
 }

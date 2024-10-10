@@ -19,22 +19,34 @@
  */
 package org.sonar.iac.jvmframeworkconfig.plugin;
 
-import org.junit.jupiter.api.Test;
+import java.util.function.Consumer;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.common.testing.AbstractExtensionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class JvmFrameworkConfigExtensionTest extends AbstractExtensionTest {
 
-class JvmFrameworkConfigExtensionTest {
-  @Test
-  void shouldRegisterExtensions() {
-    var runtime = SonarRuntimeImpl.forSonarQube(Version.create(10, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    var context = new Plugin.Context(runtime);
-    JvmFrameworkConfigExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(4);
+  @Override
+  protected SonarRuntime sonarQubeRuntime() {
+    return SonarRuntimeImpl.forSonarQube(Version.create(10, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
   }
 
+  @Override
+  protected SonarRuntime sonarLintRuntime() {
+    return SonarRuntimeImpl.forSonarLint(Version.create(10, 10));
+  }
+
+  @Override
+  protected Consumer<Plugin.Context> extensionDefiner() {
+    return JvmFrameworkConfigExtension::define;
+  }
+
+  @Override
+  protected int extensionsCountOnSQ() {
+    return 4;
+  }
 }

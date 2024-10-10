@@ -19,26 +19,34 @@
  */
 package org.sonar.iac.arm.plugin;
 
-import org.junit.jupiter.api.Test;
+import java.util.function.Consumer;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.common.testing.AbstractExtensionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class ArmExtensionTest extends AbstractExtensionTest {
 
-class ArmExtensionTest {
-
-  private static final Version VERSION_10_0 = Version.create(10, 0);
-
-  @Test
-  void sonarqubeExtensionsShouldBeDefined() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_10_0, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    ArmExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(7);
+  @Override
+  protected SonarRuntime sonarQubeRuntime() {
+    return SonarRuntimeImpl.forSonarQube(Version.create(10, 0), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
   }
 
+  @Override
+  protected SonarRuntime sonarLintRuntime() {
+    return SonarRuntimeImpl.forSonarLint(Version.create(9, 9));
+  }
+
+  @Override
+  protected Consumer<Plugin.Context> extensionDefiner() {
+    return ArmExtension::define;
+  }
+
+  @Override
+  protected int extensionsCountOnSQ() {
+    return 7;
+  }
 }
