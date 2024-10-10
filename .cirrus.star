@@ -26,7 +26,7 @@ def build_4413_workaround():
 def public_conf(ctx):
     conf = fs.read(".cirrus-public.yml")
     if env.get("CIRRUS_USER_PERMISSION") in ["write", "admin"]:
-        features = load_features(ctx, features=["build_number"])
+        features = load_features(ctx, features=["build_number", "aws"])
     else:
         features = build_4413_workaround()
     features = yaml.dumps(features)
