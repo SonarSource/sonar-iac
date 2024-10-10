@@ -9,7 +9,7 @@ It allows you to produce stable and easily supported [Clean Code](https://www.so
 
 # Features
 * 100+ rules
-* Supports Azure Resource Manager JSON
+* Supports Azure Resource Manager JSON/Bicep
 * Supports CloudFormation JSON/YAML
 * Supports Kubernetes YAML
 * Supports Dockerfiles
@@ -100,10 +100,10 @@ Update all rule descriptions for a specific language.
 
 To fetch static files for a rule SXXXX from RSPEC for one of the languages, execute the following command:
 ```shell
-./gradlew ruleApiUpdateRuleArm -Prule=SXXXX
-./gradlew ruleApiUpdateRuleCloudformation -Prule=SXXXX
-./gradlew ruleApiUpdateRuleDocker -Prule=SXXXX
-./gradlew ruleApiUpdateRuleKubernetes -Prule=SXXXX
-./gradlew ruleApiUpdateRuleTerraform -Prule=SXXXX
+./gradlew ruleApiGenerateRuleArm -Prule=SXXXX
+./gradlew ruleApiGenerateRuleCloudformation -Prule=SXXXX
+./gradlew ruleApiGenerateRuleDocker -Prule=SXXXX
+./gradlew ruleApiGenerateRuleKubernetes -Prule=SXXXX
+./gradlew ruleApiGenerateRuleTerraform -Prule=SXXXX
 ```
 

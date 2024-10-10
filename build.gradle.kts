@@ -1,3 +1,5 @@
+import org.sonar.iac.registerAllRuleApiTasks
+
 plugins {
     alias(libs.plugins.spotless)
     id("org.sonarsource.iac.artifactory-configuration")
@@ -38,3 +40,5 @@ artifactoryConfiguration {
     usernameEnv = "ARTIFACTORY_DEPLOY_USERNAME"
     passwordEnv = "ARTIFACTORY_DEPLOY_PASSWORD"
 }
+
+registerAllRuleApiTasks()
