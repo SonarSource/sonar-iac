@@ -7,6 +7,9 @@ build_task:
     dockerfile: .cirrus/Dockerfile
     cpu: 2
     memory: 4G
+  docker_arguments:
+    CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+    GO_VERSION: "1.21.8"
   env:
     SONAR_HOST_URL: https://sonarcloud.io
     SONAR_TOKEN: ENCRYPTED[!7a28d43095ea7e33c5e581fa3a6592ed0ac609d512213590cf41ce096e0849f360eb2f0881d7728f30cb148bed866ca5!]
