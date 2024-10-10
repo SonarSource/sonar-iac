@@ -28,6 +28,8 @@ plugins {
     id("com.diffplug.blowdryerSetup") version "1.7.1"
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "iac"
 includeBuild("build-logic")
 

@@ -17,38 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.common.testing;
 
 import java.util.List;
 import java.util.function.Consumer;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.iac.common.extension.IacDefaultProfileDefinition;
-import org.sonar.iac.common.testing.AbstractProfileDefinitionTest;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.from;
+import static org.assertj.core.api.InstanceOfAssertFactories.list;
 
-class TerraformProfileDefinitionTest extends AbstractProfileDefinitionTest {
+public abstract class AbstractProfileDefinitionTest {
+  protected abstract IacDefaultProfileDefinition getProfileDefinition();
 
-  @Override
-  protected IacDefaultProfileDefinition getProfileDefinition() {
-    return new TerraformProfileDefinition();
-  }
+  protected abstract String languageKey();
 
-  @Override
-  protected String languageKey() {
-    return "terraform";
-  }
-
-  @Override
   protected int minimalRulesCount() {
-    return 3;
+    return 2;
   }
 
-  @Override
   protected Consumer<List<? extends BuiltInQualityProfilesDefinition.BuiltInActiveRule>> additionalRulesAssert() {
-    return rules -> assertThat(rules)
-      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .doesNotContain("S6245") // DisabledS3EncryptionCheck - deprecated
-      .doesNotContain("S2260"); // ParsingErrorCheck
+    return rules -> {
+      // no-op by default
+    };
+  }
+
+  @Test
+  void shouldCreateAnsibleProfileDefinition() {
+    var definition = getProfileDefinition();
+    var context = new BuiltInQualityProfilesDefinition.Context();
+
+    definition.define(context);
+    var profile = context.profile(languageKey(), "Sonar way");
+
+    assertThat(profile)
+      .returns(languageKey(), from(BuiltInQualityProfilesDefinition.BuiltInQualityProfile::language))
+      .returns("Sonar way", from(BuiltInQualityProfilesDefinition.BuiltInQualityProfile::name))
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInQualityProfile::rules, as(list(BuiltInQualityProfilesDefinition.BuiltInActiveRule.class)))
+      .hasSizeGreaterThanOrEqualTo(minimalRulesCount())
+      .satisfies(additionalRulesAssert());
   }
 }

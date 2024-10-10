@@ -17,34 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.common.extension;
 
-import java.util.List;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.utils.Version;
-import org.sonar.iac.common.extension.IacRulesDefinition;
-import org.sonar.iac.common.testing.AbstractRulesDefinitionTest;
-import org.sonar.iac.terraform.checks.TerraformCheckList;
-
-class TerraformRulesDefinitionTest extends AbstractRulesDefinitionTest {
-
-  @Override
-  protected Version sonarVersion() {
-    return Version.create(9, 3);
+public interface UsesRulesFolder extends ProvideLanguageKey {
+  default String pathPrefix() {
+    return "org";
   }
 
-  @Override
-  protected IacRulesDefinition getRulesDefinition(SonarRuntime sonarRuntime) {
-    return new TerraformRulesDefinition(sonarRuntime);
+  default String resourceFolder() {
+    return "%s/sonar/l10n/%s/rules/%s".formatted(pathPrefix(), languageKey(), languageKey());
   }
 
-  @Override
-  protected String languageKey() {
-    return "terraform";
-  }
-
-  @Override
-  protected List<Class<?>> checks() {
-    return TerraformCheckList.checks();
+  default String sonarWayPath() {
+    return resourceFolder() + "/Sonar_way_profile.json";
   }
 }

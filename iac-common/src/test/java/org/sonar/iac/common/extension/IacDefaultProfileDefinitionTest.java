@@ -19,30 +19,40 @@
  */
 package org.sonar.iac.common.extension;
 
-import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.function.Consumer;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.iac.common.testing.AbstractProfileDefinitionTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class IacDefaultProfileDefinitionTest {
+class IacDefaultProfileDefinitionTest extends AbstractProfileDefinitionTest {
 
-  @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    IacDefaultProfileDefinition definition = new IacDefaultProfileDefinition() {
+  @Override
+  protected IacDefaultProfileDefinition getProfileDefinition() {
+    return new IacDefaultProfileDefinition() {
       @Override
       public String languageKey() {
         return "test";
       }
     };
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("test", "Sonar way");
-    assertThat(profile.language()).isEqualTo("test");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSize(1);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+  }
+
+  @Override
+  protected String languageKey() {
+    return "test";
+  }
+
+  @Override
+  protected int minimalRulesCount() {
+    return 1;
+  }
+
+  @Override
+  protected Consumer<List<? extends BuiltInQualityProfilesDefinition.BuiltInActiveRule>> additionalRulesAssert() {
+    return rules -> assertThat(rules)
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
       .contains("S1")
       .doesNotContain("S2");
   }
-
 }

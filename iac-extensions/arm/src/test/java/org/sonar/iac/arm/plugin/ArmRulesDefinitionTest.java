@@ -19,33 +19,32 @@
  */
 package org.sonar.iac.arm.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
+import java.util.List;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.arm.checks.ArmCheckList;
+import org.sonar.iac.common.extension.IacRulesDefinition;
+import org.sonar.iac.common.testing.AbstractRulesDefinitionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class ArmRulesDefinitionTest extends AbstractRulesDefinitionTest {
 
-class ArmRulesDefinitionTest {
-
-  @Test
-  void testActivationSonarLint() {
-    RulesDefinition.Repository repository = armRuleRepository(10, 0);
-    assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("Sonar");
-    assertThat(repository.language()).isEqualTo("azureresourcemanager");
-    assertThat(repository.rules()).hasSize(ArmCheckList.checks().size());
+  @Override
+  protected Version sonarVersion() {
+    return Version.create(10, 0);
   }
 
-  private static RulesDefinition.Repository armRuleRepository(int major, int minor) {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
-    ArmRulesDefinition rulesDefinition = new ArmRulesDefinition(sonarRuntime);
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    rulesDefinition.define(context);
-    return context.repository("azureresourcemanager");
+  @Override
+  protected IacRulesDefinition getRulesDefinition(SonarRuntime sonarRuntime) {
+    return new ArmRulesDefinition(sonarRuntime);
+  }
+
+  @Override
+  protected String languageKey() {
+    return "azureresourcemanager";
+  }
+
+  @Override
+  protected List<Class<?>> checks() {
+    return ArmCheckList.checks();
   }
 }

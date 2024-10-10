@@ -19,21 +19,18 @@
  */
 package org.sonar.iac.arm.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.iac.common.extension.IacDefaultProfileDefinition;
+import org.sonar.iac.common.testing.AbstractProfileDefinitionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class ArmProfileDefinitionTest extends AbstractProfileDefinitionTest {
 
-class ArmProfileDefinitionTest {
+  @Override
+  protected IacDefaultProfileDefinition getProfileDefinition() {
+    return new ArmProfileDefinition();
+  }
 
-  @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    ArmProfileDefinition definition = new ArmProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("azureresourcemanager", "Sonar way");
-    assertThat(profile.language()).isEqualTo("azureresourcemanager");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThanOrEqualTo(2);
+  @Override
+  protected String languageKey() {
+    return "azureresourcemanager";
   }
 }

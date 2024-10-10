@@ -19,21 +19,18 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.iac.common.extension.IacDefaultProfileDefinition;
+import org.sonar.iac.common.testing.AbstractProfileDefinitionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class DockerProfileDefinitionTest extends AbstractProfileDefinitionTest {
 
-class DockerProfileDefinitionTest {
+  @Override
+  protected IacDefaultProfileDefinition getProfileDefinition() {
+    return new DockerProfileDefinition();
+  }
 
-  @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    DockerProfileDefinition definition = new DockerProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("docker", "Sonar way");
-    assertThat(profile.language()).isEqualTo("docker");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).isNotEmpty();
+  @Override
+  protected String languageKey() {
+    return "docker";
   }
 }

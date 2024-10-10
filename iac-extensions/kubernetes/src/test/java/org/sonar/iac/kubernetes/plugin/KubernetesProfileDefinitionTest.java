@@ -19,25 +19,36 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.function.Consumer;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.iac.common.extension.IacDefaultProfileDefinition;
+import org.sonar.iac.common.testing.AbstractProfileDefinitionTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class KubernetesProfileDefinitionTest {
+class KubernetesProfileDefinitionTest extends AbstractProfileDefinitionTest {
 
-  @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    KubernetesProfileDefinition definition = new KubernetesProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("kubernetes", "Sonar way");
-    assertThat(profile.language()).isEqualTo("kubernetes");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThan(3);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+  @Override
+  protected IacDefaultProfileDefinition getProfileDefinition() {
+    return new KubernetesProfileDefinition();
+  }
+
+  @Override
+  protected String languageKey() {
+    return "kubernetes";
+  }
+
+  @Override
+  protected int minimalRulesCount() {
+    return 3;
+  }
+
+  @Override
+  protected Consumer<List<? extends BuiltInQualityProfilesDefinition.BuiltInActiveRule>> additionalRulesAssert() {
+    return rules -> assertThat(rules)
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
       .contains("S6428") // ContainerPrivilegedModeCheck
       .doesNotContain("S2260"); // ParsingErrorCheck
   }
-
 }

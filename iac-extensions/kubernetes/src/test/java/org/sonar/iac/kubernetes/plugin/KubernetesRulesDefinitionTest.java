@@ -19,34 +19,32 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
+import java.util.List;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.common.extension.IacRulesDefinition;
+import org.sonar.iac.common.testing.AbstractRulesDefinitionTest;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class KubernetesRulesDefinitionTest extends AbstractRulesDefinitionTest {
 
-class KubernetesRulesDefinitionTest {
-
-  @Test
-  void testActivationSonarLint() {
-    RulesDefinition.Repository repository = kubernetesRuleRepository(9, 3);
-    assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("Sonar");
-    assertThat(repository.language()).isEqualTo("kubernetes");
-    assertThat(repository.rules()).hasSize(KubernetesCheckList.checks().size());
+  @Override
+  protected Version sonarVersion() {
+    return Version.create(9, 3);
   }
 
-  private static RulesDefinition.Repository kubernetesRuleRepository(int major, int minor) {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
-    KubernetesRulesDefinition rulesDefinition = new KubernetesRulesDefinition(sonarRuntime);
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    rulesDefinition.define(context);
-    return context.repository("kubernetes");
+  @Override
+  protected IacRulesDefinition getRulesDefinition(SonarRuntime sonarRuntime) {
+    return new KubernetesRulesDefinition(sonarRuntime);
   }
 
+  @Override
+  protected String languageKey() {
+    return "kubernetes";
+  }
+
+  @Override
+  protected List<Class<?>> checks() {
+    return KubernetesCheckList.checks();
+  }
 }

@@ -21,34 +21,31 @@ package org.sonar.iac.common.extension;
 
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.testing.AbstractRulesDefinitionTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class IacRulesDefinitionTest extends AbstractRulesDefinitionTest {
 
-class IacRulesDefinitionTest {
-
-  @Test
-  void testActivationSonarLint() {
-    RulesDefinition.Repository repository = terraformRuleRepository(9, 3);
-    assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("Sonar");
-    assertThat(repository.language()).isEqualTo("test");
-    assertThat(repository.rules()).hasSize(1);
+  @Override
+  protected Version sonarVersion() {
+    return Version.create(9, 3);
   }
 
-  private static RulesDefinition.Repository terraformRuleRepository(int major, int minor) {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
-    IacRulesDefinition rulesDefinition = new TestIacRulesDefinition(sonarRuntime);
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    rulesDefinition.define(context);
-    return context.repository("test");
+  @Override
+  protected IacRulesDefinition getRulesDefinition(SonarRuntime sonarRuntime) {
+    return new TestIacRulesDefinition(sonarRuntime);
+  }
+
+  @Override
+  protected String languageKey() {
+    return "test";
+  }
+
+  @Override
+  protected List<Class<?>> checks() {
+    return List.of(TestCheck.class);
   }
 
   static class TestIacRulesDefinition extends IacRulesDefinition {

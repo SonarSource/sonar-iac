@@ -19,24 +19,30 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import java.util.List;
+import java.util.function.Consumer;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
+import org.sonar.iac.common.extension.IacDefaultProfileDefinition;
+import org.sonar.iac.common.testing.AbstractProfileDefinitionTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CloudformationProfileDefinitionTest {
+class CloudformationProfileDefinitionTest extends AbstractProfileDefinitionTest {
 
-  @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    CloudformationProfileDefinition definition = new CloudformationProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("cloudformation", "Sonar way");
-    assertThat(profile.language()).isEqualTo("cloudformation");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThan(3);
-    assertThat(profile.rules()).extracting(BuiltInActiveRule::ruleKey)
+  @Override
+  protected IacDefaultProfileDefinition getProfileDefinition() {
+    return new CloudformationProfileDefinition();
+  }
+
+  @Override
+  protected String languageKey() {
+    return "cloudformation";
+  }
+
+  @Override
+  protected Consumer<List<? extends BuiltInActiveRule>> additionalRulesAssert() {
+    return rules -> assertThat(rules)
+      .extracting(BuiltInActiveRule::ruleKey)
       .doesNotContain("S6245") // DisabledS3EncryptionCheck - deprecated
       .doesNotContain("S2260"); // ParsingErrorCheck
   }

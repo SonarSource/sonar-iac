@@ -24,13 +24,10 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
-public abstract class IacRulesDefinition implements RulesDefinition, ProvideLanguageKey {
+public abstract class IacRulesDefinition implements RulesDefinition, UsesRulesFolder {
 
   public static final String REPOSITORY_NAME = "SonarAnalyzer";
 
-  private static final String PATH_PREFIX = "org";
-  private static final String RESOURCE_FOLDER_FORMAT = "%s/sonar/l10n/%s/rules/%s";
-  public static final String SONAR_WAY_FILE = "/Sonar_way_profile.json";
   private final SonarRuntime runtime;
 
   protected IacRulesDefinition(SonarRuntime runtime) {
@@ -39,24 +36,13 @@ public abstract class IacRulesDefinition implements RulesDefinition, ProvideLang
 
   protected abstract List<Class<?>> checks();
 
-  protected String ruleRepositoryKey() {
-    return languageKey();
-  }
-
   @Override
   public void define(Context context) {
-    var languageKey = languageKey();
-    var repositoryKey = ruleRepositoryKey();
-    NewRepository repository = context.createRepository(repositoryKey, languageKey)
+    NewRepository repository = context.createRepository(languageKey(), languageKey())
       .setName(REPOSITORY_NAME);
-    var resourceFolder = RESOURCE_FOLDER_FORMAT.formatted(pathPrefix(), languageKey, repositoryKey);
-    var defaultProfilePath = resourceFolder + SONAR_WAY_FILE;
-    var metadataLoader = new RuleMetadataLoader(resourceFolder, defaultProfilePath, runtime);
+    var defaultProfilePath = sonarWayPath();
+    var metadataLoader = new RuleMetadataLoader(resourceFolder(), defaultProfilePath, runtime);
     metadataLoader.addRulesByAnnotatedClass(repository, checks());
     repository.done();
-  }
-
-  public String pathPrefix() {
-    return PATH_PREFIX;
   }
 }
