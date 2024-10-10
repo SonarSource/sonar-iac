@@ -3,13 +3,22 @@ env:
 
 build_task:
   skip: $CIRRUS_BRANCH == "public_master"
-  container:
+  eks_container:
     dockerfile: .cirrus/Dockerfile
     cpu: 2
     memory: 4G
-  docker_arguments:
-    CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-    GO_VERSION: "1.21.8"
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      GO_VERSION: "1.21.8"
+    builder_role: cirrus-builder
+    builder_image: "docker-builder-v*"
+    builder_subnet_id: ${CIRRUS_AWS_SUBNET}
+    builder_instance_type: t3.small
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+    cluster_name: ${CIRRUS_CLUSTER_NAME}
+    region: eu-central-1
+    namespace: default
+    use_in_memory_disk: true
   env:
     SONAR_HOST_URL: https://sonarcloud.io
     SONAR_TOKEN: ENCRYPTED[!7a28d43095ea7e33c5e581fa3a6592ed0ac609d512213590cf41ce096e0849f360eb2f0881d7728f30cb148bed866ca5!]

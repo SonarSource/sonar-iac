@@ -5,7 +5,7 @@ plugins {
 sonar {
     properties {
         property("sonar.projectName", "SonarSource IaC Analyzer")
-        property("sonar.projectKey", "SonarSource_sonar-iac-enterprise")
+        property("sonar.projectKey", "org.sonarsource.iac:iac")
         property("sonar.organization", "sonarsource")
         property("sonar.exclusions", "**/build/**/*")
         property("sonar.links.ci", "https://cirrus-ci.com/github/SonarSource/sonar-iac-enterprise")
