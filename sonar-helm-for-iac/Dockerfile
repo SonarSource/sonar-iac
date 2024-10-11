@@ -6,7 +6,7 @@ FROM golang:${GO_VERSION}-bookworm AS dev_image
 ARG CA_CERT=Sonar-FGT-FW-TLS-Traffic-Inspection
 ARG CERT_LOCATION=/usr/local/share/ca-certificates
 
-ONBUILD ADD ${CA_CERT}.cer ${CERT_LOCATION}/${CA_CERT}.cer
+ONBUILD COPY ${CA_CERT}.cer ${CERT_LOCATION}/${CA_CERT}.cer
 ONBUILD WORKDIR ${CERT_LOCATION}
 ONBUILD RUN cp ${CA_CERT}.cer ${CA_CERT}.crt && update-ca-certificates
 

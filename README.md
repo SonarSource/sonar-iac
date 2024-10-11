@@ -11,11 +11,12 @@ It allows you to produce stable and easily supported [Clean Code](https://www.so
 * 100+ rules
 * Supports Azure Resource Manager JSON/Bicep
 * Supports CloudFormation JSON/YAML
-* Supports Kubernetes YAML
+* Supports Kubernetes YAML and Helm Charts
 * Supports Dockerfiles
 * Supports Terraform for AWS
   * HCL native syntax for files named with a .tf suffix (JSON format not supported)
   * Terraform for Azure and GCP: coming soon
+* Supports configuration files for Spring and Micronaut
 * Domains Covered:
   * AWS S3 Buckets
   * Permissions
@@ -31,22 +32,10 @@ It allows you to produce stable and easily supported [Clean Code](https://www.so
 * [Issue tracking](https://jira.sonarsource.com/projects/SONARIAC)
 
 ## Structure
-This project is one analyzer/plugin that scans and raises issues on files associated with multiple languages. Currently, these languages are CloudFormation, Kubernetes, and Terraform.
+This project is one analyzer/plugin that scans and raises issues on files associated with multiple languages.
 
 The main registration point of the plugin to the API is in `sonar-iac-plugin`. The analyses of the different languages are separated into "extensions", 
 which get loaded by the main plugin class and are structured similarly to other analyzers (i.e., parser, visitors, checks, rule resources, etc.)
-
-#### Using sonar-rule-api:
-
-When using the [sonar-rule-api](https://github.com/SonarSource/sonar-rule-api) to generate or update metadata of rules, 
-it has to be done in the different extension folders: to update/generate a rule
-for AzureResourceManager, run sonar-rule-api in `iac-extensions/arm`, 
-for CloudFormation, run sonar-rule-api in `iac-extensions/cloudformation`, 
-for Docker, in `iac-extensions/docker`,
-for Kubernetes in `iac-extensions/kubernetes` and 
-for Terraform in `iac-extensions/terraform`.
-
-Alternatively, execute the Gradle task `ruleApiUpdate` to update rule metadata for all extensions.
 
 ## Build & Test
 
@@ -55,19 +44,20 @@ Alternatively, execute the Gradle task `ruleApiUpdate` to update rule metadata f
 * Go 1.21 and the following dependencies:
   * musl on Linux (`musl-gcc` should be present on `PATH`)
 * Alternatively, Docker should be installed to perform the build of the Go part inside a container
+  * In some environments, importing a custom certificate must be performed during the Docker build. Refer to the [dedicated readme](sonar-helm-for-iac/Readme.md#build-docker-image) for more details.
 
-#### Build and run unit tests:
+### Build and run unit tests:
 ```shell
 ./gradlew build
 ```
 
-#### Build without running unit tests:
+### Build without running unit tests:
 
 ```shell
 ./gradlew build -x test
 ```
 
-#### Fix code formatting issues
+### Fix code formatting issues
 
 During the Gradle build, a spotless formatting check is executed.
 This check can also be triggered manually with `./gradlew spotlessCheck`.
@@ -78,7 +68,7 @@ If your build failed, you can fix the formatting just by running:
 ./gradlew spotlessApply
 ```
 
-#### Update rule description
+### Update rule description
 
 Update all rule descriptions.
 
@@ -96,7 +86,7 @@ Update all rule descriptions for a specific language.
 ./gradlew ruleApiUpdateTerraform
 ```
 
-#### Generate new rule description
+### Generate new rule description
 
 To fetch static files for a rule SXXXX from RSPEC for one of the languages, execute the following command:
 ```shell
@@ -107,3 +97,4 @@ To fetch static files for a rule SXXXX from RSPEC for one of the languages, exec
 ./gradlew ruleApiGenerateRuleTerraform -Prule=SXXXX
 ```
 
+Additionally, an optional property `-Pbranch=<branch name>` can be set to fetch rule metadata from a specific branch.
