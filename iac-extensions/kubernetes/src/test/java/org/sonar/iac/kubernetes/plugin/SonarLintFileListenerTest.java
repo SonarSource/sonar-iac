@@ -26,25 +26,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.kubernetes.visitors.ProjectContext;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 import static org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent.Type.CREATED;
@@ -58,14 +54,11 @@ class SonarLintFileListenerTest {
 
   private SonarLintFileListener sonarLintFileListener;
   private SensorContext context;
-  private KubernetesAnalyzer analyzer;
-  private ProjectContext projectContext;
   private InputFile inputFile1;
   private InputFile inputFile2;
   private InputFile inputFileJava;
   private InputFile inputFileNoLanguage;
   private InputFile inputFileTOException;
-  private List<InputFile> inputFiles;
 
   @BeforeEach
   public void init() throws IOException {
@@ -75,47 +68,48 @@ class SonarLintFileListenerTest {
     inputFileNoLanguage = inputFile("FactoryBuilder.java", BASE_DIR, null);
     inputFileTOException = spy(inputFile2);
     when(inputFileTOException.contents()).thenThrow(new IOException("Boom"));
-    inputFiles = List.of(inputFile1, inputFile2);
+    var inputFiles = List.of(inputFile1, inputFile2);
     var moduleFileSystem = new TestModuleFileSystem(inputFiles);
     sonarLintFileListener = new SonarLintFileListener(moduleFileSystem);
     context = SensorContextTester.create(BASE_DIR);
-    projectContext = mock(ProjectContext.class);
-    analyzer = mock(KubernetesAnalyzer.class);
   }
 
   @Test
-  void shouldCallAnalyseFilesWhenInit() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
+  void shouldStoreFilesContentsWhenInit() {
+    sonarLintFileListener.initContext(context, null);
 
-    verify(analyzer).analyseFiles(context, inputFiles, "kubernetes");
     assertThat(sonarLintFileListener.inputFilesContents().keySet())
       .allMatch(key -> key.endsWith("limit_range.yaml") || key.endsWith("memory_limit_pod.yaml"));
     assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
   }
 
   @Test
-  void shouldCallRemoveResourceWhenRemoveEvent() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
+  void shouldRemoveResourceWhenRemoveEvent() {
+    sonarLintFileListener.initContext(context, null);
     var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
 
     sonarLintFileListener.process(event);
 
-    verify(projectContext).removeResource(uri(inputFile1));
+    assertThat(sonarLintFileListener.inputFilesContents().keySet())
+      .allMatch(key -> key.endsWith("memory_limit_pod.yaml"));
     assertThat(logTester.logs(Level.INFO)).contains(
       "Module file event DELETED for file limit_range.yaml",
       "Kubernetes Project Context updated");
   }
 
   @Test
-  void shouldNotCallAnalyzerWhenProjectContextIsNull() {
-    var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
+  void shouldNotModifyProjectContextOrContentsWhenNotInitialized() {
+    var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.MODIFIED);
 
     sonarLintFileListener.process(event);
 
-    verifyNoInteractions(projectContext);
+    var inputFileContext2 = new InputFileContext(context, inputFile2);
+    var projectResources = sonarLintFileListener.getProjectContext().getProjectResources(
+      "with-global-limit", inputFileContext2, LimitRange.class);
+    assertThat(projectResources).isEmpty();
+    assertThat(sonarLintFileListener.inputFilesContents()).isEmpty();
     assertThat(logTester.logs(Level.INFO)).contains(
-      "Module file event DELETED for file limit_range.yaml",
-      "Kubernetes Project Context not updated");
+      "Module file event MODIFIED for file limit_range.yaml, ignored as context was not initialized");
   }
 
   @Test
@@ -124,44 +118,37 @@ class SonarLintFileListenerTest {
 
     sonarLintFileListener.process(event);
 
-    verifyNoInteractions(projectContext);
     assertThat(logTester.logs(Level.INFO))
       .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
   @Test
-  void shouldIgnoreFileJavaLanguage() {
+  void shouldIgnoreFileWithoutLanguage() {
     var event = DefaultModuleFileEvent.of(inputFileNoLanguage, ModuleFileEvent.Type.MODIFIED);
 
     sonarLintFileListener.process(event);
 
-    verifyNoInteractions(projectContext);
     assertThat(logTester.logs(Level.INFO))
       .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
-  static List<ModuleFileEvent.Type> shouldCallRemoveResourceAndAnalyseFilesWhenEvent() {
-    return List.of(CREATED, ModuleFileEvent.Type.MODIFIED);
-  }
-
   @ParameterizedTest
-  @MethodSource
+  @EnumSource(value = ModuleFileEvent.Type.class, names = {"CREATED", "MODIFIED"})
   void shouldCallRemoveResourceAndAnalyseFilesWhenEvent(ModuleFileEvent.Type eventType) {
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    sonarLintFileListener.initContext(context, null);
     var event = DefaultModuleFileEvent.of(inputFile2, eventType);
 
     sonarLintFileListener.process(event);
 
-    verify(projectContext).removeResource(uri(inputFile2));
-    // it will be called by initContext()
-    verify(analyzer).analyseFiles(any(), eq(List.of(inputFile1, inputFile2)), any());
-    // it will be called by process()
-    verify(analyzer).analyseFiles(any(), eq(List.of(inputFile2)), any());
+    var inputFileContext2 = new InputFileContext(context, inputFile2);
+    var projectResources = sonarLintFileListener.getProjectContext().getProjectResources(
+      "with-global-limit", inputFileContext2, LimitRange.class);
+    assertThat(projectResources).isNotEmpty();
   }
 
   @Test
   void shouldThrowParseExceptionWhenIOException() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
+    sonarLintFileListener.initContext(context, null);
     var event = DefaultModuleFileEvent.of(inputFileTOException, CREATED);
 
     var throwable = catchThrowable(() -> sonarLintFileListener.process(event));
@@ -172,13 +159,17 @@ class SonarLintFileListenerTest {
   }
 
   @Test
-  void shouldNotCallAnalyseFilesWhenSecondCallOfInitContext() {
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
-    sonarLintFileListener.initContext(context, analyzer, projectContext);
-    verify(analyzer).analyseFiles(any(), any(), any());
-  }
-
-  private String uri(InputFile inputFile) {
-    return Path.of(inputFile.uri()).normalize().toUri().toString();
+  void shouldNotCallAnalyseFilesWhenAlreadyInitialized() {
+    sonarLintFileListener.initContext(context, null);
+    sonarLintFileListener.initContext(context, null);
+    assertThat(logTester.logs(Level.INFO))
+      .containsOnly(
+        "2 source files to be parsed",
+        "2/2 source files have been parsed",
+        "2 source files to be analyzed",
+        "2/2 source files have been analyzed",
+        "2 source files to be checked",
+        "2/2 source files have been checked",
+        "Finished building Kubernetes Project Context");
   }
 }

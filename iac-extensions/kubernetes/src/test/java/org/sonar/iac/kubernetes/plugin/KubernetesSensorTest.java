@@ -508,7 +508,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     analyze(sensorSonarLint(), inputFile);
 
-    verify(sonarLintFileListener).initContext(any(), any(), any());
+    verify(sonarLintFileListener).initContext(any(), any());
   }
 
   private void assertNotSourceFileIsParsed() {
