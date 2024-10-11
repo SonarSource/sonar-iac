@@ -34,6 +34,7 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
@@ -56,13 +57,14 @@ public abstract class AbstractSensorTest {
   @TempDir
   protected File baseDir;
   protected SensorContextTester context;
+  protected MapSettings settings;
   protected SensorContextTester sonarLintContext;
 
   @BeforeEach
   void setup() {
     FileLinesContext fileLinesContext = Mockito.mock(FileLinesContext.class);
     Mockito.when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
-    var settings = new MapSettings();
+    settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
     context = SensorContextTester.create(baseDir).setSettings(settings);
@@ -116,6 +118,13 @@ public abstract class AbstractSensorTest {
     }
     sensorContext.setActiveRules(builder.build());
     return new CheckFactory(sensorContext.activeRules());
+  }
+
+  protected String durationStatisticLog() {
+    return logTester.logs(Level.INFO).stream()
+      .filter(log -> log.startsWith("Duration Statistics, "))
+      .findFirst()
+      .orElseThrow(() -> new RuntimeException("Duration statistics should be enabled for sensor"));
   }
 
   protected abstract Sensor sensor(CheckFactory checkFactory);

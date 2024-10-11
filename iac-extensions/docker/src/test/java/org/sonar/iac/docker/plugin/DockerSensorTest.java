@@ -30,7 +30,9 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
@@ -38,6 +40,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
@@ -80,7 +83,7 @@ class DockerSensorTest extends ExtensionSensorTest {
       inputFileWithoutAssociatedLanguage("FooDockerfile", ""));
 
     FileSystem fileSystem = context.fileSystem();
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context));
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context, new DurationStatistics(mock(Configuration.class))));
 
     assertThat(inputFiles)
       .map(IndexedFile::filename)
@@ -108,7 +111,7 @@ class DockerSensorTest extends ExtensionSensorTest {
       inputFileWithoutAssociatedLanguage("FooDockerfile", ""));
 
     FileSystem fileSystem = sonarLintContext.fileSystem();
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(sonarLintSensor.mainFilePredicate(sonarLintContext));
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(sonarLintSensor.mainFilePredicate(sonarLintContext, new DurationStatistics(mock(Configuration.class))));
 
     assertThat(inputFiles)
       .map(IndexedFile::filename)

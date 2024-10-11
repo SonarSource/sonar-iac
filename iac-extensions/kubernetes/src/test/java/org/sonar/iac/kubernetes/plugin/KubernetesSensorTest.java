@@ -43,12 +43,14 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
@@ -425,7 +427,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile largeFileWithIdentifier = IacTestUtils.inputFile("large_file_with_identifier.yaml", "yaml");
     InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.yaml", "yaml");
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }
@@ -451,7 +453,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile pod3 = IacTestUtils.inputFile("helm/templates/nested/double-nested/pod.yaml", "yaml");
     InputFile pod4 = IacTestUtils.inputFile("helm/templates/no-identifiers.yaml", "yaml");
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(pod1)).isTrue();
     assertThat(filePredicate.apply(pod2)).isTrue();
     assertThat(filePredicate.apply(pod3)).isTrue();
@@ -464,7 +466,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile valuesFile = IacTestUtils.inputFile("helm/values.yaml", "yaml");
     InputFile valuesFile2 = IacTestUtils.inputFile("helm/values.yml", "yaml");
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(valuesFile)).isTrue();
     assertThat(filePredicate.apply(valuesFile2)).isTrue();
   }
@@ -475,7 +477,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile valuesFile = IacTestUtils.inputFile("helm/Chart.yaml", "yaml");
     InputFile valuesFile2 = IacTestUtils.inputFile("helm/Chart.yml", "yaml");
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(valuesFile)).isTrue();
     // only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
     assertThat(filePredicate.apply(valuesFile2)).isFalse();
@@ -486,7 +488,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var context = SensorContextTester.create(Path.of("src/test/resources").toAbsolutePath());
     InputFile tplFile = IacTestUtils.inputFile("helm/templates/_helpers.tpl", (String) null);
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(tplFile)).isTrue();
   }
 
@@ -509,6 +511,17 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     analyze(sensorSonarLint(), inputFile);
 
     verify(sonarLintFileListener).initContext(any(), any());
+  }
+
+  @Test
+  void shouldLogPredicateInDurationStatistics() {
+    settings.setProperty("sonar.iac.duration.statistics", "true");
+
+    InputFile kustomizeHelm = inputFile("templates/kustomization.yaml", "{{ some helm code }}\n" + K8_IDENTIFIERS);
+    InputFile kustomizeK8s = inputFile("templates/kustomization.yml", K8_IDENTIFIERS);
+
+    analyze(sensor(), kustomizeHelm, kustomizeK8s);
+    assertThat(durationStatisticLog()).contains("KubernetesOrHelmFilePredicate");
   }
 
   private void assertNotSourceFileIsParsed() {

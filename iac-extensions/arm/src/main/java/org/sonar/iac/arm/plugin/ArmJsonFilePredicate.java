@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.predicates;
+package org.sonar.iac.arm.plugin;
 
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -26,14 +26,12 @@ import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 
-public class CloudFormationFilePredicate extends AbstractTimedFilePredicate {
-  public static final String CLOUDFORMATION_FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
-  public static final String CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
+public class ArmJsonFilePredicate extends AbstractTimedFilePredicate {
   private final FilePredicate delegate;
 
-  public CloudFormationFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
+  public ArmJsonFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
     super(timer);
-    this.delegate = new FileIdentificationPredicate(sensorContext.config().get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(""),
+    this.delegate = new FileIdentificationPredicate(sensorContext.config().get(ArmSettings.FILE_IDENTIFIER_KEY).orElse(""),
       isDebugEnabled);
   }
 

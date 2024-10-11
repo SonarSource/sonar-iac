@@ -23,20 +23,23 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
+import org.sonar.iac.common.extension.DurationStatistics;
 
 import static org.sonar.iac.common.yaml.YamlSensor.YAML_LANGUAGE_KEY;
 
-public class KubernetesOrHelmFilePredicate implements FilePredicate {
+public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
   private final FilePredicate delegate;
 
-  public KubernetesOrHelmFilePredicate(SensorContext sensorContext, boolean isDebugEnabled) {
+  public KubernetesOrHelmFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
+    super(timer);
     delegate = sensorContext.fileSystem().predicates().or(
       yamlK8sOrHelmFilePredicate(sensorContext, isDebugEnabled),
       tplHelmFilePredicate(sensorContext));
   }
 
   @Override
-  public boolean apply(InputFile inputFile) {
+  protected boolean accept(InputFile inputFile) {
     return delegate.apply(inputFile);
   }
 

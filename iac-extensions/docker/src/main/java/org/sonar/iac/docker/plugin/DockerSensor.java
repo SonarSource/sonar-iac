@@ -89,7 +89,7 @@ public class DockerSensor extends IacSensor {
   }
 
   @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     var fileSystem = sensorContext.fileSystem();
     FilePredicates p = fileSystem.predicates();
 

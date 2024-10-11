@@ -36,7 +36,7 @@ class DurationStatisticsTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
-  void statistics_disabled() {
+  void shouldNotLogAnythingWhenDisabled() {
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     fillStatistics(statistics);
     statistics.log();
@@ -44,7 +44,7 @@ class DurationStatisticsTest {
   }
 
   @Test
-  void statistics_activated() {
+  void shouldLogDurationStatisticsWhenEnabled() {
     sensorContext.settings().setProperty("sonar.iac.duration.statistics", "true");
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     fillStatistics(statistics);
@@ -54,7 +54,7 @@ class DurationStatisticsTest {
   }
 
   @Test
-  void statistics_format() {
+  void shouldProperlyFormatBigAmountOfTime() {
     sensorContext.settings().setProperty("sonar.iac.duration.statistics", "true");
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     statistics.addRecord("A", 12_000_000L);
@@ -62,6 +62,32 @@ class DurationStatisticsTest {
     statistics.log();
     assertThat(logTester.logs(Level.INFO)).hasSize(1);
     assertThat(logTester.logs(Level.INFO).get(0)).isEqualTo("Duration Statistics, B 15'000 ms, A 12 ms");
+  }
+
+  @Test
+  void shouldLogTimeWhenUsingTimerApi() {
+    sensorContext.settings().setProperty("sonar.iac.duration.statistics", "true");
+    DurationStatistics statistics = new DurationStatistics(sensorContext.config());
+    statistics.timer("my_timer_1").time(() -> {
+      return null;
+      /* no-op */});
+    statistics.timer("my_timer_2").time(() -> {
+      return null;
+      /* no-op */});
+    statistics.log();
+    assertThat(logTester.logs(Level.INFO)).hasSize(1);
+    assertThat(logTester.logs(Level.INFO).get(0)).matches("Duration Statistics, my_timer_[12] [0-9']+ ms, my_timer_[12] [0-9']+ ms");
+  }
+
+  @Test
+  void shouldProperlyAddRecords() {
+    sensorContext.settings().setProperty("sonar.iac.duration.statistics", "true");
+    DurationStatistics statistics = new DurationStatistics(sensorContext.config());
+    statistics.addRecord("A", 20_000_000L);
+    statistics.addRecord("A", 30_000_000L);
+    statistics.log();
+    assertThat(logTester.logs(Level.INFO)).hasSize(1);
+    assertThat(logTester.logs(Level.INFO).get(0)).isEqualTo("Duration Statistics, A 50 ms");
   }
 
   private void fillStatistics(DurationStatistics statistics) {

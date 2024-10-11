@@ -27,9 +27,11 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.iac.arm.visitors.ArmHighlightingVisitor;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
@@ -39,12 +41,13 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class ArmSensorTest extends ExtensionSensorTest {
 
   @Test
-  void should_return_arm_descriptor() {
+  void shouldReturnArmDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC AzureResourceManager Sensor");
@@ -66,7 +69,7 @@ class ArmSensorTest extends ExtensionSensorTest {
     settings.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, ArmSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
     context.setSettings(settings);
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }
@@ -83,7 +86,7 @@ class ArmSensorTest extends ExtensionSensorTest {
       .setType(InputFile.Type.TEST)
       .build();
 
-    FilePredicate filePredicate = sensor().mainFilePredicate(context);
+    FilePredicate filePredicate = sensor().mainFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(mainBicepInputFile)).isTrue();
     assertThat(filePredicate.apply(testBicepInputFile)).isFalse();
   }
@@ -163,5 +166,16 @@ class ArmSensorTest extends ExtensionSensorTest {
     assertThat(visitors)
       .doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class)
       .hasExactlyElementsOfTypes(ArmSymbolVisitor.class, ChecksVisitor.class);
+  }
+
+  @Test
+  void shouldLogPredicateInDurationStatistics() {
+    settings.setProperty("sonar.iac.duration.statistics", "true");
+
+    InputFile bicepFile = inputFile("valid.bicep", "");
+    InputFile armJsonFile = inputFile("valid.json", "{\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\"}\n");
+
+    analyze(sensor(), bicepFile, armJsonFile);
+    assertThat(durationStatisticLog()).contains("ArmJsonFilePredicate");
   }
 }

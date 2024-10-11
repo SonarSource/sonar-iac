@@ -76,6 +76,25 @@ public class DurationStatistics {
     }
   }
 
+  public Timer timer(String id) {
+    return new Timer(id);
+  }
+
+  /**
+   * Provide contextualized access to duration statistics with a predefined id.
+   */
+  public class Timer {
+    String id;
+
+    Timer(String id) {
+      this.id = id;
+    }
+
+    public <T> T time(Supplier<T> supplier) {
+      return DurationStatistics.this.time(id, supplier);
+    }
+  }
+
   void addRecord(String id, long elapsedTime) {
     stats.computeIfAbsent(id, key -> new AtomicLong(0)).addAndGet(elapsedTime);
   }

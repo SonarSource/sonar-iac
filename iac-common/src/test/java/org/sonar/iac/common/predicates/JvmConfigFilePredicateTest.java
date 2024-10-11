@@ -29,6 +29,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
+import org.sonar.iac.common.extension.DurationStatistics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,7 +62,7 @@ class JvmConfigFilePredicateTest {
     config.yml,false
     """)
   void shouldCorrectlyMatchFiles(String filename, boolean shouldMatch) {
-    var predicate = new JvmConfigFilePredicate(SensorContextTester.create(tempDir), true);
+    var predicate = new JvmConfigFilePredicate(SensorContextTester.create(tempDir), true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.relativePath()).thenReturn("src/main/resources/" + filename);

@@ -36,7 +36,6 @@ import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.visitors.ArmHighlightingVisitor;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
 import org.sonar.iac.common.extension.DurationStatistics;
-import org.sonar.iac.common.extension.FileIdentificationPredicate;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -69,7 +68,7 @@ public class ArmSensor extends YamlSensor {
   }
 
   @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     FileSystem fileSystem = sensorContext.fileSystem();
     FilePredicates predicates = fileSystem.predicates();
 
@@ -77,12 +76,12 @@ public class ArmSensor extends YamlSensor {
     return predicates.and(predicates.hasType(InputFile.Type.MAIN),
       predicates.or(predicates.hasLanguage(ArmLanguage.KEY),
         predicates.and(predicates.hasLanguage(JSON_LANGUAGE_KEY),
-          customFilePredicate(sensorContext))));
+          customFilePredicate(sensorContext, statistics))));
   }
 
   @Override
-  protected FilePredicate customFilePredicate(SensorContext sensorContext) {
-    return new FileIdentificationPredicate(sensorContext.config().get(ArmSettings.FILE_IDENTIFIER_KEY).orElse(""), true);
+  protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
+    return new ArmJsonFilePredicate(sensorContext, true, statistics.timer(ArmJsonFilePredicate.class.getSimpleName()));
   }
 
   @Override

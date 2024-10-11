@@ -28,11 +28,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 
 class CloudFormationFilePredicateTest {
@@ -50,7 +53,7 @@ class CloudFormationFilePredicateTest {
   @ParameterizedTest
   @MethodSource
   void shouldMatchCloudFormationFile(String content, boolean shouldMatch) {
-    var predicate = new CloudFormationFilePredicate(context, true);
+    var predicate = new CloudFormationFilePredicate(context, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var matches = predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, content, "cloudformation"));
     assertThat(matches).isEqualTo(shouldMatch);
   }

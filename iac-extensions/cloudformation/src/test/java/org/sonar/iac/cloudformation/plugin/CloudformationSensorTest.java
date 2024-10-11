@@ -27,11 +27,14 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
@@ -105,9 +108,19 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
     context.setSettings(settings);
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
+  }
+
+  @Test
+  void shouldLogPredicateInDurationStatistics() {
+    settings.setProperty("sonar.iac.duration.statistics", "true");
+
+    InputFile jvmFile = inputFile("file.json", "");
+
+    analyze(sensor(checkFactory()), jvmFile);
+    assertThat(durationStatisticLog()).contains("CloudFormationFilePredicate");
   }
 
   private CloudformationSensor sensor(String... rules) {

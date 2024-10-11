@@ -17,34 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.predicates;
+package org.sonar.iac.common.extension;
 
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.extension.YamlIdentifierFilePredicate;
 
-public class KubernetesFilePredicate implements FilePredicate {
-  private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
+public abstract class AbstractTimedFilePredicate implements FilePredicate {
 
-  private final FilePredicate predicate;
-  // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
-  private static final Set<String> IDENTIFIER_PATTERNS = Set.of("^apiVersion", "^kind", "^metadata");
-  private final boolean isDebugEnabled;
+  private final DurationStatistics.Timer timer;
 
-  public KubernetesFilePredicate(boolean isDebugEnabled) {
-    predicate = new YamlIdentifierFilePredicate(IDENTIFIER_PATTERNS);
-    this.isDebugEnabled = isDebugEnabled;
+  protected AbstractTimedFilePredicate(DurationStatistics.Timer timer) {
+    this.timer = timer;
   }
 
   @Override
   public boolean apply(InputFile inputFile) {
-    var result = predicate.apply(inputFile);
-    if (!result && isDebugEnabled) {
-      LOG.debug("File without Kubernetes identifier: {}", inputFile);
-    }
-    return result;
+    return timer.time(() -> accept(inputFile));
   }
+
+  protected abstract boolean accept(InputFile inputFile);
 }

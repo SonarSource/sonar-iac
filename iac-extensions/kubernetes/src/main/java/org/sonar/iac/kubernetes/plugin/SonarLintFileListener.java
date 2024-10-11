@@ -67,7 +67,7 @@ public class SonarLintFileListener implements ModuleFileListener {
 
     if (!initialized) {
       // The analysis is executed for the first time by SonarLint, the content of all relevant files has to be stored in inputFilesContents
-      var predicate = new KubernetesOrHelmFilePredicate(sensorContext, true);
+      var predicate = new KubernetesOrHelmFilePredicate(sensorContext, true, statistics.timer("SonarLintFileListener.KubernetesOrHelmFilePredicate"));
       var inputFiles = moduleFileSystem.files()
         .filter(predicate::apply)
         .toList();

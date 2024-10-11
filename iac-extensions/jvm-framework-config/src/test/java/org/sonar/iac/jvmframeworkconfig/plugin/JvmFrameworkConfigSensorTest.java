@@ -28,10 +28,13 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.config.Configuration;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.yaml.YamlLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
@@ -154,13 +157,23 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
       inputFile("src/test/resources/application.properties", ""));
 
     var fileSystem = context.fileSystem();
-    var inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context));
+    var inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context, new DurationStatistics(mock(Configuration.class))));
 
     assertThat(inputFiles)
       .map(IndexedFile::filename)
       .hasSize(6)
       .noneMatch("-dev"::contains)
       .noneMatch("-test"::contains);
+  }
+
+  @Test
+  void shouldLogPredicateInDurationStatistics() {
+    settings.setProperty("sonar.iac.duration.statistics", "true");
+
+    InputFile jvmFile = inputFile("folder/src/main/resources/application.properties", "");
+
+    analyze(sensor(checkFactory()), jvmFile);
+    assertThat(durationStatisticLog()).contains("JvmConfigFilePredicate", "JvmNotKubernetesOrHelmFilePredicate", "JvmNotCloudFormationFilePredicate");
   }
 
   private InputFile emptyFileInResources(String filename) {

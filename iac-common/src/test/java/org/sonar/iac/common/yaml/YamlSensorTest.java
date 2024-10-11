@@ -68,7 +68,7 @@ class YamlSensorTest extends AbstractSensorTest {
 
   @Test
   void shouldVerifyMainFilePredicate() {
-    FilePredicate predicate = sensor().mainFilePredicate(context);
+    FilePredicate predicate = sensor().mainFilePredicate(context, mock(DurationStatistics.class));
 
     InputFile mainYamlFile = file().setType(InputFile.Type.MAIN).setLanguage("yaml").build();
     assertThat(predicate.apply(mainYamlFile)).isTrue();
@@ -101,7 +101,7 @@ class YamlSensorTest extends AbstractSensorTest {
     return new YamlSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter, YamlLanguage.YAML,
       Collections.emptyList()) {
       @Override
-      protected FilePredicate customFilePredicate(SensorContext sensorContext) {
+      protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
         FilePredicate customPredicate = mock(FilePredicate.class);
         when(customPredicate.apply(any())).thenReturn(true);
         return customPredicate;

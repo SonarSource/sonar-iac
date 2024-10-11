@@ -134,15 +134,15 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
     return predicates.and(predicates.hasType(InputFile.Type.MAIN),
-      customFilePredicate(sensorContext));
+      customFilePredicate(sensorContext, statistics));
   }
 
   @Override
-  protected FilePredicate customFilePredicate(SensorContext sensorContext) {
-    return new KubernetesOrHelmFilePredicate(sensorContext, true);
+  protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
+    return new KubernetesOrHelmFilePredicate(sensorContext, true, statistics.timer("KubernetesOrHelmFilePredicate"));
   }
 
   @Override

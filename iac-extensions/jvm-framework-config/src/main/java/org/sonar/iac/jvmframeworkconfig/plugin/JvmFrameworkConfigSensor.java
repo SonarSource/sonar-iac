@@ -101,11 +101,11 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   }
 
   @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     var fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(
-      new JvmConfigFilePredicate(sensorContext, true),
-      notMatchedByAnotherYamlSensor(sensorContext));
+      new JvmConfigFilePredicate(sensorContext, true, statistics.timer("JvmConfigFilePredicate")),
+      notMatchedByAnotherYamlSensor(sensorContext, statistics));
   }
 
   @Override
@@ -122,14 +122,14 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     return JvmFrameworkConfigSettings.ACTIVATION_KEY;
   }
 
-  private static FilePredicate notMatchedByAnotherYamlSensor(SensorContext sensorContext) {
+  private static FilePredicate notMatchedByAnotherYamlSensor(SensorContext sensorContext, DurationStatistics statistics) {
     // We don't have a good criterion to match Spring YAML files, so at least we do not want to overlap with YAML files analyzed by
     // other sensors: CloudFormation and Kubernetes.
     var fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().not(
       fileSystem.predicates().or(
-        new KubernetesOrHelmFilePredicate(sensorContext, false),
-        new CloudFormationFilePredicate(sensorContext, false)));
+        new KubernetesOrHelmFilePredicate(sensorContext, false, statistics.timer("JvmNotKubernetesOrHelmFilePredicate")),
+        new CloudFormationFilePredicate(sensorContext, false, statistics.timer("JvmNotCloudFormationFilePredicate"))));
   }
 
   public static boolean isYamlFile(InputFileContext inputFileContext) {

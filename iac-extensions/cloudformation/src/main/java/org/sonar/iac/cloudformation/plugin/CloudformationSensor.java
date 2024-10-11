@@ -66,8 +66,8 @@ public class CloudformationSensor extends YamlSensor {
   }
 
   @Override
-  protected FilePredicate customFilePredicate(SensorContext sensorContext) {
-    return new CloudFormationFilePredicate(sensorContext, true);
+  protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
+    return new CloudFormationFilePredicate(sensorContext, true, statistics.timer("CloudFormationFilePredicate"));
   }
 
   @Override

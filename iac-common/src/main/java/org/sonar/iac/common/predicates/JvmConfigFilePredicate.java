@@ -28,8 +28,10 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
+import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
 
-public class JvmConfigFilePredicate implements FilePredicate {
+public class JvmConfigFilePredicate extends AbstractTimedFilePredicate {
   private static final Logger LOG = LoggerFactory.getLogger(JvmConfigFilePredicate.class);
   public static final String JVM_CONFIG_FILE_PATTERNS_KEY = "sonar.java.jvmframeworkconfig.file.patterns";
   public static final String JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE = "**/src/main/resources/**/application*.properties," +
@@ -38,7 +40,8 @@ public class JvmConfigFilePredicate implements FilePredicate {
   private final FilePredicate delegate;
   private final boolean isDebugEnabled;
 
-  public JvmConfigFilePredicate(SensorContext sensorContext, boolean isDebugEnabled) {
+  public JvmConfigFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
+    super(timer);
     this.isDebugEnabled = isDebugEnabled;
     var fileSystem = sensorContext.fileSystem();
     var patterns = getFilePatterns(sensorContext.config());
@@ -48,7 +51,7 @@ public class JvmConfigFilePredicate implements FilePredicate {
   }
 
   @Override
-  public boolean apply(InputFile inputFile) {
+  protected boolean accept(InputFile inputFile) {
     var matches = delegate.apply(inputFile);
     if (matches && isDebugEnabled) {
       LOG.debug("Identified as JVM Config file: {}", inputFile);

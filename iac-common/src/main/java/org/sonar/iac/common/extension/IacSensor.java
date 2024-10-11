@@ -93,7 +93,7 @@ public abstract class IacSensor implements Sensor {
     initContext(sensorContext);
 
     var statistics = new DurationStatistics(sensorContext.config());
-    List<InputFile> inputFiles = inputFiles(sensorContext);
+    List<InputFile> inputFiles = inputFiles(sensorContext, statistics);
     var analyzer = createAnalyzer(sensorContext, statistics);
     analyzer.analyseFiles(sensorContext, inputFiles, languageName());
     statistics.log();
@@ -104,14 +104,16 @@ public abstract class IacSensor implements Sensor {
     // do nothing by default
   }
 
-  protected List<InputFile> inputFiles(SensorContext sensorContext) {
+  protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
     var fileSystem = sensorContext.fileSystem();
-    var predicate = mainFilePredicate(sensorContext);
+    var predicate = mainFilePredicate(sensorContext, statistics);
     return StreamSupport.stream(fileSystem.inputFiles(predicate).spliterator(), false)
       .toList();
   }
 
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+  // statistics param is needed in subclasses
+  @SuppressWarnings("java:S1172")
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     var fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(
       fileSystem.predicates().hasLanguage(languageKey()),

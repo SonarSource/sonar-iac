@@ -76,15 +76,15 @@ public abstract class YamlSensor extends IacSensor {
   }
 
   @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     FileSystem fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(fileSystem.predicates().and(
       fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY),
         fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
       fileSystem.predicates().hasType(InputFile.Type.MAIN)),
-      customFilePredicate(sensorContext));
+      customFilePredicate(sensorContext, statistics));
   }
 
-  protected abstract FilePredicate customFilePredicate(SensorContext sensorContext);
+  protected abstract FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics);
 
 }
