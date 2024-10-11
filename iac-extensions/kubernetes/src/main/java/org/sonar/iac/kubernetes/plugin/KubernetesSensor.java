@@ -146,7 +146,8 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   @Override
-  protected void afterExecute() {
+  protected void afterExecute(SensorContext sensorContext) {
+    kubernetesParserStatistics.storeTelemetry(sensorContext);
     kubernetesParserStatistics.logStatistics();
   }
 

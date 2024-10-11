@@ -97,7 +97,7 @@ public abstract class IacSensor implements Sensor {
     var analyzer = createAnalyzer(sensorContext, statistics);
     analyzer.analyseFiles(sensorContext, inputFiles, languageName());
     statistics.log();
-    afterExecute();
+    afterExecute(sensorContext);
   }
 
   protected void initContext(SensorContext sensorContext) {
@@ -132,7 +132,7 @@ public abstract class IacSensor implements Sensor {
     return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
   }
 
-  protected void afterExecute() {
+  protected void afterExecute(SensorContext sensorContext) {
     // do nothing by default
   }
 

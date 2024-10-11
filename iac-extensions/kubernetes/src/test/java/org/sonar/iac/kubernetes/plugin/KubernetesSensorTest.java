@@ -28,12 +28,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -45,8 +48,10 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -59,9 +64,13 @@ import org.sonar.iac.kubernetes.checks.RaiseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
@@ -73,6 +82,13 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\n";
   private static final String PARSING_ERROR_KEY = "S2260";
   private final SonarLintFileListener sonarLintFileListener = mock(SonarLintFileListener.class);
+
+  @BeforeEach
+  void setUp() {
+    context = spy(context);
+    // As of version 10.7 of sonar-plugin-api impl, this method throws an exception
+    doNothing().when(context).addTelemetryProperty(anyString(), anyString());
+  }
 
   @Test
   void shouldParseYamlFileWithKubernetesIdentifiers() {
@@ -505,6 +521,42 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldStoreTelemetry() {
+    var kustomizeHelm = inputFile("templates/kustomization.yaml", "{{ some helm code }}\n" + K8_IDENTIFIERS);
+    var kustomizeK8s = inputFile("templates/kustomization.yml", K8_IDENTIFIERS);
+    var context = contextForTelemetry();
+
+    analyze(context, sensor(), kustomizeHelm, kustomizeK8s);
+
+    verify(context, times(1)).addTelemetryProperty("cn_helm", "1");
+    verify(context, times(1)).addTelemetryProperty("cn_kustomize", "1");
+  }
+
+  @Test
+  void shouldStoreEmptyTelemetry() {
+    var helmFile = inputFile("templates/pod.yaml", "{{ some helm code }}\n" + K8_IDENTIFIERS);
+    var k8sFile = inputFile("templates/pod.yml", K8_IDENTIFIERS);
+    var context = contextForTelemetry();
+
+    analyze(context, sensor(), helmFile, k8sFile);
+
+    verify(context, times(1)).addTelemetryProperty("cn_helm", "1");
+    verify(context, times(1)).addTelemetryProperty("cn_kustomize", "0");
+  }
+
+  @Test
+  void shouldNotStoreTelemetryWhenNoK8sFiles() {
+    var file1 = inputFile("templates/not-a-k8s.yaml", "{{ some helm code }}\n");
+    var file2 = inputFile("not-a-k8s.yml", "foo: bar");
+    var context = contextForTelemetry();
+
+    analyze(context, sensor(), file1, file2);
+
+    verify(context, never()).addTelemetryProperty(eq("cn_helm"), anyString());
+    verify(context, never()).addTelemetryProperty(eq("cn_kustomize"), anyString());
+  }
+
+  @Test
   void shouldInitSonarLintFileListener() {
     var inputFile = inputFile("templates/kustomization.yaml", K8_IDENTIFIERS);
 
@@ -594,6 +646,17 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var sensor = sensor(checkFactory);
     sensor.setHelmProcessorForTesting(helmProcessor);
     return sensor;
+  }
+
+  private SensorContextTester contextForTelemetry() {
+    var settings = new MapSettings();
+    settings.setProperty(getActivationSettingKey(), true);
+    var context = spy(SensorContextTester.create(baseDir)
+      .setSettings(settings)
+      .setRuntime(SonarRuntimeImpl.forSonarQube(Version.create(10, 10), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER)));
+    // As of version 10.7 of sonar-plugin-api impl, this method throws an exception
+    doNothing().when(context).addTelemetryProperty(anyString(), anyString());
+    return context;
   }
 
   @Override
