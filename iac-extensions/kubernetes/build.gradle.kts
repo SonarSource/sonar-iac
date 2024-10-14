@@ -20,5 +20,5 @@ dependencies {
     testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
     testImplementation(libs.apache.commons.lang)
-    testImplementation("org.sonarsource.sonarlint.core:sonarlint-analysis-engine:9.3.1.74774")
+    testImplementation("org.sonarsource.sonarlint.core:sonarlint-analysis-engine:10.7.1.79146")
 }
