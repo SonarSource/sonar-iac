@@ -14,6 +14,7 @@ capability <code>SYS_ADMIN</code> an attacker might be able to mount devices fro
 <h2>Recommended Secure Coding Practices</h2>
 <p>Capabilities are high privileges, traditionally associated with superuser (root), thus make sure that the most restrictive and necessary
 capabilities are assigned.</p>
+<p>In the best case, no capabilities should be granted at all.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
 apiVersion: v1
