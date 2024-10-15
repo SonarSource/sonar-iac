@@ -31,6 +31,8 @@ import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 
+import static org.sonar.iac.common.checks.TextUtils.isValue;
+
 public final class PropertyUtils {
 
   private PropertyUtils() {
@@ -52,6 +54,10 @@ public final class PropertyUtils {
 
   public static boolean valueIs(@Nullable Tree tree, String key, Predicate<Tree> predicate) {
     return value(tree, key).filter(predicate).isPresent();
+  }
+
+  public static boolean hasValueEqual(Tree tree, String key, String expected) {
+    return valueIs(tree, key, value -> isValue(value, expected).isTrue());
   }
 
   // Check whether a particular property can be unambiguously considered absent.
