@@ -21,17 +21,14 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
@@ -65,7 +62,6 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
   public class KubernetesContextAdapter extends ContextAdapter implements KubernetesCheckContext {
 
-    private InputFileContext inputFileContext;
     private boolean shouldReportSecondaryInValues;
 
     public KubernetesContextAdapter(RuleKey ruleKey) {
@@ -79,20 +75,12 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
     @Override
     public InputFileContext inputFileContext() {
-      return inputFileContext;
-    }
-
-    @Override
-    public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
-      KubernetesChecksVisitor.this.register(cls, statistics.time(ruleKey.rule(), (InputFileContext ctx, T tree) -> {
-        inputFileContext = ctx;
-        visitor.accept(this, tree);
-      }));
+      return currentCtx;
     }
 
     @Override
     protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      if (inputFileContext instanceof HelmInputFileContext helmCtx) {
+      if (currentCtx instanceof HelmInputFileContext helmCtx) {
         var shiftedTextRange = textRange;
         List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();
         if (textRange != null) {
@@ -118,7 +106,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
         allSecondaryLocations.addAll(shiftedSecondaryLocations);
         helmCtx.reportIssue(ruleKey, shiftedTextRange, message, allSecondaryLocations);
       } else {
-        inputFileContext.reportIssue(ruleKey, textRange, message, secondaryLocations);
+        currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
       }
     }
 
@@ -145,7 +133,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
     @Override
     public void reportIssueNoLineShift(TextRange toHighlight, String message) {
-      inputFileContext.reportIssue(ruleKey, toHighlight, message, List.of());
+      currentCtx.reportIssue(ruleKey, toHighlight, message, List.of());
     }
   }
 }
