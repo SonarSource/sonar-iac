@@ -5,7 +5,7 @@ plugins {
     id("org.sonarsource.iac.java-conventions")
     id("org.sonarsource.iac.artifactory-configuration")
     id("org.sonarsource.iac.code-style-convention")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    alias(libs.plugins.shadow)
 }
 
 description = "SonarSource IaC Analyzer :: Sonar Plugin"
