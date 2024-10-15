@@ -21,6 +21,7 @@ package org.sonar.iac.common.yaml.object;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -38,13 +39,13 @@ public class ListObject extends YamlObject<SequenceTree> {
   @Nullable
   private final YamlTree parent;
 
-  ListObject(CheckContext ctx, @Nullable SequenceTree tree, String key, Status status, @Nullable YamlTree parent, List<YamlTree> items) {
+  ListObject(CheckContext ctx, @Nullable SequenceTree tree, @Nullable String key, Status status, @Nullable YamlTree parent, List<YamlTree> items) {
     super(ctx, tree, key, status);
     this.parent = parent;
     this.items = items;
   }
 
-  public static ListObject fromPresent(CheckContext ctx, YamlTree tree, String key, YamlTree parent) {
+  public static ListObject fromPresent(CheckContext ctx, YamlTree tree, @Nullable String key, @Nullable YamlTree parent) {
     if (tree instanceof TupleTree tupleTree) {
       return fromPresent(ctx, tupleTree.value(), key, tree);
     }
@@ -77,5 +78,11 @@ public class ListObject extends YamlObject<SequenceTree> {
       ctx.reportIssue(merged, message);
     }
     return this;
+  }
+
+  public void forEachBlock(Consumer<BlockObject> consumer) {
+    items.stream()
+      .map(item -> BlockObject.fromPresent(ctx, item, null))
+      .forEach(consumer);
   }
 }

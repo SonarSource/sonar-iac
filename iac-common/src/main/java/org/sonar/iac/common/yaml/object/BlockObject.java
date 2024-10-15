@@ -31,11 +31,11 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class BlockObject extends YamlObject<MappingTree> {
 
-  protected BlockObject(CheckContext ctx, @Nullable MappingTree tree, String key, Status status) {
+  protected BlockObject(CheckContext ctx, @Nullable MappingTree tree, @Nullable String key, Status status) {
     super(ctx, tree, key, status);
   }
 
-  public static BlockObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
+  public static BlockObject fromPresent(CheckContext ctx, YamlTree tree, @Nullable String key) {
     if (tree instanceof MappingTree mappingTree) {
       return new BlockObject(ctx, mappingTree, key, Status.PRESENT);
     }

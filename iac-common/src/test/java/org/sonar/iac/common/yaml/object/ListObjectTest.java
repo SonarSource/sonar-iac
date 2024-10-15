@@ -36,17 +36,32 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class ListObjectTest extends YamlTreeTest {
 
   CheckContext ctx = mock(CheckContext.class);
-  private final TupleTree tree = parseTuple("my_list : [\"my_item\", a]");
+  private final TupleTree tupleTree = parseTuple("my_list : [\"my_item\", a]");
+  private final SequenceTree sequenceTree = parse("""
+    - item_1
+    - item_2
+    """, SequenceTree.class);
 
   @Test
   void shouldReportOnItemsFromPresent() {
-    ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
+    ListObject list = ListObject.fromPresent(ctx, tupleTree, "my_list", null);
     assertThat(list.key).isEqualTo("my_list");
+    assertThat(list.items).hasSize(2);
+    assertThat(list.status).isEqualTo(YamlObject.Status.PRESENT);
+
+    list.reportOnItems("message");
+    var merged = TextRanges.merge(list.items.stream().map(HasTextRange::textRange).toList());
+    assertIssueReported(merged, "message");
+  }
+
+  @Test
+  void shouldReportOnItemsFromPresentArray() {
+    ListObject list = ListObject.fromPresent(ctx, sequenceTree, null, null);
+    assertThat(list.key).isNull();
     assertThat(list.items).hasSize(2);
     assertThat(list.status).isEqualTo(YamlObject.Status.PRESENT);
 

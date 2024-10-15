@@ -27,7 +27,7 @@ class YamlObject<K extends YamlTree> {
 
   public final CheckContext ctx;
   public final @Nullable K tree;
-  public final String key;
+  public final @Nullable String key;
   public final Status status;
 
   protected enum Status {
@@ -36,7 +36,7 @@ class YamlObject<K extends YamlTree> {
     UNKNOWN
   }
 
-  protected YamlObject(CheckContext ctx, @Nullable K tree, String key, Status status) {
+  protected YamlObject(CheckContext ctx, @Nullable K tree, @Nullable String key, Status status) {
     this.ctx = ctx;
     this.tree = tree;
     this.key = key;
