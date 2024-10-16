@@ -70,6 +70,10 @@ public final class IacTestUtils {
     return inputFile(fileName, baseDir, null);
   }
 
+  public static InputFile inputFile(Path fullPath) {
+    return inputFile(fullPath.getFileName().toString(), fullPath.getParent(), null);
+  }
+
   public static InputFile inputFile(String fileName, Path baseDir, @Nullable String language) {
     try {
       var content = Files.readString(baseDir.resolve(fileName));

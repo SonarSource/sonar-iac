@@ -80,7 +80,7 @@ public class ListObject extends YamlObject<SequenceTree> {
     return this;
   }
 
-  public void forEachBlock(Consumer<BlockObject> consumer) {
+  public void forEachElementAsBlock(Consumer<BlockObject> consumer) {
     items.stream()
       .map(item -> BlockObject.fromPresent(ctx, item, null))
       .forEach(consumer);
