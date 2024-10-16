@@ -17,38 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils;
+package org.sonar.iac.common.checks;
 
-import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 /**
- * Represent chmod call instruction in RUN Arguments, with parsed permissions ready to be checked
+ * Represent chmod call instruction, with parsed permissions ready to be checked
  */
 public class Chmod {
-  private static final Pattern CHMOD_OPTIONS_PATTERN = Pattern.compile("-[a-zA-Z]|--[a-zA-Z-]++");
   private static final String NUMERIC = "(?<numeric>[0-7]{1,4})";
   private static final String ALPHANUMERIC = "[ugoa]*+[=+-][rwxXstugo]++";
   private static final String ALPHANUMERICS = "(?<alphanumeric>(?:" + ALPHANUMERIC + ",?+)++)";
   private static final Pattern PERMISSIONS_PATTERN = Pattern.compile(NUMERIC + "|" + ALPHANUMERICS);
 
-  public final Argument chmodArg;
-  public final Argument permissionsArg;
-  public final Permission permissions;
+  private final Permission permissions;
 
-  public Chmod(@Nullable Argument chmodArg, @Nullable Argument permissionsArg, String permissions) {
-    this.chmodArg = chmodArg;
-    this.permissionsArg = permissionsArg;
-    this.permissions = parsePermissions(permissions);
+  public static Chmod fromString(String permissions) {
+    return new Chmod(parsePermissions(permissions));
+  }
+
+  private Chmod(Permission permissions) {
+    this.permissions = permissions;
   }
 
   private static Permission parsePermissions(String permissions) {
@@ -64,51 +56,25 @@ public class Chmod {
     }
   }
 
-  public static List<Chmod> extractChmodsFromArguments(List<Argument> arguments) {
-    List<Chmod> chmods = new ArrayList<>();
-    List<String> argumentsStrings = arguments.stream()
-      .map(arg -> ArgumentResolution.of(arg).value())
-      .toList();
-
-    List<Integer> chmodIndexes = findChmodIndexes(argumentsStrings);
-    for (Integer chmodIndex : chmodIndexes) {
-      Integer indexPermissions = skipOptions(chmodIndex, argumentsStrings);
-      if (indexPermissions != null) {
-        chmods.add(new Chmod(arguments.get(chmodIndex), arguments.get(indexPermissions), argumentsStrings.get(indexPermissions)));
-      }
-    }
-
-    return chmods;
-  }
-
-  private static List<Integer> findChmodIndexes(List<String> arguments) {
-    return IntStream.range(0, arguments.size())
-      .filter(i -> "chmod".equals(arguments.get(i)))
-      .boxed()
-      .toList();
-  }
-
-  private static Integer skipOptions(int index, List<String> arguments) {
-    do {
-      index++;
-    } while (index < arguments.size() && arguments.get(index) != null && CHMOD_OPTIONS_PATTERN.matcher(arguments.get(index)).matches());
-    return index < arguments.size() ? index : null;
-  }
-
+  /**
+   * Checks if it contains permission in alphanumeric format, examples: o+x, g+r, u+w, u+s, g+s, +t.
+   * @param right permission in alphanumeric format
+   * @return true if contains the permission, false otherwise
+   */
   public boolean hasPermission(String right) {
     return permissions.rights.contains(right);
   }
 
   /**
-   * Class dedicated to store permissions in the chmod way : <a href="https://linux.die.net/man/1/chmod">man chmod</a>
+   * Class dedicated to store permissions in the chmod way: <a href="https://linux.die.net/man/1/chmod">man chmod</a>
    */
   public static class Permission {
     private Permission() {
     }
 
-    // Store permissions at the following format : <target>+<right>
+    // Store permissions at the alphanumeric format: <target>+<right>
     // Example : "u+w" -> user has write permission
-    Set<String> rights = new HashSet<>();
+    private final Set<String> rights = new HashSet<>();
 
     static Permission empty() {
       return new Permission();
@@ -129,7 +95,7 @@ public class Chmod {
     public static Permission fromNumeric(String numeric) {
       Permission chmodRight = new Permission();
       numeric = ("0000" + numeric).substring(numeric.length());
-      chmodRight.addSet(numeric.charAt(0));
+      chmodRight.addSetIdOnExecutionOrDetectionFlagOrStickyBit(numeric.charAt(0));
       chmodRight.addRight(numeric.charAt(1), 'u');
       chmodRight.addRight(numeric.charAt(2), 'g');
       chmodRight.addRight(numeric.charAt(3), 'o');
@@ -143,10 +109,13 @@ public class Chmod {
       addIfFlag(target + "+x", value, 0b001);
     }
 
-    private void addSet(char digit) {
+    private void addSetIdOnExecutionOrDetectionFlagOrStickyBit(char digit) {
       int value = digit - '0';
+      // set user ID on execution
       addIfFlag("u+s", value, 0b100);
+      // set group ID on execution
       addIfFlag("g+s", value, 0b010);
+      // restricted deletion flag or sticky bit
       addIfFlag("+t", value, 0b001);
     }
 
@@ -166,10 +135,6 @@ public class Chmod {
           this.rights.add(target + "+" + right);
         }
       }
-    }
-
-    public boolean hasRight(String right) {
-      return rights.contains(right);
     }
   }
 }

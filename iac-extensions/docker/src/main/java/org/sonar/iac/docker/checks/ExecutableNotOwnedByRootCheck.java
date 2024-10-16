@@ -29,7 +29,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.docker.checks.utils.Chmod;
+import org.sonar.iac.docker.checks.utils.ArgumentChmod;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Flag;
@@ -50,16 +50,16 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   private static void checkTransferInstruction(CheckContext ctx, TransferInstruction transferInstruction) {
-    Flag sensitiveChownFlag = getSensitiveChownFlag(transferInstruction);
+    var sensitiveChownFlag = getSensitiveChownFlag(transferInstruction);
 
     if (sensitiveChownFlag != null) {
-      List<Argument> sensitiveFiles = transferInstruction.srcs();
+      var sensitiveFiles = transferInstruction.srcs();
 
       if (isNonRootUser(sensitiveChownFlag)) {
         reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
       }
 
-      Chmod chmod = getChmod(transferInstruction);
+      var chmod = getChmod(transferInstruction);
       if (chmod == null) {
         if (!sensitiveFiles.isEmpty()) {
           reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
@@ -70,7 +70,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
     }
   }
 
-  private static boolean isSensitiveChmod(Flag sensitiveChownFlag, List<Argument> sensitiveFiles, Chmod chmod) {
+  private static boolean isSensitiveChmod(Flag sensitiveChownFlag, List<Argument> sensitiveFiles, ArgumentChmod chmod) {
     return !isRootUserAndGroupHasNoWritePermission(sensitiveChownFlag, chmod)
       && isSensitiveWriteChmod(chmod)
       && (isSensitiveExecuteChmod(chmod) || !sensitiveFiles.isEmpty());
@@ -100,40 +100,40 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   private static boolean isSensitiveUser(Flag chownFlag) {
-    ArgumentResolution resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
+    var resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
     return resolvedArgArgument.isResolved() && isNonRootChown(resolvedArgArgument.value());
   }
 
   @CheckForNull
-  private static Chmod getChmod(TransferInstruction transferInstruction) {
+  private static ArgumentChmod getChmod(TransferInstruction transferInstruction) {
     return transferInstruction.options().stream()
       .filter(f -> f.name().equals("chmod"))
       .map(f -> ArgumentResolution.of(f.value()))
       .filter(ArgumentResolution::isResolved)
-      .map(argResolved -> new Chmod(null, null, argResolved.value()))
+      .map(argResolved -> new ArgumentChmod(null, null, argResolved.value()))
       .findFirst()
       .orElse(null);
   }
 
-  private static boolean isSensitiveWriteChmod(Chmod chmod) {
+  private static boolean isSensitiveWriteChmod(ArgumentChmod chmod) {
     return chmod.hasPermission("u+w") || chmod.hasPermission("g+w");
   }
 
-  private static boolean isSensitiveExecuteChmod(Chmod chmod) {
+  private static boolean isSensitiveExecuteChmod(ArgumentChmod chmod) {
     return chmod.hasPermission("u+x") || chmod.hasPermission("g+x") || chmod.hasPermission("o+x");
   }
 
   // true if user value is any of ['root', '0', ''], group value is not from this list, and group has write permissions
   // for example --chown=root:bar --chmod=664
-  private static boolean isRootUserAndGroupHasNoWritePermission(Flag chown, Chmod chmod) {
-    ArgumentResolution resolvedChown = ArgumentResolution.of(chown.value());
-    boolean isRootUser = !isNonRootAtId(resolvedChown.value(), 0);
+  private static boolean isRootUserAndGroupHasNoWritePermission(Flag chown, ArgumentChmod chmod) {
+    var resolvedChown = ArgumentResolution.of(chown.value());
+    var isRootUser = !isNonRootAtId(resolvedChown.value(), 0);
     return !chmod.hasPermission("g+w") && isRootUser && isNonRootAtId(resolvedChown.value(), 1);
   }
 
   // true if the user value is different from ['root', '0', ''], for example 'foo:root'
   private static boolean isNonRootUser(Flag sensitiveChownFlag) {
-    ArgumentResolution resolvedChown = ArgumentResolution.of(sensitiveChownFlag.value());
+    var resolvedChown = ArgumentResolution.of(sensitiveChownFlag.value());
     return isNonRootAtId(resolvedChown.value(), 0);
   }
 
@@ -144,7 +144,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
   // true if the value at the specified id (0 for user, 1 for group) is not from ['root', '0', '']
   static boolean isNonRootAtId(String chownValue, int indexToCheck) {
-    String[] split = chownValue.split(":");
+    var split = chownValue.split(":");
     if (split.length > indexToCheck) {
       return !COMPLIANT_CHOWN_VALUES.contains(split[indexToCheck]);
     }
