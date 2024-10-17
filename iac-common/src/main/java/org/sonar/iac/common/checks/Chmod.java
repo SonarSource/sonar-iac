@@ -35,12 +35,12 @@ public class Chmod {
 
   private final Permission permissions;
 
-  public static Chmod fromString(String permissions) {
-    return new Chmod(parsePermissions(permissions));
-  }
-
   private Chmod(Permission permissions) {
     this.permissions = permissions;
+  }
+
+  public static Chmod fromString(String permissions) {
+    return new Chmod(parsePermissions(permissions));
   }
 
   private static Permission parsePermissions(String permissions) {
@@ -58,6 +58,7 @@ public class Chmod {
 
   /**
    * Checks if it contains permission in alphanumeric format, examples: o+x, g+r, u+w, u+s, g+s, +t.
+   *
    * @param right permission in alphanumeric format
    * @return true if contains the permission, false otherwise
    */
@@ -69,12 +70,12 @@ public class Chmod {
    * Class dedicated to store permissions in the chmod way: <a href="https://linux.die.net/man/1/chmod">man chmod</a>
    */
   public static class Permission {
-    private Permission() {
-    }
-
     // Store permissions at the alphanumeric format: <target>+<right>
     // Example : "u+w" -> user has write permission
     private final Set<String> rights = new HashSet<>();
+
+    private Permission() {
+    }
 
     static Permission empty() {
       return new Permission();

@@ -72,7 +72,10 @@ public class ArgumentChmod {
     do {
       index++;
     } while (index < arguments.size() && arguments.get(index) != null && FLAG_PATTERN.matcher(arguments.get(index)).matches());
-    return index < arguments.size() ? index : null;
+    if (index < arguments.size()) {
+      return index;
+    }
+    return null;
   }
 
   public boolean hasPermission(String right) {
