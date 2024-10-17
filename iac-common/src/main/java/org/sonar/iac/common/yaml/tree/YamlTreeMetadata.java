@@ -167,8 +167,8 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
 
     private static Comment comment(CommentLine comment) {
       // We prefix the comment value with # as it is already stripped away when arrive at this point.
-      var ranage = range(comment.getStartMark().orElse(null), comment.getEndMark().orElse(null));
-      return new CommentImpl('#' + comment.getValue(), comment.getValue(), ranage);
+      var range = range(comment.getStartMark().orElse(null), comment.getEndMark().orElse(null));
+      return new CommentImpl('#' + comment.getValue(), comment.getValue(), range);
     }
   }
 }

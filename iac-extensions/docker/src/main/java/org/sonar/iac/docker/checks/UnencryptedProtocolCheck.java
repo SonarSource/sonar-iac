@@ -20,8 +20,6 @@
 package org.sonar.iac.docker.checks;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -31,6 +29,7 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
 
+import static org.sonar.iac.common.checks.network.UrlUtils.isUnencryptedUrl;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ENTRYPOINT;
@@ -39,18 +38,14 @@ import static org.sonar.iac.docker.tree.api.DockerTree.Kind.RUN;
 @Rule(key = "S5332")
 public class UnencryptedProtocolCheck implements IacCheck {
 
-  private static final Pattern UNENCRYPTED_PROTOCOLS = Pattern.compile("(http|ftp)://(?<rest>.+)", Pattern.CASE_INSENSITIVE);
-
-  private static final String LOOPBACK_IPV4 = "^127(?:\\.\\d+){2}\\.\\d+";
-  private static final String LOOPBACK_IPV6 = "^(?:0*:){7}:?0*1|^::1";
-  private static final Pattern LOOPBACK = Pattern.compile("^localhost|" + LOOPBACK_IPV4 + "|" + LOOPBACK_IPV6, Pattern.CASE_INSENSITIVE);
   private static final String MESSAGE = "Make sure that using clear-text protocols is safe here.";
 
   @Override
   public void initialize(InitContext init) {
     init.register(CommandInstruction.class, (ctx, commandInstruction) -> {
-      if (!commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN))
+      if (!commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN)) {
         return;
+      }
       checkUnencryptedProtocols(ctx, commandInstruction.arguments());
     });
 
@@ -63,11 +58,8 @@ public class UnencryptedProtocolCheck implements IacCheck {
   private static void checkUnencryptedProtocols(CheckContext ctx, List<Argument> paths) {
     for (Argument path : paths) {
       String resolvedPath = ArgumentResolution.of(path).value();
-      if (resolvedPath != null) {
-        Matcher matcher = UNENCRYPTED_PROTOCOLS.matcher(resolvedPath);
-        if (matcher.find() && !LOOPBACK.matcher(matcher.group("rest")).find()) {
-          ctx.reportIssue(path, MESSAGE);
-        }
+      if (resolvedPath != null && isUnencryptedUrl(resolvedPath)) {
+        ctx.reportIssue(path, MESSAGE);
       }
     }
   }

@@ -19,26 +19,18 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
-import org.sonar.iac.common.yaml.tree.SequenceTreeImpl;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import static org.sonarsource.analyzer.commons.collections.ListUtils.getLast;
 
 public final class YamlTreeUtils {
-
-  private static final YamlTreeMetadata METADATA = new YamlTreeMetadata(null, null, 0, 0, Collections.emptyList());
-  private static final ScalarTree.Style STYLE = ScalarTree.Style.PLAIN;
-
   private YamlTreeUtils() {
   }
 
@@ -52,19 +44,31 @@ public final class YamlTreeUtils {
     }
   }
 
+  /**
+   * Get raw value of this YAML scalar. In the parsed tree, leading whitespaces can be removed, e.g. in case of folded scalars.
+   * Then it is impossible to navigate the text and get correct text ranges.
+   * Moreover, we can't rely on pointers in YamlTreeMetadata, because snakeyaml claims they are only relevant for error reporting
+   * and thus can contain incorrect data in case of no error.
+   */
+  public static String getRawValue(HasTextRange scalarTree, String source) {
+    String lineSeparator;
+    if (source.contains("\r\n")) {
+      lineSeparator = "\r\n";
+    } else {
+      lineSeparator = "\n";
+    }
+    var rawLines = source.lines()
+      .skip(scalarTree.textRange().start().line() - 1L)
+      .limit(scalarTree.textRange().end().line() - scalarTree.textRange().start().line() + 1L)
+      .toList();
+    var rawLinesValue = String.join(lineSeparator, rawLines);
+    return rawLinesValue.substring(scalarTree.textRange().start().lineOffset(), rawLinesValue.length() - getLast(rawLines).length() + scalarTree.textRange().end().lineOffset());
+  }
+
   private static List<String> getValuesOfSequenceTree(SequenceTree tree) {
     return tree.elements().stream()
       .map(YamlTreeUtils::getListValueElements)
       .flatMap(List::stream)
       .toList();
-  }
-
-  public static YamlTree scalar(String value) {
-    return new ScalarTreeImpl(value, STYLE, METADATA);
-  }
-
-  public static YamlTree sequence(String... values) {
-    List<YamlTree> elements = Arrays.stream(values).map(v -> new ScalarTreeImpl(v, STYLE, METADATA)).collect(Collectors.toList());
-    return new SequenceTreeImpl(elements, METADATA);
   }
 }

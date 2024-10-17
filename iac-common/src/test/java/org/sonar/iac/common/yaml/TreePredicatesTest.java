@@ -26,7 +26,7 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.yaml.YamlTreeUtils.scalar;
+import static org.sonar.iac.common.yaml.YamlTreeTestUtils.scalar;
 
 class TreePredicatesTest {
 
