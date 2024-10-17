@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -30,6 +31,7 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
@@ -81,11 +83,16 @@ public final class PropertyUtils {
     return getAll(tree, t -> true).filter(clazz::isInstance).map(clazz::cast).toList();
   }
 
+  public static <T extends Tree> List<T> getAll(@Nullable SequenceTree tree, Class<T> clazz) {
+    return Optional.ofNullable(tree)
+      .map(t -> t.elements().stream().filter(clazz::isInstance).map(clazz::cast).toList()).orElse(Collections.emptyList());
+  }
+
   public static Optional<PropertyTree> get(@Nullable Tree tree, Predicate<String> keyMatcher) {
     return getAll(tree, keyMatcher).findFirst();
   }
 
-  private static Stream<PropertyTree> getAll(@Nullable Tree tree, Predicate<String> keyMatcher) {
+  public static Stream<PropertyTree> getAll(@Nullable Tree tree, Predicate<String> keyMatcher) {
     if (!(tree instanceof HasProperties))
       return Stream.empty();
     return ((HasProperties) tree).properties().stream()
