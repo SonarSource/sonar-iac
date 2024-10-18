@@ -83,7 +83,7 @@ public class DockerNodeBuilder implements NodeBuilder {
    * In case it extend to multiple lines, we build a {@link CompoundTextRange} object with a reference to each line {@link TextRange}.
    * It is used to track back tokens in HereDoc, as currently the full HereDoc content of an instruction is considered as a single {@link SyntaxToken}
    * that extend to multiple lines, which is then parsed by a specific HereDoc parser. This is this parser that call this {@link #tokenRange(Input, int, String)}
-   * method to split this big {@link SyntaxToken} into multiple {@link SyntaxToken}, each with its own  range.
+   * method to split this big {@link SyntaxToken} into multiple {@link SyntaxToken}, each with its own range.
    * <br />
    * The {@code startIndex} is the position on the instruction line where the provided value begin.
    * In the line {@code RUN <<EOT cmd ...}, the {@code startIndex} would be 4 (to skip the {@code RUN } part) and the value would be the HereDoc
