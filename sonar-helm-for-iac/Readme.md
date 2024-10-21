@@ -53,12 +53,24 @@ This project is using a modified version of the `text/template` package from the
 
 To make new changes and use them in sonar-iac, tag the relevant commit on the `SonarSource/go` repository with a new version number. Then, update the `go.mod` file in the `sonar-helm-for-iac` project to use the new version. Convention for version format is the following: `<Go version>-<increment>`, e.g. `1.21.8-3`.
 
-```shell
-
 ## Tips and Tricks
 
-### Exception during build: "missing go.sum entry for module providing package"
+### Failing cirrus build task with the following message:
+```
+Checking if any files are uncommitted in the Go code (this may happen to the generated code). 
+In case of of failure, run ./gradlew generateProto locally and commit the generated files.
+git diff --exit-code --name-only -- sonar-helm-for-iac/
+sonar-helm-for-iac/src/org.sonar.iac.helm/ast.pb.go
+sonar-helm-for-iac/src/org.sonar.iac.helm/template-evaluation.pb.go
+```
+Run the following command and commit the generated files:
+```shell
+./gradlew generateProto
+```
 
+### Exception during build: `missing go.sum entry for module providing package`
+
+Run the following command:
 ```shell
 go mod tidy
 ```
