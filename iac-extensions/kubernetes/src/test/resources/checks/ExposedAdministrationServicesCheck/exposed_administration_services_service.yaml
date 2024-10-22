@@ -1,47 +1,56 @@
 apiVersion: apps/v1
 kind: Service
 metadata:
-  name: example_lb
+  name: example
 spec:
-  type: LoadBalancer
   ports:
+    - port: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+          # ^^
+      targetPort: 8022
     - port: 8022
-      targetPort: 22  # NonCompliant {{Make sure that exposing administration services is safe here.}}
+      targetPort: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
                 # ^^
-    - targetPort: 23 # NonCompliant
+    - port: 22 # Noncompliant
+          # ^^
+      targetPort: 22 # Noncompliant
                 # ^^
-      port: 23
-    - targetPort: 5900 # NonCompliant
-                # ^^^^
-    - targetPort: 5800 # NonCompliant
-                # ^^^^
-    - targetPort: 338 # Compliant
-    - targetPort: "5900" # NonCompliant
-                # ^^^^^^
-    - port: 3389
-  selector:
-    app: example_app
----
-apiVersion: apps/v1
-kind: Service
-metadata:
-  name: compliantServiceAsTypeIsNotLoadBalancer
-spec:
-  type: NodePort
-  ports:
-    - port: 8022
+    - port: 22 # Noncompliant
+    - targetPort: 22 # Noncompliant
+    - targetPort: 23 # Noncompliant
+    - targetPort: 3389 # Noncompliant
+    - targetPort: 5800 # Noncompliant
+    - targetPort: 5900 # Noncompliant
+    - targetPort: "22" # Noncompliant
+    - protocol: TCP
+      port: 22 # Noncompliant
+    - protocol: TCP
+      targetPort: 22 # Noncompliant
+    - protocol: TCP
+      port: 22 # Noncompliant
+      targetPort: 22 # Noncompliant
+    - protocol: tcp
+      targetPort: 22 # Noncompliant
+    - protocol: "tcp"
+      targetPort: 22 # Noncompliant
+    - port: 338
+    - targetPort: 338
+    - protocol: TCP
+      port: 338
+      targetPort: 338
+    - protocol: tcp
+      port: 338
+      targetPort: 338
+    - protocol: "TCP"
+      port: 338
+      targetPort: 338
+    - protocol: UDP
+      port: 22
+      targetPort: 22
+    - protocol: udp
+      port: 22
+      targetPort: 22
+    - protocol: abc
+      port: 22
       targetPort: 22
   selector:
     app: example_app
----
-apiVersion: apps/v1
-kind: Service
-metadata:
-  name: compliantServiceAsTypeIsMissing
-spec:
-  ports:
-    - port: 8022
-      targetPort: 22
-  selector:
-    app: example_app
-

@@ -23,9 +23,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.yaml.TreePredicates;
+import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6473")
@@ -39,30 +38,42 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
 
   @Override
   void registerObjectCheck() {
-    register(KIND_POD, pod -> pod.blocks("containers").forEach(container -> reportOnSensitivePorts(container, "containerPort")));
+    register(KIND_POD,
+      pod -> pod.blocks("containers")
+        .forEach(ExposedAdministrationServicesCheck::reportOnSensitiveContainerPorts));
 
-    register(KIND_WITH_TEMPLATE, obj -> obj.block("template").block("spec").blocks("containers").forEach(container -> reportOnSensitivePorts(container, "containerPort")));
+    register(KIND_WITH_TEMPLATE,
+      obj -> obj.block("template")
+        .block("spec")
+        .blocks("containers")
+        .forEach(ExposedAdministrationServicesCheck::reportOnSensitiveContainerPorts));
 
-    register(KIND_SERVICE, (BlockObject service) -> {
-      if (isLoadBalancerService(service)) {
-        reportOnSensitivePorts(service, "targetPort");
-      }
-    });
+    register(KIND_SERVICE, ExposedAdministrationServicesCheck::reportOnSensitiveServicePorts);
   }
 
-  private static void reportOnSensitivePorts(BlockObject container, String sensitiveKey) {
-    container.blocks("ports").forEach(port -> port.attribute(sensitiveKey).reportIfValue(isSensitivePort(), MESSAGE));
+  private static void reportOnSensitiveContainerPorts(BlockObject container) {
+    container.blocks("ports")
+      .forEach(port -> port.attribute("containerPort").reportIfValue(isSensitivePort(), MESSAGE));
+  }
+
+  private static void reportOnSensitiveServicePorts(BlockObject service) {
+    service.blocks("ports")
+      .filter(ExposedAdministrationServicesCheck::isProtocolTcp)
+      .forEach((BlockObject port) -> {
+        port.attribute("port").reportIfValue(isSensitivePort(), MESSAGE);
+        port.attribute("targetPort").reportIfValue(isSensitivePort(), MESSAGE);
+      });
   }
 
   private static Predicate<YamlTree> isSensitivePort() {
     return t -> TextUtils.matchesValue(t, SENSITIVE_PORTS::contains).isTrue();
   }
 
-  private static boolean isLoadBalancerService(BlockObject service) {
-    TupleTree typeTree = service.attribute("type").tree;
-    if (typeTree != null) {
-      return TreePredicates.isEqualTo("LoadBalancer").test(typeTree.value());
+  private static boolean isProtocolTcp(BlockObject servicePort) {
+    AttributeObject protocol = servicePort.attribute("protocol");
+    if (protocol.isAbsent()) {
+      return true;
     }
-    return false;
+    return protocol.isValue(tree -> TextUtils.isValue(tree, "TCP").isTrue());
   }
 }
