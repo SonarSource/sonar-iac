@@ -25,10 +25,18 @@ public interface UsesRulesFolder extends ProvideLanguageKey {
   }
 
   default String resourceFolder() {
-    return "%s/sonar/l10n/%s/rules/%s".formatted(pathPrefix(), languageKey(), languageKey());
+    return "%s/sonar/l10n/%s/rules/%s".formatted(pathPrefix(), languageKey(), repositoryKey());
+  }
+
+  default String repositoryKey() {
+    return languageKey();
   }
 
   default String sonarWayPath() {
     return resourceFolder() + "/Sonar_way_profile.json";
+  }
+
+  default String externalRulesPath() {
+    return resourceFolder() + "/rules.json";
   }
 }

@@ -30,7 +30,7 @@ public class CfnLintRulesDefinition extends AbstractExternalRulesDefinition {
   public static final String LINTER_NAME = "CFN-LINT";
 
   public CfnLintRulesDefinition(SonarRuntime sonarRuntime) {
-    super(sonarRuntime, LINTER_KEY, LINTER_NAME, CloudformationLanguage.KEY);
+    super(sonarRuntime, LINTER_NAME);
   }
 
   public static CfnLintRulesDefinition noOpInstanceForSL(SonarRuntime sonarRuntime) {
@@ -45,5 +45,15 @@ public class CfnLintRulesDefinition extends AbstractExternalRulesDefinition {
         return null;
       }
     };
+  }
+
+  @Override
+  public String languageKey() {
+    return CloudformationLanguage.KEY;
+  }
+
+  @Override
+  public String repositoryKey() {
+    return LINTER_KEY;
   }
 }

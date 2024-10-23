@@ -41,7 +41,6 @@ import org.sonar.iac.docker.reports.hadolint.HadolintImporter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -79,7 +78,7 @@ class HadolintImporterTest {
 
     importReport(reportFile);
     assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @Test
@@ -95,7 +94,7 @@ class HadolintImporterTest {
 
     importReport(reportFile);
     assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @Test
@@ -113,7 +112,7 @@ class HadolintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @ParameterizedTest
@@ -158,7 +157,7 @@ class HadolintImporterTest {
     String logMessage = String.format("Hadolint report importing: could not save 1 out of 2 issues from %s.", reportFile.getPath());
     assertThat(logTester.logs(Level.WARN))
       .containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @ParameterizedTest
@@ -222,7 +221,7 @@ class HadolintImporterTest {
 
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(logTester.logs(Level.WARN)).containsExactly(expectedLog);
-    verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
+    verify(mockAnalysisWarnings).addWarning(expectedLog);
   }
 
   private void importReport(File reportFile) {

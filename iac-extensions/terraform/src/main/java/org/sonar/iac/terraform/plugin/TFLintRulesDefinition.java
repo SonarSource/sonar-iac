@@ -31,7 +31,7 @@ public class TFLintRulesDefinition extends AbstractExternalRulesDefinition {
   public static final String LINTER_NAME = "TFLINT";
 
   public TFLintRulesDefinition(SonarRuntime sonarRuntime) {
-    super(sonarRuntime, LINTER_KEY, LINTER_NAME, TerraformLanguage.KEY);
+    super(sonarRuntime, LINTER_NAME);
   }
 
   public static TFLintRulesDefinition noOpInstanceForSL(SonarRuntime sonarRuntime) {
@@ -46,5 +46,15 @@ public class TFLintRulesDefinition extends AbstractExternalRulesDefinition {
         return null;
       }
     };
+  }
+
+  @Override
+  public String languageKey() {
+    return TerraformLanguage.KEY;
+  }
+
+  @Override
+  public String repositoryKey() {
+    return LINTER_KEY;
   }
 }

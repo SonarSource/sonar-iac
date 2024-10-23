@@ -45,10 +45,10 @@ public class DockerExtension {
     List<PropertyDefinition> properties = new ArrayList<>(DockerSettings.getGeneralProperties());
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
-      // We do not import external reports in SonarLint so no need to define the Hadolint rules.
       context.addExtension(HadolintRulesDefinition.class);
       properties.addAll(DockerSettings.getExternalReportProperties());
     } else {
+      // We do not import external reports in SonarLint so no need to define the Hadolint rules.
       context.addExtension(HadolintRulesDefinition.noOpInstanceForSL(context.getRuntime()));
     }
 

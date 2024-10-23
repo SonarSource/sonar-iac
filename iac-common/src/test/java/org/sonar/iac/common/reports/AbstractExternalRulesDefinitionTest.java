@@ -55,6 +55,16 @@ class AbstractExternalRulesDefinitionTest {
 class TestExternalRulesDefinition extends AbstractExternalRulesDefinition {
 
   protected TestExternalRulesDefinition(SonarRuntime sonarRuntime) {
-    super(sonarRuntime, "testKey", "testName", "testLanguage");
+    super(sonarRuntime, "testName");
+  }
+
+  @Override
+  public String languageKey() {
+    return "testLanguage";
+  }
+
+  @Override
+  public String repositoryKey() {
+    return "testKey";
   }
 }

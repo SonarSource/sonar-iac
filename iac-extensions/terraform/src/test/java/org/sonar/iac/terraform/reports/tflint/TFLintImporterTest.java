@@ -35,17 +35,16 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.terraform.plugin.TFLintRulesDefinition;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
@@ -77,7 +76,7 @@ class TFLintImporterTest {
 
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue).hasRuleId("terraform_comment_syntax");
+    IacCommonAssertions.assertThat(issue).hasRuleId("terraform_comment_syntax");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo("Single line comments should begin with #");
     assertTextRange(issue.primaryLocation().textRange(), 2, 0, 3, 0);
@@ -93,7 +92,7 @@ class TFLintImporterTest {
 
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue).hasRuleId("tflint.error");
+    IacCommonAssertions.assertThat(issue).hasRuleId("tflint.error");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo(
       "Failed to check ruleset; Failed to check `aws_instance_previous_type` rule: exampleError.tf:2,21-29: Reference to undeclared input" +
@@ -112,7 +111,7 @@ class TFLintImporterTest {
 
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue).hasRuleId("tflint.error");
+    IacCommonAssertions.assertThat(issue).hasRuleId("tflint.error");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issue.primaryLocation().message()).isEqualTo(
       "Failed to check ruleset; Failed to check `foo bar` rule: exampleError.tf:2,21-25: foo bar");
@@ -151,7 +150,7 @@ class TFLintImporterTest {
     importer.importReport(reportFile);
 
     assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @Test
@@ -183,7 +182,7 @@ class TFLintImporterTest {
 
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(logTester.logs(Level.WARN)).containsExactly(expectedLog);
-    verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
+    verify(mockAnalysisWarnings).addWarning(expectedLog);
   }
 
   private void assertTextRange(TextRange actual, int startLine, int startLineOffset, int endLine, int endLineOffset) {

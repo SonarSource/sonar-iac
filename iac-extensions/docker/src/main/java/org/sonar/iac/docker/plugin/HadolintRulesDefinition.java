@@ -30,7 +30,7 @@ public class HadolintRulesDefinition extends AbstractExternalRulesDefinition {
   public static final String LINTER_NAME = "HADOLINT";
 
   public HadolintRulesDefinition(SonarRuntime sonarRuntime) {
-    super(sonarRuntime, LINTER_KEY, LINTER_NAME, DockerLanguage.KEY);
+    super(sonarRuntime, LINTER_NAME);
   }
 
   public static HadolintRulesDefinition noOpInstanceForSL(SonarRuntime sonarRuntime) {
@@ -45,5 +45,15 @@ public class HadolintRulesDefinition extends AbstractExternalRulesDefinition {
         return null;
       }
     };
+  }
+
+  @Override
+  public String languageKey() {
+    return DockerLanguage.KEY;
+  }
+
+  @Override
+  public String repositoryKey() {
+    return LINTER_KEY;
   }
 }

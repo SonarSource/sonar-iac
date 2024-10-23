@@ -48,10 +48,10 @@ public class TerraformExtension {
     List<PropertyDefinition> properties = new ArrayList<>(TerraformSettings.getGeneralProperties());
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
-      // We do not import external reports in SonarLint so no need to define the tflint rules.
       context.addExtension(TFLintRulesDefinition.class);
       properties.addAll(TerraformSettings.getExternalReportProperties());
     } else {
+      // We do not import external reports in SonarLint so no need to define the tflint rules.
       context.addExtension(TFLintRulesDefinition.noOpInstanceForSL(context.getRuntime()));
     }
 

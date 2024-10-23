@@ -22,19 +22,19 @@ package org.sonar.iac.common.reports;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.iac.common.extension.UsesRulesFolder;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public abstract class AbstractExternalRulesDefinition implements RulesDefinition {
-  private static final String RULES_JSON_PATH = "org/sonar/l10n/%s/rules/%s/rules.json";
+public abstract class AbstractExternalRulesDefinition implements RulesDefinition, UsesRulesFolder {
   private final ExternalRuleLoader ruleLoader;
 
-  protected AbstractExternalRulesDefinition(SonarRuntime sonarRuntime, String reportKey, String reportName, String languageKey) {
+  protected AbstractExternalRulesDefinition(SonarRuntime sonarRuntime, String reportName) {
     if (sonarRuntime.getProduct() != SonarProduct.SONARLINT) {
       this.ruleLoader = new ExternalRuleLoader(
-        reportKey,
+        repositoryKey(),
         reportName,
-        RULES_JSON_PATH.formatted(languageKey, reportKey),
-        languageKey,
+        externalRulesPath(),
+        languageKey(),
         sonarRuntime);
     } else {
       this.ruleLoader = null;

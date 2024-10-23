@@ -34,16 +34,15 @@ import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.cloudformation.plugin.CfnLintRulesDefinition;
+import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
@@ -77,7 +76,7 @@ class CfnLintImporterTest {
 
     importReport(reportFile);
     assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @Test
@@ -93,7 +92,7 @@ class CfnLintImporterTest {
 
     importReport(reportFile);
     assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @Test
@@ -111,7 +110,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @Test
@@ -120,7 +119,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue).hasRuleId("E0000");
+    IacCommonAssertions.assertThat(issue).hasRuleId("E0000");
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
     assertThat(issue.primaryLocation().message()).isEqualTo("Null value at line 8 column 20");
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(8);
@@ -135,7 +134,7 @@ class CfnLintImporterTest {
     String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s.", reportFile.getPath());
     assertThat(logTester.logs(Level.WARN))
       .containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+    verify(mockAnalysisWarnings).addWarning(logMessage);
   }
 
   @Test
@@ -144,7 +143,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
-    assertThat(issue).hasRuleId("cfn-lint.fallback");
+    IacCommonAssertions.assertThat(issue).hasRuleId("cfn-lint.fallback");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
     verifyNoInteractions(mockAnalysisWarnings);
   }
@@ -165,7 +164,7 @@ class CfnLintImporterTest {
 
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(logTester.logs(Level.WARN)).containsExactly(expectedLog);
-    verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
+    verify(mockAnalysisWarnings).addWarning(expectedLog);
   }
 
   private void importReport(File reportFile) {
