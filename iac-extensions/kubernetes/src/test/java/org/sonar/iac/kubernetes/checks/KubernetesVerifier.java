@@ -67,7 +67,7 @@ import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
-import org.sonar.iac.kubernetes.visitors.ProjectContext;
+import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
@@ -142,7 +142,7 @@ public class KubernetesVerifier {
     var inputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, inputFile(tempFile.getName(), tempFile.getParentFile().toPath(),
       KubernetesLanguage.NAME), null);
     Verifier.verify(PARSER, tempFile.toPath(), check, multiFileVerifier -> new KubernetesTestContext(multiFileVerifier, inputFileContext,
-      new ProjectContext()));
+      new ProjectContextImpl()));
   }
 
   public static void verifyNoIssue(String templateFileName, IacCheck check, String... fileNames) {
@@ -208,8 +208,8 @@ public class KubernetesVerifier {
       new TreeVisitor<>(), null);
   }
 
-  private static ProjectContext prepareProjectContext(InputFileContext inputFileContext, String... additionalFiles) {
-    var projectContext = new ProjectContext();
+  private static ProjectContextImpl prepareProjectContext(InputFileContext inputFileContext, String... additionalFiles) {
+    var projectContext = new ProjectContextImpl();
     var projectContextEnricherVisitor = new ProjectContextEnricherVisitor(projectContext);
 
     Stream<InputFile> additionalHelmProjectFiles = Stream.empty();
@@ -302,11 +302,11 @@ public class KubernetesVerifier {
 
   public static class KubernetesTestContext extends Verifier.TestContext implements KubernetesCheckContext {
     private final InputFileContext inputFileContext;
-    private final ProjectContext projectContext;
+    private final ProjectContextImpl projectContext;
     private boolean shouldReportSecondaryInValues = true;
     private boolean enableLocationShifting = true;
 
-    public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext inputFileContext, ProjectContext projectContext) {
+    public KubernetesTestContext(MultiFileVerifier verifier, InputFileContext inputFileContext, ProjectContextImpl projectContext) {
       super(verifier);
       this.inputFileContext = inputFileContext;
       this.projectContext = projectContext;
@@ -318,7 +318,7 @@ public class KubernetesVerifier {
     }
 
     @Override
-    public ProjectContext projectContext() {
+    public ProjectContextImpl projectContext() {
       return projectContext;
     }
 

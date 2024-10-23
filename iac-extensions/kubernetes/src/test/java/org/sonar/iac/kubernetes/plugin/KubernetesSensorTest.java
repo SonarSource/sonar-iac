@@ -61,6 +61,7 @@ import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonar.iac.kubernetes.checks.RaiseIssue;
+import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -88,6 +89,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     context = spy(context);
     // As of version 10.7 of sonar-plugin-api impl, this method throws an exception
     doNothing().when(context).addTelemetryProperty(anyString(), anyString());
+    when(sonarLintFileListener.getProjectContext()).thenReturn(new ProjectContextImpl());
   }
 
   @Test

@@ -66,7 +66,7 @@ public abstract class AbstractCheckListTest {
    * Enforces that each check is declared in the list.
    */
   @Test
-  void count() {
+  protected void count() {
     IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
     Collection<File> files = FileUtils.listFiles(checkClassDir(), filter, trueFileFilter());
     // We can increase the files size by 2 because the ParsingErrorCheck and ToDoCommentCheck are located in iac-commons

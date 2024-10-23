@@ -61,7 +61,7 @@ class KubernetesChecksVisitorTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.TRACE);
 
-  private static final ProjectContext PROJECT_CONTEXT = mock(ProjectContext.class);
+  private static final ProjectContextImpl PROJECT_CONTEXT = mock(ProjectContextImpl.class);
   private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class),
     new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT);
   private KubernetesChecksVisitor.KubernetesContextAdapter context;
@@ -177,7 +177,7 @@ class KubernetesChecksVisitorTest {
   @Test
   void shouldCallReportIssueNoLineShift() {
     var textRange = range(1, 2, 3, 4);
-    var customVisitor = prepareVisitorToRaiseNoLineShift("message", textRange, mock(ProjectContext.class));
+    var customVisitor = prepareVisitorToRaiseNoLineShift("message", textRange, mock(ProjectContextImpl.class));
     var inputFileContext = createHelmInputFileContextMock(false);
 
     customVisitor.scan(inputFileContext, tree);
@@ -253,7 +253,7 @@ class KubernetesChecksVisitorTest {
     return prepareVisitorToRaise(message, secondaryLocations, PROJECT_CONTEXT);
   }
 
-  private KubernetesChecksVisitor prepareVisitorToRaise(String message, List<SecondaryLocation> secondaryLocations, ProjectContext projectContext) {
+  private KubernetesChecksVisitor prepareVisitorToRaise(String message, List<SecondaryLocation> secondaryLocations, ProjectContextImpl projectContext) {
     KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(
       mock(Checks.class),
       new DurationStatistics(mock(Configuration.class)),
@@ -265,7 +265,7 @@ class KubernetesChecksVisitorTest {
     return specificVisitor;
   }
 
-  private KubernetesChecksVisitor prepareVisitorToRaiseNoLineShift(String message, TextRange textRange, ProjectContext projectContext) {
+  private KubernetesChecksVisitor prepareVisitorToRaiseNoLineShift(String message, TextRange textRange, ProjectContextImpl projectContext) {
     KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(
       mock(Checks.class),
       new DurationStatistics(mock(Configuration.class)),
@@ -277,8 +277,8 @@ class KubernetesChecksVisitorTest {
     return specificVisitor;
   }
 
-  private ProjectContext prepareProjectContext(String path, InputFileContext associatedInputFileContext) {
-    ProjectContext projectContext = mock(ProjectContext.class);
+  private ProjectContextImpl prepareProjectContext(String path, InputFileContext associatedInputFileContext) {
+    ProjectContextImpl projectContext = mock(ProjectContextImpl.class);
     when(projectContext.getInputFileContext(path)).thenReturn(associatedInputFileContext);
     return projectContext;
   }

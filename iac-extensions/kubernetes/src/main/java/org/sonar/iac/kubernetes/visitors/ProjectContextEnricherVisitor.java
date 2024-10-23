@@ -31,14 +31,14 @@ import org.sonar.iac.helm.utils.Chart;
 public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext> {
   private static final String DEFAULT_NAMESPACE = "";
 
-  public ProjectContextEnricherVisitor(ProjectContext projectContext) {
-    register(FileTree.class, (ctx, fileTree) -> handleFileTree(ctx, fileTree, projectContext));
+  public ProjectContextEnricherVisitor(ProjectContextImpl projectContextImpl) {
+    register(FileTree.class, (ctx, fileTree) -> handleFileTree(ctx, fileTree, projectContextImpl));
   }
 
-  private static void handleFileTree(InputFileContext ctx, FileTree fileTree, ProjectContext projectContext) {
-    projectContext.addInputFileContext(ctx.inputFile.relativePath(), ctx);
+  private static void handleFileTree(InputFileContext ctx, FileTree fileTree, ProjectContextImpl projectContextImpl) {
+    projectContextImpl.addInputFileContext(ctx.inputFile.relativePath(), ctx);
     if ("Chart.yaml".equals(ctx.inputFile.filename())) {
-      projectContext.setChart(Chart.fromFileTree(fileTree));
+      projectContextImpl.setChart(Chart.fromFileTree(fileTree));
       return;
     }
 
@@ -52,7 +52,7 @@ public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext>
           return;
         }
         var namespace = getNamespace(mappingTree);
-        projectContext.addResource(namespace, uri.toString(), resource);
+        projectContextImpl.addResource(namespace, uri.toString(), resource);
       });
   }
 

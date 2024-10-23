@@ -39,13 +39,13 @@ import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
-class ProjectContextTest {
+class ProjectContextImplTest {
   @TempDir
   private static Path baseDir;
 
   @Test
   void shouldCorrectlyStoreResourcesAndProvideAccess() {
-    var ctx = new ProjectContext();
+    var ctx = new ProjectContextImpl();
 
     var resource11 = mock(ServiceAccount.class);
     ctx.addResource("namespace1", toUri("path1/resource11.yaml").toString(), resource11);
@@ -59,14 +59,15 @@ class ProjectContextTest {
     assertThat(ctx.getProjectResources("namespace1", toInputFileContext("path1/something.yaml"), ServiceAccount.class)).containsExactly(resource11);
     assertThat(ctx.getProjectResources("namespace1", toInputFileContext("path1/something.yaml"), LimitRange.class)).containsExactly(resource12);
     assertThat(ctx.getProjectResources("namespace1", toInputFileContext("path1/something.yaml"), TestResource.class)).isEmpty();
-    assertThat(ctx.getProjectResources("namespace2", toInputFileContext("path2/something.yaml"), ServiceAccount.class)).containsExactlyInAnyOrder(resource21, resource22);
+    assertThat(ctx.getProjectResources("namespace2", toInputFileContext("path2/something.yaml"), ServiceAccount.class)).containsExactlyInAnyOrder(resource21,
+      resource22);
     assertThat(ctx.getProjectResources("namespace1", toInputFileContext("wrong-path/something.yaml"), ServiceAccount.class)).isEmpty();
     assertThat(ctx.getProjectResources("wrong-namespace", toInputFileContext("random-path/something.yaml"), ServiceAccount.class)).isEmpty();
   }
 
   @Test
   void shouldProvideAccessOnlyToDescendantDirectories() {
-    var ctx = new ProjectContext();
+    var ctx = new ProjectContextImpl();
 
     var resource1 = mock(TestResource.class);
     ctx.addResource("default", toUri("path1/resource.yaml").toString(), resource1);
@@ -77,7 +78,8 @@ class ProjectContextTest {
     var resource4 = mock(TestResource.class);
     ctx.addResource("default", toUri("path1/subdir2/resource.yaml").toString(), resource4);
 
-    assertThat(ctx.getProjectResources("default", toInputFileContext("path1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource3, resource4);
+    assertThat(ctx.getProjectResources("default", toInputFileContext("path1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource3,
+      resource4);
     assertThat(ctx.getProjectResources("default", toInputFileContext("path1/subdir1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource3);
     assertThat(ctx.getProjectResources("default", toInputFileContext("path1/subdir2/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource4);
     assertThat(ctx.getProjectResources("default", toInputFileContext("path1/subdir3/something.yaml"), TestResource.class)).isEmpty();
@@ -86,7 +88,7 @@ class ProjectContextTest {
 
   @Test
   void shouldProvideAccessOnlyToResourcesInTheSameHelmChart() {
-    var ctx = new ProjectContext();
+    var ctx = new ProjectContextImpl();
 
     var resource1 = mock(TestResource.class);
     ctx.addResource("default", toUri("path1/templates/resource.yaml").toString(), resource1);
@@ -95,8 +97,10 @@ class ProjectContextTest {
     var resource3 = mock(TestResource.class);
     ctx.addResource("default", toUri("path2/resource.yaml").toString(), resource3);
 
-    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource2);
-    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/subdir/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1,
+    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1,
+      resource2);
+    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/subdir/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(
+      resource1,
       resource2);
     assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/Chart.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource2);
     assertThat(ctx.getProjectResources("default", toInputFileContext("path2/something.yaml"), TestResource.class)).containsExactly(resource3);
@@ -105,12 +109,11 @@ class ProjectContextTest {
 
   @Test
   void shouldRemoveResource() {
-    var ctx = new ProjectContext();
+    var ctx = new ProjectContextImpl();
 
     var resource1 = mock(TestResource.class);
     var uri = toUri("path1/templates/resource.yaml").toString();
     ctx.addResource("default", uri, resource1);
-
     ctx.removeResource(uri);
 
     assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/resource.yaml"), TestResource.class)).isEmpty();

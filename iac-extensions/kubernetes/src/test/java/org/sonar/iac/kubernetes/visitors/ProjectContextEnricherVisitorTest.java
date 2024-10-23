@@ -65,7 +65,7 @@ class ProjectContextEnricherVisitorTest {
     var inputFileContext = IacTestUtils.createInputFileContextMock("test.yaml");
     when(inputFileContext.inputFile.uri()).thenReturn(baseDir.resolve("dir1/dir2/test.yaml").toUri());
     var tree = PARSER.parse(code, inputFileContext);
-    var projectContext = spy(new ProjectContext());
+    var projectContext = spy(new ProjectContextImpl());
     var visitor = new ProjectContextEnricherVisitor(projectContext);
 
     visitor.scan(inputFileContext, tree);

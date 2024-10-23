@@ -20,8 +20,18 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.sonar.iac.common.testing.AbstractCheckListTest;
+
+import static org.apache.commons.io.filefilter.FileFilterUtils.and;
+import static org.apache.commons.io.filefilter.FileFilterUtils.notFileFilter;
+import static org.apache.commons.io.filefilter.FileFilterUtils.prefixFileFilter;
+import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
+import static org.apache.commons.io.filefilter.FileFilterUtils.trueFileFilter;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class KubernetesCheckListTest extends AbstractCheckListTest {
 
@@ -35,4 +45,14 @@ class KubernetesCheckListTest extends AbstractCheckListTest {
     return new File("src/main/java/org/sonar/iac/kubernetes/checks/");
   }
 
+  @Override
+  protected void count() {
+    IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
+    Collection<File> files = FileUtils.listFiles(checkClassDir(), filter, trueFileFilter());
+    Collection<File> generalFiles = FileUtils.listFiles(new File("src/general/java/org/sonar/iac/kubernetes/checks/"), filter, trueFileFilter());
+    files.addAll(generalFiles);
+    // We can increase the files size by 2 because the ParsingErrorCheck and ToDoCommentCheck are located in iac-commons
+    int checksSize = files.size() + 2;
+    assertThat(checks()).hasSize(checksSize);
+  }
 }

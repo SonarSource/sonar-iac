@@ -35,8 +35,8 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.helm.HelmFileSystem;
-import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
+import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
@@ -50,7 +50,7 @@ public class SonarLintFileListener implements ModuleFileListener {
   private static final Logger LOG = LoggerFactory.getLogger(SonarLintFileListener.class);
 
   private final ModuleFileSystem moduleFileSystem;
-  private final ProjectContext projectContext = new ProjectContext();
+  private final ProjectContextImpl projectContext = new ProjectContextImpl();
   private SensorContext sensorContext;
   private Analyzer analyzer;
   private Map<String, String> inputFilesContents = new HashMap<>();
@@ -118,7 +118,7 @@ public class SonarLintFileListener implements ModuleFileListener {
     return inputFilesContents;
   }
 
-  public ProjectContext getProjectContext() {
+  public ProjectContextImpl getProjectContext() {
     return projectContext;
   }
 

@@ -50,17 +50,32 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
 
   void visitDocument(MappingTree documentTree, KubernetesCheckContext ctx) {
     initializeCheck(ctx);
-    PropertyUtils.get(documentTree, "kind")
+    visitRoot(documentTree, ctx);
+    visitDocumentOnEnd(documentTree, ctx);
+  }
+
+  private void visitRoot(MappingTree specTree, CheckContext ctx) {
+    PropertyUtils.get(specTree, "kind")
       .flatMap(kind -> TextUtils.getValue(kind.value()))
       .filter(objectConsumersByKind::containsKey)
       .ifPresent((String kind) -> {
         if (shouldVisitWholeDocument()) {
-          visitMappingTreeForKind(documentTree, ctx, kind);
+          visitMappingTreeForKind(specTree, ctx, kind);
         } else {
-          visitSpecTreeForKind(documentTree, ctx, kind);
+          visitSpecTreeForKind(specTree, ctx, kind);
         }
       });
-    visitDocumentOnEnd(documentTree, ctx);
+  }
+
+  public KubernetesCheckForOtherYaml prepareForEmbeddedYaml() {
+    registerObjectCheck();
+    return new KubernetesCheckForOtherYaml();
+  }
+
+  public class KubernetesCheckForOtherYaml {
+    public void visit(MappingTree specTree, CheckContext ctx) {
+      visitRoot(specTree, ctx);
+    }
   }
 
   void initializeCheck(KubernetesCheckContext ctx) {

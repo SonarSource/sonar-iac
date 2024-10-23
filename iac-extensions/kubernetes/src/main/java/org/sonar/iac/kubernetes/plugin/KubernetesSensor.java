@@ -48,8 +48,8 @@ import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
-import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
+import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
@@ -57,7 +57,7 @@ public class KubernetesSensor extends YamlSensor {
   private final HelmEvaluator helmEvaluator;
   @Nullable
   private final SonarLintFileListener sonarLintFileListener;
-  private final ProjectContext projectContext;
+  private final ProjectContextImpl projectContextImpl;
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
@@ -73,9 +73,9 @@ public class KubernetesSensor extends YamlSensor {
     this.helmEvaluator = helmEvaluator;
     this.sonarLintFileListener = sonarLintFileListener;
     if (sonarLintFileListener != null) {
-      projectContext = sonarLintFileListener.getProjectContext();
+      projectContextImpl = sonarLintFileListener.getProjectContext();
     } else {
-      projectContext = new ProjectContext();
+      projectContextImpl = new ProjectContextImpl();
     }
   }
 
@@ -119,7 +119,7 @@ public class KubernetesSensor extends YamlSensor {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
     }
-    visitors.add(new ProjectContextEnricherVisitor(projectContext));
+    visitors.add(new ProjectContextEnricherVisitor(projectContextImpl));
     return visitors;
   }
 
@@ -158,7 +158,7 @@ public class KubernetesSensor extends YamlSensor {
       statistics,
       helmProcessor,
       kubernetesParserStatistics,
-      new KubernetesChecksVisitor(checks, statistics, projectContext),
+      new KubernetesChecksVisitor(checks, statistics, projectContextImpl),
       sonarLintFileListener);
   }
 
