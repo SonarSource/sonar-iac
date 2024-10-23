@@ -92,7 +92,7 @@ class AbstractJsonReportImporterTest {
 
     assertThat(logTester.logs(Level.INFO))
       .containsExactly(
-        String.format("PREFIX  Importing external report from: %s", path),
+        String.format("PREFIX Importing external report from: %s", path),
         "Issue saved");
   }
 
@@ -180,7 +180,7 @@ class AbstractJsonReportImporterTest {
 
     assertThat(throwable)
       .isInstanceOf(ReportImporterException.class)
-      .hasMessage("The file: doNotExist.tf is not resolved");
+      .hasMessage("The file: doNotExist.tf could not be resolved");
   }
 
   @Test

@@ -66,7 +66,7 @@ public abstract class AbstractJsonReportImporter {
       logWarning(message);
       return;
     } else {
-      LOG.info("{} Importing external report from: {}", warningPrefix, reportFile.getPath());
+      LOG.info("{}Importing external report from: {}", warningPrefix, reportFile.getPath());
     }
 
     parseJson(reportFile).forEach(issuesJson -> {
@@ -144,7 +144,7 @@ public abstract class AbstractJsonReportImporter {
 
     if (inputFile == null) {
       addUnresolvedPath(filename);
-      throw new ReportImporterException(String.format("The file: %s is not resolved", filename));
+      throw new ReportImporterException(String.format("The file: %s could not be resolved", filename));
     }
 
     return inputFile;
