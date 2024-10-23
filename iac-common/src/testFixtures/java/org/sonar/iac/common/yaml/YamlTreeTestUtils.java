@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.SequenceTreeImpl;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
@@ -33,11 +34,11 @@ public class YamlTreeTestUtils {
   private static final YamlTreeMetadata METADATA = new YamlTreeMetadata(null, null, 0, 0, Collections.emptyList());
   private static final ScalarTree.Style STYLE = ScalarTree.Style.PLAIN;
 
-  public static YamlTree scalar(String value) {
+  public static ScalarTree scalar(String value) {
     return new ScalarTreeImpl(value, STYLE, METADATA);
   }
 
-  public static YamlTree sequence(String... values) {
+  public static SequenceTree sequence(String... values) {
     List<YamlTree> elements = Arrays.stream(values).map(v -> new ScalarTreeImpl(v, STYLE, METADATA)).collect(Collectors.toList());
     return new SequenceTreeImpl(elements, METADATA);
   }
