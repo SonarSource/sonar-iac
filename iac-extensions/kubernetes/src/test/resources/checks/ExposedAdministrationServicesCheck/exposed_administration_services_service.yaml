@@ -10,10 +10,12 @@ spec:
     - port: 8022
       targetPort: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
                 # ^^
-    - port: 22 # Noncompliant
-          # ^^
-      targetPort: 22 # Noncompliant
+    - port: 22
+          # ^^> {{Make sure that exposing administration services is safe here.}}
+      targetPort: 22 # Noncompliant {{Make sure that exposing administration services is safe here.}}
                 # ^^
+    - port:
+      targetPort: 22 # Noncompliant
     - port: 22 # Noncompliant
     - targetPort: 22 # Noncompliant
     - targetPort: 23 # Noncompliant
@@ -26,7 +28,7 @@ spec:
     - protocol: TCP
       targetPort: 22 # Noncompliant
     - protocol: TCP
-      port: 22 # Noncompliant
+      port: 22
       targetPort: 22 # Noncompliant
     - protocol: tcp
       targetPort: 22 # Noncompliant

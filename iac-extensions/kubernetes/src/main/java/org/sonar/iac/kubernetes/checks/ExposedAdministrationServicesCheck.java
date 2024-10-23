@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.object.AttributeObject;
 import org.sonar.iac.common.yaml.object.BlockObject;
@@ -53,27 +54,40 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
 
   private static void reportOnSensitiveContainerPorts(BlockObject container) {
     container.blocks("ports")
-      .forEach(port -> port.attribute("containerPort").reportIfValue(isSensitivePort(), MESSAGE));
+      .filter(ExposedAdministrationServicesCheck::isProtocolTcp)
+      .forEach(port -> reportIfSensitivePort(port.attribute("containerPort"), port.attribute("hostPort")));
   }
 
   private static void reportOnSensitiveServicePorts(BlockObject service) {
     service.blocks("ports")
       .filter(ExposedAdministrationServicesCheck::isProtocolTcp)
-      .forEach((BlockObject port) -> {
-        port.attribute("port").reportIfValue(isSensitivePort(), MESSAGE);
-        port.attribute("targetPort").reportIfValue(isSensitivePort(), MESSAGE);
-      });
+      .forEach(port -> reportIfSensitivePort(port.attribute("targetPort"), port.attribute("port")));
   }
 
-  private static Predicate<YamlTree> isSensitivePort() {
-    return t -> TextUtils.matchesValue(t, SENSITIVE_PORTS::contains).isTrue();
-  }
-
-  private static boolean isProtocolTcp(BlockObject servicePort) {
-    AttributeObject protocol = servicePort.attribute("protocol");
+  private static boolean isProtocolTcp(BlockObject port) {
+    AttributeObject protocol = port.attribute("protocol");
     if (protocol.isAbsent()) {
       return true;
     }
     return protocol.isValue(tree -> TextUtils.isValue(tree, "TCP").isTrue());
+  }
+
+  private static void reportIfSensitivePort(AttributeObject internalPort, AttributeObject externalPort) {
+    boolean isInternalPortSensitive = internalPort.isValue(isSensitivePort());
+    boolean isExternalPortSensitive = externalPort.isValue(isSensitivePort());
+    if (isInternalPortSensitive) {
+      if (isExternalPortSensitive) {
+        var portLocation = new SecondaryLocation(externalPort.tree.value(), MESSAGE);
+        internalPort.reportOnValue(MESSAGE, List.of(portLocation));
+      } else {
+        internalPort.reportOnValue(MESSAGE);
+      }
+    } else if (isExternalPortSensitive) {
+      externalPort.reportOnValue(MESSAGE);
+    }
+  }
+
+  private static Predicate<YamlTree> isSensitivePort() {
+    return t -> TextUtils.matchesValue(t, SENSITIVE_PORTS::contains).isTrue();
   }
 }

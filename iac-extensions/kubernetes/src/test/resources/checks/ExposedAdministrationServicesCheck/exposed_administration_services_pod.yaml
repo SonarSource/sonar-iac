@@ -8,23 +8,56 @@ spec:
     - name: applications
       image: my_image_with_ssh
       ports:
-        - containerPort: 22  # NonCompliant {{Make sure that exposing administration services is safe here.}}
+        - hostPort: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+                  # ^^
+          containerPort: 8022
+        - hostPort: 8022
+          containerPort: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
                        # ^^
-        - containerPort: 23  # NonCompliant
+        - hostPort: 22
+                  # ^^> {{Make sure that exposing administration services is safe here.}}
+          containerPort: 22 # Noncompliant {{Make sure that exposing administration services is safe here.}}
                        # ^^
-        - containerPort: 3389  # NonCompliant
-                       # ^^^^
-        - containerPort: 5800  # NonCompliant
-                       # ^^^^
-        - hostPort: 1234
-          containerPort: 5900  # NonCompliant
-                       # ^^^^
-        - containerPort: "5800"  # NonCompliant
-                       # ^^^^^^
-        - containerPort: 338  # Compliant
-        - hostPort: 22
-          containerPort: 1234 # Compliant
-        - hostPort: 22
+        - hostPort:
+          containerPort: 22 # Noncompliant
+        - hostPort: 22 # Noncompliant
+        - containerPort: 22 # Noncompliant
+        - containerPort: 23 # Noncompliant
+        - containerPort: 3389 # Noncompliant
+        - containerPort: 5800 # Noncompliant
+        - containerPort: 5900 # Noncompliant
+        - containerPort: "22" # Noncompliant
+        - protocol: TCP
+          hostPort: 22 # Noncompliant
+        - protocol: TCP
+          containerPort: 22 # Noncompliant
+        - protocol: TCP
+          hostPort: 22
+          containerPort: 22 # Noncompliant
+        - protocol: tcp
+          containerPort: 22 # Noncompliant
+        - protocol: "tcp"
+          containerPort: 22 # Noncompliant
+        - hostPort: 338
+        - containerPort: 338
+        - protocol: TCP
+          hostPort: 338
+          containerPort: 338
+        - protocol: tcp
+          hostPort: 338
+          containerPort: 338
+        - protocol: "TCP"
+          hostPort: 338
+          containerPort: 338
+        - protocol: UDP
+          hostPort: 22
+          containerPort: 22
+        - protocol: udp
+          hostPort: 22
+          containerPort: 22
+        - protocol: abc
+          hostPort: 22
+          containerPort: 22
 
     - name: compliantContainer
       image: my_image
