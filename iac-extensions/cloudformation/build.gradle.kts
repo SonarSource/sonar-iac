@@ -1,6 +1,6 @@
 import de.undercouch.gradle.tasks.download.Download
+import org.sonar.iac.CfnLintRulesGenerator.extractRules
 import org.sonar.iac.asJson
-import org.sonar.iac.extractRules
 
 plugins {
     id("org.sonarsource.iac.code-style-convention")
