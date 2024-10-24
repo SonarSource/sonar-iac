@@ -20,7 +20,6 @@
 package org.sonar.iac.common.yaml.object;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.YamlTreeTest;
@@ -67,10 +66,20 @@ class BlockObjectTest extends YamlTreeTest {
   @Test
   void shouldVerifyBlocks() {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo:\n - key: value"), "a");
-    List<BlockObject> presentBlocks = block.blocks("foo").collect(Collectors.toList());
+    List<BlockObject> presentBlocks = block.blocks("foo").toList();
 
     assertThat(presentBlocks).hasSize(1);
     assertThat(presentBlocks.get(0).key).isEqualTo("foo");
+  }
+
+  @Test
+  void shouldVerifyChildrenBlocks() {
+    BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo:\nbar:"), "a");
+    List<BlockObject> presentBlocks = block.childrenBlocks().toList();
+
+    assertThat(presentBlocks).hasSize(2);
+    assertThat(presentBlocks.get(0).key).isEqualTo("foo");
+    assertThat(presentBlocks.get(1).key).isEqualTo("bar");
   }
 
   @Test

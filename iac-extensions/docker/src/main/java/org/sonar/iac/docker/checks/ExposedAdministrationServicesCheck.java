@@ -33,9 +33,9 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
 
 @Rule(key = "S6473")
-public class ExposePortCheck implements IacCheck {
+public class ExposedAdministrationServicesCheck implements IacCheck {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ExposePortCheck.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ExposedAdministrationServicesCheck.class);
   private static final String MESSAGE = "Make sure that exposing administration services is safe here.";
   private static final String DEFAULT_SENSITIVE_PORTS = "22, 23, 3389, 5800, 5900";
 
@@ -57,7 +57,7 @@ public class ExposePortCheck implements IacCheck {
     try {
       return Arrays.stream(ports.split(",\\s*+")).map(Integer::parseInt).toList();
     } catch (NumberFormatException e) {
-      LOG.warn("The port list provided for ExposePortCheck (S6473) is not a comma seperated list of integers. " +
+      LOG.warn("The port list provided for ExposedAdministrationServicesCheck (S6473) is not a comma seperated list of integers. " +
         "The default list is used. Invalid list of ports \"{}\"", ports);
       return sensitivePorts(DEFAULT_SENSITIVE_PORTS);
     }

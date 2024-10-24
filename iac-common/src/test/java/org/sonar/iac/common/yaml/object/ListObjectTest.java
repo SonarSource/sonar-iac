@@ -25,6 +25,7 @@ import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.YamlTreeTest;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -71,7 +72,7 @@ class ListObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void shouldReportFromAbsent() {
+  void shouldNotReportFromAbsent() {
     ListObject list = ListObject.fromAbsent(ctx, "unexistent");
     list.reportOnItems("message");
     assertThat(list.items).isEmpty();
@@ -88,19 +89,26 @@ class ListObjectTest extends YamlTreeTest {
   }
 
   @Test
-  void shouldReportItemIfFromAbsent() {
+  void shouldNotReportItemIfFromAbsent() {
     ListObject list = ListObject.fromAbsent(ctx, "my_list");
     list.reportIfAnyItem(e -> true, "message");
     assertNoIssueReported();
   }
 
   @Test
-  void shouldReportItemIfFromInvalid() {
+  void shouldNotReportItemIfFromInvalid() {
     YamlTree tree = parseTuple("my_list : not_a_list");
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).isEmpty();
     list.reportIfAnyItem(e -> true, "message");
     assertNoIssueReported();
+  }
+
+  @Test
+  void shouldReportAllMatchingItems() {
+    ListObject list = ListObject.fromPresent(ctx, sequenceTree, null, null);
+    list.reportItemIf(item -> ((ScalarTree) item).value().contains("item"), "message");
+    list.items.forEach(item -> assertIssueReported(item, "message"));
   }
 
   private void assertNoIssueReported() {
@@ -109,5 +117,9 @@ class ListObjectTest extends YamlTreeTest {
 
   private void assertIssueReported(TextRange textRange, String message) {
     verify(ctx).reportIssue(textRange, message);
+  }
+
+  private void assertIssueReported(HasTextRange hasTextRange, String message) {
+    verify(ctx).reportIssue(hasTextRange, message);
   }
 }

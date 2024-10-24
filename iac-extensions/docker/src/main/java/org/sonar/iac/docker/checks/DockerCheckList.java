@@ -39,7 +39,7 @@ public final class DockerCheckList {
       DeprecatedInstructionCheck.class,
       DirectoryCopySourceCheck.class,
       ExecutableNotOwnedByRootCheck.class,
-      ExposePortCheck.class,
+      ExposedAdministrationServicesCheck.class,
       HostNetworkNamespaceCheck.class,
       ImageWithDigestCheck.class,
       InstructionFormatCheck.class,

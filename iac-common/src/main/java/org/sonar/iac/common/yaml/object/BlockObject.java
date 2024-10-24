@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
@@ -52,6 +53,14 @@ public class BlockObject extends YamlObject<MappingTree> {
       .map(sequence -> sequence.elements().stream()
         .map(block -> BlockObject.fromPresent(ctx, block, key)))
       .orElse(Stream.empty());
+  }
+
+  public Stream<BlockObject> childrenBlocks() {
+    Stream<TupleTree> tupleTreeStream = Optional.ofNullable(tree)
+      .map(tree -> PropertyUtils.getAll(tree, TupleTree.class).stream())
+      .orElse(Stream.empty());
+    return tupleTreeStream
+      .map(tuple -> BlockObject.fromPresent(ctx, tuple.value(), TextUtils.getValue(tuple.key()).orElse(null)));
   }
 
   public BlockObject block(String key) {

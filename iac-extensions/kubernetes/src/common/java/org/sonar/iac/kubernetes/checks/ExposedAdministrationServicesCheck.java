@@ -20,7 +20,6 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
-import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.TextUtils;
@@ -35,30 +34,39 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
   private static final String KIND_POD = "Pod";
   private static final String KIND_SERVICE = "Service";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
-  private static final List<String> SENSITIVE_PORTS = List.of("22", "23", "3389", "5800", "5900");
+  public static final List<String> DEFAULT_SENSITIVE_PORTS = List.of("22", "23", "3389", "5800", "5900");
+  private final List<String> sensitivePorts;
+
+  public ExposedAdministrationServicesCheck() {
+    this(DEFAULT_SENSITIVE_PORTS);
+  }
+
+  public ExposedAdministrationServicesCheck(List<String> sensitivePorts) {
+    this.sensitivePorts = List.copyOf(sensitivePorts);
+  }
 
   @Override
   void registerObjectCheck() {
     register(KIND_POD,
       pod -> pod.blocks("containers")
-        .forEach(ExposedAdministrationServicesCheck::reportOnSensitiveContainerPorts));
+        .forEach(this::reportOnSensitiveContainerPorts));
 
     register(KIND_WITH_TEMPLATE,
       obj -> obj.block("template")
         .block("spec")
         .blocks("containers")
-        .forEach(ExposedAdministrationServicesCheck::reportOnSensitiveContainerPorts));
+        .forEach(this::reportOnSensitiveContainerPorts));
 
-    register(KIND_SERVICE, ExposedAdministrationServicesCheck::reportOnSensitiveServicePorts);
+    register(KIND_SERVICE, this::reportOnSensitiveServicePorts);
   }
 
-  private static void reportOnSensitiveContainerPorts(BlockObject container) {
+  private void reportOnSensitiveContainerPorts(BlockObject container) {
     container.blocks("ports")
       .filter(ExposedAdministrationServicesCheck::isProtocolTcp)
       .forEach(port -> reportIfSensitivePort(port.attribute("containerPort"), port.attribute("hostPort")));
   }
 
-  private static void reportOnSensitiveServicePorts(BlockObject service) {
+  private void reportOnSensitiveServicePorts(BlockObject service) {
     service.blocks("ports")
       .filter(ExposedAdministrationServicesCheck::isProtocolTcp)
       .forEach(port -> reportIfSensitivePort(port.attribute("targetPort"), port.attribute("port")));
@@ -72,9 +80,9 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
     return protocol.isValue(tree -> TextUtils.isValue(tree, "TCP").isTrue());
   }
 
-  private static void reportIfSensitivePort(AttributeObject internalPort, AttributeObject externalPort) {
-    boolean isInternalPortSensitive = internalPort.isValue(isSensitivePort());
-    boolean isExternalPortSensitive = externalPort.isValue(isSensitivePort());
+  private void reportIfSensitivePort(AttributeObject internalPort, AttributeObject externalPort) {
+    boolean isInternalPortSensitive = internalPort.isValue(this::isSensitivePort);
+    boolean isExternalPortSensitive = externalPort.isValue(this::isSensitivePort);
     if (isInternalPortSensitive) {
       if (isExternalPortSensitive) {
         var portLocation = new SecondaryLocation(externalPort.tree.value(), MESSAGE);
@@ -87,7 +95,7 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
     }
   }
 
-  private static Predicate<YamlTree> isSensitivePort() {
-    return t -> TextUtils.matchesValue(t, SENSITIVE_PORTS::contains).isTrue();
+  private boolean isSensitivePort(YamlTree port) {
+    return TextUtils.matchesValue(port, sensitivePorts::contains).isTrue();
   }
 }
