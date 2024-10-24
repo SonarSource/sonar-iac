@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.helm.utils.Chart;
+import org.sonar.iac.kubernetes.model.Chart;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 
 import static java.util.Objects.nonNull;

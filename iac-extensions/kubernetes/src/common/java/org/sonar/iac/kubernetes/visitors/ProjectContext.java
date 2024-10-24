@@ -23,7 +23,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.helm.utils.Chart;
+import org.sonar.iac.kubernetes.model.Chart;
 import org.sonar.iac.kubernetes.model.ProjectResource;
 
 public interface ProjectContext {

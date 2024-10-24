@@ -17,15 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.model;
-
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import org.sonar.iac.common.yaml.tree.TupleTree;
-
-public record Secret(
-  String filePath,
-  @Nullable String name,
-  Map<String, TupleTree> values) implements MapResource {
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.kubernetes.visitors;

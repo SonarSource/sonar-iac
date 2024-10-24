@@ -13,6 +13,7 @@ description = "SonarSource IaC Analyzer :: Sonar Helm for IaC"
 
 val goBinaries: Configuration by configurations.creating
 val goBinariesJar by tasks.registering(Jar::class) {
+    group = "build"
     dependsOn("compileGoCode")
     archiveClassifier.set("binaries")
     from("build/executable")

@@ -19,13 +19,18 @@
  */
 package org.sonar.iac.kubernetes.model;
 
-import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.yaml.tree.FileTree;
 
-import javax.annotation.Nullable;
-import org.sonar.iac.common.yaml.tree.TupleTree;
-
-public record ConfigMap(
-  String filePath,
-  @Nullable String name,
-  Map<String, TupleTree> values) implements MapResource {
+public record Chart(String apiVersion) {
+  @CheckForNull
+  public static Chart fromFileTree(FileTree fileTree) {
+    return fileTree.documents().stream().findFirst()
+      .flatMap(tree -> PropertyUtils.value(tree, "apiVersion", TextTree.class))
+      .map(TextTree::value)
+      .map(Chart::new)
+      .orElse(null);
+  }
 }

@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.MappingTree;

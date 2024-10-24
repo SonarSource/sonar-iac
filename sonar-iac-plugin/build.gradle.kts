@@ -70,19 +70,14 @@ tasks.shadowJar {
     exclude("LICENSE*")
     exclude("NOTICE*")
 
+    val isCrossCompile: Boolean = providers.environmentVariable("GO_CROSS_COMPILE").map { it == "1" }.getOrElse(true)
+    val (minSize, maxSize) = if (isCrossCompile) {
+        17_000_000L to 18_000_000L
+    } else {
+        7_500_000L to 8_500_000L
+    }
     doLast {
-        val minSize: Long
-        val maxSize: Long
-        val isCrossCompile: Boolean = System.getenv("GO_CROSS_COMPILE")?.equals("1") ?: true
-        if (isCrossCompile) {
-            minSize = 17_000_000
-            maxSize = 18_000_000
-        } else {
-            minSize = 7_500_000
-            maxSize = 8_500_000
-        }
-        val jarFile = tasks.shadowJar.get().archiveFile.get().asFile
-        enforceJarSize(jarFile, minSize, maxSize)
+        enforceJarSize(archiveFile.get().asFile, minSize, maxSize)
     }
 }
 

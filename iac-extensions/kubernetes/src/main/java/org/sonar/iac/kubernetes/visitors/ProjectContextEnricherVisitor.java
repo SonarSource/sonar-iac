@@ -26,7 +26,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.helm.utils.Chart;
+import org.sonar.iac.kubernetes.model.Chart;
 
 public class ProjectContextEnricherVisitor extends TreeVisitor<InputFileContext> {
   private static final String DEFAULT_NAMESPACE = "";

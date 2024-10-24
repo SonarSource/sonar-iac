@@ -67,8 +67,8 @@ import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
-import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
+import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 

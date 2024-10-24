@@ -16,6 +16,15 @@ spotless {
     }
 }
 
+project(":iac-extensions:kubernetes") {
+    sonar {
+        properties {
+            properties["sonar.sources"] as MutableCollection<String> +=
+                this@project.layout.projectDirectory.dir("src/common/java").asFile.toString()
+        }
+    }
+}
+
 project(":sonar-helm-for-iac") {
     sonar {
         properties {

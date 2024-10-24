@@ -17,20 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.helm.utils;
-
-import javax.annotation.CheckForNull;
-import org.sonar.iac.common.api.tree.TextTree;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.yaml.tree.FileTree;
-
-public record Chart(String apiVersion) {
-  @CheckForNull
-  public static Chart fromFileTree(FileTree fileTree) {
-    return fileTree.documents().stream().findFirst()
-      .flatMap(tree -> PropertyUtils.value(tree, "apiVersion", TextTree.class))
-      .map(TextTree::value)
-      .map(Chart::new)
-      .orElse(null);
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.kubernetes.checks;

@@ -20,15 +20,11 @@
 package org.sonar.iac.kubernetes.model;
 
 import java.util.Map;
-
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
-public interface MapResource extends ProjectResource {
-  String filePath();
-
-  @CheckForNull
-  String name();
-
-  Map<String, TupleTree> values();
+public record ConfigMap(
+  String filePath,
+  @Nullable String name,
+  Map<String, TupleTree> values) implements MapResource {
 }

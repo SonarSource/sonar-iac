@@ -26,7 +26,6 @@ import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlParser;
-import org.sonar.iac.kubernetes.visitors.ProjectContext;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 
 public class KubernetesAnalyzerFactory {

@@ -29,7 +29,7 @@ import org.sonar.iac.helm.tree.api.CommandNode;
 import org.sonar.iac.helm.tree.api.FieldNode;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.helm.tree.api.VariableNode;
-import org.sonar.iac.helm.utils.Chart;
+import org.sonar.iac.kubernetes.model.Chart;
 import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S1874")
