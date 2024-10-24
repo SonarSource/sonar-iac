@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -26,9 +28,6 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-
-import java.util.List;
-import java.util.Set;
 
 @Rule(key = "S4830")
 public class UnsecureConnectionCheck implements IacCheck {

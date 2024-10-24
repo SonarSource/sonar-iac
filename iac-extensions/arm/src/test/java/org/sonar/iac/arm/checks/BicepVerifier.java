@@ -20,9 +20,7 @@
 package org.sonar.iac.arm.checks;
 
 import java.nio.file.Path;
-import java.util.function.Consumer;
 import org.sonar.iac.arm.parser.BicepParser;
-import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
 import org.sonar.iac.common.api.checks.IacCheck;

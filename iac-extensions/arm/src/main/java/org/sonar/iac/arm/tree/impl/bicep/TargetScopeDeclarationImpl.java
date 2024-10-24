@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -26,8 +27,6 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
-
-import java.util.List;
 
 public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements TargetScopeDeclaration {
 

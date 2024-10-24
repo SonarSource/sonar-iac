@@ -28,7 +28,6 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

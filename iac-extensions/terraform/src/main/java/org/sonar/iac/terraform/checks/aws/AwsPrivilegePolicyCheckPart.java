@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.terraform.checks.aws;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
@@ -27,10 +30,6 @@ import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class AwsPrivilegePolicyCheckPart extends AbstractResourceCheck {
 

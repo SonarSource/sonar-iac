@@ -19,11 +19,10 @@
  */
 package org.sonar.iac.common.testing;
 
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-
-import javax.annotation.Nullable;
 
 public class IacCommonAssertions extends Assertions {
 

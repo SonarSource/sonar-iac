@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
@@ -29,10 +32,6 @@ import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Rule(key = "S6317")
 public class PrivilegeEscalationCheck extends AbstractNewResourceCheck {

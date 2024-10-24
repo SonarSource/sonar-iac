@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.TextTree;
@@ -26,8 +27,6 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-
-import java.util.Set;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 @Rule(key = "S6381")

@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -38,9 +40,6 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class YamlSensor extends IacSensor {
 

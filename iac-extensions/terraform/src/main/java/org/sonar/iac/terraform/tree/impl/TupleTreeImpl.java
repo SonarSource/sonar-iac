@@ -20,12 +20,11 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import java.util.Iterator;
-import org.sonar.iac.terraform.api.tree.TupleTree;
+import javax.annotation.Nullable;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
-import javax.annotation.Nullable;
+import org.sonar.iac.terraform.api.tree.TupleTree;
 
 public class TupleTreeImpl extends AbstractCollectionValueTree<ExpressionTree> implements TupleTree {
 

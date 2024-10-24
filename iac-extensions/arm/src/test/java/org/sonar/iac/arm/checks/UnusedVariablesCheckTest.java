@@ -19,20 +19,11 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.symbols.Symbol;
-import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.symbols.Usage;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.testing.Verifier;
 
-import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class UnusedVariablesCheckTest {

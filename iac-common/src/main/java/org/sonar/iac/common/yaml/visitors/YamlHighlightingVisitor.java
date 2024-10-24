@@ -19,9 +19,9 @@
  */
 package org.sonar.iac.common.yaml.visitors;
 
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;

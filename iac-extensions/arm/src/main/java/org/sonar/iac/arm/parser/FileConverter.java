@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.arm.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
@@ -30,10 +33,6 @@ import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FileConverter extends ArmJsonBaseConverter {
   public FileConverter(@Nullable InputFileContext inputFileContext) {

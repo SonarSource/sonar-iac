@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.terraform.checks.gcp;
 
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -26,10 +29,6 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.ListSymbol;
-
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
 
 @Rule(key = "S6406")
 public class ExcessivePermissionsCheck extends AbstractNewResourceCheck {

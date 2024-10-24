@@ -11,6 +11,12 @@ spotless {
     val licenseHeaderFileName = if (project.path.startsWith(":private:")) "private/LICENSE_HEADER_PRIVATE" else "LICENSE_HEADER"
     encoding(Charsets.UTF_8)
     java {
+        importOrderFile(
+            Blowdryer.immutableUrl(
+                "https://raw.githubusercontent.com/SonarSource/sonar-developer-toolset/refs/heads/master/eclipse/sonar.importorder"
+            )
+        )
+        removeUnusedImports()
         // point to immutable specific commit of sonar-formater.xml version 23
         eclipse("4.22")
             .withP2Mirrors(

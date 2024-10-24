@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
@@ -29,9 +31,6 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Rule(key = "S6473")
 public class ExposePortCheck implements IacCheck {

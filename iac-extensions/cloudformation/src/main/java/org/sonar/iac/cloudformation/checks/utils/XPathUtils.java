@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.cloudformation.checks.utils;
 
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.stream.Stream;
+import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class XPathUtils {
 

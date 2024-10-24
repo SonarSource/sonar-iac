@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.checks.azure;
 
 import java.util.Set;
+import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -27,8 +28,6 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
-
-import java.util.function.Predicate;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;

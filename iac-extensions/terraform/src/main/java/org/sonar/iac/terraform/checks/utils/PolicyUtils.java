@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.terraform.checks.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.policy.Policy;
@@ -29,11 +33,6 @@ import org.sonar.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 public class PolicyUtils {
 

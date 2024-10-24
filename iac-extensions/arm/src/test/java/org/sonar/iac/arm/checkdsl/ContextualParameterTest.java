@@ -23,20 +23,13 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
-import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.HasTextRange;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.sonar.iac.arm.ArmTestUtils.CTX;
 import static org.sonar.iac.arm.ArmTestUtils.parseParameter;
-import static org.sonar.iac.arm.ArmTestUtils.parseProperty;
 
 class ContextualParameterTest {
 

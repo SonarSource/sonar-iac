@@ -19,14 +19,13 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.*;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;

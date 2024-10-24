@@ -20,7 +20,6 @@
 package org.sonar.iac.terraform.checks.azure.helper;
 
 import java.util.function.Predicate;
-
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;

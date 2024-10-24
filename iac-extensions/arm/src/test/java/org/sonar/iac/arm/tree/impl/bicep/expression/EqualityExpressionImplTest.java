@@ -26,7 +26,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
-import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
 import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
 import org.sonar.iac.common.api.tree.SeparatedList;
 

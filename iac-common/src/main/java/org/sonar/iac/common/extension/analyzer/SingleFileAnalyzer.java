@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.common.extension.analyzer;
 
+import java.util.Collection;
+import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -28,9 +30,6 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
-
-import java.util.Collection;
-import java.util.List;
 
 public class SingleFileAnalyzer extends AbstractAnalyzer {
 

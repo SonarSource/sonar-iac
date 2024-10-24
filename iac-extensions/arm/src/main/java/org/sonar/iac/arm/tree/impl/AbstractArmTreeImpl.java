@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.arm.tree.impl;
 
+import java.util.List;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-
-import java.util.List;
 
 public abstract class AbstractArmTreeImpl implements ArmTree {
 

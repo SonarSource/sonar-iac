@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
+import java.util.function.Consumer;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.common.checks.TextUtils;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 @Rule(key = "S4423")
 public class TlsVersionCheck extends AbstractArmResourceCheck {

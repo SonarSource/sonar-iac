@@ -21,16 +21,15 @@ package org.sonar.iac.common.checks;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.iac.common.api.tree.Tree;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.iac.common.api.tree.Tree;
 
 public final class ResourceAccessPolicyVector {
 

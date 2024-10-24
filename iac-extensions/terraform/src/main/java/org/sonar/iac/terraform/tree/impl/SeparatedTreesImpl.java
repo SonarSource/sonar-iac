@@ -19,13 +19,12 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.api.tree.SeparatedTrees;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 public class SeparatedTreesImpl<T extends TerraformTree> implements SeparatedTrees<T> {
 

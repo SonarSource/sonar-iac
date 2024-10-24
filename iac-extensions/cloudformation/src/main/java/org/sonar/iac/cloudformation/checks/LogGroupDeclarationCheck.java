@@ -30,20 +30,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.cloudformation.tree.FunctionCallTree;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
+import org.sonar.iac.cloudformation.tree.FunctionCallTree;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.sonar.iac.cloudformation.checks.AbstractResourceCheck.getFileResources;
 

@@ -19,16 +19,15 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ForObjectTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.parser.TreeFactory;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class ForObjectTreeImpl extends AbstractForTree implements ForObjectTree {
   private final SyntaxToken openBrace;

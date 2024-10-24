@@ -20,15 +20,14 @@
 package org.sonar.iac.arm.checkdsl;
 
 import java.util.List;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checkdsl.ContextualTree;
-
-import javax.annotation.Nullable;
-import java.util.stream.Stream;
 import org.sonar.iac.common.checks.Trilean;
 
 public class ContextualObject extends ContextualMap<ContextualObject, ObjectExpression> {

@@ -22,16 +22,16 @@ package org.sonar.iac.cloudformation.checks;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractResourceCheck {

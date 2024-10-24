@@ -22,8 +22,8 @@ package org.sonar.iac.docker.parser;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -28,8 +28,8 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
-import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
+import org.sonar.iac.common.extension.DurationStatistics;
 
 public class JvmConfigFilePredicate extends AbstractTimedFilePredicate {
   private static final Logger LOG = LoggerFactory.getLogger(JvmConfigFilePredicate.class);

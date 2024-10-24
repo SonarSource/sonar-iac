@@ -21,7 +21,6 @@ package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import java.io.File;
 import java.util.List;
-
 import org.sonar.iac.common.testing.AbstractCheckListTest;
 
 class SpringConfigCheckListTest extends AbstractCheckListTest {

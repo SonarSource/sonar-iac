@@ -21,11 +21,11 @@ package org.sonar.iac.docker.checks;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.checks.Chmod;
 import org.sonar.iac.docker.checks.utils.ArgumentChmod;

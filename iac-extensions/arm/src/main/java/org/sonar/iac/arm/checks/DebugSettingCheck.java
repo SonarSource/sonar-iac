@@ -19,13 +19,12 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.api.Expression;
-
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @Rule(key = "S4507")
 public class DebugSettingCheck extends AbstractArmResourceCheck {

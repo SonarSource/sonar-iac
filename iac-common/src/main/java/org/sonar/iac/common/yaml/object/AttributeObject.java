@@ -19,16 +19,15 @@
  */
 package org.sonar.iac.common.yaml.object;
 
+import java.util.List;
+import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
-
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.function.Predicate;
 
 public class AttributeObject extends YamlObject<TupleTree> {
 

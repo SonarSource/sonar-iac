@@ -20,7 +20,6 @@
 package org.sonar.iac.cloudformation.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.Verifier;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;

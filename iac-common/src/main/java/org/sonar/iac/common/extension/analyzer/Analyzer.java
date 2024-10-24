@@ -19,10 +19,9 @@
  */
 package org.sonar.iac.common.extension.analyzer;
 
+import java.util.Collection;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-
-import java.util.Collection;
 
 public interface Analyzer {
   boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, String languageName);

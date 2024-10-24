@@ -24,12 +24,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {

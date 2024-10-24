@@ -19,11 +19,10 @@
  */
 package org.sonar.iac.terraform.checks.utils;
 
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.TextUtils;
-
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
 public interface PredicateUtils {
   /** Given a regex string literal, compiles a regex Pattern, and creates a String Predicate

@@ -19,14 +19,13 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
-
-import java.util.List;
 
 @Rule(key = "S1135")
 public class ToDoCommentCheck implements IacCheck {

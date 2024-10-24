@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.common.checks.policy;
 
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 
 public class Policy {
 

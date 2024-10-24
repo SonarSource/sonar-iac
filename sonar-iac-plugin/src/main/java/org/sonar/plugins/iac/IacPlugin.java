@@ -29,8 +29,8 @@ import org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlBuiltInProfileDefinition;
 import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.docker.plugin.DockerExtension;
-import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension;
+import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.terraform.plugin.TerraformExtension;
 
 public class IacPlugin implements Plugin {

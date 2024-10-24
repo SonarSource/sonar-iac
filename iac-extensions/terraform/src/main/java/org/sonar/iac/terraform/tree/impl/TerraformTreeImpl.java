@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
+import java.util.List;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-
-import java.util.List;
 
 public abstract class TerraformTreeImpl implements TerraformTree {
 

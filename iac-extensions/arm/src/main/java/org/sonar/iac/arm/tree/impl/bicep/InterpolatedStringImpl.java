@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
@@ -26,10 +29,6 @@ import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiec
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class InterpolatedStringImpl extends AbstractArmTreeImpl implements InterpolatedString {
   private final InterpolatedStringLeftPiece stringLeftPiece;

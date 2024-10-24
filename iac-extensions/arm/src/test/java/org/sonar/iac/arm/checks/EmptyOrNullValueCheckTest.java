@@ -20,9 +20,7 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class EmptyOrNullValueCheckTest {

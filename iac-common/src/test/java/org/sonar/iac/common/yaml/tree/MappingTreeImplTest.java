@@ -20,7 +20,6 @@
 package org.sonar.iac.common.yaml.tree;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;

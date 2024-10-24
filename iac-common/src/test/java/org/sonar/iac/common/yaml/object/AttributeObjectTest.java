@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.common.yaml.object;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -29,10 +32,6 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

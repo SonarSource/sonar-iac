@@ -20,7 +20,6 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
-
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;

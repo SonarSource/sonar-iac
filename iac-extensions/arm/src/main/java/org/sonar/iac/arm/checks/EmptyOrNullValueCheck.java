@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -36,8 +37,6 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
-
-import java.util.Map;
 
 @Rule(key = "S6954")
 public class EmptyOrNullValueCheck implements IacCheck {

@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.testing;
 
+import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -26,8 +27,6 @@ import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
-
-import javax.annotation.Nullable;
 
 public class ExternalIssueAssert extends AbstractAssert<ExternalIssueAssert, ExternalIssue> {
   private ExternalIssueAssert(@Nullable ExternalIssue issue) {

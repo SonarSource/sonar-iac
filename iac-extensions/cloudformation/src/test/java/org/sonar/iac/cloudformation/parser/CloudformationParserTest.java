@@ -23,8 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 import org.sonar.iac.common.yaml.tree.TupleTreeImpl;
@@ -61,10 +61,11 @@ class CloudformationParserTest {
   @Test
   void shouldNotFailInImplicitNullInYaml() {
     when(inputFile.filename()).thenReturn("foo.yaml");
-    FileTree tree = parser.parse("foo:\n" +
-      "    a: null\n" +
-      "    c: ~\n" +
-      "    d:  # implicit null --> parsing error", inputFileContext);
+    FileTree tree = parser.parse("""
+      foo:
+        a: null
+        c: ~
+        d:  # implicit null --> parsing error""", inputFileContext);
     MappingTreeImpl foo = (MappingTreeImpl) tree.documents().get(0);
     TupleTreeImpl d = (TupleTreeImpl) (foo.elements().get(0).value().children().get(2));
     assertThat(((ScalarTreeImpl) d.value()).value()).isEmpty();

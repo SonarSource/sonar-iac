@@ -19,6 +19,15 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -29,16 +38,6 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 
 import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.*;
 

@@ -19,11 +19,9 @@
  */
 package org.sonar.iac.helm;
 
+import java.util.Map;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
-
-import java.io.IOException;
-import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.DockerTree;
-
-import java.util.List;
 
 public abstract class AbstractDockerTreeImpl implements DockerTree {
 
