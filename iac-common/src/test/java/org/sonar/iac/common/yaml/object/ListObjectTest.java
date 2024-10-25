@@ -119,10 +119,6 @@ class ListObjectTest extends YamlTreeTest {
     verify(ctx).reportIssue(textRange, message);
   }
 
-  private void assertIssueReported(HasTextRange hasTextRange, String message) {
-    verify(ctx).reportIssue(hasTextRange, message);
-  }
-
   private void assertIssueReported(YamlTree tree, String message) {
     verify(ctx).reportIssue(tree, message);
   }
