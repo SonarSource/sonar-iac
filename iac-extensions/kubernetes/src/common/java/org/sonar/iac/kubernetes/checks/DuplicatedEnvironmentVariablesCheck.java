@@ -52,7 +52,7 @@ public class DuplicatedEnvironmentVariablesCheck extends AbstractResourceManagem
   private final List<Container> containers = new ArrayList<>();
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register("Pod",
       pod -> pod
         .block("spec")

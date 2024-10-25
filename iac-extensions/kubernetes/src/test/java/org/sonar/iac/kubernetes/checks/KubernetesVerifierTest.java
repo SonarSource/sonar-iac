@@ -81,7 +81,7 @@ class KubernetesVerifierTest {
 
   public static class ContainerNamePresentCheck extends AbstractKubernetesObjectCheck {
     @Override
-    void registerObjectCheck() {
+    protected void registerObjectCheck() {
       register("Pod", (BlockObject pod) -> pod.blocks("containers").forEach(container -> reportIssueWithSecondaryInValuesFile(container.attribute("name"))));
     }
 
@@ -98,7 +98,7 @@ class KubernetesVerifierTest {
 
   private static class ProjectResourceVisitedCheck extends AbstractKubernetesObjectCheck {
     @Override
-    void registerObjectCheck() {
+    protected void registerObjectCheck() {
       register("Pod", (BlockObject pod) -> {
         var projectContext = ((KubernetesCheckContext) pod.ctx).projectContext();
         var currentContext = ((KubernetesVerifier.KubernetesTestContext) pod.ctx).inputFileContext();

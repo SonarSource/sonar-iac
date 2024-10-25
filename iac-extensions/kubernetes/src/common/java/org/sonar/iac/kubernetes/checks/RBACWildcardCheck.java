@@ -35,12 +35,12 @@ public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
   private static final List<String> SENSITIVE_RULE_ATTRIBUTES = List.of("resources", "verbs");
 
   @Override
-  boolean shouldVisitWholeDocument() {
+  protected boolean shouldVisitWholeDocument() {
     return true;
   }
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register(SENSITIVE_KINDS, document -> document.blocks("rules")
       .forEach((BlockObject rule) -> SENSITIVE_RULE_ATTRIBUTES.forEach((String attributeKey) -> {
         if (containsWildCardItem(rule, attributeKey)) {

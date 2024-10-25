@@ -30,7 +30,7 @@ public class CapabilitiesCheck extends AbstractKubernetesObjectCheck {
   private static final String MESSAGE = "Make sure setting capabilities is safe here.";
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register("Pod", pod -> pod.blocks("containers").forEach(container -> container.block("securityContext")
       .block("capabilities")
       .list("add")

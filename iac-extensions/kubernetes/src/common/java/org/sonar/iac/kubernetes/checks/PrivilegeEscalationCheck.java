@@ -31,7 +31,7 @@ public class PrivilegeEscalationCheck extends AbstractKubernetesObjectCheck {
   private static final String PRIVILEGE_ESCALATION_ATTRIBUTE = "allowPrivilegeEscalation";
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register("Pod", pod -> pod.blocks("containers").forEach(container -> container.block("securityContext")
       .attribute(PRIVILEGE_ESCALATION_ATTRIBUTE)
       .reportIfValue(isTrue(), MESSAGE)));

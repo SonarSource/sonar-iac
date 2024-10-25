@@ -30,7 +30,7 @@ public class ContainerPrivilegedModeCheck extends AbstractKubernetesObjectCheck 
   private static final String MESSAGE = "Ensure that enabling privileged mode is safe here.";
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     checkOnPrivilegedModeWithKey("containers");
     checkOnPrivilegedModeWithKey("initContainers");
   }

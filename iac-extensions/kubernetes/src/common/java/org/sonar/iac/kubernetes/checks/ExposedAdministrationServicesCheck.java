@@ -46,7 +46,7 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
   }
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register(KIND_POD,
       pod -> pod.blocks("containers")
         .forEach(this::reportOnSensitiveContainerPorts));

@@ -31,7 +31,7 @@ public class HostNamespacesCheck extends AbstractKubernetesObjectCheck {
   private static final List<String> HOST_NAMESPACES_ATTRIBUTES = List.of("hostPID", "hostIPC", "hostNetwork");
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register("Pod", pod -> HOST_NAMESPACES_ATTRIBUTES.forEach(name -> pod.attribute(name)
       .reportIfValue(isTrue(), MESSAGE)));
 

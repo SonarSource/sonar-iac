@@ -26,7 +26,7 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 public abstract class AbstractGlobalResourceCheck extends AbstractKubernetesObjectCheck {
   @Override
-  boolean shouldVisitWholeDocument() {
+  protected boolean shouldVisitWholeDocument() {
     return true;
   }
 

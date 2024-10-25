@@ -35,7 +35,7 @@ class AbstractKubernetesObjectCheckTest {
   Set<BlockObject> visitedObjects = new HashSet<>();
   AbstractKubernetesObjectCheck check = new AbstractKubernetesObjectCheck() {
     @Override
-    void registerObjectCheck() {
+    protected void registerObjectCheck() {
       register(List.of("Pod", "Job"), pod -> visitedObjects.add(pod));
     }
   };

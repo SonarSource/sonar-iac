@@ -45,7 +45,7 @@ public class AutomountServiceAccountTokenCheck extends AbstractGlobalResourceChe
   private static final Predicate<YamlTree> IS_FALSE = tree -> "false".equals(TextUtils.getValue(tree).orElse(""));
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register(KIND_POD, document -> checkResource(document, document.block("spec")));
     register(KIND_WITH_TEMPLATE, document -> checkResource(document, document.block("spec").block("template").block("spec")));
   }

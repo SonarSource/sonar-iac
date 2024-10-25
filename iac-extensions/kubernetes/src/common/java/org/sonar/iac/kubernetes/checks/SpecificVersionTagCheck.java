@@ -34,7 +34,7 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
   protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register(KIND_POD, document -> checkDocument(document, false));
     register(KIND_WITH_TEMPLATE, document -> checkDocument(document, true));
   }

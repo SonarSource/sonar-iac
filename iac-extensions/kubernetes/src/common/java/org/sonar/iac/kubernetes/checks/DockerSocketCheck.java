@@ -34,7 +34,7 @@ public class DockerSocketCheck extends AbstractKubernetesObjectCheck {
   private static final String HOST_PATH = "hostPath";
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register("Pod", pod -> pod.blocks("volumes").forEach(container -> container.block(HOST_PATH)
       .attribute("path")
       .reportIfValue(isEqualTo(DOCKER_SOCK_PATH), MESSAGE)));

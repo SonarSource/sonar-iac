@@ -38,7 +38,7 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
   private String namespace;
 
   @Override
-  boolean shouldVisitWholeDocument() {
+  protected boolean shouldVisitWholeDocument() {
     return true;
   }
 

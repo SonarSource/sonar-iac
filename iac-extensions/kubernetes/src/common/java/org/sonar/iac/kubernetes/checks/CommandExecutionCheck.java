@@ -33,12 +33,12 @@ public class CommandExecutionCheck extends AbstractKubernetesObjectCheck {
   private static final List<String> SENSITIVE_KINDS = List.of("Role", "ClusterRole");
 
   @Override
-  boolean shouldVisitWholeDocument() {
+  protected boolean shouldVisitWholeDocument() {
     return true;
   }
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register(SENSITIVE_KINDS, document -> document.blocks("rules")
       .filter(CommandExecutionCheck::ruleContainsSensitiveVerb)
       .filter(CommandExecutionCheck::ruleContainsSensitiveResource)

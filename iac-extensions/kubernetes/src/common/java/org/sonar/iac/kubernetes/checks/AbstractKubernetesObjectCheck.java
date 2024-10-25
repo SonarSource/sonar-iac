@@ -81,7 +81,7 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     // default implementation does nothing; the rule can interact with CheckContext here.
   }
 
-  boolean shouldVisitWholeDocument() {
+  protected boolean shouldVisitWholeDocument() {
     // the default is "false" as we normally visit only the "spec" tree of the file.
     // Overriding this to "true" will enable visitation of the whole document.
     return false;
@@ -105,7 +105,7 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(blockObject));
   }
 
-  abstract void registerObjectCheck();
+  protected abstract void registerObjectCheck();
 
   protected void register(String kind, Consumer<BlockObject> consumer) {
     objectConsumersByKind.computeIfAbsent(kind, s -> new ArrayList<>()).add(consumer);

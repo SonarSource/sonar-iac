@@ -32,7 +32,7 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
   private static final String RESOURCE_MANAGEMENT_TYPE = "limits";
 
   @Override
-  void registerObjectCheck() {
+  protected void registerObjectCheck() {
     register(KIND_POD, document -> checkDocument(document, false));
     register(KIND_WITH_TEMPLATE, document -> checkDocument(document, true));
   }
