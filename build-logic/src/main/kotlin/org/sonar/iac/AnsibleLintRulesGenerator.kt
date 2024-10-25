@@ -244,8 +244,8 @@ object AnsibleLintRulesGenerator {
 
     // Similar to: https://sonarsource.github.io/rspec/#/rspec/S1155/java
     private val codeSmellsLowClear = listOf(
-        "empty-string-compare", "galaxy", "ignore-errors", "internal-error", "jinja[invalid]",
-        "literal-compare", "load-failure", "parser-error", "meta-incorrect", "sanity", "syntax-check", "yaml"
+        "empty-string-compare", "galaxy", "ignore-errors", "jinja[invalid]",
+        "literal-compare", "load-failure", "meta-incorrect", "sanity", "syntax-check", "yaml"
     )
 
     // Similar to: https://sonarsource.github.io/rspec/#/rspec/S2208/java
@@ -382,12 +382,14 @@ object AnsibleLintRulesGenerator {
 
     private fun standardRules(): List<Rule> {
         val undocumentedRules = listOf(
+            "internal-error",
             "load-failure",
             "load-failure[composererror]",
             "load-failure[filenotfounderror]",
             "load-failure[runtimeerror]",
             "load-failure[unicodedecodeerror]",
-            "warning[outdated-tag]"
+            "parser-error",
+            "warning[outdated-tag]",
         )
             .map {
                 Rule(
