@@ -30,7 +30,8 @@ tasks.named<Jar>("jar") {
 dependencies {
     "commonImplementation"(projects.iacCommon)
 
-    api(common.output)
+    // Alternatively, `implementation(common.output)` could be used. However, it cannot be analyzed by the releasability check.
+    implementation(project(":iac-extensions:kubernetes", configuration = "common"))
     api(libs.sonar.lint.plugin.api)
     implementation(project(":sonar-helm-for-iac", "goBinaries"))
     implementation(project(":sonar-helm-for-iac"))
