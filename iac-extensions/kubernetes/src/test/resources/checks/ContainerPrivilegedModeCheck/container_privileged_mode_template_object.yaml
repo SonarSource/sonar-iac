@@ -17,7 +17,7 @@ spec:
       containers:
         - name: noncompliant_privileged_pod
           securityContext:
-            privileged: true # NonCompliant {{Ensure that enabling privileged mode is safe here.}}
+            privileged: true # Noncompliant {{Ensure that enabling privileged mode is safe here.}}
                       # ^^^^
 
         - name: compliant_unprivileged_pod
@@ -36,6 +36,6 @@ spec:
           image: busybox:1.28
           command: [ 'sh', '-c', "dothings" ]
           securityContext:
-            privileged: true # NonCompliant
+            privileged: true # Noncompliant
                       # ^^^^
 ---
