@@ -10,7 +10,6 @@
     "gradle",
     "gradle-wrapper",
     "github-actions",
-    "bicep",
     "regex",
     "dockerfile",
     "gomod"
@@ -25,7 +24,7 @@
     "enabled": true
   },
   "ignorePaths": [
-    "its/**",
+    "private/its/**",
     "**/test/**"
   ],
   "packageRules": [
