@@ -219,6 +219,7 @@ object AnsibleLintRulesGenerator {
                 "yaml[colons]",
                 "yaml[commas]",
                 "yaml[comments]",
+                "yaml[document-start]",
                 "yaml[empty-lines]",
                 "yaml[hyphens]",
                 "yaml[indentation]",
