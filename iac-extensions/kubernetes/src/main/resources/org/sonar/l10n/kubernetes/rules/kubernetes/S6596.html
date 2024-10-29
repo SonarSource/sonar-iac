@@ -10,7 +10,7 @@ mismatches, which can cause bugs or compatibility issues.</p>
 <p>In addition, using <code>latest</code> as the tag for container images can potentially introduce security vulnerabilities. For instance, if a
 security vulnerability is discovered in an image and a new version is released to fix it, using <code>latest</code> as the tag means that the
 application will automatically use the updated image, even if it has not been properly tested and vetted for compatibility with the application.</p>
-<h2>How to fix it in Helm</h2>
+<h2>How to fix it</h2>
 <p>To avoid these issues, it is recommended to use specific version tags for container images.</p>
 <p>This can be done by appending the version number or tag to the container image name. For example, instead of <code>my-image:latest</code>, it is
 better to use <code>my-image:1.2.3-alpine</code> or <code>my-image:1.2.3</code>.</p>

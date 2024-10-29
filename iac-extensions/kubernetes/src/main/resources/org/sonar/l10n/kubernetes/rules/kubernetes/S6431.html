@@ -20,7 +20,7 @@ successful exploitation of this attack vector could have a catastrophic impact o
 <h2>Recommended Secure Coding Practices</h2>
 <p>Do not use host operating system namespaces.</p>
 <h2>Sensitive Code Example</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -38,7 +38,7 @@ spec:
   hostNetwork: true # Sensitive
 </pre>
 <h2>Compliant Solution</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 apiVersion: v1
 kind: Pod
 metadata:

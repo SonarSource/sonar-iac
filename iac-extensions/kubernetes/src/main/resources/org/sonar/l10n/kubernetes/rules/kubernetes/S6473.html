@@ -30,7 +30,7 @@ spec:
     - name: applications
       image: my_image_with_ssh
       ports:
-      - containerPort: 22  # NonCompliant: Merely informative, removing this property does not
+      - containerPort: 22  # Noncompliant: Merely informative, removing this property does not
                            # close port 22.
 </pre>
 <pre>
@@ -42,7 +42,7 @@ spec:
   type: LoadBalancer
   ports:
     - port: 8022
-      targetPort: 22  # Compliant
+      targetPort: 22  # Noncompliant
   selector:
     app: example_app
 </pre>
