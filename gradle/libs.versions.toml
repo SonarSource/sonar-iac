@@ -2,6 +2,7 @@
 sonarqube = "10.7.0.96327"
 sonar-plugin-api = "10.12.0.2522"
 sonar-commons = "2.14.0.3087"
+sonar-license-api = "3.4"
 sonar-orchestrator = "5.0.0.2065"
 junit = "5.11.2"
 assertj = "3.26.3"
@@ -26,6 +27,7 @@ awaitility = "4.2.2"
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
 sonar-analyzer-test-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-test-commons", version.ref = "sonar-commons" }
+sonar-license-api = { module = "com.sonarsource.license:license-api", version.ref = "sonar-license-api" }
 sonar-plugin-api = { module = "org.sonarsource.api.plugin:sonar-plugin-api", version.ref = "sonar-plugin-api" }
 sonar-plugin-api-impl = { module = "org.sonarsource.sonarqube:sonar-plugin-api-impl", version.ref = "sonarqube" }
 sonar-plugin-api-test-fixtures = { module = "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures", version.ref = "sonar-plugin-api" }
