@@ -65,7 +65,7 @@ def qa_task(env):
     return {
         "only_if": is_branch_qa_eligible(),
         "depends_on": "build",
-        "eks_container": base_image_container_builder(cpu=6, memory="12G"),
+        "eks_container": base_image_container_builder(cpu=6, memory="14G"),
         "env": env,
         "gradle_cache": gradle_cache(),
         "gradle_wrapper_cache": gradle_wrapper_cache(),
@@ -92,8 +92,7 @@ def qa_plugin_env():
         "GRADLE_TASK": QA_PLUGIN_GRADLE_TASK,
         "KEEP_ORCHESTRATOR_RUNNING": "true",
         "matrix": [
-            # TODO SONARIAC-1777 restore to QA_QUBE_LATEST_RELEASE once released and LicensedPluginRegistration use is removed
-            # {"SQ_VERSION": QA_QUBE_LATEST_RELEASE},
+            {"SQ_VERSION": QA_QUBE_LATEST_RELEASE},
             {"SQ_VERSION": "DEV"},
         ],
         "GITHUB_TOKEN": "VAULT[development/github/token/licenses-ro token]",
@@ -113,9 +112,7 @@ def qa_plugin_task():
 def qa_ruling_env():
     return {
         "GRADLE_TASK": QA_RULING_GRADLE_TASK,
-        # TODO SONARIAC-1777 restore to QA_QUBE_LATEST_RELEASE once released and LicensedPluginRegistration use is removed
-        # "SQ_VERSION": QA_QUBE_LATEST_RELEASE,
-        "SQ_VERSION": "DEV",
+        "SQ_VERSION": QA_QUBE_LATEST_RELEASE,
         "KEEP_ORCHESTRATOR_RUNNING": "true",
          "GITHUB_TOKEN": "VAULT[development/github/token/licenses-ro token]",
     }
