@@ -65,6 +65,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   PRIMARY_EXPRESSION,
   FUNCTION_CALL,
   IDENTIFIER,
+  COMPOSED_IDENTIFIER,
   PROPERTY,
   OBJECT_EXPRESSION,
   FOR_EXPRESSION,

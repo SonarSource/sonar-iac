@@ -53,7 +53,8 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
       .notMatches("func myFunction() => 'result'")
       .notMatches("func myFunction")
       .notMatches("func myFunction = lambdaExpression")
-      .notMatches("func");
+      .notMatches("func")
+      .notMatches("func myFunction(foo.bar int) string => '${foo}'");
   }
 
   @Test

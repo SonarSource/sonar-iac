@@ -27,7 +27,6 @@ import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class TypeDeclarationImplTest extends BicepTreeModelTest {
 
@@ -57,18 +56,35 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
       .matches("@description('my type') type myType = abc")
       .matches("@sys.description('my type') type myType = abc")
       .matches("@sys.description('my type') type myType = bool[] | int?")
-      .matches(code("@description('my type')", "@decorator()", "type myType = abc"))
+      .matches("""
+        @description('my type')
+        @decorator()
+        type myType = abc""")
+      .matches("type fooProperty = foo.objectProp.intProp")
+      .matches("type fooProperty = foo.object_prop.intProp")
+      .matches("type fooProperty = foo.intProp123")
+      .matches("""
+        type test = {
+          baz: types.myObject
+        }""")
 
       .notMatches("type myType")
       .notMatches("type myType=")
       .notMatches("myType=abc")
       .notMatches("type")
-      .notMatches("type = abc");
+      .notMatches("type = abc")
+      // From https://github.com/Azure/bicep/commit/7f8aac1852aa85004cc307305acf5fa7d832b2e8
+      // However, the `az bicep` returns Error BCP391
+      .notMatches("""
+        type myObject = {
+          quux: int
+          saSku: resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
+        }""");
   }
 
   @Test
   void shouldParseSimpleTypeDeclaration() {
-    String code = code("@description('my type') type myType = abc");
+    String code = "@description('my type') type myType = abc";
     TypeDeclaration tree = parse(code, BicepLexicalGrammar.TYPE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
     assertThat(tree.declaratedName().value()).isEqualTo("myType");

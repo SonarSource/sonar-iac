@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -43,6 +44,7 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ComposedIdentifier;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
@@ -96,6 +98,7 @@ import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayTypeSuffixImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.CompileTimeImportDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ComposedIdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
@@ -581,6 +584,23 @@ public class TreeFactory {
 
   public TernaryExpression ternaryExpression(Expression condition, SyntaxToken query, Expression ifTrueExpression, SyntaxToken colon, Expression elseExpression) {
     return new TernaryExpressionImpl(condition, query, ifTrueExpression, colon, elseExpression);
+  }
+
+  public ComposedIdentifier composedIdentifier(Identifier identifier, List<Tuple<SyntaxToken, Identifier>> tuples) {
+    var list = toSeparatedList(identifier, tuples);
+    return new ComposedIdentifierImpl(list);
+  }
+
+  private static SeparatedList<Identifier, SyntaxToken> toSeparatedList(Identifier firstIdentifier, List<Tuple<SyntaxToken, Identifier>> separatorsWithIdentifiers) {
+    var allElements = new ArrayList<Identifier>();
+    allElements.add(firstIdentifier);
+    allElements.addAll(separatorsWithIdentifiers.stream()
+      .map(Tuple::second)
+      .toList());
+    var separators = separatorsWithIdentifiers.stream()
+      .map(Tuple::first)
+      .toList();
+    return new SeparatedListImpl<>(allElements, separators);
   }
 
   private static <T extends ArmTree> SeparatedList<T, SyntaxToken> toSeparatedList(Optional<List<Tuple<T, Optional<SyntaxToken>>>> elementsWithSeparators) {

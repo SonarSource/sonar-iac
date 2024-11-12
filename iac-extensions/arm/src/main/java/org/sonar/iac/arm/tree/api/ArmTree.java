@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ComposedIdentifier;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
@@ -140,7 +141,8 @@ public interface ArmTree extends Tree {
     VARIABLE(Variable.class),
     VARIABLE_BLOCK(VariableBlock.class),
     LOCAL_VARIABLE(LocalVariable.class),
-    LAMBDA_EXPRESSION(LambdaExpression.class);
+    LAMBDA_EXPRESSION(LambdaExpression.class),
+    COMPOSED_IDENTIFIER(ComposedIdentifier.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 

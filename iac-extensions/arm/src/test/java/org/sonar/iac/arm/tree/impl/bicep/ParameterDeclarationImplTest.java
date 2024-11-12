@@ -31,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
@@ -49,6 +48,8 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
       .matches("param identity string")
       .matches("param utcValue string = utcNow()")
       .matches("param storageAccountName string = 'mystore'")
+      .matches("param propertyDeref anObject.property = 10")
+      .matches("param itemDeref tuple[1] = 'baz'")
       // defining a param of name the same as keyword is possible
       .matches("param type int = 123")
       .matches("param if int = 123")
@@ -67,7 +68,7 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseParameterDeclarationMinimum() {
-    String code = code("param myParam int");
+    String code = "param myParam int";
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.declaratedName().value()).isEqualTo("myParam");
@@ -87,7 +88,7 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseParameterDeclarationWithDefaultValue() {
-    String code = code("param myParam int = 5");
+    String code = "param myParam int = 5";
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.declaratedName().value()).isEqualTo("myParam");
@@ -101,7 +102,7 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseParameterDeclarationForResource() {
-    String code = code("param myParam resource 'myResource'");
+    String code = "param myParam resource 'myResource'";
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.declaratedName().value()).isEqualTo("myParam");
@@ -114,11 +115,11 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseIntParameterDeclarationWithDecorator() {
-    String code = code(
-      "@description('parameter description')",
-      "@minValue(0)",
-      "@maxValue(10)",
-      "param myParam int");
+    String code = """
+      @description('parameter description')
+      @minValue(0)
+      @maxValue(10)
+      param myParam int""";
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.declaratedName().value()).isEqualTo("myParam");
@@ -139,16 +140,16 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseStringParameterDeclarationWithDecorator() {
-    String code = code(
-      "@description('another parameter description')",
-      "@sys.minLength(3)",
-      "@sys.maxLength(6)",
-      "@allowed([",
-      "  'foo'",
-      "  'bar'",
-      "  'foobar'",
-      "])",
-      "param myParam int");
+    String code = """
+      @description('another parameter description')
+      @sys.minLength(3)
+      @sys.maxLength(6)
+      @allowed([
+        'foo'
+        'bar'
+        'foobar'
+      ])
+      param myParam int""";
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.declaratedName().value()).isEqualTo("myParam");
@@ -170,12 +171,12 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void accessorsWithInvalidDecorators() {
-    String code = code(
-      "@description(44)",
-      "@minValue('0')",
-      "@maxValue([10])",
-      "@allowed(0)",
-      "param myParam int");
+    String code = """
+      @description(44)
+      @minValue('0')
+      @maxValue([10])
+      @allowed(0)
+      param myParam int""";
     ParameterDeclaration tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
 
     assertThatThrownBy(tree::description).isInstanceOf(ClassCastException.class);
