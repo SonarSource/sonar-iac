@@ -530,8 +530,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     analyze(context, sensor(), kustomizeHelm, kustomizeK8s);
 
-    verify(context, times(1)).addTelemetryProperty("cn_helm", "1");
-    verify(context, times(1)).addTelemetryProperty("cn_kustomize", "1");
+    verify(context, times(1)).addTelemetryProperty("iac.helm", "1");
+    verify(context, times(1)).addTelemetryProperty("iac.kustomize", "1");
   }
 
   @Test
@@ -542,8 +542,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     analyze(context, sensor(), helmFile, k8sFile);
 
-    verify(context, times(1)).addTelemetryProperty("cn_helm", "1");
-    verify(context, times(1)).addTelemetryProperty("cn_kustomize", "0");
+    verify(context, times(1)).addTelemetryProperty("iac.helm", "1");
+    verify(context, times(1)).addTelemetryProperty("iac.kustomize", "0");
   }
 
   @Test
@@ -554,8 +554,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     analyze(context, sensor(), file1, file2);
 
-    verify(context, never()).addTelemetryProperty(eq("cn_helm"), anyString());
-    verify(context, never()).addTelemetryProperty(eq("cn_kustomize"), anyString());
+    verify(context, never()).addTelemetryProperty(eq("iac.helm"), anyString());
+    verify(context, never()).addTelemetryProperty(eq("iac.kustomize"), anyString());
   }
 
   @Test

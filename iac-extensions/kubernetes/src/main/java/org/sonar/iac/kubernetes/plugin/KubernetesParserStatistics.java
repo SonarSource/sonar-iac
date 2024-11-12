@@ -40,8 +40,8 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
  */
 public class KubernetesParserStatistics {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesParserStatistics.class);
-  private static final String COUNT_KUSTOMIZE_KEY = "cn_kustomize";
-  private static final String COUNT_HELM_KEY = "cn_helm";
+  private static final String COUNT_KUSTOMIZE_KEY = "iac.kustomize";
+  private static final String COUNT_HELM_KEY = "iac.helm";
   private static final Version MIN_VERSION_WITH_TELEMETRY_SUPPORT = Version.create(10, 9);
 
   private int pureKubernetesFileCount;
