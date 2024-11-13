@@ -38,6 +38,10 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
       .matches("func myFunction(foo int) string => '${foo}'")
       .matches("func myFunction(foo int, bar object) int => 0")
       .matches("func typedArg(input string[]) int => length(input)")
+      .matches("func myFunction(nullableArg string?) int => 0")
+      .matches("func myFunction(nonNullable int, nullableArg string?) int => 0")
+      .matches("func myFunction(nullableInt int?) int => 0")
+      .matches("func myFunction(nullableInt int?) int? => 0")
       // defining a function of name the same as keyword is possible
       .matches("func func() string => 'result'")
       .matches("func if() string => 'result'")

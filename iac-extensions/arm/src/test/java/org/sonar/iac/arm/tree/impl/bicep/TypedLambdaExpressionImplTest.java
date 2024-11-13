@@ -68,6 +68,11 @@ class TypedLambdaExpressionImplTest extends BicepTreeModelTest {
       .matches("(metadata int) int => 0")
       .matches("(param int) int => 0")
       .matches("(output int) int => 0")
+      .matches("(nullableArg string?) int => 0")
+      .matches("(arrayArg string[]) int => 0")
+      .matches("(number int) int? => 0")
+      .matches("(number int) string? => 'foo'")
+      .matches("(number int) string? => null")
 
       .notMatches("foo int => 0")
       .notMatches("(foo int) => 0");

@@ -50,6 +50,8 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
       .matches("param storageAccountName string = 'mystore'")
       .matches("param propertyDeref anObject.property = 10")
       .matches("param itemDeref tuple[1] = 'baz'")
+      .matches("param foo string?")
+      .matches("param foo int?")
       // defining a param of name the same as keyword is possible
       .matches("param type int = 123")
       .matches("param if int = 123")

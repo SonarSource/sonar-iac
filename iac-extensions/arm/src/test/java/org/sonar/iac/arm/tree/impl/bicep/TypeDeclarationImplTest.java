@@ -67,6 +67,10 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
         type test = {
           baz: types.myObject
         }""")
+      .matches("""
+        type test = {
+          property: string?
+        }""")
 
       .notMatches("type myType")
       .notMatches("type myType=")
@@ -79,6 +83,10 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
         type myObject = {
           quux: int
           saSku: resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
+        }""")
+      .notMatches("""
+        type myObject = {
+          property?: string
         }""");
   }
 

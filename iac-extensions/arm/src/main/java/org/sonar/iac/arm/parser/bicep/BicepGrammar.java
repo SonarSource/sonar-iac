@@ -382,7 +382,7 @@ public class BicepGrammar {
     return b.<TypedLambdaExpression>nonterminal(BicepLexicalGrammar.TYPED_LAMBDA_EXPRESSION).is(
       f.typedLambdaExpression(
         TYPED_VARIABLE_BLOCK(),
-        PRIMARY_TYPE_EXPRESSION(),
+        SINGULAR_TYPE_EXPRESSION(),
         b.token(Punctuator.DOUBLEARROW),
         EXPRESSION()));
   }
@@ -405,7 +405,7 @@ public class BicepGrammar {
     return b.<TypedLocalVariable>nonterminal(BicepLexicalGrammar.TYPED_LOCAL_VARIABLE).is(
       f.typedLocalVariable(
         IDENTIFIER(),
-        PRIMARY_TYPE_EXPRESSION()));
+        SINGULAR_TYPE_EXPRESSION()));
   }
 
   public TypeExpressionAble TYPE_EXPRESSION() {
