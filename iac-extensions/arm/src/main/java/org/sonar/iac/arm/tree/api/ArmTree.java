@@ -48,6 +48,7 @@ import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.WildcardTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.BinaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
@@ -129,6 +130,7 @@ public interface ArmTree extends Tree {
     PARENTHESIZED_EXPRESSION(ParenthesizedExpression.class),
     AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
     ARRAY_TYPE_REFERENCE(ArrayTypeReference.class),
+    WILDCARD_TYPE_REFERENCE(WildcardTypeReference.class),
     UNARY_OPERATOR(UnaryOperator.class),
     TUPLE_TYPE(TupleType.class),
     TUPLE_ITEM(TupleItem.class),

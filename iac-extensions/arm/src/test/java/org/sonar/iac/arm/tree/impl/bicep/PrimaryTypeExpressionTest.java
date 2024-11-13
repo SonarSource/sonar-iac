@@ -87,6 +87,9 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .matches("false")
       // literal value: null
       .matches("null")
+      // additional properties type
+      .matches("anObject.*")
+      .matches("string.*")
       // UnaryExpression
       .matches("!5")
       .matches("! 5")
@@ -205,7 +208,10 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .notMatches("typeExpr[]]")
       .notMatches("typeExpr[[]]")
       .notMatches("typeExpr[-3]")
-      .notMatches("{typeExpr}");
+      .notMatches("{typeExpr}")
+      .notMatches("anObject*")
+      .notMatches("anObject*.")
+      .notMatches(".*");
   }
 
   @Test

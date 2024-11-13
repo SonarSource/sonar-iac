@@ -71,6 +71,7 @@ import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.TypeReferenceSuffix;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.WildcardTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.BinaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
@@ -137,6 +138,7 @@ import org.sonar.iac.arm.tree.impl.bicep.TypedLocalVariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.UnaryOperatorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.WildcardTypeSuffixImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.AdditiveExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.BinaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.EqualityExpressionImpl;
@@ -493,6 +495,10 @@ public class TreeFactory {
 
   public ArrayTypeSuffix arrayTypeSuffix(SyntaxToken lBracket, Optional<NumericLiteral> length, SyntaxToken rBracket) {
     return new ArrayTypeSuffixImpl(lBracket, length.orNull(), rBracket);
+  }
+
+  public WildcardTypeSuffix wildcardTypeSuffix(SyntaxToken dot, SyntaxToken star) {
+    return new WildcardTypeSuffixImpl(dot, star);
   }
 
   public UnaryOperator unaryOperator(SyntaxToken token) {

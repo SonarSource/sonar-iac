@@ -180,7 +180,8 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
     highlight("type myType = bool[] | int?");
     assertHighlighting("type", KEYWORD);
     assertHighlighting("myType", KEYWORD_LIGHT);
-    assertHighlighting("bool[] | int?", null);
+    assertHighlighting("bool", KEYWORD);
+    assertHighlighting("int?", null);
   }
 
   @Test

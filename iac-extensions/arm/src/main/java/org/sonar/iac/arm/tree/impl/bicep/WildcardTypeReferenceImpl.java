@@ -19,29 +19,22 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.NumericLiteral;
-import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
+import org.sonar.iac.arm.tree.api.bicep.WildcardTypeReference;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements ArrayTypeReference {
+public class WildcardTypeReferenceImpl extends AbstractArmTreeImpl implements WildcardTypeReference {
   private final TypeExpressionAble type;
-  private final SyntaxToken lBracket;
-  @CheckForNull
-  private final NumericLiteral length;
-  private final SyntaxToken rBracket;
+  private final SyntaxToken dot;
+  private final SyntaxToken star;
 
-  public ArrayTypeReferenceImpl(TypeExpressionAble type, SyntaxToken lBracket, @Nullable NumericLiteral length, SyntaxToken rBracket) {
+  public WildcardTypeReferenceImpl(TypeExpressionAble type, SyntaxToken dot, SyntaxToken star) {
     this.type = type;
-    this.lBracket = lBracket;
-    this.length = length;
-    this.rBracket = rBracket;
+    this.dot = dot;
+    this.star = star;
   }
 
   @Override
@@ -49,37 +42,21 @@ public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements Array
     return type;
   }
 
-  @CheckForNull
-  @Override
-  public NumericLiteral getLength() {
-    return length;
-  }
-
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    children.add(type);
-    children.add(lBracket);
-    if (length != null) {
-      children.add(length);
-    }
-    children.add(rBracket);
-    return children;
+    return List.of(type, dot, star);
   }
 
   @Override
   public Kind getKind() {
-    return Kind.ARRAY_TYPE_REFERENCE;
+    return Kind.WILDCARD_TYPE_REFERENCE;
   }
 
   @Override
   public String toString() {
     var result = type.toString();
-    result += lBracket.toString();
-    if (length != null) {
-      result += length.toString();
-    }
-    result += rBracket.toString();
+    result += dot.toString();
+    result += star.toString();
     return result;
   }
 }

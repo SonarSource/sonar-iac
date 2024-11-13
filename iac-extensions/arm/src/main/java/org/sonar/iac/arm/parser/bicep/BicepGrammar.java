@@ -66,6 +66,7 @@ import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.TypeReferenceSuffix;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.WildcardTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportFromClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
@@ -443,7 +444,8 @@ public class BicepGrammar {
   public TypeReferenceSuffix TYPE_REFERENCE_SUFFIX() {
     return b.<TypeReferenceSuffix>nonterminal(BicepLexicalGrammar.TYPE_REFERENCE_SUFFIX).is(
       b.firstOf(
-        ARRAY_TYPE_SUFFIX()));
+        ARRAY_TYPE_SUFFIX(),
+        WILDCARD_TYPE_SUFFIX()));
   }
 
   public ArrayTypeSuffix ARRAY_TYPE_SUFFIX() {
@@ -452,6 +454,13 @@ public class BicepGrammar {
         b.token(Punctuator.LBRACKET),
         b.optional(NUMERIC_LITERAL()),
         b.token(Punctuator.RBRACKET)));
+  }
+
+  public WildcardTypeSuffix WILDCARD_TYPE_SUFFIX() {
+    return b.<WildcardTypeSuffix>nonterminal(BicepLexicalGrammar.WILDCARD_TYPE_SUFFIX).is(
+      f.wildcardTypeSuffix(
+        b.token(Punctuator.DOT),
+        b.token(Punctuator.STAR)));
   }
 
   public TypeExpressionAble PRIMARY_TYPE_EXPRESSION() {
