@@ -30,7 +30,6 @@ import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.YamlTreeTest;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,40 +46,49 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldVerifyFromPresent() {
-    TupleTree tree = parseTuple("a: b");
-    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "a");
+    var tree = parseTuple("a: b");
+    var attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "a");
     assertThat(attributeObjectStatusPresent.key).isEqualTo("a");
     assertThat(attributeObjectStatusPresent.status).isEqualTo(YamlObject.Status.PRESENT);
+    assertThat(attributeObjectStatusPresent.isPresent()).isTrue();
+    assertThat(attributeObjectStatusPresent.isAbsent()).isFalse();
     assertThat(attributeObjectStatusPresent.tree).isEqualTo(tree);
     assertThat(attributeObjectStatusPresent.ctx).isEqualTo(checkContext);
+    assertThat(attributeObjectStatusPresent.asStringValue()).isEqualTo("b");
   }
 
   @Test
   void shouldVerifyFromPresentUnknown() {
-    YamlTree tree = parse("a:b", YamlTree.class);
-    AttributeObject attributeObjectStatusUnknown = AttributeObject.fromPresent(checkContext, tree, "a");
+    var tree = parse("a:b", YamlTree.class);
+    var attributeObjectStatusUnknown = AttributeObject.fromPresent(checkContext, tree, "a");
     assertThat(attributeObjectStatusUnknown.key).isEqualTo("a");
     assertThat(attributeObjectStatusUnknown.status).isEqualTo(YamlObject.Status.UNKNOWN);
+    assertThat(attributeObjectStatusUnknown.isPresent()).isFalse();
+    assertThat(attributeObjectStatusUnknown.isAbsent()).isFalse();
     assertThat(attributeObjectStatusUnknown.tree).isNull();
     assertThat(attributeObjectStatusUnknown.ctx).isEqualTo(checkContext);
+    assertThat(attributeObjectStatusUnknown.asStringValue()).isNull();
   }
 
   @Test
   void shouldVerifyAbsent() {
-    AttributeObject attributeObjectStatusAbsent = AttributeObject.fromAbsent(checkContext, "a");
+    var attributeObjectStatusAbsent = AttributeObject.fromAbsent(checkContext, "a");
     assertThat(attributeObjectStatusAbsent.key).isEqualTo("a");
     assertThat(attributeObjectStatusAbsent.status).isEqualTo(YamlObject.Status.ABSENT);
+    assertThat(attributeObjectStatusAbsent.isPresent()).isFalse();
+    assertThat(attributeObjectStatusAbsent.isAbsent()).isTrue();
     assertThat(attributeObjectStatusAbsent.tree).isNull();
     assertThat(attributeObjectStatusAbsent.ctx).isEqualTo(checkContext);
+    assertThat(attributeObjectStatusAbsent.asStringValue()).isNull();
   }
 
   @Test
   void shouldReportIfValue() {
-    TupleTree tree = parseTuple("a: b");
-    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "a");
+    var tree = parseTuple("a: b");
+    var attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "a");
     attributeObjectStatusPresent.reportIfValue(t -> true, "message");
     assertThat(raisedIssues).hasSize(1);
-    TestIssue issue = raisedIssues.get(0);
+    var issue = raisedIssues.get(0);
     assertThat(issue.message).isEqualTo("message");
     assertThat(issue.secondaryLocations).isEmpty();
     assertThat(issue.textRange).isEqualTo(tree.value().textRange());
@@ -88,18 +96,18 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldReportIfValueFromAbsent() {
-    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "a");
+    var attributeObject = AttributeObject.fromAbsent(checkContext, "a");
     attributeObject.reportIfValue(t -> true, "message");
     assertThat(raisedIssues).isEmpty();
   }
 
   @Test
   void shouldReportIfAbsentShouldReportIssueOnAbsentObject() {
-    TupleTree tree = parseTuple("a: b");
-    AttributeObject attributeObjectStatusPresent = AttributeObject.fromAbsent(checkContext, "b");
-    attributeObjectStatusPresent.reportIfAbsent(tree.metadata(), "message");
+    var tree = parseTuple("a: b");
+    var attributeObjectStatusAbsent = AttributeObject.fromAbsent(checkContext, "b");
+    attributeObjectStatusAbsent.reportIfAbsent(tree.metadata(), "message");
     assertThat(raisedIssues).hasSize(1);
-    TestIssue issue = raisedIssues.get(0);
+    var issue = raisedIssues.get(0);
     assertThat(issue.message).isEqualTo("message");
     assertThat(issue.secondaryLocations).isEmpty();
     assertThat(issue.textRange).isEqualTo(tree.textRange());
@@ -107,28 +115,35 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldReportIfAbsentShouldNotReportIssueOnPresentObject() {
-    TupleTree tree = parseTuple("a: b");
-    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
+    var tree = parseTuple("a: b");
+    var attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
     attributeObjectStatusPresent.reportIfAbsent(tree.metadata(), "message");
     assertThat(raisedIssues).isEmpty();
   }
 
   @Test
-  void shouldReportIfAbsentForNull() {
-    TupleTree tree = parseTuple("a: b");
-    AttributeObject attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
+  void reportIfAbsentShouldNotReportOnNullObjectWithPresent() {
+    var tree = parseTuple("a: b");
+    var attributeObjectStatusPresent = AttributeObject.fromPresent(checkContext, tree, "b");
     attributeObjectStatusPresent.reportIfAbsent(null, "message");
     assertThat(raisedIssues).isEmpty();
   }
 
   @Test
+  void reportIfAbsentShouldNotReportOnNullObjectWithAbsent() {
+    var attributeObjectStatusAbsent = AttributeObject.fromAbsent(checkContext, "b");
+    attributeObjectStatusAbsent.reportIfAbsent(null, "message");
+    assertThat(raisedIssues).isEmpty();
+  }
+
+  @Test
   void shouldReportOnKey() {
-    TupleTree tree = parseTuple("a: b");
-    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
+    var tree = parseTuple("a: b");
+    var attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
     attributeObject.reportOnKey("message");
 
     assertThat(raisedIssues).hasSize(1);
-    TestIssue issue = raisedIssues.get(0);
+    var issue = raisedIssues.get(0);
     assertThat(issue.message).isEqualTo("message");
     assertThat(issue.secondaryLocations).isEmpty();
     assertThat(issue.textRange).isEqualTo(tree.key().textRange());
@@ -136,7 +151,7 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldNotReportOnKeyForMissingTree() {
-    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
+    var attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnKey("message");
 
     assertThat(raisedIssues).isEmpty();
@@ -144,13 +159,13 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldReportOnKeyWithSecondaries() {
-    TupleTree tree = parseTuple("a: b");
-    SecondaryLocation secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
+    var tree = parseTuple("a: b");
+    var secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
     AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
     attributeObject.reportOnKey("message", List.of(secondaryLocation));
 
     assertThat(raisedIssues).hasSize(1);
-    TestIssue issue = raisedIssues.get(0);
+    var issue = raisedIssues.get(0);
     assertThat(issue.message).isEqualTo("message");
     assertThat(issue.secondaryLocations).containsExactly(secondaryLocation);
     assertThat(issue.textRange).isEqualTo(tree.key().textRange());
@@ -158,8 +173,8 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldNotReportOnKeyWithSecondariesForMissingTree() {
-    SecondaryLocation secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
-    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
+    var secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
+    var attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnKey("message", List.of(secondaryLocation));
 
     assertThat(raisedIssues).isEmpty();
@@ -167,12 +182,12 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldReportOnValue() {
-    TupleTree tree = parseTuple("a: b");
-    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
+    var tree = parseTuple("a: b");
+    var attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
     attributeObject.reportOnValue("message");
 
     assertThat(raisedIssues).hasSize(1);
-    TestIssue issue = raisedIssues.get(0);
+    var issue = raisedIssues.get(0);
     assertThat(issue.message).isEqualTo("message");
     assertThat(issue.secondaryLocations).isEmpty();
     assertThat(issue.textRange).isEqualTo(tree.value().textRange());
@@ -180,13 +195,13 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldReportOnValueWithSecondaries() {
-    TupleTree tree = parseTuple("a: b");
-    SecondaryLocation secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
-    AttributeObject attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
+    var tree = parseTuple("a: b");
+    var secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
+    var attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
     attributeObject.reportOnValue("message", List.of(secondaryLocation));
 
     assertThat(raisedIssues).hasSize(1);
-    TestIssue issue = raisedIssues.get(0);
+    var issue = raisedIssues.get(0);
     assertThat(issue.message).isEqualTo("message");
     assertThat(issue.secondaryLocations).hasSize(1);
     assertThat(issue.textRange).isEqualTo(tree.value().textRange());
@@ -194,7 +209,7 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldNotReportOnValueWithSecondariesForMissingTree() {
-    SecondaryLocation secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
+    var secondaryLocation = new SecondaryLocation(TextRanges.range(1, 1, 1, 3), "Secondary location");
     AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnValue("message", List.of(secondaryLocation));
 
@@ -203,7 +218,7 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void shouldNotReportOnValueForMissingTree() {
-    AttributeObject attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
+    var attributeObject = AttributeObject.fromAbsent(checkContext, "resources");
     attributeObject.reportOnValue("message");
 
     assertThat(raisedIssues).isEmpty();

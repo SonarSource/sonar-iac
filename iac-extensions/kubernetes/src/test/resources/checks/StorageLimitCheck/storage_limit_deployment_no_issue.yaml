@@ -72,6 +72,48 @@ spec:
           resources:
             limits:
               memory: 64Mi
+
+        - name: compliant-no-limit-and-no-volumeMounts
+          image: nginx
+          resources:
+            limits:
+              memory: 64Mi
+
+        - name: compliant-volumeMounts-is-ConfigMap
+          image: nginx
+          volumeMounts:
+            - name: configMap-volume
+              mountPath: "/tmp"
+
+        - name: compliant-volumeMounts-is-Secret
+          image: nginx
+          volumeMounts:
+            - name: secret-volume
+              mountPath: "/tmp"
+
+        - name: compliant-volumeMounts-is-read-only-volume
+          image: nginx
+          volumeMounts:
+            - name: read-only-volume
+              mountPath: "/tmp"
+
+      volumes:
+        - name: configMap-volume
+          configMap:
+            name: my-configmap
+            items:
+              - key: "game.properties"
+                path: "game.properties"
+
+        - name: secret-volume
+          secret:
+            secretName: my-secret
+
+        - name: read-only-volume
+          nfs:
+            server: my-nfs-server.example.com
+            path: /my-nfs-volume
+            readOnly: true
 ---
 # It is a copy of the above code but different namespace
 apiVersion: apps/v1

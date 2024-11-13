@@ -20,8 +20,11 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.kubernetes.model.LimitRange;
@@ -40,21 +43,26 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
   private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
     var globalResources = getGlobalResources(document);
 
-    Stream<BlockObject> containers;
+    BlockObject spec;
     if (isKindWithTemplate) {
-      containers = document.block("spec").block("template").block("spec").blocks("containers");
+      spec = document.block("spec").block("template").block("spec");
     } else {
-      containers = document.block("spec").blocks("containers");
+      spec = document.block("spec");
     }
+    onEachSpec(spec);
+
+    Stream<BlockObject> containers = spec.blocks("containers");
+
     containers.filter(container -> !hasLimitDefinedGlobally(globalResources))
+      .filter(this::shouldInvestigateContainer)
       .forEach(this::reportMissingLimit);
   }
 
   protected void reportMissingLimit(BlockObject container) {
     container.block("resources").block(getResourceManagementName())
       .attribute(getResourceName())
-      .reportIfAbsent(getFirstChildElement(container), getMessage())
-      .reportIfValue(TreePredicates.isSet().negate(), getMessage());
+      .reportIfAbsent(getFirstChildElement(container), getMessage(), extraSecondaryLocations())
+      .reportIfValue(TreePredicates.isSet().negate(), getMessage(), extraSecondaryLocations());
   }
 
   protected boolean hasLimitDefinedGlobally(Collection<LimitRange> globalResources) {
@@ -83,5 +91,29 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
 
   protected Map<String, String> retrieveLimitRangeItemMap(LimitRangeItem limitRangeItem) {
     return limitRangeItem.defaultMap();
+  }
+
+  /**
+   * Allow to execute a code on each spec block. Guarantee to be executed before calling any {@link #shouldInvestigateContainer}
+   * @param spec The spec block that is being processed.
+   */
+  protected void onEachSpec(BlockObject spec) {
+  }
+
+  /**
+   * Allow to specify an additional filter on the container.
+   * @param container The container which should be visited or not.
+   * @return True if you want to investigate the container, false otherwise.
+   */
+  protected boolean shouldInvestigateContainer(BlockObject container) {
+    return true;
+  }
+
+  /**
+   * Allow to provide extra secondary locations to the issue reported.
+   * @return The list of additional secondary locations you want to attach to the reported issue.
+   */
+  protected List<SecondaryLocation> extraSecondaryLocations() {
+    return Collections.emptyList();
   }
 }

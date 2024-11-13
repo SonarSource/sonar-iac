@@ -42,4 +42,12 @@ class YamlObject<K extends YamlTree> {
     this.key = key;
     this.status = status;
   }
+
+  public boolean isPresent() {
+    return status == Status.PRESENT;
+  }
+
+  public boolean isAbsent() {
+    return status == Status.ABSENT;
+  }
 }

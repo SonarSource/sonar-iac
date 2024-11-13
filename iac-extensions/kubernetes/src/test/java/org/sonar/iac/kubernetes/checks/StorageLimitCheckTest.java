@@ -19,8 +19,13 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
+
+import static org.sonar.iac.common.testing.TemplateFileReader.readTemplateAndReplace;
 
 class StorageLimitCheckTest {
 
@@ -29,6 +34,17 @@ class StorageLimitCheckTest {
   @Test
   void testPodKind() {
     KubernetesVerifier.verify("StorageLimitCheck/storage_limit_pod.yaml", check);
+  }
+
+  static Stream<String> sensitiveKinds() {
+    return Stream.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  }
+
+  @MethodSource("sensitiveKinds")
+  @ParameterizedTest(name = "[{index}] should check storage limit check for: \"{0}\"")
+  void testKindWithTemplate(String kind) {
+    String content = readTemplateAndReplace("StorageLimitCheck/storage_limit_template.yaml", kind);
+    KubernetesVerifier.verifyContent(content, check);
   }
 
   @Test

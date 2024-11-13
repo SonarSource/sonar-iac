@@ -12,9 +12,48 @@ spec:
           memory: 64Mi
       volumeMounts:
         - name: ephemeral
+        # ^^^^< {{for this volume mount}}
+          mountPath: "/tmp"
+
+    - name: noncompliant_on_first_volume_mount # Noncompliant {{Specify a storage limit for this container.}}
+    # ^^^^
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
+      volumeMounts:
+        - name: ephemeral
+        # ^^^^< {{for this volume mount}}
+          mountPath: "/tmp"
+        - name: is_good
+          mountPath: "/tmp"
+          readOnly: true
+
+    - name: noncompliant_on_second_volume_mount # Noncompliant {{Specify a storage limit for this container.}}
+    # ^^^^
+      image: nginx
+      resources:
+        limits:
+          memory: 64Mi
+      volumeMounts:
+        - name: is_good
+          mountPath: "/tmp"
+          readOnly: true
+        - name: ephemeral
+        # ^^^^< {{for this volume mount}}
           mountPath: "/tmp"
 
     - name: noncompliant_without_limits # Noncompliant
+    # ^^^^
+      image: nginx
+      resources:
+        requests:
+          ephemeral-storage: 100Mi
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+
+    - name: noncompliant_without_limits2 # Noncompliant
     # ^^^^
       image: nginx
       resources:
@@ -61,6 +100,38 @@ spec:
         - name: ephemeral
           mountPath: "/tmp"
 
+    - name: noncompliant_ephemeral-storage_read_only_false # Noncompliant
+    # ^^^^
+      image: nginx
+      volumeMounts:
+        - name: my-volume
+          mountPath: "/tmp"
+          readOnly: false
+
+    - name: noncompliant_ephemeral-storage_read_only_not_boolean # Noncompliant
+    # ^^^^
+      image: nginx
+      volumeMounts:
+        - name: my-volume
+          mountPath: "/tmp"
+          readOnly: null
+
+    - name: noncompliant_ephemeral-storage_recursive_read_only_disabled # Noncompliant
+    # ^^^^
+      image: nginx
+      volumeMounts:
+        - name: my-volume
+          mountPath: "/tmp"
+          recursiveReadOnly: Disabled
+
+    - name: noncompliant_ephemeral-storage_recursive_read_only_not_valid # Noncompliant
+    # ^^^^
+      image: nginx
+      volumeMounts:
+        - name: my-volume
+          mountPath: "/tmp"
+          recursiveReadOnly: null
+
     - name: compliant_ephemeral-storage_limit # Compliant
       image: nginx
       resources:
@@ -70,9 +141,116 @@ spec:
         - name: ephemeral
           mountPath: "/tmp"
 
-    - name: compliant_without_volumeMounts # Noncompliant
-    # ^^^^
+    - name: compliant_without_volumeMounts
       image: nginx
       resources:
         limits:
           memory: 64Mi
+
+    - name: compliant_without_anything
+      image: nginx
+
+    - image: nginx
+      name: compliant_ephemeral-storage_is_read_only
+      volumeMounts:
+        - name: my-volume
+          mountPath: "/tmp"
+          readOnly: true
+
+    - image: nginx
+      name: compliant_ephemeral-storage_is_recursive_read_only
+      volumeMounts:
+        - name: my-volume
+          mountPath: "/tmp"
+          recursiveReadOnly: Enabled
+
+    - image: nginx
+      name: compliant_ephemeral-storage_is_ConfigMap
+      volumeMounts:
+        - name: configMap-volume
+          mountPath: "/tmp"
+
+    - image: nginx
+      name: compliant_ephemeral-storage_is_Secret
+      volumeMounts:
+        - name: secret-volume
+          mountPath: "/tmp"
+
+    - image: nginx
+      name: compliant_ephemeral-storage_is_read_only_in_volume
+      volumeMounts:
+        - name: read-only-volume
+          mountPath: "/tmp"
+
+    - image: nginx
+      name: compliant_ephemeral-storage_is_everything_to_be_excluded
+      volumeMounts:
+        - name: volume-with-every-exclusion
+          mountPath: "/tmp"
+
+    - image: nginx
+      name: compliant_ephemeral-storage_is_ConfigMap_attribute
+      volumeMounts:
+        - name: configMap-is-attribute-volume
+          mountPath: "/tmp"
+
+    - image: nginx
+      name: compliant_ephemeral-storage_is_Secret_attribute
+      volumeMounts:
+        - name: secret-is-attribute-volume
+          mountPath: "/tmp"
+
+    - image: nginx # Noncompliant
+      name: noncompliant_ephemeral-storage_is_read_only_to_false_volume
+      volumeMounts:
+        - name: read-only-to-false-volume
+          mountPath: "/tmp"
+
+    - image: nginx # Noncompliant
+      name: noncompliant_ephemeral-storage_has_no_name
+      volumeMounts:
+        - mountPath: "/tmp"
+
+  volumes:
+    - name: configMap-volume
+      configMap:
+        name: my-configmap
+        items:
+            - key: "game.properties"
+              path: "game.properties"
+
+    - name: secret-volume
+      secret:
+        secretName: my-secret
+
+    - name: read-only-volume
+      nfs:
+        server: my-nfs-server.example.com
+        path: /my-nfs-volume
+        readOnly: true
+
+    - name: volume-with-every-exclusion
+      configMap:
+        name: my-configmap
+      secret:
+        secretName: my-secret
+      nfs:
+        server: my-nfs-server.example.com
+        path: /my-nfs-volume
+        readOnly: true
+
+    - name: configMap-is-attribute-volume
+      configMap: unexpected value
+
+    - name: secret-is-attribute-volume
+      configMap: unexpected value
+
+    - name: read-only-to-false-volume
+      nfs:
+        server: my-nfs-server.example.com
+        path: /my-nfs-volume
+        readOnly: false
+
+    - configMap:
+        name: parent volume does not have mandatory name attribute
+

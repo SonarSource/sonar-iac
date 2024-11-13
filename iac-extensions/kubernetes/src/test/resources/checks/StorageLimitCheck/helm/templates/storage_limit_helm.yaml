@@ -23,6 +23,9 @@ spec:
     - name: {{ .Values.container.name }}
 #              ^^^^^^^^^^^^^^^^^^^^^^
       image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 ---
 apiVersion: v1
 kind: Pod
@@ -60,6 +63,9 @@ spec:
     - name: {{ .Values.container.name }}
 #              ^^^^^^^^^^^^^^^^^^^^^^
       image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
 ---
 apiVersion: v1
 kind: Pod
@@ -71,4 +77,17 @@ spec:
 # Noncompliant@+1
     - name: {{ .Values.container.name }}
 #              ^^^^^^^^^^^^^^^^^^^^^^
+      image: nginx
+      volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-limit-range-no-volumeMounts
+  namespace: other_namespace
+spec:
+  containers:
+    - name: {{ .Values.container.name }}
       image: nginx

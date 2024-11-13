@@ -72,12 +72,14 @@ spec:
             - name: ephemeral
               mountPath: "/tmp"
 
-        - name: compliant_without_volumeMounts # Noncompliant
-        # ^^^^
+        - name: compliant_without_volumeMounts_with_limit
           image: nginx
           resources:
             limits:
               memory: 64Mi
+
+        - name: compliant_without_volumeMounts_and_limit
+          image: nginx
 ---
 # Similar to the above example but different kind and namespace
 apiVersion: batch/v1
@@ -154,8 +156,7 @@ spec:
             - name: ephemeral
               mountPath: "/tmp"
 
-        - name: compliant_without_volumeMounts # Noncompliant
-        # ^^^^
+        - name: compliant_without_volumeMounts
           image: nginx
           resources:
             limits:
@@ -236,8 +237,7 @@ spec:
             - name: ephemeral
               mountPath: "/tmp"
 
-        - name: compliant_without_volumeMounts # Noncompliant
-        # ^^^^
+        - name: compliant_without_volumeMounts
           image: nginx
           resources:
             limits:
