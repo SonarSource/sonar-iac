@@ -155,6 +155,7 @@ class RunInstructionImplTest {
   void shouldParseRunHereDocument() {
     Assertions.assertThat(DockerLexicalGrammar.RUN)
       .matches("RUN <<EOT\n  mkdir -p foo/bar\nEOT")
+      .matches("RUN <<EOT\nEOT")
       .matches("RUN <<EOT early code\n  mkdir -p foo/bar\nEOT")
       .matches("   RUN       <<EOT\n  mkdir -p foo/bar\nEOT")
       .matches("RUN <<eot\n  mkdir -p foo/bar\neot")

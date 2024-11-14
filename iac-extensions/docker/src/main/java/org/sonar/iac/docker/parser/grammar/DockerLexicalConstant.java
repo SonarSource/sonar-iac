@@ -87,16 +87,21 @@ public final class DockerLexicalConstant {
 
   /**
    * Regexes to match Docker heredoc expression as described in the <a href="https://docs.docker.com/engine/reference/builder/#here-documents">Docker reference</a>.
-   * It starts with the heredoc indicator (2 Less-than signs), followed by an optional minus, followed by an optional double quote
-   * then the 1st capturing group (the heredoc block name), followed again by an optional double quote.
-   * In 1st capturing group: one or more (possessive) uppercase/lowercase letters, numbers, or underscore.
+   * It starts with the heredoc indicator (<<), followed by an optional minus, then the 2nd capturing group (the heredoc block name).
+   * It can be encapsulated by single or double-quote (we use the 1st capturing group to match the quote), or not.
    * The key part is the reference to the heredoc block name which end the heredoc block by having this element alone in a line.
    * This regex also allow having multiple heredoc block name, with optional other commands between them on the same line;
-   * it will then end until the last matched block.
-   * Implementation note: `\1` matches the last match of the 1st capturing group, i.e. the name of the last opening heredoc marker.
+   * it will then end until the last matched block in 2nd group.
+   * Implementation note: `\2` matches the last match of the 2nd capturing group, i.e. the name of the last opening heredoc marker.
    */
+  // Match a single heredoc name. E.g: <<KEY
   public static final String HEREDOC_NAME = "<<-?(\"|')?([a-zA-Z0-9_]++)\\1?";
-  public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "[^<\\r\\n]*)+[\\n\\r][\\s\\S]*?([\\n\\r])\\2(?=[\\n\\r]|$)";
+  // Match the whole group of heredoc names. E.g: <<KEY1 something <<KEY2
+  private static final String HEREDOC_NAMES = "(?:" + HEREDOC_NAME + "[^<\\r\\n]*)*+";
+  // Match the end of the heredoc, which is a line with the last matched heredoc name, followed by EOL or EOF (not matched). E.g: \nKEY1\n
+  private static final String HEREDOC_END = EOL + "\\2(?=" + EOL + "|$)";
+  // The whole heredoc expression.
+  public static final String HEREDOC_EXPRESSION = HEREDOC_NAMES + "[\\s\\S]*?" + HEREDOC_END;
 
   public static final String IMAGE_ALIAS = "[-a-zA-Z0-9_\\.]+";
 
