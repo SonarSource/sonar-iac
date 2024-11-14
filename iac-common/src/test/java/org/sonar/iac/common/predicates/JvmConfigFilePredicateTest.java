@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -32,6 +32,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.extension.DurationStatistics;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.predicates.JvmConfigFilePredicate.JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE;
@@ -43,24 +44,45 @@ class JvmConfigFilePredicateTest {
   @TempDir
   private Path tempDir;
 
+  static Stream<Arguments> shouldCorrectlyMatchFiles() {
+    return Stream.of(
+      arguments("application.properties", true),
+      arguments("application.yaml", true),
+      arguments("application.yml", true),
+      arguments("application-prod.properties", true),
+      arguments("application-prod.yaml", true),
+      arguments("application-prod.yml", true),
+
+      arguments("app.properties", true),
+      arguments("app.yaml", true),
+      arguments("app.yml", true),
+      arguments("app-prod.properties", true),
+      arguments("app-prod.yaml", true),
+      arguments("app-prod.yml", true),
+
+      arguments("foo-app.properties", true),
+      arguments("foo-app.yaml", true),
+      arguments("foo-app.yml", true),
+      arguments("foo-app-prod.properties", true),
+      arguments("foo-app-prod.yaml", true),
+      arguments("foo-app-prod.yml", true),
+
+      // dev profiles are ignored
+      arguments("application-dev.properties", false),
+      arguments("application-dev.yaml", false),
+      arguments("application-dev.yml", false),
+      // test profiles are ignored
+      arguments("application-test.properties", false),
+      arguments("application-test.yaml", false),
+      arguments("application-test.yml", false),
+      // doesn't contain app
+      arguments("config.properties", false),
+      arguments("config.yaml", false),
+      arguments("config.yml", false));
+  }
+
   @ParameterizedTest
-  @CsvSource(textBlock = """
-    application.properties,true
-    application.yaml,true
-    application.yml,true
-    application-prod.properties,true
-    application-prod.yaml,true
-    application-prod.yml,true
-    application-dev.properties,false
-    application-dev.yaml,false
-    application-dev.yml,false
-    application-test.properties,false
-    application-test.yaml,false
-    application-test.yml,false
-    config.properties,false
-    config.yaml,false
-    config.yml,false
-    """)
+  @MethodSource
   void shouldCorrectlyMatchFiles(String filename, boolean shouldMatch) {
     var predicate = new JvmConfigFilePredicate(SensorContextTester.create(tempDir), true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var inputFile = mock(InputFile.class);

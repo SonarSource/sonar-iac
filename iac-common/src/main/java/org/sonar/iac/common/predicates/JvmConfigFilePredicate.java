@@ -34,8 +34,8 @@ import org.sonar.iac.common.extension.DurationStatistics;
 public class JvmConfigFilePredicate extends AbstractTimedFilePredicate {
   private static final Logger LOG = LoggerFactory.getLogger(JvmConfigFilePredicate.class);
   public static final String JVM_CONFIG_FILE_PATTERNS_KEY = "sonar.java.jvmframeworkconfig.file.patterns";
-  public static final String JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE = "**/src/main/resources/**/application*.properties," +
-    "**/src/main/resources/**/application*.yaml,**/src/main/resources/**/application*.yml";
+  public static final String JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE = "**/src/main/resources/**/*app*.properties," +
+    "**/src/main/resources/**/*app*.yaml,**/src/main/resources/**/*app*.yml";
   public static final Set<String> JVM_CONFIG_EXCLUDED_PROFILES = Set.of("dev", "test");
   private final FilePredicate delegate;
   private final boolean isDebugEnabled;
