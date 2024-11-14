@@ -38,12 +38,17 @@ public class PackageManagerConsentFlagCheck implements IacCheck {
   private static final Map<String, CommandOption> MANAGERS_TO_CONSENT_FLAGS = Map.of(
     "apt-get", new CommandOption("-y", List.of("--yes", ASSUME_YES_FLAG)),
     "apt", new CommandOption("-y", List.of("--yes", ASSUME_YES_FLAG)),
-    "aptitude", new CommandOption("-y", List.of(ASSUME_YES_FLAG)));
+    "aptitude", new CommandOption("-y", List.of(ASSUME_YES_FLAG)),
+    "gdebi", new CommandOption("-n", List.of("--non-interactive")));
   private static final Set<String> APT_COMMANDS_REQUIRING_CONFIRMATION = Set.of("upgrade", "dist-upgrade", "install", "reinstall", "remove", "purge");
   private static final CommandDetector DEBIAN_PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
     .with(Set.of("apt", "apt-get", "aptitude"))
     .withAnyFlag()
     .with(APT_COMMANDS_REQUIRING_CONFIRMATION)
+    .withOptionalRepeating(s -> true)
+    .build();
+  private static final CommandDetector GDEBI_PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
+    .with("gdebi")
     .withOptionalRepeating(s -> true)
     .build();
 
@@ -54,12 +59,14 @@ public class PackageManagerConsentFlagCheck implements IacCheck {
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(runInstruction);
-    DEBIAN_PACKAGE_MANAGER_DETECTOR.search(argumentResolutions).forEach((CommandDetector.Command c) -> {
-      if (isPackageManagerInvocationWithoutConsent(c)) {
-        ctx.reportIssue(c.textRange(), MESSAGE);
-      }
-    });
+    DEBIAN_PACKAGE_MANAGER_DETECTOR.search(argumentResolutions).forEach((CommandDetector.Command c) -> checkCommand(ctx, c));
+    GDEBI_PACKAGE_MANAGER_DETECTOR.search(argumentResolutions).forEach((CommandDetector.Command c) -> checkCommand(ctx, c));
+  }
 
+  private static void checkCommand(CheckContext ctx, CommandDetector.Command command) {
+    if (isPackageManagerInvocationWithoutConsent(command)) {
+      ctx.reportIssue(command.textRange(), MESSAGE);
+    }
   }
 
   private static boolean isPackageManagerInvocationWithoutConsent(CommandDetector.Command command) {

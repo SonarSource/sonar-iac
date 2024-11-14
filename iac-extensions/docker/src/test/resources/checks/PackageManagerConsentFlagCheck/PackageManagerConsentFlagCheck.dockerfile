@@ -17,6 +17,14 @@ RUN apt-get install -dmf libcurl
 RUN apt-get upgrade
 # Noncompliant@+1
 RUN apt-get dist-upgrade
+# Noncompliant@+1
+RUN gdebi /tmp/package.deb
+# Noncompliant@+1
+RUN gdebi -q
+# Noncompliant@+1
+RUN gdebi -o APT_OPTS /tmp/package.deb
+# Noncompliant@+1
+RUN gdebi /tmp/package.deb && other_command -n
 
 RUN apt-get install -y libcurl
 RUN apt-get update
@@ -28,6 +36,10 @@ RUN apt install -y libcurl
 RUN aptitude install -y libcurl
 RUN apt-get install -tym libcurl
 RUN apt-get install --yes libcurl
+RUN gdebi -n /tmp/package.deb
+RUN gdebi --non-interactive /tmp/package.deb
+RUN gdebi /tmp/package.deb -n
+RUN gdebi -o APT_OPTS /tmp/package.deb -n
 
 # FN SONARIAC-1115 CommandDetector, detect command when some flag is missing
 RUN apt-get install libcurl -y
