@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
@@ -36,8 +37,16 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
   private static final String MESSAGE = "Update cache and install packages in single RUN instruction.";
   private static final Set<String> PACKAGE_MANAGERS = Set.of("apk", "apt", "apt-get", "aptitude");
-  private static final CommandDetector PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
-    .with(PACKAGE_MANAGERS)
+  private static final Set<String> PACKAGE_INSTALLER = Set.of("gdebi");
+  private static final Set<String> ALL_PACKAGE_INSTALLERS;
+  static {
+    ALL_PACKAGE_INSTALLERS = new HashSet<>();
+    ALL_PACKAGE_INSTALLERS.addAll(PACKAGE_MANAGERS);
+    ALL_PACKAGE_INSTALLERS.addAll(PACKAGE_INSTALLER);
+  }
+
+  private static final CommandDetector PACKAGE_INSTALLER_DETECTOR = CommandDetector.builder()
+    .with(ALL_PACKAGE_INSTALLERS)
     .withAnyIncludingUnresolvedRepeating(s -> true)
     .build();
   private static final CommandDetector PACKAGE_MANAGER_UPDATE_DETECTOR = CommandDetector.builder()
@@ -62,7 +71,7 @@ public class PackageManagerUpdateWithoutInstallCheck implements IacCheck {
         // To account for this, we also need to analyze the part of the current command the region matched by CommandDetector.
         commandsAfterMatch.add(0, subListAfter(argumentResolutions, command.getResolvedArguments()));
         // There may be various commands that would require updated indices, so we only check presence for absence of another invocation
-        boolean hasNoPackageManagerInvocation = commandsAfterMatch.stream().allMatch(resolutions -> PACKAGE_MANAGER_DETECTOR.search(resolutions).isEmpty());
+        boolean hasNoPackageManagerInvocation = commandsAfterMatch.stream().allMatch(resolutions -> PACKAGE_INSTALLER_DETECTOR.search(resolutions).isEmpty());
         if (hasNoPackageManagerInvocation) {
           ctx.reportIssue(command.textRange(), MESSAGE);
         }

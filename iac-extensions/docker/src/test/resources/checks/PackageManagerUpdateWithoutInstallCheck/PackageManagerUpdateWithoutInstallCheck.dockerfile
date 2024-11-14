@@ -38,6 +38,7 @@ RUN apt-get update && apt-get install libcurl
 RUN aptitude update && aptitude install libcurl
 RUN aptitude update && apt-get install libcurl
 RUN apt-get update && apt install libcurl
+RUN apt-get update && gdebi -n /tmp/package.deb
 # Compliant, but mix of different package managers shouldn't be expected to occur in real files
 RUN aptitude update && apk add libcurl
 RUN apt-get update && echo APT index updated && apt install -y libcurl
