@@ -31,6 +31,7 @@ import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -57,6 +58,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.SpreadProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
@@ -313,13 +315,26 @@ public class BicepGrammar {
   }
 
   public ObjectProperty OBJECT_PROPERTY() {
-    return b.<ObjectProperty>nonterminal(BicepLexicalGrammar.PROPERTY).is(
+    return b.<ObjectProperty>nonterminal(BicepLexicalGrammar.OBJECT_PROPERTY).is(
       b.firstOf(
-        f.objectProperty(
-          b.firstOf(IDENTIFIER(), INTERPOLATED_STRING()),
-          b.token(Punctuator.COLON),
-          EXPRESSION()),
+        KEY_VALUE_PROPERTY(),
+        SPREAD_PROPERTY(),
         RESOURCE_DECLARATION()));
+  }
+
+  public Property KEY_VALUE_PROPERTY() {
+    return b.<Property>nonterminal(BicepLexicalGrammar.KEY_VALUE_PROPERTY).is(
+      f.keyValueProperty(
+        b.firstOf(IDENTIFIER(), INTERPOLATED_STRING()),
+        b.token(Punctuator.COLON),
+        EXPRESSION()));
+  }
+
+  public SpreadProperty SPREAD_PROPERTY() {
+    return b.<SpreadProperty>nonterminal(BicepLexicalGrammar.SPREAD_PROPERTY).is(
+      f.spreadProperty(
+        b.token(Punctuator.ELLIPSIS),
+        EXPRESSION()));
   }
 
   public Expression PRIMARY_EXPRESSION() {

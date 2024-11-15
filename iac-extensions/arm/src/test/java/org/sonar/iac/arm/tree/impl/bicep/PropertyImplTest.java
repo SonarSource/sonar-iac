@@ -27,7 +27,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +36,7 @@ class PropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseProperty() {
-    ArmAssertions.assertThat(BicepLexicalGrammar.PROPERTY)
+    ArmAssertions.assertThat(BicepLexicalGrammar.KEY_VALUE_PROPERTY)
       .matches("key:value")
       .matches("'key':value")
       .matches("'a${123}b${456}c':value")
@@ -57,14 +56,15 @@ class PropertyImplTest extends BicepTreeModelTest {
       .matches("func: 'string'")
 
       .notMatches("1key: 1value")
-      .notMatches("@abc x value");
+      .notMatches("@abc x value")
+      .notMatches("...identifier123");
   }
 
   @Test
   void shouldParsePropertyIdentifier() {
     String code = "key:value";
 
-    Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
+    Property tree = parse(code, BicepLexicalGrammar.OBJECT_PROPERTY);
     assertThat(tree.value()).asWrappedIdentifier().hasValue("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
@@ -89,12 +89,11 @@ class PropertyImplTest extends BicepTreeModelTest {
   void shouldParsePropertyInterpString() {
     String code = "'key':value";
 
-    Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
+    Property tree = parse(code, BicepLexicalGrammar.OBJECT_PROPERTY);
     assertThat(tree.value()).asWrappedIdentifier().hasValue("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
     Assertions.assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
-    InterpolatedString key = (InterpolatedString) tree.children().get(0);
 
     SyntaxToken colon = (SyntaxToken) tree.children().get(1);
     assertThat(colon.children()).isEmpty();
@@ -111,8 +110,7 @@ class PropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldConvertToString() {
-    String code = "key: 'value'";
-    Property property = parse(code, BicepLexicalGrammar.PROPERTY);
+    Property property = parse("key: 'value'", BicepLexicalGrammar.OBJECT_PROPERTY);
     assertThat(property).hasToString("key: 'value'");
   }
 }
