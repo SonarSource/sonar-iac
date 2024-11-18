@@ -97,7 +97,7 @@
       "name": "do not report on $schema 2 time",
       "properties": {
         "template": {
-          "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
+          "$schema": "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
         }
       }
     },
@@ -107,7 +107,7 @@
       "name": "do not report on $schema 3 time",
       "properties": {
         "template": {
-          "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
+          "$schema": "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
         }
       }
     },
@@ -117,7 +117,7 @@
       "name": "do not report on $schema 4 time",
       "properties": {
         "template": {
-          "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
+          "$schema": "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
         }
       }
     },
@@ -127,7 +127,7 @@
       "name": "do not report on $schema 5 time",
       "properties": {
         "template": {
-          "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
+          "$schema": "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#"
         }
       }
     },

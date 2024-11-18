@@ -36,8 +36,8 @@ class ClearTextProtocolsCheckTest {
   @Test
   void testClearTextProtocolWithHttpsOnlyJson() {
     ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Web_sites.json", check,
-      issue(range(9, 8, 9, 26), "Make sure that using clear-text protocols is safe here."),
-      issue(range(14, 14, 14, 35), "Omitting \"httpsOnly\" allows the use of clear-text protocols. Make sure it is safe here."));
+      issue(range(10, 8, 10, 26), "Make sure that using clear-text protocols is safe here."),
+      issue(range(15, 14, 15, 35), "Omitting \"httpsOnly\" allows the use of clear-text protocols. Make sure it is safe here."));
   }
 
   @Test
@@ -48,8 +48,8 @@ class ClearTextProtocolsCheckTest {
   @Test
   void testClearTextProtocolWithHttpAllowedJson() {
     ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Cdn_profiles_endpoints.json", check,
-      issue(range(9, 8, 9, 29), "Make sure that using clear-text protocols is safe here."),
-      issue(range(14, 14, 14, 48), "Omitting \"isHttpAllowed\" allows the use of clear-text protocols. Make sure it is safe here."));
+      issue(range(10, 8, 10, 29), "Make sure that using clear-text protocols is safe here."),
+      issue(range(15, 14, 15, 48), "Omitting \"isHttpAllowed\" allows the use of clear-text protocols. Make sure it is safe here."));
   }
 
   @Test
@@ -60,7 +60,7 @@ class ClearTextProtocolsCheckTest {
   @Test
   void testClearTextProtocolWithFtpsStateJson() {
     ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Web_sites_config.json", check,
-      issue(range(9, 8, 9, 33), "Make sure that using clear-text protocols is safe here."));
+      issue(range(10, 8, 10, 33), "Make sure that using clear-text protocols is safe here."));
   }
 
   @Test
@@ -71,7 +71,7 @@ class ClearTextProtocolsCheckTest {
   @Test
   void testClearTextProtocolWithHttpsTrafficOnlyJson() {
     ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts.json", check,
-      issue(range(9, 8, 9, 41), "Make sure that using clear-text protocols is safe here."));
+      issue(range(10, 8, 10, 41), "Make sure that using clear-text protocols is safe here."));
   }
 
   @Test
@@ -82,8 +82,8 @@ class ClearTextProtocolsCheckTest {
   @Test
   void testClearTextProtocolWithProtocolsContainingHttpsJson() {
     ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.ApiManagement_service_apis.json", check,
-      issue(range(10, 10, 10, 16), "Make sure that using clear-text protocols is safe here."),
-      issue(range(21, 10, 21, 16)));
+      issue(range(11, 10, 11, 16), "Make sure that using clear-text protocols is safe here."),
+      issue(range(22, 10, 22, 16)));
   }
 
   @Test
@@ -94,7 +94,7 @@ class ClearTextProtocolsCheckTest {
   @Test
   void testClearTextProtocolWithClientProtocolJson() {
     ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Cache_redisEnterprise_databases.json", check,
-      issue(range(9, 8, 9, 37), "Make sure that using clear-text protocols is safe here."));
+      issue(range(10, 8, 10, 37), "Make sure that using clear-text protocols is safe here."));
   }
 
   @Test
@@ -114,7 +114,7 @@ class ClearTextProtocolsCheckTest {
   void testClearTextProtocolWithSslEnforcementInDifferentDatabasesJson(String type) {
     String content = readTemplateAndReplace("ClearTextProtocolsCheck/Microsoft.DBforDbname_servers_template.json", type);
     ArmVerifier.verifyContent(content, check,
-      issue(range(9, 8, 9, 36), "Make sure that using clear-text protocols is safe here."));
+      issue(range(10, 8, 10, 36), "Make sure that using clear-text protocols is safe here."));
   }
 
   @MethodSource("databaseTypeList")

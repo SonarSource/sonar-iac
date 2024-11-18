@@ -45,13 +45,13 @@ class TopLevelPropertiesOrderCheckTest {
   static Stream<Arguments> shouldVerifyUnexpectedTopLevelJson() {
     return Stream.of(
       // filename, primaryTextRange
-      arguments("topLevelContentVersionAndSchema.json", range(3, 2, 3, 11)),
+      arguments("topLevelContentVersionAndSchema.json", range(4, 2, 4, 11)),
       arguments("topLevelExpectedFunctionsAndParametersAndOutputsAndResources.json", range(6, 2, 6, 14)),
       arguments("topLevelFunctionsAndParameters.json", range(6, 2, 6, 14)),
       arguments("topLevelFunctionsAndParametersCaseInsensitive.json", range(6, 2, 6, 14)),
       arguments("topLevelOutputsAsFirst.json", range(3, 2, 3, 11)),
       arguments("topLevelResourcesAndParameters.json", range(5, 2, 5, 14)),
-      arguments("topLevelSchemaAtEnd.json", range(9, 2, 9, 11)),
+      arguments("topLevelSchemaAtEnd.json", range(10, 2, 10, 11)),
       arguments("topLevelVariablesBeforeFunctions.json", range(6, 2, 6, 14)));
   }
 

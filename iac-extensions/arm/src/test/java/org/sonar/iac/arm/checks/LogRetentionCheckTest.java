@@ -99,8 +99,8 @@ class LogRetentionCheckTest {
     String content = readTemplateAndReplace("LogRetentionCheck/simpleRetentionDaysProperty_template.json", type);
     int endColumnForType = 16 + type.length();
     verifyContent(content, check,
-      issue(9, 8, 9, 26, "Make sure that defining a short log retention duration is safe here."),
-      issue(13, 14, 13, endColumnForType, "Omitting \"retentionDays\" results in a short log retention duration. Make sure it is safe here."));
+      issue(10, 8, 10, 26, "Make sure that defining a short log retention duration is safe here."),
+      issue(14, 14, 14, endColumnForType, "Omitting \"retentionDays\" results in a short log retention duration. Make sure it is safe here."));
   }
 
   @MethodSource("logRetentionAsSimpleProperty")

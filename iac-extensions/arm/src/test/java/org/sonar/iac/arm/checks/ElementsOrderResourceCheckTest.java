@@ -49,13 +49,13 @@ class ElementsOrderResourceCheckTest {
   static Stream<Arguments> shouldVerifyUnexpectedResourceJson() {
     return Stream.of(
       // filename, primaryTextRange
-      arguments("resourceCommentsAtEnd.json", range(22, 6, 22, 16)),
-      arguments("resourceKindScale.json", range(12, 6, 12, 12)),
-      arguments("resourceNameAndApiVersionAndType.json", range(8, 6, 8, 18)),
-      arguments("resourceNameAndApiVersionAndTypeCaseInsensitive.json", range(8, 6, 8, 18)),
-      arguments("resourceOnlySecondUnexpected.json", range(15, 6, 15, 16)),
-      arguments("resourceOtherPropertiesBetween.json", range(8, 6, 8, 12)),
-      arguments("resourcePropertiesAtBeginning.json", range(5, 6, 5, 16)));
+      arguments("resourceCommentsAtEnd.json", range(23, 6, 23, 16)),
+      arguments("resourceKindScale.json", range(13, 6, 13, 12)),
+      arguments("resourceNameAndApiVersionAndType.json", range(9, 6, 9, 18)),
+      arguments("resourceNameAndApiVersionAndTypeCaseInsensitive.json", range(9, 6, 9, 18)),
+      arguments("resourceOnlySecondUnexpected.json", range(16, 6, 16, 16)),
+      arguments("resourceOtherPropertiesBetween.json", range(9, 6, 9, 12)),
+      arguments("resourcePropertiesAtBeginning.json", range(6, 6, 6, 16)));
   }
 
   @ParameterizedTest
@@ -67,8 +67,8 @@ class ElementsOrderResourceCheckTest {
 
   @Test
   void shouldVerifyTwoUnexpectedResourcesInOneFile() {
-    var issue1 = issue(range(5, 6, 5, 16), PRIMARY_MESSAGE);
-    var issue2 = issue(range(16, 6, 16, 12), PRIMARY_MESSAGE);
+    var issue1 = issue(range(6, 6, 6, 16), PRIMARY_MESSAGE);
+    var issue2 = issue(range(17, 6, 17, 12), PRIMARY_MESSAGE);
     ArmVerifier.verify(DIR + "resourceTwoUnexpected.json", CHECK, issue1, issue2);
   }
 
