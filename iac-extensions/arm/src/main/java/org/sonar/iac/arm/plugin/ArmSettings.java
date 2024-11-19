@@ -36,7 +36,7 @@ public class ArmSettings {
   protected static final String FILE_SUFFIXES_KEY = PROPERTY_KEY_PREFIX + ".file.suffixes";
   protected static final String FILE_SUFFIXES_DEFAULT_VALUE = ".bicep";
   protected static final String FILE_IDENTIFIER_KEY = PROPERTY_KEY_PREFIX + ".file.identifier";
-  protected static final String FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/";
+  protected static final String FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/,http://schema.management.azure.com/schemas/";
 
   private ArmSettings() {
   }
@@ -69,10 +69,13 @@ public class ArmSettings {
       PropertyDefinition.builder(FILE_IDENTIFIER_KEY)
         .index(4)
         .defaultValue(FILE_IDENTIFIER_DEFAULT_VALUE)
-        .name("JSON Template File Identifier")
-        .description("ARM JSON templates without the identifier are excluded from the analysis. The identifier can be anywhere in the file.")
+        .name("JSON Template File Identifiers")
+        .description("ARM JSON templates without any of the identifiers are excluded from the analysis. " +
+          "The identifier can be anywhere in the file. " +
+          "Only one identifier of the list needs to be matched for the file to be included.")
         .onQualifiers(Qualifiers.PROJECT)
         .category(ARM_CATEGORY)
+        .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
         .deprecatedKey("sonar.arm.file.identifier")
         .build());

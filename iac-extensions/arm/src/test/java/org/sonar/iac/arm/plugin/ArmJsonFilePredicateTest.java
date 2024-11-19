@@ -20,13 +20,15 @@
 package org.sonar.iac.arm.plugin;
 
 import java.nio.file.Path;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -41,29 +43,30 @@ class ArmJsonFilePredicateTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   private SensorContext sensor;
-  private Configuration config;
+  private MapSettings config;
 
   @BeforeEach
   void setup() {
     sensor = mock(SensorContext.class);
-    config = mock(Configuration.class);
-    when(sensor.config()).thenReturn(config);
-    setConfig(ArmSettings.FILE_IDENTIFIER_KEY, ArmSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
+    config = new MapSettings();
+    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, ArmSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
+    when(sensor.config()).thenReturn(config.asConfig());
   }
 
-  private void setConfig(String key, String value) {
-    when(config.get(key)).thenReturn(Optional.of(value));
-  }
-
-  @Test
-  void shouldAllowJsonFilesWithDefaultIdentifier() {
+  @ParameterizedTest
+  @CsvSource(value = {
+    "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#,true",
+    "http://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#,true",
+    "unexpectedSchema,false",
+  })
+  void shouldApplyDefaultIdentifiersCorrectly(String schema, boolean shouldBeApplied) {
     var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var file = IacTestUtils.inputFile("valid_file.json", Path.of("some/dir"), """
       {
-        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+        "$schema": "%s"
         "contentVersion": "1.0.0.0",
-      }""", "json");
-    assertThat(predicate.apply(file)).isTrue();
+      }""".formatted(schema), "json");
+    assertThat(predicate.apply(file)).isEqualTo(shouldBeApplied);
   }
 
   @Test
@@ -78,7 +81,7 @@ class ArmJsonFilePredicateTest {
 
   @Test
   void shouldAllowJsonFilesWithoutCustomIdentifier() {
-    setConfig(ArmSettings.FILE_IDENTIFIER_KEY, "my_specific_identifier");
+    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, "my_specific_identifier");
     var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var file = IacTestUtils.inputFile("valid_file.json", Path.of("some/dir"), """
       {
@@ -90,7 +93,7 @@ class ArmJsonFilePredicateTest {
 
   @Test
   void shouldRejectJsonFilesWithoutCustomIdentifier() {
-    setConfig(ArmSettings.FILE_IDENTIFIER_KEY, "my_specific_identifier");
+    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, "my_specific_identifier");
     var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var file = IacTestUtils.inputFile("valid_file.json", Path.of("some/dir"), """
       {
@@ -106,7 +109,19 @@ class ArmJsonFilePredicateTest {
     var file = IacTestUtils.inputFile("empty.json", Path.of("some/dir"), "{}", "json");
     predicate.apply(file);
     assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo("File without identifier 'https://schema.management.azure.com/schemas/': empty.json");
+    String expectedLog = "File without any identifiers '[https://schema.management.azure.com/schemas/, http://schema.management.azure.com/schemas/]': empty.json";
+    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(expectedLog);
+  }
+
+  @Test
+  void shouldLogWhenDebugEnabledWithSingleIdentifier() {
+    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, "https://schema.management.azure.com/schemas/");
+    var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
+    var file = IacTestUtils.inputFile("empty.json", Path.of("some/dir"), "{}", "json");
+    predicate.apply(file);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
+    String expectedLog = "File without identifier 'https://schema.management.azure.com/schemas/': empty.json";
+    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(expectedLog);
   }
 
   @Test
@@ -115,5 +130,18 @@ class ArmJsonFilePredicateTest {
     var file = IacTestUtils.inputFile("empty.json", Path.of("some/dir"), "{}", "json");
     predicate.apply(file);
     assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+  }
+
+  @Test
+  void shouldDiscardEmptyConfigElementsAsIdentifier() {
+    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, "\"\",\" \",identifier1");
+    var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
+
+    var file = IacTestUtils.inputFile("valid_file.json", Path.of("some/dir"), """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+        "contentVersion": "1.0.0.0",
+      }""", "json");
+    assertThat(predicate.apply(file)).isFalse();
   }
 }

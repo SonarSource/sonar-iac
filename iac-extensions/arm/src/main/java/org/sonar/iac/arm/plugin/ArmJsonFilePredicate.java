@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.plugin;
 
+import java.util.Arrays;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -31,8 +32,11 @@ public class ArmJsonFilePredicate extends AbstractTimedFilePredicate {
 
   public ArmJsonFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
     super(timer);
-    this.delegate = new FileIdentificationPredicate(sensorContext.config().get(ArmSettings.FILE_IDENTIFIER_KEY).orElse(""),
-      isDebugEnabled);
+    String[] stringArray = sensorContext.config().getStringArray(ArmSettings.FILE_IDENTIFIER_KEY);
+    var identifiers = Arrays.stream(stringArray)
+      .filter(s -> !s.isBlank()).toList();
+
+    this.delegate = new FileIdentificationPredicate(identifiers, isDebugEnabled);
   }
 
   @Override

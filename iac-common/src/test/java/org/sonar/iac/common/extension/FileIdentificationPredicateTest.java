@@ -20,8 +20,12 @@
 package org.sonar.iac.common.extension;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
@@ -38,9 +42,17 @@ class FileIdentificationPredicateTest {
 
   private static final String IDENTIFIER = "myidentifier";
 
-  @Test
-  void shouldReturnTrueForEmptyIdentifier() {
-    var filePredicate = new FileIdentificationPredicate("", true);
+  static Stream<List<String>> shouldReturnTrueForEmptyIdentifier() {
+    return Stream.of(
+      List.of(),
+      List.of(""),
+      null);
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldReturnTrueForEmptyIdentifier(List<String> identifiers) {
+    var filePredicate = new FileIdentificationPredicate(identifiers, true);
     assertThat(filePredicate.apply(inputFile("small_file.txt", "text"))).isTrue();
     assertThat(filePredicate.apply(inputFile("big_file_identifier_in_buffer.txt", "text"))).isTrue();
     assertThat(filePredicate.apply(inputFile("big_file_identifier_after_buffer.txt", "text"))).isTrue();
@@ -77,6 +89,22 @@ class FileIdentificationPredicateTest {
     assertThat(logTester.logs(Level.ERROR).get(1)).startsWith("File not found mock");
     assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
     assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("File without identifier '" + IDENTIFIER + "': nofile.txt");
+  }
+
+  @Test
+  void shouldErrorMessageWhenFileNotFoundWithMultipleIdentifier() throws IOException {
+    InputFile noFile = mock(InputFile.class);
+    when(noFile.inputStream()).thenThrow(new IOException("File not found mock"));
+    when(noFile.toString()).thenReturn("nofile.txt");
+
+    var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER, IDENTIFIER), true);
+    assertThat(filePredicate.apply(noFile)).isFalse();
+    assertThat(logTester.logs(Level.ERROR)).hasSize(2);
+    assertThat(logTester.logs(Level.ERROR).get(0)).isEqualTo("Unable to read file: nofile.txt.");
+    assertThat(logTester.logs(Level.ERROR).get(1)).startsWith("File not found mock");
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(Level.DEBUG).get(0))
+      .startsWith("File without any identifiers '[%s, %s]': nofile.txt".formatted(IDENTIFIER, IDENTIFIER));
   }
 
   @Test

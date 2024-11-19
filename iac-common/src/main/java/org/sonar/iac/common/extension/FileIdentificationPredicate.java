@@ -21,6 +21,8 @@ package org.sonar.iac.common.extension;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +35,15 @@ public class FileIdentificationPredicate implements FilePredicate {
   private static final Logger LOG = LoggerFactory.getLogger(FileIdentificationPredicate.class);
   private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
 
-  private final String fileIdentifier;
+  private final List<String> fileIdentifiers;
   private final boolean isDebugEnabled;
 
   public FileIdentificationPredicate(String fileIdentifier, boolean isDebugEnabled) {
-    this.fileIdentifier = fileIdentifier;
+    this(List.of(fileIdentifier), isDebugEnabled);
+  }
+
+  public FileIdentificationPredicate(List<String> fileIdentifiers, boolean isDebugEnabled) {
+    this.fileIdentifiers = fileIdentifiers;
     this.isDebugEnabled = isDebugEnabled;
   }
 
@@ -47,7 +53,7 @@ public class FileIdentificationPredicate implements FilePredicate {
   }
 
   private boolean hasFileIdentifier(InputFile inputFile) {
-    if (fileIdentifier.isEmpty()) {
+    if (hasEmptyIdentifier()) {
       return true;
     }
 
@@ -57,7 +63,7 @@ public class FileIdentificationPredicate implements FilePredicate {
       String text = new String(bytes, inputFile.charset());
       String[] lines = LINE_TERMINATOR.split(text);
       for (String line : lines) {
-        if (line.contains(fileIdentifier)) {
+        if (containsAnyIdentifier(line)) {
           return true;
         }
       }
@@ -66,7 +72,28 @@ public class FileIdentificationPredicate implements FilePredicate {
       LOG.error(e.getMessage());
     }
     if (isDebugEnabled) {
-      LOG.debug("File without identifier '{}': {}", fileIdentifier, inputFile);
+      if (fileIdentifiers.size() == 1) {
+        var identifierLog = fileIdentifiers.get(0);
+        LOG.debug("File without identifier '{}': {}", identifierLog, inputFile);
+      } else {
+        var identifierLog = Arrays.toString(fileIdentifiers.toArray());
+        LOG.debug("File without any identifiers '{}': {}", identifierLog, inputFile);
+      }
+    }
+    return false;
+  }
+
+  private boolean hasEmptyIdentifier() {
+    return fileIdentifiers == null ||
+      fileIdentifiers.isEmpty() ||
+      (fileIdentifiers.size() == 1 && fileIdentifiers.get(0).isEmpty());
+  }
+
+  private boolean containsAnyIdentifier(String line) {
+    for (String identifier : fileIdentifiers) {
+      if (line.contains(identifier)) {
+        return true;
+      }
     }
     return false;
   }
