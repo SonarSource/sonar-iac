@@ -81,7 +81,7 @@ load(".ci/notify-slack.star", "notify_slack")
 
 Remote example where v2 is a branch name of the repo cirrus-modules:
 ```Python
-load("github.com/SonarSource/cirrus-modules@v2", "load_features")
+load("github.com/SonarSource/cirrus-modules@v3", "load_features")
 ```
 
 Remote example loading Cloud Native squad shared library:
@@ -274,7 +274,7 @@ This pattern can also be applied to a shared module.
 
 `.cirrus.star` content:
 ```Python
-load("github.com/SonarSource/cirrus-modules@v2", "load_features")
+load("github.com/SonarSource/cirrus-modules@v3", "load_features")
 load(".cirrus/modules/base.star", "base_all_tasks")
 load(".cirrus/modules/build.star", "build_all_tasks")
 load(".cirrus/modules/deploy.star", "deploy_all_tasks")
