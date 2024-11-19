@@ -85,6 +85,39 @@ RUN --mount=type=cache,target=/var/lib/apt/lists apt-get install nginx
 RUN --mount=type=cache,target=/var/lib/apt apt-get install nginx
 RUN --mount=type=cache,target=/var/lib/apt/lists aptitude install nginx
 RUN --mount=type=cache,target=/var/cache/apt apt-get install nginx
+RUN --mount=type=cache,target=/var/cache/apk,sharing=locked apk add nginx
+
+ARG CACHE_TARGET_ARG=/var/cache/apt
+ARG CACHE_ID_ARG=123
+
+RUN --mount=type=cache,target=${CACHE_TARGET_ARG},sharing=locked apt-get install nginx
+RUN --mount=type=cache,id=${CACHE_ID_ARG},target=/var/cache/apt,sharing=locked apt-get install nginx
+
+ENV CACHE_TARGET_ENV=/var/cache/apt
+ENV CACHE_ID_ENV=123
+ENV CACHE=cache
+
+RUN --mount=type=cache,target=${CACHE_TARGET_ENV},sharing=locked apt-get install nginx
+RUN --mount=type=cache,id=${CACHE_ID_ENV},target=/var/cache/apt,sharing=locked apt-get install nginx
+
+# Those are noncompliant because the `target` or `type` is unresolved
+# Noncompliant@+1
+RUN --mount=type=cache,target=${UNDEFINED},sharing=locked apt-get install nginx
+# Noncompliant@+1
+RUN --mount=type=${UNDEFINED},target=/var/cache/apt,sharing=locked apt-get install nginx
+# Noncompliant@+1
+RUN --mount=type=${UNDEFINED},target=${UNDEFINED},sharing=locked apt-get install nginx
+
+RUN --mount=type=cache,id=${UNDEFINED},target=/var/cache/apt,sharing=locked apt-get install nginx
+RUN --mount=type=cache,target=/var/cache/apt,sharing=${UNDEFINED} apt-get install nginx
+RUN --mount=type=${CACHE},target=/var/cache/apt,sharing=${UNDEFINED} apt-get install nginx
+RUN --mount=type=cache,target=/var/cache/apt,sharing=${UNDEFINED} \
+    --mount=type=cache,target=${UNDEFINED} \
+    apt-get install nginx
+RUN --mount=type=cache,target=${UNDEFINED} \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get install nginx
+
 
 # Sensitive because the mount type is not cache
 # Noncompliant@+1

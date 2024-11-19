@@ -203,7 +203,6 @@ public class PackageInstallationCacheCheck implements IacCheck {
     return runInstruction.options().stream()
       .filter(option -> "mount".equals(option.name()))
       .map(option -> ArgumentResolution.of(option.value()))
-      .filter(ArgumentResolution::isResolved)
       .map(ArgumentResolution::value)
       .map(PackageInstallationCacheCheck::computeMapMountDetails)
       .filter(map -> "cache".equals(map.get("type")))
