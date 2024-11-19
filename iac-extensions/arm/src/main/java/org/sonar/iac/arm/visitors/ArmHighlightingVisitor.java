@@ -23,7 +23,6 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.FunctionCall;
-import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
@@ -56,7 +55,6 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     register(HasToken.class, (ctx, tree) -> highlight(tree.token(), CONSTANT));
 
     register(HasKeyword.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
-    register(OutputDeclaration.class, (ctx, tree) -> highlight(tree.type(), KEYWORD));
     register(Decorator.class, (ctx, tree) -> {
       var expression = tree.expression();
       if (expression instanceof FunctionCall functionCall) {

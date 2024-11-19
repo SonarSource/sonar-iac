@@ -44,7 +44,7 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.ComposedIdentifier;
+import org.sonar.iac.arm.tree.api.bicep.ComposedTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
@@ -100,7 +100,7 @@ import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayTypeSuffixImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.CompileTimeImportDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.ComposedIdentifierImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ComposedTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
@@ -181,7 +181,13 @@ public class TreeFactory {
     return new TypeDeclarationImpl(decorators.or(emptyList()), keyword, name, equ, typeExpression);
   }
 
-  public OutputDeclaration outputDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, Identifier type, SyntaxToken equ, Expression expression) {
+  public OutputDeclaration outputDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier name,
+    SingularTypeExpression type,
+    SyntaxToken equ,
+    Expression expression) {
     return new OutputDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equ, expression);
   }
 
@@ -471,8 +477,8 @@ public class TreeFactory {
     return new TypeExpressionImpl(separatedList(expression, listOptional));
   }
 
-  public SingularTypeExpression singularTypeExpression(TypeExpressionAble expression, Optional<List<SyntaxToken>> bracketOrQuestionMark) {
-    return new SingularTypeExpressionImpl(expression, bracketOrQuestionMark.or(List.of()));
+  public SingularTypeExpression singularTypeExpression(TypeExpressionAble expression, Optional<SyntaxToken> questionMark) {
+    return new SingularTypeExpressionImpl(expression, questionMark.orNull());
   }
 
   public ParenthesizedTypeExpression parenthesizedTypeExpression(SyntaxToken openingParenthesis, TypeExpressionAble typeExpression, SyntaxToken closingParenthesis) {
@@ -499,8 +505,18 @@ public class TreeFactory {
     return type;
   }
 
-  public ArrayTypeSuffix arrayTypeSuffix(SyntaxToken lBracket, Optional<NumericLiteral> length, SyntaxToken rBracket) {
-    return new ArrayTypeSuffixImpl(lBracket, length.orNull(), rBracket);
+  public ArrayTypeSuffix arrayTypeSuffix(SyntaxToken lBracket, Optional<? extends ArmTree> indexOrStar, SyntaxToken rBracket) {
+    NumericLiteral index = null;
+    SyntaxToken star = null;
+    if (indexOrStar.isPresent()) {
+      var tree = indexOrStar.get();
+      if (tree instanceof NumericLiteral numericLiteral) {
+        index = numericLiteral;
+      } else if (tree instanceof SyntaxToken syntaxToken) {
+        star = syntaxToken;
+      }
+    }
+    return new ArrayTypeSuffixImpl(lBracket, index, star, rBracket);
   }
 
   public WildcardTypeSuffix wildcardTypeSuffix(SyntaxToken dot, SyntaxToken star) {
@@ -598,9 +614,9 @@ public class TreeFactory {
     return new TernaryExpressionImpl(condition, query, ifTrueExpression, colon, elseExpression);
   }
 
-  public ComposedIdentifier composedIdentifier(Identifier identifier, List<Tuple<SyntaxToken, Identifier>> tuples) {
+  public ComposedTypeReference composedTypeReference(Identifier identifier, List<Tuple<SyntaxToken, Identifier>> tuples) {
     var list = toSeparatedList(identifier, tuples);
-    return new ComposedIdentifierImpl(list);
+    return new ComposedTypeReferenceImpl(list);
   }
 
   private static SeparatedList<Identifier, SyntaxToken> toSeparatedList(Identifier firstIdentifier, List<Tuple<SyntaxToken, Identifier>> separatorsWithIdentifiers) {

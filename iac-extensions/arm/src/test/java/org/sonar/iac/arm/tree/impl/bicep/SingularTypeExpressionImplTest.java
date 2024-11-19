@@ -24,11 +24,9 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
-import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class SingularTypeExpressionImplTest extends BicepTreeModelTest {
 
@@ -42,8 +40,8 @@ class SingularTypeExpressionImplTest extends BicepTreeModelTest {
       .matches("array?")
       .matches("array[][]")
       .matches("array[][][]")
-      .matches("array[]?[]")
-      .matches("array??")
+      .matches("array[]?")
+      .matches("array[][]?")
       .matches("bool")
       .matches("int")
       // identifier
@@ -91,29 +89,35 @@ class SingularTypeExpressionImplTest extends BicepTreeModelTest {
       .matches("''''''")
       .matches("'''python main.py'''")
       .matches("'''python main.py --abc ${{input.abc}} --def ${xyz}'''")
-      .matches(code("'''",
-        "first line",
-        "second line",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "// inline comment",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "/* inline comment */",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "/* inline",
-        "comment */",
-        "'''"))
-      .matches(code("'''",
-        "it's awesome",
-        "'''"))
-      .matches(code("'''",
-        "it''s awesome",
-        "'''"))
+      .matches("""
+        '''
+        first line
+        second line
+        '''""")
+      .matches("""
+        '''
+        first line
+        // inline comment
+        '''""")
+      .matches("""
+        '''
+        first line
+        /* inline comment */
+        '''""")
+      .matches("""
+        '''
+        first line
+        /* inline
+        comment */
+        '''""")
+      .matches("""
+        '''
+        it's awesome
+        '''""")
+      .matches("""
+        '''
+        it''s awesome
+        '''""")
       // object type
       .matches("{}")
       .matches("{ }")
@@ -154,18 +158,19 @@ class SingularTypeExpressionImplTest extends BicepTreeModelTest {
       .notMatches("array)")
       .notMatches("array )")
       .notMatches("array ]")
-      .notMatches("[ array");
+      .notMatches("[ array")
+      .notMatches("array[]?[]")
+      .notMatches("array??");
   }
 
   @Test
   void shouldParseComplexSingularTypeExpression() {
-    SingularTypeExpression tree = parse("( abc )[]?", BicepLexicalGrammar.SINGULAR_TYPE_EXPRESSION);
+    var tree = (SingularTypeExpression) parse("( abc )?", BicepLexicalGrammar.SINGULAR_TYPE_EXPRESSION);
     assertThat(tree.is(ArmTree.Kind.SINGULAR_TYPE_EXPRESSION)).isTrue();
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("(", "abc", ")", "[]", "?");
+      .containsExactly("(", "abc", ")", "?");
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree.expression()))
       .containsExactly("(", "abc", ")");
-    assertThat(tree.bracketOrQuestionMarks()).map(TextTree::value)
-      .containsExactly("[]", "?");
+    assertThat(tree.questionMark().value()).isEqualTo("?");
   }
 }

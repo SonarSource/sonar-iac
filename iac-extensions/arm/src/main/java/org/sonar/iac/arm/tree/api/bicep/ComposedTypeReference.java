@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api.bicep;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
 
-public interface ComposedIdentifier extends TypeExpressionAble {
+public interface ComposedTypeReference extends TypeExpressionAble {
 
   List<Identifier> identifiers();
 

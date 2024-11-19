@@ -30,17 +30,22 @@ import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
+
 public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements ArrayTypeReference {
   private final TypeExpressionAble type;
   private final SyntaxToken lBracket;
-  @CheckForNull
-  private final NumericLiteral length;
+  @Nullable
+  private final NumericLiteral index;
+  @Nullable
+  private final SyntaxToken star;
   private final SyntaxToken rBracket;
 
-  public ArrayTypeReferenceImpl(TypeExpressionAble type, SyntaxToken lBracket, @Nullable NumericLiteral length, SyntaxToken rBracket) {
+  public ArrayTypeReferenceImpl(TypeExpressionAble type, SyntaxToken lBracket, @Nullable NumericLiteral index, @Nullable SyntaxToken star, SyntaxToken rBracket) {
     this.type = type;
     this.lBracket = lBracket;
-    this.length = length;
+    this.index = index;
+    this.star = star;
     this.rBracket = rBracket;
   }
 
@@ -51,8 +56,14 @@ public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements Array
 
   @CheckForNull
   @Override
-  public NumericLiteral getLength() {
-    return length;
+  public NumericLiteral getIndex() {
+    return index;
+  }
+
+  @CheckForNull
+  @Override
+  public SyntaxToken getStar() {
+    return star;
   }
 
   @Override
@@ -60,9 +71,8 @@ public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements Array
     List<Tree> children = new ArrayList<>();
     children.add(type);
     children.add(lBracket);
-    if (length != null) {
-      children.add(length);
-    }
+    addChildrenIfPresent(children, index);
+    addChildrenIfPresent(children, star);
     children.add(rBracket);
     return children;
   }
@@ -76,8 +86,8 @@ public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements Array
   public String toString() {
     var result = type.toString();
     result += lBracket.toString();
-    if (length != null) {
-      result += length.toString();
+    if (index != null) {
+      result += index.toString();
     }
     result += rBracket.toString();
     return result;

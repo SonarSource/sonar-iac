@@ -31,7 +31,6 @@ import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class TupleItemImplTest extends BicepTreeModelTest {
 
@@ -41,17 +40,20 @@ class TupleItemImplTest extends BicepTreeModelTest {
       .matches("typeExpr")
       .matches("array[][]")
       .matches("array | int")
-      .matches("bool[]?[] | int??")
+      .matches("bool[][]? | int")
+      .matches("bool[][] | int?")
       .matches("@functionName123() typeExpr")
       .matches("@description('some desc')\n@maxLength(12)\ntypeExpr")
 
       .notMatches("typeExpr-")
-      .notMatches("typeExpr {}");
+      .notMatches("typeExpr {}")
+      .notMatches("bool[]?[] | int")
+      .notMatches("bool[][] | int??");
   }
 
   @Test
   void shouldParseSimpleTupleItem() {
-    String code = code("@functionName123() typeExpr");
+    var code = "@functionName123() typeExpr";
     TupleItem tree = parse(code, BicepLexicalGrammar.TUPLE_ITEM);
     assertThat(tree.is(ArmTree.Kind.TUPLE_ITEM)).isTrue();
 

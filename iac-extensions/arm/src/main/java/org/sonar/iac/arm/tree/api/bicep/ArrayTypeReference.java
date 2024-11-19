@@ -29,5 +29,8 @@ public interface ArrayTypeReference extends TypeExpressionAble {
   TypeExpressionAble getType();
 
   @CheckForNull
-  NumericLiteral getLength();
+  NumericLiteral getIndex();
+
+  @CheckForNull
+  SyntaxToken getStar();
 }

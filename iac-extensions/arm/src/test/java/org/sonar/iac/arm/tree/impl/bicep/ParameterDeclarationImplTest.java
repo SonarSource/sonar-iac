@@ -52,6 +52,37 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
       .matches("param itemDeref tuple[1] = 'baz'")
       .matches("param foo string?")
       .matches("param foo int?")
+      // The stringArrayType needs to be defined like: type stringArrayType = string[]
+      .matches("param param1 stringArrayType[*] = 'bar'")
+      .matches("param param2 stringArrayType = ['bar']")
+      .matches("param param3 stringArrayType[*]?")
+      .matches("param param4 stringArrayType[*][] = ['bar']")
+      .matches("param param5 stringArrayType[*][]?")
+      // type typeWithAdditionalProperties = { *: string }
+      .matches("param param6 typeWithAdditionalProperties.*")
+      // type typeWithAdditionalPropertiesArray = { *: string[] }
+      .matches("param param7 typeWithAdditionalPropertiesArray.*[*]")
+      // Type definitions needed for next examples
+      // type fruit = 'apple' | 'banana'
+      // type fruitQuantity = [fruit, int]
+      // type basket = { *: fruitQuantity[] }
+      .matches("param param9 fruitQuantity[1] = 1")
+      .matches("param paramA fruitQuantity[0] = 'apple'")
+      .matches("param paramA fruitQuantity[0]? = 'apple'")
+      .matches("param param8 basket.*[*][0]")
+      .matches("param param8 basket.*[*][0]")
+      .matches("param param9 basket.*[*][]")
+      .matches("param paramA basket.*[*]")
+      .matches("param paramB basket.*[]")
+      .matches("param paramC basket.*")
+      .matches("param paramD basket.*[*][0]?")
+      .matches("param paramE basket.*[*][]?")
+      .matches("param paramF basket.*[*]?")
+      .matches("param paramG basket.*[]?")
+      .matches("param paramH basket.*?")
+      .matches("param paramK (stringArrayType[*]?)[]")
+      .matches("param paramN (stringArrayType?)[]")
+
       // defining a param of name the same as keyword is possible
       .matches("param type int = 123")
       .matches("param if int = 123")
@@ -65,7 +96,15 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
       .notMatches("param myParam = 123")
       .notMatches("param myParam int 123")
       .notMatches("param identity string param")
-      .notMatches("@decorator[] param myParam = 123");
+      .notMatches("@decorator[] param myParam = 123")
+      // The ? should be last or in
+      .notMatches("param param6 stringArrayType[*]?[]")
+      .notMatches("param param7 stringArrayType?[*][]")
+      .notMatches("param param8 stringArrayType?[*]")
+      .notMatches("param param9 stringArrayType?[]")
+      // Error BCP391: Type member access is only supported on a reference to a named type.
+      .notMatches("param paramL ((stringArrayType?)[*])[]")
+      .notMatches("param paramM (stringArrayType?)[*]");
   }
 
   @Test

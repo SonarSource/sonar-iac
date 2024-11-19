@@ -110,7 +110,6 @@ def qa_plugin_task():
 #
 # Ruling
 #
-
 def qa_ruling_env():
     return {
         "GRADLE_TASK": QA_RULING_GRADLE_TASK,

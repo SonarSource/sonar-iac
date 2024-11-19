@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
@@ -28,18 +27,21 @@ import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 
 public class ArrayTypeSuffixImpl implements ArrayTypeSuffix {
   private final SyntaxToken lBracket;
-  @CheckForNull
-  private final NumericLiteral length;
+  @Nullable
+  private final NumericLiteral index;
+  @Nullable
+  private final SyntaxToken star;
   private final SyntaxToken rBracket;
 
-  public ArrayTypeSuffixImpl(SyntaxToken lBracket, @Nullable NumericLiteral length, SyntaxToken rBracket) {
+  public ArrayTypeSuffixImpl(SyntaxToken lBracket, @Nullable NumericLiteral index, @Nullable SyntaxToken star, SyntaxToken rBracket) {
     this.lBracket = lBracket;
-    this.length = length;
+    this.index = index;
+    this.star = star;
     this.rBracket = rBracket;
   }
 
   @Override
   public TypeExpressionAble applyTo(TypeExpressionAble baseType) {
-    return new ArrayTypeReferenceImpl(baseType, lBracket, length, rBracket);
+    return new ArrayTypeReferenceImpl(baseType, lBracket, index, star, rBracket);
   }
 }

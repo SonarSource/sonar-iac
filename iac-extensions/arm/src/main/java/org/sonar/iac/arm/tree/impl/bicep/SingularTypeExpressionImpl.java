@@ -21,19 +21,24 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
+
 public class SingularTypeExpressionImpl extends AbstractArmTreeImpl implements SingularTypeExpression {
   private final TypeExpressionAble expression;
-  private final List<SyntaxToken> bracketOrQuestionMarks;
+  @Nullable
+  private final SyntaxToken questionMark;
 
-  public SingularTypeExpressionImpl(TypeExpressionAble expression, List<SyntaxToken> bracketOrQuestionMarks) {
+  public SingularTypeExpressionImpl(TypeExpressionAble expression, @Nullable SyntaxToken questionMark) {
     this.expression = expression;
-    this.bracketOrQuestionMarks = bracketOrQuestionMarks;
+    this.questionMark = questionMark;
   }
 
   @Override
@@ -42,15 +47,16 @@ public class SingularTypeExpressionImpl extends AbstractArmTreeImpl implements S
   }
 
   @Override
-  public List<SyntaxToken> bracketOrQuestionMarks() {
-    return bracketOrQuestionMarks;
+  @CheckForNull
+  public SyntaxToken questionMark() {
+    return questionMark;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(expression);
-    children.addAll(bracketOrQuestionMarks);
+    addChildrenIfPresent(children, questionMark);
     return children;
   }
 }

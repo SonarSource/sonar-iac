@@ -21,16 +21,16 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.ComposedIdentifier;
+import org.sonar.iac.arm.tree.api.bicep.ComposedTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ComposedIdentifierImpl extends AbstractArmTreeImpl implements ComposedIdentifier {
+public class ComposedTypeReferenceImpl extends AbstractArmTreeImpl implements ComposedTypeReference {
   private final SeparatedList<Identifier, SyntaxToken> elements;
 
-  public ComposedIdentifierImpl(SeparatedList<Identifier, SyntaxToken> elements) {
+  public ComposedTypeReferenceImpl(SeparatedList<Identifier, SyntaxToken> elements) {
     this.elements = elements;
   }
 
@@ -46,7 +46,7 @@ public class ComposedIdentifierImpl extends AbstractArmTreeImpl implements Compo
 
   @Override
   public Kind getKind() {
-    return Kind.COMPOSED_IDENTIFIER;
+    return Kind.COMPOSED_TYPE_REFERENCE;
   }
 
   @Override

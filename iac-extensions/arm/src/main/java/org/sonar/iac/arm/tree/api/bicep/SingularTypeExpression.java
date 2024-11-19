@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
-
 public interface SingularTypeExpression extends TypeExpressionAble {
   @Override
   default Kind getKind() {
@@ -29,5 +27,5 @@ public interface SingularTypeExpression extends TypeExpressionAble {
 
   TypeExpressionAble expression();
 
-  List<SyntaxToken> bracketOrQuestionMarks();
+  SyntaxToken questionMark();
 }

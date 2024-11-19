@@ -43,14 +43,20 @@ class TypeExpressionImplTest extends BicepTreeModelTest {
       .matches("array?")
       .matches("array[][]")
       .matches("array[][][]")
-      .matches("array[]?[]")
-      .matches("array??")
+      .matches("array[]?")
+      .matches("array?")
       .matches("bool")
       .matches("int")
       .matches("array | int")
       .matches("bool | int")
       .matches("bool[] | int?")
-      .matches("bool[]?[] | int??");
+      .matches("bool[][]? | int")
+      .matches("bool[][] | int?")
+
+      .notMatches("array[]?[]")
+      .notMatches("array??")
+      .notMatches("bool[]?[]")
+      .notMatches("int??");
   }
 
   @Test
@@ -62,15 +68,15 @@ class TypeExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseComplexTypeExpression() {
-    TypeExpression tree = parse("array | ( abc )[]? | null ", BicepLexicalGrammar.TYPE_EXPRESSION);
+    TypeExpression tree = parse("array | ( abc )? | null ", BicepLexicalGrammar.TYPE_EXPRESSION);
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.TYPE_EXPRESSION);
     Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("array", "|", "(", "abc", ")", "[]", "?", "|", "null");
+      .containsExactly("array", "|", "(", "abc", ")", "?", "|", "null");
     List<SingularTypeExpression> expressions = tree.expressions();
     Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(0)))
       .containsExactly("array");
     Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(1)))
-      .containsExactly("(", "abc", ")", "[]", "?");
+      .containsExactly("(", "abc", ")", "?");
     Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(2)))
       .containsExactly("null");
     Assertions.assertThat(expressions).hasSize(3);

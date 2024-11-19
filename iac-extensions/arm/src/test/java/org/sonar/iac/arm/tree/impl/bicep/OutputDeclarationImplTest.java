@@ -26,11 +26,11 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class OutputDeclarationImplTest extends BicepTreeModelTest {
 
@@ -50,7 +50,34 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
       .matches("@description('comment') output myOutput String = myValue")
       .matches("@description('comment') output myOutput resource 'myResource' = myValue")
       .matches("@sys.description('comment') output myOutput resource 'myResource' = myValue")
-      .matches(code("@description('comment')", "@decorator()", "output myOutput resource 'myResource' = myValue"))
+      .matches("""
+        @description('comment')
+        @decorator()
+        output myOutput resource 'myResource' = myValue""")
+      .matches("output out1 stringArrayType[*] = 'bar'")
+      .matches("output out2 stringArrayType[*]? = 'bar'")
+      .matches("output out3 stringArrayType[*][] = ['bar']")
+      .matches("output out4 stringArrayType[*][]? = ['bar']")
+      .matches("output out5 basket.*[*][0] = 'apple'")
+      .matches("output out6 basket.*[*][] = []")
+      .matches("output out7 basket.*[*] = ['apple', 1]")
+      .matches("output out8 basket.*[] = []")
+      .matches("output out9 basket.* = []")
+      .matches("output outA basket.*[*][0]? = 'apple'")
+      .matches("output outB basket.*[*][]? = []")
+      .matches("output outC basket.*[*]? = ['apple', 1]")
+      .matches("output outD basket.*[]? = []")
+      .matches("output outE basket.*? = []")
+      .matches("output outF (basket.*[*][0])[] = []")
+      .matches("output outG (basket.*[*][])[] = []")
+      .matches("output outH (basket.*[*])[] = []")
+      .matches("output outI (basket.*[])[] = []")
+      .matches("output outJ (basket.*)[] = []")
+      .matches("output outK (basket.*[*][0]?)[] = []")
+      .matches("output outL (basket.*[*][]?)[] = []")
+      .matches("output outM (basket.*[*]?)[] = []")
+      .matches("output outN (basket.*[]?)[] = []")
+      .matches("output outO (basket.*)[] = []")
 
       .notMatches("output")
       .notMatches("output myOutput")
@@ -60,17 +87,23 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
       .notMatches("output myOutput resource 'myResource' =")
       .notMatches("OUTPUT myOutput String = myValue")
       .notMatches("outpute myOutput String = myValue")
-      .notMatches("myOutput String = myValue");
+      .notMatches("myOutput String = myValue")
+      // The ? should be last
+      .notMatches("output out5 stringArrayType[*]?[] = ['bar']")
+      .notMatches("output out6 stringArrayType?[*][] = ['bar']")
+      .notMatches("output out7 stringArrayType?[*] = ['bar']")
+      .notMatches("output out8 stringArrayType?[] = ['bar']");
   }
 
   @Test
   void shouldParseSimpleOutputDeclaration() {
-    String code = code("@description('comment') output myOutput String = myValue");
-    OutputDeclaration tree = parse(code, BicepLexicalGrammar.OUTPUT_DECLARATION);
+    var code = "@description('comment') output myOutput String = myValue";
+    var tree = (OutputDeclaration) parse(code, BicepLexicalGrammar.OUTPUT_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.OUTPUT_DECLARATION)).isTrue();
     assertThat(tree.declaratedName()).hasValue("myOutput").hasRange(1, 31, 1, 39);
-    TextTree type = (TextTree) tree.type();
-    assertThat(type.value()).isEqualTo("String");
+    var type = (SingularTypeExpression) tree.type();
+    assertThat(((TextTree) type.expression()).value()).isEqualTo("String");
+    assertThat(type.questionMark()).isNull();
     assertThat(type.textRange()).hasRange(1, 40, 1, 46);
     assertThat(tree.value()).asWrappedIdentifier().hasValue("myValue").hasRange(1, 49, 1, 56);
     assertThat(tree.condition()).isNull();
@@ -83,7 +116,7 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleOutputDeclarationWithResource() {
-    String code = code("output myOutput resource 'myResource' = myValue");
+    var code = "output myOutput resource 'myResource' = myValue";
     OutputDeclaration tree = parse(code, BicepLexicalGrammar.OUTPUT_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.OUTPUT_DECLARATION)).isTrue();
     assertThat(tree.declaratedName()).hasValue("myOutput").hasRange(1, 7, 1, 15);

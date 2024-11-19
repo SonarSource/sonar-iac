@@ -71,6 +71,27 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
         type test = {
           property: string?
         }""")
+      .matches("type type1 = basket.*[*][0]")
+      .matches("type type2 = basket.*[*][]")
+      .matches("type type3 = basket.*[*]")
+      .matches("type type4 = basket.*[]")
+      .matches("type type5 = basket.*")
+      .matches("type type6 = basket.*[*][0]?")
+      .matches("type type7 = basket.*[*][]?")
+      .matches("type type8 = basket.*[*]?")
+      .matches("type type9 = basket.*[]?")
+      .matches("type typeA = basket.*?")
+      .matches("type myType1 = (string?)[]")
+      .matches("type myType2 = (basket.*[*][0])[]")
+      .matches("type myType3 = (basket.*[*][])[]")
+      .matches("type myType4 = (basket.*[*])[]")
+      .matches("type myType5 = (basket.*[])[]")
+      .matches("type myType6 = (basket.*)[]")
+      .matches("type myType7 = (basket.*[*][0]?)[]")
+      .matches("type myType8 = (basket.*[*][]?)[]")
+      .matches("type myType9 = (basket.*[*]?)[]")
+      .matches("type myTypeA = (basket.*[]?)[]")
+      .matches("type myTypeB = (basket.*)[]")
 
       .notMatches("type myType")
       .notMatches("type myType=")
@@ -87,7 +108,9 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
       .notMatches("""
         type myObject = {
           property?: string
-        }""");
+        }""")
+      // Error BCP391: Type member access is only supported on a reference to a named type.
+      .notMatches("type myTypeC = ((stringArrayType?)[*])[]");
   }
 
   @Test

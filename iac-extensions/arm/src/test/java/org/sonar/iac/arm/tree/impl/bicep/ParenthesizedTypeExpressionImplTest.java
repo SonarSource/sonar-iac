@@ -27,7 +27,6 @@ import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ParenthesizedTypeExpressionImplTest extends BicepTreeModelTest {
 
@@ -43,7 +42,8 @@ class ParenthesizedTypeExpressionImplTest extends BicepTreeModelTest {
       .matches("( array? )")
       .matches("( bool | int )")
       .matches("( bool[] | int? )")
-      .matches("( bool[]?[] | int?? )")
+      .matches("( bool[][]? | int )")
+      .matches("( bool[][] | int? )")
       // identifier
       .matches("( abc )")
       .matches("( aa222bbb )")
@@ -75,21 +75,25 @@ class ParenthesizedTypeExpressionImplTest extends BicepTreeModelTest {
       .matches("( '''''' )")
       .matches("( '''python main.py''' )")
       .matches("( '''python main.py --abc ${{input.abc}} --def ${xyz}''' )")
-      .matches(code("( '''",
-        "first line",
-        "second line",
-        "''' )"))
-      .matches(code("( '''",
-        "first line",
-        "// inline comment",
-        "''' )"))
-      .matches(code("( '''",
-        "first line",
-        "/* inline comment */",
-        "''' )"))
-      .matches(code("( '''",
-        "it''s awesome",
-        "''' )"))
+      .matches("""
+        ( '''
+        first line
+        second line
+        ''' )""")
+      .matches("""
+        ( '''
+        first line
+        // inline comment
+        ''' )""")
+      .matches("""
+        ( '''
+        first line
+        /* inline comment */
+        ''' )""")
+      .matches("""
+        ( '''
+        it''s awesome
+        ''' )""")
       // object type
       .matches("( {} )")
       .matches("( { } )")
@@ -111,7 +115,10 @@ class ParenthesizedTypeExpressionImplTest extends BicepTreeModelTest {
       .notMatches("(array")
       .notMatches("( array")
       .notMatches("array)")
-      .notMatches("array )");
+      .notMatches("array )")
+      .notMatches("( bool[]?[] )")
+      .notMatches("( int?? )");
+
   }
 
   @Test

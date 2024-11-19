@@ -40,7 +40,7 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.ComposedIdentifier;
+import org.sonar.iac.arm.tree.api.bicep.ComposedTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
@@ -137,7 +137,7 @@ public class BicepGrammar {
           b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.OUTPUT),
           IDENTIFIER(),
-          IDENTIFIER(),
+          SINGULAR_TYPE_EXPRESSION(),
           b.token(Punctuator.EQU),
           EXPRESSION()),
         f.outputDeclaration(
@@ -440,7 +440,7 @@ public class BicepGrammar {
         b.firstOf(
           PRIMARY_TYPE_EXPRESSION(),
           PARENTHESIZED_TYPE_EXPRESSION()),
-        b.zeroOrMore(
+        b.optional(
           b.firstOf(
             b.token(Punctuator.BRACKET),
             b.token(Punctuator.QUERY)))));
@@ -451,7 +451,7 @@ public class BicepGrammar {
       f.typeReference(
         b.firstOf(
           AMBIENT_TYPE_REFERENCE(),
-          COMPOSED_IDENTIFIER(),
+          COMPOSED_TYPE_REFERENCE(),
           IDENTIFIER()),
         b.zeroOrMore(TYPE_REFERENCE_SUFFIX())));
   }
@@ -467,7 +467,10 @@ public class BicepGrammar {
     return b.<ArrayTypeSuffix>nonterminal(BicepLexicalGrammar.ARRAY_TYPE_SUFFIX).is(
       f.arrayTypeSuffix(
         b.token(Punctuator.LBRACKET),
-        b.optional(NUMERIC_LITERAL()),
+        b.optional(
+          b.firstOf(
+            NUMERIC_LITERAL(),
+            b.token(Punctuator.STAR))),
         b.token(Punctuator.RBRACKET)));
   }
 
@@ -864,9 +867,9 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.IDENTIFIER_LITERAL)));
   }
 
-  public ComposedIdentifier COMPOSED_IDENTIFIER() {
-    return b.<ComposedIdentifier>nonterminal(BicepLexicalGrammar.COMPOSED_IDENTIFIER).is(
-      f.composedIdentifier(
+  public ComposedTypeReference COMPOSED_TYPE_REFERENCE() {
+    return b.<ComposedTypeReference>nonterminal(BicepLexicalGrammar.COMPOSED_TYPE_REFERENCE).is(
+      f.composedTypeReference(
         IDENTIFIER(),
         b.oneOrMore(
           f.tuple(

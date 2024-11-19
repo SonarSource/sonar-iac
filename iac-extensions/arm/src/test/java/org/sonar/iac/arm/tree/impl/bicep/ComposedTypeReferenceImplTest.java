@@ -23,19 +23,19 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.bicep.ComposedIdentifier;
+import org.sonar.iac.arm.tree.api.bicep.ComposedTypeReference;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
-class ComposedIdentifierImplTest {
+class ComposedTypeReferenceImplTest {
 
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.COMPOSED_IDENTIFIER);
+  BicepParser parser = BicepParser.create(BicepLexicalGrammar.COMPOSED_TYPE_REFERENCE);
 
   @Test
   void shouldParseComposedIdentifier() {
-    assertThat(BicepLexicalGrammar.COMPOSED_IDENTIFIER)
+    assertThat(BicepLexicalGrammar.COMPOSED_TYPE_REFERENCE)
       .matches("foo.objectProp.intProp")
       .matches("foo.objectProp")
       .matches("foo.objectProp.aaa.bbb")
@@ -56,8 +56,8 @@ class ComposedIdentifierImplTest {
 
   @Test
   void shouldValidateComposedIdentifier() {
-    var tree = (ComposedIdentifier) parser.parse("foo.objectProp.intProp", null);
-    assertThat(tree.is(ArmTree.Kind.COMPOSED_IDENTIFIER)).isTrue();
+    var tree = (ComposedTypeReference) parser.parse("foo.objectProp.intProp", null);
+    assertThat(tree.is(ArmTree.Kind.COMPOSED_TYPE_REFERENCE)).isTrue();
     assertThat(tree.identifiers().stream().map(TextTree::value).toList())
       .containsExactly("foo", "objectProp", "intProp");
     assertThat(tree.separators().stream().map(TextTree::value).toList())

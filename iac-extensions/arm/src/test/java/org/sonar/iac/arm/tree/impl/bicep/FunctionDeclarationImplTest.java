@@ -53,12 +53,37 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
         @description('comment')
         @allowed([42])
         func myFunction(foo int, bar object) int => 0""")
+      .matches("func myFunction1(arg1 stringArrayType[*]) int => 0")
+      .matches("func myFunction2(arg1 int) stringArrayType[*] => 'bar'")
+      .matches("func myFunction3(arg1 stringArrayType[*]?) int => 0")
+      .matches("func myFunction4(arg1 stringArrayType[*][]) int => 0")
+      .matches("func myFunction5(arg1 stringArrayType[*][]?) int => 0")
+      // Type definitions needed for next examples
+      // type fruit = 'apple' | 'banana'
+      // type fruitQuantity = [fruit, int]
+      // type basket = { *: fruitQuantity[] }
+      .matches("func myFunction7(arg1 basket.*[*][0]) int => 0")
+      .matches("func myFunction8(arg1 basket.*[*][]) int => 0")
+      .matches("func myFunction9(arg1 basket.*[*]) int => 0")
+      .matches("func myFunctionA(arg1 basket.*[]) int => 0")
+      .matches("func myFunctionB(arg1 basket.*) int => 0")
+      .matches("func myFunctionC(arg1 basket.*[*][0]?) int => 0")
+      .matches("func myFunctionD(arg1 basket.*[*][]?) int => 0")
+      .matches("func myFunctionE(arg1 basket.*[*]?) int => 0")
+      .matches("func myFunctionF(arg1 basket.*[]?) int => 0")
+      .matches("func myFunctionG(arg1 basket.*?) int => 0")
 
       .notMatches("func myFunction() => 'result'")
       .notMatches("func myFunction")
       .notMatches("func myFunction = lambdaExpression")
       .notMatches("func")
-      .notMatches("func myFunction(foo.bar int) string => '${foo}'");
+      .notMatches("func myFunction(foo.bar int) string => '${foo}'")
+      .notMatches("func myFunction(foo someType.) string => '${foo}'")
+      // The ? must be last
+      .notMatches("func myFunction7(arg1 stringArrayType[*]?[]) int => 0")
+      .notMatches("func myFunction8(arg1 stringArrayType?[*][]) int => 0")
+      .notMatches("func myFunction9(arg1 stringArrayType?[*]) int => 0")
+      .notMatches("func myFunctionA(arg1 stringArrayType?[]) int => 0");
   }
 
   @Test
