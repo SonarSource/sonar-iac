@@ -5,6 +5,7 @@ dependency-reduced-pom.xml
 # ---- Gradle
 build/
 .gradle
+.kotlin
 
 # ---- IntelliJ IDEA
 *.iws
