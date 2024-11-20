@@ -27,7 +27,8 @@ import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractWeakSSLProtocolChe
 public class WeakSSLProtocolCheck extends AbstractWeakSSLProtocolCheck {
   private static final Set<String> SENSITIVE_PATTERN_ARRAY_KEYS = Set.of(
     "server.ssl.enabled-protocols",
-    "spring.ssl.bundle.jks.server.options.enabled-protocols");
+    "spring.ssl.bundle.jks.server.options.enabled-protocols",
+    "spring.rsocket.server.ssl.enabled-protocols");
 
   @Override
   protected Set<String> sensitivePatternKeys() {

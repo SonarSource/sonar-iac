@@ -131,3 +131,43 @@ server:
 server:
   ssl:
     enabled-protocols[0]:
+
+---
+#RSocket
+
+spring:
+  rsocket:
+    server:
+      ssl:
+        enabled-protocols: TLSv1.1 # Noncompliant
+---
+spring:
+  rsocket:
+    server:
+      ssl:
+        enabled-protocols:
+          - TLSv1.0 # Noncompliant
+---
+spring:
+  rsocket:
+    server:
+      ssl:
+        enabled-protocols: TLSv1.2
+---
+spring:
+  rsocket:
+    server:
+      ssl:
+        enabled-protocols: TLSv1.0, TLSv1.1, TLSv1.2 # Noncompliant
+---
+spring:
+  rsocket:
+    server:
+      ssl:
+        enabled-protocols: TLSv1.2
+---
+spring:
+  rsocket:
+    server:
+      ssl:
+        enabled-protocols[1]: TLSv1.3
