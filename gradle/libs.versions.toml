@@ -1,13 +1,13 @@
 [versions]
 sonarqube = "10.7.0.96327"
-sonar-plugin-api = "10.12.0.2522"
-sonar-commons = "2.14.0.3087"
+sonar-plugin-api = "10.14.0.2599"
+sonar-commons = "2.16.0.3141"
 sonar-license-api = "3.4"
 sonar-orchestrator = "5.0.0.2065"
-junit = "5.11.2"
+junit = "5.11.3"
 assertj = "3.26.3"
 mockito = "5.14.2"
-sonar-lint = "10.8.0.79206"
+sonar-lint = "10.10.0.79572"
 sslr = "1.24.0.633"
 archunit = "1.3.0"
 snakeyaml = "2.8"
@@ -16,7 +16,7 @@ sonar-scanner-gradle = "5.1.0.4882"
 jfrog-gradle = "5.2.5"
 spotless-gradle = "6.25.0"
 blowdryer-gradle = "1.7.1"
-google-protobuf = "4.28.2"
+google-protobuf = "4.28.3"
 google-protobuf-gradle = "0.9.4"
 google-protobuf-go = "1.35.2"
 apache-commons-lang = "2.6"
@@ -61,4 +61,4 @@ awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility"}
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless-gradle" }
 google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf-gradle" }
 download = { id = "de.undercouch.download", version = "5.6.0" }
-shadow = { id = "com.gradleup.shadow", version = "8.3.3" }
+shadow = { id = "com.gradleup.shadow", version = "8.3.5" }
