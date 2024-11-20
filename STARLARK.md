@@ -79,9 +79,9 @@ Local example:
 load(".ci/notify-slack.star", "notify_slack")
 ```
 
-Remote example where v2 is a branch name of the repo cirrus-modules:
+Remote example where v3 is a branch name of the repo cirrus-modules:
 ```Python
-load("github.com/SonarSource/cirrus-modules@v2", "load_features")
+load("github.com/SonarSource/cirrus-modules@v3", "load_features")
 ```
 
 Remote example loading Cloud Native squad shared library:
@@ -274,7 +274,7 @@ This pattern can also be applied to a shared module.
 
 `.cirrus.star` content:
 ```Python
-load("github.com/SonarSource/cirrus-modules@v2", "load_features")
+load("github.com/SonarSource/cirrus-modules@v3", "load_features")
 load(".cirrus/modules/base.star", "base_all_tasks")
 load(".cirrus/modules/build.star", "build_all_tasks")
 load(".cirrus/modules/deploy.star", "deploy_all_tasks")
@@ -567,7 +567,7 @@ Starlark relies on branch names, tag names, or commits IDs to specify the versio
 
 | Versionning example   | Description                                                                                                |
 |-----------------------|------------------------------------------------------------------------------------------------------------|
-| `@<major version>`    | The RE team is already using this approach. Example: https://github.com/SonarSource/cirrus-modules/tree/v2 |
+| `@<major version>`    | The RE team is already using this approach. Example: https://github.com/SonarSource/cirrus-modules/tree/v3 |
 | `@latest`             | Users always get the latest changes. There is only one version.                                            |
 | `@stable` and `@next` | A middle ground between having many major versions and only the latest.                                    |
 
