@@ -640,7 +640,9 @@ public class BicepGrammar {
             f.tuple(
               b.firstOf(
                 b.token(Punctuator.EQUAL),
-                b.token(Punctuator.NOT_EQUAL)),
+                b.token(Punctuator.NOT_EQUAL),
+                b.token(Punctuator.EQUAL_CASE_INSENSITIVE),
+                b.token(Punctuator.NOT_EQUAL_CASE_INSENSITIVE)),
               RELATIONAL_EXPRESSION()))),
         RELATIONAL_EXPRESSION()));
   }

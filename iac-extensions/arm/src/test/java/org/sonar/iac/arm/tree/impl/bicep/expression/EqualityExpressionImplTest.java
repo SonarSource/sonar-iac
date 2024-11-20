@@ -35,10 +35,12 @@ import static org.sonar.iac.arm.ArmAssertions.assertThat;
 class EqualityExpressionImplTest extends BicepTreeModelTest {
 
   @Test
-  void parseEqualityExpression() {
+  void shouldParseEqualityExpression() {
     ArmAssertions.assertThat(BicepLexicalGrammar.EQUALITY_EXPRESSION)
       .matches("1 == 2")
       .matches("1 != 2")
+      .matches("1 =~ 2")
+      .matches("1 !~ 2")
       .matches("1 == 2 != 3")
       .matches("1==2")
 
@@ -48,11 +50,17 @@ class EqualityExpressionImplTest extends BicepTreeModelTest {
 
       .notMatches("1 ==")
       .notMatches("== 2")
+      .notMatches("1 ==~ 2")
+      .notMatches("1 !=~ 2")
+      .notMatches("1 =~")
+      .notMatches("1 !~")
+      .notMatches("=~ 2")
+      .notMatches("!~ 2")
       .notMatches("1 !== 3");
   }
 
   @Test
-  void parseSimpleEqualityExpression() {
+  void shouldParseSimpleEqualityExpression() {
     EqualityExpression expression = parseBasic("1 == 2 != 3", BicepLexicalGrammar.EQUALITY_EXPRESSION);
     assertThat(expression.getKind()).isEqualTo(ArmTree.Kind.EQUALITY_EXPRESSION);
     SeparatedList<Expression, SyntaxToken> separatedList = expression.separatedList();
@@ -65,5 +73,33 @@ class EqualityExpressionImplTest extends BicepTreeModelTest {
     assertThat(separatedList.elements().get(0)).asNumericLiteral().hasValue(1);
     assertThat(separatedList.elements().get(1)).asNumericLiteral().hasValue(2);
     assertThat(separatedList.elements().get(2)).asNumericLiteral().hasValue(3);
+  }
+
+  @Test
+  void shouldParseEqualCaseInsensitiveOperator() {
+    EqualityExpression expression = parseBasic("1 =~ 3", BicepLexicalGrammar.EQUALITY_EXPRESSION);
+    assertThat(expression.getKind()).isEqualTo(ArmTree.Kind.EQUALITY_EXPRESSION);
+    SeparatedList<Expression, SyntaxToken> separatedList = expression.separatedList();
+
+    assertThat(separatedList.separators()).hasSize(1);
+    assertThat(separatedList.separators().get(0).value()).isEqualTo("=~");
+
+    assertThat(separatedList.elements()).hasSize(2);
+    assertThat(separatedList.elements().get(0)).asNumericLiteral().hasValue(1);
+    assertThat(separatedList.elements().get(1)).asNumericLiteral().hasValue(3);
+  }
+
+  @Test
+  void shouldParseNotEqualCaseInsensitiveOperator() {
+    EqualityExpression expression = parseBasic("1 !~ 3", BicepLexicalGrammar.EQUALITY_EXPRESSION);
+    assertThat(expression.getKind()).isEqualTo(ArmTree.Kind.EQUALITY_EXPRESSION);
+    SeparatedList<Expression, SyntaxToken> separatedList = expression.separatedList();
+
+    assertThat(separatedList.separators()).hasSize(1);
+    assertThat(separatedList.separators().get(0).value()).isEqualTo("!~");
+
+    assertThat(separatedList.elements()).hasSize(2);
+    assertThat(separatedList.elements().get(0)).asNumericLiteral().hasValue(1);
+    assertThat(separatedList.elements().get(1)).asNumericLiteral().hasValue(3);
   }
 }

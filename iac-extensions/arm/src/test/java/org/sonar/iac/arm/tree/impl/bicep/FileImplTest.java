@@ -32,7 +32,6 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class FileImplTest extends BicepTreeModelTest {
@@ -55,7 +54,7 @@ class FileImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldFailOnInvalidExpressionValue() {
-    String code = code("invalid code -");
+    String code = "invalid code -";
     InputFileContext inputFile = createInputFileContextMock("foo.bicep");
 
     BicepParser parser = BicepParser.create(BicepLexicalGrammar.FILE);

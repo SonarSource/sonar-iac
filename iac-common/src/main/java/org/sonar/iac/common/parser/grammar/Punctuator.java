@@ -42,6 +42,8 @@ public enum Punctuator implements GrammarRuleKey {
   COALESCE("??"),
   EQUAL("=="),
   NOT_EQUAL("!="),
+  EQUAL_CASE_INSENSITIVE("=~"),
+  NOT_EQUAL_CASE_INSENSITIVE("!~"),
   GREATER_THAN(">"),
   GREATER_OR_EQUAL(">="),
   LESS_THAN("<"),

@@ -26,6 +26,7 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
@@ -116,5 +117,25 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("[", "a", ",", "b", "c", "]");
+  }
+
+  @Test
+  void shouldParseArrayWithBinaryExpression() {
+    String code = """
+      [
+      'a'
+      'a' =~ 'b'
+      ]""";
+    ArrayExpression tree = parse(code, BicepLexicalGrammar.ARRAY_EXPRESSION);
+
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
+    assertThat(tree.elements()).hasSize(2);
+    StringLiteral a = (StringLiteral) tree.elements().get(0);
+    EqualityExpression equalityExpression = (EqualityExpression) tree.elements().get(1);
+    ArmAssertions.assertThat(a).hasValue("a");
+    assertThat(equalityExpression.getKind()).isEqualTo(ArmTree.Kind.EQUALITY_EXPRESSION);
+
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("[", "a", "a", "=~", "b", "]");
   }
 }

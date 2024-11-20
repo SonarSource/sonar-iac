@@ -31,6 +31,8 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 class VariableDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
@@ -73,5 +75,33 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
   })
   void shouldFailOnInvalidVariableDeclaration(String code) {
     Assertions.assertThatThrownBy(() -> parse(code, BicepLexicalGrammar.VARIABLE_DECLARATION)).isInstanceOf(RecognitionException.class);
+  }
+
+  @Test
+  void shouldSupportVariableWithComplexType() {
+    String code = """
+      @sys.description('a object variable')
+      var myObj = {
+        a: 'a'
+        b: -12
+        c: true
+        d: !true
+        list: [
+          1
+          2
+          2+1
+          {
+            test: 144 > 33 && true || 99 <= 199
+          }
+          'a' =~ 'b'
+        ]
+        obj: {
+          nested: [
+            'hello'
+          ]
+        }
+      }
+      """;
+    assertDoesNotThrow(() -> parse(code, BicepLexicalGrammar.VARIABLE_DECLARATION));
   }
 }
