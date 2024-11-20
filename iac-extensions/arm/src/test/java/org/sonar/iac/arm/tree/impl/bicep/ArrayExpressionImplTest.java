@@ -26,6 +26,7 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -33,7 +34,7 @@ import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildr
 
 class ArrayExpressionImplTest extends BicepTreeModelTest {
   @Test
-  void shouldParseMultilineArrays() {
+  void shouldParseArrayExpressions() {
     ArmAssertions.assertThat(BicepLexicalGrammar.ARRAY_EXPRESSION)
       .matches("""
         [
@@ -44,6 +45,8 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
         ]""")
       .matches("['a', 'b']")
       .matches("['a', 'b',]")
+      .matches("['a', 'b', ...identifier]")
+      .matches("['a', 'b', ...identifier,]")
       .matches("""
         [
         'a', 'b'
@@ -66,6 +69,8 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
            'a'
 
             'b'
+
+          ...identifier
         ]""")
       .matches("[]")
       .matches("""
@@ -77,6 +82,10 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
         'a']""")
 
       .notMatches("[,'a', 'b']")
+      .notMatches("['a', 'b', ..identifier]")
+      .notMatches("['a', 'b', ....identifier]")
+      .notMatches("['a', 'b', identifier...]")
+      .notMatches("['a', 'b', ...identifier...]")
       .notMatches("""
         [
         }""");
@@ -137,5 +146,25 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("[", "a", "a", "=~", "b", "]");
+  }
+
+  @Test
+  void shouldParseArrayWithSpreadExpression() {
+    String code = """
+      [
+      'a'
+      ...identifier
+      ]""";
+    ArrayExpression tree = parse(code, BicepLexicalGrammar.ARRAY_EXPRESSION);
+
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
+    assertThat(tree.elements()).hasSize(2);
+    StringLiteral a = (StringLiteral) tree.elements().get(0);
+    SpreadExpression spreadExpression = (SpreadExpression) tree.elements().get(1);
+    ArmAssertions.assertThat(a).hasValue("a");
+    assertThat(spreadExpression.getKind()).isEqualTo(ArmTree.Kind.SPREAD_EXPRESSION);
+
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("[", "a", "...", "identifier", "]");
   }
 }

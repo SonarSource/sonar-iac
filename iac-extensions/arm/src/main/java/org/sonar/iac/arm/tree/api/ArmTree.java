@@ -41,7 +41,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
-import org.sonar.iac.arm.tree.api.bicep.SpreadProperty;
+import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
@@ -119,7 +119,7 @@ public interface ArmTree extends Tree {
     PARENTHESIZED_TYPE_EXPRESSION(ParenthesizedTypeExpression.class),
     OBJECT_TYPE(ObjectType.class),
     OBJECT_TYPE_PROPERTY(ObjectTypeProperty.class),
-    SPREAD_PROPERTY(SpreadProperty.class),
+    SPREAD_EXPRESSION(SpreadExpression.class),
     IF_CONDITION(IfCondition.class),
     UNARY_EXPRESSION(UnaryExpression.class),
     MULTIPLICATIVE_EXPRESSION(MultiplicativeExpression.class),

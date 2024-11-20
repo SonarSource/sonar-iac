@@ -24,17 +24,17 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.bicep.SpreadProperty;
+import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
-class SpreadPropertyImplTest extends BicepTreeModelTest {
+class SpreadExpressionImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseSpreadProperty() {
-    ArmAssertions.assertThat(BicepLexicalGrammar.SPREAD_PROPERTY)
+  void shouldParseSpreadExpression() {
+    ArmAssertions.assertThat(BicepLexicalGrammar.SPREAD_EXPRESSION)
       .matches("...identifier123")
       .matches("... identifier123")
       .matches("...{key:'val'}")
@@ -49,26 +49,26 @@ class SpreadPropertyImplTest extends BicepTreeModelTest {
   }
 
   @Test
-  void shouldParseObjectSpreadProperty() {
+  void shouldParseObjectSpreadExpression() {
     String code = "...identifier123";
 
-    SpreadProperty spreadProperty = parse(code, BicepLexicalGrammar.OBJECT_PROPERTY);
-    assertThat(spreadProperty.is(ArmTree.Kind.SPREAD_PROPERTY)).isTrue();
+    SpreadExpression spreadExpression = parse(code, BicepLexicalGrammar.OBJECT_PROPERTY);
+    assertThat(spreadExpression.is(ArmTree.Kind.SPREAD_EXPRESSION)).isTrue();
 
-    SyntaxToken spreadOperator = (SyntaxToken) spreadProperty.children().get(0);
+    SyntaxToken spreadOperator = (SyntaxToken) spreadExpression.children().get(0);
     assertThat(spreadOperator.value()).isEqualTo("...");
 
-    Expression iterable = (Expression) spreadProperty.children().get(1);
-    assertThat(iterable).isEqualTo(spreadProperty.iterable());
+    Expression iterable = (Expression) spreadExpression.children().get(1);
+    assertThat(iterable).isEqualTo(spreadExpression.iterable());
     assertThat(iterable.is(ArmTree.Kind.VARIABLE)).isTrue();
     ArmAssertions.assertThat(iterable).asWrappedIdentifier().hasValue("identifier123");
 
-    assertThat(spreadProperty.children()).hasSize(2);
+    assertThat(spreadExpression.children()).hasSize(2);
   }
 
   @Test
   void shouldConvertToString() {
-    SpreadProperty spreadProperty = parse("...identifier123", BicepLexicalGrammar.OBJECT_PROPERTY);
-    assertThat(spreadProperty).hasToString("...identifier123");
+    SpreadExpression spreadExpression = parse("...identifier123", BicepLexicalGrammar.OBJECT_PROPERTY);
+    assertThat(spreadExpression).hasToString("...identifier123");
   }
 }

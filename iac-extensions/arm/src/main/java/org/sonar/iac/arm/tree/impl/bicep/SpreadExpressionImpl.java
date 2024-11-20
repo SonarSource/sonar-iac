@@ -21,17 +21,17 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.bicep.SpreadProperty;
+import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class SpreadPropertyImpl extends AbstractArmTreeImpl implements SpreadProperty {
+public class SpreadExpressionImpl extends AbstractArmTreeImpl implements SpreadExpression {
 
   private final SyntaxToken spreadOperator;
   private final Expression iterable;
 
-  public SpreadPropertyImpl(SyntaxToken spreadOperator, Expression iterable) {
+  public SpreadExpressionImpl(SyntaxToken spreadOperator, Expression iterable) {
     this.spreadOperator = spreadOperator;
     this.iterable = iterable;
   }

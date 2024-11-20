@@ -21,10 +21,14 @@ package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
 
-public interface SpreadProperty extends ObjectProperty {
+/**
+ * Represents expressions like {@code ...iterable}.
+ * Extends both {@link Expression} and {@link ObjectProperty} because it can be an array item and an object property.
+ */
+public interface SpreadExpression extends Expression, ObjectProperty {
   Expression iterable();
 
   default Kind getKind() {
-    return Kind.SPREAD_PROPERTY;
+    return Kind.SPREAD_EXPRESSION;
   }
 }

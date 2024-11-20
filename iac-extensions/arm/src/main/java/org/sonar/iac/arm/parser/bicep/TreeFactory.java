@@ -60,7 +60,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
-import org.sonar.iac.arm.tree.api.bicep.SpreadProperty;
+import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
@@ -126,7 +126,7 @@ import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedTypeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.SingularTypeExpressionImpl;
-import org.sonar.iac.arm.tree.impl.bicep.SpreadPropertyImpl;
+import org.sonar.iac.arm.tree.impl.bicep.SpreadExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TupleItemImpl;
@@ -391,8 +391,8 @@ public class TreeFactory {
     return new PropertyImpl(key, colon, value);
   }
 
-  public SpreadProperty spreadProperty(SyntaxToken spreadOperator, Expression iterable) {
-    return new SpreadPropertyImpl(spreadOperator, iterable);
+  public SpreadExpression spreadExpression(SyntaxToken spreadOperator, Expression iterable) {
+    return new SpreadExpressionImpl(spreadOperator, iterable);
   }
 
   public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Tuple<ObjectProperty, Optional<SyntaxToken>>>> properties, SyntaxToken rightCurlyBrace) {

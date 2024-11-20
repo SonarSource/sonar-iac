@@ -57,7 +57,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
-import org.sonar.iac.arm.tree.api.bicep.SpreadProperty;
+import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
@@ -317,7 +317,7 @@ public class BicepGrammar {
     return b.<ObjectProperty>nonterminal(BicepLexicalGrammar.OBJECT_PROPERTY).is(
       b.firstOf(
         KEY_VALUE_PROPERTY(),
-        SPREAD_PROPERTY(),
+        SPREAD_EXPRESSION(),
         RESOURCE_DECLARATION()));
   }
 
@@ -329,9 +329,9 @@ public class BicepGrammar {
         EXPRESSION()));
   }
 
-  public SpreadProperty SPREAD_PROPERTY() {
-    return b.<SpreadProperty>nonterminal(BicepLexicalGrammar.SPREAD_PROPERTY).is(
-      f.spreadProperty(
+  public SpreadExpression SPREAD_EXPRESSION() {
+    return b.<SpreadExpression>nonterminal(BicepLexicalGrammar.SPREAD_EXPRESSION).is(
+      f.spreadExpression(
         b.token(Punctuator.ELLIPSIS),
         EXPRESSION()));
   }
@@ -534,7 +534,9 @@ public class BicepGrammar {
         b.token(Punctuator.LBRACKET),
         b.zeroOrMore(
           f.tuple(
-            EXPRESSION(),
+            b.firstOf(
+              SPREAD_EXPRESSION(),
+              EXPRESSION()),
             b.optional(b.token(Punctuator.COMMA)))),
         b.token(Punctuator.RBRACKET)));
   }
