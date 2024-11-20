@@ -21,36 +21,32 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.ComposedTypeReference;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.CompoundTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ComposedTypeReferenceImpl extends AbstractArmTreeImpl implements ComposedTypeReference {
-  private final SeparatedList<Identifier, SyntaxToken> elements;
+public class CompoundTypeReferenceImpl extends AbstractArmTreeImpl implements CompoundTypeReference {
+  private final TypeExpressionAble baseType;
+  private final Identifier suffix;
 
-  public ComposedTypeReferenceImpl(SeparatedList<Identifier, SyntaxToken> elements) {
-    this.elements = elements;
+  public CompoundTypeReferenceImpl(TypeExpressionAble baseType, Identifier suffix) {
+    this.baseType = baseType;
+    this.suffix = suffix;
   }
 
   @Override
-  public List<Identifier> identifiers() {
-    return elements.elements();
+  public TypeExpressionAble baseType() {
+    return baseType;
   }
 
   @Override
-  public List<SyntaxToken> separators() {
-    return elements.separators();
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.COMPOSED_TYPE_REFERENCE;
+  public Identifier suffix() {
+    return suffix;
   }
 
   @Override
   public List<Tree> children() {
-    return elements.elementsAndSeparators();
+    return List.of(baseType, suffix);
   }
 }

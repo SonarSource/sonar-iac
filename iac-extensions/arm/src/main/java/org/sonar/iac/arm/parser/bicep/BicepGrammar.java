@@ -40,7 +40,6 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.ComposedTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
@@ -451,7 +450,6 @@ public class BicepGrammar {
       f.typeReference(
         b.firstOf(
           AMBIENT_TYPE_REFERENCE(),
-          COMPOSED_TYPE_REFERENCE(),
           IDENTIFIER()),
         b.zeroOrMore(TYPE_REFERENCE_SUFFIX())));
   }
@@ -459,8 +457,14 @@ public class BicepGrammar {
   public TypeReferenceSuffix TYPE_REFERENCE_SUFFIX() {
     return b.<TypeReferenceSuffix>nonterminal(BicepLexicalGrammar.TYPE_REFERENCE_SUFFIX).is(
       b.firstOf(
+        IDENTIFIER_SUFFIX(),
         ARRAY_TYPE_SUFFIX(),
         WILDCARD_TYPE_SUFFIX()));
+  }
+
+  public TypeReferenceSuffix IDENTIFIER_SUFFIX() {
+    return b.<TypeReferenceSuffix>nonterminal().is(
+      f.identifierSuffix(b.token(Punctuator.DOT), IDENTIFIER()));
   }
 
   public ArrayTypeSuffix ARRAY_TYPE_SUFFIX() {
@@ -865,16 +869,6 @@ public class BicepGrammar {
     return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
       f.identifier(
         b.token(BicepLexicalGrammar.IDENTIFIER_LITERAL)));
-  }
-
-  public ComposedTypeReference COMPOSED_TYPE_REFERENCE() {
-    return b.<ComposedTypeReference>nonterminal(BicepLexicalGrammar.COMPOSED_TYPE_REFERENCE).is(
-      f.composedTypeReference(
-        IDENTIFIER(),
-        b.oneOrMore(
-          f.tuple(
-            b.token(Punctuator.DOT),
-            IDENTIFIER()))));
   }
 
   public Variable VARIABLE() {

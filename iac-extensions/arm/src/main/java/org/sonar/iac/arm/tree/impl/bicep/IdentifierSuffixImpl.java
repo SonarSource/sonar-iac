@@ -17,15 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.bicep.IdentifierSuffix;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 
-public interface ComposedTypeReference extends TypeExpressionAble {
+public class IdentifierSuffixImpl implements IdentifierSuffix {
+  private final Identifier identifier;
 
-  List<Identifier> identifiers();
+  public IdentifierSuffixImpl(Identifier identifier) {
+    this.identifier = identifier;
+  }
 
-  List<SyntaxToken> separators();
-
+  @Override
+  public TypeExpressionAble applyTo(TypeExpressionAble baseType) {
+    return new CompoundTypeReferenceImpl(baseType, identifier);
+  }
 }
