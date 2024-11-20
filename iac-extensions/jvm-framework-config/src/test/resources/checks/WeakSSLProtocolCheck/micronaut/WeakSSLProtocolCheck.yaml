@@ -55,6 +55,57 @@ micronaut:
 
 ---
 
+## Checking all array properties but single value
+micronaut:
+  server:
+    ssl:
+      protocols: TLSv1.0 # Noncompliant
+  ssl:
+    protocols: TLSv1.1 # Noncompliant
+  http:
+    client:
+      ssl:
+        protocols: TLSv1.1 # Noncompliant
+    services:
+      something:
+        ssl:
+          protocols: TLSv1.0 # Noncompliant
+---
+
+## Checking all array properties but coma-separated values
+micronaut:
+  server:
+    ssl:
+      protocols: TLSv1.0,TLSv1.1 # Noncompliant
+  ssl:
+    protocols: TLSv1.1,TLSv1.2 # Noncompliant
+  http:
+    client:
+      ssl:
+        protocols: TLSv1.2,TLSv1.1 # Noncompliant
+    services:
+      something:
+        ssl:
+          protocols: TLSv1.1,TLSv1.0 # Noncompliant
+---
+
+## Checking all array properties but have coma-separated values with space
+micronaut:
+  server:
+    ssl:
+      protocols: TLSv1.0, TLSv1.1 # Noncompliant
+  ssl:
+    protocols: TLSv1.1, TLSv1.2 # Noncompliant
+  http:
+    client:
+      ssl:
+        protocols: TLSv1.2, TLSv1.1 # Noncompliant
+    services:
+      something:
+        ssl:
+          protocols: TLSv1.1, TLSv1.0 # Noncompliant
+---
+
 ## Checking secondary locations
 micronaut:
   server:
@@ -75,11 +126,6 @@ micronaut:
   ssl:
     protocol: other
 
----
-
-micronaut:
-  ssl:
-    protocols: TLSv1.0
 
 ---
 
@@ -99,8 +145,3 @@ micronaut:
   ssl:
     protocols:
 
----
-
-micronaut:
-  ssl:
-    protocols: TLSv1.0

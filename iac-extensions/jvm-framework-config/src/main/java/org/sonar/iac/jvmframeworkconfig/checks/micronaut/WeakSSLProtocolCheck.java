@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
+import java.util.HashSet;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractWeakSSLProtocolCheck;
@@ -36,9 +37,17 @@ public class WeakSSLProtocolCheck extends AbstractWeakSSLProtocolCheck {
     "micronaut.http.client.ssl.protocols",
     "micronaut.http.services.[^.]++.ssl.protocols");
 
+  private static final Set<String> ALL_SENSITIVE_PATTERN_KEYS;
+
+  static {
+    ALL_SENSITIVE_PATTERN_KEYS = new HashSet<>();
+    ALL_SENSITIVE_PATTERN_KEYS.addAll(SENSITIVE_PATTERN_KEYS);
+    ALL_SENSITIVE_PATTERN_KEYS.addAll(SENSITIVE_PATTERN_ARRAY_KEYS);
+  }
+
   @Override
   protected Set<String> sensitivePatternKeys() {
-    return SENSITIVE_PATTERN_KEYS;
+    return ALL_SENSITIVE_PATTERN_KEYS;
   }
 
   @Override

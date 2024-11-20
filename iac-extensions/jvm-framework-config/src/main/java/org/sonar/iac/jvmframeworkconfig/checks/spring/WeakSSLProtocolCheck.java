@@ -31,7 +31,7 @@ public class WeakSSLProtocolCheck extends AbstractWeakSSLProtocolCheck {
 
   @Override
   protected Set<String> sensitivePatternKeys() {
-    return Set.of();
+    return SENSITIVE_PATTERN_ARRAY_KEYS;
   }
 
   @Override

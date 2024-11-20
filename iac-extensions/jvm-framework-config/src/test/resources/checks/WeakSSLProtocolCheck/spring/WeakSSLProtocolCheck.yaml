@@ -1,3 +1,4 @@
+## Checking message and location
 server:
   port: 8080
   ssl:
@@ -23,6 +24,7 @@ spring:
             type: "PKCS12"
 
 ---
+## Checking all sensitive values and secondary locations
 server:
   ssl:
     enabled-protocols: [TLSv1.1, foo, TLSv1.0] # Noncompliant
@@ -38,6 +40,7 @@ spring:
 #                               ^^^^^^^       ^^^^^^^< 1{{Other weak protocol.}}
 
 ---
+## Checking all sensitive keys single value
 server:
   ssl:
     enabled-protocols:
@@ -63,6 +66,52 @@ spring:
               - foo
               - TLSv1.0
 #               ^^^^^^^< 1{{Other weak protocol.}}
+
+---
+## Checking all array properties but single value
+server:
+  ssl:
+    enabled-protocols: TLSv1.1 # Noncompliant{{Change this code to use a stronger protocol.}}
+#                      ^^^^^^^
+
+spring:
+  ssl:
+    bundle:
+      jks:
+        server:
+          options:
+            enabled-protocols: "TLSv1.0" # Noncompliant{{Change this code to use a stronger protocol.}}
+#                              ^^^^^^^^^
+---
+## Checking all array properties but coma-separated values
+server:
+  ssl:
+    enabled-protocols: TLSv1.1,foo,TLSv1.0 # Noncompliant{{Change this code to use a stronger protocol.}}
+#                      ^^^^^^^^^^^^^^^^^^^
+
+spring:
+  ssl:
+    bundle:
+      jks:
+        server:
+          options:
+            enabled-protocols: "TLSv1.1,foo,TLSv1.0" # Noncompliant{{Change this code to use a stronger protocol.}}
+#                              ^^^^^^^^^^^^^^^^^^^^^
+---
+## Checking all array properties but coma-separated values with space
+server:
+  ssl:
+    enabled-protocols: TLSv1.2, TLSv1.0 # Noncompliant{{Change this code to use a stronger protocol.}}
+#                      ^^^^^^^^^^^^^^^^
+
+spring:
+  ssl:
+    bundle:
+      jks:
+        server:
+          options:
+            enabled-protocols: "TLSv1.2, foo, TLSv1.0" # Noncompliant{{Change this code to use a stronger protocol.}}
+#                              ^^^^^^^^^^^^^^^^^^^^^^^
 
 ---
 server:

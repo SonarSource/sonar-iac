@@ -56,7 +56,7 @@ public abstract class AbstractWeakSSLProtocolCheck implements IacCheck {
   private void checkTuple(CheckContext ctx, Tuple tuple) {
     var key = tuple.key().value().value();
     if (sensitiveKeysPattern.test(key) && hasSensitiveValue(tuple)) {
-      ctx.reportIssue(tuple, ISSUE_MESSAGE);
+      ctx.reportIssue(tuple.value(), ISSUE_MESSAGE);
     }
   }
 
@@ -76,15 +76,24 @@ public abstract class AbstractWeakSSLProtocolCheck implements IacCheck {
 
   private static boolean hasSensitiveValue(Tuple tuple) {
     var scalarValue = tuple.value();
-    return scalarValue != null && SENSITIVE_VALUES.contains(scalarValue.value().value());
+    if (scalarValue != null) {
+      var values = scalarValue.value().value().split(",");
+      for (String value : values) {
+        var trimmed = value.trim();
+        if (SENSITIVE_VALUES.contains(trimmed)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private static void reportSensitiveTuples(CheckContext ctx, List<Tuple> sensitiveTuples) {
     List<SecondaryLocation> secondaryLocations = sensitiveTuples.stream()
       .skip(1)
-      .map(tuple -> new SecondaryLocation(tuple, SECONDARY_LOCATION_MESSAGE))
+      .map(tuple -> new SecondaryLocation(tuple.value(), SECONDARY_LOCATION_MESSAGE))
       .toList();
 
-    ctx.reportIssue(sensitiveTuples.get(0), ISSUE_MESSAGE, secondaryLocations);
+    ctx.reportIssue(sensitiveTuples.get(0).value(), ISSUE_MESSAGE, secondaryLocations);
   }
 }
