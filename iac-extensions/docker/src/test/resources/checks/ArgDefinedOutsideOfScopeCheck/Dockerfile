@@ -3,6 +3,9 @@ ARG SETTINGS
 ARG SETTINGS_2="--default-settings"
 ARG USER=builder
 
+ARG FIRST_ARG="test"
+ARG SECOND_ARG=${FIRST_ARG}
+
 FROM busybox:$BUSYBOX_TAG
 RUN ./run/setup
 

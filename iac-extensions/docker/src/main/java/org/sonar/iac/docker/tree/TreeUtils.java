@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
 public class TreeUtils {
 
@@ -53,4 +54,20 @@ public class TreeUtils {
     Stream<Tree> stream = StreamSupport.stream(spliterator, false);
     return stream.flatMap(tree -> Stream.concat(Stream.of(tree), descendants(tree)));
   }
+
+  public static Optional<DockerTree> firstAncestor(DockerTree node, Predicate<DockerTree> predicate) {
+    var parent = node.parent();
+    if (parent == null) {
+      return Optional.empty();
+    } else if (predicate.test(parent)) {
+      return Optional.of(parent);
+    } else {
+      return firstAncestor(parent, predicate);
+    }
+  }
+
+  public static Optional<DockerTree> firstAncestorOfKind(DockerTree node, DockerTree.Kind... kinds) {
+    return firstAncestor(node, tree -> Stream.of(kinds).anyMatch(tree::is));
+  }
+
 }

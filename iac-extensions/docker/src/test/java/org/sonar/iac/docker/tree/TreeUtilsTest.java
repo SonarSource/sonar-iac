@@ -24,19 +24,20 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TreeUtilsTest {
 
-  private final Tree subtree1 = new TestTree("subtree1");
-  private final Tree subtree2 = new TestTree("subtree2");
-  private final Tree subtree3 = new TestTree("subtree3");
-  private final Tree root = new TestTree("root", subtree1, subtree2, subtree3);
-  private final Tree nochild = new TestTree("nochild");
+  private final DockerTree subtree1 = new TestTree("subtree1", DockerTree.Kind.DOCKERIMAGE);
+  private final DockerTree subtree2 = new TestTree("subtree2", DockerTree.Kind.DOCKERIMAGE);
+  private final DockerTree subtree3 = new TestTree("subtree3", DockerTree.Kind.DOCKERIMAGE);
+  private final DockerTree root = new TestTree("root", DockerTree.Kind.FILE, subtree1, subtree2, subtree3);
+  private final DockerTree nochild = new TestTree("nochild", DockerTree.Kind.FILE);
 
   @Test
-  void test_firstDescendant() {
+  void shouldRetrieveFirstDescendant() {
     Tree result = TreeUtils.firstDescendant(root, t -> ((TestTree) t).name().contains("subtree")).get();
     assertThat(result).isEqualTo(subtree1);
     result = TreeUtils.firstDescendant(root, t -> ((TestTree) t).name().contains("2")).get();
@@ -50,7 +51,7 @@ class TreeUtilsTest {
   }
 
   @Test
-  void test_lastDescendant() {
+  void shouldRetrieveLastDescendant() {
     Tree result = TreeUtils.lastDescendant(root, t -> ((TestTree) t).name().contains("subtree")).get();
     assertThat(result).isEqualTo(subtree3);
     result = TreeUtils.lastDescendant(root, t -> ((TestTree) t).name().contains("2")).get();
@@ -63,14 +64,33 @@ class TreeUtilsTest {
     assertThat(result).isNull();
   }
 
-  static class TestTree extends AbstractTestTree {
+  @Test
+  void shouldRetrieveFirstAncestor() {
+    DockerTree result = TreeUtils.firstAncestor(subtree1, t -> ((TestTree) t).name().contains("root")).get();
+    assertThat(result).isEqualTo(root);
+    result = TreeUtils.firstAncestor(subtree1, t -> ((TestTree) t).name().contains("none")).orElse(null);
+    assertThat(result).isNull();
+    result = TreeUtils.firstAncestor(root, t -> true).orElse(null);
+    assertThat(result).isNull();
+    result = TreeUtils.firstAncestorOfKind(subtree1, DockerTree.Kind.FILE).get();
+    assertThat(result).isEqualTo(root);
+    result = TreeUtils.firstAncestorOfKind(subtree1, DockerTree.Kind.CMD).orElse(null);
+    assertThat(result).isNull();
+  }
+
+  static class TestTree extends AbstractTestTree implements DockerTree {
 
     private final List<Tree> children;
     private final String name;
+    private DockerTree parent;
+    private final Kind kind;
 
-    public TestTree(String name, Tree... children) {
+    public TestTree(String name, Kind kind, DockerTree... children) {
       this.name = name;
       this.children = Arrays.asList(children);
+      this.kind = kind;
+      this.children.forEach(child -> ((DockerTree) child).setParent(this));
+      this.parent = null;
     }
 
     @Override
@@ -80,6 +100,26 @@ class TreeUtilsTest {
 
     public String name() {
       return name;
+    }
+
+    @Override
+    public boolean is(Kind... kind) {
+      return Arrays.stream(kind).anyMatch(k -> k == this.kind);
+    }
+
+    @Override
+    public Kind getKind() {
+      return kind;
+    }
+
+    @Override
+    public DockerTree parent() {
+      return parent;
+    }
+
+    @Override
+    public void setParent(DockerTree parent) {
+      this.parent = parent;
     }
   }
 }

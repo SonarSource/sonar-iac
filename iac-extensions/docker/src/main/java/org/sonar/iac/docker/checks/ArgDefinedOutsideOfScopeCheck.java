@@ -29,6 +29,8 @@ import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Variable;
 
+import static org.sonar.iac.docker.tree.TreeUtils.firstAncestorOfKind;
+
 @Rule(key = "S6579")
 public class ArgDefinedOutsideOfScopeCheck implements IacCheck {
   private static final String MESSAGE = "Include the ARG instruction in the build stage where it is used.";
@@ -39,12 +41,16 @@ public class ArgDefinedOutsideOfScopeCheck implements IacCheck {
   }
 
   private static void checkVariableIsDefinedLocally(CheckContext ctx, Variable variable) {
-    if (variable.symbol() == null || Stream.iterate(variable, Objects::nonNull, DockerTree::parent).anyMatch(t -> t.is(DockerTree.Kind.FROM))) {
+    var symbol = variable.symbol();
+    if (symbol == null || Stream.iterate(variable, Objects::nonNull, DockerTree::parent).anyMatch(t -> t.is(DockerTree.Kind.FROM))) {
       // Variable is either not a Dockerfile variable or is part of a FROM instruction where it doesn't need to be redeclared
       return;
     }
 
-    if (Scope.Kind.GLOBAL == variable.symbol().lastDeclarationScope()) {
+    var currentUsageScope = firstAncestorOfKind(variable, DockerTree.Kind.DOCKERIMAGE, DockerTree.Kind.BODY)
+      .map(DockerTree::getKind)
+      .orElse(null);
+    if (Scope.Kind.GLOBAL == symbol.lastDeclarationScope() && currentUsageScope == DockerTree.Kind.DOCKERIMAGE) {
       ctx.reportIssue(variable.textRange(), MESSAGE);
     }
   }
