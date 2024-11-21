@@ -37,6 +37,8 @@ RUN aptitude install -y libcurl
 RUN apt-get install -tym libcurl
 RUN apt-get install --yes libcurl
 RUN gdebi -n /tmp/package.deb
+RUN gdebi --n /tmp/package.deb
+RUN gdebi -n --n /tmp/package.deb
 RUN gdebi --non-interactive /tmp/package.deb
 RUN gdebi /tmp/package.deb -n
 RUN gdebi -o APT_OPTS /tmp/package.deb -n

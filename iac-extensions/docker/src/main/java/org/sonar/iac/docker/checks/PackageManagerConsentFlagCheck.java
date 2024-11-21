@@ -39,7 +39,7 @@ public class PackageManagerConsentFlagCheck implements IacCheck {
     "apt-get", new CommandOption("-y", List.of("--yes", ASSUME_YES_FLAG)),
     "apt", new CommandOption("-y", List.of("--yes", ASSUME_YES_FLAG)),
     "aptitude", new CommandOption("-y", List.of(ASSUME_YES_FLAG)),
-    "gdebi", new CommandOption("-n", List.of("--non-interactive")));
+    "gdebi", new CommandOption("-n", List.of("--n", "--non-interactive")));
   private static final Set<String> APT_COMMANDS_REQUIRING_CONFIRMATION = Set.of("upgrade", "dist-upgrade", "install", "reinstall", "remove", "purge");
   private static final CommandDetector DEBIAN_PACKAGE_MANAGER_DETECTOR = CommandDetector.builder()
     .with(Set.of("apt", "apt-get", "aptitude"))
