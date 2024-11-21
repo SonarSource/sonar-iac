@@ -143,6 +143,7 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
         '''
         it''s awesome
         '''""")
+      .matches("'''ab''''")
       // object type
       .matches("{}")
       .matches("{ }")
@@ -185,7 +186,6 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .notMatches("-5.5")
       .notMatches("+ f")
       .notMatches("''''")
-      .notMatches("'''ab''''")
       .notMatches("''ab''''")
       .notMatches("''ab''")
       .notMatches("'''ab'")

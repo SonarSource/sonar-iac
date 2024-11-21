@@ -24,7 +24,6 @@ import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class MultilineStringImplTest extends BicepTreeModelTest {
 
@@ -34,32 +33,48 @@ class MultilineStringImplTest extends BicepTreeModelTest {
       .matches("''''''")
       .matches("'''python main.py'''")
       .matches("'''python main.py --abc ${{input.abc}} --def ${xyz}'''")
-      .matches(code("'''",
-        "first line",
-        "second line",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "// inline comment",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "/* inline comment */",
-        "'''"))
-      .matches(code("'''",
-        "first line",
-        "/* inline",
-        "comment */",
-        "'''"))
-      .matches(code("'''",
-        "it's awesome",
-        "'''"))
-      .matches(code("'''",
-        "it''s awesome",
-        "'''"))
+      .matches("""
+        '''
+        first line
+        second line
+        '''""")
+      .matches("""
+        '''
+        first line
+        // inline comment
+        '''""")
+      .matches("""
+        '''
+        first line
+        /* inline comment */
+        '''""")
+      .matches("""
+        '''
+        first line
+        /* inline
+        comment */
+        '''""")
+      .matches("""
+        '''
+        it's awesome
+        '''""")
+      .matches("""
+        '''
+        it''s awesome
+        '''""")
+      .matches("""
+        ''''test''''""")
+      .matches("'''ab''''")
+      .matches("""
+        '''
+        ab
+        ''''""")
+      .matches("''''aaa'''")
+      .matches("'''aa\"a'''")
+      .matches("'''a\\'\\'\\'a'''")
+      .matches("'''a''\\'a'''")
 
       .notMatches("''''")
-      .notMatches("'''ab''''")
       .notMatches("''ab''''")
       .notMatches("''ab''")
       .notMatches("'ab'")
@@ -70,26 +85,27 @@ class MultilineStringImplTest extends BicepTreeModelTest {
       .notMatches("'''a")
       .notMatches("''a")
       .notMatches("'a")
-      .notMatches(code("'''",
-        "ab",
-        "''"))
-      .notMatches(code("'''",
-        "ab",
-        "'"))
-      .notMatches(code("'''",
-        "ab"))
-      .notMatches(code("'''",
-        "ab",
-        "''''"));
+      .notMatches("""
+        '''
+        ab"
+        ''""")
+      .notMatches("""
+        '''
+        ab
+        '""")
+      .notMatches("""
+        '''
+        ab""");
   }
 
   @Test
   void shouldParseSimpleMultilineString() {
-    String code = code("'''",
-      "a",
-      "123",
-      "BBB",
-      "'''");
+    String code = """
+      '''
+      a
+      123
+      BBB
+      '''""";
 
     MultilineString tree = parse(code, BicepLexicalGrammar.MULTILINE_STRING);
 
@@ -98,5 +114,16 @@ class MultilineStringImplTest extends BicepTreeModelTest {
     Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("'''", "a\n123\nBBB\n", "'''");
     assertThat(tree.textRange()).hasRange(1, 0, 5, 3);
+  }
+
+  @Test
+  void shouldParseMultistringEndingWIthSeveralQuotes() {
+    MultilineString tree = parse("''''abc'''''''", BicepLexicalGrammar.MULTILINE_STRING);
+
+    Assertions.assertThat(tree.value()).isEqualTo("'abc''''");
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.MULTILINE_STRING);
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("'''", "'abc''''", "'''");
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 14);
   }
 }
