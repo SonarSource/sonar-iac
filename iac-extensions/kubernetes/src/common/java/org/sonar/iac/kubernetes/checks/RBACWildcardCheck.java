@@ -30,7 +30,7 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 @Rule(key = "S6867")
 public class RBACWildcardCheck extends AbstractKubernetesObjectCheck {
 
-  private static final String MESSAGE = "Do not use wildcards when defining RBAC permissions.";
+  private static final String MESSAGE = "Replace this wildcard with a clear list of allowed resources.";
   private static final List<String> SENSITIVE_KINDS = List.of("Role", "ClusterRole");
   private static final List<String> SENSITIVE_RULE_ATTRIBUTES = List.of("resources", "verbs");
 

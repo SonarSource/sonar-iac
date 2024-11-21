@@ -5,9 +5,9 @@ metadata:
   name: noncompliant-role
 rules:
   - apiGroups: [""]
-    resources: ["*"] # Noncompliant {{Do not use wildcards when defining RBAC permissions.}}
+    resources: ["*"] # Noncompliant {{Replace this wildcard with a clear list of allowed resources.}}
               # ^^^
-    verbs: ["*"] # Noncompliant {{Do not use wildcards when defining RBAC permissions.}}
+    verbs: ["*"] # Noncompliant {{Replace this wildcard with a clear list of allowed resources.}}
           # ^^^
 
   - apiGroups: [""]

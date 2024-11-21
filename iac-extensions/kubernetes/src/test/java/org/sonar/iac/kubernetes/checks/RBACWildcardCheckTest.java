@@ -59,7 +59,7 @@ class RBACWildcardCheckTest {
     var expectedIssues = List.of(
       issue(11, 8, 11, 11),
       issue(14, 15, 14, 32,
-        "Do not use wildcards when defining RBAC permissions.", expectedSecondary));
+        "Replace this wildcard with a clear list of allowed resources.", expectedSecondary));
 
     KubernetesVerifier.verify("RBACWildcardCheck/helm/templates/cluster-role.yaml", check, expectedIssues);
   }
