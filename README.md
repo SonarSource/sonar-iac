@@ -98,3 +98,13 @@ To fetch static files for a rule SXXXX from RSPEC for one of the languages, exec
 ```
 
 Additionally, an optional property `-Pbranch=<branch name>` can be set to fetch rule metadata from a specific branch.
+
+# License
+
+Copyright 2021-2024 SonarSource.
+
+SonarQube analyzers released after November 29, 2024, including patch fixes for prior versions,
+are published under the [Sonar Source-Available License Version 1 (SSALv1)](LICENSE.txt).
+
+See individual files for details that specify the license applicable to each file.
+Files subject to the SSALv1 will be noted in their headers.

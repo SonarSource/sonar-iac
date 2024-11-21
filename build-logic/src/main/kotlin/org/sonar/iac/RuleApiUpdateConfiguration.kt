@@ -1,3 +1,19 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 package org.sonar.iac
 
 import java.io.File
@@ -29,7 +45,8 @@ fun Project.registerAllRuleApiTasks() {
         }
 
     val ruleApiUpdateTasks = iacExtensionNames.map {
-        name -> registerRuleApiUpdateTask(name.toCamelCase(), file("$projectDir/iac-extensions/$name/"))
+            name ->
+        registerRuleApiUpdateTask(name.toCamelCase(), file("$projectDir/iac-extensions/$name/"))
     }
 
     tasks.register("ruleApiUpdate") {
@@ -39,11 +56,15 @@ fun Project.registerAllRuleApiTasks() {
     }
 
     iacExtensionNames.forEach {
-        name -> registerRuleApiGenerateTask(name.toCamelCase(), file("$projectDir/iac-extensions/$name/"))
+            name ->
+        registerRuleApiGenerateTask(name.toCamelCase(), file("$projectDir/iac-extensions/$name/"))
     }
 }
 
-fun Project.registerRuleApiUpdateTask(suffix: String, sonarpediaLocation: File): TaskProvider<JavaExec> {
+fun Project.registerRuleApiUpdateTask(
+    suffix: String,
+    sonarpediaLocation: File,
+): TaskProvider<JavaExec> {
     return registerRuleApiTask("ruleApiUpdate$suffix") {
         description = "Update $suffix rules description"
 
@@ -52,7 +73,10 @@ fun Project.registerRuleApiUpdateTask(suffix: String, sonarpediaLocation: File):
     }
 }
 
-fun Project.registerRuleApiGenerateTask(suffix: String, sonarpediaLocation: File): TaskProvider<JavaExec> {
+fun Project.registerRuleApiGenerateTask(
+    suffix: String,
+    sonarpediaLocation: File,
+): TaskProvider<JavaExec> {
     val rule = providers.gradleProperty("rule")
     val branch = providers.gradleProperty("branch")
     return registerRuleApiTask("ruleApiGenerateRule$suffix") {
@@ -74,13 +98,18 @@ fun Project.registerRuleApiGenerateTask(suffix: String, sonarpediaLocation: File
     }
 }
 
-fun Project.registerRuleApiTask(name: String, configure: JavaExec.() -> Unit): TaskProvider<JavaExec> =
+fun Project.registerRuleApiTask(
+    name: String,
+    configure: JavaExec.() -> Unit,
+): TaskProvider<JavaExec> =
     tasks.register<JavaExec>(name) {
         group = "Rule API"
-        usesService(gradle.sharedServices.registerIfAbsent("ruleApiRepoProvider", RuleApiService::class) {
-            // because rule-api requires exclusive access to `$HOME/.sonar/rule-api/rspec`, we force tasks to never run in parallel
-            maxParallelUsages = 1
-        })
+        usesService(
+            gradle.sharedServices.registerIfAbsent("ruleApiRepoProvider", RuleApiService::class) {
+                // because rule-api requires exclusive access to `$HOME/.sonar/rule-api/rspec`, we force tasks to never run in parallel
+                maxParallelUsages = 1
+            }
+        )
         classpath = configurations.getByName("ruleApi")
         configure(this)
     }

@@ -1,3 +1,19 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 import com.diffplug.blowdryer.Blowdryer
 import org.sonar.iac.CodeStyleConvention
 
@@ -6,6 +22,7 @@ plugins {
 }
 
 val codeStyleConvention = extensions.create<CodeStyleConvention>("codeStyleConvention")
+val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
 
 spotless {
     val licenseHeaderFileName = if (project.path.startsWith(":private:")) "private/LICENSE_HEADER_PRIVATE" else "LICENSE_HEADER"
@@ -35,6 +52,7 @@ spotless {
     }
     kotlinGradle {
         ktlint().setEditorConfigPath("$rootDir/.editorconfig")
+        licenseHeaderFile(rootProject.file(licenseHeaderFileName), kotlinGradleDelimiter).updateYearWithLatest(true)
     }
     format("javaMisc") {
         target("src/**/package-info.java")

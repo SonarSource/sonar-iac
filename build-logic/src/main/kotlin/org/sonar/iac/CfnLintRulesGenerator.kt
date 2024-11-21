@@ -1,3 +1,19 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 package org.sonar.iac
 
 data class Rule(
@@ -37,16 +53,16 @@ fun Rule.asJson(margin: Int): String {
             }
           }
         }
-    """.trimIndent()
+        """.trimIndent()
         .lineSequence()
         .filterNot { it.isBlank() }
         .joinToString(separator = "\n") { "|${" ".repeat(margin)}$it" }
 }
 
 object CfnLintRulesGenerator {
-
     private const val DESCRIPTION_PREFIX =
-        "This issue is raised by the rule [%s] from \\\"AWS CloudFormation Linter\\\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/>" +
+        "This issue is raised by the rule [%s] from \\\"AWS CloudFormation Linter\\\" (aka cfn-lint). " +
+            "This is not an issue raised by Sonar analyzers.<br/>" +
             "<br/>" +
             "AWS CloudFormation Linter Message: %s"
     private const val RULE_URL = "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#%s"
@@ -113,7 +129,8 @@ object CfnLintRulesGenerator {
         url = RULE_URL.format(""),
         description = DESCRIPTION_PREFIX.format(
             "cfn-lint.fallback",
-            "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer."
+            "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule " +
+                "that has not yet been added to the Sonar IaC analyzer."
         ),
         tags = listOf("cfn-lint"),
         type = "CODE_SMELL",

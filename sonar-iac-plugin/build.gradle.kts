@@ -1,3 +1,19 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 import org.sonar.iac.enforceJarSize
 import org.sonar.iac.registerCleanupTask
 
@@ -42,7 +58,7 @@ tasks.jar {
                 "Plugin-Homepage" to "http://docs.sonarqube.org/display/PLUG/Plugin+Library/iac/sonar-iac-plugin",
                 "Plugin-IssueTrackerUrl" to "https://jira.sonarsource.com/projects/SONARIAC",
                 "Plugin-Key" to "iac",
-                "Plugin-License" to "SonarSource",
+                "Plugin-License" to "SSALv1",
                 "Plugin-Name" to "IaC Code Quality and Security",
                 "Plugin-Organization" to "SonarSource",
                 "Plugin-OrganizationUrl" to "https://www.sonarsource.com",
@@ -98,8 +114,8 @@ publishing {
 
 artifactoryConfiguration {
     license {
-        name.set("GNU LPGL 3")
-        url.set("http://www.gnu.org/licenses/lgpl.txt")
+        name.set("SSALv1")
+        url.set("https://sonarsource.com/license/ssal/")
         distribution.set("repo")
     }
     artifactsToPublish = "org.sonarsource.iac:sonar-iac-plugin:jar"

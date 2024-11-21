@@ -1,3 +1,19 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 package org.sonar.iac
 
 import java.nio.file.Path
@@ -7,21 +23,26 @@ import org.slf4j.LoggerFactory
 
 object AnsibleLintRulesGenerator {
     private const val ANSIBLE_DESCRIPTION_PREFIX =
-        """This issue is raised by the rule \"%s\" from \"Ansible Lint\" (aka ansible-lint). This is not an issue raised by Sonar analyzers.<br/>"""
+        "This issue is raised by the rule \"%s\" from \"Ansible Lint\" (aka ansible-lint). " +
+            "This is not an issue raised by Sonar analyzers.<br/>"
     private const val RULE_URL_TEMPLATE = "https://ansible.readthedocs.io/projects/lint/rules/%s/"
     private const val RULE_URL_DEFAULT = "https://ansible.readthedocs.io/projects/lint/rules/"
 
     private val LOG = LoggerFactory.getLogger("some-logger")
     private val ID_REGEX = """\s++id\s*+=\s*+"(?<id>[\w-]*+)"""".toRegex()
+
     // Search for: shortdesc = "some title"
     private val SHORT_DESCRIPTION_REGEX = """shortdesc\s*+=\s*+"(?<title>[\w-.\s]*+)"""".toRegex()
+
     // Search for: description = "some description"
     private val DESCRIPTION_REGEX = """description\s*+=\s*+"(?<title>[\w\s-.`,:()!|>']*+)"""".toRegex()
+
     // Search for: description = (
     //  "some multiline"
     //  "title"
     //  )
     private val DESCRIPTION_REGEX_MULTILINE = """description\s*+=\s*+\(?\n*+\s*+("(?<titles>[\w\s-.`,:()!|>']*+)"\n?\s*+)*+\)?""".toRegex()
+
     // Extracts the string content: "some title"
     private val DESCRIPTION_STRING = """("(?<string>[\w\s-.`,:()!|>]*+)"\n?\s*+)""".toRegex()
 
@@ -71,7 +92,7 @@ object AnsibleLintRulesGenerator {
                 "fqcn[action-core]",
                 "fqcn[canonical]",
                 "fqcn[deep]",
-                "fqcn[keyword]",
+                "fqcn[keyword]"
             )
         ),
         Pair(
@@ -110,7 +131,7 @@ object AnsibleLintRulesGenerator {
             "meta-runtime",
             listOf(
                 "meta-runtime[invalid-version]",
-                "meta-runtime[unsupported-version]",
+                "meta-runtime[unsupported-version]"
             )
         ),
         Pair(
@@ -149,14 +170,14 @@ object AnsibleLintRulesGenerator {
             "run-once",
             listOf(
                 "run-once[play]",
-                "run-once[task]",
+                "run-once[task]"
             )
         ),
         Pair(
             "sanity",
             listOf(
                 "sanity[bad-ignore]",
-                "sanity[cannot-ignore]",
+                "sanity[cannot-ignore]"
             )
         ),
         Pair(
@@ -201,14 +222,14 @@ object AnsibleLintRulesGenerator {
                 "var-naming[non-ascii]",
                 "var-naming[non-string]",
                 "var-naming[pattern]",
-                "var-naming[read-only]",
+                "var-naming[read-only]"
             )
         ),
         Pair(
             "warning",
             listOf(
                 "warning[raw-non-string]",
-                "warning[outdated-tag]",
+                "warning[outdated-tag]"
             )
         ),
         Pair(
@@ -287,8 +308,10 @@ object AnsibleLintRulesGenerator {
         val id = ID_REGEX.find(text)!!.groups["id"]!!.value
         val title = readTitle(text, id)
         if (title.length > 200) {
-            throw RuntimeException("Title for rule $id is too long, max length is 200. " +
-                "Please set a title for the rule manually in the ruleTitles map.")
+            throw RuntimeException(
+                "Title for rule $id is too long, max length is 200. " +
+                    "Please set a title for the rule manually in the ruleTitles map."
+            )
         }
         val description = ANSIBLE_DESCRIPTION_PREFIX.format(id)
         return multipleRules.getOrElse(id) { listOf(id) }
@@ -321,20 +344,24 @@ object AnsibleLintRulesGenerator {
      * - Read from Python file the "description" property, single line
      * - Read from Python file the "description" property, multiline
      */
-    private fun readTitle(text: String, id: String): String {
+    private fun readTitle(
+        text: String,
+        id: String,
+    ): String {
         return ruleTitles[id] ?: ruleTitles[idNoBrackets(id)] ?: SHORT_DESCRIPTION_REGEX.find(text)?.groups?.get("title")?.value
-        ?: DESCRIPTION_REGEX.find(text)?.groups?.get("title")?.value
-            ?.replace("  ", " ")
-            ?.replace("``", "\\\"")
-            ?.removeLastDot()
-        ?: DESCRIPTION_REGEX_MULTILINE.findAll(text)
-            .map { lines -> DESCRIPTION_STRING.findAll(lines.value)
-                .map { it2 -> it2.groups["string"]?.value }.joinToString(" ")
-                .replace("  ", " ")
-                .replace("``", "\\\"")
-                .removeLastDot()
-            }
-            .joinToString("")
+            ?: DESCRIPTION_REGEX.find(text)?.groups?.get("title")?.value
+                ?.replace("  ", " ")
+                ?.replace("``", "\\\"")
+                ?.removeLastDot()
+            ?: DESCRIPTION_REGEX_MULTILINE.findAll(text)
+                .map { lines ->
+                    DESCRIPTION_STRING.findAll(lines.value)
+                        .map { it2 -> it2.groups["string"]?.value }.joinToString(" ")
+                        .replace("  ", " ")
+                        .replace("``", "\\\"")
+                        .removeLastDot()
+                }
+                .joinToString("")
     }
 
     private fun String.removeLastDot() = if (endsWith(".")) substring(0, length - 1) else this
@@ -372,7 +399,8 @@ object AnsibleLintRulesGenerator {
         id = "ansible-lint.fallback",
         title = "Ansible Lint Rule",
         url = RULE_URL_DEFAULT,
-        description = "This reporting may be triggered by a custom ansible-lint rule or by a default ansible-lint rule that has not yet been added to the Sonar IaC analyzer",
+        description = "This reporting may be triggered by a custom ansible-lint rule or by a default ansible-lint rule " +
+            "that has not yet been added to the Sonar IaC analyzer",
         tags = listOf("ansible-lint"),
         type = "CODE_SMELL",
         severity = "MAJOR",
@@ -390,7 +418,7 @@ object AnsibleLintRulesGenerator {
             "load-failure[runtimeerror]",
             "load-failure[unicodedecodeerror]",
             "parser-error",
-            "warning[outdated-tag]",
+            "warning[outdated-tag]"
         )
             .map {
                 Rule(

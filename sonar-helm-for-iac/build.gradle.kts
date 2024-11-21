@@ -1,3 +1,19 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 import com.google.protobuf.gradle.id
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
@@ -48,7 +64,9 @@ val downloadProtocGenGo by tasks.registering(Download::class) {
     }
 
     inputs.property("binaryVersion", protocBinaryVersion)
-    src("https://github.com/protocolbuffers/protobuf-go/releases/download/v$protocBinaryVersion/protoc-gen-go.v$protocBinaryVersion.$suffix")
+    src(
+        "https://github.com/protocolbuffers/protobuf-go/releases/download/v$protocBinaryVersion/protoc-gen-go.v$protocBinaryVersion.$suffix"
+    )
     dest(layout.buildDirectory.file("protoc-gen-go/protoc-gen-go.v$protocBinaryVersion.$suffix"))
     onlyIfModified(false)
     overwrite(false)
@@ -110,18 +128,21 @@ if (isCi) {
         dependsOn("generateProto")
 
         inputs.property("GO_CROSS_COMPILE", System.getenv("GO_CROSS_COMPILE") ?: "0")
-        inputs.files(fileTree(projectDir).matching {
-            include(
-                "*.go",
-                "**/*.go",
-                "**/go.mod",
-                "**/go.sum",
-                "go.work",
-                "go.work.sum",
-                "make.bat",
-                "make.sh")
-            exclude("build/**")
-        })
+        inputs.files(
+            fileTree(projectDir).matching {
+                include(
+                    "*.go",
+                    "**/*.go",
+                    "**/go.mod",
+                    "**/go.sum",
+                    "go.work",
+                    "go.work.sum",
+                    "make.bat",
+                    "make.sh"
+                )
+                exclude("build/**")
+            }
+        )
         outputs.dir("build/executable")
         outputs.cacheIf { true }
 
@@ -164,7 +185,10 @@ if (isCi) {
     }
 }
 
-fun callMake(execTask: Exec, arg: String) {
+fun callMake(
+    execTask: Exec,
+    arg: String,
+) {
     if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
         execTask.commandLine("cmd", "/c", "make.bat", arg)
     } else {
@@ -222,22 +246,29 @@ if (!isCi) {
         dependsOn("buildDockerImage")
         setErrorOutput(System.out)
 
-        inputs.files(fileTree(projectDir).matching {
-            include("*.go",
-                "**/*.go",
-                "**/go.mod",
-                "**/go.sum",
-                "go.work",
-                "go.work.sum",
-                "proto/template-evaluation.proto")
-            exclude("build/**")
-        })
+        inputs.files(
+            fileTree(projectDir).matching {
+                include(
+                    "*.go",
+                    "**/*.go",
+                    "**/go.mod",
+                    "**/go.sum",
+                    "go.work",
+                    "go.work.sum",
+                    "proto/template-evaluation.proto"
+                )
+                exclude("build/**")
+            }
+        )
         outputs.dir("build/executable")
         outputs.cacheIf { true }
 
-        commandLine("docker", "run", "--rm", "--platform", "linux/amd64", "--mount", "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac",
+        commandLine(
+            "docker", "run", "--rm", "--platform", "linux/amd64", "--mount",
+            "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac",
             "--env", "GO_CROSS_COMPILE=${System.getenv("GO_CROSS_COMPILE") ?: "1"}",
-            "sonar-iac-helm-builder")
+            "sonar-iac-helm-builder"
+        )
     }
 
     tasks.named("assemble") {
