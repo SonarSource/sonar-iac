@@ -16,18 +16,23 @@
  */
 package org.sonar.iac
 
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.maven.MavenPomLicense
+import org.gradle.kotlin.dsl.newInstance
+import org.gradle.kotlin.dsl.property
 
-interface ArtifactoryConfiguration {
-    val artifactsToPublish: Property<String>
-    val artifactsToDownload: Property<String>
-    val repoKeyEnv: Property<String>
-    val usernameEnv: Property<String>
-    val passwordEnv: Property<String>
-    var license: (MavenPomLicense.() -> Unit)?
+open class ArtifactoryConfiguration(
+    objects: ObjectFactory,
+) {
+    val artifactsToPublish: Property<String> = objects.property()
+    val artifactsToDownload: Property<String> = objects.property()
+    val repoKeyEnv: Property<String> = objects.property()
+    val usernameEnv: Property<String> = objects.property()
+    val passwordEnv: Property<String> = objects.property()
+    internal val license: MavenPomLicense = objects.newInstance()
 
     fun license(action: MavenPomLicense.() -> Unit) {
-        license = action
+        action.invoke(license)
     }
 }

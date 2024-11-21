@@ -114,9 +114,9 @@ publishing {
 
 artifactoryConfiguration {
     license {
-        name.set("SSALv1")
-        url.set("https://sonarsource.com/license/ssal/")
-        distribution.set("repo")
+        name = "SSALv1"
+        url = "https://sonarsource.com/license/ssal/"
+        distribution = "repo"
     }
     artifactsToPublish = "org.sonarsource.iac:sonar-iac-plugin:jar"
     artifactsToDownload = ""
