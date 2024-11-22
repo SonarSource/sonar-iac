@@ -66,6 +66,23 @@ RUN apk add
 RUN apk add nginx && apt-get install wget && rm -rf /var/cache/apk/* && apt-get clean
 RUN apt-get install wget && apt-get install wget && aptitude install wget && rm -rf /var/lib/apt/lists/*
 
+# Checking on partial paths
+RUN apt-get install wget && rm -rf /var/lib/apt/lists
+RUN apt-get install wget && rm -rf /var/lib/apt
+RUN apt-get install wget && rm -rf /var/lib
+RUN apt-get install wget && rm -rf /var
+RUN apk add nginx && rm -rf /var/cache/apk
+RUN apk add nginx && rm -rf /var/cache
+RUN apk add nginx && rm -rf /var
+RUN apk add nginx && rm -rf /etc/apk/cache
+RUN apk add nginx && rm -rf /etc/apk
+RUN apk add nginx && rm -rf /etc
+
+RUN apt-get install wget && rm -rf /
+RUN apt-get install wget && rm -rf /var/lib/apt/lists/
+# Noncompliant@+1
+RUN apt-get install wget && rm -rf /var/lib/apt/lists/partial
+
 RUN <<EOF
 apt-get install wget
 rm -rf /var/lib/apt/lists/*

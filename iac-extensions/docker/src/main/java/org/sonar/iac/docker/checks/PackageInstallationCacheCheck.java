@@ -46,9 +46,9 @@ public class PackageInstallationCacheCheck implements IacCheck {
 
   private static final String MESSAGE = "Remove cache after installing packages or store it in a cache mount.";
 
-  private static final Set<String> APK_CACHE_LOCATIONS = Set.of("/etc/apk/cache/*", "/var/cache/apk/*");
+  private static final Set<String> APK_CACHE_LOCATIONS = allLocationsFrom("/etc/apk/cache/*", "/var/cache/apk/*");
   private static final Set<String> APT_COMMANDS = Set.of("apt", "apt-get", "aptitude");
-  private static final Set<String> APT_CACHE_LOCATIONS = Set.of("/var/lib/apt/lists/*");
+  private static final Set<String> APT_CACHE_LOCATIONS = allLocationsFrom("/var/lib/apt/lists/*");
   private static final Map<String, Set<String>> CACHE_TO_COMMANDS = Map.of(
     // Default value of `Dir::State` in `apt.conf`
     "/var/lib/apt", APT_COMMANDS,
@@ -272,5 +272,25 @@ public class PackageInstallationCacheCheck implements IacCheck {
 
   private static boolean containsFlagR(String content) {
     return "--recursive".equals(content) || (!content.startsWith("--") && content.toLowerCase(Locale.ROOT).contains("r"));
+  }
+
+  /**
+   * Build a set of locations and their sub-paths. Accept a variable number of locations.
+   * Expect a path starting with / character.
+   * Example: "/etc/apk/cache/*" result in a set containing "/etc/apk/cache/*", "/etc/apk/cache", "/etc/apk", "/etc"
+   */
+  private static Set<String> allLocationsFrom(String... locations) {
+    Set<String> result = new HashSet<>();
+    for (String location : locations) {
+      String[] splitLocation = location.substring(1).split("/");
+      var val = new StringBuilder();
+      for (String loc : splitLocation) {
+        val.append("/");
+        result.add(val.toString());
+        val.append(loc);
+        result.add(val.toString());
+      }
+    }
+    return result;
   }
 }
