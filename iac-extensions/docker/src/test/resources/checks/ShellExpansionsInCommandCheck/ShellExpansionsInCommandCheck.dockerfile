@@ -17,6 +17,8 @@ RUN echo -n *
 # Noncompliant@+1
 RUN printf *.txt
 # Noncompliant@+1
+RUN grep text_pattern *.txt
+# Noncompliant@+1
 RUN touch -- '-f oo.bar' && ls *.bar
 #                              ^^^^^
 # Noncompliant@+1
@@ -38,6 +40,8 @@ RUN (cd ${LIBSYSTEMD}/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpf
 # Compliant: asterisk in ExecForm won't be subject for shell expansion
 CMD [ "/usr/bin/daemon", "--allowed", "*"]
 RUN echo "* * * * * umask 007; $APP_ROOT_PATH/bin/magento"
+# Compliant: find command is excluded from the check
+RUN find . -name *.log -exec rm {} \;
 
 # Noncompliant@+3
 RUN case "${alpineArch##*-}" in \
@@ -57,3 +61,11 @@ RUN case "${alpineArch##*-}" in \
 ENTRYPOINT echo *
 # Noncompliant@+1
 CMD printf *
+
+RUN <<EOT
+  find . -name *.log -exec rm {} \;
+EOT
+
+RUN <<EOT
+  rm *
+EOT

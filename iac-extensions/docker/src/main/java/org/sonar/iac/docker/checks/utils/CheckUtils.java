@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -51,22 +52,13 @@ public final class CheckUtils {
   }
 
   public static <T extends CommandInstruction> BiConsumer<CheckContext, T> ignoringHeredoc(BiConsumer<CheckContext, T> visitor) {
-    return (ctx, commandInstruction) -> {
-      if (DockerTree.Kind.HEREDOCUMENT != commandInstruction.getKindOfArgumentList()) {
-        visitor.accept(ctx, commandInstruction);
-      }
-    };
+    return ignoringSpecificForms(Set.of(DockerTree.Kind.HEREDOCUMENT), visitor);
   }
 
-  /**
-   * Only execute the visitor if this CommandInstruction is not an ExecForm.
-   * <br/>
-   * Unlike the shell form, the exec form does not invoke a command shell. This means that normal shell processing does not happen.
-   * Thus, checks about shell best practices are not applicable to commands in ExecForm.
-   */
-  public static <T extends CommandInstruction> BiConsumer<CheckContext, T> ignoringExecForm(BiConsumer<CheckContext, T> visitor) {
+  public static <T extends CommandInstruction> BiConsumer<CheckContext, T> ignoringSpecificForms(Collection<DockerTree.Kind> formKinds, BiConsumer<CheckContext, T> visitor) {
     return (ctx, commandInstruction) -> {
-      if (DockerTree.Kind.EXEC_FORM != commandInstruction.getKindOfArgumentList()) {
+      var kind = commandInstruction.getKindOfArgumentList();
+      if (kind == null || !formKinds.contains(commandInstruction.getKindOfArgumentList())) {
         visitor.accept(ctx, commandInstruction);
       }
     };
