@@ -102,6 +102,84 @@ Resources:
     Properties:
       LogGroupName: ''
 
+  CompliantLambdaFunctionLogGroupWithRef:
+    Type: AWS::Lambda::Function
+    Properties:
+      LoggingConfig:
+        LogGroup: !Ref CompliantLambdaFunctionLogGroup
+
+  CompliantLambdaFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/function"
+      RetentionInDays: 90
+
+  SensitiveLambdaFunctionLogGroupWithRefButNoLogGroupName:
+    Type: AWS::Lambda::Function # Noncompliant
+    Properties:
+      LoggingConfig:
+        LogGroup: !Ref SensitiveLambdaFunctionLogGroupNoLogGroupName
+
+  SensitiveLambdaFunctionLogGroupNoLogGroupName:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 90
+
+  CompliantServerlessFunctionLogGroupWithRef:
+    Type: AWS::Serverless::Function
+    Properties:
+      LoggingConfig:
+        LogGroup: !Ref CompliantServerlessFunctionLogGroup
+
+  CompliantServerlessFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/serverless"
+      RetentionInDays: 90
+
+# The AWS::ApiGatewayV2::Api doesn't have LoggingConfig property
+  SensitiveApiGatewayWithRef:
+    Type: AWS::ApiGatewayV2::Api # Noncompliant
+    Properties:
+      LoggingConfig:
+        LogGroup: !Ref SensitiveApiGatewayLogGroup
+
+  SensitiveApiGatewayLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/apiGateway"
+      RetentionInDays: 90
+
+# The AWS::CodeBuild::Project doesn't have LoggingConfig property
+  SensitiveCodeBuildProjectWithRef:
+    Type: AWS::CodeBuild::Project # Noncompliant
+    Properties:
+      LoggingConfig:
+        LogGroup: !Ref SensitiveCodeBuildProjectLogGroup
+
+  SensitiveCodeBuildProjectLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/codeBuild"
+      RetentionInDays: 90
+
+  CompliantCodeBuildProjectWithLogsConfigCloudWatchLogs:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      LogsConfig:
+        CloudWatchLogs:
+          Status: "ENABLED"
+          GroupName: "aws/codeBuild/project"
+
+# The S3Logs doesn't define a LogGroupName or similar, let's assume that defining 'S3Logs' key is enough to not raise issue
+  CompliantCodeBuildProjectWithLogsConfigS3Logs:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      LogsConfig:
+        S3Logs:
+          Status: "ENABLED"
+          Location: "my-bucket/build-log"
+
   CompliantFunctionWithLogEvent:
     Type: AWS::Serverless::Function
     Properties:

@@ -109,6 +109,120 @@
         "LogGroupName": ""
       }
     },
+    "CompliantLambdaFunctionLogGroupWithRef": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "LoggingConfig": {
+          "LogGroup": {
+            "Ref": "CompliantLambdaFunctionLogGroup"
+          }
+        }
+      }
+    },
+    "CompliantLambdaFunctionLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/function"
+        },
+        "RetentionInDays": 90
+      }
+    },
+    "SensitiveLambdaFunctionLogGroupWithRefButNoLogGroupName": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "LoggingConfig": {
+          "LogGroup": {
+            "Ref": "SensitiveLambdaFunctionLogGroupNoLogGroupName"
+          }
+        }
+      }
+    },
+    "SensitiveLambdaFunctionLogGroupNoLogGroupName": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "RetentionInDays": 90
+      }
+    },
+    "CompliantServerlessFunctionLogGroupWithRef": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "LoggingConfig": {
+          "LogGroup": {
+            "Ref": "CompliantServerlessFunctionLogGroup"
+          }
+        }
+      }
+    },
+    "CompliantServerlessFunctionLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/serverless"
+        },
+        "RetentionInDays": 90
+      }
+    },
+    "SensitiveApiGatewayWithRef": {
+      "Type": "AWS::ApiGatewayV2::Api",
+      "Properties": {
+        "LoggingConfig": {
+          "LogGroup": {
+            "Ref": "SensitiveApiGatewayLogGroup"
+          }
+        }
+      }
+    },
+    "SensitiveApiGatewayLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/serverless"
+        },
+        "RetentionInDays": 90
+      }
+    },
+    "SensitiveCodeBuildProjectWithRef": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "LoggingConfig": {
+          "LogGroup": {
+            "Ref": "SensitiveCodeBuildProjectLogGroup"
+          }
+        }
+      }
+    },
+    "SensitiveCodeBuildProjectLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/codeBuild"
+        },
+        "RetentionInDays": 90
+      }
+    },
+    "CompliantCodeBuildProjectWithLogsConfigCloudWatchLogs": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "LogsConfig": {
+          "CloudWatchLogs": {
+            "Status": "ENABLED",
+            "GroupName": "aws/codeBuild/project"
+          }
+        }
+      }
+    },
+    "CompliantCodeBuildProjectWithLogsConfigS3Logs": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "LogsConfig": {
+          "S3Logs": {
+            "Status": "ENABLED",
+            "Location": "my-bucket/build-log"
+          }
+        }
+      }
+    },
     "CompliantFunctionWithLogEvent": {
       "Type": "AWS::Serverless::Function",
       "Properties": {

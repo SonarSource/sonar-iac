@@ -17,26 +17,28 @@
 package org.sonar.iac.cloudformation.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.testing.Verifier;
 
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.testing.Verifier.issue;
 
 class LogGroupDeclarationCheckTest {
 
   @Test
   void test_yaml() {
-    CloudformationVerifier.verify("LogGroupDeclarationCheck/test.yaml", new LogGroupDeclarationCheck());
+    CloudformationVerifier.verify("LogGroupDeclarationCheck/LogGroupDeclarationCheck.yaml", new LogGroupDeclarationCheck());
   }
 
   @Test
   void test_json() {
-    CloudformationVerifier.verify("LogGroupDeclarationCheck/test.json", new LogGroupDeclarationCheck(),
-      new Verifier.Issue(range(5, 14, 5, 37), "Make sure missing \"Log Groups\" declaration is intended here."),
-      new Verifier.Issue(range(8, 14, 8, 41)),
-      new Verifier.Issue(range(11, 14, 11, 38)),
-      new Verifier.Issue(range(14, 14, 14, 39)),
-      new Verifier.Issue(range(101, 14, 101, 37)),
-      new Verifier.Issue(range(130, 14, 130, 41)));
+    CloudformationVerifier.verify("LogGroupDeclarationCheck/LogGroupDeclarationCheck.json", new LogGroupDeclarationCheck(),
+      issue(5, 14, 5, 37, "Make sure missing \"Log Groups\" declaration is intended here."),
+      issue(8, 14, 8, 41),
+      issue(11, 14, 11, 38),
+      issue(14, 14, 14, 39),
+      issue(101, 14, 101, 37),
+      issue(132, 14, 132, 37),
+      issue(167, 14, 167, 38),
+      issue(186, 14, 186, 39),
+      issue(244, 14, 244, 41));
   }
 
 }

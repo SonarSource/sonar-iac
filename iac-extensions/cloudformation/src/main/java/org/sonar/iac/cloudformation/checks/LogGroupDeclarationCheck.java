@@ -30,6 +30,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.cloudformation.tree.FunctionCallTree;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -56,23 +57,40 @@ public class LogGroupDeclarationCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(FileTree.class, (ctx, tree) -> {
-      List<Resource> resources = getFileResources(tree);
+    init.register(FileTree.class, LogGroupDeclarationCheck::checkFileTree);
+  }
 
-      // Collect reference identifiers from LogGroup resources
-      Set<String> referencedResourceIdentifier = resources.stream()
-        .filter(resource -> resource.isType("AWS::Logs::LogGroup"))
-        .filter(resource -> resource.properties() instanceof MappingTree)
-        .map(LogGroupDeclarationCheck::getReferenceIdentifiers)
-        .flatMap(Collection::stream)
-        .collect(Collectors.toSet());
+  private static void checkFileTree(CheckContext ctx, FileTree tree) {
+    List<Resource> resources = getFileResources(tree);
 
-      // Filter affected resources by LogGroup identifiers and raise issues on remaining resources without declared LogGroup
-      resources.stream()
-        .filter(LogGroupDeclarationCheck::isRelevantResource)
-        .filter(r -> !matchResourceIdentifier(referencedResourceIdentifier, r))
-        .forEach(resource -> ctx.reportIssue(resource.type(), MESSAGE));
-    });
+    Set<String> referencedResourceIdentifier = collectReferenceIDsFromLogGroups(resources);
+
+    Set<String> logGroupNames = collectLogGroupNamesThatHaveLogGroupName(resources);
+
+    // Filter affected resources by LogGroup identifiers and raise issues on remaining resources without declared LogGroup
+    resources.stream()
+      .filter(LogGroupDeclarationCheck::isRelevantResource)
+      .filter(resource -> !matchResourceIdentifier(referencedResourceIdentifier, resource))
+      .filter(resource -> !hasReferenceLogGroup(logGroupNames, resource))
+      .filter(resource -> !hasLogsConfig(resource))
+      .forEach(resource -> ctx.reportIssue(resource.type(), MESSAGE));
+  }
+
+  private static Set<String> collectReferenceIDsFromLogGroups(List<Resource> resources) {
+    return resources.stream()
+      .filter(resource -> resource.isType("AWS::Logs::LogGroup"))
+      .filter(resource -> resource.properties() instanceof MappingTree)
+      .map(LogGroupDeclarationCheck::getReferenceIdentifiers)
+      .flatMap(Collection::stream)
+      .collect(Collectors.toSet());
+  }
+
+  private static Set<String> collectLogGroupNamesThatHaveLogGroupName(List<Resource> resources) {
+    return resources.stream()
+      .filter(resource -> resource.isType("AWS::Logs::LogGroup"))
+      .filter(resource -> PropertyUtils.has(resource.properties(), "LogGroupName").isTrue())
+      .map(resource -> resource.name().value())
+      .collect(Collectors.toSet());
   }
 
   // Return extracted reference identifiers for a certain LogGroup resource
@@ -95,6 +113,27 @@ public class LogGroupDeclarationCheck implements IacCheck {
 
   private static boolean matchResourceIdentifier(Set<String> identifiers, Resource resource) {
     return identifiers.contains(resource.name().value()) || identifiers.contains(functionName(resource).orElse(null));
+  }
+
+  private static boolean hasReferenceLogGroup(Set<String> logGroupNames, Resource resource) {
+    if ((resource.isType("AWS::Lambda::Function") || resource.isType("AWS::Serverless::Function"))
+      && resource.properties() != null) {
+      var logGroup = XPathUtils.getSingleTree(resource.properties(), "/LoggingConfig/LogGroup");
+      if (logGroup.isPresent()) {
+        var names = FunctionReferenceCollector.get(logGroup.get());
+        return !Collections.disjoint(logGroupNames, names);
+      }
+    }
+    return false;
+  }
+
+  private static boolean hasLogsConfig(Resource resource) {
+    if (resource.isType("AWS::CodeBuild::Project") && resource.properties() != null) {
+      var cloudWatchLogs = XPathUtils.getSingleTree(resource.properties(), "/LogsConfig/CloudWatchLogs/GroupName");
+      var s3Logs = XPathUtils.getSingleTree(resource.properties(), "/LogsConfig/S3Logs");
+      return cloudWatchLogs.isPresent() || s3Logs.isPresent();
+    }
+    return false;
   }
 
   private static Optional<String> functionName(Resource resource) {
@@ -122,7 +161,8 @@ public class LogGroupDeclarationCheck implements IacCheck {
     private final Set<String> references = new HashSet<>();
 
     public FunctionReferenceCollector() {
-      register(FunctionCallTree.class, (ctx, tree) -> tree.arguments().stream().limit(1).filter(ScalarTree.class::isInstance)
+      register(FunctionCallTree.class, (ctx, tree) -> tree.arguments().stream().limit(1)
+        .filter(ScalarTree.class::isInstance)
         .forEach(argument -> collectReference(tree.name(), (ScalarTree) argument)));
     }
 
