@@ -34,6 +34,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6954")
 public class EmptyOrNullValueCheck implements IacCheck {
@@ -53,7 +54,9 @@ public class EmptyOrNullValueCheck implements IacCheck {
 
   private static void checkResource(CheckContext ctx, ResourceDeclaration resource) {
     for (Property property : resource.resourceProperties()) {
-      checkExpression(ctx, property, property.value(), "property");
+      if (!isResourcePropertyException(property)) {
+        checkExpression(ctx, property, property.value(), "property");
+      }
     }
   }
 
@@ -72,6 +75,16 @@ public class EmptyOrNullValueCheck implements IacCheck {
     } else {
       checkExpression(ctx, output, outputValue, "output");
     }
+  }
+
+  /**
+   * Exceptions for resource properties:
+   * <ul>
+   *   <li>Top-level `properties` of a resource declaration</li>
+   * </ul>
+   */
+  private static boolean isResourcePropertyException(Property property) {
+    return TextUtils.isValue(property.key(), "properties").isTrue() && isEmpty(property.value());
   }
 
   private static void checkExpression(CheckContext ctx, HasTextRange propertyToReport, Expression expression, String kind) {

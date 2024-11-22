@@ -1,7 +1,6 @@
 resource exampleStorage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: 'my name'
-  properties: { // Noncompliant
-//^[el=+2;ec=3]
+  name: 'Compliant exception: top-level resource properties'
+  properties: {
   }
 }
 

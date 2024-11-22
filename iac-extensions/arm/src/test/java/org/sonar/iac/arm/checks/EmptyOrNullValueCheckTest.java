@@ -45,7 +45,6 @@ class EmptyOrNullValueCheckTest {
       issue(93, 10, 93, 25),
       issue(94, 10, 94, 25),
       issue(95, 10, 95, 25),
-      issue(103, 6, 104, 7, "Remove this empty object or complete with real code."),
       issue(108, 4, 110, 19),
       issue(112, 4, 114, 17),
       issue(116, 4, 118, 17),
@@ -60,6 +59,11 @@ class EmptyOrNullValueCheckTest {
     // issue(182, 10, 183, 24),
     // issue(191, 15, 191, 26)
     );
+  }
+
+  @Test
+  void shouldAllowExceptionsInJson() {
+    ArmVerifier.verifyNoIssue("EmptyOrNullValueCheckTest/emptyOrNullValue-exceptions.json", CHECK);
   }
 
   @Test
