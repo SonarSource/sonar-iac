@@ -26,7 +26,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.FunctionCall;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
@@ -34,7 +34,6 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -136,16 +135,10 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
 
     private static boolean isValueOfKey(StringLiteral stringLiteral, String keyName) {
       Tree parent = stringLiteral.parent();
-      if (parent instanceof ObjectExpression objectExpression) {
-        var key = objectExpression.properties().stream()
-          .filter(p -> stringLiteral.equals(p.value()))
-          .map(PropertyTree::key)
-          .findAny();
-        if (key.isPresent()) {
-          var tree = key.get();
-          if (tree instanceof Identifier identifier) {
-            return identifier.value().equals(keyName);
-          }
+      if (parent instanceof Property property) {
+        var tree = property.key();
+        if (tree instanceof Identifier identifier) {
+          return identifier.value().equals(keyName);
         }
       }
       return false;

@@ -45,19 +45,19 @@ class EmptyOrNullValueCheckTest {
       issue(93, 10, 93, 25),
       issue(94, 10, 94, 25),
       issue(95, 10, 95, 25),
-      issue(108, 4, 110, 19),
-      issue(112, 4, 114, 17),
-      issue(116, 4, 118, 17),
-      issue(120, 4, 122, 17),
-      issue(151, 8, 151, 19),
-      issue(162, 10, 162, 21)
+      issue(119, 4, 121, 19),
+      issue(123, 4, 125, 17),
+      issue(127, 4, 129, 17),
+      issue(131, 4, 133, 17),
+      issue(162, 8, 162, 19),
+      issue(173, 10, 173, 21)
     // TODO SONARIAC-1403 ARM Template parser should produce the same AST as Bicep for output with FOR loop
-    // issue(169, 10, 169, 24),
-    // issue(170, 10, 170, 22),
-    // issue(171, 10, 171, 22),
-    // issue(172, 10, 172, 22),
-    // issue(182, 10, 183, 24),
-    // issue(191, 15, 191, 26)
+    // issue(170, 10, 170, 24),
+    // issue(181, 10, 181, 22),
+    // issue(182, 10, 182, 22),
+    // issue(183, 10, 183, 22),
+    // issue(193, 10, 183, 24),
+    // issue(202, 15, 202, 26)
     );
   }
 

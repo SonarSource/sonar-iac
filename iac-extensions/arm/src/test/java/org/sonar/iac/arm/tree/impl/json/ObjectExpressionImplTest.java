@@ -39,9 +39,8 @@ class ObjectExpressionImplTest {
       .hasRange(LINE_OFFSET + 1, 15, LINE_OFFSET + 1, 28);
     assertThat(objectExpression.getKind()).isEqualTo(ArmTree.Kind.OBJECT_EXPRESSION);
     assertThat(objectExpression.nestedResources()).isEmpty();
-    assertThat(objectExpression.children()).hasSize(2);
-    assertThat(((ArmTree) objectExpression.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
-    assertThat(((ArmTree) objectExpression.children().get(1)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
+    assertThat(objectExpression.children()).hasSize(1);
+    assertThat(((ArmTree) objectExpression.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.PROPERTY);
   }
 
   @Test

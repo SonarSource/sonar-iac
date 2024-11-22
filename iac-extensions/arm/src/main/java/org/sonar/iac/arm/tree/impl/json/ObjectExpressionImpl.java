@@ -16,7 +16,6 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -47,12 +46,7 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    properties.forEach(property -> {
-      children.add(property.key());
-      children.add(property.value());
-    });
-    return children;
+    return properties.stream().map(Tree.class::cast).toList();
   }
 
   @Override

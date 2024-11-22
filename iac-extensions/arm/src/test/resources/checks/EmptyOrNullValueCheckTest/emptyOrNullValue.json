@@ -102,6 +102,17 @@
       "name": "test",
       "properties": {
       }
+    },
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "name": "Compliant: exception for userAssignedIdentities",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "{customized property}": {}
+        }
+      }
     }
   ],
   "outputs": {

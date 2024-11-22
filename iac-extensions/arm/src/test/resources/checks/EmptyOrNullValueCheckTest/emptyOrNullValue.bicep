@@ -117,3 +117,24 @@ output outFor array = [for (name, i) in myList: {
 }]
 
 output outForOther array = [for (name, i) in myList: []] // Corner case where the for body is not an object
+
+resource container 'Microsoft.App/containerApps@2023-05-01' = {
+  name: 'Compliant: empty ID is required for this resource type'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      'id': {}
+      '${scriptIdentity.id}': {}
+    }
+  }
+}
+
+resource createAddCertificate 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'Compliant: empty ID is required for this resource type'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identityId}': {}
+    }
+  }
+}

@@ -17,6 +17,7 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -81,10 +82,18 @@ public class EmptyOrNullValueCheck implements IacCheck {
    * Exceptions for resource properties:
    * <ul>
    *   <li>Top-level `properties` of a resource declaration</li>
+   *   <li>Property `userAssignedIdentities -> {ID}`, where ID value has to be null for several resource types, and ID
+   *   itself can be an arbitrary string or variable</li>
    * </ul>
    */
   private static boolean isResourcePropertyException(Property property) {
-    return TextUtils.isValue(property.key(), "properties").isTrue() && isEmpty(property.value());
+    var isTopLevelPropertiesProperty = TextUtils.isValue(property.key(), "properties").isTrue() && isEmpty(property.value());
+
+    var isUserAssignedIdentitiesIdProperty = Optional.ofNullable(property.parent())
+      .map(ArmTree::parent)
+      .map(parent -> parent instanceof Property parentProperty && TextUtils.isValue(parentProperty.key(), "userAssignedIdentities").isTrue())
+      .orElse(false);
+    return isTopLevelPropertiesProperty || isUserAssignedIdentitiesIdProperty;
   }
 
   private static void checkExpression(CheckContext ctx, HasTextRange propertyToReport, Expression expression, String kind) {
@@ -100,7 +109,7 @@ public class EmptyOrNullValueCheck implements IacCheck {
   private static void checkObject(CheckContext ctx, ObjectExpression object) {
     for (PropertyTree property : object.properties()) {
       Tree value = property.value();
-      if (value instanceof Expression expression) {
+      if (value instanceof Expression expression && !isResourcePropertyException((Property) property)) {
         checkExpression(ctx, property, expression, "property");
       }
     }

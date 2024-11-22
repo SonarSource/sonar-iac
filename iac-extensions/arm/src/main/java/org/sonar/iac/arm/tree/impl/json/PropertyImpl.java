@@ -22,8 +22,6 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 public class PropertyImpl extends AbstractArmTreeImpl implements Property {
 
@@ -43,11 +41,6 @@ public class PropertyImpl extends AbstractArmTreeImpl implements Property {
   @Override
   public Expression value() {
     return value;
-  }
-
-  @Override
-  public TextRange textRange() {
-    return TextRanges.merge(List.of(key.textRange(), value.textRange()));
   }
 
   @Override
