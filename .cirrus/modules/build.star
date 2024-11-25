@@ -22,6 +22,7 @@ load(
     "project_version_cache",
     "store_project_version_script"
 )
+load("cache.star", "gradle_cache_fingerprint_script")
 
 
 #
@@ -67,7 +68,7 @@ def build_task():
             "env": build_env(),
             "eks_container": custom_image_container_builder(cpu=10, memory="6G"),
             "project_version_cache": project_version_cache(),
-            "gradle_cache": gradle_cache(),
+            "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": build_script(),
             "cleanup_gradle_script": cleanup_gradle_script(),
@@ -98,7 +99,7 @@ def build_test_analyze_task():
             "depends_on": "build",
             "env": build_test_env(),
             "eks_container": custom_image_container_builder(cpu=6, memory="6G"),
-            "gradle_cache": gradle_cache(),
+            "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": build_script(),
             "on_failure": {
@@ -136,7 +137,7 @@ def sca_scan_task():
             "depends_on": "build",
             "env": whitesource_api_env(),
             "eks_container": custom_image_container_builder(),
-            "gradle_cache": gradle_cache(),
+            "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "project_version_cache": project_version_cache(),
             "whitesource_script": whitesource_script(),

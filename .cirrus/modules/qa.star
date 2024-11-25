@@ -13,6 +13,7 @@ load(
     "set_orchestrator_home_script",
     "mkdir_orchestrator_home_script",
 )
+load("cache.star", "gradle_cache_fingerprint_script")
 
 QA_PLUGIN_GRADLE_TASK = ":private:its:plugin:integrationTest"
 QA_RULING_GRADLE_TASK = ":private:its:ruling:integrationTest"
@@ -69,7 +70,7 @@ def qa_task(env):
         "depends_on": "build",
         "eks_container": base_image_container_builder(cpu=6, memory="14G"),
         "env": env,
-        "gradle_cache": gradle_cache(),
+        "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
         "gradle_wrapper_cache": gradle_wrapper_cache(),
         "set_orchestrator_home_script": set_orchestrator_home_script(),
         "mkdir_orchestrator_home_script": mkdir_orchestrator_home_script(),

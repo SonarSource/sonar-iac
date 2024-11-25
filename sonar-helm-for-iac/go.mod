@@ -8,7 +8,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/samber/mo v1.13.0
 	github.com/sonarsource/go/src v1.21.8-7
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	google.golang.org/protobuf v1.35.2
 	sigs.k8s.io/yaml v1.4.0
 )
