@@ -30,6 +30,21 @@ class PackageInstallationCacheCheckTest {
     DockerVerifier.verify("PackageInstallationCacheCheck/mixed.dockerfile", new PackageInstallationCacheCheck());
   }
 
+  @Test
+  void shouldCheckOnMultiStages() {
+    DockerVerifier.verify("PackageInstallationCacheCheck/multi_stage.dockerfile", new PackageInstallationCacheCheck());
+  }
+
+  @Test
+  void shouldCheckOnMultiStagesWithDependencies() {
+    DockerVerifier.verify("PackageInstallationCacheCheck/multi_stage_with_dependencies.dockerfile", new PackageInstallationCacheCheck());
+  }
+
+  @Test
+  void shouldCheckOnMultiStagesWithCircularDependencies() {
+    DockerVerifier.verify("PackageInstallationCacheCheck/multi_stage_with_circular_dependencies.dockerfile", new PackageInstallationCacheCheck());
+  }
+
   @MethodSource
   @ParameterizedTest(name = "test for command: {0}")
   void shouldCheckOnCommandsTemplate(String commandName, String installCommand, String rmLocation, String cleanCacheCommand) {

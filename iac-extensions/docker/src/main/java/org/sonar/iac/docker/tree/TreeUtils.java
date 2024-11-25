@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 
-public class TreeUtils {
+public final class TreeUtils {
 
   private TreeUtils() {
   }
@@ -66,5 +66,4 @@ public class TreeUtils {
   public static Optional<DockerTree> firstAncestorOfKind(DockerTree node, DockerTree.Kind... kinds) {
     return firstAncestor(node, tree -> Stream.of(kinds).anyMatch(tree::is));
   }
-
 }

@@ -26,6 +26,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.MultiStageBuildAnalyzer;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -81,7 +82,7 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private void handle(CheckContext ctx, DockerImage dockerImage) {
-    if (!dockerImage.isLastDockerImageInFile()) {
+    if (!MultiStageBuildAnalyzer.isLastStage(dockerImage)) {
       return;
     }
 

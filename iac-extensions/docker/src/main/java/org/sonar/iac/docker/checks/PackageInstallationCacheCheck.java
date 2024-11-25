@@ -37,6 +37,9 @@ import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.MultiStageBuildAnalyzer;
+import org.sonar.iac.docker.tree.api.Body;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 import static java.util.function.Predicate.not;
@@ -109,7 +112,17 @@ public class PackageInstallationCacheCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, PackageInstallationCacheCheck::checkRunInstruction);
+    init.register(Body.class, PackageInstallationCacheCheck::checkBody);
+  }
+
+  private static void checkBody(CheckContext ctx, Body body) {
+    var multiStageBuildAnalyzer = MultiStageBuildAnalyzer.of(body);
+    body.dockerImages().stream()
+      .flatMap(image -> image.instructions().stream())
+      .filter(instruction -> instruction.is(DockerTree.Kind.RUN))
+      .map(RunInstruction.class::cast)
+      .filter(multiStageBuildAnalyzer::isInFinalImage)
+      .forEach(runInstruction -> checkRunInstruction(ctx, runInstruction));
   }
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {

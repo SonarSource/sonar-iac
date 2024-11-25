@@ -27,6 +27,7 @@ import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.StringPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.MultiStageBuildAnalyzer;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -224,7 +225,7 @@ public class SecretsGenerationCheck implements IacCheck {
   }
 
   private static void checkDockerImage(CheckContext ctx, DockerImage dockerImage) {
-    if (!dockerImage.isLastDockerImageInFile()) {
+    if (!MultiStageBuildAnalyzer.isLastStage(dockerImage)) {
       return;
     }
 
