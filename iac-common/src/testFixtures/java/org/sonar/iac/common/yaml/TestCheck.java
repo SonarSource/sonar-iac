@@ -14,23 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.cloudformation.checks.utils;
+package org.sonar.iac.common.yaml;
 
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public abstract class AbstractUtilsTest {
+public class TestCheck implements IacCheck {
+  public FileTree root;
+  public YamlTree firstDocument;
 
-  protected static class TestCheck implements IacCheck {
-    YamlTree root;
-
-    @Override
-    public void initialize(InitContext init) {
-      init.register(FileTree.class, (ctx, tree) -> {
-        this.root = tree.documents().get(0);
-      });
-    }
+  @Override
+  public void initialize(InitContext init) {
+    init.register(FileTree.class, (ctx, tree) -> {
+      this.root = tree;
+      this.firstDocument = tree.documents().get(0);
+    });
   }
 }

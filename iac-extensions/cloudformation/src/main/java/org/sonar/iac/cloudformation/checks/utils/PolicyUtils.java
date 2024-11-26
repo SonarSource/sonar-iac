@@ -25,6 +25,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.yaml.XPathUtils;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 

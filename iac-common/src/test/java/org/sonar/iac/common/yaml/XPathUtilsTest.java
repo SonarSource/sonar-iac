@@ -14,11 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.cloudformation.checks.utils;
+package org.sonar.iac.common.yaml;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
+import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -26,20 +28,22 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class XPathUtilsTest extends AbstractUtilsTest {
+class XPathUtilsTest {
 
-  private YamlTree root;
+  public static final Path BASE_DIR = Paths.get("src", "test", "resources");
+
+  private YamlTree firstDocument;
 
   @BeforeEach
   void setUp() {
     TestCheck check = new TestCheck();
-    CloudformationVerifier.verifyNoIssue("AbstractXPathCheck/test.yaml", check);
-    this.root = check.root;
+    Verifier.verifyNoIssue(new YamlParser(), BASE_DIR.resolve("XPathUtilsTest/test.yaml"), check);
+    this.firstDocument = check.firstDocument;
   }
 
   @Test
   void test_getTrees() {
-    assertThat(XPathUtils.getTrees(root, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]/Principal/AWS"))
+    assertThat(XPathUtils.getTrees(firstDocument, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]/Principal/AWS"))
       .isNotEmpty().hasSize(1)
       .satisfies(t -> {
         YamlTree tree = t.get(0);
@@ -52,27 +56,27 @@ class XPathUtilsTest extends AbstractUtilsTest {
 
   @Test
   void test_getSingleTree() {
-    assertThat(XPathUtils.getSingleTree(root, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]"))
+    assertThat(XPathUtils.getSingleTree(firstDocument, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]"))
       .isNotPresent();
-    assertThat(XPathUtils.getSingleTree(root, "/Resources/S3BucketPolicy/Properties/PolicyDocument"))
+    assertThat(XPathUtils.getSingleTree(firstDocument, "/Resources/S3BucketPolicy/Properties/PolicyDocument"))
       .isPresent();
   }
 
   @Test
   void test_getSingleTree_with_custom_root() {
-    assertThat(XPathUtils.getSingleTree(root, "/Resources/S3BucketPolicy")).isPresent()
+    assertThat(XPathUtils.getSingleTree(firstDocument, "/Resources/S3BucketPolicy")).isPresent()
       .satisfies(o -> assertThat(XPathUtils.getSingleTree(o.get(), "/Properties/PolicyDocument")).isPresent());
   }
 
   @Test
   void test_invalid_expression() {
-    assertThatThrownBy(() -> XPathUtils.getSingleTree(root, "Resources/S3BucketPolicy"))
+    assertThatThrownBy(() -> XPathUtils.getSingleTree(firstDocument, "Resources/S3BucketPolicy"))
       .isInstanceOf(XPathUtils.InvalidXPathExpression.class);
   }
 
   @Test
   void test_only_root_expression() {
-    assertThat(XPathUtils.getSingleTree(root, "/")).isPresent().get().isEqualTo(root);
+    assertThat(XPathUtils.getSingleTree(firstDocument, "/")).isPresent().get().isEqualTo(firstDocument);
   }
 
 }

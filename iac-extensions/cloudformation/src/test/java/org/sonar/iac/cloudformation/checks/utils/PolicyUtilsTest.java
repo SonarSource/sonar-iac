@@ -20,13 +20,14 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
 import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.policy.Policy.Statement;
+import org.sonar.iac.common.yaml.TestCheck;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.cloudformation.checks.utils.PolicyUtils.getPolicies;
 
-class PolicyUtilsTest extends AbstractUtilsTest {
+class PolicyUtilsTest {
 
   @Test
   void test_policy() {
@@ -91,6 +92,6 @@ class PolicyUtilsTest extends AbstractUtilsTest {
   private static YamlTree of(String filename) {
     TestCheck check = new TestCheck();
     CloudformationVerifier.verifyNoIssue(filename, check);
-    return check.root;
+    return check.firstDocument;
   }
 }
