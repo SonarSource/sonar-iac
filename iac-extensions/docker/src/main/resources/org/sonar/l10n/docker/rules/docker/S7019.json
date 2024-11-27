@@ -15,7 +15,7 @@
   "code": {
     "impacts": {
       "MAINTAINABILITY": "MEDIUM",
-      "RELIABILITY": "HIGH"
+      "RELIABILITY": "MEDIUM"
     },
     "attribute": "CONVENTIONAL"
   }

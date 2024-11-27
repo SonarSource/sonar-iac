@@ -3,6 +3,9 @@ is not needed for the installed software to work properly.</p>
 <h2>Why is this an issue?</h2>
 <p>Leaving unnecessary files in Docker image increases its size. The Docker images should be small and only contain necessary data. The cache index is
 obsolete after installation.</p>
+<h3>Exceptions</h3>
+<p>The rule does not raise when the update is followed by a <code>gdebi</code> package installation, as it can still install required dependencies
+when installing from a file, which would require the <code>apt</code> cache to be updated.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -17,6 +20,7 @@ layer.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 RUN apk update &amp;&amp; apk add ...
 RUN apt-get update &amp;&amp; apt-get install ...
+RUN apt-get update &amp;&amp; gdebi
 RUN aptitude update &amp;&amp; aptitude install ...
 </pre>
 <p>Here in each line after the update, the package installation is executed. However, it happens in single <code>RUN</code> instruction so only one

@@ -143,19 +143,41 @@ Resources:
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
-  S3BucketLogs:
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      BucketName: "mycompliantloggingbucket"
-      AccessControl: LogDeliveryWrite
-
   S3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: "mycompliantbucket"
       LoggingConfiguration:
-        DestinationBucketName: !Ref S3BucketLogs
+        DestinationBucketName: !Ref S3LoggingBucket
         LogFilePrefix: testing-logs
+  S3LoggingBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: "mycompliantloggingbucket"
+  S3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3LoggingBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:PutObject'
+            Effect: Allow
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref S3LoggingBucket
+                - /*
+            Condition:
+              ArnLike:
+                'aws:SourceArn': !GetAtt
+                  - S3Bucket
+                  - Arn
+              StringEquals:
+                'aws:SourceAccount': !Sub '${AWS::AccountId}'
 </pre>
 <p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a> stages:</p>
 <pre>

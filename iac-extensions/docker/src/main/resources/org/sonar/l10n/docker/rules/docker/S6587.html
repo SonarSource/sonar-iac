@@ -3,6 +3,8 @@ stored in a dedicated cache mount.</p>
 <h2>Why is this an issue?</h2>
 <p>Docker images should only contain the necessary data. The package index is redundant for the correct operation of the installed software. Storing
 an index also increases the size of the Docker image. It should be reduced to speed up deployments and reduce storage and bandwidth.</p>
+<h3>Exceptions</h3>
+<p>In multi-stage builds, the rule only checks instructions that are part of the final image.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>

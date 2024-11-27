@@ -14,9 +14,7 @@
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "MEDIUM",
-      "RELIABILITY": "LOW",
-      "SECURITY": "LOW"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   }

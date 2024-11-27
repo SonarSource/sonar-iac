@@ -37,13 +37,13 @@ resource "aws_s3_bucket_policy" "mynoncompliantbucketpolicy" {
       {
         Sid       = "HTTPSOnly"
         Effect    = "Deny"
-        Principal = [
-          "arn:aws:iam::123456789123:root"
-        ] # secondary location: only one principal is forced to use https
+        Principal = {
+          "AWS": "arn:aws:iam::123456789123:root"
+        } # secondary location: only one principal is forced to use https
         Action    = "s3:*"
         Resource = [
-          aws_s3_bucket.mynoncompliantbucketpolicy.arn,
-          "${aws_s3_bucket.mynoncompliantbucketpolicy.arn}/*",
+          aws_s3_bucket.mynoncompliantbucket.arn,
+          "${aws_s3_bucket.mynoncompliantbucket.arn}/*",
         ]
         Condition = {
           Bool = {
@@ -72,7 +72,9 @@ resource "aws_s3_bucket_policy" "mycompliantpolicy" {
       {
         Sid       = "HTTPSOnly"
         Effect    = "Deny"
-        Principal = "*"
+        Principal = {
+          "AWS": "*"
+        }
         Action    = "s3:*"
         Resource = [
           aws_s3_bucket.mycompliantbucket.arn,

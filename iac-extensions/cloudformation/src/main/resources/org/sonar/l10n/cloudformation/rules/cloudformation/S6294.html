@@ -42,7 +42,7 @@ Resources:
       Description: Example of Lambda Function
 </pre>
 <h4>Compliant solution</h4>
-<p>Example with a <code>!Ref</code>:</p>
+<p>Example with a <code>!Ref</code> in <code>LogGroup</code>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
@@ -56,6 +56,24 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref ExampleFunction]]
+      RetentionInDays: 30
+</pre>
+<p>Example with a <code>!Ref</code> in <code>AWS::Lambda::Function</code> (it also works for <code>AWS::Serverless::Function</code>):</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExampleFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Description: Example of Lambda Function
+      LoggingConfig:
+        LogGroup: !Ref ExampleLogGroup
+
+  ExampleLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/lambda/exampleFunction"
       RetentionInDays: 30
 </pre>
 <p>Example with <code>!Sub</code>:</p>
@@ -73,6 +91,18 @@ Resources:
     Properties:
       LogGroupName: !Sub '/aws/lambda/${ExampleFunction}'
       RetentionInDays: 30
+</pre>
+<p>Example with <code>CloudWatchLogs</code> (it only works for <code>AWS::CodeBuild::Project</code>):</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      LogsConfig:
+        CloudWatchLogs:
+          Status: "ENABLED"
+          GroupName: "aws/codeBuild/project"
 </pre>
 <h2>Resources</h2>
 <ul>

@@ -7,14 +7,14 @@
     "constantCost": "5min"
   },
   "tags": [],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7031",
   "sqKey": "S7031",
   "scope": "All",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "HIGH"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   }
