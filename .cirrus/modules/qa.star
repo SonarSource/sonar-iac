@@ -95,8 +95,7 @@ def qa_plugin_env():
         "GRADLE_TASK": QA_PLUGIN_GRADLE_TASK,
         "KEEP_ORCHESTRATOR_RUNNING": "true",
         "matrix": [
-            # TODO: SONARIAC-1829 enable back after release
-            # {"SQ_VERSION": QA_QUBE_LATEST_RELEASE},
+            {"SQ_VERSION": QA_QUBE_LATEST_RELEASE},
             {"SQ_VERSION": QA_QUBE_DEV},
         ],
         "GITHUB_TOKEN": "VAULT[development/github/token/licenses-ro token]",
@@ -115,8 +114,7 @@ def qa_plugin_task():
 def qa_ruling_env():
     return {
         "GRADLE_TASK": QA_RULING_GRADLE_TASK,
-        # TODO: SONARIAC-1829 change back to QA_QUBE_LATEST_RELEASE after release
-        "SQ_VERSION": QA_QUBE_DEV,
+        "SQ_VERSION": QA_QUBE_LATEST_RELEASE,
         "KEEP_ORCHESTRATOR_RUNNING": "true",
          "GITHUB_TOKEN": "VAULT[development/github/token/licenses-ro token]",
     }
