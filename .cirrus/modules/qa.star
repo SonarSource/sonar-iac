@@ -18,8 +18,7 @@ load("cache.star", "gradle_cache_fingerprint_script")
 QA_PLUGIN_GRADLE_TASK = ":private:its:plugin:integrationTest"
 QA_RULING_GRADLE_TASK = ":private:its:ruling:integrationTest"
 QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
-# Sonarqube versioning is changing, temporary pin for ITS
-QA_QUBE_DEV = "DEV[10.8]"
+QA_QUBE_DEV = "DEV"
 
 
 def on_failure():
