@@ -17,16 +17,19 @@
 package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
 class PrivilegePolicyCheckTest {
 
+  private final IacCheck check = new PrivilegePolicyCheck();
+
   @Test
-  void aws_iam_policy() {
-    TerraformVerifier.verify("PrivilegePolicyCheck/aws_iam_policy.tf", new PrivilegePolicyCheck());
+  void shouldRaiseOnAwsIamPolicy() {
+    TerraformVerifier.verify("PrivilegePolicyCheck/aws_iam_policy.tf", check);
   }
 
   @Test
-  void gcp_iam_policy() {
-    TerraformVerifier.verify("PrivilegePolicyCheck/gcp_iam_policy.tf", new PrivilegePolicyCheck());
+  void shouldRaiseOnGcpIamPolicy() {
+    TerraformVerifier.verify("PrivilegePolicyCheck/gcp_iam_policy.tf", check);
   }
 }

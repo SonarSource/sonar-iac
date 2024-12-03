@@ -34,7 +34,7 @@ public class GcpPrivilegePolicyCheckPart extends AbstractNewResourceCheck {
   private static final String MEMBER_MESSAGE = "Make sure it is safe to grant that member full access.";
   private static final String SECONDARY_MESSAGE = "The policy is used here.";
 
-  private static final String SENSITIVE_ROLES = ".*(?:admin|manager|owner|superuser).*";
+  private static final String SENSITIVE_ROLES = ".*(?:admin|developer|manager|owner|superuser)(?:\\.?v\\d+)?";
 
   private final PolicyReferenceCollector collector = new PolicyReferenceCollector(IAM_POLICY_RESOURCE_TYPES);
 

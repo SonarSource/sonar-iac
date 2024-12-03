@@ -38,7 +38,7 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewReso
   private static final String MESSAGE_ON_GRANT_FULL_ACCESS = "Make sure it is safe to grant full access to the resource.";
   private static final String SECONDARY_MESSAGE = "The policy is used here.";
 
-  private static final String SENSITIVE_ROLES = ".*(?:admin|manager|owner|superuser).*";
+  private static final String SENSITIVE_ROLES = ".*(?:admin|developer|manager|owner|superuser)(?:\\.?v\\d+)?";
 
   private final PolicyReferenceCollector collector = new PolicyReferenceCollector(IAM_POLICY_RESOURCE_TYPES);
 
