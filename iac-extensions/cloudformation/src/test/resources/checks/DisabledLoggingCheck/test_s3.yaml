@@ -32,3 +32,68 @@ Resources:
     Type: 'AWS::S3::Bucket' # Noncompliant
   NotS3Bucket:
     Type: 'Not a Bucket'
+    
+  S3BucketWithBucketPolicy:
+    # Compliant: even though no ACL is set, the bucket policy below also denotes this bucket is a logging bucket.
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: "s3bucketwithbucketpolicy"
+  S3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWithBucketPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:PutObject'
+            Effect: Allow
+            Principal:
+              # This key has to be equal to logging.s3.amazonaws.com
+              Service: logging.s3.amazonaws.com
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref S3BucketWithBucketPolicy
+                - /*
+            Condition:
+              ArnLike:
+                'aws:SourceArn': !GetAtt
+                  - S3Bucket
+                  - Arn
+              StringEquals:
+                'aws:SourceAccount': !Sub '${AWS::AccountId}'
+
+  NonCompliantS3BucketWithBucketPolicy:
+    # Non-compliant: the assigned policy Properties.PolicyDocument.Statement[].Principal.Service in NOT equal to logging.s3.amazonaws.com
+    Type: 'AWS::S3::Bucket'   # Noncompliant
+    Properties:
+      BucketName: "noncompliants3bucketwithbucketpolicy"
+  NonCompliantS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref NonCompliantS3BucketWithBucketPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:PutObject'
+            Effect: Allow
+            Principal:
+              # This key is NOT equal to logging.s3.amazonaws.com
+              Service: foo.bar.com
+  S3BucketPolicyNoBucketRef:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      # the !Ref is missing here
+      Bucket: NonCompliantS3BucketWithBucketPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:PutObject'
+            Effect: Allow
+            Principal:
+              Service: logging.s3.amazonaws.com
+  S3BucketPolicyForCodeCoverage:
+    Type: 'AWS::S3::BucketPolicy'

@@ -19,26 +19,68 @@ package org.sonar.iac.cloudformation.checks;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.iac.cloudformation.tree.FunctionCallTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.XPathUtils;
 import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6258")
-public class DisabledLoggingCheck extends AbstractResourceCheck {
+public class DisabledLoggingCheck extends AbstractCrossResourceCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
   private static final List<String> MSK_LOGGER = Arrays.asList("CloudWatchLogs", "Firehose", "S3");
   private static final String MESSAGE_OMITTING_FORMAT = "Omitting \"%s\" makes logs incomplete. Make sure it is safe here.";
   private static final String ENABLED = "Enabled";
   private static final String ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY = "EnableCloudwatchLogsExports";
+
+  private Set<String> s3bucketsWithBucketPolicy;
+
+  @Override
+  protected void beforeCheckResource() {
+    s3bucketsWithBucketPolicy = resourceNameToResource.values().stream()
+      .filter(resource -> resource.isType("AWS::S3::BucketPolicy"))
+      .filter(DisabledLoggingCheck::hasLoggingBucketPolicy)
+      .map(DisabledLoggingCheck::bucketNameForBucketPolicy)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(Collectors.toSet());
+  }
+
+  private static boolean hasLoggingBucketPolicy(Resource resource) {
+    if (resource.properties() != null) {
+      return XPathUtils.getTrees(resource.properties(), "/PolicyDocument/Statement[]/Principal/Service").stream()
+        .filter(ScalarTree.class::isInstance)
+        .map(ScalarTree.class::cast)
+        .anyMatch(tree -> "logging.s3.amazonaws.com".equals(tree.value()));
+    }
+    return false;
+  }
+
+  private static Optional<String> bucketNameForBucketPolicy(Resource resource) {
+    return PropertyUtils.get(resource.properties(), "Bucket")
+      .filter(TupleTree.class::isInstance)
+      .map(TupleTree.class::cast)
+      .map(TupleTree::value)
+      .filter(FunctionCallTree.class::isInstance)
+      .map(FunctionCallTree.class::cast)
+      .filter(functionCallTree -> "Ref".equals(functionCallTree.name()))
+      .map(functionCallTree -> functionCallTree.arguments().get(0))
+      .filter(ScalarTree.class::isInstance)
+      .map(ScalarTree.class::cast)
+      .map(ScalarTree::value);
+  }
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -69,9 +111,11 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     }
   }
 
-  private static void checkS3Bucket(CheckContext ctx, Resource resource) {
+  private void checkS3Bucket(CheckContext ctx, Resource resource) {
     YamlTree properties = resource.properties();
-    if (PropertyUtils.value(properties, "LoggingConfiguration").isEmpty() && !isMaybeLoggingBucket(properties)) {
+    if (PropertyUtils.value(properties, "LoggingConfiguration").isEmpty() &&
+      !isMaybeLoggingBucket(properties) &&
+      !s3bucketsWithBucketPolicy.contains(resource.name().value())) {
       ctx.reportIssue(resource.type(), omittingMessage("LoggingConfiguration"));
     }
   }

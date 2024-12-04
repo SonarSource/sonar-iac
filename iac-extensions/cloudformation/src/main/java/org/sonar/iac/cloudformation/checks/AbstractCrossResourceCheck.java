@@ -32,8 +32,12 @@ public abstract class AbstractCrossResourceCheck extends AbstractResourceCheck {
       var fileResources = getFileResources(tree);
       resourceNameToResource.clear();
       fileResources.forEach(r -> resourceNameToResource.put(r.name().value(), r));
+      beforeCheckResource();
       fileResources.forEach(r -> checkResource(ctx, r));
     });
   }
 
+  protected void beforeCheckResource() {
+    // default empty implementation
+  }
 }

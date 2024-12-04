@@ -17,71 +17,75 @@
 package org.sonar.iac.cloudformation.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.testing.Verifier;
 
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.testing.Verifier.issue;
 
 class DisabledLoggingCheckTest {
 
+  private static final DisabledLoggingCheck CHECK = new DisabledLoggingCheck();
+
   @Test
-  void test_s3_yaml() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_s3.yaml", new DisabledLoggingCheck());
+  void shouldVerifyS3Yaml() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_s3.yaml", CHECK);
   }
 
   @Test
-  void test_s3_json() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_s3.json", new DisabledLoggingCheck(),
-      new Verifier.Issue(range(5, 14, 5, 31),
-        "Omitting \"LoggingConfiguration\" makes logs incomplete. Make sure it is safe here."));
+  void shouldVerifyS3Json() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_s3.json", CHECK,
+      issue(5, 14, 5, 31,
+        "Omitting \"LoggingConfiguration\" makes logs incomplete. Make sure it is safe here."),
+      issue(18, 14, 18, 31),
+      issue(46, 14, 46, 31),
+      issue(107, 14, 107, 31));
   }
 
   @Test
-  void test_api_gateway_stage() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_api_gateway_stage.yaml", new DisabledLoggingCheck());
+  void shouldVerifyApiGatewayStage() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_api_gateway_stage.yaml", CHECK);
   }
 
   @Test
-  void test_aws_msk_cluster() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_aws_msk_cluster.yaml", new DisabledLoggingCheck());
+  void shouldVerifyAwsMskCluster() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_aws_msk_cluster.yaml", CHECK);
   }
 
   @Test
-  void test_neptune_db_cluster() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_neptune_db_cluster.yaml", new DisabledLoggingCheck());
+  void shouldVerifyNeptuneDbCluster() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_neptune_db_cluster.yaml", CHECK);
   }
 
   @Test
-  void test_doc_db_cluster() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_doc_db_cluster.yaml", new DisabledLoggingCheck());
+  void shouldVerifyDocDbCluster() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_doc_db_cluster.yaml", CHECK);
   }
 
   @Test
-  void test_amazon_mq_broker() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_amazon_mq_broker.yaml", new DisabledLoggingCheck());
+  void shouldVerifyAmazonMqBroker() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_amazon_mq_broker.yaml", CHECK);
   }
 
   @Test
-  void test_redshift_cluster() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_redshift_cluster.yaml", new DisabledLoggingCheck());
+  void shouldVerifyRedshiftCluster() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_redshift_cluster.yaml", CHECK);
   }
 
   @Test
-  void test_search_domain() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_search_domain.yaml", new DisabledLoggingCheck());
+  void shouldVerifySearchDomain() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_search_domain.yaml", CHECK);
   }
 
   @Test
-  void test_cloudfront_distribution() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_cloudfront_distribution.yaml", new DisabledLoggingCheck());
+  void shouldVerifyCloudfrontDistribution() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_cloudfront_distribution.yaml", CHECK);
   }
 
   @Test
-  void test_elastic_load_balancer() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_elastic_load_balancer.yaml", new DisabledLoggingCheck());
+  void shouldVerifyElasticLoadBalancer() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_elastic_load_balancer.yaml", CHECK);
   }
 
   @Test
-  void test_elastic_load_balancer_v2() {
-    CloudformationVerifier.verify("DisabledLoggingCheck/test_elastic_load_balancer_v2.yaml", new DisabledLoggingCheck());
+  void shouldVerifyElasticLoadBalancerV2() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_elastic_load_balancer_v2.yaml", CHECK);
   }
 }

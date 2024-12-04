@@ -1,18 +1,158 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Resources": {
-    "S3Bucket": {
+    "NonCompliantS3Bucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": "mynoncompliantbuckets6258"
+        "BucketName": "NonCompliantS3Bucket"
       }
     },
-    "S3BucketLogs": {
+    "S3BucketWithAccessControl": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": "mycompliantloggingbuckets6258",
+        "BucketName": "S3BucketWithAccessControl",
         "AccessControl": "LogDeliveryWrite"
       }
+    },
+    "S3BucketWithUnrelatedAccessControl": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "S3BucketWithUnrelatedAccessControl",
+        "AccessControl": "xxx"
+      }
+    },
+    "S3BucketWithNonIdentifierAccessControl": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "S3BucketWithNonIdentifierAccessControl",
+        "AccessControl": {
+          "Something": "xxx"
+        }
+      }
+    },
+    "S3BucketWithLoggingConfiguration": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mycompliantbucket",
+        "LoggingConfiguration": {
+          "DestinationBucketName": {
+            "Ref": "S3BucketLogs"
+          },
+          "LogFilePrefix": "testing-logs"
+        }
+      }
+    },
+    "S3BucketWithoutProperties": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "NotS3Bucket": {
+      "Type": "Not a Bucket"
+    },
+    "S3BucketWithBucketPolicy": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "s3bucketwithbucketpolicy"
+      }
+    },
+    "S3BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "S3BucketWithBucketPolicy"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutObject"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "logging.s3.amazonaws.com"
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "S3BucketWithBucketPolicy"
+                    },
+                    "/*"
+                  ]
+                ]
+              },
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": {
+                    "Fn::GetAtt": [
+                      "S3Bucket",
+                      "Arn"
+                    ]
+                  }
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": {
+                    "Fn::Sub": "${AWS::AccountId}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "NonCompliantS3BucketWithBucketPolicy": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "noncompliants3bucketwithbucketpolicy"
+      }
+    },
+    "NonCompliantS3BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "NonCompliantS3BucketWithBucketPolicy"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutObject"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "foo.bar.com"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketPolicyNoBucketRef": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": "NonCompliantS3BucketWithBucketPolicy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutObject"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "logging.s3.amazonaws.com"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketPolicyForCodeCoverage": {
+      "Type": "AWS::S3::BucketPolicy"
     }
   }
 }
