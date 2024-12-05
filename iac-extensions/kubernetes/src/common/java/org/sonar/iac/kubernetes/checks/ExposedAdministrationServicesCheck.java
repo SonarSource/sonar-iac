@@ -16,8 +16,13 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.object.AttributeObject;
@@ -27,15 +32,24 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 @Rule(key = "S6473")
 public class ExposedAdministrationServicesCheck extends AbstractKubernetesObjectCheck {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ExposedAdministrationServicesCheck.class);
   private static final String MESSAGE = "Make sure that exposing administration services is safe here.";
   private static final String KIND_POD = "Pod";
   private static final String KIND_SERVICE = "Service";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
-  public static final List<String> DEFAULT_SENSITIVE_PORTS = List.of("22", "23", "3389", "5800", "5900");
-  private final List<String> sensitivePorts;
+  private static final String DEFAULT_SENSITIVE_PORTS = "22, 23, 3389, 5800, 5900";
+  private static final Pattern PORTS_SPLIT_PATTERN = Pattern.compile(",\\s*+");
+
+  private List<String> sensitivePorts;
+
+  @RuleProperty(
+    key = "ports",
+    description = "Comma separated list of sensitive ports.",
+    defaultValue = DEFAULT_SENSITIVE_PORTS)
+  public String portList = DEFAULT_SENSITIVE_PORTS;
 
   public ExposedAdministrationServicesCheck() {
-    this(DEFAULT_SENSITIVE_PORTS);
+    this.sensitivePorts = null;
   }
 
   public ExposedAdministrationServicesCheck(List<String> sensitivePorts) {
@@ -44,6 +58,10 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
 
   @Override
   protected void registerObjectCheck() {
+    if (sensitivePorts == null) {
+      sensitivePorts = parseSensitivePorts(portList);
+    }
+
     register(KIND_POD,
       pod -> pod.blocks("containers")
         .forEach(this::reportOnSensitiveContainerPorts));
@@ -55,6 +73,19 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
         .forEach(this::reportOnSensitiveContainerPorts));
 
     register(KIND_SERVICE, this::reportOnSensitiveServicePorts);
+  }
+
+  private static List<String> parseSensitivePorts(String ports) {
+    try {
+      String[] parsedPorts = PORTS_SPLIT_PATTERN.split(ports.strip());
+      // Check that all ports are integers
+      Arrays.stream(parsedPorts).forEach(Integer::parseInt);
+      return Arrays.asList(parsedPorts);
+    } catch (NumberFormatException e) {
+      LOG.warn("The port list provided for ExposedAdministrationServicesCheck (S6473) is not a comma seperated list of integers. " +
+        "The default list is used. Invalid list of ports \"{}\"", ports);
+      return parseSensitivePorts(DEFAULT_SENSITIVE_PORTS);
+    }
   }
 
   private void reportOnSensitiveContainerPorts(BlockObject container) {

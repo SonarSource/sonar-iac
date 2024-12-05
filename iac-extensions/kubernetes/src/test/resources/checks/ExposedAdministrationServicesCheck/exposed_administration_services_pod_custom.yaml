@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: example_app
+spec:
+  containers:
+    - name: applications
+      image: my_image_with_ssh
+      ports:
+        - hostPort: 22
+          containerPort: 8022
+        - hostPort: 100  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+                  # ^^^
+          containerPort: 8022
+        - hostPort: 200  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+                  # ^^^
+          containerPort: 8022
+        - hostPort: 300  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+                  # ^^^
+          containerPort: 8022
