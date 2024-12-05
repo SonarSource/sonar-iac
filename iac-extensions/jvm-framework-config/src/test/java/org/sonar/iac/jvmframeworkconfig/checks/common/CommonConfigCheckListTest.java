@@ -14,20 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
+package org.sonar.iac.jvmframeworkconfig.checks.common;
 
+import java.io.File;
 import java.util.List;
+import org.sonar.iac.common.testing.AbstractCheckListTest;
 
-public final class MicronautConfigCheckList {
-  private MicronautConfigCheckList() {
+class CommonConfigCheckListTest extends AbstractCheckListTest {
+  @Override
+  protected List<Class<?>> checks() {
+    return CommonConfigCheckList.checks();
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      HardcodedSecretsCheck.class,
-      MisconfiguredHttpOnlyCookieFlagCheck.class,
-      SecureCookieCheck.class,
-      UnsecureConnectionCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Override
+  protected File checkClassDir() {
+    return new File("src/main/java/org/sonar/iac/jvmframeworkconfig/checks/common/");
   }
 }

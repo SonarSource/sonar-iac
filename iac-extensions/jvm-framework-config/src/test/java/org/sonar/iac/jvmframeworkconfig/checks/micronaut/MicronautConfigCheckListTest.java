@@ -21,6 +21,7 @@ import java.util.List;
 import org.sonar.iac.common.testing.AbstractCheckListTest;
 
 class MicronautConfigCheckListTest extends AbstractCheckListTest {
+  @Override
   protected List<Class<?>> checks() {
     return MicronautConfigCheckList.checks();
   }
@@ -28,5 +29,15 @@ class MicronautConfigCheckListTest extends AbstractCheckListTest {
   @Override
   protected File checkClassDir() {
     return new File("src/main/java/org/sonar/iac/jvmframeworkconfig/checks/micronaut/");
+  }
+
+  @Override
+  protected boolean hasTodoCommentCheck() {
+    return false;
+  }
+
+  @Override
+  protected boolean hasParsingFailureCheck() {
+    return false;
   }
 }

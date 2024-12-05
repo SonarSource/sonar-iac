@@ -21,6 +21,7 @@ import java.util.List;
 import org.sonar.iac.common.testing.AbstractCheckListTest;
 
 class SpringConfigCheckListTest extends AbstractCheckListTest {
+  @Override
   protected List<Class<?>> checks() {
     return SpringConfigCheckList.checks();
   }

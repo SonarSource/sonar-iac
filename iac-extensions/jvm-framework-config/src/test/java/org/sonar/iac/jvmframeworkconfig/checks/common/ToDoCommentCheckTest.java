@@ -14,20 +14,21 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
+package org.sonar.iac.jvmframeworkconfig.checks.common;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.iac.jvmframeworkconfig.utils.JvmFrameworkConfigVerifier;
 
-public final class MicronautConfigCheckList {
-  private MicronautConfigCheckList() {
+class ToDoCommentCheckTest {
+
+  @Test
+  void shouldRaiseOnToDoCommentsInPropertiesFile() {
+    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/common/TodoCheck.properties", new ToDoCommentCheck());
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      HardcodedSecretsCheck.class,
-      MisconfiguredHttpOnlyCookieFlagCheck.class,
-      SecureCookieCheck.class,
-      UnsecureConnectionCheck.class,
-      WeakSSLProtocolCheck.class);
+  @Test
+  void shouldRaiseOnToDoCommentsInYamlFile() {
+    JvmFrameworkConfigVerifier.verify("ToDoCommentCheck/common/TodoCheck.yaml", new ToDoCommentCheck());
   }
 }

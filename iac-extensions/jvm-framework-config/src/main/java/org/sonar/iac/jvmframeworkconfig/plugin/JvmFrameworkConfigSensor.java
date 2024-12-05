@@ -36,6 +36,7 @@ import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
 import org.sonar.iac.common.predicates.JvmConfigFilePredicate;
 import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.common.yaml.YamlLanguage;
+import org.sonar.iac.jvmframeworkconfig.checks.common.CommonConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.checks.micronaut.MicronautConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.checks.spring.SpringConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigParser;
@@ -46,6 +47,7 @@ import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtensio
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension.SENSOR_NAME;
 
 public class JvmFrameworkConfigSensor extends IacSensor {
+  private final Checks<IacCheck> commonConfigChecks;
   private final Checks<IacCheck> springConfigChecks;
   private final Checks<IacCheck> micronautConfigChecks;
 
@@ -64,6 +66,8 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     // We don't create our own repository, as we want to raise all rules in the "java" repository for now
     // If in the future there is the need to raise rules in a separate repository, we can create a new repository and add the rules there,
     // basically reverting SONARIAC-1469
+    commonConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
+    commonConfigChecks.addAnnotatedChecks(CommonConfigCheckList.checks());
     springConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
     springConfigChecks.addAnnotatedChecks(SpringConfigCheckList.checks());
     micronautConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
@@ -108,6 +112,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     return List.of(
+      new ChecksVisitor(commonConfigChecks, statistics),
       new ChecksVisitor(springConfigChecks, statistics),
       new ChecksVisitor(micronautConfigChecks, statistics),
       new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter),
