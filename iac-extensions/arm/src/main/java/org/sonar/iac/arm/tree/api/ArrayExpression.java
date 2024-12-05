@@ -17,8 +17,9 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 
-public interface ArrayExpression extends Expression {
+public interface ArrayExpression extends Expression, TypeExpressionAble {
   @Override
   default Kind getKind() {
     return Kind.ARRAY_EXPRESSION;

@@ -423,6 +423,7 @@ public class BicepGrammar {
   public TypeExpressionAble TYPE_EXPRESSION() {
     return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.TYPE_EXPRESSION).is(
       f.typeExpression(
+        b.optional(b.token(Punctuator.PIPE)),
         SINGULAR_TYPE_EXPRESSION(),
         b.zeroOrMore(
           f.tuple(
@@ -492,6 +493,7 @@ public class BicepGrammar {
         MULTILINE_STRING(),
         STRING_LITERAL(),
         OBJECT_TYPE(),
+        ARRAY_EXPRESSION(),
         TUPLE_TYPE()));
   }
 
@@ -525,7 +527,7 @@ public class BicepGrammar {
         TYPE_EXPRESSION()));
   }
 
-  public Expression ARRAY_EXPRESSION() {
+  public ArrayExpression ARRAY_EXPRESSION() {
     return b.<ArrayExpression>nonterminal(BicepLexicalGrammar.ARRAY_EXPRESSION).is(
       f.arrayExpression(
         b.token(Punctuator.LBRACKET),

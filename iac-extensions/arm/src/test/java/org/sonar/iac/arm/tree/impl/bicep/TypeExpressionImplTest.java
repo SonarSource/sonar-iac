@@ -17,14 +17,19 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
@@ -45,6 +50,13 @@ class TypeExpressionImplTest extends BicepTreeModelTest {
       .matches("bool")
       .matches("int")
       .matches("array | int")
+      .matches("['foo'] | ['bar'] | ['bazz']")
+      .matches("['foo']")
+      .matches("| ['foo']")
+      .matches("| value")
+      .matches("| value1 | value2")
+      .matches("| value1\n| value2")
+      .matches("['foo', 'bar', 'baz'] | ['fizz', 'buzz'] | ['snap', 'crackle', 'pop']")
       .matches("bool | int")
       .matches("bool[] | int?")
       .matches("tuple[1].name")
@@ -61,29 +73,75 @@ class TypeExpressionImplTest extends BicepTreeModelTest {
       .notMatches("array[]?[]")
       .notMatches("array??")
       .notMatches("bool[]?[]")
-      .notMatches("int??");
+      .notMatches("int??")
+      .notMatches("|")
+      .notMatches("values |")
+      .notMatches("| | values");
   }
 
   @Test
   void shouldParseSimpleTypeExpression() {
     SingularTypeExpression tree = parse("array", BicepLexicalGrammar.TYPE_EXPRESSION);
-    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.SINGULAR_TYPE_EXPRESSION);
-    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("array");
+    assertThat(tree).is(ArmTree.Kind.SINGULAR_TYPE_EXPRESSION);
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("array");
   }
 
   @Test
   void shouldParseComplexTypeExpression() {
     TypeExpression tree = parse("array | ( abc )? | null ", BicepLexicalGrammar.TYPE_EXPRESSION);
-    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.TYPE_EXPRESSION);
-    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+    assertThat(tree).is(ArmTree.Kind.TYPE_EXPRESSION);
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("array", "|", "(", "abc", ")", "?", "|", "null");
     List<SingularTypeExpression> expressions = tree.expressions();
-    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(0)))
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(0)))
       .containsExactly("array");
-    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(1)))
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(1)))
       .containsExactly("(", "abc", ")", "?");
-    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(2)))
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(expressions.get(2)))
       .containsExactly("null");
-    Assertions.assertThat(expressions).hasSize(3);
+    assertThat(expressions).hasSize(3);
+  }
+
+  @Test
+  void shouldParseTypeExpressionUnionArray() {
+    TypeExpression tree = parse("['foo'] | ['bar'] | ['bazz']", BicepLexicalGrammar.TYPE_EXPRESSION);
+    assertThat(tree).is(ArmTree.Kind.TYPE_EXPRESSION);
+    assertThat(tree.expressions()).hasSize(3);
+
+    var expr1 = tree.expressions().get(0);
+    assertThat(expr1.getKind()).isEqualTo(ArmTree.Kind.SINGULAR_TYPE_EXPRESSION);
+    assertArraySingleStringValue(expr1.expression(), "foo");
+    var expr2 = tree.expressions().get(1);
+    assertThat(expr2.getKind()).isEqualTo(ArmTree.Kind.SINGULAR_TYPE_EXPRESSION);
+    assertArraySingleStringValue(expr2.expression(), "bar");
+    var expr3 = tree.expressions().get(2);
+    assertThat(expr3.getKind()).isEqualTo(ArmTree.Kind.SINGULAR_TYPE_EXPRESSION);
+    assertArraySingleStringValue(expr3.expression(), "bazz");
+  }
+
+  void assertArraySingleStringValue(TypeExpressionAble expr, String value) {
+    assertThat(expr.getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
+    var array = (ArrayExpression) expr;
+    assertThat(array.elements()).hasSize(1);
+    var element = array.elements().get(0);
+    assertThat(element.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    assertThat(((StringLiteral) element).value()).isEqualTo(value);
+  }
+
+  @Test
+  void shouldParseTypeExpressionTupleType() {
+    SingularTypeExpression tree = parse("[\n@functionName123() typeExpr\n]", BicepLexicalGrammar.TYPE_EXPRESSION);
+    var expr = tree.expression();
+    assertThat(expr).is(ArmTree.Kind.TUPLE_TYPE);
+    var tuple = (TupleType) expr;
+    assertThat(tuple.items()).hasSize(1);
+    var item = tuple.items().get(0);
+    assertThat(item.decorators()).hasSize(1);
+    assertThat(item.typeExpression()).is(ArmTree.Kind.SINGULAR_TYPE_EXPRESSION);
+    var itemTypeExpression = (SingularTypeExpression) item.typeExpression();
+    assertThat(itemTypeExpression.expression()).is(ArmTree.Kind.IDENTIFIER);
+    assertThat(itemTypeExpression.questionMark()).isNull();
+    var identifier = (Identifier) itemTypeExpression.expression();
+    assertThat(identifier.value()).isEqualTo("typeExpr");
   }
 }

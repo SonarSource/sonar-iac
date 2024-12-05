@@ -156,7 +156,6 @@ import org.sonar.iac.arm.tree.impl.bicep.variable.LocalVariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.variable.VariableBlockImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.TextTree;
-import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 
@@ -462,14 +461,15 @@ public class TreeFactory {
     return new Tuple<>(first, second);
   }
 
-  public TypeExpressionAble typeExpression(SingularTypeExpression expression, Optional<List<Tuple<SyntaxToken, SingularTypeExpression>>> listOptional) {
+  public TypeExpressionAble typeExpression(Optional<SyntaxToken> optPipe, SingularTypeExpression firstExpression,
+    Optional<List<Tuple<SyntaxToken, SingularTypeExpression>>> listPipeAndExpressions) {
     // It is not possible to put this if condition into grammar, because singularTypeExpression is followed by zeroOrMore
     // singularTypeExpression ->
     // (primaryTypeExpression | parenthesizedTypeExpression) ("[]" | "?")*
-    if (!listOptional.isPresent()) {
-      return expression;
+    if (!optPipe.isPresent() && !listPipeAndExpressions.isPresent()) {
+      return firstExpression;
     }
-    return new TypeExpressionImpl(separatedList(expression, listOptional));
+    return new TypeExpressionImpl(separatedList(optPipe, firstExpression, listPipeAndExpressions));
   }
 
   public SingularTypeExpression singularTypeExpression(TypeExpressionAble expression, Optional<SyntaxToken> questionMark) {
@@ -589,23 +589,23 @@ public class TreeFactory {
   }
 
   public MultiplicativeExpression multiplicativeExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
-    return new MultiplicativeExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+    return new MultiplicativeExpressionImpl(separatedList(expression, list));
   }
 
   public AdditiveExpression additiveExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
-    return new AdditiveExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+    return new AdditiveExpressionImpl(separatedList(expression, list));
   }
 
   public RelationalExpression relationalExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
-    return new RelationalExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+    return new RelationalExpressionImpl(separatedList(expression, list));
   }
 
   public EqualityExpression equalityExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
-    return new EqualityExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+    return new EqualityExpressionImpl(separatedList(expression, list));
   }
 
   public BinaryExpression binaryExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
-    return new BinaryExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+    return new BinaryExpressionImpl(separatedList(expression, list));
   }
 
   public TernaryExpression ternaryExpression(Expression condition, SyntaxToken query, Expression ifTrueExpression, SyntaxToken colon, Expression elseExpression) {
@@ -614,9 +614,7 @@ public class TreeFactory {
 
   private static <T extends ArmTree> SeparatedList<T, SyntaxToken> toSeparatedList(Optional<List<Tuple<T, Optional<SyntaxToken>>>> elementsWithSeparators) {
     if (elementsWithSeparators.isPresent()) {
-      var elements = elementsWithSeparators.get().stream().map(Tuple::first).toList();
-      var separators = elementsWithSeparators.get().stream().map(tuple -> tuple.second().orNull()).toList();
-      return new SeparatedListImpl<>(elements, separators);
+      return separatedList(elementsWithSeparators.get());
     }
     return emptySeparatedList();
   }

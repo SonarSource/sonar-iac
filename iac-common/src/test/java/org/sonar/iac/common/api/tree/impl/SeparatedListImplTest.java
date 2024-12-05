@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SeparatedListImplTest {
 
   @Test
-  void emptySeparatedListProducesEmptyLists() {
+  void emptySeparatedListShouldProducesEmptyLists() {
     SeparatedList<Tree, IacToken> separatedList = SeparatedListImpl.emptySeparatedList();
 
     assertThat(separatedList.separators()).isEmpty();
@@ -51,7 +51,7 @@ class SeparatedListImplTest {
   }
 
   @Test
-  void separatedListWithNullSeparator() {
+  void separatedListShouldHandleNullSeparator() {
     Tree firstElement = CommonTestUtils.TestTree.tree();
     Tree tupleElement = CommonTestUtils.TestTree.tree();
 
@@ -63,19 +63,42 @@ class SeparatedListImplTest {
   }
 
   @Test
-  void separatedListWithBothSeparatorAndNullSeparator() {
-    Tree firstElement = CommonTestUtils.TestTree.tree();
-    IacToken firstSeparator = CommonTestUtils.TestIacToken.token();
-    Tree tupleElement1 = CommonTestUtils.TestTree.tree();
-    Tree tupleElement2 = CommonTestUtils.TestTree.tree();
+  void separatedListShouldHandleBothSeparatorAndNullSeparatorAndKeepThemOrdered() {
+    Tree element1 = CommonTestUtils.TestTree.tree();
+    IacToken separator1 = CommonTestUtils.TestIacToken.token();
+    Tree element2 = CommonTestUtils.TestTree.tree();
+    Tree element3 = CommonTestUtils.TestTree.tree();
+    IacToken separator2 = CommonTestUtils.TestIacToken.token();
+    Tree element4 = CommonTestUtils.TestTree.tree();
 
-    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(firstElement, Optional.of(List.of(
-      new Tuple<>(firstSeparator, tupleElement1),
-      new Tuple<>(null, tupleElement2))));
+    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(element1, Optional.of(List.of(
+      new Tuple<>(separator1, element2),
+      new Tuple<>(null, element3),
+      new Tuple<>(separator2, element4))));
 
-    assertThat(resultingSeparatedList.elements()).containsExactly(firstElement, tupleElement1, tupleElement2);
-    assertThat(resultingSeparatedList.separators()).containsExactly(firstSeparator);
-    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(firstElement, firstSeparator, tupleElement1, tupleElement2);
+    assertThat(resultingSeparatedList.elements()).containsExactly(element1, element2, element3, element4);
+    assertThat(resultingSeparatedList.separators()).containsExactly(separator1, separator2);
+    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(element1, separator1, element2, element3, separator2, element4);
+  }
+
+  @Test
+  void separatedListShouldConstructWithJustAList() {
+    Tree element1 = CommonTestUtils.TestTree.tree();
+    IacToken separator1 = CommonTestUtils.TestIacToken.token();
+    Tree element2 = CommonTestUtils.TestTree.tree();
+    Tree element3 = CommonTestUtils.TestTree.tree();
+    IacToken separator2 = CommonTestUtils.TestIacToken.token();
+    Tree element4 = CommonTestUtils.TestTree.tree();
+
+    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(List.of(
+      new Tuple<>(element1, Optional.of(separator1)),
+      new Tuple<>(element2, Optional.absent()),
+      new Tuple<>(element3, Optional.of(separator2)),
+      new Tuple<>(element4, Optional.absent())));
+
+    assertThat(resultingSeparatedList.elements()).containsExactly(element1, element2, element3, element4);
+    assertThat(resultingSeparatedList.separators()).containsExactly(separator1, separator2);
+    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(element1, separator1, element2, element3, separator2, element4);
   }
 
   @Test
@@ -86,6 +109,44 @@ class SeparatedListImplTest {
 
     assertThat(resultingSeparatedList.elements()).containsExactly(firstElement);
     assertThat(resultingSeparatedList.separators()).isEmpty();
+  }
+
+  @Test
+  void shouldHandleSeparatedListStartingWithOptionalSeparatorWithValue() {
+    Tree element1 = CommonTestUtils.TestTree.tree();
+    IacToken separator1 = CommonTestUtils.TestIacToken.token();
+
+    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(Optional.of(separator1), element1, Optional.absent());
+
+    assertThat(resultingSeparatedList.elements()).containsExactly(element1);
+    assertThat(resultingSeparatedList.separators()).containsExactly(separator1);
+    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(separator1, element1);
+  }
+
+  @Test
+  void shouldHandleSeparatedListStartingWithOptionalSeparatorAndAdditionalValues() {
+    Tree element1 = CommonTestUtils.TestTree.tree();
+    IacToken separator1 = CommonTestUtils.TestIacToken.token();
+    Tree element2 = CommonTestUtils.TestTree.tree();
+    IacToken separator2 = CommonTestUtils.TestIacToken.token();
+
+    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(Optional.of(separator1), element1, Optional.of(List.of(
+      new Tuple<>(separator2, element2))));
+
+    assertThat(resultingSeparatedList.elements()).containsExactly(element1, element2);
+    assertThat(resultingSeparatedList.separators()).containsExactly(separator1, separator2);
+    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(separator1, element1, separator2, element2);
+  }
+
+  @Test
+  void shouldHandleSeparatedListStartingWithOptionalSeparatorWithNoValue() {
+    Tree element1 = CommonTestUtils.TestTree.tree();
+
+    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(Optional.absent(), element1, Optional.absent());
+
+    assertThat(resultingSeparatedList.elements()).containsExactly(element1);
+    assertThat(resultingSeparatedList.separators()).isEmpty();
+    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(element1);
   }
 
   @Test

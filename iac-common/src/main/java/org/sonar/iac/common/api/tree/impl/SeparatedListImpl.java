@@ -19,62 +19,145 @@ package org.sonar.iac.common.api.tree.impl;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
-public record SeparatedListImpl<T extends Tree, U extends IacToken> (List<T> elements,
-  List<U> separators) implements SeparatedList<T, U> {
+/**
+ * Store a list of elements and separators.
+ * The implementation allow any mix of separator and elements, including separator in first position, last position, consecutive separators and/or
+ * consecutive elements.
+ * It keeps the order insertion of any separator and elements, and the method {@link #elementsAndSeparators} will provide them back in the same order.
+ * @param <E> Represent the elements in the list, it should extends {@link Tree}
+ * @param <S> Represent the separator in the list, it should extends {@link IacToken}
+ */
+public final class SeparatedListImpl<E extends Tree, S extends IacToken> implements SeparatedList<E, S> {
+
+  private final List<E> elements;
+  private final List<S> separators;
+  private final List<Tree> elementsAndSeparators;
+
+  private SeparatedListImpl(List<E> elements, List<S> separators, List<Tree> elementsAndSeparators) {
+    this.elements = elements;
+    this.separators = separators;
+    this.elementsAndSeparators = elementsAndSeparators;
+  }
 
   @Override
-  public List<U> separators() {
-    return separators.stream().filter(Objects::nonNull).toList();
+  public List<E> elements() {
+    return Collections.unmodifiableList(elements);
+  }
+
+  @Override
+  public List<S> separators() {
+    return Collections.unmodifiableList(separators);
   }
 
   @Override
   public List<Tree> elementsAndSeparators() {
-    List<Tree> result = new ArrayList<>();
-
-    Iterator<T> elementsIterator = elements.iterator();
-    Iterator<U> separatorIterator = separators.iterator();
-
-    while (elementsIterator.hasNext() && separatorIterator.hasNext()) {
-      result.add(elementsIterator.next());
-      U separator = separatorIterator.next();
-      if (separator != null) {
-        result.add(separator);
-      }
-    }
-    if (elementsIterator.hasNext()) {
-      result.add(elementsIterator.next());
-    }
-
-    return result;
+    return Collections.unmodifiableList(elementsAndSeparators);
   }
 
-  public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> separatedList(R firstElement, Optional<List<Tuple<S, R>>> additionalElements) {
+  private static class SeparatedListBuilder<E extends Tree, S extends IacToken> {
+    private final List<E> elements = new ArrayList<>();
+    private final List<S> separators = new ArrayList<>();
+    private final List<Tree> elementsAndSeparators = new ArrayList<>();
+
+    private void addElement(E element) {
+      elements.add(element);
+      elementsAndSeparators.add(element);
+    }
+
+    private void addSeparator(@Nullable S separator) {
+      if (separator != null) {
+        separators.add(separator);
+        elementsAndSeparators.add(separator);
+      }
+    }
+
+    private void addSeparator(Optional<S> separator) {
+      if (separator.isPresent()) {
+        addSeparator(separator.get());
+      }
+    }
+
+    private SeparatedListImpl<E, S> build() {
+      return new SeparatedListImpl<>(elements, separators, elementsAndSeparators);
+    }
+  }
+
+  /**
+   * Create a separated list with an optional separator in the beginning.
+   * Equivalent grammar: {@code separator? element ( separator element )*}
+   * @param optSeparator Optional separator in the beginning
+   * @param firstElement First element of the list
+   * @param separatorWithElements Optional list of tuples with separator and element
+   * @return SeparatedList with the elements and separators
+   */
+  public static <E extends Tree, S extends IacToken> SeparatedListImpl<E, S> separatedList(Optional<S> optSeparator, E firstElement,
+    Optional<List<Tuple<S, E>>> separatorWithElements) {
+    SeparatedListBuilder<E, S> builder = new SeparatedListBuilder<>();
+    builder.addSeparator(optSeparator);
+    builder.addElement(firstElement);
+    for (Tuple<S, E> elementsWithSeparators : separatorWithElements.or(Collections.emptyList())) {
+      builder.addSeparator(elementsWithSeparators.first());
+      builder.addElement(elementsWithSeparators.second());
+    }
+    return builder.build();
+  }
+
+  /**
+   * Create a separated list with a first element and optinal additional following elements
+   * Equivalent grammar: {@code element ( separator element )*}
+   * @param firstElement First element of the list
+   * @param additionalElements Optional list of tuples with separator and element
+   * @return SeparatedList with the elements and separators
+   */
+  public static <E extends Tree, S extends IacToken> SeparatedListImpl<E, S> separatedList(E firstElement, Optional<List<Tuple<S, E>>> additionalElements) {
     return separatedList(firstElement, additionalElements.or(Collections.emptyList()));
   }
 
-  public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> separatedList(R firstElement, List<Tuple<S, R>> additionalElements) {
-    List<R> elements = new ArrayList<>();
-    List<S> separators = new ArrayList<>();
-    elements.add(firstElement);
-
-    for (Tuple<S, R> elementsWithSeparators : additionalElements) {
-      separators.add(elementsWithSeparators.first());
-      elements.add(elementsWithSeparators.second());
+  /**
+   * Create a separated list with a first element and optinal additional following elements
+   * Equivalent grammar: {@code element ( separator element )+}
+   * @param firstElement First element of the list
+   * @param additionalElements List of tuples with separator and element
+   * @return SeparatedList with the elements and separators
+   */
+  public static <E extends Tree, S extends IacToken> SeparatedListImpl<E, S> separatedList(E firstElement, List<Tuple<S, E>> additionalElements) {
+    SeparatedListBuilder<E, S> builder = new SeparatedListBuilder<>();
+    builder.addElement(firstElement);
+    for (Tuple<S, E> elementsWithSeparators : additionalElements) {
+      builder.addSeparator(elementsWithSeparators.first());
+      builder.addElement(elementsWithSeparators.second());
     }
-
-    return new SeparatedListImpl<>(elements, separators);
+    return builder.build();
   }
 
+  /**
+   * Create a separated list with elements and optional separators
+   * Equivalent grammar: {@code ( element separator? )+}
+   * @param elementsWithOptionalSeparators List of tuples with element and optional separator
+   * @return SeparatedList with the elements and separators
+   */
+  public static <E extends Tree, S extends IacToken> SeparatedListImpl<E, S> separatedList(List<Tuple<E, Optional<S>>> elementsWithOptionalSeparators) {
+    SeparatedListBuilder<E, S> builder = new SeparatedListBuilder<>();
+    for (Tuple<E, Optional<S>> elementWithOptionalSeparator : elementsWithOptionalSeparators) {
+      builder.addElement(elementWithOptionalSeparator.first());
+      builder.addSeparator(elementWithOptionalSeparator.second());
+    }
+    return builder.build();
+  }
+
+  /**
+   * Create an empty separated list with elements.
+   * @return A SeparatedList instance with no elements and separators inside
+   */
   public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> emptySeparatedList() {
-    return new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
+    return new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
   }
 
   @Override
