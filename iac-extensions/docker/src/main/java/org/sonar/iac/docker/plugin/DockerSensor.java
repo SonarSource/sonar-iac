@@ -105,6 +105,12 @@ public class DockerSensor extends IacSensor {
       p.hasLanguage(DockerLanguage.KEY),
       pathPatterns);
 
+    if (((DockerLanguage) language).isUsingDefaultFilePattern()) {
+      dockerLanguageOrPathPattern = p.and(
+        p.doesNotMatchPathPattern("*.j2"),
+        dockerLanguageOrPathPattern);
+    }
+
     return p.and(p.hasType(InputFile.Type.MAIN), dockerLanguageOrPathPattern);
   }
 

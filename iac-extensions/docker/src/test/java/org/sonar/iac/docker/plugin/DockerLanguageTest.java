@@ -61,6 +61,38 @@ class DockerLanguageTest {
     assertThat(language.filenamePatterns()).containsExactly(DockerSettings.DEFAULT_FILE_PATTERNS.split(","));
   }
 
+  @Test
+  void shouldReturnTrueWhenDefaultFilePatternIsUsed() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, DockerSettings.DEFAULT_FILE_PATTERNS);
+    DockerLanguage language = new DockerLanguage(settings.asConfig());
+    assertThat(language.isUsingDefaultFilePattern()).isTrue();
+  }
+
+  @Test
+  void shouldReturnTrueWhenDefaultFilePatternIsUsedEvenInDifferentOrder() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "*.dockerfile,Dockerfile");
+    DockerLanguage language = new DockerLanguage(settings.asConfig());
+    assertThat(language.isUsingDefaultFilePattern()).isTrue();
+  }
+
+  @Test
+  void shouldReturnFalseWhenADifferentFilePatternIsSet() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "Dockerfile");
+    DockerLanguage language = new DockerLanguage(settings.asConfig());
+    assertThat(language.isUsingDefaultFilePattern()).isFalse();
+  }
+
+  @Test
+  void shouldReturnTrueWhenEmptyFilePatternIsSet() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "");
+    DockerLanguage language = new DockerLanguage(settings.asConfig());
+    assertThat(language.isUsingDefaultFilePattern()).isTrue();
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {
     "Dockerfile",

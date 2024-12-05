@@ -77,7 +77,11 @@ class DockerSensorTest extends ExtensionSensorTest {
       inputFile("Foo.dockerfile", ""),
       // should not be included after applying file predicates
       inputFileWithoutAssociatedLanguage("DockerfileFoo", ""),
-      inputFileWithoutAssociatedLanguage("FooDockerfile", ""));
+      inputFileWithoutAssociatedLanguage("FooDockerfile", ""),
+      // should be excluded because of .j2 extension and default file pattern used
+      inputFile("Dockerfile.j2", ""),
+      // should be included because .j2 is not the extension
+      inputFile("Dockerfile.j2.bar", ""));
 
     FileSystem fileSystem = context.fileSystem();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context, new DurationStatistics(mock(Configuration.class))));
@@ -89,7 +93,23 @@ class DockerSensorTest extends ExtensionSensorTest {
         "Dockerfile.foo.bar",
         "Dockerfile.foo",
         "Foo.Dockerfile",
-        "Foo.dockerfile");
+        "Foo.dockerfile",
+        "Dockerfile.j2.bar");
+  }
+
+  @Test
+  void shouldIncludeJinjaFilesWhenFilePatternIsModified() {
+    var settings = new MapSettings();
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "Dockerfile");
+    DockerSensor sensor = sensor(settings);
+    analyze(sensor, inputFile("Dockerfile.j2", ""));
+
+    FileSystem fileSystem = context.fileSystem();
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context, new DurationStatistics(mock(Configuration.class))));
+
+    assertThat(inputFiles)
+      .map(IndexedFile::filename)
+      .containsExactly("Dockerfile.j2");
   }
 
   @Test
@@ -105,7 +125,9 @@ class DockerSensorTest extends ExtensionSensorTest {
       inputFileWithoutAssociatedLanguage("Foo.dockerfile", ""),
       // should not be included after applying file predicates
       inputFileWithoutAssociatedLanguage("DockerfileFoo", ""),
-      inputFileWithoutAssociatedLanguage("FooDockerfile", ""));
+      inputFileWithoutAssociatedLanguage("FooDockerfile", ""),
+      // should be excluded because of .j2 extension and default file pattern used
+      inputFileWithoutAssociatedLanguage("Dockerfile.j2", ""));
 
     FileSystem fileSystem = sonarLintContext.fileSystem();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sonarLintSensor.mainFilePredicate(sonarLintContext, new DurationStatistics(mock(Configuration.class))));
@@ -138,13 +160,17 @@ class DockerSensorTest extends ExtensionSensorTest {
 
   @Override
   protected Sensor sensor(CheckFactory checkFactory) {
+    return sensor(checkFactory, new MapSettings());
+  }
+
+  protected Sensor sensor(CheckFactory checkFactory, MapSettings settings) {
     return new DockerSensor(
       SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
       hadolintRulesDefinition,
       fileLinesContextFactory,
       checkFactory,
       noSonarFilter,
-      new DockerLanguage(new MapSettings().asConfig()));
+      new DockerLanguage(settings.asConfig()));
   }
 
   @Override
@@ -185,6 +211,10 @@ class DockerSensorTest extends ExtensionSensorTest {
 
   private DockerSensor sensor(String... rules) {
     return (DockerSensor) sensor(checkFactory(rules));
+  }
+
+  private DockerSensor sensor(MapSettings settings, String... rules) {
+    return (DockerSensor) sensor(checkFactory(rules), settings);
   }
 
   private InputFile inputFileWithoutAssociatedLanguage(String relativePath, String content) {

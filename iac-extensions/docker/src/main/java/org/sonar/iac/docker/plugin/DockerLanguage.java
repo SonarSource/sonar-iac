@@ -47,6 +47,14 @@ public class DockerLanguage extends AbstractLanguage {
     return patterns;
   }
 
+  public boolean isUsingDefaultFilePattern() {
+    var patternSettings = settings.getStringArray(DockerSettings.FILE_PATTERNS_KEY);
+    var defaultPatternSettings = DockerSettings.DEFAULT_FILE_PATTERNS.split(",");
+    Arrays.sort(patternSettings);
+    Arrays.sort(defaultPatternSettings);
+    return patternSettings.length == 0 || Arrays.equals(patternSettings, defaultPatternSettings);
+  }
+
   private static String[] filterEmptyPatterns(String[] patterns) {
     return Arrays.stream(patterns)
       .filter(string -> !string.isBlank())
