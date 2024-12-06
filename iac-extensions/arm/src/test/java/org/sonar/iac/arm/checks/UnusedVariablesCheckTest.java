@@ -39,6 +39,11 @@ class UnusedVariablesCheckTest {
   }
 
   @Test
+  void shouldRaiseOnUnusedVariablesInResourceWithSymbolicNameJson() {
+    ArmVerifier.verifyNoIssue("UnusedVariablesCheckTest/usedVariableInSymbolicResource.json", CHECK);
+  }
+
+  @Test
   void shouldNotRaiseAnyIssuesAsAVariableUsageIsUnresolvable() {
     ArmVerifier.verifyNoIssue("UnusedVariablesCheckTest/containsUnresolvableVariable.json", CHECK);
   }

@@ -70,6 +70,7 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isFalse();
 
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+    assertThat(resourceDeclaration.symbolicName()).isNull();
     assertThat(resourceDeclaration.type().value()).isEqualTo("Microsoft.Kusto/clusters");
     assertThat(((StringLiteral) resourceDeclaration.version()).value()).isEqualTo("2022-12-29");
     assertThat(resourceDeclaration.existing()).isNull();
@@ -514,5 +515,50 @@ class ResourceDeclarationImplTest {
       .get();
     assertThat(propertiesFunctionCall.name().value()).isEqualTo("if");
     assertThat(resourceDeclaration.children()).contains(propertiesFunctionCall);
+  }
+
+  @Test
+  void shouldParseResourceWithSymbolicName() {
+    String code = """
+      {
+        "resources": {
+          "virtualMachine": {
+            "type": "Microsoft.AzureStackHCI/virtualMachineInstances",
+            "apiVersion": "2024-01-01",
+            "scope": "[format('Microsoft.HybridCompute/machines/{0}', parameters('name'))]",
+            "name": "default",
+            "properties": {
+              "storageProfile": {
+                "imageReference": {
+                  "id": "[variables('imageId')]"
+                }
+              }
+            }
+          }
+        }
+      }""";
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
+
+    ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+    assertThat(resourceDeclaration.symbolicName()).isNotNull();
+    assertThat(resourceDeclaration.symbolicName().value()).isEqualTo("virtualMachine");
+    assertThat(resourceDeclaration.symbolicName().textRange()).hasRange(3, 4, 3, 20);
+    assertThat(resourceDeclaration.type().value()).isEqualTo("Microsoft.AzureStackHCI/virtualMachineInstances");
+    assertThat(((StringLiteral) resourceDeclaration.version()).value()).isEqualTo("2024-01-01");
+    assertThat(resourceDeclaration.existing()).isNull();
+  }
+
+  @Test
+  void shouldIgnoreInvalidResourceWithSymbolicName() {
+    String code = """
+      {
+        "resources": {
+          "virtualMachine": []
+        }
+      }""";
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).isEmpty();
   }
 }

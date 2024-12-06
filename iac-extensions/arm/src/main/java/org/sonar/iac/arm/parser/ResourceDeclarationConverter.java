@@ -38,6 +38,7 @@ import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
+  private static final String RESOURCES_FIELD = "resources";
 
   public ResourceDeclarationConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);
@@ -45,12 +46,23 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
 
   public Stream<MappingTree> extractResourcesSequence(MappingTree document) {
     return document.elements().stream()
-      .filter(filterOnField("resources"))
+      .filter(filterOnField(RESOURCES_FIELD))
       .map(TupleTree::value)
       .filter(SequenceTree.class::isInstance)
       .map(SequenceTree.class::cast)
       .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
       .flatMap(List::stream);
+  }
+
+  public Stream<TupleTree> extractResourcesTuples(MappingTree document) {
+    return document.elements().stream()
+      .filter(filterOnField(RESOURCES_FIELD))
+      .map(TupleTree::value)
+      .filter(MappingTree.class::isInstance)
+      .map(MappingTree.class::cast)
+      .map(MappingTree::elements)
+      .flatMap(List::stream)
+      .filter(tupleTree -> tupleTree.value() instanceof MappingTree);
   }
 
   private static List<MappingTree> mappingTreeOnly(List<YamlTree> yamlTrees) {
@@ -61,18 +73,28 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
   }
 
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
-    var type = toStringLiteralOrException(tree, "type");
-    var version = toExpressionOrException(tree, "apiVersion");
-    var name = toExpressionOrException(tree, "name");
-    var resourceProperties = toResourceProperties(tree);
-    var otherProperties = PropertyUtils.get(tree, "properties"::equalsIgnoreCase)
+    return buildResource(tree, null);
+  }
+
+  public ResourceDeclaration convertToResourceDeclaration(TupleTree tree) {
+    var resourceTree = (MappingTree) tree.value();
+    var symbolicName = toIdentifier(tree.key());
+    return buildResource(resourceTree, symbolicName);
+  }
+
+  private ResourceDeclaration buildResource(MappingTree resourceTree, @Nullable Identifier symbolicName) {
+    var type = toStringLiteralOrException(resourceTree, "type");
+    var version = toExpressionOrException(resourceTree, "apiVersion");
+    var name = toExpressionOrException(resourceTree, "name");
+    var resourceProperties = toResourceProperties(resourceTree);
+    var otherProperties = PropertyUtils.get(resourceTree, "properties"::equalsIgnoreCase)
       .map(PropertyTree::value)
       .map(this::toProperties)
       .orElse(Collections.emptyList());
 
-    return PropertyUtils.get(tree, "resources")
-      .map(childResources -> toResourceDeclarationWithChildren(type, version, name, otherProperties, resourceProperties, childResources))
-      .orElseGet(() -> toResourceDeclaration(type, version, name, otherProperties, resourceProperties));
+    return PropertyUtils.get(resourceTree, RESOURCES_FIELD)
+      .map(childResources -> toResourceDeclarationWithChildren(symbolicName, type, version, name, otherProperties, resourceProperties, childResources))
+      .orElseGet(() -> toResourceDeclaration(symbolicName, type, version, name, otherProperties, resourceProperties));
   }
 
   private List<Property> toResourceProperties(MappingTree tree) {
@@ -85,15 +107,17 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
       .collect(Collectors.toList());
   }
 
-  private static ResourceDeclaration toResourceDeclaration(StringLiteral type,
+  private static ResourceDeclaration toResourceDeclaration(@Nullable Identifier symbolicName,
+    StringLiteral type,
     Expression version,
     Expression name,
     List<Property> otherProperties,
     List<Property> resourceProperties) {
-    return new ResourceDeclarationImpl(name, version, type, otherProperties, resourceProperties, Collections.emptyList());
+    return new ResourceDeclarationImpl(symbolicName, name, version, type, otherProperties, resourceProperties, Collections.emptyList());
   }
 
-  private ResourceDeclaration toResourceDeclarationWithChildren(StringLiteral type,
+  private ResourceDeclaration toResourceDeclarationWithChildren(@Nullable Identifier symbolicName,
+    StringLiteral type,
     Expression version,
     Expression name,
     List<Property> otherProperties,
@@ -105,6 +129,6 @@ public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
       .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
       .map(m -> m.stream().map(this::convertToResourceDeclaration).toList())
       .orElse(Collections.emptyList());
-    return new ResourceDeclarationImpl(name, version, type, otherProperties, resourceProperties, childResources);
+    return new ResourceDeclarationImpl(symbolicName, name, version, type, otherProperties, resourceProperties, childResources);
   }
 }

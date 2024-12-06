@@ -18,6 +18,7 @@ package org.sonar.iac.arm.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
@@ -41,8 +42,9 @@ public class FileConverter extends ArmJsonBaseConverter {
     StringLiteral targetScope = toStringLiteralOrNull(document, "$schema");
 
     ResourceDeclarationConverter resourceConverter = new ResourceDeclarationConverter(inputFileContext);
-    List<ResourceDeclaration> resources = resourceConverter.extractResourcesSequence(document)
-      .map(resourceConverter::convertToResourceDeclaration)
+    List<ResourceDeclaration> resources = Stream.concat(
+      resourceConverter.extractResourcesSequence(document).map(resourceConverter::convertToResourceDeclaration),
+      resourceConverter.extractResourcesTuples(document).map(resourceConverter::convertToResourceDeclaration))
       .toList();
     List<Statement> statements = new ArrayList<>(resources);
 

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
@@ -34,6 +35,7 @@ import org.sonar.iac.common.api.tree.Tree;
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
   private static final Set<String> IGNORED_CHILDREN_RESOURCE_PROPERTIES = Set.of("type", "apiversion", "name", "resources");
+  private final Identifier symbolicName;
   private final Expression name;
   private final Expression version;
   private final StringLiteral type;
@@ -41,12 +43,14 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private final List<Property> resourceProperties;
   private final List<ResourceDeclaration> childResources;
 
-  public ResourceDeclarationImpl(Expression name,
+  public ResourceDeclarationImpl(@Nullable Identifier symbolicName,
+    Expression name,
     Expression version,
     StringLiteral type,
     List<Property> properties,
     List<Property> resourceProperties,
     List<ResourceDeclaration> childResources) {
+    this.symbolicName = symbolicName;
     this.name = name;
     this.version = version;
     this.type = type;
@@ -82,7 +86,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   @CheckForNull
   public Identifier symbolicName() {
-    return null;
+    return symbolicName;
   }
 
   @Override
