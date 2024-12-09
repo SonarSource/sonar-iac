@@ -6,7 +6,7 @@ build_task:
   eks_container:
     dockerfile: .cirrus/Dockerfile
     cpu: 2
-    memory: 4G
+    memory: 6G
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       GO_VERSION: "1.21.8"
