@@ -14,21 +14,21 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.arm.tree.impl.bicep.importdecl;
+package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
+import org.sonar.iac.arm.tree.api.bicep.AsClause;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
-class ImportAsClauseImplTest extends BicepTreeModelTest {
+class AsClauseImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseImportAsClause() {
-    assertThat(BicepLexicalGrammar.IMPORT_AS_CLAUSE)
+  void shouldParseAsClause() {
+    assertThat(BicepLexicalGrammar.AS_CLAUSE)
       .matches("as abc")
       .matches("as myName1")
 
@@ -36,10 +36,10 @@ class ImportAsClauseImplTest extends BicepTreeModelTest {
   }
 
   @Test
-  void shouldParseSimpleImportAsClause() {
-    ImportAsClauseImpl tree = parse("as abc", BicepLexicalGrammar.IMPORT_AS_CLAUSE);
+  void shouldParseSimpleAsClause() {
+    AsClause tree = parse("as abc", BicepLexicalGrammar.AS_CLAUSE);
     Assertions.assertThat(tree.keyword().value()).isEqualTo("as");
-    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_AS_CLAUSE);
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.AS_CLAUSE);
     Assertions.assertThat(tree.children()).hasSize(2);
     assertThat(tree.alias().getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
     assertThat(tree.textRange()).hasRange(1, 0, 1, 6);

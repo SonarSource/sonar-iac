@@ -38,8 +38,10 @@ import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
+import org.sonar.iac.arm.tree.api.bicep.AsClause;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.ExtensionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
@@ -68,6 +70,7 @@ import org.sonar.iac.arm.tree.api.bicep.TypeReferenceSuffix;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.WildcardTypeSuffix;
+import org.sonar.iac.arm.tree.api.bicep.WithClause;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.BinaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
@@ -77,8 +80,6 @@ import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportFromClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportedSymbolsListItem;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
@@ -93,9 +94,11 @@ import org.sonar.iac.arm.tree.impl.VariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayTypeSuffixImpl;
+import org.sonar.iac.arm.tree.impl.bicep.AsClauseImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.CompileTimeImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ExtensionDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForVariableBlockImpl;
@@ -136,6 +139,7 @@ import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.UnaryOperatorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.WildcardTypeSuffixImpl;
+import org.sonar.iac.arm.tree.impl.bicep.WithClauseImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.AdditiveExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.BinaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.EqualityExpressionImpl;
@@ -144,8 +148,6 @@ import org.sonar.iac.arm.tree.impl.bicep.expression.RelationalExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.TernaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.UnaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.CompileTimeImportFromClauseImpl;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClauseImpl;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClauseImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportedSymbolsList;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportedSymbolsListItemImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.WildcardImport;
@@ -411,21 +413,30 @@ public class TreeFactory {
     return new NullLiteralImpl(token);
   }
 
+  public ExtensionDeclaration extensionDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Expression specification,
+    Optional<WithClause> withClause,
+    Optional<AsClause> asClause) {
+    return new ExtensionDeclarationImpl(decorators.or(emptyList()), keyword, specification, withClause.orNull(), asClause.orNull());
+  }
+
   public ImportDeclaration importDeclaration(
     Optional<List<Decorator>> decorators,
     SyntaxToken keyword,
     InterpolatedString specification,
-    Optional<ImportWithClause> withClause,
-    Optional<ImportAsClause> asClause) {
+    Optional<WithClause> withClause,
+    Optional<AsClause> asClause) {
     return new ImportDeclarationImpl(decorators.or(emptyList()), keyword, specification, withClause.orNull(), asClause.orNull());
   }
 
-  public ImportWithClause importWithClause(SyntaxToken keyword, ObjectExpression object) {
-    return new ImportWithClauseImpl(keyword, object);
+  public WithClause withClause(SyntaxToken keyword, ObjectExpression object) {
+    return new WithClauseImpl(keyword, object);
   }
 
-  public ImportAsClause importAsClause(SyntaxToken keyword, Identifier alias) {
-    return new ImportAsClauseImpl(keyword, alias);
+  public AsClause asClause(SyntaxToken keyword, Identifier alias) {
+    return new AsClauseImpl(keyword, alias);
   }
 
   public CompileTimeImportDeclaration compileTimeImportDeclaration(
@@ -445,12 +456,12 @@ public class TreeFactory {
 
   public ImportedSymbolsListItem importedSymbolListItem(
     Identifier identifier,
-    Optional<ImportAsClause> importAsClause) {
-    return new ImportedSymbolsListItemImpl(identifier, importAsClause.orNull());
+    Optional<AsClause> asClause) {
+    return new ImportedSymbolsListItemImpl(identifier, asClause.orNull());
   }
 
-  public CompileTimeImportTarget wildcardImport(SyntaxToken wildcard, ImportAsClause importAsClause) {
-    return new WildcardImport(wildcard, importAsClause);
+  public CompileTimeImportTarget wildcardImport(SyntaxToken wildcard, AsClause asClause) {
+    return new WildcardImport(wildcard, asClause);
   }
 
   public CompileTimeImportFromClause compileTimeImportFromClause(SyntaxToken keyword, InterpolatedString path) {

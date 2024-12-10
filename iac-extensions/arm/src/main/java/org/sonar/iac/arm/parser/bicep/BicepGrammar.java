@@ -36,8 +36,10 @@ import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
+import org.sonar.iac.arm.tree.api.bicep.AsClause;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.ExtensionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
@@ -65,11 +67,10 @@ import org.sonar.iac.arm.tree.api.bicep.TypeReferenceSuffix;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.WildcardTypeSuffix;
+import org.sonar.iac.arm.tree.api.bicep.WithClause;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportFromClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
@@ -104,6 +105,7 @@ public class BicepGrammar {
     return b.<Statement>nonterminal(BicepLexicalGrammar.STATEMENT).is(
       b.firstOf(
         TARGET_SCOPE_DECLARATION(),
+        EXTENSION_DECLARATION(),
         IMPORT_DECLARATION(),
         COMPILE_TIME_IMPORT_DECLARATION(),
         METADATA_DECLARATION(),
@@ -221,24 +223,34 @@ public class BicepGrammar {
           FOR_EXPRESSION())));
   }
 
+  public ExtensionDeclaration EXTENSION_DECLARATION() {
+    return b.<ExtensionDeclaration>nonterminal(BicepLexicalGrammar.EXTENSION_DECLARATION).is(
+      f.extensionDeclaration(
+        b.zeroOrMore(DECORATOR()),
+        b.token(BicepKeyword.EXTENSION),
+        b.firstOf(INTERPOLATED_STRING(), IDENTIFIER()),
+        b.optional(WITH_CLAUSE()),
+        b.optional(AS_CLAUSE())));
+  }
+
   public ImportDeclaration IMPORT_DECLARATION() {
     return b.<ImportDeclaration>nonterminal(BicepLexicalGrammar.IMPORT_DECLARATION).is(
       f.importDeclaration(
         b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.IMPORT),
         INTERPOLATED_STRING(),
-        b.optional(IMPORT_WITH_CLAUSE()),
-        b.optional(IMPORT_AS_CLAUSE())));
+        b.optional(WITH_CLAUSE()),
+        b.optional(AS_CLAUSE())));
   }
 
-  public ImportWithClause IMPORT_WITH_CLAUSE() {
-    return b.<ImportWithClause>nonterminal(BicepLexicalGrammar.IMPORT_WITH_CLAUSE).is(f.importWithClause(
+  public WithClause WITH_CLAUSE() {
+    return b.<WithClause>nonterminal(BicepLexicalGrammar.WITH_CLAUSE).is(f.withClause(
       b.token(BicepKeyword.WITH),
       OBJECT_EXPRESSION()));
   }
 
-  public ImportAsClause IMPORT_AS_CLAUSE() {
-    return b.<ImportAsClause>nonterminal(BicepLexicalGrammar.IMPORT_AS_CLAUSE).is(f.importAsClause(
+  public AsClause AS_CLAUSE() {
+    return b.<AsClause>nonterminal(BicepLexicalGrammar.AS_CLAUSE).is(f.asClause(
       b.token(BicepKeyword.AS),
       IDENTIFIER()));
   }
@@ -267,7 +279,7 @@ public class BicepGrammar {
           f.tuple(
             f.importedSymbolListItem(
               IDENTIFIER(),
-              b.optional(IMPORT_AS_CLAUSE())),
+              b.optional(AS_CLAUSE())),
             b.optional(b.token(Punctuator.COMMA)))),
         b.token(Punctuator.RCURLYBRACE)));
   }
@@ -275,7 +287,7 @@ public class BicepGrammar {
   public CompileTimeImportTarget WILDCARD_IMPORT() {
     return b.<CompileTimeImportTarget>nonterminal().is(
       f.wildcardImport(
-        b.token(Punctuator.STAR), IMPORT_AS_CLAUSE()));
+        b.token(Punctuator.STAR), AS_CLAUSE()));
   }
 
   public CompileTimeImportFromClause COMPILE_TIME_IMPORT_FROM_CLAUSE() {

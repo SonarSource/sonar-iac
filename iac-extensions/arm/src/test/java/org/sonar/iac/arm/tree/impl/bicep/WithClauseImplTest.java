@@ -14,32 +14,35 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.arm.tree.impl.bicep.importdecl;
+package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
+import org.sonar.iac.arm.tree.api.bicep.WithClause;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
-class ImportWithClauseImplTest extends BicepTreeModelTest {
+class WithClauseImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseImportWthClause() {
-    assertThat(BicepLexicalGrammar.IMPORT_WITH_CLAUSE)
+  void shouldParseWithClause() {
+    assertThat(BicepLexicalGrammar.WITH_CLAUSE)
       .matches("with {}")
+      .matches("    with {}")
+      .matches("with { key: 'value' }")
+      .matches("with { key: 'value', key: 'value' }")
 
       .notMatches("with")
       .notMatches("as abc");
   }
 
   @Test
-  void shouldParseSimpleImportWithClause() {
-    ImportWithClauseImpl tree = parse("with {}", BicepLexicalGrammar.IMPORT_WITH_CLAUSE);
+  void shouldParseSimpleWithClause() {
+    WithClause tree = parse("with {}", BicepLexicalGrammar.WITH_CLAUSE);
     Assertions.assertThat(tree.keyword().value()).isEqualTo("with");
-    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_WITH_CLAUSE);
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.WITH_CLAUSE);
     Assertions.assertThat(tree.children()).hasSize(2);
     assertThat(tree.object().getKind()).isEqualTo(ArmTree.Kind.OBJECT_EXPRESSION);
     assertThat(tree.textRange()).hasRange(1, 0, 1, 7);

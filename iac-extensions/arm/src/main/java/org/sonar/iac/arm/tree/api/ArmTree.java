@@ -19,9 +19,11 @@ package org.sonar.iac.arm.tree.api;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.AsClause;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.CompoundTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.ExtensionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
@@ -47,6 +49,7 @@ import org.sonar.iac.arm.tree.api.bicep.TypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.WildcardTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.WithClause;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.BinaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
@@ -56,8 +59,6 @@ import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportFromClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportedSymbolsListItem;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
@@ -101,9 +102,10 @@ public interface ArmTree extends Tree {
     TARGET_SCOPE_DECLARATION(TargetScopeDeclaration.class),
     FUNCTION_DECLARATION(FunctionDeclaration.class),
     METADATA_DECLARATION(MetadataDeclaration.class),
+    EXTENSION_DECLARATION(ExtensionDeclaration.class),
     IMPORT_DECLARATION(ImportDeclaration.class),
-    IMPORT_WITH_CLAUSE(ImportWithClause.class),
-    IMPORT_AS_CLAUSE(ImportAsClause.class),
+    WITH_CLAUSE(WithClause.class),
+    AS_CLAUSE(AsClause.class),
     COMPILE_TIME_IMPORT_DECLARATION(CompileTimeImportDeclaration.class),
     COMPILE_TIME_IMPORT_TARGET(CompileTimeImportTarget.class),
     COMPILE_TIME_IMPORT_FROM_CLAUSE(CompileTimeImportFromClause.class),

@@ -20,26 +20,26 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.api.bicep.AsClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportedSymbolsListItem;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ImportedSymbolsListItemImpl extends AbstractArmTreeImpl implements ImportedSymbolsListItem {
   private final Identifier identifier;
-  private final ImportAsClause importAsClause;
+  private final AsClause asClause;
 
-  public ImportedSymbolsListItemImpl(Identifier identifier, @Nullable ImportAsClause importAsClause) {
+  public ImportedSymbolsListItemImpl(Identifier identifier, @Nullable AsClause asClause) {
     this.identifier = identifier;
-    this.importAsClause = importAsClause;
+    this.asClause = asClause;
   }
 
   @Override
   public List<Tree> children() {
     var result = new ArrayList<Tree>();
     result.add(identifier);
-    if (importAsClause != null) {
-      result.add(importAsClause);
+    if (asClause != null) {
+      result.add(asClause);
     }
     return result;
   }

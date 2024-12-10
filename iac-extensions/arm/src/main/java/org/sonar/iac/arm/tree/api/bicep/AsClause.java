@@ -14,17 +14,23 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.arm.tree.api.bicep.importdecl;
+package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 
-public interface ImportAsClause extends HasKeyword {
+/**
+ * Represent an alias declaration with the keyword 'as' for extension or import statement.
+ */
+public interface AsClause extends HasKeyword {
 
   @Override
   default Kind getKind() {
-    return Kind.IMPORT_AS_CLAUSE;
+    return Kind.AS_CLAUSE;
   }
 
+  /**
+   * Get the alias identifier.
+   * @return the alias identifier
+   */
   Identifier alias();
 }

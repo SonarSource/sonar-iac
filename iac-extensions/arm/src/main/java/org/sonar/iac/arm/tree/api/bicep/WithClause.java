@@ -14,17 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.arm.tree.api.bicep.importdecl;
+package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.ObjectExpression;
-import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 
-public interface ImportWithClause extends HasKeyword {
+/**
+ * Represent a body declaration with the keyword 'with' for extension or import statement.
+ */
+public interface WithClause extends HasKeyword {
 
   @Override
   default Kind getKind() {
-    return Kind.IMPORT_WITH_CLAUSE;
+    return Kind.WITH_CLAUSE;
   }
 
+  /**
+   * @return the object expression of the with clause
+   */
   ObjectExpression object();
 }

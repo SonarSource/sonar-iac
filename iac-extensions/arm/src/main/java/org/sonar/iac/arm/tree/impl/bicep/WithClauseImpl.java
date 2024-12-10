@@ -14,26 +14,26 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.arm.tree.impl.bicep.importdecl;
+package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.api.bicep.WithClause;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ImportAsClauseImpl extends AbstractArmTreeImpl implements ImportAsClause {
+public class WithClauseImpl extends AbstractArmTreeImpl implements WithClause {
   private final SyntaxToken keyword;
-  private final Identifier alias;
+  private final ObjectExpression object;
 
-  public ImportAsClauseImpl(SyntaxToken keyword, Identifier alias) {
+  public WithClauseImpl(SyntaxToken keyword, ObjectExpression object) {
     this.keyword = keyword;
-    this.alias = alias;
+    this.object = object;
   }
 
   public List<Tree> children() {
-    return List.of(keyword, alias);
+    return List.of(keyword, object);
   }
 
   @Override
@@ -42,7 +42,7 @@ public class ImportAsClauseImpl extends AbstractArmTreeImpl implements ImportAsC
   }
 
   @Override
-  public Identifier alias() {
-    return alias;
+  public ObjectExpression object() {
+    return object;
   }
 }

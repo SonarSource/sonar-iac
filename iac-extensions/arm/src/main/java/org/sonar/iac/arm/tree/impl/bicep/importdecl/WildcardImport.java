@@ -17,23 +17,23 @@
 package org.sonar.iac.arm.tree.impl.bicep.importdecl;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.bicep.AsClause;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.CompileTimeImportTarget;
-import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class WildcardImport extends AbstractArmTreeImpl implements CompileTimeImportTarget {
   private final SyntaxToken wildcard;
-  private final ImportAsClause importAsClause;
+  private final AsClause asClause;
 
-  public WildcardImport(SyntaxToken wildcard, ImportAsClause importAsClause) {
+  public WildcardImport(SyntaxToken wildcard, AsClause asClause) {
     this.wildcard = wildcard;
-    this.importAsClause = importAsClause;
+    this.asClause = asClause;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(wildcard, importAsClause);
+    return List.of(wildcard, asClause);
   }
 }

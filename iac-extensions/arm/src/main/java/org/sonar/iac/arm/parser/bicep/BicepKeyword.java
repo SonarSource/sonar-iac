@@ -32,6 +32,7 @@ public enum BicepKeyword implements GrammarRuleKey {
   FUNC("func"),
   METADATA("metadata"),
   VARIABLE("var"),
+  EXTENSION("extension"),
   IMPORT("import"),
   WITH("with"),
   AS("as"),
