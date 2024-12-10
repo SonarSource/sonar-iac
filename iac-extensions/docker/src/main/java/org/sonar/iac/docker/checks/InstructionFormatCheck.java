@@ -30,7 +30,7 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 @Rule(key = "S6476")
 public class InstructionFormatCheck implements IacCheck {
 
-  private static final String MESSAGE = "Replace `%s` with upper case format `%s`.";
+  private static final String MESSAGE = "Replace \"%s\" with upper case format \"%s\".";
   private static final Pattern KEYWORD_PATTERN = Pattern.compile("[a-z]");
 
   @Override

@@ -1,6 +1,6 @@
 FROM scratch
 
-# Noncompliant@+1 {{WORKDIR instruction should be used instead of cd command.}}
+# Noncompliant@+1 {{WORKDIR instruction should be used instead of "cd" command.}}
 {$instructionName} cd /app/bin && ./start.sh
 
 # Noncompliant@+1

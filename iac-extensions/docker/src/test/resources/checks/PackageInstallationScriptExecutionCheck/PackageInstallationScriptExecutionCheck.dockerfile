@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-# Noncompliant@+1 {{Omitting --ignore-scripts can lead to the execution of shell scripts. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "--ignore-scripts" can lead to the execution of shell scripts. Make sure it is safe here.}}
 RUN npm install
 #   ^^^^^^^^^^^
 

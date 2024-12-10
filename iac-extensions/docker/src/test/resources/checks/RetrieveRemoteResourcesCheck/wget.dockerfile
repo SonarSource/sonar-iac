@@ -2,15 +2,15 @@ FROM scratch
 
 # -O flag first ====
 
-# Noncompliant@+1 {{Replace this invocation of wget with the ADD instruction.}}
+# Noncompliant@+1 {{Replace this invocation of "wget" with the ADD instruction.}}
 RUN wget -O /path/to/resource https://example.com/resource
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-# Noncompliant@+1 {{Replace this invocation of wget with the ADD instruction.}}
+# Noncompliant@+1 {{Replace this invocation of "wget" with the ADD instruction.}}
 RUN wget -O /path/to/resource https://example.com/resource --limit-rate=100k && wget https://example.com/
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-# Noncompliant@+1 {{Replace this invocation of wget with the ADD instruction.}}
+# Noncompliant@+1 {{Replace this invocation of "wget" with the ADD instruction.}}
 RUN sudo wget -O /path/to/resource https://example.com/resource --limit-rate=100k && wget https://example.com/
 #        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

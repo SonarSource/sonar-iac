@@ -54,6 +54,12 @@ public class PrivilegedUserCheck implements IacCheck {
     "ibm-semeru-runtimes", "irssi", "jetty", "jobber", "kibana", "kong", "lightstreamer", "logstash", "memcached", "neo4j", "odoo", "open-liberty", "percona",
     "rocket.chat", "solr", "swift", "varnish", "vault", "websphere-liberty", "znc", "nginxinc/nginx-unprivileged");
 
+  private static final String MESSAGE_SCRATCH = "Scratch images run as \"root\" by default. Make sure it is safe here.";
+  private static final String MESSAGE_UNSAFE_DEFAULT_ROOT = "The \"%s\" image runs with \"root\" as the default user. Make sure it is safe here.";
+  private static final String MESSAGE_MICROSOFT_DEFAULT_ROOT = "This image runs with \"root\" or \"containerAdministrator\" as the default user. Make sure it is safe here.";
+  private static final String MESSAGE_OTHER_IMAGE = "This image might run with \"root\" as the default user. Make sure it is safe here.";
+  private static final String MESSAGE_ROOT_USER = "Setting the default user as \"%s\" might unnecessarily make the application unsafe. Make sure it is safe here.";
+
   @RuleProperty(
     key = "safeImages",
     description = "Comma separated list of safe images (no default root user).",
@@ -69,12 +75,6 @@ public class PrivilegedUserCheck implements IacCheck {
     }
     return safeImagesSet;
   }
-
-  private static final String MESSAGE_SCRATCH = "Scratch images run as root by default. Make sure it is safe here.";
-  private static final String MESSAGE_UNSAFE_DEFAULT_ROOT = "The %s image runs with root as the default user. Make sure it is safe here.";
-  private static final String MESSAGE_MICROSOFT_DEFAULT_ROOT = "This image runs with root or containerAdministrator as the default user. Make sure it is safe here.";
-  private static final String MESSAGE_OTHER_IMAGE = "This image might run with root as the default user. Make sure it is safe here.";
-  private static final String MESSAGE_ROOT_USER = "Setting the default user as %s might unnecessarily make the application unsafe. Make sure it is safe here.";
 
   @Override
   public void initialize(InitContext init) {

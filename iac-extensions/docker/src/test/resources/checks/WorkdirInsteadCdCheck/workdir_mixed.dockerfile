@@ -1,7 +1,7 @@
 FROM scratch
 
 # Test issue location
-# Noncompliant@+1 {{WORKDIR instruction should be used instead of cd command.}}
+# Noncompliant@+1 {{WORKDIR instruction should be used instead of "cd" command.}}
 RUN cd /app/bin && ./start.sh
 #   ^^^^^^^^^^^
 

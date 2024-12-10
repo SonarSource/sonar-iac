@@ -1,6 +1,6 @@
 FROM scratch
 
-# Noncompliant@+1 {{Prefix files and paths with ./ or -- when using glob.}}
+# Noncompliant@+1 {{Prefix files and paths with "./" or "--" when using glob.}}
 RUN rm *
 #      ^
 # Noncompliant@+1

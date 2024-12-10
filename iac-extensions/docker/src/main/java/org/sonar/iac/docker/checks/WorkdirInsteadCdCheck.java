@@ -35,7 +35,7 @@ import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringHeredoc;
 
 @Rule(key = "S6597")
 public class WorkdirInsteadCdCheck implements IacCheck {
-  private static final String MESSAGE = "WORKDIR instruction should be used instead of cd command.";
+  private static final String MESSAGE = "WORKDIR instruction should be used instead of \"cd\" command.";
   private static final CommandDetector COMMAND_DETECTOR = CommandDetector.builder()
     .with("cd")
     .withAnyFlag()

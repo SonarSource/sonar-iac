@@ -2,11 +2,11 @@ FROM scratch
 
 # -o flag ====================
 
-# Noncompliant@+1 {{Replace this invocation of curl with the ADD instruction.}}
+# Noncompliant@+1 {{Replace this invocation of "curl" with the ADD instruction.}}
 RUN curl -o output.txt https://example.com/resource
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-# Noncompliant@+1 {{Replace this invocation of curl with the ADD instruction.}}
+# Noncompliant@+1 {{Replace this invocation of "curl" with the ADD instruction.}}
 RUN curl -L -o output.txt -s https://example.com/resource -k && cat output.txt
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

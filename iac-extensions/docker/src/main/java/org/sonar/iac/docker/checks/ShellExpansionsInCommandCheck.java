@@ -39,7 +39,7 @@ import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringSpecificForms
 
 @Rule(key = "S6573")
 public class ShellExpansionsInCommandCheck implements IacCheck {
-  private static final String MESSAGE = "Prefix files and paths with ./ or -- when using glob.";
+  private static final String MESSAGE = "Prefix files and paths with \"./\" or \"--\" when using glob.";
   private static final Set<String> EXCEPTION_COMMANDS = Set.of("echo", "printf");
   private static final Set<String> EXCLUDED_COMMANDS = Set.of("find");
   private static final Set<String> EXCEPTION_BASH_TOKENS_BEFORE = Set.of(

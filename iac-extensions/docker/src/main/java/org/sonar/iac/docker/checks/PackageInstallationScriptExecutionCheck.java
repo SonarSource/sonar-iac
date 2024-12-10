@@ -30,7 +30,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S6505")
 public class PackageInstallationScriptExecutionCheck extends AbstractEnvVariableMonitorCheck {
 
-  private static final String MESSAGE = "Omitting --ignore-scripts can lead to the execution of shell scripts. Make sure it is safe here.";
+  private static final String MESSAGE = "Omitting \"--ignore-scripts\" can lead to the execution of shell scripts. Make sure it is safe here.";
 
   private static final String REQUIRED_FLAG = "--ignore-scripts";
   private static final Set<String> NPM_COMMAND = Set.of("npm", "pnpm");

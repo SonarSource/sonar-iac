@@ -36,7 +36,7 @@ import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWi
 @Rule(key = "S7026")
 public class RetrieveRemoteResourcesCheck implements IacCheck {
 
-  private static final String MESSAGE = "Replace this invocation of %s with the ADD instruction.";
+  private static final String MESSAGE = "Replace this invocation of \"%s\" with the ADD instruction.";
   private static final String WGET = "wget";
   private static final String CURL = "curl";
 
