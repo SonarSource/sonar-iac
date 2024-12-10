@@ -18,13 +18,16 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class VariableNameConventionCheckTest {
+
+  IacCheck check = new VariableNameConventionCheck();
+
   @Test
   void shouldDetectIssue() {
-    var check = new VariableNameConventionCheck();
     KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/template.yaml", check);
 
     // Should also raise on variables with the same name in another file
@@ -33,7 +36,14 @@ class VariableNameConventionCheckTest {
 
   @Test
   void shouldDetectIssuesInFileWithNotOnlyDeclarations() {
-    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/pod.yaml", new VariableNameConventionCheck(), List.of(
-      issue(1, 4, 1, 17, "Rename this variable \"$my_local_var\" to match the regular expression '^\\$([a-z][a-zA-Z0-9]*)?$'.")));
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/pod.yaml", check, List.of(
+      issue(1, 4, 1, 17, "Rename this variable \"$my_local_var\" to match the regular expression '^\\$[a-z][a-zA-Z0-9]*$'.")));
+  }
+
+  @Test
+  void shouldCorrectlyRaiseIssuesWithChangedFormat() {
+    var modifiedCheck = new VariableNameConventionCheck();
+    modifiedCheck.format = "^\\$[A-Z][a-zA-Z0-9]*$";
+    KubernetesVerifier.verify("VariableNameConventionCheck/helm/templates/template_for_changed_format.yaml", modifiedCheck);
   }
 }

@@ -1,0 +1,7 @@
+{{- $my_Variable := .Values.myVariableValue }} {{- /* Noncompliant {{Rename this variable "$my_Variable" to match the regular expression '^\$[A-Z][a-zA-Z0-9]*$'.}} */}}
+{{- $myVariable2 := .Values.myVariableValue }} {{- /* Noncompliant {{Rename this variable "$myVariable2" to match the regular expression '^\$[A-Z][a-zA-Z0-9]*$'.}} */}}
+{{- $ := .Values.myVariableValue }} {{- /* Compliant */}}
+{{- $_ := .Values.myVariableValue }} {{- /* Compliant */}}
+{{- $MyVariable := .Values.myVariableValue }} {{- /* Compliant, because of changed format */}}
+{{- $MyVariable := "foo" }} {{- /* Compliant, because of changed format */}}
+

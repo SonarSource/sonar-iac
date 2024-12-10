@@ -1,4 +1,5 @@
 {{- $my_local_var := "polop" -}}
+{{- $_ := "polop" -}}
 apiVersion: v1
 kind: Pod
 metadata:

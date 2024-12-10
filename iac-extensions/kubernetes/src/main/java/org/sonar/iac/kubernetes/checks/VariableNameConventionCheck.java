@@ -32,7 +32,9 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 @Rule(key = "S117")
 public class VariableNameConventionCheck implements IacCheck {
   private static final String MESSAGE = "Rename this variable \"%s\" to match the regular expression '%s'.";
-  private static final String DEFAULT_FORMAT = "^\\$([a-z][a-zA-Z0-9]*)?$";
+  private static final String DEFAULT_FORMAT = "^\\$[a-z][a-zA-Z0-9]*$";
+  private static final Set<String> EXCLUDED_VARIABLE_NAMES = Set.of("$_", "$");
+  private final Set<String> checkedNames = new HashSet<>();
 
   @RuleProperty(
     key = "format",
@@ -40,7 +42,6 @@ public class VariableNameConventionCheck implements IacCheck {
     defaultValue = DEFAULT_FORMAT)
   public String format = DEFAULT_FORMAT;
   private Pattern pattern = Pattern.compile(format);
-  private final Set<String> checkedNames = new HashSet<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -53,9 +54,11 @@ public class VariableNameConventionCheck implements IacCheck {
     // Variables in pipelines should always have at least one identifier, even if it's just a `$` sign.
     // However, initialization is indistinguishable from reassignment, so we check it additionally.
     var name = variable.idents().get(0);
-    if (checkedNames.contains(name)) {
+
+    if (checkedNames.contains(name) || EXCLUDED_VARIABLE_NAMES.contains(name)) {
       return;
     }
+
     if (!pattern.matcher(name).matches()) {
       ((KubernetesCheckContext) ctx).reportIssueNoLineShift(variable.textRange(), MESSAGE.formatted(name, format));
     }
