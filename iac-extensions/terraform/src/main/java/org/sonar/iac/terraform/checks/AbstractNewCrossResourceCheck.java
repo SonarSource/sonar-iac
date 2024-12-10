@@ -26,7 +26,7 @@ import org.sonar.iac.terraform.api.tree.FileTree;
 
 import static java.util.stream.Collectors.toMap;
 
-public abstract class AbstractCrossResourceCheck extends AbstractResourceCheck {
+public abstract class AbstractNewCrossResourceCheck extends AbstractNewResourceCheck {
 
   protected Map<String, BlockTree> blockNameToBlockTree = new HashMap<>();
 
@@ -40,12 +40,7 @@ public abstract class AbstractCrossResourceCheck extends AbstractResourceCheck {
       // In theory, a valid Terraform file should not contain two blocks with the same name. This check is to be on the safe side.
       block1)));
 
-    init.register(BlockTree.class, (CheckContext ctx, BlockTree tree) -> {
-      if (isResource(tree)) {
-        checkResource(ctx, tree);
-      }
-    });
-    registerResourceChecks();
+    super.initialize(init);
   }
 
 }

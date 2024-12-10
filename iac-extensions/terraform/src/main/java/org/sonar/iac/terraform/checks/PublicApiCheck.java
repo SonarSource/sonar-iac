@@ -21,30 +21,37 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.common.checks.PropertyUtils.value;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6333")
-public class PublicApiCheck extends AbstractCrossResourceCheck {
+public class PublicApiCheck extends AbstractNewCrossResourceCheck {
 
   private static final String MESSAGE = "Make sure creating a public API is safe here.";
 
   @Override
-  protected void registerResourceChecks() {
-    register(PublicApiCheck::checkApiGatewayMethod, "aws_api_gateway_method");
-    register(this::checkApiGatewayV2Route, "aws_apigatewayv2_route");
+  protected void registerResourceConsumer() {
+    register("aws_api_gateway_method", PublicApiCheck::checkApiGatewayMethod);
+    register("aws_apigatewayv2_route", this::checkApiGatewayV2RouteResourceSymbol);
   }
 
-  private static void checkApiGatewayMethod(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "authorization", AttributeTree.class)
-      .ifPresent(authorization -> reportSensitiveValue(ctx, authorization, "NONE", MESSAGE,
-        new SecondaryLocation(resource.labels().get(0), "Related method")));
+  private static void checkApiGatewayMethod(ResourceSymbol resourceSymbol) {
+    resourceSymbol.attribute("authorization")
+      .reportIf(tree -> TextUtils.isValue(tree, "NONE").isTrue(),
+        MESSAGE,
+        new SecondaryLocation(resourceSymbol.tree.labels().get(0), "Related method"));
+  }
+
+  private void checkApiGatewayV2RouteResourceSymbol(ResourceSymbol resourceSymbol) {
+    checkApiGatewayV2Route(resourceSymbol.ctx, resourceSymbol.tree);
   }
 
   private void checkApiGatewayV2Route(CheckContext ctx, BlockTree resource) {
@@ -89,7 +96,7 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
 
   private static void reportTreeOrResource(TerraformTree tree, CheckContext ctx, String message, List<SecondaryLocation> secondaries) {
     if (tree instanceof BlockTree blockTree) {
-      reportResource(ctx, blockTree, message, secondaries);
+      ctx.reportIssue(blockTree.labels().get(0), message, secondaries);
     } else {
       ctx.reportIssue(tree, message, secondaries);
     }

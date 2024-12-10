@@ -24,22 +24,27 @@ class DisabledLoggingCheckTest {
   final IacCheck check = new DisabledLoggingCheck();
 
   @Test
-  void aws_S3_bucket_provider_version3() {
+  void shouldValidateAwsS3BucketProviderVersion3() {
     TerraformVerifier.verifyWithProviderVersion("DisabledLoggingCheck/aws_S3_bucket_provider_version3.tf", check, "3");
   }
 
   @Test
-  void aws_S3_bucket_provider_version4() {
-    TerraformVerifier.verifyNoIssueWithProviderVersion("DisabledLoggingCheck/aws_S3_bucket_provider_version4.tf", check, "4");
+  void shouldValidateAwsS3BucketProviderVersion4() {
+    TerraformVerifier.verifyWithProviderVersion("DisabledLoggingCheck/aws_S3_bucket_provider_version4.tf", check, "4");
   }
 
   @Test
-  void aws_api_gateway_stage() {
+  void shouldValidateAwsS3BucketProviderVersion4NoBucketLogging() {
+    TerraformVerifier.verifyWithProviderVersion("DisabledLoggingCheck/aws_S3_bucket_provider_version4_no_bucket_logging.tf", check, "4");
+  }
+
+  @Test
+  void shouldValidateAwsApiGatewayStage() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_api_gateway_stage.tf", check);
   }
 
   @Test
-  void aws_apigatewayv2_stage() {
+  void shouldValidateAwsApiGatewayV2Stage() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_apigatewayv2_stage.tf", check);
   }
 
@@ -49,87 +54,87 @@ class DisabledLoggingCheckTest {
   }
 
   @Test
-  void aws_neptune_cluster() {
+  void shouldValidateAwsNeptuneCluster() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_neptune_cluster.tf", check);
   }
 
   @Test
-  void aws_docdb_cluster() {
+  void shouldValidateAwsDocdbCluster() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_docdb_cluster.tf", check);
   }
 
   @Test
-  void aws_mq_broker() {
+  void shouldValidateAwsMqBroker() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_mq_broker.tf", check);
   }
 
   @Test
-  void aws_redshift_cluster() {
+  void shouldValidateAwsRedshiftCluster() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_redshift_cluster.tf", check);
   }
 
   @Test
-  void aws_global_accelerator() {
+  void shouldValidateAwsGlobalAccelerator() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_global_accelerator.tf", check);
   }
 
   @Test
-  void aws_elastic_search_domain() {
+  void shouldValidateAwsElasticSearchDomain() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_elastic_search_domain.tf", check);
   }
 
   @Test
-  void aws_cloudfront_distribution() {
+  void shouldValidateAwsCloudfrontDistribution() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_cloudfront_distribution.tf", check);
   }
 
   @Test
-  void aws_elastic_load_balancing() {
+  void shouldValidateAwsElasticLoadBalancing() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_elastic_load_balancing.tf", check);
   }
 
   @Test
-  void gcp_storage_bucket() {
+  void shouldValidateGcpStorageBucket() {
     TerraformVerifier.verify("DisabledLoggingCheck/gcp_storage_bucket.tf", check);
   }
 
   @Test
-  void gcp_region_backend_service() {
+  void shouldValidateGcpRegionBackendService() {
     TerraformVerifier.verify("DisabledLoggingCheck/gcp_region_backend_service.tf", check);
   }
 
   @Test
-  void gcp_subnetwork() {
+  void shouldValidateGcpSubnetwork() {
     TerraformVerifier.verify("DisabledLoggingCheck/gcp_subnetwork.tf", check);
   }
 
   @Test
-  void gcp_container_cluster() {
+  void shouldValidateGcpContainerCluster() {
     TerraformVerifier.verify("DisabledLoggingCheck/gcp_container_cluster.tf", check);
   }
 
   @Test
-  void gcp_sql_database() {
+  void shouldValidateGcpSqlDatabase() {
     TerraformVerifier.verify("DisabledLoggingCheck/gcp_sql_database.tf", check);
   }
 
   @Test
-  void azurerm_function_app() {
+  void shouldValidateAzurermFunctionApp() {
     TerraformVerifier.verify("DisabledLoggingCheck/azurerm_function_app.tf", check);
   }
 
   @Test
-  void azurerm_automation_runbook() {
+  void shouldValidateAzurermAutomationRunbook() {
     TerraformVerifier.verify("DisabledLoggingCheck/azurerm_automation_runbook.tf", check);
   }
 
   @Test
-  void azurerm_app_service() {
+  void shouldValidateAzurermAppService() {
     TerraformVerifier.verify("DisabledLoggingCheck/azurerm_app_service.tf", check);
   }
 
   @Test
-  void azure_container_group() {
+  void shouldValidateAzureContainerGroup() {
     TerraformVerifier.verify("DisabledLoggingCheck/azure_container_group.tf", check);
   }
 }
