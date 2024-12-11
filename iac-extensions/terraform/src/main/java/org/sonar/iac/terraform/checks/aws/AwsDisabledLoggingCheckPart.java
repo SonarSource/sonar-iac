@@ -185,7 +185,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
 
   private void s3BucketConsumer(ResourceSymbol resource) {
     BlockTree resourceBlock = resource.tree;
-    if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4)) {
+    if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4) || resource.provider(AWS).isUnknown()) {
       if (!isMaybeLoggingBucket(resourceBlock) && PropertyUtils.isMissing(resourceBlock, "logging")) {
         resource.report(String.format(MESSAGE_OMITTING, "logging\" or acl=\"log-delivery-write"));
       }

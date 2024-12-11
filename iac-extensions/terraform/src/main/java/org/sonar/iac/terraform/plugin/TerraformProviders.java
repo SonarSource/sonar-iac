@@ -112,10 +112,14 @@ public class TerraformProviders {
     }
 
     public boolean hasVersionLowerThan(Version version) {
-      if (providerVersion == null) {
+      if (isUnknown()) {
         return false;
       }
       return providerVersion.compareTo(version) < 0;
+    }
+
+    public boolean isUnknown() {
+      return providerVersion == null;
     }
   }
 }
