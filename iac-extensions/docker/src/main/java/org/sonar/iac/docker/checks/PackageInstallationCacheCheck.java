@@ -29,23 +29,18 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.MultiStageBuildAnalyzer;
-import org.sonar.iac.docker.tree.api.Body;
-import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 import static java.util.function.Predicate.not;
 
 @Rule(key = "S6587")
-public class PackageInstallationCacheCheck implements IacCheck {
+public class PackageInstallationCacheCheck extends AbstractFinalImageCheck {
 
   private static final String MESSAGE = "Remove cache after installing packages or store it in a cache mount.";
 
@@ -111,21 +106,7 @@ public class PackageInstallationCacheCheck implements IacCheck {
   }
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(Body.class, PackageInstallationCacheCheck::checkBody);
-  }
-
-  private static void checkBody(CheckContext ctx, Body body) {
-    var multiStageBuildAnalyzer = MultiStageBuildAnalyzer.of(body);
-    body.dockerImages().stream()
-      .flatMap(image -> image.instructions().stream())
-      .filter(instruction -> instruction.is(DockerTree.Kind.RUN))
-      .map(RunInstruction.class::cast)
-      .filter(multiStageBuildAnalyzer::isInFinalImage)
-      .forEach(runInstruction -> checkRunInstruction(ctx, runInstruction));
-  }
-
-  private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
+  public void checkRunInstructionFromFinalImage(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
     Set<String> commandWithMountedCache = computeCachedCommands(retrieveMountedCachePath(runInstruction));
 

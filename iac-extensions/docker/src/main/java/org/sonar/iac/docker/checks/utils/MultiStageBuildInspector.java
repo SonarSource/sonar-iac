@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.docker.tree;
+package org.sonar.iac.docker.checks.utils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Body;
@@ -30,17 +31,17 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public final class MultiStageBuildAnalyzer {
+public final class MultiStageBuildInspector {
 
   private final StageDependencyGraph stageDependencyGraph;
 
-  private MultiStageBuildAnalyzer(StageDependencyGraph stageDependencyGraph) {
+  private MultiStageBuildInspector(StageDependencyGraph stageDependencyGraph) {
     this.stageDependencyGraph = stageDependencyGraph;
   }
 
-  public static MultiStageBuildAnalyzer of(Body body) {
+  public static MultiStageBuildInspector of(Body body) {
     var stageDependencyGraph = StageDependencyGraph.of(body);
-    return new MultiStageBuildAnalyzer(stageDependencyGraph);
+    return new MultiStageBuildInspector(stageDependencyGraph);
   }
 
   public static boolean isLastStage(DockerImage dockerImage) {

@@ -20,15 +20,11 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.StringPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.MultiStageBuildAnalyzer;
-import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
@@ -37,7 +33,7 @@ import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors
 import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.commandFlagSpace;
 
 @Rule(key = "S6437")
-public class SecretsGenerationCheck implements IacCheck {
+public class SecretsGenerationCheck extends AbstractFinalImageCheck {
 
   private static final String MESSAGE = "Change this code not to store a secret in the image.";
   private static final String PASSWORD_FLAG = "--password";
@@ -220,22 +216,7 @@ public class SecretsGenerationCheck implements IacCheck {
     CURL_USER_SHORT_FLAG_SPACE_PWD);
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(DockerImage.class, SecretsGenerationCheck::checkDockerImage);
-  }
-
-  private static void checkDockerImage(CheckContext ctx, DockerImage dockerImage) {
-    if (!MultiStageBuildAnalyzer.isLastStage(dockerImage)) {
-      return;
-    }
-
-    dockerImage.instructions().stream()
-      .filter(RunInstruction.class::isInstance)
-      .map(RunInstruction.class::cast)
-      .forEach(runInstruction -> checkRunInstruction(ctx, runInstruction));
-  }
-
-  private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
+  public void checkRunInstructionFromFinalImage(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
     DETECTORS_THAT_STORE_SECRETS.forEach(

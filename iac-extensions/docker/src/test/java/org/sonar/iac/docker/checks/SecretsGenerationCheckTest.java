@@ -104,4 +104,9 @@ class SecretsGenerationCheckTest {
   void shouldCheckX11Vnc() {
     DockerVerifier.verify("SecretsGenerationCheck/x11vnc.dockerfile", check);
   }
+
+  @Test
+  void shouldCheckMultiStageBuilds() {
+    DockerVerifier.verify("SecretsGenerationCheck/multi_stage.dockerfile", check);
+  }
 }
