@@ -24,7 +24,7 @@ import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S4423")
 public class TlsVersionCheck extends AbstractArmResourceCheck {
-  private static final String TLS_VERSION_NOT_SET_MESSAGE = "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions.";
+  private static final String TLS_VERSION_NOT_SET_MESSAGE = "Set \"minimumTlsVersion\"/\"minimalTlsVersion\" to disable support of older TLS versions.";
 
   private static final String TLS_VERSION_INCORRECT_MESSAGE = "Change this code to disable support of older TLS versions.";
 

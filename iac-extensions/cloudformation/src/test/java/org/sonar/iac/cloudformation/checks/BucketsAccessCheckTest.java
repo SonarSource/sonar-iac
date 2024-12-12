@@ -32,9 +32,9 @@ class BucketsAccessCheckTest {
   @Test
   void test_json() {
     CloudformationVerifier.verify("BucketsAccessCheck/test.json", new BucketsAccessCheck(),
-      new Verifier.Issue(range(8, 25, 8, 42), "Make sure granting access to AllUsers group is safe here.",
+      new Verifier.Issue(range(8, 25, 8, 42), "Make sure granting access to \"AllUsers\" group is safe here.",
         new SecondaryLocation(range(5, 14, 5, 31), "Related bucket")),
-      new Verifier.Issue(range(15, 25, 15, 37), "Make sure granting access to AllUsers group is safe here."),
-      new Verifier.Issue(range(22, 25, 22, 44), "Make sure granting access to AuthenticatedUsers group is safe here."));
+      new Verifier.Issue(range(15, 25, 15, 37), "Make sure granting access to \"AllUsers\" group is safe here."),
+      new Verifier.Issue(range(22, 25, 22, 44), "Make sure granting access to \"AuthenticatedUsers\" group is safe here."));
   }
 }

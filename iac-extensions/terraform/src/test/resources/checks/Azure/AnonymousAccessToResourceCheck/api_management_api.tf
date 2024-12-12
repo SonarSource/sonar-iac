@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting 'openid_authentication' disables authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "openid_authentication" disables authentication. Make sure it is safe here.}}
 resource "azurerm_api_management_api" "sensitive" {
 #        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name                = "example-api"

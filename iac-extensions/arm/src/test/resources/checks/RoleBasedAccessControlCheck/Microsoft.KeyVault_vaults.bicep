@@ -12,7 +12,7 @@ resource noncompliant1 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-// Noncompliant@+1{{Omitting 'enableRbacAuthorization' disables role-based access control for this resource. Make sure it is safe here.}}
+// Noncompliant@+1{{Omitting "enableRbacAuthorization" disables role-based access control for this resource. Make sure it is safe here.}}
 resource noncompliant2 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: 'One issue: property is missing'
   properties: {}

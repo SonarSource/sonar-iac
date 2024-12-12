@@ -33,7 +33,7 @@ class TlsVersionCheckTest {
     verify("TlsVersionCheck/Microsoft.Storage_storageAccounts.json",
       CHECK,
       issue(10, 8, 10, 37, "Change this code to disable support of older TLS versions."),
-      issue(14, 14, 14, 49, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
+      issue(14, 14, 14, 49, "Set \"minimumTlsVersion\"/\"minimalTlsVersion\" to disable support of older TLS versions."));
   }
 
   @Test
@@ -53,7 +53,7 @@ class TlsVersionCheckTest {
     verifyContent(content,
       CHECK,
       issue(10, 8, 10, 37, "Change this code to disable support of older TLS versions."),
-      issue(14, 14, 14, endColumn, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
+      issue(14, 14, 14, endColumn, "Set \"minimumTlsVersion\"/\"minimalTlsVersion\" to disable support of older TLS versions."));
   }
 
   @ParameterizedTest(name = "[#{index}] should check minimal TLS version for resource type {0}")
@@ -67,6 +67,6 @@ class TlsVersionCheckTest {
     BicepVerifier.verifyContent(content,
       CHECK,
       issue(4, 4, 4, 31, "Change this code to disable support of older TLS versions."),
-      issue(8, 9, 8, 9 + "NonCompliantN".length(), "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
+      issue(8, 9, 8, 9 + "NonCompliantN".length(), "Set \"minimumTlsVersion\"/\"minimalTlsVersion\" to disable support of older TLS versions."));
   }
 }

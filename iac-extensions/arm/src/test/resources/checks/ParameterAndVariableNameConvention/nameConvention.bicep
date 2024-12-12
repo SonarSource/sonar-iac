@@ -1,4 +1,4 @@
-// Noncompliant@+1 {{Rename this parameter "storage_account_name" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.}}
+// Noncompliant@+1 {{Rename this parameter "storage_account_name" to match the regular expression "^[a-z][a-zA-Z0-9]*$".}}
 param storage_account_name string
 //    ^^^^^^^^^^^^^^^^^^^^
 
@@ -30,7 +30,7 @@ param password string      // Compliant
 
 // --- parameters ------------------------------
 
-// Noncompliant@+1  {{Rename this variable "string_variable" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.}}
+// Noncompliant@+1  {{Rename this variable "string_variable" to match the regular expression "^[a-z][a-zA-Z0-9]*$".}}
 var string_variable = 'example val'
 //  ^^^^^^^^^^^^^^^
 

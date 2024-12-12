@@ -3,7 +3,7 @@ resource "google_dns_managed_zone" "rspec6404_sensitive_explicit" {
 # ^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting visibility will grant public access to this managed zone. Ensure it is safe here.}}
+# Noncompliant@+1 {{Omitting "visibility" will grant public access to this managed zone. Ensure it is safe here.}}
 resource "google_dns_managed_zone" "rspec6404_sensitive_omission" {
        # ^^^^^^^^^^^^^^^^^^^^^^^^^
 }

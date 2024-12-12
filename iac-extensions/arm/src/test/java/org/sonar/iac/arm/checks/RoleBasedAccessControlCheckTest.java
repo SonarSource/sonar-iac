@@ -41,7 +41,7 @@ class RoleBasedAccessControlCheckTest {
     ArmVerifier.verify("RoleBasedAccessControlCheck/Microsoft.KeyVault_vaults.json",
       new RoleBasedAccessControlCheck(),
       issue(18, 8, 18, 40, "Make sure that disabling role-based access control is safe here."),
-      issue(22, 14, 22, 41, "Omitting 'enableRbacAuthorization' disables role-based access control for this resource. Make sure it is safe here."));
+      issue(22, 14, 22, 41, "Omitting \"enableRbacAuthorization\" disables role-based access control for this resource. Make sure it is safe here."));
   }
 
   @Test

@@ -28,12 +28,12 @@ import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 @Rule(key = "S6380")
 public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
 
-  private static final String APP_AUTH_MISSING_MESSAGE = "Omitting 'auth_settings' disables authentication. Make sure it is safe here.";
+  private static final String APP_AUTH_MISSING_MESSAGE = "Omitting \"auth_settings\" disables authentication. Make sure it is safe here.";
   private static final String DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
-  private static final String API_MANAGEMENT_API_MESSAGE = "Omitting 'openid_authentication' disables authentication. Make sure it is safe here.";
-  private static final String API_MANAGEMENT_MISSING_MESSAGE = "Omitting 'sign_in' authorizes anonymous access. Make sure it is safe here.";
+  private static final String API_MANAGEMENT_API_MESSAGE = "Omitting \"openid_authentication\" disables authentication. Make sure it is safe here.";
+  private static final String API_MANAGEMENT_MISSING_MESSAGE = "Omitting \"sign_in\" authorizes anonymous access. Make sure it is safe here.";
   private static final String API_MANAGEMENT_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
-  private static final String DATA_FACTORY_LINKED_SERVICE_ODATA_MESSAGE = "Omitting the 'basic_authentication' block disables authentication. Make sure it is safe here.";
+  private static final String DATA_FACTORY_LINKED_SERVICE_ODATA_MESSAGE = "Omitting the \"basic_authentication\" block disables authentication. Make sure it is safe here.";
   private static final String AUTHORIZING_ANONYMOUS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final String AUTHORIZING_POTENTIAL_ANONYMOUS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
 

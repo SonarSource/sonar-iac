@@ -9,7 +9,7 @@ resource "azurerm_api_management" "example" {
   client_certificate_enabled = true # Compliant
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_enabled disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_api_management" "example" {
   sku_name = "Consumption_1"
 }

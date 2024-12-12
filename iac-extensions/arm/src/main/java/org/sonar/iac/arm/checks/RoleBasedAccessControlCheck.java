@@ -23,7 +23,7 @@ import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 
 @Rule(key = "S6383")
 public class RoleBasedAccessControlCheck extends AbstractArmResourceCheck {
-  private static final String MESSAGE_MISSING_PARAMETER = "Omitting '%s' disables role-based access control for this resource. Make sure it is safe here.";
+  private static final String MESSAGE_MISSING_PARAMETER = "Omitting \"%s\" disables role-based access control for this resource. Make sure it is safe here.";
 
   private static final String MESSAGE_DISABLED_PARAMETER = "Make sure that disabling role-based access control is safe here.";
 

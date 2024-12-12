@@ -8,7 +8,7 @@ resource "azurerm_function_app" "sensitive1" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_mode disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_mode" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_function_app" "sensitive2" {
 }
 

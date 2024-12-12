@@ -25,7 +25,7 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 public class DatabaseIpConfigCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure creating a GCP SQL instance without requiring TLS is safe here.";
-  private static final String OMITTING_MESSAGE = "Omitting %s allows unencrypted connections to the database. Make sure it is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"%s\" allows unencrypted connections to the database. Make sure it is safe here.";
 
   @Override
   protected void registerResourceConsumer() {

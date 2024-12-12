@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting versioning will disable versioning for GCS bucket. Ensure it is safe here.}}
+# Noncompliant@+1 {{Omitting "versioning" will disable versioning for GCS bucket. Ensure it is safe here.}}
 resource "google_storage_bucket" "noncompliant1" {
       #  ^^^^^^^^^^^^^^^^^^^^^^^
 }

@@ -33,7 +33,7 @@ import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStri
 public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE_WHEN_DISABLED = "Make sure that disabling certificate-based authentication is safe here.";
-  private static final String TEMPLATE_WHEN_MISSING = "Omitting %s disables certificate-based authentication. Make sure it is safe here.";
+  private static final String TEMPLATE_WHEN_MISSING = "Omitting \"%s\" disables certificate-based authentication. Make sure it is safe here.";
 
   private static final String DEFAULT_CLIENT_CERT_MODE = "client_certificate_mode";
   private static final String DEFAULT_CLIENT_CERT_ENABLED = "client_certificate_enabled";

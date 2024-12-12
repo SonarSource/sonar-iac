@@ -24,7 +24,7 @@ import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractResourceCheck {
-  private static final String MESSAGE = "Make sure granting access to %s group is safe here.";
+  private static final String MESSAGE = "Make sure granting access to \"%s\" group is safe here.";
   private static final String SECONDARY_MSG = "Related bucket";
 
   @Override

@@ -23,8 +23,8 @@ import static org.sonar.iac.common.testing.Verifier.issue;
 
 class WhitespaceBracesCheckTest {
 
-  private static final String OPEN = "Add a whitespace after {{ in the template directive.";
-  private static final String CLOSE = "Add a whitespace before }} in the template directive.";
+  private static final String OPEN = "Add a whitespace after \"{{\" in the template directive.";
+  private static final String CLOSE = "Add a whitespace before \"}}\" in the template directive.";
   private static final WhitespaceBracesCheck CHECK = new WhitespaceBracesCheck();
 
   @Test

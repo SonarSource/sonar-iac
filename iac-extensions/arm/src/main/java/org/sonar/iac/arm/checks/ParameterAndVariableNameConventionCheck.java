@@ -30,7 +30,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 @Rule(key = "S117")
 public class ParameterAndVariableNameConventionCheck implements IacCheck {
 
-  private static final String MESSAGE = "Rename this %s \"%s\" to match the regular expression '%s'.";
+  private static final String MESSAGE = "Rename this %s \"%s\" to match the regular expression \"%s\".";
   private static final String DEFAULT_FORMAT = "^[a-z][a-zA-Z0-9]*$";
 
   @RuleProperty(

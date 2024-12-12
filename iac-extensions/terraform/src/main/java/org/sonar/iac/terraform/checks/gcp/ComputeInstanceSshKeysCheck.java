@@ -31,7 +31,7 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure that enabling project-wide SSH keys is safe here.";
-  private static final String OMITTING_MESSAGE = "Omitting metadata.block-project-ssh-keys enables project-wide SSH keys. Make sure it is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"metadata.block-project-ssh-keys\" enables project-wide SSH keys. Make sure it is safe here.";
 
   @Override
   protected void registerResourceConsumer() {

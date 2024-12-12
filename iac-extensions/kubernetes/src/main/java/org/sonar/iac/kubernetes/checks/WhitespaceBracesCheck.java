@@ -28,8 +28,8 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 @Rule(key = "S6893")
 public class WhitespaceBracesCheck implements IacCheck {
 
-  private static final String MESSAGE_OPEN_BRACKETS = "Add a whitespace after {{ in the template directive.";
-  private static final String MESSAGE_CLOSE_BRACKETS = "Add a whitespace before }} in the template directive.";
+  private static final String MESSAGE_OPEN_BRACKETS = "Add a whitespace after \"{{\" in the template directive.";
+  private static final String MESSAGE_CLOSE_BRACKETS = "Add a whitespace before \"}}\" in the template directive.";
   private static final String GROUP_NAME = "brackets";
   // The [^\r\n\t\f\v -] in regex is like \S (non-space character) and not dash
   private static final String EXCLUDING_CHARS = "\\r\\n\\t\\f\\v -";

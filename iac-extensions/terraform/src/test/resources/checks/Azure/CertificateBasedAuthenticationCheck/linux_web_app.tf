@@ -1,9 +1,9 @@
-# Noncompliant@+1 {{Omitting client_certificate_mode disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_mode" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_linux_web_app" "sensitive1" {
   client_cert_enabled = true # Compliant
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_mode disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_mode" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_linux_web_app" "sensitive1" {
   client_certificate_enabled = true # Compliant
 }
@@ -18,7 +18,7 @@ resource "azurerm_linux_web_app" "sensitive2" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_enabled disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_linux_web_app" "sensitive3" {
 }
 
@@ -44,12 +44,12 @@ resource "azurerm_linux_web_app" "sensitive5" {
   client_certificate_mode = "Optional" # Compliant
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_enabled disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_linux_web_app" "sensitive6" {
   client_cert_mode = "Optional" # Compliant
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_enabled disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_linux_web_app" "sensitive6" {
   client_certificate_mode = "Optional" # Compliant
 }
@@ -76,12 +76,12 @@ resource "azurerm_linux_web_app" "sensitive7" {
   client_certificate_mode = "SomeMode" # Compliant
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_enabled disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_linux_web_app" "sensitive8" {
   client_cert_mode = "SomeMode" # Compliant
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_enabled disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_linux_web_app" "sensitive8" {
   client_certificate_mode = "SomeMode" # Compliant
 }

@@ -8,7 +8,7 @@ resource "azurerm_app_service" "sensitive_app_service" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting client_certificate_enabled disables certificate-based authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
 resource "azurerm_app_service" "sensitive_app_service" {
 }
 

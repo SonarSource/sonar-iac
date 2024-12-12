@@ -25,7 +25,7 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 public class UnversionedStorageBucketCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure using an unversioned GCS bucket is safe here.";
-  private static final String OMITTING_MESSAGE = "Omitting %s will disable versioning for GCS bucket. Ensure it is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"%s\" will disable versioning for GCS bucket. Ensure it is safe here.";
 
   @Override
   protected void registerResourceConsumer() {

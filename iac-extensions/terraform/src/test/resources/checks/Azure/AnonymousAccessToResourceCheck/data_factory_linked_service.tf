@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting the 'basic_authentication' block disables authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting the "basic_authentication" block disables authentication. Make sure it is safe here.}}
 resource "azurerm_data_factory_linked_service_odata" "sensitive" {
 #        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }

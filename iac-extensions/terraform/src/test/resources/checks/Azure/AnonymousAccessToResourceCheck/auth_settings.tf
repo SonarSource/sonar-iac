@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting 'auth_settings' disables authentication. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "auth_settings" disables authentication. Make sure it is safe here.}}
 resource "azurerm_app_service_slot" "sensitive_web_app" {
 }
 

@@ -44,8 +44,8 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Ensure that granting public access to this resource is safe here.";
   private static final String SECONDARY_MESSAGE = "Excessive granting of permissions.";
-  private static final String OMITTING_DNS = "Omitting %s will grant public access to this managed zone. Ensure it is safe here.";
-  private static final String OMITTING_KUBERNETES = "Omitting %s grants public access to parts of this cluster. Make sure it is safe here.";
+  private static final String OMITTING_DNS = "Omitting \"%s\" will grant public access to this managed zone. Ensure it is safe here.";
+  private static final String OMITTING_KUBERNETES = "Omitting \"%s\" grants public access to parts of this cluster. Make sure it is safe here.";
   private static final String MESSAGE_KUBERNETES = "Ensure that granting public access is safe here.";
 
   private static final String GCP_RESOURCE_PREFIX = "google_";
@@ -116,7 +116,7 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
         AttributeSymbol endpoint = config.attribute("enable_private_endpoint");
 
         if (nodes.isAbsent() && endpoint.isAbsent()) {
-          config.report(String.format(OMITTING_KUBERNETES, "enable_private_nodes and enable_private_endpoint"));
+          config.report(String.format(OMITTING_KUBERNETES, "enable_private_nodes\" and \"enable_private_endpoint"));
         } else if (nodes.is(isFalse()) && endpoint.is(isFalse())) {
           nodes.report(MESSAGE_KUBERNETES, endpoint.toSecondary(MESSAGE_KUBERNETES));
         } else {

@@ -6,7 +6,7 @@ resource "azurerm_api_management" "sensitive" {
   }
 }
 
-# Noncompliant@+1 {{Omitting 'sign_in' authorizes anonymous access. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "sign_in" authorizes anonymous access. Make sure it is safe here.}}
 resource "azurerm_api_management" "sensitive_missing" {
 }
 
