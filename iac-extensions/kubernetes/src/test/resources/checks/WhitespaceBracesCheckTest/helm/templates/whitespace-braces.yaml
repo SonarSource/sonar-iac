@@ -39,3 +39,20 @@ end
     - name: {{- .Values.containerName1}}{{ .Values.containerName2 }}
     # Noncompliant
     - name: {{.Values.containerName1 -}}{{ .Values.containerName2 }}
+    - name: |
+       {{ "{{" }}- with secret "{{ .Values.containerName1 }}" -}}
+          export ENV_1="{{ "{{" }} .Values.data1 }}"
+          export ENV_2="{{ "{{" }} .Values.data2 }}"
+        {{ "{{" }}- end }}
+    - name: {{ "{{" }} other {{ "}}" }}
+    - name: {{ "{{" }} other {{ "}}"}}
+    - name: {{ "{{" }} other {{ "\"}}" }}
+    - name: {{ "{{" }} other {{ "\"\"}}" }}
+    - name: {{"{{" }} other {{ "}}"}}
+    - name: "{{"}}" }} other {{ "}}"}}"
+    - name: {{ print '"' "}}" }} other {{ "}}"}}
+    - name: {{ print '\'' "}}" }} other {{ "}}"}}
+    - name: "{{ `}}` }} other {{ "}}" }}"
+    - name: {{ `"}}` }} other {{ "}}" }}"
+    - name: "{{`}}` }} other {{ "}}" }}"
+    - name: {{/* }} */}} other {{ "}}" }}
