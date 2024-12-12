@@ -67,7 +67,7 @@ def qa_task(env):
     return {
         "only_if": is_branch_qa_eligible(),
         "depends_on": "build",
-        "eks_container": base_image_container_builder(cpu=6, memory="14G"),
+        "eks_container": base_image_container_builder(cpu=6, memory="16G"),
         "env": env,
         "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
         "gradle_wrapper_cache": gradle_wrapper_cache(),
