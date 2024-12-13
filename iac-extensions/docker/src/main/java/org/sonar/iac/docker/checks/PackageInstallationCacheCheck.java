@@ -106,6 +106,10 @@ public class PackageInstallationCacheCheck extends AbstractFinalImageCheck {
   }
 
   @Override
+  protected void initializeOnFinalImage() {
+    register(RunInstruction.class, this::checkRunInstructionFromFinalImage);
+  }
+
   public void checkRunInstructionFromFinalImage(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
     Set<String> commandWithMountedCache = computeCachedCommands(retrieveMountedCachePath(runInstruction));

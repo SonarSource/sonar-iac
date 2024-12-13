@@ -16,31 +16,47 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.function.BiConsumer;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.extension.visitors.TreeContext;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.checks.utils.MultiStageBuildInspector;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.RunInstruction;
 
 public abstract class AbstractFinalImageCheck implements IacCheck {
 
+  private final TreeVisitor<FinalImageContext> visitor = new TreeVisitor<>();
+
   @Override
   public void initialize(InitContext init) {
-    init.register(Body.class, this::checkBody);
+    init.register(Body.class, this::processBody);
+    initializeOnFinalImage();
   }
 
-  private void checkBody(CheckContext ctx, Body body) {
+  protected abstract void initializeOnFinalImage();
+
+  protected <T extends DockerTree> void register(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
+    visitor.register(cls, (ctx, node) -> consumer.accept(ctx.checkContext, node));
+  }
+
+  private void processBody(CheckContext checkContext, Body body) {
     var multiStageBuildInspector = MultiStageBuildInspector.of(body);
+    var stages = body.dockerImages();
+    var finalImageContext = new FinalImageContext(checkContext);
 
-    body.dockerImages().stream()
-      .flatMap(image -> image.instructions().stream())
-      .filter(instruction -> instruction.is(DockerTree.Kind.RUN))
-      .map(RunInstruction.class::cast)
-      .filter(multiStageBuildInspector::isInFinalImage)
-      .forEach(runInstruction -> checkRunInstructionFromFinalImage(ctx, runInstruction));
+    stages.stream()
+      .filter(multiStageBuildInspector::isStageInFinalImage)
+      .forEach(stage -> visitor.scan(finalImageContext, stage));
   }
 
-  protected abstract void checkRunInstructionFromFinalImage(CheckContext ctx, RunInstruction runInstruction);
+  static class FinalImageContext extends TreeContext {
+    public final CheckContext checkContext;
+
+    public FinalImageContext(CheckContext checkContext) {
+      this.checkContext = checkContext;
+    }
+  }
 }

@@ -21,7 +21,12 @@ import org.junit.jupiter.api.Test;
 class ConsecutiveRunInstructionCheckTest {
 
   @Test
-  void shouldVerifyCheck() {
+  void shouldRaiseIssuesOnNonCompliantInstructions() {
     DockerVerifier.verify("ConsecutiveRunInstructionCheck/ConsecutiveRunInstructionCheck.dockerfile", new ConsecutiveRunInstructionCheck());
+  }
+
+  @Test
+  void shouldRaiseIssuesOnInstructionsInFinalImageOnly() {
+    DockerVerifier.verify("ConsecutiveRunInstructionCheck/ConsecutiveRunInstructionCheck_multiStage.dockerfile", new ConsecutiveRunInstructionCheck());
   }
 }

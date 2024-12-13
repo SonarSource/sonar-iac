@@ -22,16 +22,12 @@ import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.Instruction;
-import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.impl.AliasImpl;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.BodyImpl;
 import org.sonar.iac.docker.tree.impl.DockerImageImpl;
 import org.sonar.iac.docker.tree.impl.FromInstructionImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
-import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
-import org.sonar.iac.docker.tree.impl.SingleArgumentListImpl;
 import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,47 +46,39 @@ class MultiStageBuildInspectorTest {
 
   @Test
   void shouldDetectInstructionsInFinalImage() {
-    var baseInstruction = createRunInstruction();
-    var baseStage = createDockerImage("ubuntu:latest", "base", baseInstruction);
-    var buildInstruction = createRunInstruction();
-    var buildStage = createDockerImage("base", "build", buildInstruction);
-    var otherInstruction = createRunInstruction();
-    var otherStage = createDockerImage("build", "other", otherInstruction);
-    var finalInstruction = createRunInstruction();
-    var finalStage = createDockerImage("build", "final", finalInstruction);
+    var baseStage = createDockerImage("ubuntu:latest", "base");
+    var buildStage = createDockerImage("base", "build");
+    var otherStage = createDockerImage("build", "other");
+    var finalStage = createDockerImage("build", "final");
     var body = createBody(buildStage, baseStage, otherStage, finalStage);
     var inspector = MultiStageBuildInspector.of(body);
 
-    assertThat(inspector.isInFinalImage(baseInstruction)).isTrue();
-    assertThat(inspector.isInFinalImage(buildInstruction)).isTrue();
-    assertThat(inspector.isInFinalImage(otherInstruction)).isFalse();
-    assertThat(inspector.isInFinalImage(finalInstruction)).isTrue();
+    assertThat(inspector.isStageInFinalImage(baseStage)).isTrue();
+    assertThat(inspector.isStageInFinalImage(buildStage)).isTrue();
+    assertThat(inspector.isStageInFinalImage(otherStage)).isFalse();
+    assertThat(inspector.isStageInFinalImage(finalStage)).isTrue();
   }
 
   @Test
   void shouldDetectInstructionsInFinalImageWithoutFinalAlias() {
-    var buildInstruction = createRunInstruction();
-    var buildStage = createDockerImage("ubuntu:latest", "build", buildInstruction);
-    var finalInstruction = createRunInstruction();
-    var finalStage = createDockerImage("build", null, finalInstruction);
+    var buildStage = createDockerImage("ubuntu:latest", "build");
+    var finalStage = createDockerImage("build", null);
     var body = createBody(buildStage, finalStage);
     var inspector = MultiStageBuildInspector.of(body);
 
-    assertThat(inspector.isInFinalImage(buildInstruction)).isTrue();
-    assertThat(inspector.isInFinalImage(finalInstruction)).isTrue();
+    assertThat(inspector.isStageInFinalImage(buildStage)).isTrue();
+    assertThat(inspector.isStageInFinalImage(finalStage)).isTrue();
   }
 
   @Test
   void shouldDetectInstructionsInFinalImageWithCircularDependencies() {
-    var buildInstruction = createRunInstruction();
-    var buildStage = createDockerImage("final", "build", buildInstruction);
-    var finalInstruction = createRunInstruction();
-    var finalStage = createDockerImage("build", "final", finalInstruction);
+    var buildStage = createDockerImage("final", "build");
+    var finalStage = createDockerImage("build", "final");
     var body = createBody(buildStage, finalStage);
     var inspector = MultiStageBuildInspector.of(body);
 
-    assertThat(inspector.isInFinalImage(buildInstruction)).isTrue();
-    assertThat(inspector.isInFinalImage(finalInstruction)).isTrue();
+    assertThat(inspector.isStageInFinalImage(buildStage)).isTrue();
+    assertThat(inspector.isStageInFinalImage(finalStage)).isTrue();
   }
 
   private Body createBody(DockerImage... dockerImages) {
@@ -100,22 +88,9 @@ class MultiStageBuildInspectorTest {
   }
 
   private static DockerImage createDockerImage(String imageName, @Nullable String aliasName) {
-    return createDockerImage(imageName, aliasName, createRunInstruction());
-  }
-
-  private static DockerImage createDockerImage(String imageName, @Nullable String aliasName, Instruction instruction) {
     var imageArgument = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(imageName, null, null))));
     var alias = aliasName != null ? new AliasImpl(null, new SyntaxTokenImpl(aliasName, null, null)) : null;
     var fromInstruction = new FromInstructionImpl(null, null, imageArgument, alias);
-    var image = new DockerImageImpl(fromInstruction, List.of(instruction));
-    instruction.setParent(image);
-    return image;
-  }
-
-  private static RunInstruction createRunInstruction() {
-    var command = "apt-get install nginx";
-    var commandLiteral = new LiteralImpl(new SyntaxTokenImpl(command, null, null));
-    var commandArgument = new ArgumentImpl(List.of(commandLiteral));
-    return new RunInstructionImpl(null, List.of(), new SingleArgumentListImpl(commandArgument));
+    return new DockerImageImpl(fromInstruction, List.of());
   }
 }

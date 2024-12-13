@@ -22,13 +22,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public final class MultiStageBuildInspector {
@@ -49,11 +46,8 @@ public final class MultiStageBuildInspector {
     return dockerImage == getLastStage(body);
   }
 
-  public boolean isInFinalImage(Instruction instruction) {
-    return TreeUtils.firstAncestorOfKind(instruction, DockerTree.Kind.DOCKERIMAGE)
-      .map(DockerImage.class::cast)
-      .map(instructionStage -> isLastStage(instructionStage) || isStageDependencyOfFinalStage(instructionStage))
-      .orElse(true);
+  public boolean isStageInFinalImage(DockerImage dockerImage) {
+    return isLastStage(dockerImage) || isStageDependencyOfFinalStage(dockerImage);
   }
 
   private boolean isStageDependencyOfFinalStage(DockerImage stage) {

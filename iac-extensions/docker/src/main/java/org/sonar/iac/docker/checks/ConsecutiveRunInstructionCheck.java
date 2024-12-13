@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -32,17 +30,17 @@ import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 @Rule(key = "S7031")
-public class ConsecutiveRunInstructionCheck implements IacCheck {
+public class ConsecutiveRunInstructionCheck extends AbstractFinalImageCheck {
   private static final String PRIMARY_MESSAGE = "Merge this RUN instruction with the consecutive ones.";
   private static final String SECONDARY_MESSAGE = "consecutive RUN instruction";
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(DockerImage.class, ConsecutiveRunInstructionCheck::checkFromRunsInstruction);
+  protected void initializeOnFinalImage() {
+    register(DockerImage.class, this::checkStageFromFinalImage);
   }
 
-  private static void checkFromRunsInstruction(CheckContext ctx, DockerImage image) {
-    var listOfConsecutiveRunInstructions = extractConsecutiveRunInstructions(image);
+  protected void checkStageFromFinalImage(CheckContext ctx, DockerImage stage) {
+    var listOfConsecutiveRunInstructions = extractConsecutiveRunInstructions(stage);
     for (List<RunInstruction> consecutiveRunInstructions : listOfConsecutiveRunInstructions) {
       var secondaryLocations = consecutiveRunInstructions.stream()
         .skip(1)

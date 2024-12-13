@@ -216,6 +216,10 @@ public class SecretsGenerationCheck extends AbstractFinalImageCheck {
     CURL_USER_SHORT_FLAG_SPACE_PWD);
 
   @Override
+  protected void initializeOnFinalImage() {
+    register(RunInstruction.class, this::checkRunInstructionFromFinalImage);
+  }
+
   public void checkRunInstructionFromFinalImage(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
