@@ -42,16 +42,16 @@ class WhitespaceBracesCheckTest {
         issue(22, 29, 22, 31, OPEN),
         issue(23, 60, 23, 62, CLOSE),
         issue(24, 6, 24, 8, CLOSE),
-        issue(39, 38, 39, 40, CLOSE),
-        issue(41, 12, 41, 14, OPEN),
-        issue(48, 36, 48, 38, CLOSE),
-        issue(51, 12, 51, 14, OPEN),
-        issue(51, 35, 51, 37, CLOSE),
-        issue(52, 13, 52, 15, OPEN),
-        issue(52, 36, 52, 38, CLOSE),
-        issue(53, 46, 53, 48, CLOSE),
-        issue(54, 47, 54, 49, CLOSE),
-        issue(57, 13, 57, 15, OPEN)));
+        issue(41, 38, 41, 40, CLOSE),
+        issue(43, 12, 43, 14, OPEN),
+        issue(50, 36, 50, 38, CLOSE),
+        issue(53, 12, 53, 14, OPEN),
+        issue(53, 35, 53, 37, CLOSE),
+        issue(54, 13, 54, 15, OPEN),
+        issue(54, 36, 54, 38, CLOSE),
+        issue(55, 46, 55, 48, CLOSE),
+        issue(56, 47, 56, 49, CLOSE),
+        issue(59, 13, 59, 15, OPEN)));
   }
 
   @Test

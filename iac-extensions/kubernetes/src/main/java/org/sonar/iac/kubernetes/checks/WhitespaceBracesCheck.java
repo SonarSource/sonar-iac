@@ -78,7 +78,7 @@ public class WhitespaceBracesCheck implements IacCheck {
   }
 
   private static boolean isHelmComment(String helmContent) {
-    return helmContent.startsWith("/*");
+    return helmContent.startsWith("/*") || helmContent.endsWith("*/");
   }
 
   private static String readContentWithComments(KubernetesCheckContext ctx) {
