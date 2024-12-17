@@ -67,6 +67,8 @@ class JvmFrameworkConfigMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.linesOfCode()).containsExactly(2, 5, 6, 9);
     assertThat(visitor.commentLines()).containsExactly(1, 7, 8, 10);
     assertThat(visitor.noSonarLines()).isEmpty();
+
+    verifyNCLOCDataMetric(2, 5, 6, 9);
   }
 
   @Test
@@ -94,5 +96,7 @@ class JvmFrameworkConfigMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.linesOfCode()).containsExactly(2, 4, 5, 6, 7, 9, 11, 12);
     assertThat(visitor.commentLines()).containsExactly(1, 3, 10);
     assertThat(visitor.noSonarLines()).isEmpty();
+
+    verifyNCLOCDataMetric(2, 4, 5, 6, 7, 9, 11, 12);
   }
 }

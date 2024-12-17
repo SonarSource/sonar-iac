@@ -54,7 +54,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Test
-  void test_metrics() {
+  void shouldTestMetrics() {
     MetricsVisitor visitor = scan("#comment\nfoo\n \n#NOSONAR\n#");
     assertThat(visitor.commentLines()).containsExactly(1);
     assertThat(visitor.linesOfCode()).containsExactly(2);
@@ -62,17 +62,18 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     Set<Integer> nosonarLines = new HashSet<>();
     nosonarLines.add(3);
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
+    verifyNCLOCDataMetric(2);
   }
 
   @Test
-  void test_empty_token() {
+  void shouldTestEmptyToken() {
     parser = (source, inputFileContext) -> new TestToken("");
     MetricsVisitor visitor = scan("");
     assertThat(visitor.linesOfCode()).isEmpty();
   }
 
   @Test
-  void test_whitespace_token() {
+  void shouldTestWhitespaceToken() {
     parser = (source, inputFileContext) -> new TestToken(" ");
     MetricsVisitor visitor = scan(" ");
     assertThat(visitor.linesOfCode()).isEmpty();

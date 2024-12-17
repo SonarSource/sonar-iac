@@ -25,7 +25,6 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class JsonMetricsVisitorTest extends AbstractMetricsTest {
   @Override
@@ -45,21 +44,22 @@ class JsonMetricsVisitorTest extends AbstractMetricsTest {
 
   @Test
   void shouldCalculateLoc() {
-    scan(code(
-      "{",
-      "\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",",
-      "\"contentVersion\": \"1.0.0.0\",",
-      "\"resources\": [",
-      "  {",
-      "    \"type\": \"Microsoft.ContainerService/managedClusters\",",
-      "    \"apiVersion\": \"2023-03-01\",",
-      "    \"name\": \"Compliant\",",
-      "    \"properties\": {",
-      "    \"enableRBAC\": true",
-      "    }",
-      "  }",
-      "]",
-      "}"));
+    scan("""
+      {
+      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+      "contentVersion": "1.0.0.0",
+      "resources": [
+        {
+          "type": "Microsoft.ContainerService/managedClusters",
+          "apiVersion": "2023-03-01",
+          "name": "Compliant",
+          "properties": {
+          "enableRBAC": true
+          }
+        }
+      ]
+      }""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
+    verifyNCLOCDataMetric(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
   }
 }

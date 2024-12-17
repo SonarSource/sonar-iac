@@ -18,6 +18,8 @@ package org.sonar.iac.common.testing;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -25,6 +27,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
@@ -34,6 +37,8 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -45,6 +50,7 @@ public abstract class AbstractMetricsTest {
   protected MetricsVisitor visitor;
   protected SensorContextTester sensorContext;
   protected DefaultInputFile inputFile;
+  protected FileLinesContext fileLinesContext;
 
   @TempDir
   public File tempFolder;
@@ -52,7 +58,7 @@ public abstract class AbstractMetricsTest {
   @BeforeEach
   void setUp() {
     sensorContext = SensorContextTester.create(tempFolder);
-    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    fileLinesContext = mock(FileLinesContext.class);
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
@@ -84,5 +90,16 @@ public abstract class AbstractMetricsTest {
     var inputFileContext = new InputFileContext(sensorContext, inputFile);
     visitor.scan(inputFileContext, parser.parse(code, inputFileContext));
     return visitor;
+  }
+
+  protected void verifyNCLOCDataMetric(Integer... linesOfCode) {
+    var linesOfCodeSet = Arrays.stream(linesOfCode).collect(Collectors.toSet());
+    for (var lineNumber = 1; lineNumber <= inputFile.lines(); lineNumber++) {
+      if (linesOfCodeSet.contains(lineNumber)) {
+        verify(fileLinesContext).setIntValue(CoreMetrics.NCLOC_DATA_KEY, lineNumber, 1);
+      } else {
+        verify(fileLinesContext, never()).setIntValue(CoreMetrics.NCLOC_DATA_KEY, lineNumber, 1);
+      }
+    }
   }
 }

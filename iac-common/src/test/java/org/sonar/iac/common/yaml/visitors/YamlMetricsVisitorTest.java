@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
@@ -54,93 +56,93 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Test
-  void scalar_key_scalar_value() {
+  void shouldTestScalarKeyScalarValue() {
     scan("foo: bar");
     assertThat(visitor.linesOfCode()).containsExactly(1);
     assertThat(visitor.commentLines()).isEmpty();
+    verifyNCLOCDataMetric(1);
   }
 
   @Test
-  void second_line_scalar_key_scalar_value() {
+  void shouldTestSecondLineScalarKeyScalarValue() {
     scan("\nfoo: bar");
     assertThat(visitor.linesOfCode()).containsExactly(2);
+    verifyNCLOCDataMetric(2);
   }
 
-  @Test
-  void multiline_literal_scalar() {
-    scan("" +
-      "key: |\n" +
-      "  value1\n" +
-      "  value2\n");
+  @ParameterizedTest
+  @ValueSource(strings = {
+    // multilineLiteralScalar
+    """
+      key: |
+        value1
+        value2
+      """,
+    // MultilineLiteralScalarWithSpacesEnding
+    """
+      key: |
+        value1
+        value2
+          """,
+    // multilineFoldedScalar
+    """
+      key: >
+        value1
+        value2
+      """,
+    // yaml mapping
+    """
+      key:
+        - value1
+        - value2
+      """,
+    // json mapping
+    """
+      {
+         "foo": "bar"
+      }
+      """
+  })
+  void shouldVerifyMetrics(String code) {
+    scan(code);
     assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
+    verifyNCLOCDataMetric(1, 2, 3);
   }
 
   @Test
-  void multiline_literal_scalar_with_spaces_ending() {
-    scan("" +
-      "key: |\n" +
-      "  value1\n" +
-      "  value2\n    ");
-    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
-  }
+  void shouldTestScalarKeyScalarValueMultiline() {
+    scan("""
+      foo:
 
-  @Test
-  void multiline_folded_scalar() {
-    scan("" +
-      "key: >\n" +
-      "  value1\n" +
-      "  value2\n");
-    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
-  }
-
-  @Test
-  void yaml_mapping() {
-    scan("" +
-      "key:\n" +
-      "  - value\n" +
-      "  - value\n");
-    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
-  }
-
-  @Test
-  void scalar_key_scalar_value_multiline() {
-    scan("" +
-      "foo:\n" +
-      "\n" +
-      "   bar");
+        bar""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 3);
     assertThat(visitor.commentLines()).isEmpty();
+    verifyNCLOCDataMetric(1, 3);
   }
 
   @Test
-  void json_mapping() {
-    scan("" +
-      "{\n" +
-      "  \"foo\": \"bar\"\n" +
-      "}\n");
-    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
-  }
-
-  @Test
-  void json_sequence() {
-    scan("" +
-      "{\n" +
-      "  \"foo\": [\n" +
-      "    \"bar\"\n" +
-      "  ]\n" +
-      "}\n");
+  void shouldTestJsonSequence() {
+    scan("""
+      {
+         "foo": [
+           "bar"
+        ]
+      }
+      """);
     assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4, 5);
+    verifyNCLOCDataMetric(1, 2, 3, 4, 5);
   }
 
   @Test
   void commentLines() {
-    scan("" +
-      "foo:\n" +
-      "  # comment\n" +
-      "  #\n" +
-      "  bar # comment");
+    scan("""
+      foo:
+        # comment
+        #
+        bar # comment""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 4);
     assertThat(visitor.commentLines()).containsExactly(2, 4);
+    verifyNCLOCDataMetric(1, 4);
   }
 
   @Test
@@ -148,6 +150,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
     scan("project: foo",
       " ", " ", " ");
     assertThat(visitor.linesOfCode()).containsExactly(1);
+    verifyNCLOCDataMetric(1);
   }
 
   @Test
@@ -165,11 +168,12 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
 
   @Test
   void noSonarLines() {
-    scan("" +
-      "# NOSONAR\n" +
-      "key: value # NOSONAR");
+    scan("""
+      # NOSONAR
+      key: value # NOSONAR""");
     assertThat(visitor.noSonarLines()).containsExactly(1, 2);
     Set<Integer> nosonarLines = new HashSet<>(Arrays.asList(1, 2));
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
+    verifyNCLOCDataMetric(2);
   }
 }

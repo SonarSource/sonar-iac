@@ -18,7 +18,6 @@ package org.sonar.iac.arm.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -30,7 +29,6 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class BicepMetricsVisitorTest extends AbstractMetricsTest {
   @Override
@@ -50,21 +48,21 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
 
   @Test
   void shouldCalculateLoc() {
-    scan(code(
-      "param location string = resourceGroup().location",
-      "param environmentName string",
-      "param appServiceAppName string = 'app-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'",
-      "param appServicePlanName string = 'plan-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'",
-      "",
-      "resource appServiceApp 'Microsoft.Web/sites@2022-09-01' = {",
-      "  name: appServiceAppName",
-      "  location: location",
-      "  properties: {",
-      "    serverFarmId: appServicePlan.id",
-      "  }",
-      "}",
-      ""));
+    scan("""
+      param location string = resourceGroup().location
+      param environmentName string
+      param appServiceAppName string = 'app-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'
+      param appServicePlanName string = 'plan-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'
+
+      resource appServiceApp 'Microsoft.Web/sites@2022-09-01' = {
+        name: appServiceAppName
+        location: location
+        properties: {
+          serverFarmId: appServicePlan.id
+        }
+      }""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12);
+    verifyNCLOCDataMetric(1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12);
   }
 
   @ParameterizedTest
@@ -86,39 +84,40 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
   void shouldCalculateCommentLines(String code) {
     scan(code);
     List<Integer> indices = new ArrayList<>();
-    List<String> lines = code.lines().collect(Collectors.toList());
+    List<String> lines = code.lines().toList();
     for (int i = 0; i < lines.size(); ++i) {
       if (lines.get(i).matches("(?!//|/\\*|\\*/)")) {
         indices.add(i + 1);
       }
     }
     assertThat(visitor.commentLines()).containsAll(indices);
+    verifyNCLOCDataMetric();
   }
 
   @Test
   void shouldCalculateAllMetrics() {
-    scan(code(
-      "/*",
-      "This is an example of Bicep file",
-      "*/",
-      "// Input parameters",
-      "param location /* <- name; type -> */ string = resourceGroup().location",
-      "param environmentName string  // Needs to be provided",
-      "param appServiceAppName string = 'app-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'",
-      "param appServicePlanName string = 'plan-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'",
-      "",
-      "resource appServiceApp 'Microsoft.Web/sites@2022-09-01' = {",
-      "  // resource body",
-      "  name: appServiceAppName",
-      "  location: location /*",
-      "    This is a reference to location",
-      "    */",
-      "  properties: {",
-      "    serverFarmId: appServicePlan.id",
-      "  }",
-      "}",
-      ""));
+    scan("""
+      /*
+      This is an example of Bicep file
+      */
+      // Input parameters
+      param location /* <- name; type -> */ string = resourceGroup().location
+      param environmentName string  // Needs to be provided
+      param appServiceAppName string = 'app-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'
+      param appServicePlanName string = 'plan-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'
+
+      resource appServiceApp 'Microsoft.Web/sites@2022-09-01' = {
+        // resource body
+        name: appServiceAppName
+        location: location /*
+          This is a reference to location
+          */
+        properties: {
+          serverFarmId: appServicePlan.id
+        }
+      }""");
     assertThat(visitor.linesOfCode()).describedAs("Indices of LOCs").containsExactlyInAnyOrder(5, 6, 7, 8, 10, 12, 13, 16, 17, 18, 19);
     assertThat(visitor.commentLines()).describedAs("Indices of comment lines").containsExactly(2, 4, 5, 6, 11, 14);
+    verifyNCLOCDataMetric(5, 6, 7, 8, 10, 12, 13, 16, 17, 18, 19);
   }
 }

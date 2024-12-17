@@ -51,49 +51,54 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.linesOfCode()).isEmpty();
     assertThat(visitor.commentLines()).isEmpty();
     verify(noSonarFilter).noSonarInFile(inputFile, new HashSet<>());
+    verifyNCLOCDataMetric();
   }
 
   @Test
   void linesOfCode() {
-    scan("" +
-      "a {\n" +
-      "   // comment\n" +
-      "   b = {}\n" +
-      "}");
+    scan("""
+      a {
+         // comment
+         b = {}
+      }""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 3, 4);
+    verifyNCLOCDataMetric(1, 3, 4);
   }
 
   @Test
   void commentLines() {
-    scan("" +
-      "/* comment */ a {\n" +
-      "   // comment\n" +
-      "   b = {} // comment\n" +
-      "}");
+    scan("""
+      /* comment */ a {
+         // comment
+         b = {} // comment
+      }""");
     assertThat(visitor.commentLines()).containsExactly(1, 2, 3);
+    verifyNCLOCDataMetric(1, 3, 4);
   }
 
   @Test
   void multiLineComment() {
-    scan("" +
-      "/*start\n" +
-      " a = {}\n" +
-      " end\n" +
-      "*/");
+    scan("""
+      /*start
+       a = {}
+       end
+      */""");
     assertThat(visitor.commentLines()).containsExactly(1, 2, 3);
     assertThat(visitor.linesOfCode()).isEmpty();
+    verifyNCLOCDataMetric();
   }
 
   @Test
   void noSonarLines() {
-    scan("" +
-      "a {\n" +
-      "// NOSONAR comment\n" +
-      "b = {}\n" +
-      "}");
+    scan("""
+      a {
+      // NOSONAR comment
+      b = {}
+      }""");
     assertThat(visitor.noSonarLines()).containsExactly(2);
     Set<Integer> nosonarLines = new HashSet<>();
     nosonarLines.add(2);
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
+    verifyNCLOCDataMetric(1, 3, 4);
   }
 }

@@ -28,7 +28,6 @@ import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.plugin.DockerLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class DockerMetricsVisitorTest extends AbstractMetricsTest {
 
@@ -49,29 +48,31 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
 
   @Test
   void linesOfCode() {
-    scan(code(
-      "FROM foo",
-      "",
-      "MAINTAINER foo<bar>",
-      "",
-      "RUN \\",
-      "  command1 \\",
-      "  command2"));
+    scan("""
+      FROM foo
+
+      MAINTAINER foo<bar>
+
+      RUN \\
+        command1 \\
+        command2""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 3, 5, 6, 7);
+    verifyNCLOCDataMetric(1, 3, 5, 6, 7);
   }
 
   @Test
   @Disabled("Will be fixed with SONARIAC-606")
   // TODO SONARIAC-606
   void commentLines() {
-    scan(code(
-      "# comment 1",
-      "# comment 2",
-      "FROM foo",
-      "RUN \\",
-      "  command1 \\",
-      "  # comment 3",
-      "  command2"));
+    scan("""
+      # comment 1
+      # comment 2
+      FROM foo
+      RUN \\
+        command1 \\
+        # comment 3
+        command2""");
     assertThat(visitor.commentLines()).containsExactly(1, 2, 6);
+    verifyNCLOCDataMetric(1, 2, 6);
   }
 }
