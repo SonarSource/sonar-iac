@@ -6,6 +6,8 @@ variables and function parameters hold the meaning of the written code. Their na
 recognizable pattern.<br> Adhering to a consistent naming convention helps to make the code more readable and understandable, which makes it easier to
 maintain and debug. It also ensures consistency in the code, especially when multiple developers are working on the same project.</p>
 <p>This rule checks that local variable and function parameter names match a provided regular expression.</p>
+<h3>Exceptions</h3>
+<p>The rule does not raise an issue on the usages of the blank identifier <code>$_</code> or the root context <code>$</code>.</p>
 <h3>What is the potential impact?</h3>
 <p>Inconsistent naming of local variables and function parameters can lead to several issues in your code:</p>
 <ul>
@@ -29,7 +31,7 @@ well as all usages of the name. For many IDEs, you can use built-in renaming and
 <p>As a default, we suggest using the camelCase naming convention, as this is widely adopted for variables in Helm.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<p>With the default regular expression <code>^[a-z][a-zA-Z0-9]*$</code>:</p>
+<p>With the default regular expression <code>^\$[a-z][a-zA-Z0-9]*$</code>:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {{- $my_Variable := .Values.myVariableValue -}} # Noncompliant
 </pre>
@@ -59,9 +61,17 @@ data:
   {{ $keyC }}: {{ $valC | quote }}
   {{- end }}
 </pre>
+<pre>
+# Usage of blank identifier
+{{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className -}}
+
+# Usage of root context
+{{- $ := . -}}
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
+  <li> Helm documentation - <a href="https://helm.sh/docs/chart_template_guide/variables/">Helm - Variables</a> </li>
   <li> Go documentation - <a href="https://go.dev/doc/effective_go#names">Effective Go - Names</a> </li>
   <li> Wikipedia - <a href="https://en.wikipedia.org/wiki/Naming_convention_(programming)">Naming Convention (programming)</a> </li>
 </ul>

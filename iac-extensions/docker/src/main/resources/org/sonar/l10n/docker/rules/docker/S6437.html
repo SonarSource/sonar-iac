@@ -23,6 +23,8 @@ affected asset or feature, the practical impact can range from a sensitive infor
 server or another linked component.</p>
 <p>For example, an application that would disclose a secret used to sign user authentication tokens would be at risk of user identity impersonation.
 An attacker accessing the leaked secret could sign session tokens for arbitrary users and take over their privileges and entitlements.</p>
+<h3>Exceptions</h3>
+<p>In multi-stage builds, the rule only scans instructions that are part of the final image.</p>
 <h2>How to fix it</h2>
 <p>Best practices recommend using a secret vault for all secrets that must be accessed at container runtime. This will ensure the secret’s security
 and prevent any further unexpected disclosure. Depending on the development platform and the leaked secret type, multiple solutions are currently

@@ -4,7 +4,7 @@ stored in a dedicated cache mount.</p>
 <p>Docker images should only contain the necessary data. The package index is redundant for the correct operation of the installed software. Storing
 an index also increases the size of the Docker image. It should be reduced to speed up deployments and reduce storage and bandwidth.</p>
 <h3>Exceptions</h3>
-<p>In multi-stage builds, the rule only checks instructions that are part of the final image.</p>
+<p>In multi-stage builds, the rule only scans instructions that are part of the final image.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -96,6 +96,17 @@ and configurations, the cache will be created in <code>/etc/apk/cache</code>.</p
 removed manually.</p>
 <p>Alternatively, store the cache in a dedicated cache mount. A cache mount can be created by adding a flag <code>--mount type=cache</code> to the
 <code>RUN</code> command.<br> This will store the cache in a Docker volume, which will be persisted between builds making the build faster.</p>
+<p>Also, each <code>RUN</code> instruction creates a new layer, and any changes made in one layer are not visible in the next. Thus, the cache should
+be removed in the same layer (i.e., the same <code>RUN</code> instruction) as the installation.</p>
+<p>The following code incorrectly cleans the cache:</p>
+<pre>
+RUN apt-get install nginx
+RUN apt-get clean
+</pre>
+<p>It should be written as:</p>
+<pre>
+RUN apt-get install nginx &amp;&amp; apt-get clean
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

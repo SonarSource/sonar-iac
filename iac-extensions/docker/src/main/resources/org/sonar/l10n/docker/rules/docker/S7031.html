@@ -5,6 +5,8 @@ image size. Chaining commands in a single <code>RUN</code> instruction using <co
 number of layers in the image.<br> This practice can make Docker images more efficient and easier to manage.<br> Each layer in a Docker image is
 essentially a change to the image, like a version control system.<br> So, fewer layers mean fewer changes to track, which simplifies management and
 troubleshooting.</p>
+<h3>Exceptions</h3>
+<p>In multi-stage builds, the rule only scans instructions that are part of the final image.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
