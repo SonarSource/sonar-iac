@@ -43,3 +43,19 @@ ENTRYPOINT $test
 
 # Safe check on unsupported instructions
 COPY $test
+
+
+# Compliant because the original variable definition is enclosed in double quotes
+ARG my_var_arg="my_value"
+RUN $my_var_arg
+
+ENV my_var_env="my_value"
+RUN $my_var_env
+
+ARG no_end_quote="my_value"ishere
+# Noncompliant@+1
+RUN $no_end_quote
+
+ARG no_start_quote=ishere"my_value"
+# Noncompliant@+1
+RUN $no_start_quote

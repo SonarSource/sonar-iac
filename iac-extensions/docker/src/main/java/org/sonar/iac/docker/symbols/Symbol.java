@@ -55,16 +55,19 @@ public class Symbol {
     return usages;
   }
 
-  public Scope.Kind lastDeclarationScope() {
-    Scope.Kind declarationScope = Scope.Kind.IMAGE;
+  public Usage lastDeclaration() {
+    Usage lastDeclaration = null;
     for (int i = usages.size() - 1; i >= 0; i--) {
       var usage = usages.get(i);
       if (Usage.Kind.ASSIGNMENT == usage.kind()) {
-        declarationScope = usage.scope().kind();
-        // we stop at the first assignment we find, as we store usages in the same order they appear in Dockerfile
+        lastDeclaration = usage;
         break;
       }
     }
-    return declarationScope;
+    return lastDeclaration;
+  }
+
+  public Scope.Kind lastDeclarationScope() {
+    return lastDeclaration().scope().kind();
   }
 }

@@ -20,12 +20,15 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.Expression;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 @Rule(key = "S6570")
@@ -43,10 +46,20 @@ public class VariableReferenceOutsideOfQuotesCheck implements IacCheck {
   private static void checkVariableReference(CheckContext ctx, CommandInstruction commandInstruction) {
     for (Argument argument : commandInstruction.arguments()) {
       for (Expression expression : argument.expressions()) {
-        if (expression.is(DockerTree.Kind.REGULAR_VARIABLE)) {
+        if (expression.is(DockerTree.Kind.REGULAR_VARIABLE) && !isVariableDefinedWithDoubleQuotes((RegularVariable) expression)) {
           ctx.reportIssue(expression, MESSAGE);
         }
       }
     }
+  }
+
+  private static boolean isVariableDefinedWithDoubleQuotes(RegularVariable variable) {
+    var symbol = variable.symbol();
+    if (symbol != null && symbol.lastDeclaration() != null) {
+      var declaration = (KeyValuePair) symbol.lastDeclaration().tree();
+      var resolvedValue = ArgumentResolution.ofKeepQuotesForced(declaration.value());
+      return resolvedValue.isResolved() && resolvedValue.value().startsWith("\"") && resolvedValue.value().endsWith("\"");
+    }
+    return false;
   }
 }

@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
@@ -36,8 +37,11 @@ import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
+import org.sonar.iac.docker.tree.impl.ExecFormImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
+import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -259,6 +263,37 @@ class ArgumentResolutionTest {
     Argument argument = parseArgument("foo");
     ArgumentResolution argumentResolution = ArgumentResolution.of(argument);
     assertThat(argumentResolution).hasToString("foo");
+  }
+
+  @Test
+  void shouldKeepQuoteWithoutStrippingQuotesForShellForm() {
+    Argument argument = parseArgument("\"foo\"");
+    argument.setParent(new ShellFormImpl(List.of(argument)));
+    ArgumentResolution argumentResolution = ArgumentResolution.ofWithoutStrippingQuotes(argument);
+    assertThat(argumentResolution).hasToString("\"foo\"");
+  }
+
+  @Test
+  void shouldRemoveQuoteWithoutStrippingQuotesForExecForm() {
+    Argument argument = parseArgument("\"foo\"");
+    argument.setParent(new ExecFormImpl(mock(SyntaxToken.class), SeparatedListImpl.emptySeparatedList(), mock(SyntaxToken.class)));
+    ArgumentResolution argumentResolution = ArgumentResolution.ofWithoutStrippingQuotes(argument);
+    assertThat(argumentResolution).hasToString("foo");
+  }
+
+  @Test
+  void shouldRemoveQuoteWithoutStrippingQuotesWhenNoParents() {
+    Argument argument = parseArgument("\"foo\"");
+    argument.expressions().get(0).setParent(null);
+    ArgumentResolution argumentResolution = ArgumentResolution.ofWithoutStrippingQuotes(argument);
+    assertThat(argumentResolution).hasToString("foo");
+  }
+
+  @Test
+  void shouldKeepQuoteWithForcedQuote() {
+    Argument argument = parseArgument("\"foo\"");
+    ArgumentResolution argumentResolution = ArgumentResolution.ofKeepQuotesForced(argument);
+    assertThat(argumentResolution).hasToString("\"foo\"");
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {

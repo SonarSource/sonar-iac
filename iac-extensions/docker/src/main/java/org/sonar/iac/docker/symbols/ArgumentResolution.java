@@ -70,14 +70,23 @@ public class ArgumentResolution {
    * The quotes and double quotes in string literals are striped by default.
    */
   public static ArgumentResolution of(@Nullable Argument argument) {
-    return ArgumentResolver.resolve(argument, true);
+    return ArgumentResolver.resolve(argument, true, false);
   }
 
   /**
    * The method is similar to {@code ArgumentResolution#of} but there is a control of strip quotes or double quotes in string literal.
+   * In case the parent expression of {@code argument} is an exec form, the quotes are still stripped off.
    */
   public static ArgumentResolution ofWithoutStrippingQuotes(@Nullable Argument argument) {
-    return ArgumentResolver.resolve(argument, false);
+    return ArgumentResolver.resolve(argument, false, false);
+  }
+
+  /**
+   * The method is similar to {@code ArgumentResolution#ofWithoutStrippingQuotes}, but it keeps the quotes in any case, without the restriction
+   * about parent expression being an exec form.
+   */
+  public static ArgumentResolution ofKeepQuotesForced(@Nullable Argument argument) {
+    return ArgumentResolver.resolve(argument, false, true);
   }
 
   public String value() {
@@ -130,15 +139,17 @@ public class ArgumentResolution {
   private static class ArgumentResolver {
 
     private final boolean stripQuotes;
+    private final boolean keepQuotesForced;
     Builder builder;
     Set<Variable> visitedVariable = new HashSet<>();
 
-    private ArgumentResolver(boolean stripQuotes) {
+    private ArgumentResolver(boolean stripQuotes, boolean keepQuotesForced) {
       this.stripQuotes = stripQuotes;
+      this.keepQuotesForced = keepQuotesForced;
     }
 
-    private static ArgumentResolution resolve(@Nullable Argument argument, boolean stripQuotes) {
-      return new ArgumentResolver(stripQuotes).resolveArgument(argument);
+    private static ArgumentResolution resolve(@Nullable Argument argument, boolean stripQuotes, boolean keepQuotesForced) {
+      return new ArgumentResolver(stripQuotes, keepQuotesForced).resolveArgument(argument);
     }
 
     private ArgumentResolution resolveArgument(@Nullable Argument argument) {
@@ -190,7 +201,7 @@ public class ArgumentResolution {
     }
 
     private boolean shouldKeepQuotes(Expression expression) {
-      return !stripQuotes && expression.parent() != null && expression.parent().parent().is(DockerTree.Kind.SHELL_FORM);
+      return keepQuotesForced || (!stripQuotes && expression.parent() != null && expression.parent().parent().is(DockerTree.Kind.SHELL_FORM));
     }
 
     private void maybeAddQuote(Expression expression, SyntaxToken quote) {
