@@ -1,5 +1,5 @@
 [versions]
-sonarqube = "10.7.0.96327"
+sonarqube = "24.12.0.100206"
 sonar-plugin-api = "10.14.0.2599"
 sonar-commons = "2.16.0.3141"
 sonar-license-api = "3.4"
