@@ -14,21 +14,12 @@ load(
     "mkdir_orchestrator_home_script",
 )
 load("cache.star", "gradle_cache_fingerprint_script")
+load("conditions.star", "is_rule_metadata_or_docs_update_pr")
 
 QA_PLUGIN_GRADLE_TASK = ":private:its:plugin:integrationTest"
 QA_RULING_GRADLE_TASK = ":private:its:ruling:integrationTest"
 QA_QUBE_LATEST_RELEASE = "LATEST_RELEASE"
 QA_QUBE_DEV = "DEV"
-
-
-def on_failure():
-    return default_gradle_on_failure() | {
-        "junit_artifacts": {
-            "path": "**/test-results/**/*.xml",
-            "format": "junit"
-        }
-    }
-
 
 def qa_win_script():
     return [
@@ -46,7 +37,7 @@ def qa_win_script():
 def qa_os_win_task():
     return {
         "qa_os_win_task": {
-            "only_if": is_branch_qa_eligible(),
+            "only_if": "({}) && !({})".format(is_branch_qa_eligible(), is_rule_metadata_or_docs_update_pr()),
             "depends_on": "build",
             "ec2_instance": ec2_instance_builder(),
             "env": artifactory_reader_env(),
@@ -54,7 +45,7 @@ def qa_os_win_task():
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": qa_win_script(),
             "on_success": profile_report_artifacts(),
-            "on_failure": on_failure(),
+            "on_failure": default_gradle_on_failure(),
         }
     }
 
@@ -65,7 +56,7 @@ def qa_os_win_task():
 
 def qa_task(env):
     return {
-        "only_if": is_branch_qa_eligible(),
+        "only_if": "({}) && !({})".format(is_branch_qa_eligible(), is_rule_metadata_or_docs_update_pr()),
         "depends_on": "build",
         "eks_container": base_image_container_builder(cpu=6, memory="16G"),
         "env": env,
@@ -75,7 +66,7 @@ def qa_task(env):
         "mkdir_orchestrator_home_script": mkdir_orchestrator_home_script(),
         "orchestrator_cache": orchestrator_cache(),
         "run_its_script": run_its_script(),
-        "on_failure": on_failure(),
+        "on_failure": default_gradle_on_failure(),
         "cleanup_gradle_script": cleanup_gradle_script(),
     }
 
