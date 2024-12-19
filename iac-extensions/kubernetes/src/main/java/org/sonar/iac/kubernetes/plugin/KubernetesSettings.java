@@ -19,7 +19,7 @@ package org.sonar.iac.kubernetes.plugin;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
 public class KubernetesSettings {
 
@@ -40,7 +40,7 @@ public class KubernetesSettings {
         .name("Activate Kubernetes analysis")
         .description("Activate analysis of Yaml files recognized as Kubernetes files.")
         .type(PropertyType.BOOLEAN)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(KUBERNETES_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .build());
