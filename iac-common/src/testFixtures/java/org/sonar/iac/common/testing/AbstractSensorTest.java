@@ -38,6 +38,11 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
@@ -49,6 +54,7 @@ public abstract class AbstractSensorTest {
 
   protected static final FileLinesContextFactory fileLinesContextFactory = Mockito.mock(FileLinesContextFactory.class);
   protected static final NoSonarFilter noSonarFilter = Mockito.mock(NoSonarFilter.class);
+  private final String telemetryLoCKey = "iac.%s.loc".formatted(repositoryKey());
 
   @TempDir
   protected File baseDir;
@@ -63,9 +69,9 @@ public abstract class AbstractSensorTest {
     settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
-    context = SensorContextTester.create(baseDir).setSettings(settings);
+    context = spy(SensorContextTester.create(baseDir).setSettings(settings));
     context.setSettings(settings);
-    sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SONARLINT_RUNTIME_9_9).setSettings(settings);
+    sonarLintContext = spy(SensorContextTester.create(baseDir).setRuntime(SONARLINT_RUNTIME_9_9).setSettings(settings));
   }
 
   protected abstract String getActivationSettingKey();
@@ -121,6 +127,14 @@ public abstract class AbstractSensorTest {
       .filter(log -> log.startsWith("Duration Statistics, "))
       .findFirst()
       .orElseThrow(() -> new RuntimeException("Duration statistics should be enabled for sensor"));
+  }
+
+  protected void verifyLinesOfCodeTelemetry(int expectedLinesOfCode) {
+    if (expectedLinesOfCode == 0) {
+      verify(context, never()).addTelemetryProperty(eq(telemetryLoCKey), anyString());
+    } else {
+      verify(context).addTelemetryProperty(telemetryLoCKey, String.valueOf(expectedLinesOfCode));
+    }
   }
 
   protected abstract Sensor sensor(CheckFactory checkFactory);

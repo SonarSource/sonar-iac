@@ -17,6 +17,7 @@
 package org.sonar.iac.cloudformation.plugin;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -43,7 +44,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   private final CfnLintRulesDefinition cfnLintRulesDefinition = new CfnLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
 
   @Test
-  void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
+  void yamlFileWithRecursiveAnchorReferenceShouldRaiseParsingIssue() {
     analyze(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("loop.yaml",
       """
         AWSTemplateFormatVersion: 2010-09-09
@@ -54,6 +55,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo(PARSING_ERROR_KEY);
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -65,7 +67,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void should_raise_no_parsing_issue_in_file_without_identifier() {
+  void shouldRaiseNoParsingIssueInFileWithoutIdentifier() {
     MapSettings settings = new MapSettings();
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
     settings.setProperty(getActivationSettingKey(), true);
@@ -78,10 +80,11 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(logs).hasSize(1);
     assertThat(logs.get(0))
       .startsWith("File without identifier 'myIdentifier':").endsWith("parserError.json");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
-  void should_raise_parsing_issue_in_file_with_identifier() {
+  void shouldRaiseParsingIssueInFileWithIdentifier() {
     MapSettings settings = new MapSettings();
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
     settings.setProperty(getActivationSettingKey(), true);
@@ -89,6 +92,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
     analyze(sensor("S2260"), inputFile("parserError.json", "\"myIdentifier'"));
     assertThat(context.allIssues()).hasSize(1);
+    verifyLinesOfCodeTelemetry(0);
   }
 
   /**
@@ -118,6 +122,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
     analyze(sensor(checkFactory()), jvmFile);
     assertThat(durationStatisticLog()).contains("CloudFormationFilePredicate");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   private CloudformationSensor sensor(String... rules) {
@@ -158,6 +163,13 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFile("comment.yaml", "AWSTemplateFormatVersion: 2010-09-09\n# Some Comment");
+  }
+
+  @Override
+  protected Map<InputFile, Integer> validFilesMappedToExpectedLoCs() {
+    return Map.of(
+      validFile(), 1,
+      inputFile("comment2.yaml", "AWSTemplateFormatVersion: 2010-09-09\n# Some Comment"), 1);
   }
 
   @Override

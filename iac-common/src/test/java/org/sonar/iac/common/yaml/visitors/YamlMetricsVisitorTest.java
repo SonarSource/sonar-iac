@@ -47,7 +47,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+    return new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Override
@@ -60,14 +60,14 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
     scan("foo: bar");
     assertThat(visitor.linesOfCode()).containsExactly(1);
     assertThat(visitor.commentLines()).isEmpty();
-    verifyNCLOCDataMetric(1);
+    verifyLinesOfCodeMetricsAndTelemetry(1);
   }
 
   @Test
   void shouldTestSecondLineScalarKeyScalarValue() {
     scan("\nfoo: bar");
     assertThat(visitor.linesOfCode()).containsExactly(2);
-    verifyNCLOCDataMetric(2);
+    verifyLinesOfCodeMetricsAndTelemetry(2);
   }
 
   @ParameterizedTest
@@ -106,7 +106,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
   void shouldVerifyMetrics(String code) {
     scan(code);
     assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
-    verifyNCLOCDataMetric(1, 2, 3);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 2, 3);
   }
 
   @Test
@@ -117,7 +117,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
         bar""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 3);
     assertThat(visitor.commentLines()).isEmpty();
-    verifyNCLOCDataMetric(1, 3);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 3);
   }
 
   @Test
@@ -130,7 +130,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       }
       """);
     assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4, 5);
-    verifyNCLOCDataMetric(1, 2, 3, 4, 5);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 2, 3, 4, 5);
   }
 
   @Test
@@ -142,15 +142,19 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
         bar # comment""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 4);
     assertThat(visitor.commentLines()).containsExactly(2, 4);
-    verifyNCLOCDataMetric(1, 4);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 4);
   }
 
   @Test
   void whitespaceLineShouldNotCountAsCode() {
-    scan("project: foo",
-      " ", " ", " ");
+    scan("""
+      project: foo
+
+
+
+      """);
     assertThat(visitor.linesOfCode()).containsExactly(1);
-    verifyNCLOCDataMetric(1);
+    verifyLinesOfCodeMetricsAndTelemetry(1);
   }
 
   @Test
@@ -174,6 +178,6 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.noSonarLines()).containsExactly(1, 2);
     Set<Integer> nosonarLines = new HashSet<>(Arrays.asList(1, 2));
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
-    verifyNCLOCDataMetric(2);
+    verifyLinesOfCodeMetricsAndTelemetry(2);
   }
 }

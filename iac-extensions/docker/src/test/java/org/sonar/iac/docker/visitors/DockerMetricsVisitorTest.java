@@ -38,7 +38,7 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+    return new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Override
@@ -57,7 +57,7 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
         command1 \\
         command2""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 3, 5, 6, 7);
-    verifyNCLOCDataMetric(1, 3, 5, 6, 7);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 3, 5, 6, 7);
   }
 
   @Test
@@ -73,6 +73,6 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
         # comment 3
         command2""");
     assertThat(visitor.commentLines()).containsExactly(1, 2, 6);
-    verifyNCLOCDataMetric(1, 2, 6);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 2, 6);
   }
 }

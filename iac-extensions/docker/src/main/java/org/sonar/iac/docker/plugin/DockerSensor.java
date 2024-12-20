@@ -136,7 +136,7 @@ public class DockerSensor extends IacSensor {
     visitors.add(new DockerSymbolVisitor());
     visitors.add(new ChecksVisitor(checks, statistics));
     if (isNotSonarLintContext(sensorContext)) {
-      visitors.add(new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+      visitors.add(new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics));
       visitors.add(new DockerHighlightingVisitor());
     }
     return visitors;

@@ -41,7 +41,7 @@ class JvmFrameworkConfigMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+    return new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Test
@@ -68,7 +68,7 @@ class JvmFrameworkConfigMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.commentLines()).containsExactly(1, 7, 8, 10);
     assertThat(visitor.noSonarLines()).isEmpty();
 
-    verifyNCLOCDataMetric(2, 5, 6, 9);
+    verifyLinesOfCodeMetricsAndTelemetry(2, 5, 6, 9);
   }
 
   @Test
@@ -97,6 +97,6 @@ class JvmFrameworkConfigMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.commentLines()).containsExactly(1, 3, 10);
     assertThat(visitor.noSonarLines()).isEmpty();
 
-    verifyNCLOCDataMetric(2, 4, 5, 6, 7, 9, 11, 12);
+    verifyLinesOfCodeMetricsAndTelemetry(2, 4, 5, 6, 7, 9, 11, 12);
   }
 }

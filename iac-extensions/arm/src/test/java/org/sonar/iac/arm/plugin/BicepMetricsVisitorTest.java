@@ -38,7 +38,7 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+    return new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Override
@@ -62,7 +62,7 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
         }
       }""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12);
-    verifyNCLOCDataMetric(1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12);
   }
 
   @ParameterizedTest
@@ -91,7 +91,7 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
       }
     }
     assertThat(visitor.commentLines()).containsAll(indices);
-    verifyNCLOCDataMetric();
+    verifyLinesOfCodeMetricsAndTelemetry();
   }
 
   @Test
@@ -118,6 +118,6 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
       }""");
     assertThat(visitor.linesOfCode()).describedAs("Indices of LOCs").containsExactlyInAnyOrder(5, 6, 7, 8, 10, 12, 13, 16, 17, 18, 19);
     assertThat(visitor.commentLines()).describedAs("Indices of comment lines").containsExactly(2, 4, 5, 6, 11, 14);
-    verifyNCLOCDataMetric(5, 6, 7, 8, 10, 12, 13, 16, 17, 18, 19);
+    verifyLinesOfCodeMetricsAndTelemetry(5, 6, 7, 8, 10, 12, 13, 16, 17, 18, 19);
   }
 }

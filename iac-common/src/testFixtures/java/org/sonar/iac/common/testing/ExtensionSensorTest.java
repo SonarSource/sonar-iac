@@ -19,6 +19,7 @@ package org.sonar.iac.common.testing;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
@@ -39,6 +40,8 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
   protected abstract InputFile fileWithParsingError();
 
+  protected abstract Map<InputFile, Integer> validFilesMappedToExpectedLoCs();
+
   protected abstract InputFile validFile();
 
   protected abstract void verifyDebugMessages(List<String> logs);
@@ -48,6 +51,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     analyze(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), emptyFile());
     assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).isEmpty();
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -78,6 +82,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
       .startsWith("Cannot parse '%s:".formatted(inputFile));
 
     verifyDebugMessages(logTester.logs(Level.DEBUG));
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -85,6 +90,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     analyze(sensor(checkFactory()), fileWithParsingError());
     assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -96,6 +102,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     analyze(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), fileWithParsingError());
     assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).isEmpty();
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -111,5 +118,14 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     assertThat(analysisError.inputFile()).isEqualTo(spyInputFile);
     assertThat(analysisError.message()).startsWith("Unable to parse file:");
     assertThat(analysisError.location()).isNull();
+    verifyLinesOfCodeTelemetry(0);
   }
+
+  @Test
+  protected void shouldCorrectlyAddLinesOfCodesInAnalyzerTelemetryMetrics() {
+    var totalLinesOfCode = validFilesMappedToExpectedLoCs().values().stream().mapToInt(Integer::intValue).sum();
+    analyze(validFilesMappedToExpectedLoCs().keySet().toArray(new InputFile[0]));
+    verifyLinesOfCodeTelemetry(totalLinesOfCode);
+  }
+
 }

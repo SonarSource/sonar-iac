@@ -26,12 +26,13 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.extension.visitors.SensorTelemetryMetrics;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class YamlMetricsVisitor extends MetricsVisitor {
 
-  public YamlMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
-    super(fileLinesContextFactory, noSonarFilter);
+  public YamlMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetryMetrics sensorTelemetryMetrics) {
+    super(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Override

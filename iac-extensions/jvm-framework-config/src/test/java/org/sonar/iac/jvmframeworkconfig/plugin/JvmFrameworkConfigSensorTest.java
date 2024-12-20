@@ -17,6 +17,7 @@
 package org.sonar.iac.jvmframeworkconfig.plugin;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
@@ -78,8 +79,18 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     return inputFile(PATH_PREFIX + "application.properties",
       // language=properties
       """
-        foo.bar=baz
-        """);
+        foo.bar=baz""");
+  }
+
+  @Override
+  protected Map<InputFile, Integer> validFilesMappedToExpectedLoCs() {
+    return Map.of(
+      validFile(), 1,
+      inputFile(PATH_PREFIX + "application.yaml",
+        // language=properties
+        """
+          foo.bar=baz"""),
+      1);
   }
 
   @Override
@@ -161,6 +172,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
       .hasSize(6)
       .noneMatch("-dev"::contains)
       .noneMatch("-test"::contains);
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -174,6 +186,6 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   }
 
   private InputFile emptyFileInResources(String filename) {
-    return inputFile(PATH_PREFIX + filename, filename);
+    return inputFile(PATH_PREFIX + filename, "");
   }
 }

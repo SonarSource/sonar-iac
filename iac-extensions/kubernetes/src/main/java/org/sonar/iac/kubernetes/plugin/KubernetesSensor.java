@@ -126,7 +126,7 @@ public class KubernetesSensor extends YamlSensor {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     if (isNotSonarLintContext(sensorContext)) {
       visitors.add(new KubernetesHighlightingVisitor());
-      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics));
     }
     visitors.add(new ProjectContextEnricherVisitor(projectContextImpl));
     return visitors;
@@ -156,6 +156,7 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected void afterExecute(SensorContext sensorContext) {
+    super.afterExecute(sensorContext);
     kubernetesParserStatistics.storeTelemetry(sensorContext);
     kubernetesParserStatistics.logStatistics();
   }

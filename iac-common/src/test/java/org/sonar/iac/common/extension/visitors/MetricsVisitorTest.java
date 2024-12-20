@@ -44,7 +44,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter) {
+    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics) {
     };
   }
 
@@ -62,7 +62,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     Set<Integer> nosonarLines = new HashSet<>();
     nosonarLines.add(3);
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
-    verifyNCLOCDataMetric(2);
+    verifyLinesOfCodeMetricsAndTelemetry(2);
   }
 
   @Test
@@ -70,6 +70,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     parser = (source, inputFileContext) -> new TestToken("");
     MetricsVisitor visitor = scan("");
     assertThat(visitor.linesOfCode()).isEmpty();
+    verifyLinesOfCodeMetricsAndTelemetry();
   }
 
   @Test
@@ -77,6 +78,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     parser = (source, inputFileContext) -> new TestToken(" ");
     MetricsVisitor visitor = scan(" ");
     assertThat(visitor.linesOfCode()).isEmpty();
+    verifyLinesOfCodeMetricsAndTelemetry();
   }
 
   static class TestToken implements IacToken {

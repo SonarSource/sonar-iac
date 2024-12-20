@@ -18,6 +18,7 @@ package org.sonar.iac.docker.plugin;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
@@ -95,6 +96,7 @@ class DockerSensorTest extends ExtensionSensorTest {
         "Foo.Dockerfile",
         "Foo.dockerfile",
         "Dockerfile.j2.bar");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -110,6 +112,7 @@ class DockerSensorTest extends ExtensionSensorTest {
     assertThat(inputFiles)
       .map(IndexedFile::filename)
       .containsExactly("Dockerfile.j2");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -140,6 +143,7 @@ class DockerSensorTest extends ExtensionSensorTest {
         "Dockerfile.foo",
         "Foo.Dockerfile",
         "Foo.dockerfile");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -195,7 +199,14 @@ class DockerSensorTest extends ExtensionSensorTest {
 
   @Override
   protected InputFile validFile() {
-    return inputFile("Dockerfile", "FROM");
+    return inputFile("Dockerfile", "FROM ubuntu:20.04");
+  }
+
+  @Override
+  protected Map<InputFile, Integer> validFilesMappedToExpectedLoCs() {
+    return Map.of(
+      validFile(), 1,
+      inputFile("Dockerfile2", "FROM ubuntu:20.04"), 1);
   }
 
   @Override

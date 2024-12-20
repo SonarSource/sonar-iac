@@ -37,7 +37,7 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+    return new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Override
@@ -51,7 +51,7 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.linesOfCode()).isEmpty();
     assertThat(visitor.commentLines()).isEmpty();
     verify(noSonarFilter).noSonarInFile(inputFile, new HashSet<>());
-    verifyNCLOCDataMetric();
+    verifyLinesOfCodeMetricsAndTelemetry();
   }
 
   @Test
@@ -62,7 +62,7 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
          b = {}
       }""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 3, 4);
-    verifyNCLOCDataMetric(1, 3, 4);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 3, 4);
   }
 
   @Test
@@ -73,7 +73,7 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
          b = {} // comment
       }""");
     assertThat(visitor.commentLines()).containsExactly(1, 2, 3);
-    verifyNCLOCDataMetric(1, 3, 4);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 3, 4);
   }
 
   @Test
@@ -85,7 +85,7 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
       */""");
     assertThat(visitor.commentLines()).containsExactly(1, 2, 3);
     assertThat(visitor.linesOfCode()).isEmpty();
-    verifyNCLOCDataMetric();
+    verifyLinesOfCodeMetricsAndTelemetry();
   }
 
   @Test
@@ -99,6 +99,6 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
     Set<Integer> nosonarLines = new HashSet<>();
     nosonarLines.add(2);
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
-    verifyNCLOCDataMetric(1, 3, 4);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 3, 4);
   }
 }

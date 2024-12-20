@@ -32,8 +32,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -45,10 +43,8 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -63,12 +59,10 @@ import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
@@ -83,9 +77,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @BeforeEach
   void setUp() {
-    context = spy(context);
-    // As of version 10.7 of sonar-plugin-api impl, this method throws an exception
-    doNothing().when(context).addTelemetryProperty(anyString(), anyString());
     when(sonarLintFileListener.getProjectContext()).thenReturn(new ProjectContextImpl());
   }
 
@@ -93,12 +84,14 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldParseYamlFileWithKubernetesIdentifiers() {
     analyze(sensor(), inputFile(K8_IDENTIFIERS));
     assertOneSourceFileIsParsed();
+    verifyLinesOfCodeTelemetry(3);
   }
 
   @Test
   void shouldParseMultipleYamlFileWithKubernetesIdentifiers() {
     analyze(sensor(), inputFile("templates/file_1.yaml", K8_IDENTIFIERS), inputFile("templates/file_2.yaml", K8_IDENTIFIERS));
     assertNSourceFileIsParsed(2);
+    verifyLinesOfCodeTelemetry(6);
   }
 
   @Test
@@ -108,6 +101,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -126,6 +120,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
         "Helm files count: 1, parsed: 0, not parsed: 1; Kustomize file count: 0")
       .doesNotContain("Skipping initialization of Helm processor");
+    // TODO: SONARIAC-1877 Fix logic inside this test
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -157,6 +153,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logs)
       .contains("Initializing Helm processor")
       .doesNotContain("Skipping initialization of Helm processor");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -174,6 +171,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logs)
       .contains("Skipping initialization of Helm processor")
       .doesNotContain("Initializing Helm processor");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -190,6 +188,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       assertThat(logs)
         .contains("Skipping initialization of Helm processor")
         .doesNotContain("Initializing Helm processor");
+      // Kubernetes file parsing does succeed
+      verifyLinesOfCodeTelemetry(4);
     }
   }
 
@@ -197,6 +197,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldNotParseYamlFileWithoutIdentifiers() {
     analyze(sensor(), inputFile(""));
     assertNotSourceFileIsParsed();
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -209,6 +210,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logs.get(1)).isEqualTo("Initializing Helm processor");
     assertThat(logs.get(2))
       .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -218,6 +220,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
         "Helm files count: 0, parsed: 0, not parsed: 0; Kustomize file count: 0");
+    verifyLinesOfCodeTelemetry(7);
   }
 
   @Test
@@ -227,6 +230,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
         "Helm files count: 0, parsed: 0, not parsed: 0; Kustomize file count: 0");
+    verifyLinesOfCodeTelemetry(7);
   }
 
   @Test
@@ -238,6 +242,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo(PARSING_ERROR_KEY);
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -257,6 +262,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).contains("Helm content detected in file 'templates/k8.yaml'");
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -267,8 +273,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     assertThat(logTester.logs(Level.ERROR)).hasSize(2);
     assertNotSourceFileIsParsed();
+    verifyLinesOfCodeTelemetry(0);
   }
 
+  // TODO: SONARIAC-1877 Fix logic inside this test, some of the files are parseable, some not
   @ParameterizedTest
   @ValueSource(strings = {
     "'{{ .Values.count }}'",
@@ -301,6 +309,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
         "Helm files count: 1, parsed: 1, not parsed: 0; Kustomize file count: 0");
+    verifyLinesOfCodeTelemetry(4);
   }
 
   private static Stream<RaiseIssue> provideRaiseIssue() {
@@ -348,6 +357,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
         "Helm files count: 2, parsed: 2, not parsed: 0; Kustomize file count: 0");
+    verifyLinesOfCodeTelemetry(10);
   }
 
   @Test
@@ -367,6 +377,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(issue.primaryLocation().message()).isEqualTo("Issue");
     TextRange textRange = issue.primaryLocation().textRange();
     Assertions.assertThat(textRange).isNull();
+    verifyLinesOfCodeTelemetry(4);
   }
 
   @Test
@@ -395,6 +406,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(flow1.locations().get(0).textRange())
       .on(originalSourceCode)
       .isEqualTo("{{ some other helm code }}");
+    verifyLinesOfCodeTelemetry(5);
   }
 
   @Test
@@ -422,6 +434,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertSecondaryLocation(flow1, 5, 0, 5, 26, "Secondary message 1");
     Issue.Flow flow2 = issue.flows().get(1);
     assertSecondaryLocation(flow2, 6, 0, 6, 23, "Secondary message 2");
+    verifyLinesOfCodeTelemetry(6);
   }
 
   private void assertSecondaryLocation(Issue.Flow flow, int startLine, int startLineOffset, int endLine, int endLineOffset,
@@ -457,6 +470,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     // No highlighting and metrics in SonarLint
     assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
     assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -517,42 +531,46 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
         "Helm files count: 1, parsed: 0, not parsed: 1; Kustomize file count: 2");
+    // helm file is not parseable, only kustomize file is counted
+    verifyLinesOfCodeTelemetry(3);
   }
 
   @Test
   void shouldStoreTelemetry() {
     var kustomizeHelm = inputFile("templates/kustomization.yaml", "{{ some helm code }}\n" + K8_IDENTIFIERS);
     var kustomizeK8s = inputFile("templates/kustomization.yml", K8_IDENTIFIERS);
-    var context = contextForTelemetry();
 
     analyze(context, sensor(), kustomizeHelm, kustomizeK8s);
 
-    verify(context, times(1)).addTelemetryProperty("iac.helm", "1");
-    verify(context, times(1)).addTelemetryProperty("iac.kustomize", "1");
+    verify(context).addTelemetryProperty("iac.helm", "1");
+    verify(context).addTelemetryProperty("iac.kustomize", "1");
+    // the helm files throws a parsing error and is not counted towards loc
+    verifyLinesOfCodeTelemetry(3);
   }
 
   @Test
   void shouldStoreEmptyTelemetry() {
     var helmFile = inputFile("templates/pod.yaml", "{{ some helm code }}\n" + K8_IDENTIFIERS);
     var k8sFile = inputFile("templates/pod.yml", K8_IDENTIFIERS);
-    var context = contextForTelemetry();
 
     analyze(context, sensor(), helmFile, k8sFile);
 
-    verify(context, times(1)).addTelemetryProperty("iac.helm", "1");
-    verify(context, times(1)).addTelemetryProperty("iac.kustomize", "0");
+    verify(context).addTelemetryProperty("iac.helm", "1");
+    verify(context).addTelemetryProperty("iac.kustomize", "0");
+    // the helm files throws a parsing error and is not counted towards loc
+    verifyLinesOfCodeTelemetry(3);
   }
 
   @Test
   void shouldNotStoreTelemetryWhenNoK8sFiles() {
     var file1 = inputFile("templates/not-a-k8s.yaml", "{{ some helm code }}\n");
     var file2 = inputFile("not-a-k8s.yml", "foo: bar");
-    var context = contextForTelemetry();
 
     analyze(context, sensor(), file1, file2);
 
     verify(context, never()).addTelemetryProperty(eq("iac.helm"), anyString());
     verify(context, never()).addTelemetryProperty(eq("iac.kustomize"), anyString());
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -605,11 +623,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   protected InputFile inputFile(String content) {
-    return super.inputFile("templates/k8.yaml", content);
+    return inputFile("templates/k8.yaml", content);
   }
 
   protected InputFile inputFileWithIdentifiers(String content) {
-    return super.inputFile("templates/k8.yaml", content + "\n" + K8_IDENTIFIERS);
+    return inputFile("templates/k8.yaml", content + "\n" + K8_IDENTIFIERS);
   }
 
   @Override
@@ -647,17 +665,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     return sensor;
   }
 
-  private SensorContextTester contextForTelemetry() {
-    var settings = new MapSettings();
-    settings.setProperty(getActivationSettingKey(), true);
-    var context = spy(SensorContextTester.create(baseDir)
-      .setSettings(settings)
-      .setRuntime(SonarRuntimeImpl.forSonarQube(Version.create(10, 10), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER)));
-    // As of version 10.7 of sonar-plugin-api impl, this method throws an exception
-    doNothing().when(context).addTelemetryProperty(anyString(), anyString());
-    return context;
-  }
-
   @Override
   protected String repositoryKey() {
     return KubernetesExtension.REPOSITORY_KEY;
@@ -681,6 +688,13 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFileWithIdentifiers("");
+  }
+
+  @Override
+  protected Map<InputFile, Integer> validFilesMappedToExpectedLoCs() {
+    return Map.of(
+      validFile(), 3,
+      inputFile("templates/k82.yaml", "\n" + K8_IDENTIFIERS), 3);
   }
 
   @Override

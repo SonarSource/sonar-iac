@@ -31,6 +31,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetryMetrics;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
 public abstract class IacSensor implements Sensor {
@@ -41,6 +42,7 @@ public abstract class IacSensor implements Sensor {
   protected final FileLinesContextFactory fileLinesContextFactory;
   protected final NoSonarFilter noSonarFilter;
   protected final Language language;
+  protected final SensorTelemetryMetrics sensorTelemetryMetrics = new SensorTelemetryMetrics();
 
   protected IacSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
     Language language) {
@@ -130,7 +132,8 @@ public abstract class IacSensor implements Sensor {
   }
 
   protected void afterExecute(SensorContext sensorContext) {
-    // do nothing by default
+    sensorTelemetryMetrics.addAggregatedLinesOfCodeTelemetry(repositoryKey());
+    sensorTelemetryMetrics.reportTelemetry(sensorContext);
   }
 
   public static boolean isFailFast(SensorContext context) {

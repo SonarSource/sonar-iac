@@ -34,7 +34,7 @@ class JsonMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+    return new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Override
@@ -60,6 +60,6 @@ class JsonMetricsVisitorTest extends AbstractMetricsTest {
       ]
       }""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
-    verifyNCLOCDataMetric(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
+    verifyLinesOfCodeMetricsAndTelemetry(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
   }
 }

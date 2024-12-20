@@ -34,13 +34,14 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.extension.visitors.SensorTelemetryMetrics;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public abstract class AbstractMetricsTest {
 
@@ -51,6 +52,7 @@ public abstract class AbstractMetricsTest {
   protected SensorContextTester sensorContext;
   protected DefaultInputFile inputFile;
   protected FileLinesContext fileLinesContext;
+  protected SensorTelemetryMetrics sensorTelemetryMetrics;
 
   @TempDir
   public File tempFolder;
@@ -61,6 +63,7 @@ public abstract class AbstractMetricsTest {
     fileLinesContext = mock(FileLinesContext.class);
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+    sensorTelemetryMetrics = spy(new SensorTelemetryMetrics());
 
     parser = treeParser();
     visitor = metricsVisitor(fileLinesContextFactory);
@@ -72,10 +75,6 @@ public abstract class AbstractMetricsTest {
   protected abstract TreeParser<? extends Tree> treeParser();
 
   protected abstract MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory);
-
-  protected MetricsVisitor scan(String... codeLines) {
-    return scan(code(codeLines));
-  }
 
   protected MetricsVisitor scan(String code) {
     return scan(code, "file");
@@ -92,7 +91,12 @@ public abstract class AbstractMetricsTest {
     return visitor;
   }
 
-  protected void verifyNCLOCDataMetric(Integer... linesOfCode) {
+  protected void verifyLinesOfCodeMetricsAndTelemetry(Integer... linesOfCode) {
+    verifyNCLOCDataMetric(linesOfCode);
+    verify(sensorTelemetryMetrics).addLinesOfCode(linesOfCode.length);
+  }
+
+  private void verifyNCLOCDataMetric(Integer... linesOfCode) {
     var linesOfCodeSet = Arrays.stream(linesOfCode).collect(Collectors.toSet());
     for (var lineNumber = 1; lineNumber <= inputFile.lines(); lineNumber++) {
       if (linesOfCodeSet.contains(lineNumber)) {

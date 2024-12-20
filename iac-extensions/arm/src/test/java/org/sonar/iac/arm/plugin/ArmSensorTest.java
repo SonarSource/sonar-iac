@@ -17,6 +17,7 @@
 package org.sonar.iac.arm.plugin;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -126,6 +127,20 @@ class ArmSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFile("object.json", "{\"key\":\"value\"}");
+  }
+
+  @Override
+  protected Map<InputFile, Integer> validFilesMappedToExpectedLoCs() {
+    return Map.of(
+      // json
+      validFile(), 1,
+      // bicep
+      IacTestUtils.inputFile(
+        "object.bicep",
+        baseDir.toPath(),
+        "param environmentName string",
+        "azureresourcemanager"),
+      1);
   }
 
   @Override

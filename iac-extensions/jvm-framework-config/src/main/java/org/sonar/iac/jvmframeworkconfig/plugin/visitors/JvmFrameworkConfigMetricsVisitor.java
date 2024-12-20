@@ -19,6 +19,7 @@ package org.sonar.iac.jvmframeworkconfig.plugin.visitors;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetryMetrics;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
 import org.sonar.iac.jvmframeworkconfig.tree.api.SyntaxToken;
@@ -26,8 +27,8 @@ import org.sonar.iac.jvmframeworkconfig.tree.api.SyntaxToken;
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigSensor.isPropertiesFile;
 
 public class JvmFrameworkConfigMetricsVisitor extends YamlMetricsVisitor {
-  public JvmFrameworkConfigMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
-    super(fileLinesContextFactory, noSonarFilter);
+  public JvmFrameworkConfigMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetryMetrics sensorTelemetryMetrics) {
+    super(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Override

@@ -18,6 +18,7 @@ package org.sonar.iac.terraform.plugin;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
@@ -45,7 +46,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
   private static final TFLintRulesDefinition tfLintRulesDefinition = new TFLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
 
   @Test
-  void should_return_terraform_descriptor() {
+  void shouldReturnTerraformDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC Terraform Sensor");
@@ -53,7 +54,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void test_one_rule() {
+  void shouldTestOneRule() {
     InputFile inputFile = inputFile("file1.tf", """
       resource "aws_s3_bucket" "myawsbucket" {
         tags = { "anycompany:cost-center" = "" }
@@ -71,10 +72,11 @@ class TerraformSensorTest extends ExtensionSensorTest {
     TextRange treeTextRange = TextRanges.range(issueTextRange.start().line(), issueTextRange.start().lineOffset(),
       issueTextRange.end().line(), issueTextRange.end().lineOffset());
     assertThat(treeTextRange).hasRange(2, 11, 2, 35);
+    verifyLinesOfCodeTelemetry(3);
   }
 
   @Test
-  void test_sonarlint_context() {
+  void shouldRunInSonarLintContext() {
     InputFile inputFile = inputFile("file1.tf", """
       resource "aws_s3_bucket" "myawsbucket" {
         tags = { "anycompany:cost-center" = "" }
@@ -87,6 +89,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
     // No highlighting and metrics in SonarLint
     assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
     assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
@@ -142,6 +145,13 @@ class TerraformSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFile("file.tf", "a {}");
+  }
+
+  @Override
+  protected Map<InputFile, Integer> validFilesMappedToExpectedLoCs() {
+    return Map.of(
+      validFile(), 1,
+      inputFile("file2.tf", "a {}"), 1);
   }
 
   @Override

@@ -92,7 +92,7 @@ public class ArmSensor extends YamlSensor {
     visitors.add(new ArmSymbolVisitor());
     visitors.add(new ChecksVisitor(checks, statistics));
     if (isNotSonarLintContext(sensorContext)) {
-      visitors.add(new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+      visitors.add(new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics));
       visitors.add(new ArmHighlightingVisitor());
     }
     return visitors;

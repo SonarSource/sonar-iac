@@ -20,13 +20,14 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetryMetrics;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 
 import static org.sonar.iac.arm.plugin.ArmSensor.isBicepFile;
 
 public class ArmMetricsVisitor extends YamlMetricsVisitor {
-  protected ArmMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
-    super(fileLinesContextFactory, noSonarFilter);
+  protected ArmMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetryMetrics sensorTelemetryMetrics) {
+    super(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
   }
 
   @Override
