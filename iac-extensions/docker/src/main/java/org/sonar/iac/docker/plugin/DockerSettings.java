@@ -19,7 +19,7 @@ package org.sonar.iac.docker.plugin;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinition.ConfigScope;
+import org.sonar.api.resources.Qualifiers;
 
 public class DockerSettings {
 
@@ -45,7 +45,7 @@ public class DockerSettings {
         .description("Disabling Docker analysis ensures that no Docker files are parsed, highlighted and analyzed, " +
           "and no IaC analysis results are included in the quality gate.")
         .type(PropertyType.BOOLEAN)
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(DOCKER_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
@@ -55,7 +55,7 @@ public class DockerSettings {
         .name("File Patterns")
         .description("List of file patterns of Docker files to be indexed. " +
           "Details on the expected format can be found on the 'Docker' documentation page.")
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(DOCKER_CATEGORY)
         .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
@@ -69,7 +69,7 @@ public class DockerSettings {
       .description("Paths (absolute or relative) to the files with Hadolint issues. You can use Ant patterns to define paths.")
       .category(EXTERNAL_ANALYZERS_CATEGORY)
       .subCategory(DOCKER_CATEGORY)
-      .onConfigScopes(ConfigScope.PROJECT)
+      .onQualifiers(Qualifiers.PROJECT)
       .multiValues(true)
       .build());
   }

@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinition.ConfigScope;
+import org.sonar.api.resources.Qualifiers;
 
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
@@ -47,7 +47,7 @@ public class CloudformationSettings {
         .name("Activate CloudFormation analysis")
         .description("Activate analysis of JSON and Yaml files recognized as CloudFormation files.")
         .type(PropertyType.BOOLEAN)
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(CLOUDFORMATION_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
@@ -57,7 +57,7 @@ public class CloudformationSettings {
         .defaultValue(CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE)
         .name("File Identifier")
         .description("Files without the identifier are excluded from the analysis. The identifier can be anywhere in the file.")
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(CLOUDFORMATION_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .build());
@@ -70,7 +70,7 @@ public class CloudformationSettings {
       .description("Paths (absolute or relative) to the files with Cfn-Lint issues. You can use wildcard patterns to define paths.")
       .category(EXTERNAL_ANALYZERS_CATEGORY)
       .subCategory(CLOUDFORMATION_CATEGORY)
-      .onConfigScopes(ConfigScope.PROJECT)
+      .onQualifiers(Qualifiers.PROJECT)
       .multiValues(true)
       .build());
   }

@@ -18,7 +18,7 @@ package org.sonar.iac.common.yaml;
 
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinition.ConfigScope;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.iac.common.ConfigurationLanguage;
 
 /**
@@ -41,7 +41,7 @@ public class YamlLanguage extends ConfigurationLanguage {
       .defaultValue(DEFAULT_FILE_SUFFIXES)
       .name("File Suffixes")
       .description("List of suffixes of YAML files to be indexed.")
-      .onConfigScopes(ConfigScope.PROJECT)
+      .onQualifiers(Qualifiers.PROJECT)
       .category(YAML_CATEGORY)
       .subCategory("General")
       .multiValues(true)

@@ -19,7 +19,7 @@ package org.sonar.iac.jvmframeworkconfig.plugin;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinition.ConfigScope;
+import org.sonar.api.resources.Qualifiers;
 
 import static org.sonar.iac.common.predicates.JvmConfigFilePredicate.JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.JvmConfigFilePredicate.JVM_CONFIG_FILE_PATTERNS_KEY;
@@ -41,7 +41,7 @@ public final class JvmFrameworkConfigSettings {
         .description("Disabling JVM Framework Configuration analysis ensures that no JVM Framework configuration files are parsed, highlighted and analyzed, " +
           "and no analysis results are included in the quality gate.")
         .type(PropertyType.BOOLEAN)
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(JAVA_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
@@ -50,7 +50,7 @@ public final class JvmFrameworkConfigSettings {
         .defaultValue(JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE)
         .name("File Patterns")
         .description("List of file patterns of JVM Framework configuration files to be indexed.")
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(JAVA_CATEGORY)
         .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)

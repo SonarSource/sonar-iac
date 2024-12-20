@@ -18,7 +18,7 @@ package org.sonar.iac.common.json;
 
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinition.ConfigScope;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.iac.common.ConfigurationLanguage;
 
 /**
@@ -41,7 +41,7 @@ public class JsonLanguage extends ConfigurationLanguage {
       .defaultValue(DEFAULT_FILE_SUFFIXES)
       .name("File Suffixes")
       .description("List of suffixes of JSON files to be indexed.")
-      .onConfigScopes(ConfigScope.PROJECT)
+      .onQualifiers(Qualifiers.PROJECT)
       .category(JSON_CATEGORY)
       .subCategory("General")
       .multiValues(true)

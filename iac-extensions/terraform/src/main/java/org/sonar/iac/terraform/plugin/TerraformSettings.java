@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinition.ConfigScope;
+import org.sonar.api.resources.Qualifiers;
 
 public class TerraformSettings {
 
@@ -49,7 +49,7 @@ public class TerraformSettings {
         .description("Disabling Terraform analysis ensures that no Terraform files are parsed, highlighted and analyzed, " +
           "and no IaC analysis results are included in the quality gate.")
         .type(PropertyType.BOOLEAN)
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
@@ -59,7 +59,7 @@ public class TerraformSettings {
         .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
         .name("File Suffixes")
         .description("List of suffixes of Terraform files to analyze.")
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)
         .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
@@ -71,7 +71,7 @@ public class TerraformSettings {
         .description("Version of the AWS provider of lifecycle management of AWS resources. " +
           "Use semantic versioning format like `3.4`, `4.17.1` or `4`")
         .type(PropertyType.STRING)
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)
         .subCategory(VERSION_SUBCATEGORY)
         .build(),
@@ -82,7 +82,7 @@ public class TerraformSettings {
         .description("Version of the Azure Resource Manager provider of lifecycle management of Microsoft Azure resources. " +
           "Use semantic versioning format like `3.4`, `4.17.1` or `4`")
         .type(PropertyType.STRING)
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)
         .subCategory(VERSION_SUBCATEGORY)
         .build());
@@ -95,7 +95,7 @@ public class TerraformSettings {
       .description("Paths (absolute or relative) to the files with TFLint issues. You can use Ant patterns to define paths.")
       .category(EXTERNAL_ANALYZERS_CATEGORY)
       .subCategory(TERRAFORM_CATEGORY)
-      .onConfigScopes(ConfigScope.PROJECT)
+      .onQualifiers(Qualifiers.PROJECT)
       .multiValues(true)
       .build());
   }
