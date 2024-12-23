@@ -12,7 +12,7 @@ load(
 )
 load(
     "github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/master",
-"custom_image_container_builder"
+    "custom_image_container_builder"
 )
 load(
     "github.com/SonarSource/cirrus-modules/cloud-native/cache.star@analysis/master",
@@ -52,6 +52,7 @@ def build_script():
         "echo export PROJECT_VERSION=${PROJECT_VERSION} >> ~/.profile"
     ]
 
+
 def build_env():
     env = pgp_signing_env()
     env |= next_env()
@@ -87,7 +88,7 @@ def build_test_env():
     env |= next_env()
     env |= {
         "DEPLOY_PULL_REQUEST": "false",
-        "BUILD_ARGUMENTS": "-x artifactoryPublish"
+        "BUILD_ARGUMENTS": "lintGoCode -x artifactoryPublish"
     }
     return env
 

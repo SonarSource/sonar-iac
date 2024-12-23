@@ -15,4 +15,7 @@ RUN apt-get update && apt-get --no-install-recommends install -y gcc make && rm 
     cd musl-${MUSL_VERSION} && ./configure --prefix=/opt/musl --enable-gcc-wrapper=yes && make && make install
 
 USER sonarsource
+
+RUN curl --proto "https" -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /home/sonarsource/go/bin v1.62.2
+
 ENV PATH="/opt/go/bin:/home/sonarsource/go/bin:/opt/musl/bin:${PATH}"

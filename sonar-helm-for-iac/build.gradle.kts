@@ -149,6 +149,30 @@ if (isCi) {
         callMake(this, "build")
     }
 
+    tasks.register<Exec>("lintGoCode") {
+        description = "Run an external Go linter."
+        group = "verification"
+
+        val reportPath = layout.buildDirectory.file("reports/golangci-lint-report.xml")
+        inputs.files(
+            fileTree(projectDir).matching {
+                include("src/**/*.go")
+            }
+        )
+        outputs.files(reportPath)
+        outputs.cacheIf { true }
+
+        commandLine(
+            "golangci-lint",
+            "run",
+            "--go=${requireNotNull(System.getenv("GO_VERSION")) { "Go version is unset in the environment" }}",
+            "--out-format=checkstyle:${reportPath.get().asFile}"
+        )
+        // golangci-lint returns non-zero exit code if there are issues, we don't want to fail the build in this case.
+        // A report with issues will be later ingested by SonarQube.
+        isIgnoreExitValue = true
+    }
+
     tasks.register<Exec>("testGoCode") {
         description = "Test the executable produced by the compile go code step."
         group = "build"

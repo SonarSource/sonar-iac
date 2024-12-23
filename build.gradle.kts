@@ -62,6 +62,7 @@ project(":sonar-helm-for-iac") {
             property("sonar.test.inclusions", "**/*_test.go")
             property("sonar.go.tests.reportPaths", "build/test-report.json")
             property("sonar.go.coverage.reportPaths", "build/test-coverage.out")
+            property("sonar.go.golangci-lint.reportPaths", "build/reports/golangci-lint-report.xml")
         }
     }
 }
