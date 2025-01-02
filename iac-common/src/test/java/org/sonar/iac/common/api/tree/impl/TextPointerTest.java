@@ -1,6 +1,6 @@
 /*
  * SonarQube IaC Plugin
- * Copyright (C) 2021-2024 SonarSource SA
+ * Copyright (C) 2021-2025 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@ package org.sonar.iac.common.api.tree.impl;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class TextPointerTest {
 

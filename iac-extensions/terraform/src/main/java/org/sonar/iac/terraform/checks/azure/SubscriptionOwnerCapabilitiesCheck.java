@@ -1,6 +1,6 @@
 /*
  * SonarQube IaC Plugin
- * Copyright (C) 2021-2024 SonarSource SA
+ * Copyright (C) 2021-2025 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,10 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper;
 
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.*;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_SUBSCRIPTION_SCOPE_PATTERN;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_SUBSCRIPTION_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 

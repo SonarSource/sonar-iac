@@ -1,6 +1,6 @@
 /*
  * SonarQube IaC Plugin
- * Copyright (C) 2021-2024 SonarSource SA
+ * Copyright (C) 2021-2025 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,9 @@ import org.sonar.iac.terraform.symbols.ReferenceSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.BLOCK;
-import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.*;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
 
 @Rule(key = "S6404")
 public class PublicAccessCheck extends AbstractNewResourceCheck {

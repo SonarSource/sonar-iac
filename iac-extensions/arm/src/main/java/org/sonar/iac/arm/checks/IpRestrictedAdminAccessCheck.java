@@ -1,6 +1,6 @@
 /*
  * SonarQube IaC Plugin
- * Copyright (C) 2021-2024 SonarSource SA
+ * Copyright (C) 2021-2025 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,9 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils;
 
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.*;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
 
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
