@@ -4,7 +4,7 @@ env:
 build_task:
   skip: $CIRRUS_BRANCH == "public_master"
   eks_container:
-    dockerfile: .cirrus/Dockerfile
+    dockerfile: build-logic/Dockerfile
     cpu: 2
     memory: 6G
     docker_arguments:
