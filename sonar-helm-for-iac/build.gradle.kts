@@ -226,9 +226,10 @@ if (!isCi) {
         description = "Build the docker image to build the go code."
         group = "build"
 
-        inputs.file("Dockerfile")
-        // It is too difficult to check if image is built; Docker takes care of it anyway.
-        setErrorOutput(System.out)
+        inputs.file("$rootDir/build-logic/Dockerfile")
+        // Task outputs are not set, because it is too difficult to check if image is built;
+        // We can ignore Gradle caches here, because Docker takes care of its own caches anyway.
+        errorOutput = System.out
 
         val uidProvider = objects.property<Long>()
         val os = DefaultNativePlatform.getCurrentOperatingSystem()
@@ -244,9 +245,15 @@ if (!isCi) {
             add("docker")
             add("buildx")
             add("build")
+            add("--file")
+            add(rootProject.file("build-logic/Dockerfile").absolutePath)
             if (noTrafficInspection) {
                 add("--build-arg")
-                add("BUILD_ENV=ci")
+                add("BUILD_ENV=dev")
+            } else {
+                add("--network=host")
+                add("--build-arg")
+                add("BUILD_ENV=dev_custom_cert")
             }
             if (uidProvider.isPresent) {
                 add("--build-arg")
@@ -268,7 +275,7 @@ if (!isCi) {
         description = "Build the go code from the docker image."
         group = "build"
         dependsOn("buildDockerImage")
-        setErrorOutput(System.out)
+        errorOutput = System.out
 
         inputs.files(
             fileTree(projectDir).matching {
@@ -288,10 +295,20 @@ if (!isCi) {
         outputs.cacheIf { true }
 
         commandLine(
-            "docker", "run", "--rm", "--platform", "linux/amd64", "--mount",
+            "docker",
+            "run",
+            "--rm",
+            "--network=host",
+            "--platform",
+            "linux/amd64",
+            "--mount",
             "type=bind,source=${project.projectDir},target=/home/sonarsource/sonar-helm-for-iac",
-            "--env", "GO_CROSS_COMPILE=${System.getenv("GO_CROSS_COMPILE") ?: "1"}",
-            "sonar-iac-helm-builder"
+            "--env",
+            "GO_CROSS_COMPILE=${System.getenv("GO_CROSS_COMPILE") ?: "1"}",
+            "sonar-iac-helm-builder",
+            "bash",
+            "-c",
+            "cd /home/sonarsource/sonar-helm-for-iac && ./make.sh clean && ./make.sh build && ./make.sh test"
         )
     }
 

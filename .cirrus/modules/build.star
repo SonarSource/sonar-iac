@@ -67,7 +67,7 @@ def build_task():
     return {
         "build_task": {
             "env": build_env(),
-            "eks_container": custom_image_container_builder(cpu=10, memory="6G"),
+            "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile", cpu=10, memory="6G"),
             "project_version_cache": project_version_cache(),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
@@ -99,7 +99,7 @@ def build_test_analyze_task():
             "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "env": build_test_env(),
-            "eks_container": custom_image_container_builder(cpu=6, memory="6G"),
+            "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile", cpu=6, memory="6G"),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": build_script(),
