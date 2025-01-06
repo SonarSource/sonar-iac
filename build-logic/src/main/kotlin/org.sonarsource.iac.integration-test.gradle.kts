@@ -52,4 +52,9 @@ val integrationTestTask =
             exceptionFormat = TestExceptionFormat.FULL // log the full stack trace (default is the 1st line of the stack trace)
             events("skipped", "failed") // verbose log for failed and skipped tests (by default the name of the tests are not logged)
         }
+
+        outputs.upToDateWhen {
+            // As the exact SQ version is not known at configuration time, we cannot know if the task is up-to-date
+            false
+        }
     }
