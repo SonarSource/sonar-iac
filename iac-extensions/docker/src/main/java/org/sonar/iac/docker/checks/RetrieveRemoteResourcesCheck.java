@@ -29,6 +29,7 @@ import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.Variable;
 
 import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.shortFlagPredicate;
 import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWithIgnoreQuotes;
@@ -103,7 +104,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static void checkArgumentsForWget(CheckContext ctx, List<ArgumentResolution> args) {
     WGET_DOWNLOAD_DETECTOR.search(args).forEach((CommandDetector.Command command) -> {
-      if (doesNotContainFlags(args, WGET_FORBIDDEN_FLAGS)) {
+      if (doesNotContainFlags(args, WGET_FORBIDDEN_FLAGS) && doesNotContainEnvVariables(args)) {
         reportIssue(ctx, args, WGET);
       }
     });
@@ -112,7 +113,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void checkArgumentsForCurl(CheckContext ctx, List<ArgumentResolution> args) {
     for (CommandDetector curlDetector : CURL_DETECTORS) {
       curlDetector.search(args).forEach((CommandDetector.Command command) -> {
-        if (doesNotContainFlags(args, CURL_FORBIDDEN_FLAGS)) {
+        if (doesNotContainFlags(args, CURL_FORBIDDEN_FLAGS) && doesNotContainEnvVariables(args)) {
           reportIssue(ctx, args, CURL);
         }
       });
@@ -122,6 +123,15 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static boolean doesNotContainFlags(List<ArgumentResolution> args, List<String> flags) {
     return args.stream().noneMatch(
       arg -> flags.stream().anyMatch(flag -> arg.value().startsWith(flag)));
+  }
+
+  /**
+   * Check if the command does not contain unresolved environment variables.
+   * It can contain variables that come from Docker and not Bash, in that case the command can be extracted into an ADD instruction.
+   */
+  private static boolean doesNotContainEnvVariables(List<ArgumentResolution> args) {
+    return args.stream().noneMatch(arg -> arg.status() == ArgumentResolution.Status.UNRESOLVED &&
+      arg.argument().expressions().stream().anyMatch(Variable.class::isInstance));
   }
 
   private static void reportIssue(CheckContext ctx, List<ArgumentResolution> args, String command) {

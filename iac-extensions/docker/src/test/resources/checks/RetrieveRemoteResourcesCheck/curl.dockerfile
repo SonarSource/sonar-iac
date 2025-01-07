@@ -428,3 +428,12 @@ RUN curl https://example.com/resource > /dev/null
 RUN curl -L https://example.com/resource >> /dev/null
 RUN curl -L https://example.com/resource -k 1> /dev/null
 RUN curl -L https://example.com/resource -k 1>> /dev/null
+
+# Compliant: curl is part of a command chain and relies on previous commands
+RUN VERSION=$(cat version.txt) && curl -o output.txt https://example.com/resource/$VERSION
+RUN VERSION=1.2.3 && curl -o output.txt https://example.com/resource/$VERSION
+RUN curl -o output.txt https://example.com/resource/$VERSION
+
+ARG RESOURCE_VERSION=1.2.3
+# Noncompliant@+1
+RUN curl -o output.txt https://example.com/resource/$RESOURCE_VERSION

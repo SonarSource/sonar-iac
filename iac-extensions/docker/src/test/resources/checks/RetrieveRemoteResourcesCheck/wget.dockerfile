@@ -207,3 +207,11 @@ RUN wget -O /path/to/resource https://example.com/resource --post-file=file.txt
 # Compliant: no file save
 RUN wget https://example.com/resource > file.html
 
+# Compliant: wget is part of a command chain and relies on previous commands
+RUN VERSION=$(cat version.txt) && wget -O output.txt https://example.com/resource/$VERSION
+RUN VERSION=1.2.3 && curl -o output.txt https://example.com/resource/$VERSION
+RUN wget -O output.txt https://example.com/resource/$VERSION
+
+ARG RESOURCE_VERSION=1.2.3
+# Noncompliant@+1
+RUN wget -O output.txt https://example.com/resource/$RESOURCE_VERSION
