@@ -198,7 +198,7 @@ if (isCi) {
     // on auto-formatting in Intellij Go plugin, which also calls `gofmt`.
     spotless {
         go {
-            val goVersion = providers.environmentVariable("GO_VERSION").getOrElse("1.21.8")
+            val goVersion = providers.environmentVariable("GO_VERSION").getOrElse("1.23.4")
             gofmt("go$goVersion")
             target("**/*.go")
             targetExclude("**/*.pb.go")
@@ -286,7 +286,9 @@ if (!isCi) {
                     "**/go.sum",
                     "go.work",
                     "go.work.sum",
-                    "proto/template-evaluation.proto"
+                    "proto/template-evaluation.proto",
+                    "make.sh",
+                    "make.bat"
                 )
                 exclude("build/**")
             }

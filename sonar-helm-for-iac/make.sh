@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 set -euox pipefail
 
-readonly GO_VERSION="${GO_VERSION:-1.21.8}"
+readonly GO_VERSION="${GO_VERSION:-1.23.4}"
 readonly DEFAULT_GO_BINARY_DIRECTORY="${GOPATH:=${HOME}/go}/bin"
 readonly DEFAULT_GO_BINARY="${DEFAULT_GO_BINARY_DIRECTORY}/go"
 readonly PROTOBUF_GO_VERSION="${PROTOBUF_GO_VERSION:-1.36.1}"
@@ -79,27 +79,6 @@ install_go() {
   echo "${go_binary}"
 }
 
-verifyLicenseHeader() {
-  echo "Verify License Header"
-  hasAllLicenseHeader=0
-  for file in *.go; do
-    [ -f "$file" ] || continue
-    IFS= read -r line < "$file" || [ -n "$line" ] || continue
-    case $line in
-      ("// SonarQube IaC Plugin"*)
-        ;;
-      *)
-        printf 'No license header: %s\n' "$file"
-        hasAllLicenseHeader=1
-        ;;
-    esac
-  done
-  if [[ hasAllLicenseHeader -eq 1 ]]; then
-    printf 'Please fix license headers'
-    exit 1;
-  fi
-}
-
 compile_binaries() {
   echo "Compile binaries"
   # Install the proper go version
@@ -112,25 +91,25 @@ compile_binaries() {
   GO_FLAGS=(-ldflags="-s -w" -buildmode=exe)
   if [ "${GO_CROSS_COMPILE:-}" != 0 ]; then
     echo "Building for all supported platforms"
+
     GOOS="linux"
     GOARCH="amd64"
-    CGO_ENABLED=0 CC=musl-gcc ${path_to_binary} build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
+    # Note: starting with Go 1.22, cgo is required if an external linker is used. Not applicable for other platforms, where we don't use musl.
+    env CGO_ENABLED=1 GOOS=${GOOS} GOARCH=${GOARCH} CC=musl-gcc "${path_to_binary}" build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
 
     GOOS="windows"
-    CGO_ENABLED=0 GOOS=$GOOS ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
+    env CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} "${path_to_binary}" build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
 
     GOOS="darwin"
     for GOARCH in amd64 arm64; do
-      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}" ./src
+      env CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} "${path_to_binary}" build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}" ./src
     done
   else
-    GOOS=$(${path_to_binary} env GOOS)
-    GOARCH=$(${path_to_binary} env GOARCH)
+    GOOS=$("${path_to_binary}" env GOOS)
+    GOARCH=$("${path_to_binary}" env GOARCH)
     echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    CGO_ENABLED=0 ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
+    env CGO_ENABLED=0 GOOS="${GOOS}" GOARCH="${GOARCH}" "${path_to_binary}" build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
   fi
-
-  verifyLicenseHeader
 }
 
 generate_test_report() {

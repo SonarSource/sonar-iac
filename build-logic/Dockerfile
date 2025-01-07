@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.21.8
+ARG GO_VERSION=1.23.4
 # Possible values: ci, dev_custom_cert, dev
 ARG BUILD_ENV=ci
 # Placeholder; actual value is present on CI
