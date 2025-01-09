@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 pluginManagement {
+    includeBuild("gradle/build-logic-common")
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -23,6 +24,7 @@ pluginManagement {
 
 plugins {
     id("com.diffplug.blowdryerSetup") version "1.7.1"
+    id("org.sonarsource.cloud-native.common-settings")
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

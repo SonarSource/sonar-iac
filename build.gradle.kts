@@ -17,30 +17,10 @@
 import org.sonar.iac.registerAllRuleApiTasks
 
 plugins {
-    alias(libs.plugins.spotless)
     id("org.sonarsource.iac.artifactory-configuration")
     id("org.sonarsource.iac.rule-api")
     id("org.sonarsource.iac.sonarqube")
     id("com.diffplug.blowdryer")
-}
-
-val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
-spotless {
-    // Mainly used to define spotless configuration for the build-logic
-    encoding(Charsets.UTF_8)
-    kotlinGradle {
-        ktlint().setEditorConfigPath("$rootDir/.editorconfig")
-        target("*.gradle.kts", "build-logic/*.gradle.kts", "/build-logic/src/**/*.gradle.kts", "/sonar-helm-for-iac/*.gradle.kts")
-        licenseHeaderFile(
-            rootProject.file("LICENSE_HEADER"),
-            kotlinGradleDelimiter
-        ).updateYearWithLatest(true)
-    }
-    kotlin {
-        ktlint().setEditorConfigPath("$rootDir/.editorconfig")
-        target("/build-logic/src/**/*.kt")
-        licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
-    }
 }
 
 project(":iac-extensions:kubernetes") {

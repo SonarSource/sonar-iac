@@ -43,6 +43,7 @@ def profile_report_artifacts():
 
 def build_script():
     return [
+        "git submodule update --init --depth 1 -- gradle/build-logic-common",
         "source cirrus-env BUILD-PRIVATE",
         "source .cirrus/use-gradle-wrapper.sh",
         "regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}",
@@ -121,6 +122,7 @@ def build_test_analyze_task():
 # Some bits depend on the project: memory options, gradle task
 def whitesource_script():
     return [
+        "git submodule update --init --depth 1 -- gradle/build-logic-common",
         "source cirrus-env QA",
         "source .cirrus/use-gradle-wrapper.sh",
         "source ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt",
