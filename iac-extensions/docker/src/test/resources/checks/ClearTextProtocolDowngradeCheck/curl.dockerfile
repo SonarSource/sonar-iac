@@ -65,6 +65,8 @@ RUN curl -sLSf --tlsv1.2 https://might-redirect.example.com/install.sh
 
 RUN curl -L --proto "=foobar" http://redirecttoinsecure.example.com
 RUN curl --location --proto "=foobar" http://redirecttoinsecure.example.com
+RUN curl --location http://redirecttoinsecure.example.com --proto "=foobar"
+RUN curl -L http://redirecttoinsecure.example.com --proto "=foobar"
 
 RUN curl --proto -L "=foobar" http://redirecttoinsecure.example.com
 RUN curl --proto --location "=foobar" http://redirecttoinsecure.example.com
