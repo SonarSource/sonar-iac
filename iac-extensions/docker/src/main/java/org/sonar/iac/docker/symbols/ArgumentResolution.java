@@ -212,7 +212,7 @@ public class ArgumentResolution {
 
     /**
      * To resolve the value of a symbol at a given state, the last assigned value is considered.
-     * There for all symbol usages are analyzed for the last assignment with value before the access.
+     * Therefore, all symbol usages are analyzed for the last assignment with value before the access.
      */
     private void resolveVariable(Variable variable) {
       Symbol symbol = variable.symbol();

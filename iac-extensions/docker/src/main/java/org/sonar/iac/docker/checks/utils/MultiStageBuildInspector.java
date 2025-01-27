@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -36,6 +37,10 @@ public final class MultiStageBuildInspector {
     this.stageDependencyGraph = stageDependencyGraph;
   }
 
+  /**
+   * Return a new instance of {@link MultiStageBuildInspector} for the given {@link Body}.
+   * This entrypoint performs the analysis of the given {@link Body} to build the dependency graph itself and does not rely on the {@link TreeVisitor} system.
+   */
   public static MultiStageBuildInspector of(Body body) {
     var stageDependencyGraph = StageDependencyGraph.of(body);
     return new MultiStageBuildInspector(stageDependencyGraph);
@@ -55,6 +60,10 @@ public final class MultiStageBuildInspector {
     return getStageName(stage)
       .map(lastStageDependencies::contains)
       .orElse(false);
+  }
+
+  public Set<String> getStageDependencies(String stage) {
+    return stageDependencyGraph.getStageDependencies(stage, new HashSet<>());
   }
 
   private static DockerImage getLastStage(Body body) {

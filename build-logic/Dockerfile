@@ -16,7 +16,7 @@ RUN groupadd --system --gid ${UID} sonarsource \
 
 # If the custom certificate is not provided, use the base image.
 # This mode can be activated by providing build argument `BUILD_ENV=dev`.
-FROM dev_base AS dev_custom_cert_image
+FROM dev_base AS dev_image
 
 # Install a custom certificate from the build context into the image.
 # This mode can be activated by providing build argument `BUILD_ENV=dev_custom_cert`.

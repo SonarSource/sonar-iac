@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.docker.tree;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -24,7 +25,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.FromInstruction;
+import org.sonar.iac.docker.tree.api.Instruction;
 
 public final class TreeUtils {
 
@@ -65,5 +70,42 @@ public final class TreeUtils {
 
   public static Optional<DockerTree> firstAncestorOfKind(DockerTree node, DockerTree.Kind... kinds) {
     return firstAncestor(node, tree -> Stream.of(kinds).anyMatch(tree::is));
+  }
+
+  /**
+   * Refer to this value in the FROM instruction.
+   * <pre>
+   * {@code
+   * FROM scratch AS my_image
+   *      ^^^^^^^
+   * }
+   * </pre>
+   */
+  public static Optional<String> getParentDockerImageName(Instruction instruction) {
+    return firstAncestorOfKind(instruction, DockerTree.Kind.DOCKERIMAGE)
+      .map(DockerImage.class::cast)
+      .map(DockerImage::from)
+      .map(from -> ArgumentResolution.of(from.image()))
+      .filter(ArgumentResolution::isResolved)
+      .map(ArgumentResolution::value);
+  }
+
+  /**
+   * Refer to this value in the FROM instruction.
+   * <pre>
+   * {@code
+   * FROM scratch AS my_image
+   *                 ^^^^^^^^
+   * }
+   * </pre>
+   */
+  public static Optional<String> getDockerImageName(Instruction instruction) {
+    return firstAncestorOfKind(instruction, DockerTree.Kind.DOCKERIMAGE)
+      .map(DockerImage.class::cast)
+      .map(DockerImage::from)
+      .map(FromInstruction.class::cast)
+      .map(FromInstruction::alias)
+      .filter(Objects::nonNull)
+      .map(alias -> alias.alias().value());
   }
 }

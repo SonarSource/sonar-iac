@@ -1,4 +1,6 @@
-FROM scratch
+ARG my_image=base
+
+FROM scratch AS base
 
 # Noncompliant@+1 {{Replace this shell form with exec form.}}
 CMD echo "Welcome!"
@@ -16,6 +18,42 @@ ONBUILD CMD echo "Welcome!"
 HEALTHCHECK --interval=30s CMD node healthcheck.js
 #                              ^^^^^^^^^^^^^^^^^^^
 
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo $message
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message-default}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message:=default}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message:+var}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message:7}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message:7:0}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "$message"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" && echo "Goodbye"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" || echo "Goodbye"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" ; echo "Goodbye"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" | echo "Goodbye"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" && echo "Goodbye" || echo "Goodbye" ; echo "Goodbye" | echo "Goodbye"
+
 # Noncompliant@+1
 CMD this is a very \
 # ^[el=+2;sc=4;ec=14]
@@ -29,3 +67,34 @@ CMD this is a very long instruction that is settled on a single line aaaaaaaaaaa
 RUN echo "Welcome!"
 CMD ["echo", "Welcome!"]
 ENTRYPOINT ["echo", "Welcome!"]
+
+SHELL ["sh", "-c"]
+# Compliant: if we met a SHELL instruction before, then we consider it's a conscious decision and don't raise an issue
+CMD echo "Welcome!"
+CMD echo "Welcome" && echo "Goodbye" || echo "Goodbye" ; echo "Goodbye" | echo "Goodbye"
+
+FROM scratch
+# Noncompliant@+1
+CMD echo "Welcome!"
+
+FROM base as base2
+# Compliant: the parent image has a SHELL instruction
+CMD echo "Welcome!"
+
+FROM base2
+# Compliant: the parent's parent image has a SHELL instruction
+CMD echo "Welcome!"
+
+FROM $my_image
+# Compliant: the parent resolved image name has a SHELL instruction
+CMD echo "Welcome!"
+
+FROM $unknown
+# If we cannot resolved the image name, we don't consider this image come from any local image, so it cannot have a SHELL instruction
+# Noncompliant@+1
+CMD echo "Welcome!"
+
+FROM scratch
+SHELL ["sh", "-c"]
+# Compliant: extra use case with a SHELL instruction in an image without alias
+CMD echo "Welcome!"
