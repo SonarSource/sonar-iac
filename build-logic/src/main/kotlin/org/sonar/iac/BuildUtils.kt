@@ -21,6 +21,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.register
 
 fun enforceJarSize(
@@ -55,3 +56,10 @@ fun Project.registerCleanupTask(): TaskProvider<Delete> {
         )
     }
 }
+
+fun String.toCamelCase() = replace("-[a-z]".toRegex()) { it.value.last().uppercase() }.capitalized()
+
+fun Project.collectIacExtensionNames(exclusions: List<String>) =
+    rootProject.allprojects.filter {
+    it.path.startsWith(":iac-extensions:") && it.name !in exclusions
+}.map { it.name }

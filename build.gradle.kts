@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import org.sonar.iac.registerAllRuleApiTasks
+import org.sonar.iac.collectIacExtensionNames
+import org.sonar.iac.toCamelCase
 
 plugins {
     id("org.sonarsource.iac.artifactory-configuration")
-    id("org.sonarsource.iac.rule-api")
+    id("org.sonarsource.cloud-native.rule-api")
     id("org.sonarsource.iac.sonarqube")
     id("com.diffplug.blowdryer")
 }
@@ -58,4 +59,11 @@ artifactoryConfiguration {
     passwordEnv = "ARTIFACTORY_DEPLOY_PASSWORD"
 }
 
-registerAllRuleApiTasks()
+ruleApi {
+    languageToSonarpediaDirectory = collectIacExtensionNames(
+        // For jvm-framework-config, we don't (yet) have separate rules.
+        exclusions = listOf("jvm-framework-config")
+    ).associate { name ->
+        name.toCamelCase() to "iac-extensions/$name/"
+    }
+}

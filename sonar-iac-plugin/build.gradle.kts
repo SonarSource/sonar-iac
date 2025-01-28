@@ -21,7 +21,7 @@ plugins {
     id("org.sonarsource.iac.java-conventions")
     id("org.sonarsource.iac.artifactory-configuration")
     id("org.sonarsource.iac.code-style-convention")
-    alias(libs.plugins.shadow)
+    id("com.gradleup.shadow")
 }
 
 description = "SonarSource IaC Analyzer :: Sonar Plugin"
