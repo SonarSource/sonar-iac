@@ -41,10 +41,23 @@ which get loaded by the main plugin class and are structured similarly to other 
 
 ### Requirements
 * Java 17
-* Go 1.21 and the following dependencies:
-  * musl on Linux (`musl-gcc` should be present on `PATH`)
-* Alternatively, Docker should be installed to perform the build of the Go part inside a container
+* Docker should be installed to perform the build of the Go part inside a container
   * In some environments, importing a custom certificate must be performed during the Docker build. Refer to the [dedicated readme](sonar-helm-for-iac/Readme.md#build-docker-image) for more details.
+* Alternatively, to replicate CI setup and use system Go toolchain, set environment variable `CI=true`. Go 1.23 and the following dependencies are needed:
+  * musl on Linux (`musl-gcc` should be present on `PATH`)
+
+### Setup
+To configure build dependencies, run the following command:
+
+```bash
+git submodule update --init -- gradle/build-logic-common
+```
+To always get the latest version of the build logic during git operations, set the following configuration:
+
+```
+git config submodule.recurse true
+```
+For more information see [README.md](https://github.com/SonarSource/cloud-native-gradle-modules/blob/master/README.md) of cloud-native-gradle-modules.
 
 ### Build and run unit tests:
 ```shell
