@@ -90,7 +90,7 @@ tasks.shadowJar {
     val (minSize, maxSize) = if (isCrossCompile) {
         17_500_000L to 18_500_000L
     } else {
-        7_500_000L to 8_500_000L
+        8_000_000L to 9_000_000L
     }
     doLast {
         enforceJarSize(archiveFile.get().asFile, minSize, maxSize)
