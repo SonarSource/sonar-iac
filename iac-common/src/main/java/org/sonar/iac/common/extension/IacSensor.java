@@ -42,7 +42,7 @@ public abstract class IacSensor implements Sensor {
   protected final FileLinesContextFactory fileLinesContextFactory;
   protected final NoSonarFilter noSonarFilter;
   protected final Language language;
-  protected final SensorTelemetryMetrics sensorTelemetryMetrics = new SensorTelemetryMetrics();
+  protected SensorTelemetryMetrics sensorTelemetryMetrics;
 
   protected IacSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
     Language language) {
@@ -91,6 +91,7 @@ public abstract class IacSensor implements Sensor {
 
     initContext(sensorContext);
 
+    sensorTelemetryMetrics = new SensorTelemetryMetrics();
     var statistics = new DurationStatistics(sensorContext.config());
     List<InputFile> inputFiles = inputFiles(sensorContext, statistics);
     var analyzer = createAnalyzer(sensorContext, statistics);
