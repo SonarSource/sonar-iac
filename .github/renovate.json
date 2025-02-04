@@ -30,7 +30,7 @@
   ],
   "packageRules": [
     {
-      "managers": [
+      "matchManagers": [
         "github-actions"
       ],
       "pinDigests": false,
@@ -38,18 +38,18 @@
       "groupSlug": "all-github-actions"
     },
     {
-      "managers": [
+      "matchManagers": [
         "github-actions"
       ],
       "matchUpdateTypes": ["pin", "rollback"],
       "enabled": false
     },
     {
-      "managers": [
+      "matchManagers": [
         "gradle"
       ],
-      "matchPackagePatterns": [
-        "*"
+      "matchPackageNames": [
+        "!org.sonarsource.api.plugin:sonar-plugin-api"
       ],
       "matchUpdateTypes": [
         "minor",
@@ -59,14 +59,25 @@
       "groupSlug": "all-minor-patch"
     },
     {
-      "managers": [
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchPackageNames": [
+        "org.sonarsource.api.plugin:sonar-plugin-api"
+      ],
+      "groupName": "sonar-plugin-api",
+      "groupSlug": "sonar-plugin-api",
+      "prBodyNotes": [
+        "Before updating the plugin-api version, make sure to check the compatibility matrix and stick to the lowest denominator.",
+        "https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility"
+      ]
+    },
+    {
+      "matchManagers": [
         "gomod"
       ],
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "excludePackageNames": [
-        "go"
+      "matchPackageNames": [
+        "!go"
       ],
       "matchUpdateTypes": [
         "minor",
@@ -76,5 +87,5 @@
       "groupSlug": "all-go-minor-patch"
     }
   ],
-  "reviewers": ["team:analysis-cloud-squad"]
+  "reviewers": ["team:security-cloud-squad"]
 }
