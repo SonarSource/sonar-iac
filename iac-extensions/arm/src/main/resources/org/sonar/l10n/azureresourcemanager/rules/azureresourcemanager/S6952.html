@@ -6,7 +6,7 @@ dependency is set when you use the <code>reference</code> function and pass in t
 <code>dependsOn</code> element. However, a code smell arises when these dependencies are used simultaneously for the same resources. This redundancy
 is unnecessary and can lead to confusion. Therefore, to maintain clarity and efficiency in your code, it is best to omit explicit dependencies when
 they are already defined implicitly.</p>
-<h2>How to fix it in ARM templates</h2>
+<h2>How to fix it in JSON templates</h2>
 <p>If a resource references another with a <code>reference</code> function, remove the <code>dependsOn</code> element if it points to the same
 resource.</p>
 <h3>Code examples</h3>

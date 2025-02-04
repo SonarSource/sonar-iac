@@ -8,7 +8,7 @@ restricting users from choosing their preferred deployment location.</p>
 <code>resourceGroup().location</code>. This practice ensures consistency in resource allocation and provides users of the template the flexibility to
 specify a location where they have the necessary permissions to deploy resources. This approach helps avoid hardcoding locations, which can lead to
 potential deployment issues and restrictions.</p>
-<h2>How to fix it in ARM templates</h2>
+<h2>How to fix it in JSON templates</h2>
 <p>Create a parameter for the location and set the default value to <code>resourceGroup().location</code>. Then, use the parameter to specify the
 location of resources.</p>
 <h3>Code examples</h3>

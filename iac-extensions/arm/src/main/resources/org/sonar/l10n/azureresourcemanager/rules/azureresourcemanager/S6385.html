@@ -32,7 +32,7 @@ able to use it without limit to use the third party service to their own need, i
 <p>This additional use will lead to added costs with the Azure service provider.</p>
 <p>Moreover, when rate or volume limiting is set up on the provider side, this additional use can prevent the regular operation of the affected
 environment. This might result in a partial denial of service for all legitimate users.</p>
-<h2>How to fix it</h2>
+<h2>How to fix it in JSON templates</h2>
 <p>To reduce the risk of intrusion of a compromised owner, it is recommended to limit the number of subscription owners.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -60,24 +60,6 @@ environment. This might result in a partial denial of service for all legitimate
   ]
 }
 </pre>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-targetScope = 'managementGroup'
-
-resource roleDef 'Microsoft.Authorization/roleDefinitions@2022-04-01' = { // Sensitive
-  properties: {
-    permissions: [
-      {
-        actions: ['*']
-        notActions: []
-      }
-    ]
-
-    assignableScopes: [
-      managementGroup().id
-    ]
-  }
-}
-</pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
@@ -103,6 +85,38 @@ resource roleDef 'Microsoft.Authorization/roleDefinitions@2022-04-01' = { // Sen
   ]
 }
 </pre>
+<h3>Going the extra mile</h3>
+<p>Here is a list of recommendations that can be followed regarding good usage of roles:</p>
+<ul>
+  <li> Apply the least privilege principle by creating a custom role with as few permissions as possible. </li>
+  <li> As custom roles can be updated, gradually add atomic permissions when required. </li>
+  <li> Limit the assignable scopes of the custom role to a set of Resources or Resource Groups. </li>
+  <li> When necessary, use the built-in Owner role instead of a custom role granting subscription owner capabilities. </li>
+  <li> Limit the assignments of Owner roles to less than three people or service principals. </li>
+</ul>
+<h2>How to fix it in Bicep</h2>
+<p>To reduce the risk of intrusion of a compromised owner, it is recommended to limit the number of subscription owners.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+targetScope = 'managementGroup'
+
+resource roleDef 'Microsoft.Authorization/roleDefinitions@2022-04-01' = { // Sensitive
+  properties: {
+    permissions: [
+      {
+        actions: ['*']
+        notActions: []
+      }
+    ]
+
+    assignableScopes: [
+      managementGroup().id
+    ]
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
 targetScope = 'managementGroup'
 

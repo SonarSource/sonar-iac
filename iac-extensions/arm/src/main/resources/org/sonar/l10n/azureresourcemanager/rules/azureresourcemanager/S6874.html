@@ -5,7 +5,7 @@ or variable is not recommended, as it can lead to unexpected behaviors and deplo
 <p>Using a variable or parameter for the <code>apiVersion</code> for a resource is not an optimal way to always stay up to date with the latest
 version. This can lead to unexpected behaviors like deployment failures, when the API version you set for a resource doesn’t match the properties in
 your template.</p>
-<h2>How to fix it in ARM Templates</h2>
+<h2>How to fix it in JSON templates</h2>
 <p>To avoid these issues, it is recommended to set the <code>apiVersion</code> to a hard-coded value for the resource type.</p>
 <p>When creating a new template, we suggest you use the latest API version for a resource type.</p>
 <p>To determine which version to use, you can refer to the template reference of the official documentation linked below. Make sure to choose a

@@ -3,7 +3,9 @@
 understand the template.</p>
 <p>Not following this convention has no technical impact, but will reduce the template’s readability because most developers are used to the standard
 order.</p>
-<h2>How to fix it in ARM Templates</h2>
+<h2>How to fix it in JSON templates</h2>
+<h3>Code examples</h3>
+<h4>Compliant solution</h4>
 <p><strong>Recommended order of the resource elements</strong>:</p>
 <pre>
 {
@@ -32,6 +34,8 @@ order.</p>
 </pre>
 <p>Any other properties not listed here should be placed before the <code>properties</code> object for the resource.</p>
 <h2>How to fix it in Bicep</h2>
+<h3>Code examples</h3>
+<h4>Compliant solution</h4>
 <p><strong>Recommended order of the resource elements and decorators</strong>:</p>
 <pre>
 @description

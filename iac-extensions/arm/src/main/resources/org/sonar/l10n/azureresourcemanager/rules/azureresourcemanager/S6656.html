@@ -8,7 +8,7 @@ deployed. Secure parameters cannot be accessed after the deployment is completed
 <h3>What is the potential impact?</h3>
 <p>If the nested deployment contains a secure parameter in this way, then the value of this parameter may be readable in the deployment history. This
 can lead to important credentials being leaked to unauthorized accounts.</p>
-<h2>How to fix it in ARM Templates</h2>
+<h2>How to fix it in JSON templates</h2>
 <p>By setting <code>properties.expressionEvaluationOptions.scope</code> to <code>Inner</code> in the parent template, template evaluations are limited
 to the scope of the nested template. This makes it impossible to expose secure parameters defined in the parent template.</p>
 <h3>Code examples</h3>

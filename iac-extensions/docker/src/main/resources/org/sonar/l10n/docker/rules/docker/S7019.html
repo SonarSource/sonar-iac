@@ -7,6 +7,12 @@ form, the executable runs as a child process to a shell, which does not pass OS 
 containers because the main process will not receive the signal intended to terminate it. Moreover, the exec form provides more control and
 predictability over the execution of the command. It does not invoke a command shell, which means it does not have the potential side effects of shell
 processing.</p>
+<h3>Exceptions</h3>
+<p>The exec form does not allow shell features such as variable expansion, piping (<code>|</code>) and command chaining (<code>&amp;&amp;</code>,
+<code>||</code>, <code>;</code>). In case you need to use these features, there are a few alternatives: * Creation of a wrapper script * Explicitly
+specify the shell to use with the <code>SHELL</code> instruction before <code>CMD</code> or <code>ENTRYPOINT</code></p>
+<p>This rule will not raise an issue if the <code>SHELL</code> instruction is used before the <code>CMD</code> or <code>ENTRYPOINT</code> instruction,
+as we consider this a conscious decision.</p>
 <h2>How to fix it</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -14,10 +20,27 @@ processing.</p>
 FROM scratch
 ENTRYPOINT echo "Welcome!"
 </pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+FROM scratch
+ENTRYPOINT echo "Long script with chaining commands" \
+  &amp;&amp; echo "Welcome!" \
+  &amp;&amp; echo "Goodbye"
+</pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 FROM scratch
 ENTRYPOINT ["echo", "Welcome!"]
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+FROM scratch
+SHELL ["/bin/bash", "-c"]
+ENTRYPOINT echo "Long script with chaining commands" \
+  &amp;&amp; echo "Welcome!" \
+  &amp;&amp; echo "Goodbye"
+</pre>
+<pre>
+FROM scratch
+ENTRYPOINT ["/entrypoint.sh"]
 </pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>

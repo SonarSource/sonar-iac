@@ -21,7 +21,7 @@ management.</p>
 </ul>
 <p>Alternatively, User-Assigned Managed Identities can also be used but don’t guarantee the properties listed above.</p>
 <h2>Sensitive Code Example</h2>
-<p>Using ARM templates:</p>
+<p>Using JSON templates:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -43,7 +43,7 @@ resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-
 }
 </pre>
 <h2>Compliant Solution</h2>
-<p>Using ARM templates:</p>
+<p>Using JSON templates:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
