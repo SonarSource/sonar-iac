@@ -39,12 +39,20 @@ import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseExcepti
 
 import static org.sonar.iac.terraform.plugin.TFLintRulesDefinition.LINTER_KEY;
 
+/**
+ * Import JSON formatted report of TFLint.
+ * The source code of TFLint reporter can be found at
+ * <a href="https://github.com/terraform-linters/tflint/blob/master/formatter/json.go">TFLint JSON formatter</a>.
+ * <p>
+ * Command to generate TFLint report in JSON format:
+ * <pre>docker run --rm -v $(pwd):/data -t ghcr.io/terraform-linters/tflint:v0.55.1 --format=json</pre>
+ */
 public class TFLintImporter extends AbstractJsonReportImporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(TFLintImporter.class);
 
   private static final String MESSAGE_PREFIX = "TFLint report importing: ";
-  // Matches: `: filename.tf:2,21-29:`
+  // Matches `: filename.tf:2,21-29:` in the error message of TFLint < 0.35.0
   private static final Pattern FILENAME_PATTERN = Pattern.compile(":\\s([^*&%:]+):(\\d+),(\\d+)-(\\d+):");
 
   public TFLintImporter(SensorContext context, TFLintRulesDefinition tfLintRulesDefinition, AnalysisWarningsWrapper analysisWarnings) {
@@ -53,11 +61,13 @@ public class TFLintImporter extends AbstractJsonReportImporter {
 
   @Override
   protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
-    Object parsedJson = jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
-    JSONArray issuesArray = ((JSONArray) ((JSONObject) parsedJson).get("issues"));
-    JSONArray errorsArray = ((JSONArray) ((JSONObject) parsedJson).get("errors"));
-    issuesArray.addAll(errorsArray);
-    return issuesArray;
+    try (var reader = Files.newBufferedReader(reportFile.toPath())) {
+      Object parsedJson = jsonParser.parse(reader);
+      JSONArray issuesArray = ((JSONArray) ((JSONObject) parsedJson).get("issues"));
+      JSONArray errorsArray = ((JSONArray) ((JSONObject) parsedJson).get("errors"));
+      issuesArray.addAll(errorsArray);
+      return issuesArray;
+    }
   }
 
   @Override
@@ -98,29 +108,42 @@ public class TFLintImporter extends AbstractJsonReportImporter {
   }
 
   private NewIssueLocation issueLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
-    JSONObject range = (JSONObject) issueJson.get("range");
-    var filename = (String) range.get("filename");
+    return rangeToLocation((JSONObject) issueJson.get("range"), externalIssue)
+      .message((String) issueJson.get("message"));
+  }
+
+  private NewIssueLocation errorLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
+    NewIssueLocation location;
+    var rangeJson = (JSONObject) issueJson.get("range");
+    var messageJson = (String) issueJson.get("message");
+    if (rangeJson != null) {
+      // Starting with tfLint 0.35.0, errors contain range object
+      location = rangeToLocation(rangeJson, externalIssue);
+    } else {
+      location = messageToLocation(messageJson, externalIssue);
+    }
+    return location.message(messageJson);
+  }
+
+  private NewIssueLocation rangeToLocation(JSONObject rangeJson, NewExternalIssue externalIssue) {
+    var filename = (String) rangeJson.get("filename");
 
     var inputFile = inputFile(filename);
 
-    JSONObject start = (JSONObject) range.get("start");
+    var start = (JSONObject) rangeJson.get("start");
     var startLine = asInt(start.get("line"));
     var startColumn = asInt(start.get("column"));
-    JSONObject end = (JSONObject) range.get("end");
+    var end = (JSONObject) rangeJson.get("end");
     var endLine = asInt(end.get("line"));
     var endColumn = asInt(end.get("column"));
     var textRange = inputFile.newRange(startLine, startColumn - 1, endLine, endColumn - 1);
 
-    var message = (String) issueJson.get("message");
-
     return externalIssue.newLocation()
-      .message(message)
       .on(inputFile)
       .at(textRange);
   }
 
-  private NewIssueLocation errorLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
-    var message = (String) issueJson.get("message");
+  private NewIssueLocation messageToLocation(String message, NewExternalIssue externalIssue) {
     var matcher = FILENAME_PATTERN.matcher(message);
     if (!matcher.find()) {
       throw new ReportImporterException("Can't extract filename from error message");
@@ -140,7 +163,6 @@ public class TFLintImporter extends AbstractJsonReportImporter {
     }
 
     return externalIssue.newLocation()
-      .message(message)
       .on(inputFile)
       .at(textRange);
   }

@@ -96,7 +96,9 @@ public abstract class AbstractJsonReportImporter {
   }
 
   protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
-    return (JSONArray) jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
+    try (var reader = Files.newBufferedReader(reportFile.toPath())) {
+      return (JSONArray) jsonParser.parse(reader);
+    }
   }
 
   protected int saveIssues(JSONArray issuesJson) {

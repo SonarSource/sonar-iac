@@ -1,0 +1,21 @@
+{
+  "issues": [],
+  "errors": [
+    {
+      "summary": "Unclosed configuration block",
+      "message": "There is no closing brace for this block before the end of the file. This may be caused by incorrect brace nesting elsewhere in this file.",
+      "severity": "error",
+      "range": {
+        "filename": "exampleError.tf",
+        "start": {
+          "line": 1,
+          "column": 31
+        },
+        "end": {
+          "line": 1,
+          "column": 32
+        }
+      }
+    }
+  ]
+}

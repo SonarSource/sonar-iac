@@ -37,6 +37,7 @@ import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.terraform.plugin.TFLintRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.from;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -113,6 +114,23 @@ class TFLintImporterTest {
     assertThat(issue.primaryLocation().message()).isEqualTo(
       "Failed to check ruleset; Failed to check `foo bar` rule: exampleError.tf:2,21-25: foo bar");
     assertTextRange(issue.primaryLocation().textRange(), 2, 20, 2, 24);
+    verifyNoInteractions(mockAnalysisWarnings);
+  }
+
+  @Test
+  void shouldImportExampleErrorWithTflintGeq35() {
+    var reportFile = new File(PATH_PREFIX + "/exampleErrorNewFormat.json");
+    var importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
+
+    importer.importReport(reportFile);
+
+    assertThat(context.allExternalIssues()).hasSize(1)
+      .element(0)
+      .returns("tflint.error", from(ExternalIssue::ruleId))
+      .returns(RuleType.CODE_SMELL, from(ExternalIssue::type))
+      .returns("There is no closing brace for this block before the end of the file. This may be caused by incorrect brace nesting elsewhere in this file.",
+        from(issue -> issue.primaryLocation().message()))
+      .satisfies(issue -> assertTextRange(issue.primaryLocation().textRange(), 1, 30, 1, 31));
     verifyNoInteractions(mockAnalysisWarnings);
   }
 

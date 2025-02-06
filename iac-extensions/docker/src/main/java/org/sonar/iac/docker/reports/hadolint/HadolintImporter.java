@@ -40,7 +40,10 @@ public class HadolintImporter extends AbstractJsonReportImporter {
 
   @Override
   protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
-    Object parsedJson = jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
+    Object parsedJson;
+    try (var reader = Files.newBufferedReader(reportFile.toPath())) {
+      parsedJson = jsonParser.parse(reader);
+    }
     if (parsedJson instanceof JSONObject object) {
       // case: sonarQube-Format
       var jsonObject = object.get("issues");
