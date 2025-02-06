@@ -17,18 +17,9 @@ resource nonCompliant2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
 }
 
-resource nonCompliant3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: storageAccountName
-  location: 'Global' // Noncompliant
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-}
-
 param location string = resourceGroup().location
 
-resource compliant1 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource compliantVariableLocation 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -37,7 +28,7 @@ resource compliant1 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
 }
 
-resource compliant2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource compliantVariableLocation2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: unresolved
   sku: {
@@ -46,9 +37,39 @@ resource compliant2 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
 }
 
-resource compliant3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource compliantGlobalLocationLowercase 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: 'global'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+resource compliantGlobalLocationUppercase 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: 'Global'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+resource compliantExpressionLocation 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+param context object = {
+  location: 'westus'
+}
+resource compliantObjectPropertyLocation 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: context.location
   sku: {
     name: 'Standard_LRS'
   }

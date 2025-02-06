@@ -23,6 +23,7 @@ import org.sonar.iac.arm.tree.api.HasIdentifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -39,13 +40,13 @@ public class HardcodedResourceLocationCheck implements IacCheck {
   private static void checkResourceLocation(CheckContext ctx, ResourceDeclaration resource) {
     resource.getResourceProperty("location")
       .map(Property::value)
-      .filter(HardcodedResourceLocationCheck::hasNoIdentifier)
+      .filter(HardcodedResourceLocationCheck::isNotVariableOrProperty)
       .filter(HardcodedResourceLocationCheck::isNotGlobalLocation)
       .ifPresent(tree -> ctx.reportIssue(tree.textRange(), MESSAGE));
   }
 
-  private static boolean hasNoIdentifier(Expression tree) {
-    return !(tree instanceof HasIdentifier);
+  private static boolean isNotVariableOrProperty(Expression tree) {
+    return !(tree instanceof HasIdentifier) && !(tree instanceof MemberExpression);
   }
 
   private static boolean isNotGlobalLocation(Expression tree) {
@@ -53,6 +54,6 @@ public class HardcodedResourceLocationCheck implements IacCheck {
       return true;
     }
     var stringLiteral = (StringLiteral) tree;
-    return !"global".equals(stringLiteral.value());
+    return !"global".equalsIgnoreCase(stringLiteral.value());
   }
 }

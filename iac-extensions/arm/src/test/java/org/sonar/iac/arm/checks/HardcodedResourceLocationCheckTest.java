@@ -30,7 +30,6 @@ class HardcodedResourceLocationCheckTest {
   void shouldCheckHardcodedLocationJson() {
     ArmVerifier.verify("HardcodedResourceLocationCheck/resources.json", new HardcodedResourceLocationCheck(),
       issue(18, 18, 18, 26, "Replace this hardcoded location with a parameter."),
-      issue(28, 18, 28, 56, "Replace this hardcoded location with a parameter."),
-      issue(38, 18, 38, 26, "Replace this hardcoded location with a parameter."));
+      issue(28, 18, 28, 56, "Replace this hardcoded location with a parameter."));
   }
 }
