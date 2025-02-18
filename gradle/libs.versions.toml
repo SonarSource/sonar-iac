@@ -1,5 +1,5 @@
 [versions]
-sonarqube = "25.1.0.102122"
+sonarqube = "25.2.0.102705"
 # Before updating the plugin-api version, make sure to check the compatibility matrix and stick to the lowest denominator
 # https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility
 sonar-plugin-api = "11.1.0.2693"
@@ -7,18 +7,18 @@ sonar-commons = "2.16.0.3141"
 sonar-license-api = "3.4"
 sonar-orchestrator = "5.1.0.2254"
 junit = "5.11.4"
-assertj = "3.27.2"
+assertj = "3.27.3"
 mockito = "5.15.2"
-sonar-lint = "10.12.1.79852"
+sonar-lint = "10.15.0.80289"
 sslr = "1.24.0.633"
-archunit = "1.3.0"
-snakeyaml = "2.8"
+archunit = "1.4.0"
+snakeyaml = "2.9"
 minimaljson = "0.9.5"
 sonar-scanner-gradle = "6.0.1.5171"
 jfrog-gradle = "5.2.5"
 spotless-gradle = "6.25.0"
 blowdryer-gradle = "1.7.1"
-google-protobuf = "4.29.2"
+google-protobuf = "4.29.3"
 google-protobuf-gradle = "0.9.4"
 google-protobuf-go = "1.36.5"
 apache-commons-lang = "2.6"
@@ -63,4 +63,4 @@ awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility"}
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless-gradle" }
 google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf-gradle" }
 download = { id = "de.undercouch.download", version = "5.6.0" }
-shadow = { id = "com.gradleup.shadow", version = "8.3.5" }
+shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
