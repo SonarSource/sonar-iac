@@ -12,7 +12,7 @@ require (
 	// When updating this dependency, update "google-protobuf-go" in "libs.versions.toml"
 	// Also update the "PROTOBUF_GO_VERSION" in "make.sh"
 	// Then run "go mod tidy" and "../gradlew generateProto"
-	google.golang.org/protobuf v1.36.4
+	google.golang.org/protobuf v1.36.5
 	sigs.k8s.io/yaml v1.4.0
 )
 
