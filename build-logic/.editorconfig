@@ -98,3 +98,5 @@ ij_kotlin_wrap_first_method_in_call_chain = false
 # Don't insert a new line after assignments with a block expression; see https://github.com/pinterest/ktlint/issues/2464
 ktlint_standard_multiline-expression-wrapping = disabled
 ktlint_standard_string-template-indent = disabled
+# This rule forces a line break before the very first method call in a chain, which can look not very nice in some cases
+ktlint_standard_chain-method-continuation = disabled

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 plugins {
-    id("org.sonarsource.iac.code-style-convention")
+    id("org.sonarsource.cloud-native.code-style-conventions")
     id("org.sonarsource.iac.java-conventions")
     id("java-library")
     id("java-test-fixtures")

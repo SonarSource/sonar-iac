@@ -20,7 +20,7 @@ import org.sonar.iac.registerCleanupTask
 plugins {
     id("org.sonarsource.iac.java-conventions")
     id("org.sonarsource.iac.artifactory-configuration")
-    id("org.sonarsource.iac.code-style-convention")
+    id("org.sonarsource.cloud-native.code-style-conventions")
     id("com.gradleup.shadow")
 }
 

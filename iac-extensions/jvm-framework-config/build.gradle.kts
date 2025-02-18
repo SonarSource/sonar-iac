@@ -16,7 +16,7 @@
  */
 plugins {
     antlr
-    id("org.sonarsource.iac.code-style-convention")
+    id("org.sonarsource.cloud-native.code-style-conventions")
     id("org.sonarsource.iac.java-conventions")
 }
 
@@ -66,4 +66,11 @@ tasks.sourcesJar {
 
 configurations.testImplementation.configure {
     extendsFrom(configurations.compileOnly.get())
+}
+
+spotless {
+    antlr4 {
+        target("src/main/antlr/**/*.g4")
+        licenseHeaderFile("$rootDir/LICENSE_HEADER").updateYearWithLatest(true)
+    }
 }

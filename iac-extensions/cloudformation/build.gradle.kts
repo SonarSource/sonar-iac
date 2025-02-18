@@ -19,7 +19,7 @@ import org.sonar.iac.CfnLintRulesGenerator.extractRules
 import org.sonar.iac.asJson
 
 plugins {
-    id("org.sonarsource.iac.code-style-convention")
+    id("org.sonarsource.cloud-native.code-style-conventions")
     id("org.sonarsource.iac.java-conventions")
     alias(libs.plugins.download)
 }
