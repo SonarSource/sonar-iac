@@ -55,4 +55,3 @@
 [submodule "gradle/build-logic-common"]
 	path = gradle/build-logic-common
 	url = https://github.com/SonarSource/cloud-native-gradle-modules
-	branch = petertrr-patch-1
