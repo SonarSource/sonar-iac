@@ -4,26 +4,11 @@ load(
     "cirrus_env",
     "gradle_develocity_env",
     "gradle_signing_env",
+    "go_env",
     "next_env",
     "gradle_env",
 )
 
-
-def go_env():
-    """
-    Provides typical environment variables to work with Go.
-    The following default values are provided:
-    - GO_VERSION: 1.23.4
-    - GO_CROSS_COMPILE: 1
-
-    :return: a dictionary with the following keys:
-        - GO_VERSION
-        - GO_CROSS_COMPILE
-    """
-    return {
-        "GO_VERSION": "1.23.4",
-        "GO_CROSS_COMPILE": "1",
-    }
 
 def project_version_env():
     return {

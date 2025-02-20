@@ -19,6 +19,7 @@ load(
     "gradle_cache",
     "cleanup_gradle_script",
     "gradle_wrapper_cache",
+    "go_build_cache",
     "project_version_cache",
     "store_project_version_script"
 )
@@ -72,6 +73,7 @@ def build_task():
             "project_version_cache": project_version_cache(),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
+            "go_build_cache": go_build_cache(go_src_dir="${CIRRUS_WORKING_DIR}/sonar-helm-for-iac"),
             "build_script": build_script(),
             "cleanup_gradle_script": cleanup_gradle_script(),
             "on_success": profile_report_artifacts(),
@@ -103,6 +105,7 @@ def build_test_analyze_task():
             "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile", cpu=6, memory="6G"),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
+            "go_build_cache": go_build_cache(go_src_dir="${CIRRUS_WORKING_DIR}/sonar-helm-for-iac"),
             "build_script": build_script(),
             "on_failure": {
                 "junit_artifacts": {
@@ -142,6 +145,7 @@ def sca_scan_task():
             "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile"),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
+            "go_build_cache": go_build_cache(go_src_dir="${CIRRUS_WORKING_DIR}/sonar-helm-for-iac"),
             "project_version_cache": project_version_cache(),
             "whitesource_script": whitesource_script(),
             "cleanup_gradle_script": cleanup_gradle_script(),
