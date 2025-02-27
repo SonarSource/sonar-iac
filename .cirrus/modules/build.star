@@ -21,7 +21,6 @@ load(
     "gradle_wrapper_cache",
     "go_build_cache",
     "project_version_cache",
-    "store_project_version_script"
 )
 load("cache.star", "gradle_cache_fingerprint_script")
 
@@ -50,8 +49,6 @@ def build_script():
         "regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}",
         "echo 'Checking if any files are uncommitted in the Go code (this may happen to the generated code). In case of of failure, run ./gradlew generateProto locally and commit the generated files.'",
         "git diff --exit-code --name-only -- sonar-helm-for-iac/",
-        "source set_gradle_build_version ${BUILD_NUMBER}",
-        "echo export PROJECT_VERSION=${PROJECT_VERSION} >> ~/.profile"
     ]
 
 
@@ -60,7 +57,7 @@ def build_env():
     env |= next_env()
     env |= {
         "DEPLOY_PULL_REQUEST": "true",
-        "BUILD_ARGUMENTS": "-DtrafficInspection=false --parallel --profile -x test -x sonar"
+        "BUILD_ARGUMENTS": "-DtrafficInspection=false --parallel --profile -x test -x sonar storeProjectVersion"
     }
     return env
 
@@ -77,7 +74,6 @@ def build_task():
             "build_script": build_script(),
             "cleanup_gradle_script": cleanup_gradle_script(),
             "on_success": profile_report_artifacts(),
-            "store_project_version_script": store_project_version_script()
         }
     }
 
@@ -128,7 +124,7 @@ def whitesource_script():
         "git submodule update --init --depth 1 -- gradle/build-logic-common",
         "source cirrus-env QA",
         "source .cirrus/use-gradle-wrapper.sh",
-        "source ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt",
+        "export PROJECT_VERSION=$(cat ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt)",
         "GRADLE_OPTS=\"-Xmx64m -Dorg.gradle.jvmargs='-Xmx3G' -Dorg.gradle.daemon=false\" ./gradlew ${GRADLE_COMMON_FLAGS} :iac-common:processResources -Pkotlin.compiler.execution.strategy=in-process",
         "source ws_scan.sh -d \"${PWD},${PWD}/sonar-helm-for-iac\""
     ]
