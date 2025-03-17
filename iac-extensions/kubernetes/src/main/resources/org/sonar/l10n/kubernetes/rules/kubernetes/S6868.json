@@ -20,7 +20,7 @@
   "code": {
     "impacts": {
       "MAINTAINABILITY": "LOW",
-      "SECURITY": "LOW"
+      "SECURITY": "MEDIUM"
     },
     "attribute": "COMPLETE"
   }
