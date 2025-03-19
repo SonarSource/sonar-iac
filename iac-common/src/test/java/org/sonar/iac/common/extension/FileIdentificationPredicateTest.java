@@ -81,9 +81,9 @@ class FileIdentificationPredicateTest {
 
     var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
     assertThat(filePredicate.apply(noFile)).isFalse();
-    assertThat(logTester.logs(Level.ERROR)).hasSize(2);
-    assertThat(logTester.logs(Level.ERROR).get(0)).isEqualTo("Unable to read file: nofile.txt.");
-    assertThat(logTester.logs(Level.ERROR).get(1)).startsWith("File not found mock");
+    assertThat(logTester.logs(Level.WARN)).hasSize(2);
+    assertThat(logTester.logs(Level.WARN).get(0)).isEqualTo("Unable to read file: nofile.txt.");
+    assertThat(logTester.logs(Level.WARN).get(1)).startsWith("File not found mock");
     assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
     assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("File without identifier '" + IDENTIFIER + "': nofile.txt");
   }
@@ -96,9 +96,9 @@ class FileIdentificationPredicateTest {
 
     var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER, IDENTIFIER), true);
     assertThat(filePredicate.apply(noFile)).isFalse();
-    assertThat(logTester.logs(Level.ERROR)).hasSize(2);
-    assertThat(logTester.logs(Level.ERROR).get(0)).isEqualTo("Unable to read file: nofile.txt.");
-    assertThat(logTester.logs(Level.ERROR).get(1)).startsWith("File not found mock");
+    assertThat(logTester.logs(Level.WARN)).hasSize(2);
+    assertThat(logTester.logs(Level.WARN).get(0)).isEqualTo("Unable to read file: nofile.txt.");
+    assertThat(logTester.logs(Level.WARN).get(1)).startsWith("File not found mock");
     assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
     assertThat(logTester.logs(Level.DEBUG).get(0))
       .startsWith("File without any identifiers '[%s, %s]': nofile.txt".formatted(IDENTIFIER, IDENTIFIER));
@@ -112,9 +112,9 @@ class FileIdentificationPredicateTest {
 
     var filePredicate = new FileIdentificationPredicate(IDENTIFIER, false);
     assertThat(filePredicate.apply(noFile)).isFalse();
-    assertThat(logTester.logs(Level.ERROR)).hasSize(2);
-    assertThat(logTester.logs(Level.ERROR).get(0)).isEqualTo("Unable to read file: nofile.txt.");
-    assertThat(logTester.logs(Level.ERROR).get(1)).startsWith("File not found mock");
+    assertThat(logTester.logs(Level.WARN)).hasSize(2);
+    assertThat(logTester.logs(Level.WARN).get(0)).isEqualTo("Unable to read file: nofile.txt.");
+    assertThat(logTester.logs(Level.WARN).get(1)).startsWith("File not found mock");
     assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 

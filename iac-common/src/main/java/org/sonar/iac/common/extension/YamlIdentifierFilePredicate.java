@@ -58,8 +58,8 @@ public class YamlIdentifierFilePredicate implements FilePredicate {
       var text = new String(bytes, inputFile.charset());
       return isTextMatchingRequiredIdentifiers(text);
     } catch (IOException e) {
-      LOG.error("Unable to read file: {}.", inputFile);
-      LOG.error(e.getMessage());
+      LOG.warn("Unable to read file: {}.", inputFile);
+      LOG.warn(e.getMessage());
       return false;
     }
   }

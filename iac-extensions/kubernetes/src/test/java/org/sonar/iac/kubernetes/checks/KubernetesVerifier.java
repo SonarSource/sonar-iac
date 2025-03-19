@@ -270,7 +270,7 @@ public class KubernetesVerifier {
           .filter(path -> path.toFile().isFile())
           .forEach(path -> addFileToSensorContext(SENSOR_CONTEXT, BASE_DIR, path.toString()));
       } catch (IOException e) {
-        LOG.error("Error while trying to add dependent files to sensor context", e);
+        LOG.warn("Error while trying to add dependent files to sensor context", e);
       }
     }
 

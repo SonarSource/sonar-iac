@@ -65,8 +65,8 @@ public class FileIdentificationPredicate implements FilePredicate {
         }
       }
     } catch (IOException e) {
-      LOG.error("Unable to read file: {}.", inputFile);
-      LOG.error(e.getMessage());
+      LOG.warn("Unable to read file: {}.", inputFile);
+      LOG.warn(e.getMessage());
     }
     if (isDebugEnabled) {
       if (fileIdentifiers.size() == 1) {

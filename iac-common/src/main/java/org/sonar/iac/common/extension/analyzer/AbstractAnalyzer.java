@@ -84,7 +84,7 @@ public abstract class AbstractAnalyzer implements Analyzer {
         statistics.time(visitorId, () -> visitor.scan(inputFileContext, tree));
       } catch (RuntimeException e) {
         inputFileContext.reportAnalysisError(e.getMessage(), null);
-        LOG.error("Cannot analyse '{}': {}", inputFileContext.inputFile, e.getMessage(), e);
+        LOG.warn("Cannot analyse '{}': {}", inputFileContext.inputFile, e.getMessage(), e);
         interruptOnFailFast(inputFileContext.sensorContext, inputFileContext.inputFile, e);
       }
     }
@@ -102,7 +102,7 @@ public abstract class AbstractAnalyzer implements Analyzer {
   }
 
   private static void logParsingError(ParseException e) {
-    LOG.error(e.getMessage());
+    LOG.warn(e.getMessage());
     String detailedMessage = e.getDetails();
     if (detailedMessage != null) {
       LOG.debug(detailedMessage);

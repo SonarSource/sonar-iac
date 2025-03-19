@@ -43,7 +43,7 @@ public final class ResourceAccessPolicyVector {
       JsonValue value = Json.parse(loadJsonFile(filePath));
       return value.asArray().values().stream().map(JsonValue::asString).toList();
     } catch (IOException e) {
-      LOG.error(e.getMessage());
+      LOG.warn(e.getMessage());
     }
     return Collections.emptyList();
   }
@@ -51,7 +51,7 @@ public final class ResourceAccessPolicyVector {
   static String loadJsonFile(String filePath) throws IOException {
     try (InputStream input = ResourceAccessPolicyVector.class.getClassLoader().getResourceAsStream(filePath)) {
       if (input == null) {
-        throw new IOException("No able to load " + filePath);
+        throw new IOException("Unable to load " + filePath);
       }
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       byte[] buffer = new byte[4_096];

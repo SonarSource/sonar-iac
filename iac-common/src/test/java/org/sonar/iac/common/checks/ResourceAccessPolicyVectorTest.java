@@ -18,6 +18,9 @@ package org.sonar.iac.common.checks;
 
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,12 +29,17 @@ import static org.sonar.iac.common.checks.CommonTestUtils.TestTree.tree;
 
 class ResourceAccessPolicyVectorTest {
 
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+
   @Test
   void loadJsonFile() {
+    var logMessage = "Unable to load unknown.json";
     assertThrows(IOException.class, () -> ResourceAccessPolicyVector.loadJsonFile("unknown.json"),
-      "No able to load unknown.json");
+      logMessage);
 
     assertThat(ResourceAccessPolicyVector.loadResourceAccessPolicies("unknown.json")).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).contains(logMessage);
   }
 
   @Test

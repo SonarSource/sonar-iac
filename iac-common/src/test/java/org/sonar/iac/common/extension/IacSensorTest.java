@@ -135,7 +135,7 @@ class IacSensorTest extends AbstractSensorTest {
     TextPointer textPointer = analysisError.location();
     assertThat(textPointer).isNull();
 
-    assertThat(logTester.logs(Level.ERROR))
+    assertThat(logTester.logs(Level.WARN))
       .containsExactly("Cannot parse 'file1.iac'");
     assertThat(logTester.logs(Level.DEBUG).get(0))
       .isEqualTo("RuntimeException message");
@@ -329,7 +329,7 @@ class IacSensorTest extends AbstractSensorTest {
 
     analyze(sensorParseException(checkFactory), inputFile);
 
-    assertThat(logTester.logs(Level.ERROR))
+    assertThat(logTester.logs(Level.WARN))
       .containsExactly("ParseException message");
     assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
     assertThat(logTester.logs(Level.DEBUG).get(0))
@@ -352,7 +352,7 @@ class IacSensorTest extends AbstractSensorTest {
 
     analyze(sensorRecognitionException(checkFactory), inputFile);
 
-    assertThat(logTester.logs(Level.ERROR))
+    assertThat(logTester.logs(Level.WARN))
       .containsExactly("Cannot parse 'file1.iac:1:1'");
     assertThat(logTester.logs(Level.DEBUG).get(0))
       .startsWith("RecognitionException message");

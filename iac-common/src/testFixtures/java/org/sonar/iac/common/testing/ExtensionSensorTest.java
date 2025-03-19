@@ -77,8 +77,8 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     assertThat(analysisError.message()).startsWith("Unable to parse file:");
 
     // Test logging
-    assertThat(logTester.logs(Level.ERROR)).hasSize(1);
-    assertThat(logTester.logs(Level.ERROR).get(0))
+    assertThat(logTester.logs(Level.WARN)).hasSize(1);
+    assertThat(logTester.logs(Level.WARN).get(0))
       .startsWith("Cannot parse '%s:".formatted(inputFile));
 
     verifyDebugMessages(logTester.logs(Level.DEBUG));

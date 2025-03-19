@@ -53,7 +53,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @BeforeAll
-  public static void init() {
+  static void init() {
     when(mockParser.parse(any(), any())).thenReturn(mockTree);
   }
 
@@ -358,6 +358,6 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
 
     kubernetesHighlightingVisitor.scan(inputFileContext, root);
 
-    assertThat(logTester.logs(Level.ERROR)).contains("Unable to read file: foo.yaml.");
+    assertThat(logTester.logs(Level.WARN)).contains("Unable to read file: foo.yaml.");
   }
 }

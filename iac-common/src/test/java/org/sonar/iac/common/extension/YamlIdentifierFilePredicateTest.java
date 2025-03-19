@@ -72,6 +72,6 @@ class YamlIdentifierFilePredicateTest {
 
     var yamlFileIdentifier = new YamlIdentifierFilePredicate(Set.of("foo"));
     assertThat(yamlFileIdentifier.apply(inputFile)).isFalse();
-    assertThat(logTester.logs(Level.ERROR)).contains("Unable to read file: filename.txt.");
+    assertThat(logTester.logs(Level.WARN)).contains("Unable to read file: filename.txt.");
   }
 }

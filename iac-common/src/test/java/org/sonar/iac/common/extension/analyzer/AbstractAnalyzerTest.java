@@ -99,7 +99,7 @@ abstract class AbstractAnalyzerTest {
     Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
     List<InputFile> files = List.of(IacTestUtils.invalidInputFile());
     assertThat(analyzer.analyseFiles(context, files, "iac")).isTrue();
-    assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot read 'InvalidFile'");
+    assertThat(logTester.logs(Level.WARN)).containsExactly("Cannot read 'InvalidFile'");
 
     List<String> debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs).hasSize(2);
@@ -114,7 +114,7 @@ abstract class AbstractAnalyzerTest {
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, "iac");
 
-    assertThat(logTester.logs(Level.ERROR)).containsExactly("Custom parse exception");
+    assertThat(logTester.logs(Level.WARN)).containsExactly("Custom parse exception");
     List<String> debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs).hasSize(1);
     assertThat(debugLogs.get(0)).startsWith("org.sonar.iac.common.extension.ParseException: Custom parse exception");
@@ -127,7 +127,7 @@ abstract class AbstractAnalyzerTest {
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, "iac");
 
-    assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot parse 'file.txt'");
+    assertThat(logTester.logs(Level.WARN)).containsExactly("Cannot parse 'file.txt'");
     List<String> debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs).hasSize(2);
     assertThat(debugLogs.get(0)).isEqualTo("Custom runtime exception");
@@ -143,7 +143,7 @@ abstract class AbstractAnalyzerTest {
     List<InputFile> files = List.of(fileWithContent);
     analyzer.analyseFiles(context, files, "iac");
 
-    assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot analyse 'file.txt': Exception when scan mock");
+    assertThat(logTester.logs(Level.WARN)).containsExactly("Cannot analyse 'file.txt': Exception when scan mock");
   }
 
   @Test
@@ -160,7 +160,7 @@ abstract class AbstractAnalyzerTest {
     assertThatThrownBy(() -> analyzer.analyseFiles(context, files, "iac"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Exception when analyzing 'file.txt'");
-    assertThat(logTester.logs(Level.ERROR)).containsExactly("Cannot analyse 'file.txt': Exception when scan mock");
+    assertThat(logTester.logs(Level.WARN)).containsExactly("Cannot analyse 'file.txt': Exception when scan mock");
   }
 
   @Test

@@ -271,7 +271,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     when(inputFile.inputStream()).thenThrow(IOException.class);
     analyze(sensor(), inputFile);
 
-    assertThat(logTester.logs(Level.ERROR)).hasSize(2);
+    assertThat(logTester.logs(Level.WARN)).hasSize(2);
     assertNotSourceFileIsParsed();
     verifyLinesOfCodeTelemetry(0);
   }
