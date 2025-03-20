@@ -48,7 +48,7 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketRes
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
-  private static final String MESSAGE = "Make sure authorizing HTTP requests is safe here.";
+  private static final String MESSAGE = "No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.";
   private static final String MESSAGE_SECONDARY_CONDITION = "HTTPS requests are denied.";
   private static final String MESSAGE_SECONDARY_EFFECT = "Non-conforming requests should be denied.";
   private static final String MESSAGE_SECONDARY_ACTION = "All S3 actions should be restricted.";

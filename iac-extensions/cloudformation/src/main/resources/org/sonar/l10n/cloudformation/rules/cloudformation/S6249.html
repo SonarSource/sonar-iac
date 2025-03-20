@@ -29,7 +29,7 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Sensitive
     Properties:
-      BucketName: "bucketname"
+      BucketName: "example-bucket"
 
   S3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
@@ -40,12 +40,12 @@ Resources:
         Statement:
           - Effect: Deny
             Principal:
-              AWS: # Sensitive: only one principal is forced to use https
+              AWS: # Only one principal is forced to use https
                 - 'arn:aws:iam::123456789123:root'
             Action: "*"
             Resource:
-              - arn:aws:s3:::bucketname
-              - arn:aws:s3:::bucketname/*
+              - arn:aws:s3:::example-bucket
+              - arn:aws:s3:::example-bucket/*
             Condition:
               Bool:
                 "aws:SecureTransport": false
@@ -58,11 +58,12 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Compliant
     Properties:
-      BucketName: "bucketname"
+      BucketName: "example-bucket"
 
   S3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
+
       Bucket: !Ref S3Bucket
       PolicyDocument:
         Version: "2012-10-17"
@@ -72,8 +73,8 @@ Resources:
               AWS: "*" # all principals should use https
             Action: "*" # for any actions
             Resource: # for the bucket and all its objects
-              - arn:aws:s3:::bucketname
-              - arn:aws:s3:::bucketname/*
+              - arn:aws:s3:::example-bucket
+              - arn:aws:s3:::example-bucket/*
             Condition:
               Bool:
                 "aws:SecureTransport": false

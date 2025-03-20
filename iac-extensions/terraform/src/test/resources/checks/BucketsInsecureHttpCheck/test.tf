@@ -1,8 +1,8 @@
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Noncompliant {{Make sure authorizing HTTP requests is safe here.}}
+resource "aws_s3_bucket" "mynoncompliantbucket" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.}}
   bucket = "mynoncompliantbucketname"
 }
 
-resource "aws_s3_bucket" "mynoncompliantallowbuckets6245" { # Noncompliant {{Make sure authorizing HTTP requests is safe here.}}
+resource "aws_s3_bucket" "mynoncompliantallowbuckets6245" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.}}
        # ^^^^^^^^^^^^^^^
   bucket = "mynoncompliantallowbucketrspecs6245myname"
 }

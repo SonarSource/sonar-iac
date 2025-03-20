@@ -17,33 +17,33 @@ means that a malicious actor who is able to intercept traffic from the network c
 <h2>Sensitive Code Example</h2>
 <p>No secure policy is attached to this bucket:</p>
 <pre>
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
-  bucket = "mynoncompliantbucketname"
+resource "aws_s3_bucket" "example-bucket" { # Sensitive
+  bucket = "example-bucket"
 }
 </pre>
 <p>A policy is defined but forces only HTTPs communication for some users:</p>
 <pre>
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
-  bucket = "mynoncompliantbucketname"
+resource "aws_s3_bucket" "example-bucket" { # Sensitive
+  bucket = "example-bucket"
 }
 
-resource "aws_s3_bucket_policy" "mynoncompliantbucketpolicy" {
-  bucket = "mynoncompliantbucketname"
+resource "aws_s3_bucket_policy" "example-policy" {
+  bucket = "example-bucket"
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Id      = "mynoncompliantbucketpolicy"
+    Id      = "ExamplePolicy"
     Statement = [
       {
         Sid       = "HTTPSOnly"
         Effect    = "Deny"
-        Principal = {
-          "AWS": "arn:aws:iam::123456789123:root"
-        } # secondary location: only one principal is forced to use https
+        Principal = [
+          "arn:aws:iam::123456789123:root"
+        ] # Only one principal is forced to use HTTPS
         Action    = "s3:*"
         Resource = [
-          aws_s3_bucket.mynoncompliantbucket.arn,
-          "${aws_s3_bucket.mynoncompliantbucket.arn}/*",
+          aws_s3_bucket.aws_s3_bucket.arn,
+          "${aws_s3_bucket.aws_s3_bucket.arn}/*",
         ]
         Condition = {
           Bool = {
@@ -58,16 +58,16 @@ resource "aws_s3_bucket_policy" "mynoncompliantbucketpolicy" {
 <h2>Compliant Solution</h2>
 <p>A secure policy that denies all HTTP requests is used:</p>
 <pre>
-resource "aws_s3_bucket" "mycompliantbucket" {
-  bucket = "mycompliantbucketname"
+resource "aws_s3_bucket" "example-bucket" {
+  bucket = "example-bucket"
 }
 
-resource "aws_s3_bucket_policy" "mycompliantpolicy" {
-  bucket = "mycompliantbucketname"
+resource "aws_s3_bucket_policy" "example-policy" {
+  bucket = "example-bucket"
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Id      = "mycompliantpolicy"
+    Id      = "ExamplePolicy"
     Statement = [
       {
         Sid       = "HTTPSOnly"
@@ -77,8 +77,8 @@ resource "aws_s3_bucket_policy" "mycompliantpolicy" {
         }
         Action    = "s3:*"
         Resource = [
-          aws_s3_bucket.mycompliantbucket.arn,
-          "${aws_s3_bucket.mycompliantbucket.arn}/*",
+          aws_s3_bucket.example-bucket.arn,
+          "${aws_s3_bucket.example-bucket.arn}/*",
         ]
         Condition = {
           Bool = {

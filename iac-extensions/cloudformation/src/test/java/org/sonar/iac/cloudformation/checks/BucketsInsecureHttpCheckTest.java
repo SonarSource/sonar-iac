@@ -34,7 +34,7 @@ class BucketsInsecureHttpCheckTest {
     CloudformationVerifier.verify("BucketsInsecureHttpCheck/BucketsInsecureHttpCheck.json", new BucketsInsecureHttpCheck(),
       new Verifier.Issue(range(5, 14, 5, 31)),
       new Verifier.Issue(range(11, 14, 11, 31),
-        "Make sure authorizing HTTP requests is safe here.",
+        "No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.",
         new SecondaryLocation(range(34, 41, 34, 45), "HTTPS requests are denied.")),
       new Verifier.Issue(range(43, 14, 43, 31)),
       new Verifier.Issue(range(77, 14, 77, 31)),
