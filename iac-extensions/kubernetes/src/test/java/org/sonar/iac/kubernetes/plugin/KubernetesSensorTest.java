@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -61,6 +62,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -128,7 +130,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldNotParseYamlFileWithHelmChartTemplateWhenDisabled() {
     MapSettings settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
-    settings.setProperty("sonar.kubernetes.internal.helm.enable", "false");
+    settings.setProperty("sonar.kubernetes.helm.activate", "false");
     context.setSettings(settings);
     var sensor = sensor();
     analyze(sensor,
@@ -138,8 +140,47 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     var logs = logTester.logs();
     assertThat(logs)
+      .contains("Checking conditions for enabling Helm analysis; Activated Helm analysis:false, Helm supported for this platform:true")
       .contains("Skipping initialization of Helm processor")
       .doesNotContain("Initializing Helm processor");
+  }
+
+  @Test
+  void shouldNotParseYamlWithHelmChartTemplateWhenHelmProcessorUnavailable() {
+    try (MockedStatic<HelmProcessor> mocked = mockStatic(HelmProcessor.class)) {
+      mocked.when(HelmProcessor::isHelmEvaluatorExecutableAvailable).thenReturn(false);
+      analyze(sensor(),
+        inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+        inputFile("values.yaml", "bar: var-value"));
+      assertOneSourceFileIsParsed();
+
+      var logs = logTester.logs();
+      assertThat(logs)
+        .contains("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:false")
+        .contains("Skipping initialization of Helm processor")
+        .doesNotContain("Initializing Helm processor");
+    }
+  }
+
+  @Test
+  void shouldNotParseYamlWithHelmChartTemplateWhenHelmProcessorUnavailableAndDisabled() {
+    try (MockedStatic<HelmProcessor> mocked = mockStatic(HelmProcessor.class)) {
+      MapSettings settings = new MapSettings();
+      settings.setProperty(getActivationSettingKey(), true);
+      settings.setProperty("sonar.kubernetes.helm.activate", "false");
+      context.setSettings(settings);
+      mocked.when(HelmProcessor::isHelmEvaluatorExecutableAvailable).thenReturn(false);
+      analyze(sensor(),
+        inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+        inputFile("values.yaml", "bar: var-value"));
+      assertOneSourceFileIsParsed();
+
+      var logs = logTester.logs();
+      assertThat(logs)
+        .contains("Checking conditions for enabling Helm analysis; Activated Helm analysis:false, Helm supported for this platform:false")
+        .contains("Skipping initialization of Helm processor")
+        .doesNotContain("Initializing Helm processor");
+    }
   }
 
   @Test
@@ -160,7 +201,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldNotParseYamlFileWithHelmChartTemplateInSonarLintContextAndHelmAnalysisDisabled() {
     MapSettings settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
-    settings.setProperty("sonar.kubernetes.internal.helm.enable", "false");
+    settings.setProperty("sonar.kubernetes.helm.activate", "false");
     sonarLintContext.setSettings(settings);
     analyze(sonarLintContext, sonarLintSensor(),
       inputFile(K8_IDENTIFIERS + "foo: {{ .Values.bar }}"),
@@ -709,8 +750,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Checking conditions for enabling Helm analysis: isHelmActivationFlagTrue=true, " +
-        "isHelmEvaluatorExecutableAvailable=true");
+      .isEqualTo("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
     assertThat(logTester.logs(Level.DEBUG).get(1))
       .isEqualTo("Initializing Helm processor");
     assertThat(logTester.logs(Level.DEBUG).get(2))

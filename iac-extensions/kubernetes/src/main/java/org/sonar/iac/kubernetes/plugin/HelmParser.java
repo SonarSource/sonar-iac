@@ -70,11 +70,10 @@ public class HelmParser {
       return false;
     }
 
-    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
     if (helmProcessor == null || !helmProcessor.isHelmEvaluatorInitialized()) {
-      LOG.debug("Helm evaluator is not initialized, skipping processing of Helm file {}", inputFileContext.inputFile);
       return false;
     }
+    LOG.debug("Helm content detected in file '{}'", inputFileContext.inputFile);
     return true;
   }
 

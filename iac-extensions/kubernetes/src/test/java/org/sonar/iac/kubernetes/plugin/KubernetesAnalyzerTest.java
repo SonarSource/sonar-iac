@@ -116,8 +116,7 @@ class KubernetesAnalyzerTest {
     assertThat(file.documents().get(0).children()).isEmpty();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).contains("Helm content detected in file '/chart/templates/foo.yaml'",
-      "Helm evaluator is not initialized, skipping processing of Helm file /chart/templates/foo.yaml");
+    assertThat(logs).isEmpty();
   }
 
   @Test

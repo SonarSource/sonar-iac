@@ -50,7 +50,6 @@ import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 
 public class KubernetesSensor extends YamlSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
-  private static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.internal.helm.enable";
   private final HelmEvaluator helmEvaluator;
   @Nullable
   private final SonarLintFileListener sonarLintFileListener;
@@ -177,9 +176,9 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   private static boolean shouldEnableHelmAnalysis(SensorContext sensorContext) {
-    boolean isHelmAnalysisEnabled = sensorContext.config().getBoolean(HELM_ACTIVATION_KEY).orElse(true);
+    boolean isHelmAnalysisEnabled = sensorContext.config().getBoolean(KubernetesSettings.HELM_ACTIVATION_KEY).orElse(true);
     var isHelmEvaluatorExecutableAvailable = HelmProcessor.isHelmEvaluatorExecutableAvailable();
-    LOG.debug("Checking conditions for enabling Helm analysis: isHelmActivationFlagTrue={}, isHelmEvaluatorExecutableAvailable={}",
+    LOG.debug("Checking conditions for enabling Helm analysis; Activated Helm analysis:{}, Helm supported for this platform:{}",
       isHelmAnalysisEnabled, isHelmEvaluatorExecutableAvailable);
     if (isHelmAnalysisEnabled && !isHelmEvaluatorExecutableAvailable) {
       LOG.info("Helm analysis is not supported for the current platform");

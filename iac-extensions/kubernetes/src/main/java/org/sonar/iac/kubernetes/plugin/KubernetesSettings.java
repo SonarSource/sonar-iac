@@ -26,8 +26,10 @@ public class KubernetesSettings {
   private static final String KUBERNETES_CATEGORY = "Kubernetes";
   private static final String GENERAL_SUBCATEGORY = "General";
 
-  static final String ACTIVATION_KEY = "sonar.kubernetes.activate";
+  public static final String ACTIVATION_KEY = "sonar.kubernetes.activate";
+  public static final String HELM_ACTIVATION_KEY = "sonar.kubernetes.helm.activate";
   private static final String ACTIVATION_DEFAULT_VALUE = "true";
+  private static final String HELM_ACTIVATION_DEFAULT_VALUE = "true";
 
   private KubernetesSettings() {
   }
@@ -39,6 +41,16 @@ public class KubernetesSettings {
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
         .name("Activate Kubernetes analysis")
         .description("Activate analysis of Yaml files recognized as Kubernetes files.")
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(KUBERNETES_CATEGORY)
+        .subCategory(GENERAL_SUBCATEGORY)
+        .build(),
+      PropertyDefinition.builder(HELM_ACTIVATION_KEY)
+        .index(1)
+        .defaultValue(HELM_ACTIVATION_DEFAULT_VALUE)
+        .name("Activate Kubernetes Helm analysis")
+        .description("Activate analysis of Helm content detected in Kubernetes files.")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .category(KUBERNETES_CATEGORY)
