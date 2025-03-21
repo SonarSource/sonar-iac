@@ -63,6 +63,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
@@ -436,6 +437,27 @@ class IacSensorTest extends AbstractSensorTest {
       .hasRange(1, 0, 1, 1);
     assertThat(logTester.logs(Level.WARN))
       .containsExactly("Unable to create new range for file1.iac and range [1:100/1:103]");
+  }
+
+  @Test
+  void shouldEnableExtendedLoggingWhenSettingPropertyToTrue() {
+    // property is set in beforeEach()
+    var extendedLoggingEnabled = sensor(checkFactory()).isExtendedLoggingEnabled(context);
+    assertThat(extendedLoggingEnabled).isTrue();
+  }
+
+  @Test
+  void shouldDisableExtendedLoggingOnDefault() {
+    context.setSettings(new MapSettings());
+    var extendedLoggingEnabled = sensor(checkFactory()).isExtendedLoggingEnabled(context);
+    assertThat(extendedLoggingEnabled).isFalse();
+  }
+
+  @Test
+  void shouldDisableExtendedLoggingWhenSettingPropertyToFalse() {
+    context.settings().setProperty(EXTENDED_LOGGING_PROPERTY_NAME, false);
+    var extendedLoggingEnabled = sensor(checkFactory()).isExtendedLoggingEnabled(context);
+    assertThat(extendedLoggingEnabled).isFalse();
   }
 
   @Override

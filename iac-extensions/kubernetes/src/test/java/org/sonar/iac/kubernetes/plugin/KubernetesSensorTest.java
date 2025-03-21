@@ -67,6 +67,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
@@ -252,6 +253,31 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logs.get(2))
       .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
     verifyLinesOfCodeTelemetry(0);
+  }
+
+  @Test
+  void shouldNotLogWhenExtendedLoggingIsDisabledForFileWithoutCorrectIdentifier() {
+    settings.setProperty(EXTENDED_LOGGING_PROPERTY_NAME, false);
+    analyze(sensor(), inputFile("apiVersion: ~\nkind: ~\n"));
+    assertNotSourceFileIsParsed();
+
+    assertThat(logTester.logs(Level.DEBUG))
+      .hasSize(2)
+      .noneMatch(log -> log.startsWith("File without Kubernetes identifier:"))
+      .contains("Initializing Helm processor", "Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
+  }
+
+  @Test
+  void shouldNotLogWhenExtendedLoggingIsOnDefaultForFileWithoutCorrectIdentifier() {
+    context.setSettings(new MapSettings());
+    context.settings().setProperty(getActivationSettingKey(), true);
+    analyze(sensor(), inputFile("apiVersion: ~\nkind: ~\n"));
+    assertNotSourceFileIsParsed();
+
+    assertThat(logTester.logs(Level.DEBUG))
+      .hasSize(2)
+      .noneMatch(log -> log.startsWith("File without Kubernetes identifier:"))
+      .contains("Initializing Helm processor", "Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
   }
 
   @Test

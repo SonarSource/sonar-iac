@@ -19,13 +19,17 @@ package org.sonar.iac.common.predicates;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.DurationStatistics;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +41,9 @@ import static org.sonar.iac.common.predicates.JvmConfigFilePredicate.JVM_CONFIG_
 import static org.sonar.iac.common.predicates.JvmConfigFilePredicate.getFilePatterns;
 
 class JvmConfigFilePredicateTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @TempDir
   private Path tempDir;
@@ -87,6 +94,23 @@ class JvmConfigFilePredicateTest {
     when(inputFile.relativePath()).thenReturn("src/main/resources/" + filename);
 
     assertThat(predicate.apply(inputFile)).isEqualTo(shouldMatch);
+    if (shouldMatch) {
+      assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
+    } else {
+      assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    }
+  }
+
+  @Test
+  void shouldNotLogWhenExtendedLoggingDisabled() {
+    var predicate = new JvmConfigFilePredicate(SensorContextTester.create(tempDir), false, new DurationStatistics(mock(Configuration.class)).timer("timer"));
+    var inputFile = mock(InputFile.class);
+    var filename = "application.properties";
+    when(inputFile.filename()).thenReturn(filename);
+    when(inputFile.relativePath()).thenReturn("src/main/resources/" + filename);
+
+    assertThat(predicate.apply(inputFile)).isTrue();
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
   @ParameterizedTest
@@ -104,5 +128,15 @@ class JvmConfigFilePredicateTest {
     return Stream.of(
       List.of(""),
       List.of("", ""));
+  }
+
+  @Test
+  void shouldUseProvidedPatternInsteadOfDefault() {
+    var config = mock(Configuration.class);
+    when(config.getStringArray(JVM_CONFIG_FILE_PATTERNS_KEY)).thenReturn(new String[] {"myPattern", ""});
+
+    var patterns = getFilePatterns(config);
+
+    assertThat(patterns).containsExactly("myPattern");
   }
 }

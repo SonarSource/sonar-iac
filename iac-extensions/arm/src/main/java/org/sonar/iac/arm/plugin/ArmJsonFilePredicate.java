@@ -25,15 +25,17 @@ import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 
 public class ArmJsonFilePredicate extends AbstractTimedFilePredicate {
+  public static final String ARM_JSON_FILE_IDENTIFIER_KEY = "sonar.azureresourcemanager.file.identifier";
+  public static final String ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/,http://schema.management.azure.com/schemas/";
   private final FilePredicate delegate;
 
-  public ArmJsonFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
+  public ArmJsonFilePredicate(SensorContext sensorContext, boolean enablePredicateDebugLogs, DurationStatistics.Timer timer) {
     super(timer);
-    String[] stringArray = sensorContext.config().getStringArray(ArmSettings.FILE_IDENTIFIER_KEY);
+    String[] stringArray = sensorContext.config().getStringArray(ARM_JSON_FILE_IDENTIFIER_KEY);
     var identifiers = Arrays.stream(stringArray)
       .filter(s -> !s.isBlank()).toList();
 
-    this.delegate = new FileIdentificationPredicate(identifiers, isDebugEnabled);
+    this.delegate = new FileIdentificationPredicate(identifiers, enablePredicateDebugLogs);
   }
 
   @Override

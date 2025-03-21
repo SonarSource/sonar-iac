@@ -40,6 +40,9 @@ import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
+import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class ArmSensorTest extends ExtensionSensorTest {
@@ -63,9 +66,7 @@ class ArmSensorTest extends ExtensionSensorTest {
     InputFile largeFileWithIdentifier = IacTestUtils.inputFile("large_file_with_identifier.json", "json");
     InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.json", "json");
 
-    MapSettings settings = new MapSettings();
-    settings.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, ArmSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
-    context.setSettings(settings);
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
 
     FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
@@ -189,5 +190,41 @@ class ArmSensorTest extends ExtensionSensorTest {
 
     analyze(sensor(), bicepFile, armJsonFile);
     assertThat(durationStatisticLog()).contains("ArmJsonFilePredicate");
+  }
+
+  @Test
+  void shouldRaiseNoParsingIssueInFileWithoutCorrectIdentifierAndLogPredicateFailure() {
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
+    assertThat(context.allIssues()).isEmpty();
+
+    var logs = logTester.logs(Level.DEBUG);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0))
+      .startsWith("File without any identifiers").endsWith("parserError.json");
+    verifyLinesOfCodeTelemetry(0);
+  }
+
+  @Test
+  void shouldNotLogWhenExtendedLoggingIsDisabledForFileWithoutCorrectIdentifier() {
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    settings.setProperty(EXTENDED_LOGGING_PROPERTY_NAME, false);
+    analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
+    assertThat(context.allIssues()).isEmpty();
+
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    verifyLinesOfCodeTelemetry(0);
+  }
+
+  @Test
+  void shouldNotLogWhenExtendedLoggingIsOnDefaultForFileWithoutCorrectIdentifier() {
+    context.setSettings(new MapSettings());
+    context.settings().setProperty(getActivationSettingKey(), true);
+    context.settings().setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
+    assertThat(context.allIssues()).isEmpty();
+
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    verifyLinesOfCodeTelemetry(0);
   }
 }

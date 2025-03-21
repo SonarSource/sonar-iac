@@ -22,6 +22,9 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
+import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
+
 public class ArmSettings {
 
   private static final String ARM_CATEGORY = "AzureResourceManager";
@@ -32,8 +35,6 @@ public class ArmSettings {
   protected static final String ACTIVATION_DEFAULT_VALUE = "true";
   protected static final String FILE_SUFFIXES_KEY = PROPERTY_KEY_PREFIX + ".file.suffixes";
   protected static final String FILE_SUFFIXES_DEFAULT_VALUE = ".bicep";
-  protected static final String FILE_IDENTIFIER_KEY = PROPERTY_KEY_PREFIX + ".file.identifier";
-  protected static final String FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/,http://schema.management.azure.com/schemas/";
 
   private ArmSettings() {
   }
@@ -63,9 +64,9 @@ public class ArmSettings {
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
 
-      PropertyDefinition.builder(FILE_IDENTIFIER_KEY)
+      PropertyDefinition.builder(ARM_JSON_FILE_IDENTIFIER_KEY)
         .index(4)
-        .defaultValue(FILE_IDENTIFIER_DEFAULT_VALUE)
+        .defaultValue(ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE)
         .name("JSON Template File Identifiers")
         .description("ARM JSON templates without any of the identifiers are excluded from the analysis. " +
           "The identifier can be anywhere in the file. " +

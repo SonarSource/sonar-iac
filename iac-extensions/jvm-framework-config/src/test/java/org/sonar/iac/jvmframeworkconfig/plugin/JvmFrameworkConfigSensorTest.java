@@ -18,7 +18,6 @@ package org.sonar.iac.jvmframeworkconfig.plugin;
 
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.IndexedFile;
@@ -27,12 +26,16 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.yaml.YamlLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
+import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
@@ -116,13 +119,6 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG).get(2)).startsWith(message2);
   }
 
-  @BeforeEach
-  void setUp() {
-    context.settings().setProperty(
-      "sonar.cloudformation.file.identifier",
-      "AWSTemplateFormatVersion");
-  }
-
   @Test
   void shouldReturnJvmFrameworkConfigDescriptor() {
     var descriptor = new DefaultSensorDescriptor();
@@ -183,6 +179,36 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
 
     analyze(sensor(checkFactory()), jvmFile);
     assertThat(durationStatisticLog()).contains("JvmConfigFilePredicate", "JvmNotKubernetesOrHelmFilePredicate", "JvmNotCloudFormationFilePredicate");
+  }
+
+  @Test
+  void shouldLogPredicateMatch() {
+    analyze(sensor(checkFactory("S2260")), validFile());
+    assertThat(context.allIssues()).isEmpty();
+
+    assertThat(logTester.logs(Level.DEBUG))
+      .hasSize(1)
+      .anyMatch(log -> log.startsWith("Identified as JVM Config file"));
+  }
+
+  @Test
+  void shouldNotLogWhenExtendedLoggingIsDisabledForPredicateMatch() {
+    settings.setProperty(EXTENDED_LOGGING_PROPERTY_NAME, false);
+    analyze(sensor(checkFactory("S2260")), validFile());
+    assertThat(context.allIssues()).isEmpty();
+
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+  }
+
+  @Test
+  void shouldNotLogWhenExtendedLoggingIsOnDefaultForPredicateMatch() {
+    context.setSettings(new MapSettings());
+    context.settings().setProperty(getActivationSettingKey(), true);
+    context.settings().setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
+    analyze(sensor(checkFactory("S2260")), validFile());
+    assertThat(context.allIssues()).isEmpty();
+
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
   private InputFile emptyFileInResources(String filename) {

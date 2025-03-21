@@ -29,19 +29,22 @@ public class KubernetesFilePredicate implements FilePredicate {
   private final FilePredicate predicate;
   // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
   private static final Set<String> IDENTIFIER_PATTERNS = Set.of("^apiVersion", "^kind", "^metadata");
-  private final boolean isDebugEnabled;
+  private final boolean enablePredicateDebugLogs;
 
-  public KubernetesFilePredicate(boolean isDebugEnabled) {
+  public KubernetesFilePredicate(boolean enablePredicateDebugLogs) {
     predicate = new YamlIdentifierFilePredicate(IDENTIFIER_PATTERNS);
-    this.isDebugEnabled = isDebugEnabled;
+    this.enablePredicateDebugLogs = enablePredicateDebugLogs;
   }
 
   @Override
   public boolean apply(InputFile inputFile) {
-    var result = predicate.apply(inputFile);
-    if (!result && isDebugEnabled) {
+    if (predicate.apply(inputFile)) {
+      return true;
+    }
+
+    if (enablePredicateDebugLogs) {
       LOG.debug("File without Kubernetes identifier: {}", inputFile);
     }
-    return result;
+    return false;
   }
 }

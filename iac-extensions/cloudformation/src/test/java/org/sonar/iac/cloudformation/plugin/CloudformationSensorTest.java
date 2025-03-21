@@ -33,6 +33,7 @@ import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
@@ -67,11 +68,8 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void shouldRaiseNoParsingIssueInFileWithoutIdentifier() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
-    settings.setProperty(getActivationSettingKey(), true);
-    context.setSettings(settings);
+  void shouldRaiseNoParsingIssueInFileWithoutCorrectIdentifier() {
+    context.settings().setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
 
     analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
     assertThat(context.allIssues()).isEmpty();
@@ -84,11 +82,31 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void shouldRaiseParsingIssueInFileWithIdentifier() {
-    MapSettings settings = new MapSettings();
+  void shouldNotLogWhenExtendedLoggingIsDisabledForFileWithoutCorrectIdentifier() {
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
-    settings.setProperty(getActivationSettingKey(), true);
-    context.setSettings(settings);
+    settings.setProperty(EXTENDED_LOGGING_PROPERTY_NAME, false);
+    analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
+    assertThat(context.allIssues()).isEmpty();
+
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    verifyLinesOfCodeTelemetry(0);
+  }
+
+  @Test
+  void shouldNotLogWhenExtendedLoggingIsOnDefaultForFileWithoutCorrectIdentifier() {
+    context.setSettings(new MapSettings());
+    context.settings().setProperty(getActivationSettingKey(), true);
+    context.settings().setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
+    analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
+    assertThat(context.allIssues()).isEmpty();
+
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    verifyLinesOfCodeTelemetry(0);
+  }
+
+  @Test
+  void shouldRaiseParsingIssueInFileWithIdentifier() {
+    context.settings().setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "myIdentifier");
 
     analyze(sensor("S2260"), inputFile("parserError.json", "\"myIdentifier'"));
     assertThat(context.allIssues()).hasSize(1);
@@ -105,9 +123,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     InputFile largeFileWithIdentifier = IacTestUtils.inputFile("large_file_with_identifier.json", "json");
     InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.json", "json");
 
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
-    context.setSettings(settings);
+    context.settings().setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
 
     FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();

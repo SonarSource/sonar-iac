@@ -28,10 +28,10 @@ import static org.sonar.iac.common.yaml.YamlSensor.YAML_LANGUAGE_KEY;
 public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
   private final FilePredicate delegate;
 
-  public KubernetesOrHelmFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
+  public KubernetesOrHelmFilePredicate(SensorContext sensorContext, boolean enablePredicateDebugLogs, DurationStatistics.Timer timer) {
     super(timer);
     delegate = sensorContext.fileSystem().predicates().or(
-      yamlK8sOrHelmFilePredicate(sensorContext, isDebugEnabled),
+      yamlK8sOrHelmFilePredicate(sensorContext, enablePredicateDebugLogs),
       tplHelmFilePredicate(sensorContext));
   }
 
@@ -40,7 +40,7 @@ public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
     return delegate.apply(inputFile);
   }
 
-  private static FilePredicate yamlK8sOrHelmFilePredicate(SensorContext sensorContext, boolean isDebugEnabled) {
+  private static FilePredicate yamlK8sOrHelmFilePredicate(SensorContext sensorContext, boolean enablePredicateDebugLogs) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
     var helmTemplatePredicate = predicates.and(
       predicates.matchesPathPattern("**/templates/**"),
@@ -51,7 +51,7 @@ public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
     return predicates.and(
       predicates.hasLanguage(YAML_LANGUAGE_KEY),
       predicates.or(
-        new KubernetesFilePredicate(isDebugEnabled),
+        new KubernetesFilePredicate(enablePredicateDebugLogs),
         helmTemplatePredicate,
         valuesYamlOrChartYamlPredicate));
   }

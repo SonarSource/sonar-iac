@@ -78,7 +78,7 @@ public class ArmSensor extends YamlSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    return new ArmJsonFilePredicate(sensorContext, true, statistics.timer(ArmJsonFilePredicate.class.getSimpleName()));
+    return new ArmJsonFilePredicate(sensorContext, isExtendedLoggingEnabled(sensorContext), statistics.timer(ArmJsonFilePredicate.class.getSimpleName()));
   }
 
   @Override

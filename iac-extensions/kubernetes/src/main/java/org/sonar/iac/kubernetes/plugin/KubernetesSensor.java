@@ -150,7 +150,10 @@ public class KubernetesSensor extends YamlSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    return new KubernetesOrHelmFilePredicate(sensorContext, true, statistics.timer("KubernetesOrHelmFilePredicate"));
+    return new KubernetesOrHelmFilePredicate(
+      sensorContext,
+      isExtendedLoggingEnabled(sensorContext),
+      statistics.timer("KubernetesOrHelmFilePredicate"));
   }
 
   @Override

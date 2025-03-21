@@ -35,11 +35,11 @@ public class JvmConfigFilePredicate extends AbstractTimedFilePredicate {
     "**/src/main/resources/**/*app*.yaml,**/src/main/resources/**/*app*.yml";
   public static final Set<String> JVM_CONFIG_EXCLUDED_PROFILES = Set.of("dev", "test");
   private final FilePredicate delegate;
-  private final boolean isDebugEnabled;
+  private final boolean enablePredicateDebugLogs;
 
-  public JvmConfigFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
+  public JvmConfigFilePredicate(SensorContext sensorContext, boolean enablePredicateDebugLogs, DurationStatistics.Timer timer) {
     super(timer);
-    this.isDebugEnabled = isDebugEnabled;
+    this.enablePredicateDebugLogs = enablePredicateDebugLogs;
     var fileSystem = sensorContext.fileSystem();
     var patterns = getFilePatterns(sensorContext.config());
     this.delegate = fileSystem.predicates().and(
@@ -50,7 +50,7 @@ public class JvmConfigFilePredicate extends AbstractTimedFilePredicate {
   @Override
   protected boolean accept(InputFile inputFile) {
     var matches = delegate.apply(inputFile);
-    if (matches && isDebugEnabled) {
+    if (matches && enablePredicateDebugLogs) {
       LOG.debug("Identified as JVM Config file: {}", inputFile);
     }
     return matches;

@@ -105,7 +105,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     var fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(
-      new JvmConfigFilePredicate(sensorContext, true, statistics.timer("JvmConfigFilePredicate")),
+      new JvmConfigFilePredicate(sensorContext, isExtendedLoggingEnabled(sensorContext), statistics.timer("JvmConfigFilePredicate")),
       notMatchedByAnotherYamlSensor(sensorContext, statistics));
   }
 

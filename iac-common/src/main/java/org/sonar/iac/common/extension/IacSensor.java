@@ -37,6 +37,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 public abstract class IacSensor implements Sensor {
 
   public static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
+  public static final String EXTENDED_LOGGING_PROPERTY_NAME = "sonar.internal.iac.extendedLogging";
 
   protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
@@ -130,6 +131,10 @@ public abstract class IacSensor implements Sensor {
 
   private boolean isActive(SensorContext sensorContext) {
     return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
+  }
+
+  protected boolean isExtendedLoggingEnabled(SensorContext sensorContext) {
+    return sensorContext.config().getBoolean(EXTENDED_LOGGING_PROPERTY_NAME).orElse(false);
   }
 
   protected void afterExecute(SensorContext sensorContext) {

@@ -28,10 +28,10 @@ public class CloudFormationFilePredicate extends AbstractTimedFilePredicate {
   public static final String CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
   private final FilePredicate delegate;
 
-  public CloudFormationFilePredicate(SensorContext sensorContext, boolean isDebugEnabled, DurationStatistics.Timer timer) {
+  public CloudFormationFilePredicate(SensorContext sensorContext, boolean shouldLogPredicateFailure, DurationStatistics.Timer timer) {
     super(timer);
     this.delegate = new FileIdentificationPredicate(sensorContext.config().get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(""),
-      isDebugEnabled);
+      shouldLogPredicateFailure);
   }
 
   @Override

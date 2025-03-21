@@ -33,6 +33,8 @@ import org.sonar.iac.common.testing.IacTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
 
 class ArmJsonFilePredicateTest {
 
@@ -46,7 +48,7 @@ class ArmJsonFilePredicateTest {
   void setup() {
     sensor = mock(SensorContext.class);
     config = new MapSettings();
-    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, ArmSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
+    config.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
     when(sensor.config()).thenReturn(config.asConfig());
   }
 
@@ -78,7 +80,7 @@ class ArmJsonFilePredicateTest {
 
   @Test
   void shouldAllowJsonFilesWithoutCustomIdentifier() {
-    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, "my_specific_identifier");
+    config.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, "my_specific_identifier");
     var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var file = IacTestUtils.inputFile("valid_file.json", Path.of("some/dir"), """
       {
@@ -90,7 +92,7 @@ class ArmJsonFilePredicateTest {
 
   @Test
   void shouldRejectJsonFilesWithoutCustomIdentifier() {
-    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, "my_specific_identifier");
+    config.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, "my_specific_identifier");
     var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var file = IacTestUtils.inputFile("valid_file.json", Path.of("some/dir"), """
       {
@@ -112,7 +114,7 @@ class ArmJsonFilePredicateTest {
 
   @Test
   void shouldLogWhenDebugEnabledWithSingleIdentifier() {
-    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, "https://schema.management.azure.com/schemas/");
+    config.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, "https://schema.management.azure.com/schemas/");
     var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
     var file = IacTestUtils.inputFile("empty.json", Path.of("some/dir"), "{}", "json");
     predicate.apply(file);
@@ -131,7 +133,7 @@ class ArmJsonFilePredicateTest {
 
   @Test
   void shouldDiscardEmptyConfigElementsAsIdentifier() {
-    config.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, "\"\",\" \",identifier1");
+    config.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, "\"\",\" \",identifier1");
     var predicate = new ArmJsonFilePredicate(sensor, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
 
     var file = IacTestUtils.inputFile("valid_file.json", Path.of("some/dir"), """
