@@ -16,8 +16,6 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -30,8 +28,6 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 
 public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SyntaxHighlightingVisitor.class);
 
   private NewHighlighting newHighlighting;
   private InputFile inputFile;
@@ -61,7 +57,7 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
 
   protected void highlight(TextRange textRange, TypeOfText typeOfText) {
     if (!TextRanges.isValidAndNotEmpty(textRange)) {
-      LOG.debug("Tried to highlight a tree with an empty or invalid range. Skipping it.");
+      // Nothing to do here, these are often valid cases like an empty value in yaml
       return;
     }
 
