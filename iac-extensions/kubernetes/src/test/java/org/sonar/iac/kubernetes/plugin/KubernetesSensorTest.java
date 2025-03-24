@@ -317,7 +317,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC Kubernetes Sensor");
-    assertThat(descriptor.languages()).containsExactly("yaml");
+    assertThat(descriptor.languages()).containsExactly("yaml", "kubernetes");
     assertThat(descriptor.isProcessesFilesIndependently()).isFalse();
   }
 
@@ -524,6 +524,15 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
+    assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
+  }
+
+  @Test
+  void shouldDetectFilesWithExplicitKubernetesLanguage() {
+    var mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.yaml", KubernetesLanguage.KEY);
+
+    var filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
+
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }
 

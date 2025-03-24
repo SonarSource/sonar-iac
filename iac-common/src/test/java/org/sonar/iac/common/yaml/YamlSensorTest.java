@@ -47,8 +47,8 @@ class YamlSensorTest extends AbstractSensorTest {
   void shouldVerifyDescribe() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor().describe(sensorDescriptor);
-    assertThat(sensorDescriptor.languages()).hasSize(2);
-    assertThat(sensorDescriptor.languages()).containsExactly("json", "yaml");
+    assertThat(sensorDescriptor.languages()).hasSize(3);
+    assertThat(sensorDescriptor.languages()).containsOnly("json", "yaml");
     assertThat(sensorDescriptor.name()).isEqualTo("IaC Yaml Sensor");
   }
 

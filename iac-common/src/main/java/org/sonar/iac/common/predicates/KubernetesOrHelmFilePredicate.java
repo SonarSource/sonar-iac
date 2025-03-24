@@ -23,6 +23,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
 import org.sonar.iac.common.extension.DurationStatistics;
 
+import static org.sonar.iac.common.languages.IacLanguages.KUBERNETES;
 import static org.sonar.iac.common.yaml.YamlSensor.YAML_LANGUAGE_KEY;
 
 public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
@@ -49,7 +50,7 @@ public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
       predicates.matchesPathPatterns(new String[] {"**/values.yaml", "**/values.yml", "**/Chart.yaml"}),
       new HelmProjectMemberPredicate(sensorContext));
     return predicates.and(
-      predicates.hasLanguage(YAML_LANGUAGE_KEY),
+      predicates.hasLanguages(YAML_LANGUAGE_KEY, KUBERNETES.key()),
       predicates.or(
         new KubernetesFilePredicate(enablePredicateDebugLogs),
         helmTemplatePredicate,

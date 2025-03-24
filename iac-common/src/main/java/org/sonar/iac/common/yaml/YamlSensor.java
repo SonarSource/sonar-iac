@@ -56,7 +56,7 @@ public abstract class YamlSensor extends IacSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY)
+      .onlyOnLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY, language.getKey())
       .name("IaC " + language.getName() + " Sensor");
   }
 
@@ -75,8 +75,7 @@ public abstract class YamlSensor extends IacSensor {
   protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     FileSystem fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(fileSystem.predicates().and(
-      fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY),
-        fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
+      fileSystem.predicates().hasLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY, language.getKey()),
       fileSystem.predicates().hasType(InputFile.Type.MAIN)),
       customFilePredicate(sensorContext, statistics));
   }

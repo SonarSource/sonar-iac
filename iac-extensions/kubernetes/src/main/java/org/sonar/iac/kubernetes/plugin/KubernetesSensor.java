@@ -78,7 +78,7 @@ public class KubernetesSensor extends YamlSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguages(YAML_LANGUAGE_KEY)
+      .onlyOnLanguages(YAML_LANGUAGE_KEY, language.getKey())
       .name("IaC " + language.getName() + " Sensor");
 
     // Note: KubernetesSensor shouldn't call `descriptor.processesFilesIndependently()` or `super.describe(descriptor)`,
