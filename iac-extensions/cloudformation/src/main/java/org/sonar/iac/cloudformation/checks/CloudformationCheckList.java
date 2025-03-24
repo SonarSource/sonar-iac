@@ -31,6 +31,7 @@ public class CloudformationCheckList {
     return Arrays.asList(
       AnonymousAccessPolicyCheck.class,
       AssignedPublicIPAddressCheck.class,
+      AwsTagNameCheck.class,
       AwsTagNameConventionCheck.class,
       BucketsAccessCheck.class,
       BucketsInsecureHttpCheck.class,

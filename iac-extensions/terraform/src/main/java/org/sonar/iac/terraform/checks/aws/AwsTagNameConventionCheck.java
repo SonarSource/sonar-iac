@@ -14,18 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.terraform.checks.aws;
 
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.iac.terraform.api.tree.ObjectTree;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+
+import static org.sonar.iac.terraform.checks.aws.utils.AwsUtils.getTagKeyStream;
 
 @Rule(key = "S6273")
 public class AwsTagNameConventionCheck extends AbstractResourceCheck {
@@ -50,12 +48,6 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
     register((ctx, resource) -> getTagKeyStream(resource)
       .filter(this::isMismatchingKey)
       .forEach(tagKey -> ctx.reportIssue(tagKey, String.format(MESSAGE, tagKey.value(), format))));
-  }
-
-  private static Stream<LiteralExprTree> getTagKeyStream(BlockTree resource) {
-    return PropertyUtils.value(resource, "tags", ObjectTree.class)
-      .map(o -> o.elements().trees().stream()).orElse(Stream.empty())
-      .map(ObjectElementTree::key).filter(LiteralExprTree.class::isInstance).map(LiteralExprTree.class::cast);
   }
 
   private boolean isMismatchingKey(LiteralExprTree tagKey) {

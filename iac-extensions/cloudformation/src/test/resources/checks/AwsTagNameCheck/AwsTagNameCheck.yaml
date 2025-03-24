@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: "mybucketname"
+      Tags:
+        - Key: "anycompany;cost-center" # Noncompliant {{Rename tag key "anycompany;cost-center" to comply with required format.}}
+#              ^^^^^^^^^^^^^^^^^^^^^^^^
+          Value: "Semicolon is not allowed"
+        - Key: "anycompany:~EnvironmentType~" # Noncompliant
+          Value: "Tilde is not allowed"
+        - Key: "AnUnnecessaryLongKeyNameThatContainsMoreThan128AllowedCharacters:AnUnnecessaryLongKeyNameThatContainsMoreThan128AllowedCharacters" # Noncompliant
+          Value: "Very long strings are not allowed"
+        - Key: "aws:forbidden-namespace" # Noncompliant
+          Value: "aws: namespace is reserved"
+        - Key: "compliant:format"
+          Value: "All good"

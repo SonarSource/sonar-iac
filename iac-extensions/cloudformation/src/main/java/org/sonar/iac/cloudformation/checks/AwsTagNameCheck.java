@@ -16,45 +16,36 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.sonar.iac.cloudformation.checks.utils.TagUtils.getTagKeyStream;
 
-@Rule(key = "S6273")
-public class AwsTagNameConventionCheck extends AbstractResourceCheck {
-  protected static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
-  public static final String DEFAULT = "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$";
-  protected Pattern pattern;
-
-  @RuleProperty(
-    key = "format",
-    description = "Regular expression used to check the tag keys against.",
-    defaultValue = DEFAULT)
-  public String format = DEFAULT;
-
-  @Override
-  public void initialize(InitContext init) {
-    pattern = Pattern.compile(format);
-    super.initialize(init);
-  }
+@Rule(key = "S7452")
+public class AwsTagNameCheck extends AbstractResourceCheck {
+  protected static final String MESSAGE = "Rename tag key \"%s\" to comply with required format.";
+  private static final Predicate<String> HAS_VALID_FORMAT = Pattern.compile("^[\\p{IsAlphabetic}\\d\\p{IsWhitespace}_.:/=+@\\-\"]++$").asMatchPredicate();
+  private static final int TAG_MAX_LENGTH = 128;
+  private static final String TAG_RESERVED_PREFIX = "aws:";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
-    YamlTree properties = resource.properties();
+    var properties = resource.properties();
     if (properties != null) {
       getTagKeyStream(properties)
-        .filter(this::isMismatchingKey)
-        .forEach(key -> ctx.reportIssue(key, String.format(MESSAGE, key.value(), format)));
+        .filter(tagKey -> !isValidKey(tagKey))
+        .forEach(key -> ctx.reportIssue(key, MESSAGE.formatted(key.value())));
     }
   }
 
-  private boolean isMismatchingKey(ScalarTree tagKey) {
-    return !pattern.matcher(tagKey.value()).matches();
+  private static boolean isValidKey(ScalarTree tagKey) {
+    var literal = tagKey.value();
+    if (literal.length() > TAG_MAX_LENGTH || literal.startsWith(TAG_RESERVED_PREFIX)) {
+      return false;
+    }
+    return HAS_VALID_FORMAT.test(literal);
   }
 }

@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.iac.terraform.checks.aws.AwsTagNameCheck;
+import org.sonar.iac.terraform.checks.aws.AwsTagNameConventionCheck;
 import org.sonar.iac.terraform.checks.azure.AnonymousAccessToResourceCheck;
 import org.sonar.iac.terraform.checks.azure.CertificateBasedAuthenticationCheck;
 import org.sonar.iac.terraform.checks.azure.HighPrivilegedRoleCheck;
@@ -54,6 +56,7 @@ public class TerraformCheckList {
       // AWS
       AnonymousAccessPolicyCheck.class,
       PublicNetworkAccessCheck.class,
+      AwsTagNameCheck.class,
       AwsTagNameConventionCheck.class,
       BucketsAccessCheck.class,
       BucketsInsecureHttpCheck.class,

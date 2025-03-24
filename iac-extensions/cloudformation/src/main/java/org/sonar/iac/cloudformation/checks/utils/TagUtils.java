@@ -14,21 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.cloudformation.checks.utils;
 
-import org.junit.jupiter.api.Test;
+import java.util.stream.Stream;
+import org.sonar.iac.common.yaml.XPathUtils;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
-class AwsTagNameConventionCheckTest {
-
-  @Test
-  void test_default() {
-    TerraformVerifier.verify("AwsTagNameConventionCheck/default.tf", new AwsTagNameConventionCheck());
+public final class TagUtils {
+  private TagUtils() {
   }
 
-  @Test
-  void test_custom() {
-    AwsTagNameConventionCheck check = new AwsTagNameConventionCheck();
-    check.format = "^([a-z-]*[a-z]:)*([a-z-]*[a-z])$";
-    TerraformVerifier.verify("AwsTagNameConventionCheck/custom.tf", check);
+  public static Stream<ScalarTree> getTagKeyStream(YamlTree properties) {
+    return XPathUtils.getTrees(properties, "/Tags[]/Key").stream()
+      .filter(ScalarTree.class::isInstance).map(ScalarTree.class::cast);
   }
 }

@@ -1,0 +1,38 @@
+<p>Amazon Web Services (AWS) resources tags are metadata labels with keys and optional values used to categorize and manage resources.</p>
+<h2>Why is this an issue?</h2>
+<p>Proper tagging enhances resource discovery, lifecycle management, and overall productivity within the AWS environment. If tags do not comply with
+the AWS format, it can lead to confusion and inefficiency in managing resources, as well as unexpected behavior of the system.</p>
+<p>AWS resource tags should comply with the format stated in AWS documentation. That is, tag keys should:</p>
+<ul>
+  <li> Be between 1 and 128 characters long </li>
+  <li> Consist of Unicode letters, digits, white spaces, and the following characters: <code>_ . : / = + - @ "</code> </li>
+  <li> Not start with <code>aws:</code> </li>
+</ul>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "aws_s3_bucket" "examplebucket" {
+  bucket = "mybucketname"
+
+  tags = {
+    "anycompany:~cost-center~" = "Accounting"
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+resource "aws_s3_bucket" "examplebucket" {
+  bucket = "mybucketname"
+
+  tags = {
+    "anycompany:cost-center" = "Accounting"
+  }
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html">AWS resource tags</a> </li>
+</ul>
+
