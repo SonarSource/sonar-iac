@@ -220,3 +220,17 @@ RUN wget --output-document - https://example.com/resource > output.txt
 # Additional use case: ensure we don't crash if there is nothing behind -O
 # Noncompliant@+1
 RUN wget "http://url1" -O
+
+# Compliant: we don't raise an issue when we detect an unresolved variable anywhere in the tree that is used in the wget command
+RUN export VERSION=$(curl -s https://api.example.com/latest-version | jq -r '.version') \
+  && wget -O /tmp/example.rpm "https://example.com/downloads/example_$VERSION.rpm"
+# Sensitive: the unresolved variable is not used in the wget command
+# Noncompliant@+2
+RUN export VERSION=$(curl -s https://api.example.com/latest-version | jq -r '.version') \
+  && wget -O /tmp/example.rpm "https://example.com/downloads/example_1.2.3.rpm" \
+  && some other command $VERSION
+
+ARG MY_VERSION=1.2.3
+
+# Noncompliant@+1
+RUN wget -O /tmp/example.rpm "https://example.com/downloads/example_$MY_VERSION.rpm"

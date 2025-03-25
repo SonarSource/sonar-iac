@@ -22,6 +22,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
@@ -150,7 +151,14 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
    */
   private static boolean doesNotContainEnvVariables(List<ArgumentResolution> args) {
     return args.stream().noneMatch(arg -> arg.status() == ArgumentResolution.Status.UNRESOLVED &&
-      arg.argument().expressions().stream().anyMatch(Variable.class::isInstance));
+      arg.argument().expressions().stream().anyMatch(RetrieveRemoteResourcesCheck::isVariable));
+  }
+
+  private static boolean isVariable(Tree tree) {
+    if (tree instanceof Variable) {
+      return true;
+    }
+    return tree.children().stream().anyMatch(RetrieveRemoteResourcesCheck::isVariable);
   }
 
   private static void reportIssue(CheckContext ctx, List<ArgumentResolution> args, String command) {

@@ -434,15 +434,30 @@ RUN VERSION=$(cat version.txt) && curl -o output.txt https://example.com/resourc
 RUN VERSION=1.2.3 && curl -o output.txt https://example.com/resource/$VERSION
 RUN curl -o output.txt https://example.com/resource/$VERSION
 
+# Noncompliant@+2
 ARG RESOURCE_VERSION=1.2.3
-# Noncompliant@+1
 RUN curl -o output.txt https://example.com/resource/$RESOURCE_VERSION
 
 # Compliant: '-o-', '--output -' and '-o -' redirect output to stdout and cannot be replaced with ADD, so we don't raise
-RUN curl -o - "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
-RUN curl --output - "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
-RUN curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
+RUN curl -o - "https://raw.githubusercontent.com/nvm-sh/nvm/1.2.3/install.sh" | bash
+RUN curl --output - "https://raw.githubusercontent.com/nvm-sh/nvm/1.2.3/install.sh" | bash
+RUN curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/1.2.3/install.sh" | bash
 RUN curl "http://url1" -o output.txt "http://url2" -o -
 # Additional use case: ensure we don't crash if there is nothing behind -o
 # Noncompliant@+1
 RUN curl "http://url1" -o
+
+# Compliant: we don't raise an issue when we detect an unresolved variable anywhere in the tree that is used in the curl command
+RUN curl -fSL -o /tmp/example.rpm "https://example.com/downloads/example_$UNKNOWN.rpm"
+RUN export VERSION=$(curl -s https://api.example.com/latest-version | jq -r '.version') \
+  && curl -fSL -o /tmp/example.rpm "https://example.com/downloads/example_$VERSION.rpm"
+# Sensitive: the unresolved variable is not used in the curl command
+# Noncompliant@+2
+RUN export VERSION=$(curl -s https://api.example.com/latest-version | jq -r '.version') \
+  && curl -fSL -o /tmp/example.rpm "https://example.com/downloads/example_1.2.3.rpm" \
+  && some other command $VERSION
+
+ARG MY_VERSION=1.2.3
+
+# Noncompliant@+1
+RUN curl -fSL -o /tmp/example.rpm "https://example.com/downloads/example_$MY_VERSION.rpm"
