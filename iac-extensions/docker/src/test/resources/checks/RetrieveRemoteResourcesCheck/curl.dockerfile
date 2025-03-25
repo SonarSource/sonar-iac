@@ -437,3 +437,12 @@ RUN curl -o output.txt https://example.com/resource/$VERSION
 ARG RESOURCE_VERSION=1.2.3
 # Noncompliant@+1
 RUN curl -o output.txt https://example.com/resource/$RESOURCE_VERSION
+
+# Compliant: '-o-', '--output -' and '-o -' redirect output to stdout and cannot be replaced with ADD, so we don't raise
+RUN curl -o - "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
+RUN curl --output - "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
+RUN curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
+RUN curl "http://url1" -o output.txt "http://url2" -o -
+# Additional use case: ensure we don't crash if there is nothing behind -o
+# Noncompliant@+1
+RUN curl "http://url1" -o

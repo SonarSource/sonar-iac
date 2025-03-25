@@ -39,9 +39,6 @@ RUN wget -O /path/to/resource --max-redirect=1 -r --tries=10 https://example.com
 # Noncompliant@+1
 RUN wget -O /path/to/resource https://example.com/resource --max-redirect=1
 
-# Noncompliant@+1
-RUN wget -O - https://example.com/resource > download-redirect2.txt
-
 # URL first and -O flag =======
 
 # Noncompliant@+1
@@ -76,9 +73,6 @@ RUN wget --no-check-certificate --output-document=/path/to/resource --max-redire
 # Noncompliant@+1
 RUN wget --no-check-certificate --output-document=/path/to/resource --max-redirect=1 https://example.com/resource \
     --limit-rate=100k | apt-key add - && echo "success"
-
-# Noncompliant@+1
-RUN wget --output-document - https://example.com/resource > output.txt
 
 # Noncompliant@+1
 RUN wget --output-document downloaded4.txt https://example.com/resource
@@ -215,3 +209,14 @@ RUN wget -O output.txt https://example.com/resource/$VERSION
 ARG RESOURCE_VERSION=1.2.3
 # Noncompliant@+1
 RUN wget -O output.txt https://example.com/resource/$RESOURCE_VERSION
+
+# Compliant: '-O-', '--output-document -' and '-O -' redirect output to stdout and cannot be replaced with ADD, so we don't raise
+RUN wget -O - "https://example.com/resource" | bash
+RUN wget --output-document - "https://example.com/resource" | bash
+RUN wget -O- "https://example.com/resource" | bash
+RUN wget "http://url1" -O output.txt "http://url2" -O -
+RUN wget -O - https://example.com/resource > download-redirect2.txt
+RUN wget --output-document - https://example.com/resource > output.txt
+# Additional use case: ensure we don't crash if there is nothing behind -O
+# Noncompliant@+1
+RUN wget "http://url1" -O

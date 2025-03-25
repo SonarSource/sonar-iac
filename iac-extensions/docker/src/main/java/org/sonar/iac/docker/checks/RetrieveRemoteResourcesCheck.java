@@ -51,7 +51,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     "--cookie", "-c", "--cookie-jar", "--data", "-d", "--data-raw", "--data-ascii", "--data-binary", "--data-raw", "--data-urlencode",
     "--form", "-F", "--form-escape", "--form-string", "--header", "-H", "--json", "--referer", "-e", "--request", "-X", "--user-agent", "-A");
   private static final List<String> CURL_STDOUT_REDIRECT = List.of(">", ">>", "1>", "1>>");
-  private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "-O", "--remote-name");
+  private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "--remote-name");
   private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = shortFlagPredicate('O');
 
   private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
@@ -104,7 +104,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
 
   private static void checkArgumentsForWget(CheckContext ctx, List<ArgumentResolution> args) {
     WGET_DOWNLOAD_DETECTOR.search(args).forEach((CommandDetector.Command command) -> {
-      if (doesNotContainFlags(args, WGET_FORBIDDEN_FLAGS) && doesNotContainEnvVariables(args)) {
+      if (doesNotContainFlags(args, WGET_FORBIDDEN_FLAGS) && doesNotContainEnvVariables(args) && doesNotRedirectOutputToStdout("-O", "--output-document", args)) {
         reportIssue(ctx, args, WGET);
       }
     });
@@ -113,11 +113,30 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
   private static void checkArgumentsForCurl(CheckContext ctx, List<ArgumentResolution> args) {
     for (CommandDetector curlDetector : CURL_DETECTORS) {
       curlDetector.search(args).forEach((CommandDetector.Command command) -> {
-        if (doesNotContainFlags(args, CURL_FORBIDDEN_FLAGS) && doesNotContainEnvVariables(args)) {
+        if (doesNotContainFlags(args, CURL_FORBIDDEN_FLAGS) && doesNotContainEnvVariables(args) && doesNotRedirectOutputToStdout("-o", "--output", args)) {
           reportIssue(ctx, args, CURL);
         }
       });
     }
+  }
+
+  /**
+   * Check if the list of resolved arguments contain the short flag with dash concatenated (E.g {@code -o-}) or the short/long flag followed by a separated
+   * dash (E.g {@code -o -} or {@code --output -}).
+   * This would redirect the output to stdout according to <a href="https://curl.se/docs/manpage.html">documentation</>.
+   */
+  private static boolean doesNotRedirectOutputToStdout(String shortFlag, String longFlag, List<ArgumentResolution> args) {
+    var isOutputOptionArgument = false;
+    var condensedShortFlagStdout = shortFlag + "-";
+
+    for (ArgumentResolution arg : args) {
+      String value = arg.value();
+      if (condensedShortFlagStdout.equals(value) || (isOutputOptionArgument && "-".equals(value))) {
+        return false;
+      }
+      isOutputOptionArgument = shortFlag.equals(value) || longFlag.equals(value);
+    }
+    return true;
   }
 
   private static boolean doesNotContainFlags(List<ArgumentResolution> args, List<String> flags) {
