@@ -44,14 +44,20 @@ class KubernetesCheckListTest extends AbstractCheckListTest {
   }
 
   @Override
+  protected boolean hasTodoCommentCheck() {
+    // There is a custom implementation for Kubernetes/Helm
+    return false;
+  }
+
+  @Override
   @Test
   protected void count() {
     IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
     Collection<File> files = FileUtils.listFiles(checkClassDir(), filter, trueFileFilter());
     Collection<File> commonFiles = FileUtils.listFiles(new File("src/common/java/org/sonar/iac/kubernetes/checks/"), filter, trueFileFilter());
     files.addAll(commonFiles);
-    // We can increase the files size by 2 because the ParsingErrorCheck and ToDoCommentCheck are located in iac-commons
-    int checksSize = files.size() + 2;
+    // We can increase the files size by 1 because the ParsingErrorCheck is located in iac-commons
+    int checksSize = files.size() + 1;
     assertThat(checks()).hasSize(checksSize);
   }
 }

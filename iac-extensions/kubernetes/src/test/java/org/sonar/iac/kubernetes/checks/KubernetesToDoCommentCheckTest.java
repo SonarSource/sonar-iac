@@ -17,12 +17,16 @@
 package org.sonar.iac.kubernetes.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 class KubernetesToDoCommentCheckTest {
 
   @Test
-  void test() {
-    KubernetesVerifier.verify("ToDoCommentCheck/todo.yaml", new ToDoCommentCheck());
+  void shouldFindTodoCommentsInPureKubernetes() {
+    KubernetesVerifier.verify("ToDoCommentCheck/todo.yaml", new KubernetesToDoCommentCheck());
+  }
+
+  @Test
+  void shouldFindTodoCommentsInHelmTemplates() {
+    KubernetesVerifier.verify("ToDoCommentCheck/helm/templates/limitRange.yaml", new KubernetesToDoCommentCheck());
   }
 }

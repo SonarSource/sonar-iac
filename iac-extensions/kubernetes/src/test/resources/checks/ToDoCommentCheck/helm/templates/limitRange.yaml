@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ default "limit-range" .Values.nameOverride }}
+  namespace: with-limit-range-container
+spec:
+  {{- /* Noncompliant@+1 */ -}}
+  {{- /* TODO: this comment should be detected without line shifting */ -}}
+{{- /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */ -}}
+  limits:
+    - default:
+        ephemeral-storage: "10Mi"
+      type: Container

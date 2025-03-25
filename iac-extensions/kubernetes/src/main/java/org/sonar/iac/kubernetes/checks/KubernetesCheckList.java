@@ -18,7 +18,6 @@ package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 public final class KubernetesCheckList {
 
@@ -39,6 +38,7 @@ public final class KubernetesCheckList {
       DuplicatedEnvironmentVariablesCheck.class,
       ExposedAdministrationServicesCheck.class,
       HostNamespacesCheck.class,
+      KubernetesToDoCommentCheck.class,
       MemoryLimitCheck.class,
       MemoryRequestCheck.class,
       MountingFileSystemPathsCheck.class,
@@ -48,7 +48,6 @@ public final class KubernetesCheckList {
       SpecificVersionTagCheck.class,
       StorageRequestCheck.class,
       StorageLimitCheck.class,
-      ToDoCommentCheck.class,
       VariableNameConventionCheck.class,
       WhitespaceBracesCheck.class);
   }
