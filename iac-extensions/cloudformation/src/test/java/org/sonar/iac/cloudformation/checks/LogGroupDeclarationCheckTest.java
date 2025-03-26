@@ -23,12 +23,12 @@ import static org.sonar.iac.common.testing.Verifier.issue;
 class LogGroupDeclarationCheckTest {
 
   @Test
-  void test_yaml() {
+  void shouldFindIssuesInYaml() {
     CloudformationVerifier.verify("LogGroupDeclarationCheck/LogGroupDeclarationCheck.yaml", new LogGroupDeclarationCheck());
   }
 
   @Test
-  void test_json() {
+  void shouldFindIssuesInJson() {
     CloudformationVerifier.verify("LogGroupDeclarationCheck/LogGroupDeclarationCheck.json", new LogGroupDeclarationCheck(),
       issue(5, 14, 5, 37, "Make sure missing \"Log Groups\" declaration is intended here."),
       issue(8, 14, 8, 41),

@@ -16,7 +16,6 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -49,11 +48,11 @@ import static org.sonar.iac.cloudformation.checks.AbstractResourceCheck.getFileR
 public class LogGroupDeclarationCheck implements IacCheck {
 
   private static final String MESSAGE = "Make sure missing \"Log Groups\" declaration is intended here.";
-  private static final Set<String> RELEVANT_RESOURCE = new HashSet<>(Arrays.asList(
+  private static final Set<String> RELEVANT_RESOURCE = Set.of(
     "AWS::Lambda::Function",
     "AWS::Serverless::Function",
     "AWS::ApiGatewayV2::Api",
-    "AWS::CodeBuild::Project"));
+    "AWS::CodeBuild::Project");
 
   @Override
   public void initialize(InitContext init) {
@@ -137,27 +136,36 @@ public class LogGroupDeclarationCheck implements IacCheck {
   }
 
   private static Optional<String> functionName(Resource resource) {
-    return PropertyUtils.value(resource.properties(), "FunctionName")
-      .filter(ScalarTree.class::isInstance).map(s -> ((ScalarTree) s).value());
+    var name = PropertyUtils.value(resource.properties(), "FunctionName").orElse(null);
+    if (name instanceof ScalarTree scalarTree) {
+      return Optional.of(scalarTree.value());
+    } else if (name instanceof FunctionCallTree functionCall) {
+      return Optional.of(FunctionReferenceCollector.get(functionCall)).stream()
+        .flatMap(Collection::stream)
+        .findFirst();
+    }
+    return Optional.empty();
   }
 
   private static boolean isRelevantResource(Resource resource) {
-    return RELEVANT_RESOURCE.contains(TextUtils
-      .getValue(resource.type())
-      .orElse(null)) && !hasLogEvent(resource);
+    return TextUtils.getValue(resource.type())
+      .map(RELEVANT_RESOURCE::contains)
+      .orElse(false) && !hasLogEvent(resource);
   }
 
   private static boolean hasLogEvent(Resource resource) {
     return PropertyUtils.value(resource.properties(), "Events")
-      .filter(MappingTree.class::isInstance).map(e -> ((MappingTree) e).elements())
-      .orElse(Collections.emptyList()).stream()
+      .filter(MappingTree.class::isInstance).stream()
+      .flatMap(e -> ((MappingTree) e).elements().stream())
       .map(TupleTree::value)
       .anyMatch(e -> XPathUtils.getSingleTree(e, "/Properties/LogGroupName").isPresent());
   }
 
   // Instinct functions can be nested in the LogGroupName property value and can be extracted by a collecting TreeVisitor
   static class FunctionReferenceCollector extends TreeVisitor<TreeContext> {
-    private static final Pattern SUB_PARAMETERS = Pattern.compile("\\$\\{([a-zA-Z0-9.]+)}|([a-zA-Z0-9.]+)");
+    // The prefix `/aws/lambda/` is a default prefix for LogGroups corresponding to lambdas.
+    // It is valuable to use the part after it for matching.
+    private static final Pattern SUB_PARAMETERS = Pattern.compile("(?:/aws/lambda/)?\\$\\{([a-zA-Z0-9.]+)}|([a-zA-Z0-9.]+)");
     private final Set<String> references = new HashSet<>();
 
     public FunctionReferenceCollector() {

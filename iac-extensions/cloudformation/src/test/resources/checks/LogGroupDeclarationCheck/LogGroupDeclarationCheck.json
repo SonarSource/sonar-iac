@@ -263,6 +263,25 @@
           "Fn::Sub": "/foo/bar/CompliantCodeBuildProjectWithStringMatch"
         }
       }
+    },
+    "LogGroupWithNameMatchingFunction": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${LambdaName}"
+        }
+      }
+    },
+    "FunctionThatReliesOnCreatedLogGroup": {
+      "Type": "AWS::Serverless::Function",
+      "DependsOn": [
+       "LogGroupWithNameMatchingFunction"
+      ],
+      "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "${LambdaName}"
+        }
+      }
     }
   }
 }

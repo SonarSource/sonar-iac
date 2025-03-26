@@ -218,3 +218,16 @@ Resources:
       LogGroupName:
         Fn::Sub:
           - !GetAtt foo.bar.sub
+
+  LogGroupWithNameMatchingFunction: # Log Group for the Lambda, this needs to be created before the Lambda auto-creates it.
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LambdaName}'
+      RetentionInDays: 7
+
+  FunctionThatReliesOnCreatedLogGroup:
+    Type: 'AWS::Serverless::Function'
+    DependsOn:
+      - LogGroupWithNameMatchingFunction # Log group needs to be created before function
+    Properties:
+      FunctionName: !Sub '${LambdaName}' # Function name is the same as the log group name
