@@ -66,8 +66,8 @@ class TerraformSensorTest extends ExtensionSensorTest {
     assertThat(issue.ruleKey().rule()).isEqualTo("S6273");
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
-    assertThat(location.message()).isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^" +
-      "([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\".");
+    assertThat(location.message())
+      .isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^(([^:]++:)*+([A-Z][A-Za-z]*+))$\".");
     org.sonar.api.batch.fs.TextRange issueTextRange = location.textRange();
     TextRange treeTextRange = TextRanges.range(issueTextRange.start().line(), issueTextRange.start().lineOffset(),
       issueTextRange.end().line(), issueTextRange.end().lineOffset());

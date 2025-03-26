@@ -1,8 +1,8 @@
 resource "aws_s3_bucket" "myawsbucket" {
   tags = {
-    "anycompany:cost-center" = "" # Noncompliant {{Rename tag key "anycompany:cost-center" to match the regular expression "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$".}}
+    "anycompany:cost-center" = "" # Noncompliant {{Rename tag key "anycompany:cost-center" to match the regular expression "^(([^:]++:)*+([A-Z][A-Za-z]*+))$".}}
 #   ^^^^^^^^^^^^^^^^^^^^^^^^
-    "anycompany:CostCenter" = "" # Noncompliant
+    "anycompany:CostCenter" = "" # Compliant: prefixes are not checked
     ":CostCenter" = "" # Noncompliant
     "Anycompany:" = "" # Noncompliant
     "anycompany:cost-" = "" # Noncompliant

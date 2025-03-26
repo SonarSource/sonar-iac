@@ -24,22 +24,21 @@ import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 class AwsTagNameConventionCheckTest {
 
   @Test
-  void test_default_yaml() {
+  void testYamlWithDefaultPattern() {
     CloudformationVerifier.verify("AwsTagNameConventionCheck/default.yaml", new AwsTagNameConventionCheck());
   }
 
   @Test
-  void test_custom() {
+  void testYamlWithCustomPattern() {
     AwsTagNameConventionCheck check = new AwsTagNameConventionCheck();
     check.format = "^([a-z-]*[a-z]:)*([a-z-]*[a-z])$";
     CloudformationVerifier.verify("AwsTagNameConventionCheck/custom.yaml", check);
   }
 
   @Test
-  void test_default_json() {
+  void testJsonWithDefaultPattern() {
     CloudformationVerifier.verify("AwsTagNameConventionCheck/default.json", new AwsTagNameConventionCheck(),
       new Verifier.Issue(range(10, 19, 10, 43),
-        "Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\"."),
-      new Verifier.Issue(range(14, 19, 14, 47)));
+        "Rename tag key \"anycompany:cost-center\" to match the regular expression \"^(([^:]++:)*+([A-Z][A-Za-z]*+))$\"."));
   }
 }

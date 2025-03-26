@@ -16,41 +16,35 @@
  */
 package org.sonar.iac.terraform.checks.aws;
 
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
+import static java.util.function.Predicate.not;
 import static org.sonar.iac.terraform.checks.aws.utils.AwsUtils.getTagKeyStream;
 
 @Rule(key = "S6273")
 public class AwsTagNameConventionCheck extends AbstractResourceCheck {
-  protected static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
-  public static final String DEFAULT = "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$";
-  protected Pattern pattern;
+  private static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
+  public static final String DEFAULT = "^(([^:]++:)*+([A-Z][A-Za-z]*+))$";
+  protected Predicate<String> isMismatchingKey;
 
-  @RuleProperty(
-    key = "format",
-    description = "Regular expression used to check the tag keys against.",
-    defaultValue = DEFAULT)
+  @RuleProperty(key = "format", description = "Regular expression used to check the tag keys against.", defaultValue = DEFAULT)
   public String format = DEFAULT;
 
   @Override
   public void initialize(InitContext init) {
-    pattern = Pattern.compile(format);
+    isMismatchingKey = not(Pattern.compile(format).asMatchPredicate());
     super.initialize(init);
   }
 
   @Override
   protected void registerResourceChecks() {
     register((ctx, resource) -> getTagKeyStream(resource)
-      .filter(this::isMismatchingKey)
-      .forEach(tagKey -> ctx.reportIssue(tagKey, String.format(MESSAGE, tagKey.value(), format))));
-  }
-
-  private boolean isMismatchingKey(LiteralExprTree tagKey) {
-    return !pattern.matcher(tagKey.value()).matches();
+      .filter(tagKey -> isMismatchingKey.test(tagKey.value()))
+      .forEach(tagKey -> ctx.reportIssue(tagKey, MESSAGE.formatted(tagKey.value(), format))));
   }
 }

@@ -16,31 +16,29 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
+import static java.util.function.Predicate.not;
 import static org.sonar.iac.cloudformation.checks.utils.TagUtils.getTagKeyStream;
 
 @Rule(key = "S6273")
 public class AwsTagNameConventionCheck extends AbstractResourceCheck {
-  protected static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
-  public static final String DEFAULT = "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$";
-  protected Pattern pattern;
+  private static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
+  public static final String DEFAULT = "^(([^:]++:)*+([A-Z][A-Za-z]*+))$";
 
-  @RuleProperty(
-    key = "format",
-    description = "Regular expression used to check the tag keys against.",
-    defaultValue = DEFAULT)
+  @RuleProperty(key = "format", description = "Regular expression used to check the tag keys against.", defaultValue = DEFAULT)
   public String format = DEFAULT;
+  protected Predicate<String> isMismatchingKey;
 
   @Override
   public void initialize(InitContext init) {
-    pattern = Pattern.compile(format);
+    isMismatchingKey = not(Pattern.compile(format).asMatchPredicate());
     super.initialize(init);
   }
 
@@ -49,12 +47,8 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
     YamlTree properties = resource.properties();
     if (properties != null) {
       getTagKeyStream(properties)
-        .filter(this::isMismatchingKey)
-        .forEach(key -> ctx.reportIssue(key, String.format(MESSAGE, key.value(), format)));
+        .filter(key -> isMismatchingKey.test(key.value()))
+        .forEach(key -> ctx.reportIssue(key, MESSAGE.formatted(key.value(), format)));
     }
-  }
-
-  private boolean isMismatchingKey(ScalarTree tagKey) {
-    return !pattern.matcher(tagKey.value()).matches();
   }
 }

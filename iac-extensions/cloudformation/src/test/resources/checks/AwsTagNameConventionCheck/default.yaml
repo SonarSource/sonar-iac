@@ -8,11 +8,11 @@ Resources:
     Properties:
       BucketName: "mybucketname"
       Tags:
-        - Key: "anycompany:cost-center" # Noncompliant {{Rename tag key "anycompany:cost-center" to match the regular expression "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$".}}
+        - Key: "anycompany:cost-center" # Noncompliant {{Rename tag key "anycompany:cost-center" to match the regular expression "^(([^:]++:)*+([A-Z][A-Za-z]*+))$".}}
           Value: "Accounting"
-        - Key: "anycompany:EnvironmentType" # Noncompliant
-          Value: "PROD"
-        - Key: 'anycompany:EnvironmentType' # Noncompliant
+        - Key: "cost-center" # Noncompliant
+          Value: "Accounting"
+        - Key: "anycompany:EnvironmentType" # Compliant: prefix is not checked
           Value: "PROD"
         - Key: "Anycompany:CostCenter" # Compliant
           Value: "Accounting"

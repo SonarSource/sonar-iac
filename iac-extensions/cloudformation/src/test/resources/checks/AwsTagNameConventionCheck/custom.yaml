@@ -5,7 +5,7 @@ Resources:
     Properties:
       BucketName: "mybucketname"
       Tags:
-        - Key: "anycompany:cost-center" # Compliant
+        - Key: "anycompany:cost-center" # Compliant:custom pattern allows leading lowercase letters
           Value: "Accounting"
         - Key: "Anycompany:CostCenter" # Noncompliant {{Rename tag key "Anycompany:CostCenter" to match the regular expression "^([a-z-]*[a-z]:)*([a-z-]*[a-z])$".}}
           Value: "Accounting"
