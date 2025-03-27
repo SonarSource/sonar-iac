@@ -29,6 +29,7 @@ dependencies {
     api(libs.sslr)
     api(libs.minimaljson)
     api(libs.snakeyaml)
+    api(libs.slf4j.api)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
@@ -36,6 +37,7 @@ dependencies {
     testImplementation(libs.sonar.plugin.api.impl)
     testImplementation(libs.sonar.plugin.api.test.fixtures)
     testImplementation(libs.sonar.analyzer.test.commons)
+    testRuntimeOnly(libs.junit.platform.launcher)
 
     testFixturesImplementation(libs.junit.jupiter)
     testFixturesImplementation(libs.assertj.core)
@@ -44,4 +46,5 @@ dependencies {
     testFixturesImplementation(libs.sonar.plugin.api.test.fixtures)
     testFixturesImplementation(libs.sonar.analyzer.test.commons)
     testFixturesImplementation(libs.apache.commons.lang)
+    testFixturesImplementation(libs.logback.classic)
 }

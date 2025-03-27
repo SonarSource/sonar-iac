@@ -1,15 +1,15 @@
 [versions]
-sonarqube = "25.2.0.102705"
+sonarqube = "25.3.0.104237"
 # Before updating the plugin-api version, make sure to check the compatibility matrix and stick to the lowest denominator
 # https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility
 sonar-plugin-api = "11.1.0.2693"
 sonar-commons = "2.16.0.3141"
 sonar-license-api = "3.4"
-sonar-orchestrator = "5.1.0.2254"
-junit = "5.11.4"
+sonar-orchestrator = "5.4.0.2489"
+junit = "5.12.1"
 assertj = "3.27.3"
-mockito = "5.15.2"
-sonar-lint = "10.15.0.80289"
+mockito = "5.16.1"
+sonar-lint = "10.17.0.80607"
 sslr = "1.24.0.633"
 archunit = "1.4.0"
 snakeyaml = "2.9"
@@ -17,13 +17,15 @@ minimaljson = "0.9.5"
 sonar-scanner-gradle = "6.0.1.5171"
 jfrog-gradle = "5.2.5"
 blowdryer-gradle = "1.7.1"
-google-protobuf = "4.29.3"
+google-protobuf = "4.30.1"
 google-protobuf-gradle = "0.9.4"
 google-protobuf-go = "1.36.6"
 apache-commons-lang = "2.6"
 antlr4 = "4.13.2"
 yguard = "4.1.1"
-awaitility = "4.2.2"
+awaitility = "4.3.0"
+slf4j = "2.0.17"
+logback = "1.5.18"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
@@ -35,6 +37,8 @@ sonar-plugin-api-test-fixtures = { module = "org.sonarsource.api.plugin:sonar-pl
 sonar-ws = { module = "org.sonarsource.sonarqube:sonar-ws", version.ref = "sonarqube" }
 sonar-orchestrator-junit5 = { module = "org.sonarsource.orchestrator:sonar-orchestrator-junit5", version.ref = "sonar-orchestrator" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+# Version of JUnit Platform is taken from the JUnit BOM that is imported by junit-jupiter
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 jfrog-buildinfo-gradle = { module = "org.jfrog.buildinfo:build-info-extractor-gradle", version.ref = "jfrog-gradle" }
@@ -56,6 +60,8 @@ antlr4 = { module = "org.antlr:antlr4", version.ref = "antlr4" }
 antlr4-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr4" }
 yguard = { module = "com.yworks:yguard", version.ref = "yguard"}
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility"}
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]
 google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf-gradle" }

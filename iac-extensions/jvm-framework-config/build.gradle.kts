@@ -39,6 +39,7 @@ dependencies {
     testImplementation(libs.sonar.plugin.api.test.fixtures)
     testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 // The antlr configuration add automatically a whole library to the JAR, however only antlr4-runtime is needed

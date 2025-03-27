@@ -41,6 +41,7 @@ dependencies {
     testImplementation(libs.archunit)
     testImplementation(libs.sonar.plugin.api.impl)
     testImplementation(libs.sonar.analyzer.test.commons)
+    testRuntimeOnly(libs.junit.platform.launcher)
 
     compileOnly(libs.sonar.plugin.api)
 }

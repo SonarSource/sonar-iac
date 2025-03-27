@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.google.protobuf)
 
     testRuntimeOnly(project(":sonar-helm-for-iac", "goBinaries"))
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)

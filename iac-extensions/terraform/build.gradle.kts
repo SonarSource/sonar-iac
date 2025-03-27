@@ -32,4 +32,5 @@ dependencies {
     testImplementation(libs.sslr.test)
     testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
+    testRuntimeOnly(libs.junit.platform.launcher)
 }

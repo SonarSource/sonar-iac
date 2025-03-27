@@ -36,6 +36,7 @@ dependencies {
     testImplementation(libs.sonar.plugin.api.test.fixtures)
     testImplementation(libs.sslr.test)
     testImplementation(testFixtures(project(":iac-common")))
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 val downloadCfnLintRules by tasks.registering(Download::class) {
