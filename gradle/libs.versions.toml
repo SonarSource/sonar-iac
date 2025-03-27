@@ -47,6 +47,7 @@ sonar-lint-core = { module = "org.sonarsource.sonarlint.core:sonarlint-core", ve
 sonar-lint-plugin-api = { module = "org.sonarsource.sonarlint.core:sonarlint-plugin-api", version.ref = "sonar-lint" }
 sonar-lint-rpc-java-client = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-java-client", version.ref = "sonar-lint" }
 sonar-lint-rpc-impl = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-impl", version.ref = "sonar-lint" }
+sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.8.0.37665" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
 sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref = "sslr" }
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
