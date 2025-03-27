@@ -17,12 +17,21 @@ RUN sudo curl -L -o output.txt -s https://example.com/resource -k && cat output.
 
 ENV PHP_URL=https://exmple.com/php
 
-# Noncompliant@+2
+# Compliant: to avoid noisiness, we don't raise on curl commands that are in the middle of other instructions
 RUN if [ -n "$PHP_URL" ]; then \
       curl -o php.tar "$PHP_URL"; \
-#     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	  echo "Success" \
 	fi;
+
+# Sensitive: we still raise an issue if curl is at the beginning or at the end of the command list
+# Noncompliant@+3
+RUN command 1; \
+  command 2; \
+  curl -o php.tar "$PHP_URL"
+# Noncompliant@+1
+RUN curl -o php.tar "$PHP_URL"; \
+  command 1; \
+  command 2
 
 # Noncompliant@+1
 RUN curl -L -o output.txt https://example.com/resource
@@ -454,8 +463,7 @@ RUN export VERSION=$(curl -s https://api.example.com/latest-version | jq -r '.ve
 # Sensitive: the unresolved variable is not used in the curl command
 # Noncompliant@+2
 RUN export VERSION=$(curl -s https://api.example.com/latest-version | jq -r '.version') \
-  && curl -fSL -o /tmp/example.rpm "https://example.com/downloads/example_1.2.3.rpm" \
-  && some other command $VERSION
+  && curl -fSL -o /tmp/example.rpm "https://example.com/downloads/example_1.2.3.rpm"
 
 ARG MY_VERSION=1.2.3
 

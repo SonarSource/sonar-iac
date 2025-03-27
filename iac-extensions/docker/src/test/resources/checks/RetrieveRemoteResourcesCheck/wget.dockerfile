@@ -16,12 +16,21 @@ RUN sudo wget -O /path/to/resource https://example.com/resource --limit-rate=100
 
 ENV PHP_URL=https://exmple.com/php
 
-# Noncompliant@+2
+# Compliant: to avoid noisiness, we don't raise on wget commands that are in the middle of other instructions
 RUN if [ -n "$PHP_URL" ]; then \
       wget -O php.tar "$PHP_URL"; \
-#     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	  echo "Success" \
 	fi;
+
+# Sensitive: we still raise an issue if wget is at the beginning or at the end of the command list
+# Noncompliant@+3
+RUN command 1; \
+  command 2; \
+  wget -O php.tar "$PHP_URL"
+# Noncompliant@+1
+RUN wget -O php.tar "$PHP_URL"; \
+  command 1; \
+  command 2
 
 # Noncompliant@+1
 RUN wget --max-redirect=1 -O /path/to/resource https://example.com/resource
@@ -227,8 +236,7 @@ RUN export VERSION=$(curl -s https://api.example.com/latest-version | jq -r '.ve
 # Sensitive: the unresolved variable is not used in the wget command
 # Noncompliant@+2
 RUN export VERSION=$(curl -s https://api.example.com/latest-version | jq -r '.version') \
-  && wget -O /tmp/example.rpm "https://example.com/downloads/example_1.2.3.rpm" \
-  && some other command $VERSION
+  && wget -O /tmp/example.rpm "https://example.com/downloads/example_1.2.3.rpm"
 
 ARG MY_VERSION=1.2.3
 
