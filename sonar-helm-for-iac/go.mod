@@ -3,7 +3,7 @@ module github.com/SonarSource/sonar-iac/sonar-helm-for-iac
 go 1.23.4
 
 require (
-	github.com/BurntSushi/toml v1.4.0
+	github.com/BurntSushi/toml v1.5.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/gobwas/glob v0.2.3
 	github.com/samber/mo v1.13.0
@@ -12,7 +12,7 @@ require (
 	// When updating this dependency, update "google-protobuf-go" in "libs.versions.toml"
 	// Also update the "PROTOBUF_GO_VERSION" in "make.sh"
 	// Then run "go mod tidy" and "../gradlew generateProto"
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/protobuf v1.36.6
 	sigs.k8s.io/yaml v1.4.0
 )
 
