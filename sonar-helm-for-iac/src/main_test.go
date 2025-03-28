@@ -21,6 +21,7 @@ import (
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -643,4 +644,77 @@ api: v1
 
 	assert.Error(t, result.Error)
 	assert.Equal(t, "template: test-project/templates/_helpers.tpl:4: unexpected \"{\" in operand", result.Error.Error())
+}
+
+type TestLoggingCollector struct {
+	Logs []string
+}
+
+func (l *TestLoggingCollector) GetLogs() []string {
+	return l.Logs
+}
+
+func (l *TestLoggingCollector) AppendLog(log string) {
+	l.Logs = append(l.Logs, log)
+}
+
+func (l *TestLoggingCollector) FlushLogs() {
+	// don't flush in testing
+	l.AppendLog("Flushing logs")
+}
+
+func Test_Flushing_Logs_On_Failed_Template_Evaluation(t *testing.T) {
+	content := []byte("\x00\x00\x00\x0Dtemplate.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00")
+	tmpfile, err := os.CreateTemp("", "test")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer os.Remove(tmpfile.Name()) // clean up
+
+	if _, err := tmpfile.Write(content); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := tmpfile.Seek(0, 0); err != nil {
+		log.Fatal(err)
+	}
+
+	loggingCollector = &TestLoggingCollector{Logs: []string{}}
+	sourceInput = tmpfile
+
+	main()
+
+	assert.Equal(t, 3, len(loggingCollector.GetLogs()))
+	assert.Equal(t, "Reading 14 bytes of file template.yaml from stdin\n", loggingCollector.GetLogs()[0])
+	assert.Equal(t, "Read in total 1 files from stdin; evaluating template <template.yaml>\n", loggingCollector.GetLogs()[1])
+	assert.Equal(t, "Flushing logs", loggingCollector.GetLogs()[2])
+}
+
+func Test_Flushing_Logs_On_Read_Error(t *testing.T) {
+	// File content cause error on file reading
+	content := []byte("\u0000\u0000\u0000\bfoo.yaml\u0000\u0000\u0000\u000EapiVersi")
+	tmpfile, err := os.CreateTemp("", "test")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer os.Remove(tmpfile.Name()) // clean up
+
+	if _, err := tmpfile.Write(content); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := tmpfile.Seek(0, 0); err != nil {
+		log.Fatal(err)
+	}
+
+	loggingCollector = &TestLoggingCollector{Logs: []string{}}
+	sourceInput = tmpfile
+
+	main()
+
+	assert.Equal(t, 2, len(loggingCollector.GetLogs()))
+	assert.Equal(t, "Reading 14 bytes of file foo.yaml from stdin\n", loggingCollector.GetLogs()[0])
+	assert.Equal(t, "Flushing logs", loggingCollector.GetLogs()[1])
 }

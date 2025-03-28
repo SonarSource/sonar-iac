@@ -32,8 +32,8 @@ import (
 // <file name> (R bytes)
 // S (4 bytes) file content length
 // <file content> (S bytes)
-func ReadInput(input *os.File) (string, Files, error) {
-	templateName, contentBytes, err := readSingleFile(input)
+func ReadInput(input *os.File, loggingCollector *LoggingCollector) (string, Files, error) {
+	templateName, contentBytes, err := readSingleFile(input, loggingCollector)
 	if err != nil {
 		return "", nil, err
 	}
@@ -47,7 +47,7 @@ func ReadInput(input *os.File) (string, Files, error) {
 	}
 
 	for i := 0; i < numberOfFiles; i++ {
-		filename, content, err := readSingleFile(input)
+		filename, content, err := readSingleFile(input, loggingCollector)
 		if err != nil {
 			return "", nil, err
 		}
@@ -57,7 +57,7 @@ func ReadInput(input *os.File) (string, Files, error) {
 	return templateName, contents, err
 }
 
-func readSingleFile(input *os.File) (string, []byte, error) {
+func readSingleFile(input *os.File, loggingCollector *LoggingCollector) (string, []byte, error) {
 	filenameLength, err := readBytesAsInt(input)
 	if err != nil {
 		return "", nil, err
@@ -75,7 +75,7 @@ func readSingleFile(input *os.File) (string, []byte, error) {
 		return "", nil, err
 	}
 
-	fmt.Fprintf(os.Stderr, "Reading %d bytes of file %s from stdin\n", contentLength, filename)
+	(*loggingCollector).AppendLog(fmt.Sprintf("Reading %d bytes of file %s from stdin\n", contentLength, filename))
 	contentBytes, _, err := readBytes(input, contentLength)
 	if err != nil {
 		return "", nil, err
@@ -125,8 +125,8 @@ func readBytesAsInt(input *os.File) (int, error) {
 	return number, nil
 }
 
-func ReadAndValidateSources(input *os.File) (*TemplateSources, error) {
-	templateName, sources, err := ReadInput(input)
+func ReadAndValidateSources(input *os.File, loggingCollector *LoggingCollector) (*TemplateSources, error) {
+	templateName, sources, err := ReadInput(input, loggingCollector)
 	if err != nil {
 		return nil, fmt.Errorf("error reading content: %w", err)
 	}

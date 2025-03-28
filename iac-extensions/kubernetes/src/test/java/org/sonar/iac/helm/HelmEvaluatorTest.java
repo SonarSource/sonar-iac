@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +37,8 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.helm.utils.ExecutableHelper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -68,12 +69,16 @@ class HelmEvaluatorTest {
   @Test
   void shouldThrowIfGoBinaryNotFoundChartYaml() {
     var templateDependencies = Map.<String, String>of();
-    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
+    assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Evaluation error in Go library: source file Chart.yaml not found");
 
-    Assertions.assertThat(logTester.logs(Level.DEBUG))
-      .contains("[sonar-helm-for-iac] Reading 0 bytes of file /foo/bar/baz.yaml from stdin");
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains(
+        "[sonar-helm-for-iac] Exception encountered, printing recorded logs",
+        "[sonar-helm-for-iac]   Reading 0 bytes of file /foo/bar/baz.yaml from stdin",
+        "[sonar-helm-for-iac]   Read in total 1 files from stdin; evaluating template </foo/bar/baz.yaml>",
+        "[sonar-helm-for-iac] End of recorded logs");
   }
 
   @Test
@@ -88,7 +93,7 @@ class HelmEvaluatorTest {
       doNothing().when(helmEvaluatorSpy).writeTemplateAndDependencies(any(), any(), any(), any());
 
       var templateDependencies = Map.<String, String>of();
-      Assertions.assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
+      assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("sonar-helm-for-iac exited with non-zero exit code: 1, possible serialization failure");
     }
@@ -108,7 +113,7 @@ class HelmEvaluatorTest {
       doNothing().when(helmEvaluatorSpy).writeTemplateAndDependencies(any(), any(), any(), any());
 
       var templateDependencies = Map.of("values.yaml", "");
-      Assertions.assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
+      assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Empty evaluation result returned from sonar-helm-for-iac");
     }
@@ -117,8 +122,10 @@ class HelmEvaluatorTest {
   @Test
   void shouldThrowIfGoReturnsError() {
     var templateDependencies = Map.of("values.yaml", "container:\n  port: 8080");
-    Assertions.assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.", templateDependencies))
+    assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.", templateDependencies))
       .isInstanceOf(IllegalStateException.class);
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("[sonar-helm-for-iac]   Reading 26 bytes of file /foo/bar/baz.yaml from stdin");
   }
 
   @Test
@@ -134,7 +141,7 @@ class HelmEvaluatorTest {
       doNothing().when(helmEvaluatorSpy).writeTemplateAndDependencies(any(), any(), any(), any());
 
       var templateDependencies = Map.<String, String>of();
-      Assertions.assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
+      assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Deserialization error");
     }
@@ -145,7 +152,8 @@ class HelmEvaluatorTest {
     var templateDependencies = Map.of("values.yaml", "container:\n  port: 8080", "Chart.yaml", "name: foo");
     var evaluationResult = helmEvaluator.evaluateTemplate("templates/baz.yaml", "containerPort: {{ .Values.container.port }}", templateDependencies);
 
-    Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
+    assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
+    assertThat(logTester.logs()).noneMatch(log -> log.startsWith("[sonar-helm-for-iac]"));
   }
 
   @Test
@@ -153,7 +161,10 @@ class HelmEvaluatorTest {
     var evaluationResult = helmEvaluator.evaluateTemplate("templates/baz.yaml", "containerPort: {{ .Values.container.port }}\n   \n",
       Map.of("values.yaml", "container:\n  port: 8080\n\n", "Chart.yaml", "name: foo\n\n"));
 
-    Assertions.assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
+    assertThat(evaluationResult.getTemplate()).contains("containerPort: 8080");
+    assertThat(logTester.logs())
+      .anyMatch(log -> log.startsWith("Preparing Helm analysis for platform:"))
+      .noneMatch(log -> log.startsWith("[sonar-helm-for-iac]"));
   }
 
   @ParameterizedTest
@@ -170,6 +181,6 @@ class HelmEvaluatorTest {
   void shouldConvertIntToBytes(int number, String expected) {
     var bytes = HelmEvaluator.intTo4Bytes(number);
     var asText = "%02X %02X %02X %02X".formatted(bytes[0], bytes[1], bytes[2], bytes[3]);
-    Assertions.assertThat(asText).isEqualTo(expected);
+    assertThat(asText).isEqualTo(expected);
   }
 }

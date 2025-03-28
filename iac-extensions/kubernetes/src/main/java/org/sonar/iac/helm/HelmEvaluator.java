@@ -54,7 +54,6 @@ public class HelmEvaluator {
   }
 
   public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) throws IOException {
-    LOG.debug("Executing: {}", processBuilder.command());
     var process = startProcess();
     processMonitor.submit(() -> ExecutableHelper.readProcessErrorOutput(process));
     writeTemplateAndDependencies(process, path, content, templateDependencies);
@@ -82,6 +81,7 @@ public class HelmEvaluator {
   ProcessBuilder prepareProcessBuilder() throws IOException {
     var suffix = OperatingSystemUtils.getCurrentPlatformIfSupported()
       .orElseThrow(() -> new IllegalStateException("HelmEvaluator is being initialized on an unsupported platform"));
+    LOG.debug("Preparing Helm analysis for platform: {}", suffix);
     var executable = ExecutableHelper.extractFromClasspath(workingDir, HELM_FOR_IAC_EXECUTABLE + "-" + suffix);
     return new ProcessBuilder(executable);
   }

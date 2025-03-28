@@ -27,14 +27,16 @@ import (
 
 var converter converters.Converter = &converters.DefaultConverter{}
 var serializer converters.Serializer = converters.ProtobufSerializer{}
+var loggingCollector = converters.NewDefaultLoggingCollector()
+var sourceInput = os.Stdin
 
 func main() {
-	templateSources, processingError := converters.ReadAndValidateSources(os.Stdin)
+	templateSources, processingError := converters.ReadAndValidateSources(sourceInput, &loggingCollector)
 
 	evaluatedTemplate := ""
 	var ast *pbstructs.Tree
 	if processingError == nil {
-		fmt.Fprintf(os.Stderr, "Read in total %d files from stdin; evaluating template <%s>\n", templateSources.NumSources(), templateSources.Name)
+		loggingCollector.AppendLog(fmt.Sprintf("Read in total %d files from stdin; evaluating template <%s>\n", templateSources.NumSources(), templateSources.Name))
 		evaluationResult := evaluateTemplate(templateSources)
 		ast = converter.ConvertTree(templateSources.TemplateFile(), evaluationResult.Ast)
 		evaluatedTemplate, processingError = evaluationResult.Template, evaluationResult.Error
@@ -42,12 +44,15 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to read input: %s\n", processingError.Error())
 	}
 
+	if processingError != nil {
+		loggingCollector.FlushLogs()
+	}
+
 	result, err := serializer.Serialize(evaluatedTemplate, ast, processingError)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to serialize evaluated template to Protobuf: %s\n", err.Error())
 		os.Exit(1)
 	}
-	fmt.Fprintf(os.Stderr, "Writing %d bytes to stdout\n", len(result))
 	os.Stdout.Write(result)
 }
 

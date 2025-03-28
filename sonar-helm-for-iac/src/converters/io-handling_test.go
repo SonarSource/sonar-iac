@@ -26,45 +26,55 @@ import (
 func Test_read_single_template(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x0Dtemplate.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00"))
-	templateName, contents, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	templateName, contents, err := ReadInput(input, &loggingTestCollector)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "template.yaml", templateName)
 	assert.Equal(t, 1, len(contents))
 	assert.Equal(t, "apiVersion: v1", contents.Get("template.yaml"))
+	assert.Equal(t, 1, len(loggingTestCollector.GetLogs()))
+	assert.Equal(t, "Reading 14 bytes of file template.yaml from stdin\n", loggingTestCollector.GetLogs()[0])
 }
 
 func Test_read_long_template_name(t *testing.T) {
 	filename := strings.Repeat("/very/long/path", 100) + "/template.yaml"
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x05\xEA" + filename + "\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00"))
-	templateName, contents, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	templateName, contents, err := ReadInput(input, &loggingTestCollector)
 
 	assert.NoError(t, err)
 	assert.Equal(t, filename, templateName)
 	assert.Equal(t, 1, len(contents))
 	assert.Equal(t, "apiVersion: v1", contents.Get(filename))
+	assert.Equal(t, 1, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_template_and_empty_values(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x00"))
-	templateName, contents, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	templateName, contents, err := ReadInput(input, &loggingTestCollector)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "foo.yaml", templateName)
 	assert.Equal(t, 2, len(contents))
 	assert.Equal(t, "apiVersion: v1", contents.Get("foo.yaml"))
 	assert.Equal(t, "", contents.Get("values.yaml"))
+	assert.Equal(t, 2, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_with_empty_input(t *testing.T) {
 	timeout := time.After(1 * time.Second)
 	done := make(chan bool)
+	loggingTestCollector := NewDefaultLoggingCollector()
 	go func() {
 		input, output, _ := os.Pipe()
-		output.Write([]byte(""))
-		ReadInput(input)
+		_, err := output.Write([]byte(""))
+		assert.NoError(t, err)
+		_, _, err = ReadInput(input, &loggingTestCollector)
+		assert.NoError(t, err)
 		done <- true
 	}()
 
@@ -73,17 +83,20 @@ func Test_read_with_empty_input(t *testing.T) {
 		t.Fatal("It should be timeout for empty input")
 	case <-timeout:
 	}
+	assert.Equal(t, 0, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_n_lines_from_input(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x11line1\nline2\nline3"))
-	_, contents, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, contents, err := ReadInput(input, &loggingTestCollector)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(contents))
 	assert.Equal(t, "line1\nline2\nline3", contents.Get("values.yaml"))
+	assert.Equal(t, 2, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_all_lines_from_input_different_new_lines(t *testing.T) {
@@ -92,11 +105,13 @@ func Test_read_all_lines_from_input_different_new_lines(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x28" + content))
-	_, contents, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, contents, err := ReadInput(input, &loggingTestCollector)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(contents))
 	assert.Equal(t, content, contents.Get("values.yaml"))
+	assert.Equal(t, 2, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_one_file_with_trailing_newline(t *testing.T) {
@@ -104,11 +119,13 @@ func Test_read_one_file_with_trailing_newline(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x06" + content))
-	_, contents, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, contents, err := ReadInput(input, &loggingTestCollector)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(contents))
 	assert.Equal(t, content, contents.Get("values.yaml"))
+	assert.Equal(t, 2, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_three_files(t *testing.T) {
@@ -117,67 +134,81 @@ func Test_read_three_files(t *testing.T) {
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x0Bline1\nline2" +
 		"\x00\x00\x00\x12templates/foo.yaml\x00\x00\x00\x05line3" +
 		"\x00\x00\x00\x16templates/_helpers.tpl\x00\x00\x00\x08\nline4\r\n"))
-	_, contents, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, contents, err := ReadInput(input, &loggingTestCollector)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 4, len(contents))
 	assert.Equal(t, "line1\nline2", contents.Get("values.yaml"))
 	assert.Equal(t, "line3", contents.Get("templates/foo.yaml"))
 	assert.Equal(t, "\nline4\r\n", contents.Get("templates/_helpers.tpl"))
+	assert.Equal(t, 4, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_error_handling(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00"))
 	output.Close()
-	_, _, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, _, err := ReadInput(input, &loggingTestCollector)
 
 	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 1", err.Error())
+	assert.Equal(t, 0, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_error_handling_2(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x11foo"))
 	output.Close()
-	_, _, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, _, err := ReadInput(input, &loggingTestCollector)
 
 	assert.Equal(t, "Error reading from stdin, expecting to read 17 bytes, but got 3", err.Error())
+	assert.Equal(t, 0, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_error_handling_3(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00"))
 	output.Close()
-	_, _, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, _, err := ReadInput(input, &loggingTestCollector)
 
 	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 2", err.Error())
+	assert.Equal(t, 0, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_error_handling_4(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersi"))
 	output.Close()
-	_, _, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, _, err := ReadInput(input, &loggingTestCollector)
 
 	assert.Equal(t, "Error reading from stdin, expecting to read 14 bytes, but got 8", err.Error())
+	assert.Equal(t, 1, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_error_handling_5(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00"))
 	output.Close()
-	_, _, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, _, err := ReadInput(input, &loggingTestCollector)
 
 	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 1", err.Error())
+	assert.Equal(t, 1, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_read_error_handling_6(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x03"))
 	output.Close()
-	_, _, err := ReadInput(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, _, err := ReadInput(input, &loggingTestCollector)
 
 	assert.Equal(t, "Error reading from stdin, error: EOF", err.Error())
+	assert.Equal(t, 1, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_no_file_provided(t *testing.T) {
@@ -199,11 +230,12 @@ func Test_two_files_provided(t *testing.T) {
 	input, output, _ := os.Pipe()
 	output.Write([]byte("\x00\x00\x00\x10templates/a.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x08foo: bar"))
-
-	_, err := ReadAndValidateSources(input)
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, err := ReadAndValidateSources(input, &loggingTestCollector)
 
 	// verify that method does not crash and this code is reached
 	assert.Nil(t, err)
+	assert.Equal(t, 2, len(loggingTestCollector.GetLogs()))
 }
 
 func Test_template_struct_from_2_sources(t *testing.T) {
