@@ -98,7 +98,7 @@ def build_test_analyze_task():
             "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "env": build_test_env(),
-            "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile", cpu=6, memory="6G"),
+            "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile", cpu=6, memory="8G"),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "go_build_cache": go_build_cache(go_src_dir="${CIRRUS_WORKING_DIR}/sonar-helm-for-iac"),
