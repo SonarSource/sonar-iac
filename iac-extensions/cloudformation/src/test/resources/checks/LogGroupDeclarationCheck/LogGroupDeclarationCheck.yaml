@@ -115,7 +115,7 @@ Resources:
       RetentionInDays: 90
 
   SensitiveLambdaFunctionLogGroupWithRefButNoLogGroupName:
-    Type: AWS::Lambda::Function # Noncompliant
+    Type: AWS::Lambda::Function
     Properties:
       LoggingConfig:
         LogGroup: !Ref SensitiveLambdaFunctionLogGroupNoLogGroupName

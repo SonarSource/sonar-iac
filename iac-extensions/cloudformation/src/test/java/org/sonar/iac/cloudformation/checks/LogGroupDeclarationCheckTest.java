@@ -35,7 +35,6 @@ class LogGroupDeclarationCheckTest {
       issue(11, 14, 11, 38),
       issue(14, 14, 14, 39),
       issue(101, 14, 101, 37),
-      issue(132, 14, 132, 37),
       issue(167, 14, 167, 38),
       issue(186, 14, 186, 39),
       issue(244, 14, 244, 41));

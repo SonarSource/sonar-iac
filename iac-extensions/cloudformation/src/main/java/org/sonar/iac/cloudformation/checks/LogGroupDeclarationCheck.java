@@ -64,7 +64,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
 
     Set<String> referencedResourceIdentifier = collectReferenceIDsFromLogGroups(resources);
 
-    Set<String> logGroupNames = collectLogGroupNamesThatHaveLogGroupName(resources);
+    Set<String> logGroupNames = collectLogGroupNames(resources);
 
     // Filter affected resources by LogGroup identifiers and raise issues on remaining resources without declared LogGroup
     resources.stream()
@@ -84,10 +84,9 @@ public class LogGroupDeclarationCheck implements IacCheck {
       .collect(Collectors.toSet());
   }
 
-  private static Set<String> collectLogGroupNamesThatHaveLogGroupName(List<Resource> resources) {
+  private static Set<String> collectLogGroupNames(List<Resource> resources) {
     return resources.stream()
       .filter(resource -> resource.isType("AWS::Logs::LogGroup"))
-      .filter(resource -> PropertyUtils.has(resource.properties(), "LogGroupName").isTrue())
       .map(resource -> resource.name().value())
       .collect(Collectors.toSet());
   }
