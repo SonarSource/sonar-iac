@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -57,7 +58,13 @@ class HelmEvaluatorTest {
   @BeforeEach
   void setUp() throws IOException {
     this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(tempDir, false));
+    this.helmEvaluator.start();
     this.helmEvaluator.initialize();
+  }
+
+  @AfterEach
+  void release() {
+    helmEvaluator.stop();
   }
 
   @AfterAll

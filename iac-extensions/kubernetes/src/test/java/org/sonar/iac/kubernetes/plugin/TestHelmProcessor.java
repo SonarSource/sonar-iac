@@ -18,7 +18,10 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * The test helper allows to simulate the template processing for Helm charts.
@@ -36,7 +39,7 @@ public class TestHelmProcessor extends HelmProcessor {
   }
 
   public TestHelmProcessor(Map<String, String> expectedInputOutputMapping) {
-    super(null, null);
+    super(mock(HelmEvaluator.class), null);
     this.expectedInputOutputMapping = expectedInputOutputMapping;
   }
 

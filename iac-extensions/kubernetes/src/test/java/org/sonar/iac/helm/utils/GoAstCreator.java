@@ -30,6 +30,7 @@ public class GoAstCreator {
   public GoAstCreator(File workingDir) throws IOException {
     this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(workingDir, false));
     this.helmEvaluator.initialize();
+    this.helmEvaluator.start();
   }
 
   public GoTemplateTree goAstFromSource(String source, String valuesFileContent, String chartFileContent) throws IOException {

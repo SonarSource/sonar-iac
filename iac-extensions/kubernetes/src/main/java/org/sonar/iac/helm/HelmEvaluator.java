@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Startable;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
@@ -36,13 +37,14 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.INSTANCE)
-public class HelmEvaluator {
+public class HelmEvaluator implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
   public static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
   private static final int PROCESS_TIMEOUT_SECONDS = 5;
+  private static final int N_THREADS = 2;
 
   private final File workingDir;
-  private final ExecutorService processMonitor = Executors.newFixedThreadPool(2);
+  private ExecutorService processMonitor;
   private ProcessBuilder processBuilder;
 
   public HelmEvaluator(TempFolder tempFolder) {
@@ -53,7 +55,20 @@ public class HelmEvaluator {
     this.processBuilder = prepareProcessBuilder();
   }
 
+  @Override
+  public void start() {
+    LOG.debug("Starting HelmEvaluator ExecutorService with {} threads", N_THREADS);
+    this.processMonitor = Executors.newFixedThreadPool(N_THREADS);
+  }
+
+  @Override
+  public void stop() {
+    LOG.debug("Closing monitoring resources of Helm evaluator");
+    this.processMonitor.shutdownNow();
+  }
+
   public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) throws IOException {
+    LOG.debug("HelmEvaluator Executing: {}", processBuilder.command());
     var process = startProcess();
     processMonitor.submit(() -> ExecutableHelper.readProcessErrorOutput(process));
     writeTemplateAndDependencies(process, path, content, templateDependencies);
