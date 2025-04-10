@@ -68,7 +68,6 @@ public class HelmEvaluator implements Startable {
   }
 
   public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) throws IOException {
-    LOG.debug("HelmEvaluator Executing: {}", processBuilder.command());
     var process = startProcess();
     processMonitor.submit(() -> ExecutableHelper.readProcessErrorOutput(process));
     writeTemplateAndDependencies(process, path, content, templateDependencies);
