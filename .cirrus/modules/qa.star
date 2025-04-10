@@ -60,7 +60,7 @@ def qa_task(env):
     return {
         "only_if": "({}) && !({})".format(is_branch_qa_eligible(), is_rule_metadata_or_docs_update_pr()),
         "depends_on": "build",
-        "eks_container": base_image_container_builder(cpu=6, memory="16G"),
+        "eks_container": base_image_container_builder(cpu=6, memory="18G"),
         "env": env,
         "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
         "gradle_wrapper_cache": gradle_wrapper_cache(),
