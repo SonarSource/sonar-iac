@@ -31,7 +31,7 @@ def qa_win_script():
         "powershell -NonInteractive -Command 'setx PATH \"$env:path;C:\\go\\bin\"'",
         "eval $(powershell -NonInteractive -Command 'write(\"export PATH=`\"\" + ([Environment]::GetEnvironmentVariable(\"PATH\",\"Machine\") + \";\" + [Environment]::GetEnvironmentVariable(\"PATH\",\"User\")).replace(\"\\\",\"/\").replace(\"C:\",\"/c\").replace(\";\",\":\") + \":`$PATH`\"\")')",
         "source cirrus-env CI",
-        "git submodule update --init --depth 1 -- gradle/build-logic-common",
+        "git submodule update --init --depth 1 -- build-logic/common",
         "./gradlew ${GRADLE_COMMON_FLAGS} test"
     ]
 

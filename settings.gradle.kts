@@ -15,7 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 pluginManagement {
-    includeBuild("gradle/build-logic-common")
+    includeBuild("build-logic/common")
+    includeBuild("build-logic/iac")
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -30,7 +31,6 @@ plugins {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "iac"
-includeBuild("build-logic")
 
 include(":iac-extensions")
 include(":sonar-helm-for-iac")

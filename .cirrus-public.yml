@@ -4,7 +4,7 @@ env:
 build_task:
   skip: $CIRRUS_BRANCH == "public_master"
   eks_container:
-    dockerfile: build-logic/Dockerfile
+    dockerfile: build-logic/iac/Dockerfile
     cpu: 2
     memory: 6G
     docker_arguments:
@@ -28,7 +28,7 @@ build_task:
     fingerprint_script: find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs cat
     populate_script: mkdir -p ${GRADLE_USER_HOME}/caches
   script:
-    - git submodule update --init --depth 1 -- gradle/build-logic-common
+    - git submodule update --init --depth 1 -- build-logic/common
     - ./build.sh
   cleanup_gradle_script: |
     rm -rf "${GRADLE_USER_HOME}/caches/$GRADLE_VERSION/"

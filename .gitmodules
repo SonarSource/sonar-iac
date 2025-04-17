@@ -52,6 +52,6 @@
 [submodule "private/its/sources/ansible/ansible-lint"]
 	path = private/its/sources/ansible/ansible-lint
 	url = https://github.com/ansible/ansible-lint
-[submodule "gradle/build-logic-common"]
-	path = gradle/build-logic-common
+[submodule "build-logic/common"]
+	path = build-logic/common
 	url = https://github.com/SonarSource/cloud-native-gradle-modules

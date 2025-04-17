@@ -52,7 +52,7 @@ which get loaded by the main plugin class and are structured similarly to other 
 To configure build dependencies, run the following command:
 
 ```bash
-git submodule update --init -- gradle/build-logic-common
+git submodule update --init -- build-logic/common
 ```
 To always get the latest version of the build logic during git operations, set the following configuration:
 

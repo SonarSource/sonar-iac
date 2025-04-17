@@ -43,7 +43,7 @@ def profile_report_artifacts():
 
 def build_script():
     return [
-        "git submodule update --init --depth 1 -- gradle/build-logic-common",
+        "git submodule update --init --depth 1 -- build-logic/common",
         "source cirrus-env BUILD-PRIVATE",
         "source .cirrus/use-gradle-wrapper.sh",
         "regular_gradle_build_deploy_analyze ${BUILD_ARGUMENTS}",
@@ -66,7 +66,7 @@ def build_task():
     return {
         "build_task": {
             "env": build_env(),
-            "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile", cpu=10, memory="6G"),
+            "eks_container": custom_image_container_builder(dockerfile="build-logic/iac/Dockerfile", cpu=10, memory="6G"),
             "project_version_cache": project_version_cache(),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
@@ -98,7 +98,7 @@ def build_test_analyze_task():
             "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "env": build_test_env(),
-            "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile", cpu=6, memory="8G"),
+            "eks_container": custom_image_container_builder(dockerfile="build-logic/iac/Dockerfile", cpu=6, memory="8G"),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "go_build_cache": go_build_cache(go_src_dir="${CIRRUS_WORKING_DIR}/sonar-helm-for-iac"),
@@ -121,7 +121,7 @@ def build_test_analyze_task():
 # Some bits depend on the project: memory options, gradle task
 def whitesource_script():
     return [
-        "git submodule update --init --depth 1 -- gradle/build-logic-common",
+        "git submodule update --init --depth 1 -- build-logic/common",
         "source cirrus-env QA",
         "source .cirrus/use-gradle-wrapper.sh",
         "export PROJECT_VERSION=$(cat ${PROJECT_VERSION_CACHE_DIR}/evaluated_project_version.txt)",
@@ -138,7 +138,7 @@ def sca_scan_task():
             "only_if": is_main_branch(),
             "depends_on": "build",
             "env": whitesource_api_env(),
-            "eks_container": custom_image_container_builder(dockerfile="build-logic/Dockerfile"),
+            "eks_container": custom_image_container_builder(dockerfile="build-logic/iac/Dockerfile"),
             "gradle_cache": gradle_cache(fingerprint_script=gradle_cache_fingerprint_script()),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "go_build_cache": go_build_cache(go_src_dir="${CIRRUS_WORKING_DIR}/sonar-helm-for-iac"),

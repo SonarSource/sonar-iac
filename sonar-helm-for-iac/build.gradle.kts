@@ -226,7 +226,7 @@ if (!isCi) {
         description = "Build the docker image to build the go code."
         group = "build"
 
-        inputs.file("$rootDir/build-logic/Dockerfile")
+        inputs.file("$rootDir/build-logic/iac/Dockerfile")
         // Task outputs are not set, because it is too difficult to check if image is built;
         // We can ignore Gradle caches here, because Docker takes care of its own caches anyway.
         errorOutput = System.out
@@ -246,7 +246,7 @@ if (!isCi) {
             add("buildx")
             add("build")
             add("--file")
-            add(rootProject.file("build-logic/Dockerfile").absolutePath)
+            add(rootProject.file("build-logic/iac/Dockerfile").absolutePath)
             if (noTrafficInspection) {
                 add("--build-arg")
                 add("BUILD_ENV=dev")
