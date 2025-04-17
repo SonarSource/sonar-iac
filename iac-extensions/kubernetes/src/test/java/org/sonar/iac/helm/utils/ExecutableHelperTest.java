@@ -23,8 +23,13 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
@@ -84,7 +89,7 @@ class ExecutableHelperTest {
   }
 
   @Test
-  void shouldReturnNullOnIoErrorForProcessErrorOutput() throws IOException {
+  void shouldReturnNullOnIoErrorForProcessErrorOutput() {
     var process = mock(Process.class);
     var is = mock(InputStream.class);
     when(process.getErrorStream()).thenReturn(is);
@@ -92,5 +97,14 @@ class ExecutableHelperTest {
     ExecutableHelper.readProcessErrorOutput(process);
 
     assertThat(logTester.logs()).contains("Error reading process error output for sonar-helm-for-iac");
+  }
+
+  @EnabledIfEnvironmentVariable(named = "GO_CROSS_COMPILE", matches = "1")
+  @DisabledOnOs(value = OS.WINDOWS, disabledReason = "We don't cross compile in make.bat")
+  @ParameterizedTest
+  @FieldSource(value = "org.sonar.iac.helm.utils.OperatingSystemUtils#SUPPORTED_PLATFORMS")
+  void shouldContainBinaryForAllPlatforms(String platform) throws IOException {
+    var executable = "sonar-helm-for-iac-" + platform;
+    assertThat(ExecutableHelper.extractFromClasspath(tempDir, executable)).isNotNull();
   }
 }

@@ -296,6 +296,9 @@ if (!isCi) {
         outputs.dir("build/executable")
         outputs.cacheIf { true }
 
+        val platform = getPlatform()
+        val arch = getArchitecture()
+
         commandLine(
             "docker",
             "run",
@@ -310,7 +313,7 @@ if (!isCi) {
             "sonar-iac-helm-builder",
             "bash",
             "-c",
-            "cd /home/sonarsource/sonar-helm-for-iac && ./make.sh clean && ./make.sh build && ./make.sh test"
+            "cd /home/sonarsource/sonar-helm-for-iac && ./make.sh clean && ./make.sh build $platform $arch && ./make.sh test"
         )
     }
 
@@ -329,5 +332,24 @@ sourceSets {
             srcDir("proto")
             include("*.proto")
         }
+    }
+}
+
+fun getPlatform(): String {
+    val os = DefaultNativePlatform.getCurrentOperatingSystem()
+    return when {
+        os.isLinux -> "linux"
+        os.isMacOsX -> "darwin"
+        os.isWindows -> "windows"
+        else -> error("Unsupported OS: $os")
+    }
+}
+
+fun getArchitecture(): String {
+    val arch = DefaultNativePlatform.getCurrentArchitecture()
+    return when {
+        arch.isAmd64 -> "amd64"
+        arch.isArm64 -> "arm64"
+        else -> error("Unsupported architecture: $arch")
     }
 }

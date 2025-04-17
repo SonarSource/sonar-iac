@@ -24,7 +24,7 @@ public final class OperatingSystemUtils {
   /**
    * Platforms, for which sonar-helm-for-iac is built.
    */
-  public static final Set<String> SUPPORTED_PLATFORMS = Set.of("darwin-amd64", "darwin-arm64", "windows-amd64", "linux-amd64");
+  public static final Set<String> SUPPORTED_PLATFORMS = Set.of("darwin-amd64", "darwin-arm64", "windows-amd64", "linux-amd64", "linux-arm64");
 
   private OperatingSystemUtils() {
   }

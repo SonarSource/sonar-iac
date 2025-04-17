@@ -13,7 +13,7 @@ is_go_binary_the_expected_version() {
   fi
   local go_binary="${1}"
   local expected_version="${2}"
-  bash -c "${go_binary} version" | grep --quiet "${expected_version}"
+  bash -c "${go_binary} version" | grep -q "${expected_version}"
 }
 
 go_download_go() {
@@ -82,33 +82,39 @@ install_go() {
 compile_binaries() {
   echo "Compile binaries"
   # Install the proper go version
+  local platform="${1:-}"
+  local architecture="${2:-}"
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
 
-  # Note: CGO_ENABLED is required to build with CGO, which is activated by `import "C"` in Go sources.
-  # Note: Saving files in build/classes include files in JAR out of the box.
+  mkdir -p build/executable
+  build_for_platform() {
+    local os="${1}"
+    local arch="${2}"
+    local extension="${3:-}"
+
+    CGO_ENABLED=0 GOOS="${os}" GOARCH="${arch}" ${path_to_binary} build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${os}"-"${arch}""${extension}" ./src
+  }
+
   # Note: -ldflags="-s -w" is used to strip debug information from the binary and reduce its size.
-  GO_FLAGS=(-ldflags="-s -w" -buildmode=exe)
+  GO_FLAGS=(-ldflags='-s -w' -buildmode=exe)
   if [ "${GO_CROSS_COMPILE:-}" != 0 ]; then
     echo "Building for all supported platforms"
-
-    GOOS="linux"
-    GOARCH="amd64"
-    # Note: starting with Go 1.22, cgo is required if an external linker is used. Not applicable for other platforms, where we don't use musl.
-    env CGO_ENABLED=1 GOOS=${GOOS} GOARCH=${GOARCH} CC=musl-gcc "${path_to_binary}" build "${GO_FLAGS[@]}" --ldflags '-linkmode external -extldflags "-s -w -static"' -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
-
-    GOOS="windows"
-    env CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} "${path_to_binary}" build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
-
-    GOOS="darwin"
-    for GOARCH in amd64 arm64; do
-      env CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} "${path_to_binary}" build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"${GOOS}"-"${GOARCH}" ./src
-    done
+    build_for_platform "darwin" "amd64"
+    build_for_platform "darwin" "arm64"
+    build_for_platform "linux" "amd64"
+    build_for_platform "linux" "arm64"
+    build_for_platform "windows" "amd64"
   else
-    GOOS=$("${path_to_binary}" env GOOS)
-    GOARCH=$("${path_to_binary}" env GOARCH)
-    echo "Building only for host architecture: ${GOOS}/${GOARCH}"
-    env CGO_ENABLED=0 GOOS="${GOOS}" GOARCH="${GOARCH}" "${path_to_binary}" build "${GO_FLAGS[@]}" -o build/executable/sonar-helm-for-iac-"$GOOS"-"$GOARCH" ./src
+    if [[ -n "$platform" && -n "$architecture" ]]; then
+      GOOS=$platform
+      GOARCH=$architecture
+    else
+      GOOS=$("${path_to_binary}" env GOOS)
+      GOARCH=$("${path_to_binary}" env GOARCH)
+    fi
+    echo "Building for platform: ${GOOS}/${GOARCH}"
+    build_for_platform "${GOOS}" "${GOARCH}"
   fi
 }
 
@@ -120,16 +126,17 @@ generate_test_report() {
   CGO_ENABLED=0 bash -c "${path_to_binary} test ./src/... -timeout 5s -coverprofile=build/test-coverage.out -json > build/test-report.json"
 }
 
-
 main() {
-  if [[ "${#}" -ne 1 ]]; then
-    echo "Usage: ${0} build | clean | test"
+  if [[ "${#}" -lt 1 ]]; then
+    echo "Usage: ${0} build \[platform\] \[arch\] | clean | test"
     exit 0
   fi
   local command="${1}"
+  local platform="${2:-}"
+  local architecture="${3:-}"
   case "${command}" in
     build)
-      compile_binaries
+      compile_binaries "${platform}" "${architecture}"
       ;;
     test)
       generate_test_report
