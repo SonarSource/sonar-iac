@@ -82,6 +82,17 @@
       ],
       "groupName": "all non-major Go dependencies",
       "groupSlug": "all-go-minor-patch"
+    },
+    {
+      "matchManagers": ["gomod"],
+      "matchDepTypes": ["indirect"],
+      "enabled": true
+    },
+    {
+      "matchManagers": ["gomod"],
+      "postUpdateOptions": [
+        "gomodTidy", "gomodUpdateImportPaths"
+      ]
     }
   ],
   "reviewers": ["team:security-cloud-squad"]
