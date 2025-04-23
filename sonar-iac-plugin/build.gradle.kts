@@ -14,14 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import org.sonar.iac.enforceJarSize
-import org.sonar.iac.registerCleanupTask
+import org.sonarsource.cloudnative.gradle.enforceJarSize
 
 plugins {
-    id("org.sonarsource.iac.java-conventions")
-    id("org.sonarsource.iac.artifactory-configuration")
-    id("org.sonarsource.cloud-native.code-style-conventions")
-    id("com.gradleup.shadow")
+    id("org.sonarsource.cloud-native.sonar-plugin")
 }
 
 description = "SonarSource IaC Analyzer :: Sonar Plugin"
@@ -74,11 +70,7 @@ tasks.jar {
     }
 }
 
-val cleanupTask = registerCleanupTask()
-
 tasks.shadowJar {
-    dependsOn(cleanupTask)
-
     minimize()
     exclude("META-INF/LICENSE*")
     exclude("META-INF/NOTICE*")
@@ -98,10 +90,6 @@ tasks.shadowJar {
     }
 }
 
-artifacts {
-    archives(tasks.shadowJar)
-}
-
 publishing {
     publications.withType<MavenPublication> {
         artifact(tasks.shadowJar) {
@@ -113,15 +101,13 @@ publishing {
     }
 }
 
-artifactoryConfiguration {
+publishingConfiguration {
+    pomName = "SonarSource IaC Analyzer"
+    scmUrl = "https://github.com/SonarSource/sonar-iac"
+
     license {
         name = "SSALv1"
         url = "https://sonarsource.com/license/ssal/"
         distribution = "repo"
     }
-    artifactsToPublish = "org.sonarsource.iac:sonar-iac-plugin:jar"
-    artifactsToDownload = ""
-    repoKeyEnv = "ARTIFACTORY_DEPLOY_REPO"
-    usernameEnv = "ARTIFACTORY_DEPLOY_USERNAME"
-    passwordEnv = "ARTIFACTORY_DEPLOY_PASSWORD"
 }

@@ -266,8 +266,16 @@ object AnsibleLintRulesGenerator {
 
     // Similar to: https://sonarsource.github.io/rspec/#/rspec/S1155/java
     private val codeSmellsLowClear = listOf(
-        "empty-string-compare", "galaxy", "ignore-errors", "jinja[invalid]",
-        "literal-compare", "load-failure", "meta-incorrect", "sanity", "syntax-check", "yaml"
+        "empty-string-compare",
+        "galaxy",
+        "ignore-errors",
+        "jinja[invalid]",
+        "literal-compare",
+        "load-failure",
+        "meta-incorrect",
+        "sanity",
+        "syntax-check",
+        "yaml"
     )
 
     // Similar to: https://sonarsource.github.io/rspec/#/rspec/S2208/java
@@ -347,8 +355,8 @@ object AnsibleLintRulesGenerator {
     private fun readTitle(
         text: String,
         id: String,
-    ): String {
-        return ruleTitles[id] ?: ruleTitles[idNoBrackets(id)] ?: SHORT_DESCRIPTION_REGEX.find(text)?.groups?.get("title")?.value
+    ): String =
+        ruleTitles[id] ?: ruleTitles[idNoBrackets(id)] ?: SHORT_DESCRIPTION_REGEX.find(text)?.groups?.get("title")?.value
             ?: DESCRIPTION_REGEX.find(text)?.groups?.get("title")?.value
                 ?.replace("  ", " ")
                 ?.replace("``", "\\\"")
@@ -362,7 +370,6 @@ object AnsibleLintRulesGenerator {
                         .removeLastDot()
                 }
                 .joinToString("")
-    }
 
     private fun String.removeLastDot() = if (endsWith(".")) substring(0, length - 1) else this
 

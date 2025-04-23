@@ -20,7 +20,7 @@ import org.sonar.iac.asJson
 
 plugins {
     id("org.sonarsource.cloud-native.code-style-conventions")
-    id("org.sonarsource.iac.java-conventions")
+    id("org.sonarsource.cloud-native.java-conventions")
     alias(libs.plugins.download)
 }
 

@@ -16,7 +16,7 @@
  */
 plugins {
     id("org.sonarsource.cloud-native.code-style-conventions")
-    id("org.sonarsource.iac.java-conventions")
+    id("org.sonarsource.cloud-native.java-conventions")
     id("java-library")
     id("java-test-fixtures")
 }

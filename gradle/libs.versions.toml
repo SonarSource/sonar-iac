@@ -15,8 +15,6 @@ archunit = "1.4.0"
 snakeyaml = "2.9"
 minimaljson = "0.9.5"
 sonar-scanner-gradle = "6.1.0.5360"
-jfrog-gradle = "5.2.5"
-blowdryer-gradle = "1.7.1"
 google-protobuf = "4.30.2"
 google-protobuf-gradle = "0.9.5"
 google-protobuf-go = "1.36.6"
@@ -41,7 +39,6 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-jfrog-buildinfo-gradle = { module = "org.jfrog.buildinfo:build-info-extractor-gradle", version.ref = "jfrog-gradle" }
 sonar-lint-analysis-engine = { module = "org.sonarsource.sonarlint.core:sonarlint-analysis-engine", version.ref = "sonar-lint" }
 sonar-lint-core = { module = "org.sonarsource.sonarlint.core:sonarlint-core", version.ref = "sonar-lint" }
 sonar-lint-plugin-api = { module = "org.sonarsource.sonarlint.core:sonarlint-plugin-api", version.ref = "sonar-lint" }
@@ -54,7 +51,6 @@ archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "arc
 snakeyaml = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeyaml" }
 minimaljson = { module = "com.eclipsesource.minimal-json:minimal-json", version.ref = "minimaljson" }
 sonar-scanner-gradle = { module = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin", version.ref = "sonar-scanner-gradle" }
-diffplug-blowdryer = { module = "com.diffplug:blowdryer", version.ref = "blowdryer-gradle" }
 google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "google-protobuf" }
 apache-commons-lang = { module = "commons-lang:commons-lang", version.ref = "apache-commons-lang" }
 antlr4 = { module = "org.antlr:antlr4", version.ref = "antlr4" }
@@ -67,4 +63,3 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 [plugins]
 google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf-gradle" }
 download = { id = "de.undercouch.download", version = "5.6.0" }
-shadow = { id = "com.gradleup.shadow", version = "8.3.6" }

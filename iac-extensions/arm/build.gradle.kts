@@ -16,7 +16,7 @@
  */
 plugins {
     id("org.sonarsource.cloud-native.code-style-conventions")
-    id("org.sonarsource.iac.java-conventions")
+    id("org.sonarsource.cloud-native.java-conventions")
 }
 
 description = "SonarSource IaC Analyzer :: Extensions :: Azure Resource Manager"

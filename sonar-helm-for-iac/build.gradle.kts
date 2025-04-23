@@ -19,7 +19,7 @@ import de.undercouch.gradle.tasks.download.Download
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
-    id("org.sonarsource.iac.java-conventions")
+    id("org.sonarsource.cloud-native.java-conventions")
     id("com.diffplug.spotless")
     alias(libs.plugins.google.protobuf)
     alias(libs.plugins.download)

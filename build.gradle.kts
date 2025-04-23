@@ -18,10 +18,11 @@ import org.sonar.iac.collectIacExtensionNames
 import org.sonar.iac.toCamelCase
 
 plugins {
-    id("org.sonarsource.iac.artifactory-configuration")
+    id("org.sonarsource.cloud-native.code-style-conventions")
+    id("org.sonarsource.cloud-native.artifactory-configuration")
     id("org.sonarsource.cloud-native.rule-api")
+    // Note: if there are no plugins applied from `build-logic/iac`, utility methods won't be available as well.
     id("org.sonarsource.iac.sonarqube")
-    id("com.diffplug.blowdryer")
 }
 
 project(":iac-extensions:kubernetes") {
@@ -51,8 +52,8 @@ project(":sonar-helm-for-iac") {
 
 tasks.artifactoryPublish { skip = true }
 
-// This configuration needs to be here and override in another modules, otherwise it doesn't work
 artifactoryConfiguration {
+    buildName = providers.environmentVariable("CIRRUS_REPO_NAME").orElse("sonar-iac")
     artifactsToPublish = "org.sonarsource.iac:sonar-iac-plugin:jar"
     artifactsToDownload = ""
     repoKeyEnv = "ARTIFACTORY_DEPLOY_REPO"
@@ -66,5 +67,20 @@ ruleApi {
         exclusions = listOf("jvm-framework-config")
     ).associate { name ->
         name.toCamelCase() to "iac-extensions/$name/"
+    }
+}
+
+spotless {
+    java {
+        // no Java sources in the root project
+        target("")
+    }
+    kotlin {
+        target("build-logic/iac/src/**/*.kt")
+        ktlint().setEditorConfigPath("$rootDir/build-logic/common/.editorconfig")
+        licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
+    }
+    kotlinGradle {
+        target("build-logic/iac/src/**/*.gradle.kts", "build-logic/iac/*.gradle.kts", "*.gradle.kts")
     }
 }
