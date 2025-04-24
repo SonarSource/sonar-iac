@@ -87,7 +87,7 @@ def build_test_env():
     env |= next_env()
     env |= {
         "DEPLOY_PULL_REQUEST": "false",
-        "BUILD_ARGUMENTS": "lintGoCode -x artifactoryPublish"
+        "BUILD_ARGUMENTS": "-x artifactoryPublish"
     }
     return env
 
