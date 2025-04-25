@@ -6,14 +6,14 @@ A help project written in GoLang for support evaluating and parsing Helm Chars i
 It is a small glue code for re-use the implementation of Helm Charts templates evaluations and parsing.
 
 ## Requirements
-* Docker
+* Docker (specifically, Docker Buildx)
 * CA certificate for FortiClient traffic inspection
 
 ## The build
 
 ### Build Docker Image
 
-Building the docker image locally requires the traffic inspection certificate to be located next to the Dockerfile.
+Building the docker image locally requires the traffic inspection certificate to be located in the directory of the Go subproject.
 
 ```shell
 ../gradlew :sonar-helm-for-iac:buildDockerImage
@@ -28,7 +28,7 @@ In case you system does not require the certificate for traffic inspection set `
 ### Execute Docker Image, generating Go code, build Go binaries, executing tests, validate license headers
 
 ```shell
-../gradlew :sonar-helm-for-iac:compileGoCode
+../gradlew :sonar-helm-for-iac:compileGonext to the Dockerfile.
 ```
 
 ## Execution
@@ -74,3 +74,8 @@ Run the following command:
 ```shell
 go mod tidy
 ```
+
+### Segmentation fault during Go build on MacOS Sequoia
+
+On MacOs Sequoia 15.3.1, the following issues appear sometimes: `illegal instructions` or `reflect: /usr/local/go/pkg/tool/linux_amd64/asm: signal: segmentation fault`.
+Disabling `Use Rosetta for x86_64/amd64 emulation on Apple Silicon` in Docker Desktop settings usually solve the problem. 
