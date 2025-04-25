@@ -79,7 +79,7 @@ tasks.shadowJar {
     exclude("LICENSE*")
     exclude("NOTICE*")
 
-    val isCrossCompile: Boolean = providers.environmentVariable("GO_CROSS_COMPILE").map { it == "1" }.getOrElse(true)
+    val isCrossCompile: Boolean = providers.environmentVariable("GO_CROSS_COMPILE").map { it == "1" }.getOrElse(false)
     val (minSize, maxSize) = if (isCrossCompile) {
         21_000_000L to 21_500_000L
     } else {
