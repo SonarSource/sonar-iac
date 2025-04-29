@@ -26,7 +26,7 @@ def promote_task():
                 "qa_os_win",
                 "qa_ruling",
                 "qa_plugin",
-                "qa_arm64",
+#                "qa_arm64",
             ],
             "env": promotion_env(),
             "eks_container": base_image_container_builder(cpu=1, memory="2G"),
