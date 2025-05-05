@@ -30,7 +30,7 @@ project(":iac-extensions:kubernetes") {
         properties {
             properties["sonar.sources"] as MutableCollection<String> +=
                 this@project.layout.projectDirectory.dir("src/common/java").asFile.toString()
-            property("sonar.sca.excludedManifests", "private/its/sources/**")
+            property("sonar.sca.exclusions", "private/its/sources/**")
         }
     }
 }
