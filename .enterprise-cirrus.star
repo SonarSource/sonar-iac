@@ -24,7 +24,7 @@ def private_pipeline_builder():
     merge_dict(conf, sca_scan_task())
     merge_dict(conf, qa_plugin_task())
     merge_dict(conf, qa_ruling_task())
-    # merge_dict(conf, qa_arm64_task())
+    merge_dict(conf, qa_arm64_task())
     merge_dict(conf, qa_os_win_task())
     merge_dict(conf, promote_task())
     return conf
