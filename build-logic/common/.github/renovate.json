@@ -1,0 +1,38 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>SonarSource/renovate-config:languages-team"
+  ],
+  "schedule": [
+    "before 4am on Monday"
+  ],
+  "rebaseWhen": "conflicted",
+  "enabledManagers": [
+    "gradle",
+    "gradle-wrapper"
+  ],
+  "gradle": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
+      "matchPackageNames": [
+        "com.gradle.develocity",
+        "com.gradle.develocity:com.gradle.develocity.gradle.plugin"
+      ],
+      "allowedVersions": "<3.19"
+    }
+  ],
+  "reviewers": ["team:security-cloud-squad"]
+}
