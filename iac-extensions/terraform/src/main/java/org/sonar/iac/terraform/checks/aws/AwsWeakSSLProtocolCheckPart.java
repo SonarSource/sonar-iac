@@ -28,7 +28,7 @@ import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.WEAK_SSL_MESSA
 public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
 
   private static final String STRONG_SSL_PROTOCOL = "TLS_1_2";
-  private static final String ELASTIC_STRONG_POLICY = "Policy-Min-TLS-1-2-2019-07";
+  private static final String ELASTIC_WEAK_POLICY = "Policy-Min-TLS-1-0-2019-07";
   private static final String SECURITY_POLICY = "security_policy";
 
   @Override
@@ -63,7 +63,7 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
 
   private static void checkDomainEndpointOptions(CheckContext ctx, BlockTree options) {
     PropertyUtils.get(options, "tls_security_policy", AttributeTree.class)
-      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, ELASTIC_STRONG_POLICY, WEAK_SSL_MESSAGE),
+      .ifPresentOrElse(policy -> reportSensitiveValue(ctx, policy, ELASTIC_WEAK_POLICY, WEAK_SSL_MESSAGE),
         () -> ctx.reportIssue(options.key(), String.format(OMITTING_WEAK_SSL_MESSAGE, "tls_security_policy")));
   }
 }

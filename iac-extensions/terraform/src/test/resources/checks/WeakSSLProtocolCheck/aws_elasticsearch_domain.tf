@@ -30,5 +30,13 @@ resource "aws_elasticsearch_domain" "elastic_strong_policy" {
   }
 }
 
+resource "aws_elasticsearch_domain" "elastic_strong_pfs_policy" {
+  domain_name = "api.example.com"
+
+  domain_endpoint_options {
+    tls_security_policy = "Policy-Min-TLS-1-2-PFS-2023-10"
+  }
+}
+
 resource "random_resource" "example" {
 }

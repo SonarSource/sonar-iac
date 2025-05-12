@@ -32,7 +32,7 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   private static final String MESSAGE_OMITTING_FORMAT = "Set \"%s\" to disable support of older TLS versions.";
 
   private static final String STRONG_SSL_PROTOCOL = "TLS_1_2";
-  private static final String ELASTIC_STRONG_POLICY = "Policy-Min-TLS-1-2-2019-07";
+  private static final String ELASTIC_WEAK_POLICY = "Policy-Min-TLS-1-0-2019-07";
   private static final String SECURITY_POLICY_KEY = "SecurityPolicy";
 
   @Override
@@ -97,7 +97,7 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   }
 
   private static void checkElasticPolicy(CheckContext ctx, Tree policy) {
-    if (TextUtils.isValue(policy, ELASTIC_STRONG_POLICY).isFalse()) {
+    if (TextUtils.isValue(policy, ELASTIC_WEAK_POLICY).isTrue()) {
       ctx.reportIssue(policy, MESSAGE);
     }
   }

@@ -71,6 +71,12 @@ Resources:
       DomainEndpointOptions:
         TLSSecurityPolicy: "Policy-Min-TLS-1-2-2019-07"
 
+  ElasticStrongPfsPolicy:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      DomainEndpointOptions:
+        TLSSecurityPolicy: "Policy-Min-TLS-1-2-PFS-2023-10"
+
   OpenSearchNoOptions:
     Type: 'AWS::OpenSearchService::Domain' # Noncompliant {{Set "DomainEndpointOptions.TLSSecurityPolicy" to disable support of older TLS versions.}}
 
@@ -91,6 +97,12 @@ Resources:
     Properties:
       DomainEndpointOptions:
         TLSSecurityPolicy: "Policy-Min-TLS-1-2-2019-07"
+
+  OpenSearchStrongPfsPolicy:
+    Type: 'AWS::OpenSearchService::Domain'
+    Properties:
+      DomainEndpointOptions:
+        TLSSecurityPolicy: "Policy-Min-TLS-1-2-PFS-2023-10"
 
   NoApiGateWay:
     Type: 'Something else'
