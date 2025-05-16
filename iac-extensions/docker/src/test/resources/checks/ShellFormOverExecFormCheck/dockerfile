@@ -14,9 +14,8 @@ ENTRYPOINT echo "Welcome!"
 ONBUILD CMD echo "Welcome!"
 #           ^^^^^^^^^^^^^^^
 
-# Noncompliant@+1
+# Compliant
 HEALTHCHECK --interval=30s CMD node healthcheck.js
-#                              ^^^^^^^^^^^^^^^^^^^
 
 # Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
 CMD echo $message

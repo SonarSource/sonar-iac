@@ -78,7 +78,8 @@ public class ShellFormOverExecFormCheck implements IacCheck {
 
   private void checkCommandInstructionForm(CheckContext ctx, CommandInstruction commandInstruction) {
     if (commandInstruction.getKindOfArgumentList() == DockerTree.Kind.SHELL_FORM && !checkContext.hasShellInstructionInCurrentImage
-      && !hasAnyParentDockerImageWithShellInstruction(commandInstruction)) {
+      && !hasAnyParentDockerImageWithShellInstruction(commandInstruction)
+      && !commandInstruction.parent().is(DockerTree.Kind.HEALTHCHECK)) {
       var firstArg = commandInstruction.arguments().get(0);
       var lastArg = commandInstruction.arguments().get(commandInstruction.arguments().size() - 1);
       var textRange = TextRanges.mergeElementsWithTextRange(List.of(firstArg, lastArg));
