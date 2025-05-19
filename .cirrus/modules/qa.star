@@ -21,7 +21,6 @@ load(
     "mkdir_orchestrator_home_script",
 )
 load("cache.star", "gradle_cache_fingerprint_script")
-load("conditions.star", "is_rule_metadata_or_docs_update_pr")
 
 QA_PLUGIN_GRADLE_TASK = ":private:its:plugin:integrationTest"
 QA_RULING_GRADLE_TASK = ":private:its:ruling:integrationTest"
@@ -46,7 +45,7 @@ def qa_win_script():
 def qa_os_win_task():
     return {
         "qa_os_win_task": {
-            "only_if": "({}) && !({})".format(is_branch_qa_eligible(), is_rule_metadata_or_docs_update_pr()),
+            "only_if": is_branch_qa_eligible(),
             "depends_on": "build",
             "ec2_instance": ec2_instance_builder(),
             "env": artifactory_reader_env(),
@@ -65,7 +64,7 @@ def qa_os_win_task():
 
 def qa_task(env):
     return {
-        "only_if": "({}) && !({})".format(is_branch_qa_eligible(), is_rule_metadata_or_docs_update_pr()),
+        "only_if": is_branch_qa_eligible(),
         "depends_on": "build",
         "eks_container": base_image_container_builder(cpu=6, memory="18G"),
         "env": env,
