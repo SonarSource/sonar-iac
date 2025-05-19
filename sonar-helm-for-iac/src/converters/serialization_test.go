@@ -30,8 +30,9 @@ func Test_ProtobufSerializer_Serialize(t *testing.T) {
 	bytes, err := serializer.Serialize(content, nil, nil)
 
 	result := pbstructs.TemplateEvaluationResult{}
-	err = proto.Unmarshal(bytes, &result)
+	errUnmarshal := proto.Unmarshal(bytes, &result)
 	assert.Nil(t, err)
+	assert.Nil(t, errUnmarshal)
 	assert.Equal(t, content, result.Template)
 	assert.Equal(t, "", result.Error)
 }
@@ -43,8 +44,9 @@ func Test_ProtobufSerializer_Serialize_With_Error_Text(t *testing.T) {
 	bytes, err := serializer.Serialize(content, nil, err)
 
 	result := pbstructs.TemplateEvaluationResult{}
-	err = proto.Unmarshal(bytes, &result)
+	errUnmarshal := proto.Unmarshal(bytes, &result)
 	assert.Nil(t, err)
+	assert.Nil(t, errUnmarshal)
 	assert.Equal(t, content, result.Template)
 	assert.Equal(t, "error text", result.Error)
 }
@@ -58,8 +60,9 @@ func Test_ProtobufSerializer_Serialize_With_Ast(t *testing.T) {
 	bytes, err := serializer.Serialize(content, ast, nil)
 
 	result := pbstructs.TemplateEvaluationResult{}
-	err = proto.Unmarshal(bytes, &result)
+	errUnmarshal := proto.Unmarshal(bytes, &result)
 	assert.NoError(t, err)
+	assert.NoError(t, errUnmarshal)
 	assert.Equal(t, content, result.Template)
 	assert.NotNil(t, result.Ast)
 }

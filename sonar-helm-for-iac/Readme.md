@@ -28,7 +28,7 @@ In case you system does not require the certificate for traffic inspection set `
 ### Execute Docker Image, generating Go code, build Go binaries, executing tests, validate license headers
 
 ```shell
-../gradlew :sonar-helm-for-iac:compileGonext to the Dockerfile.
+../gradlew :sonar-helm-for-iac:compileGo
 ```
 
 ## Execution
