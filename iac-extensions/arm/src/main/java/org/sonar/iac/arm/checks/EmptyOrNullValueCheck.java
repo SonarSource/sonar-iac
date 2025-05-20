@@ -16,9 +16,13 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -45,29 +49,49 @@ public class EmptyOrNullValueCheck implements IacCheck {
     ArmTree.Kind.STRING_LITERAL, "empty string",
     ArmTree.Kind.OBJECT_EXPRESSION, "empty object",
     ArmTree.Kind.ARRAY_EXPRESSION, "empty array");
+  private static final String DEFAULT_IGNORED_PROPERTIES = "";
+  private Set<String> ignoredPropertiesSet = Set.of();
+
+  @RuleProperty(
+    key = "ignoredProperties",
+    description = "Comma separated list of ignored properties.")
+  public String ignoredProperties = DEFAULT_IGNORED_PROPERTIES;
+
+  private static Set<String> initializeIgnoredProperties(String properties) {
+    return Arrays.stream(properties.split(","))
+      .map(String::trim)
+      .filter(s -> !s.isBlank())
+      .collect(Collectors.toSet());
+  }
 
   @Override
   public void initialize(InitContext init) {
-    init.register(ResourceDeclaration.class, EmptyOrNullValueCheck::checkResource);
-    init.register(VariableDeclaration.class, EmptyOrNullValueCheck::checkVariable);
-    init.register(OutputDeclaration.class, EmptyOrNullValueCheck::checkOutput);
+    init.register(ResourceDeclaration.class, this::checkResource);
+    init.register(VariableDeclaration.class, this::checkVariable);
+    init.register(OutputDeclaration.class, this::checkOutput);
+    ignoredPropertiesSet = initializeIgnoredProperties(ignoredProperties);
   }
 
-  private static void checkResource(CheckContext ctx, ResourceDeclaration resource) {
+  private void checkResource(CheckContext ctx, ResourceDeclaration resource) {
     for (Property property : resource.resourceProperties()) {
-      if (!isResourcePropertyException(property)) {
+      var propertyName = property.key().value();
+      if (!isResourcePropertyException(property) && !ignoredPropertiesSet.contains(propertyName)) {
         checkExpression(ctx, property, property.value(), "property");
       }
     }
   }
 
-  private static void checkVariable(CheckContext ctx, VariableDeclaration variable) {
-    checkExpression(ctx, variable, variable.value(), "variable");
+  private void checkVariable(CheckContext ctx, VariableDeclaration variable) {
+    var varName = variable.declaratedName().value();
+    if (!ignoredPropertiesSet.contains(varName)) {
+      checkExpression(ctx, variable, variable.value(), "variable");
+    }
   }
 
-  private static void checkOutput(CheckContext ctx, OutputDeclaration output) {
-    Expression outputValue = output.value();
-    if (outputValue == null) {
+  private void checkOutput(CheckContext ctx, OutputDeclaration output) {
+    var outputValue = output.value();
+    var outputName = output.declaratedName().value();
+    if (outputValue == null || ignoredPropertiesSet.contains(outputName)) {
       return;
     }
 
@@ -96,7 +120,7 @@ public class EmptyOrNullValueCheck implements IacCheck {
     return isTopLevelPropertiesProperty || isUserAssignedIdentitiesIdProperty;
   }
 
-  private static void checkExpression(CheckContext ctx, HasTextRange propertyToReport, Expression expression, String kind) {
+  private void checkExpression(CheckContext ctx, HasTextRange propertyToReport, Expression expression, String kind) {
     if (isEmpty(expression)) {
       ctx.reportIssue(propertyToReport, message(expression.getKind(), kind));
     } else if (expression.is(ArmTree.Kind.OBJECT_EXPRESSION)) {
@@ -106,16 +130,19 @@ public class EmptyOrNullValueCheck implements IacCheck {
     }
   }
 
-  private static void checkObject(CheckContext ctx, ObjectExpression object) {
+  private void checkObject(CheckContext ctx, ObjectExpression object) {
     for (PropertyTree property : object.properties()) {
-      Tree value = property.value();
-      if (value instanceof Expression expression && !isResourcePropertyException((Property) property)) {
+      var value = property.value();
+      var name = TextUtils.getValue(property.key()).orElse("");
+      if (value instanceof Expression expression
+        && !isResourcePropertyException((Property) property)
+        && !ignoredPropertiesSet.contains(name)) {
         checkExpression(ctx, property, expression, "property");
       }
     }
   }
 
-  private static void checkArray(CheckContext ctx, ArrayExpression array) {
+  private void checkArray(CheckContext ctx, ArrayExpression array) {
     for (Expression expression : array.elements()) {
       if (expression instanceof ObjectExpression object) {
         checkObject(ctx, object);
@@ -123,7 +150,7 @@ public class EmptyOrNullValueCheck implements IacCheck {
     }
   }
 
-  private static void checkForOutput(CheckContext ctx, ForExpression forExpression) {
+  private void checkForOutput(CheckContext ctx, ForExpression forExpression) {
     if (forExpression.bodyExpression().is(ArmTree.Kind.OBJECT_EXPRESSION)) {
       ObjectExpression forBody = (ObjectExpression) forExpression.bodyExpression();
       for (PropertyTree property : forBody.properties()) {

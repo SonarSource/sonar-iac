@@ -70,4 +70,11 @@ class EmptyOrNullValueCheckTest {
   void testEmptyOrNullValueBicep() {
     BicepVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue.bicep", CHECK);
   }
+
+  @Test
+  void shouldIgnoreConfiguredProperties() {
+    var emptyOrNullValueCheck = new EmptyOrNullValueCheck();
+    emptyOrNullValueCheck.ignoredProperties = "var1,var2,prop1,prop2,out1,out2";
+    ArmVerifier.verifyNoIssue("EmptyOrNullValueCheckTest/emptyOrNullValue-ignored.json", emptyOrNullValueCheck);
+  }
 }

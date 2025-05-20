@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "var1": null,
+    "var2": [
+      {
+        "key": null
+      }
+    ]
+  },
+  "parameters": {},
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "test",
+      "properties": {
+        "prop1": null,
+        "prop2": [
+          {
+            "key": null
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "out1": {
+      "type": "object",
+      "value": null
+    },
+    "out2": {
+      "type": "object",
+      "value": {
+        "key": null
+      }
+    }
+  }
+}
