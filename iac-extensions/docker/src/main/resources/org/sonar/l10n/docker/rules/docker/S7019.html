@@ -9,8 +9,11 @@ predictability over the execution of the command. It does not invoke a command s
 processing.</p>
 <h3>Exceptions</h3>
 <p>The exec form does not allow shell features such as variable expansion, piping (<code>|</code>) and command chaining (<code>&amp;&amp;</code>,
-<code>||</code>, <code>;</code>). In case you need to use these features, there are a few alternatives: * Creation of a wrapper script * Explicitly
-specify the shell to use with the <code>SHELL</code> instruction before <code>CMD</code> or <code>ENTRYPOINT</code></p>
+<code>||</code>, <code>;</code>). In case you need to use these features, there are a few alternatives:</p>
+<ul>
+  <li> Creation of a wrapper script </li>
+  <li> Explicitly specify the shell to use with the <code>SHELL</code> instruction before <code>CMD</code> or <code>ENTRYPOINT</code> </li>
+</ul>
 <p>This rule will not raise an issue if the <code>SHELL</code> instruction is used before the <code>CMD</code> or <code>ENTRYPOINT</code> instruction,
 as we consider this a conscious decision.</p>
 <h2>How to fix it</h2>
