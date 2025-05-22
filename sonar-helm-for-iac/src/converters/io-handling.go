@@ -110,7 +110,7 @@ func readBytesAsInt(input *os.File) (int, error) {
 	numberOfBytesRead, err := input.Read(numberBytes)
 	if err != nil {
 		message := "Error reading from stdin, error: " + err.Error()
-		fmt.Fprintf(os.Stderr, message)
+		fmt.Fprint(os.Stderr, message)
 		return 0, errors.New(message)
 	}
 	if numberOfBytesRead != 4 {
