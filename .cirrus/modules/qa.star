@@ -4,7 +4,10 @@ load("github.com/SonarSource/cirrus-modules/cloud-native/platform.star@analysis/
      "ec2_instance_builder",
      "arm64_container_builder",
      )
-load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master", "is_branch_qa_eligible")
+load("github.com/SonarSource/cirrus-modules/cloud-native/conditions.star@analysis/master",
+     "is_branch_qa_eligible",
+     "are_changes_doc_only"
+     )
 load("github.com/SonarSource/cirrus-modules/cloud-native/env.star@analysis/master",
      "artifactory_reader_env",
      "go_env",
@@ -45,7 +48,7 @@ def qa_win_script():
 def qa_os_win_task():
     return {
         "qa_os_win_task": {
-            "only_if": is_branch_qa_eligible(),
+            "only_if": "({}) && !({})".format(is_branch_qa_eligible(), are_changes_doc_only()),
             "depends_on": "build",
             "ec2_instance": ec2_instance_builder(),
             "env": artifactory_reader_env(),
@@ -64,7 +67,7 @@ def qa_os_win_task():
 
 def qa_task(env):
     return {
-        "only_if": is_branch_qa_eligible(),
+        "only_if": "({}) && !({})".format(is_branch_qa_eligible(), are_changes_doc_only()),
         "depends_on": "build",
         "eks_container": base_image_container_builder(cpu=6, memory="18G"),
         "env": env,
@@ -141,7 +144,7 @@ def qa_arm64_task():
     return {
         "qa_arm64_task": {
             "depends_on": "build",
-            "only_if": qa_arm64_condition(),
+            "only_if": "({}) && !({})".format(qa_arm64_condition(), are_changes_doc_only()),
             "env": qa_arm64_env(),
             "eks_container": arm64_container_builder(dockerfile="build-logic/iac/Dockerfile", cpu=4, memory="12G"),
             # In case Gradle cache contains platform-specific files, don't mix them
