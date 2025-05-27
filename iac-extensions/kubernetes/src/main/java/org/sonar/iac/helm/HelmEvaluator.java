@@ -57,13 +57,11 @@ public class HelmEvaluator implements Startable {
 
   @Override
   public void start() {
-    LOG.debug("Starting HelmEvaluator ExecutorService with {} threads", N_THREADS);
     this.processMonitor = Executors.newFixedThreadPool(N_THREADS);
   }
 
   @Override
   public void stop() {
-    LOG.debug("Closing monitoring resources of Helm evaluator");
     this.processMonitor.shutdownNow();
   }
 

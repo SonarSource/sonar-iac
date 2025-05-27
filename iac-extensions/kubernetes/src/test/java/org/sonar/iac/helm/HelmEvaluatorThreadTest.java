@@ -61,7 +61,7 @@ class HelmEvaluatorThreadTest {
     var threadsAfterStop = activeCreatedThreadsName();
     assertThat(threadsAfterStop).isEqualTo(threadsBefore);
     assertThat(logTester.logs(Level.DEBUG))
-      .contains("Starting HelmEvaluator ExecutorService with 2 threads")
-      .contains("Closing monitoring resources of Helm evaluator");
+      .hasSize(1)
+      .anyMatch(s -> s.startsWith("Preparing Helm analysis for platform: "));
   }
 }

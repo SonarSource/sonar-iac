@@ -79,3 +79,4 @@ go mod tidy
 
 On MacOs Sequoia 15.3.1, the following issues appear sometimes: `illegal instructions` or `reflect: /usr/local/go/pkg/tool/linux_amd64/asm: signal: segmentation fault`.
 Disabling `Use Rosetta for x86_64/amd64 emulation on Apple Silicon` in Docker Desktop settings usually solve the problem. 
+If you're using colima, use `colima start --vm-type=vz --vz-rosetta` to mitigate the exception.
