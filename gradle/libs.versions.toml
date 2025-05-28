@@ -1,21 +1,21 @@
 [versions]
-sonarqube = "25.4.0.105899"
+sonarqube = "25.5.0.107428"
 # Before updating the plugin-api version, make sure to check the compatibility matrix and stick to the lowest denominator
 # https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility
 sonar-plugin-api = "11.1.0.2693"
-sonar-commons = "2.17.0.3322"
+sonar-commons = "2.18.0.3393"
 sonar-license-api = "3.4"
-sonar-orchestrator = "5.6.1.2613"
+sonar-orchestrator = "5.6.2.2625"
 junit = "5.12.2"
 assertj = "3.27.3"
-mockito = "5.17.0"
-sonar-lint = "10.19.1.80951"
+mockito = "5.18.0"
+sonar-lint = "10.22.0.81232"
 sslr = "1.24.0.633"
-archunit = "1.4.0"
+archunit = "1.4.1"
 snakeyaml = "2.9"
 minimaljson = "0.9.5"
-sonar-scanner-gradle = "6.1.0.5360"
-google-protobuf = "4.30.2"
+sonar-scanner-gradle = "6.2.0.5505"
+google-protobuf = "4.31.0"
 google-protobuf-gradle = "0.9.5"
 google-protobuf-go = "1.36.6"
 apache-commons-lang = "2.6"
@@ -44,7 +44,7 @@ sonar-lint-core = { module = "org.sonarsource.sonarlint.core:sonarlint-core", ve
 sonar-lint-plugin-api = { module = "org.sonarsource.sonarlint.core:sonarlint-plugin-api", version.ref = "sonar-lint" }
 sonar-lint-rpc-java-client = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-java-client", version.ref = "sonar-lint" }
 sonar-lint-rpc-impl = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-impl", version.ref = "sonar-lint" }
-sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.12.0.38599" }
+sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.14.1.39293" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
 sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref = "sslr" }
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
