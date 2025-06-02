@@ -6,7 +6,7 @@ sonar-plugin-api = "11.1.0.2693"
 sonar-commons = "2.18.0.3393"
 sonar-license-api = "3.4"
 sonar-orchestrator = "5.6.2.2625"
-junit = "5.12.2"
+junit = "5.13.0"
 assertj = "3.27.3"
 mockito = "5.18.0"
 sonar-lint = "10.22.0.81232"
@@ -15,7 +15,7 @@ archunit = "1.4.1"
 snakeyaml = "2.9"
 minimaljson = "0.9.5"
 sonar-scanner-gradle = "6.2.0.5505"
-google-protobuf = "4.31.0"
+google-protobuf = "4.31.1"
 google-protobuf-gradle = "0.9.5"
 google-protobuf-go = "1.36.6"
 apache-commons-lang = "2.6"
@@ -44,7 +44,7 @@ sonar-lint-core = { module = "org.sonarsource.sonarlint.core:sonarlint-core", ve
 sonar-lint-plugin-api = { module = "org.sonarsource.sonarlint.core:sonarlint-plugin-api", version.ref = "sonar-lint" }
 sonar-lint-rpc-java-client = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-java-client", version.ref = "sonar-lint" }
 sonar-lint-rpc-impl = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-impl", version.ref = "sonar-lint" }
-sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.14.1.39293" }
+sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.15.0.39343" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
 sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref = "sslr" }
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
