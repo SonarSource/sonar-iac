@@ -29,6 +29,8 @@ import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Exec
 import org.gradle.internal.os.OperatingSystem
 
+fun isCi() = System.getenv("CI")?.equals("true") == true
+
 fun Project.signingCondition(): Boolean {
     val branch = System.getenv()["CIRRUS_BRANCH"] ?: ""
     return (branch == "master" || branch.matches("branch-.+".toRegex())) &&

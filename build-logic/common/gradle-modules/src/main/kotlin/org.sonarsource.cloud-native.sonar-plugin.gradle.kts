@@ -32,7 +32,7 @@ val cleanupTask = tasks.register<Delete>("cleanupOldVersion") {
     delete(
         fileTree(layout.buildDirectory.dir("libs")).matching {
             include("$projectName-*.jar")
-            exclude("$projectName-$projectVersion-*.jar")
+            exclude("$projectName-$projectVersion.jar", "$projectName-$projectVersion-*.jar")
         }
     )
 }

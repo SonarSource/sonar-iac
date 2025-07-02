@@ -20,7 +20,9 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 
 const val GO_BINARY_OUTPUT_DIR = "build/executable"
@@ -33,8 +35,20 @@ interface GoBuild {
      */
     val dockerWorkDir: Property<String>
 
+    /**
+     * Commands to run inside the container after `cd`-ing to the `dockerWorkDir`.
+     * For each command in this list, a separate Gradle task wrapping `docker run` will be created.
+     */
+    val dockerCommands: MapProperty<String, String>
+
     val additionalOutputFiles: SetProperty<RegularFile>
 }
+
+val Project.goVersion get() = providers.environmentVariable("GO_VERSION")
+    .orElse(providers.gradleProperty("goVersion"))
+    .orNull ?: error("Either `GO_VERSION` env variable or `goVersion` Gradle property must be set")
+
+val Project.isCrossCompile: Provider<String> get() = providers.environmentVariable("GO_CROSS_COMPILE").orElse("0")
 
 fun Project.allGoSourcesAndMakeScripts(): FileTree =
     fileTree(projectDir).matching {

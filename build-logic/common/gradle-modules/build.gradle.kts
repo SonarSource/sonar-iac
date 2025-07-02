@@ -24,6 +24,9 @@ dependencies {
     implementation(libs.develocity)
     implementation(libs.diffplug.spotless)
     implementation(libs.diffplug.blowdryer.setup)
+    implementation(platform(libs.jackson.bom)) {
+        because("Override the transitive dependency from jfrog plugin")
+    }
     implementation(libs.jfrog.buildinfo.gradle) {
         exclude("ch.qos.logback", "logback-core")
     }
