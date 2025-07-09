@@ -128,4 +128,12 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     verifyLinesOfCodeTelemetry(totalLinesOfCode);
   }
 
+  @Test
+  protected void shouldNotRaiseParsingIssueOnValidFile() {
+    InputFile inputFile = validFile();
+    analyze(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), inputFile);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(context.allAnalysisErrors()).isEmpty();
+  }
 }
