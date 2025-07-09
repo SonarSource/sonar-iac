@@ -34,7 +34,6 @@ dependencies {
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
-    testImplementation(libs.archunit)
     testImplementation(libs.sonar.plugin.api.impl)
     testImplementation(libs.sonar.analyzer.test.commons)
     testRuntimeOnly(libs.junit.platform.launcher)

@@ -38,7 +38,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 
-public abstract class YamlSensor extends IacSensor {
+public abstract class AbstractYamlLanguageSensor extends IacSensor {
 
   protected static final String JSON_LANGUAGE_KEY = "json";
   public static final String YAML_LANGUAGE_KEY = "yaml";
@@ -46,7 +46,7 @@ public abstract class YamlSensor extends IacSensor {
 
   protected final Checks<IacCheck> checks;
 
-  protected YamlSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+  protected AbstractYamlLanguageSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, Language language, List<Class<?>> checks) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     this.checks = checkFactory.create(repositoryKey());

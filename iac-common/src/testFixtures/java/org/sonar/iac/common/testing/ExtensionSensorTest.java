@@ -86,7 +86,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void shouldRaiseNoIssueOnParsingErrorWhenIssueInactive() {
+  protected void shouldRaiseNoIssueOnParsingErrorWhenIssueInactive() {
     analyze(sensor(checkFactory()), fileWithParsingError());
     assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);

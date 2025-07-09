@@ -30,11 +30,11 @@ import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
 import org.sonar.iac.common.reports.ExternalReportWildcardProvider;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
-import org.sonar.iac.common.yaml.YamlSensor;
+import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 
 import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
-public class CloudformationSensor extends YamlSensor {
+public class CloudformationSensor extends AbstractYamlLanguageSensor {
 
   private final AnalysisWarningsWrapper analysisWarnings;
   private final CfnLintRulesDefinition rulesDefinition;

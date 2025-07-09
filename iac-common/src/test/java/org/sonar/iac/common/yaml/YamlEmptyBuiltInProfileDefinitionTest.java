@@ -21,17 +21,16 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class YamlBuiltInProfileDefinitionTest {
+class YamlEmptyBuiltInProfileDefinitionTest {
 
   @Test
   void shouldCreateSonarWayProfile() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    YamlBuiltInProfileDefinition definition = new YamlBuiltInProfileDefinition();
+    YamlEmptyBuiltInProfileDefinition definition = new YamlEmptyBuiltInProfileDefinition();
     definition.define(context);
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("yaml", "Sonar way");
     assertThat(profile.language()).isEqualTo("yaml");
     assertThat(profile.name()).isEqualTo("Sonar way");
     assertThat(profile.rules()).isEmpty();
   }
-
 }

@@ -129,7 +129,7 @@ public abstract class IacSensor implements Sensor {
     return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 
-  private boolean isActive(SensorContext sensorContext) {
+  protected boolean isActive(SensorContext sensorContext) {
     return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
   }
 

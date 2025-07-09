@@ -14,25 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.common.json;
+package org.sonar.iac.common.yaml;
 
-import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class YamlEmptyBuiltInProfileDefinition implements BuiltInQualityProfilesDefinition {
 
-class JsonBuiltInProfileDefinitionTest {
+  private static final String PROFILE_NAME = "Sonar way";
 
-  @Test
-  void shouldCreateSonarWayProfile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    JsonBuiltInProfileDefinition definition = new JsonBuiltInProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("json", "Sonar way");
-    assertThat(profile.language()).isEqualTo("json");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).isEmpty();
-    assertThat(profile.isDefault()).isTrue();
+  @Override
+  public void define(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, YamlLanguage.KEY);
+    profile.setDefault(true);
+    profile.done();
   }
-
 }

@@ -19,16 +19,20 @@ package org.sonar.plugins.iac;
 import org.sonar.api.Plugin;
 import org.sonar.iac.arm.plugin.ArmExtension;
 import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.common.json.JsonBuiltInProfileDefinition;
+import org.sonar.iac.common.json.JsonEmptyBuiltInProfileDefinition;
 import org.sonar.iac.common.json.JsonFileFilter;
 import org.sonar.iac.common.json.JsonLanguage;
 import org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper;
-import org.sonar.iac.common.yaml.YamlBuiltInProfileDefinition;
+import org.sonar.iac.common.yaml.YamlEmptyBuiltInProfileDefinition;
 import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.docker.plugin.DockerExtension;
 import org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.terraform.plugin.TerraformExtension;
+
+import static org.sonar.api.SonarEdition.COMMUNITY;
+import static org.sonar.api.SonarProduct.SONARLINT;
+import static org.sonar.api.SonarProduct.SONARQUBE;
 
 public class IacPlugin implements Plugin {
 
@@ -43,12 +47,17 @@ public class IacPlugin implements Plugin {
 
     context.addExtension(YamlLanguage.class);
     context.addExtension(YamlLanguage.getProperty());
-    context.addExtension(YamlBuiltInProfileDefinition.class);
 
     context.addExtension(JsonLanguage.class);
     context.addExtension(JsonFileFilter.class);
     context.addExtension(JsonLanguage.getProperty());
-    context.addExtension(JsonBuiltInProfileDefinition.class);
+
+    if ((context.getRuntime().getProduct() == SONARQUBE && context.getRuntime().getEdition() == COMMUNITY) || context.getRuntime().getProduct() == SONARLINT) {
+      // For SonarQube Community Edition, we add built-in quality profiles for YAML and JSON languages.
+      // In other editions, the YAML and JSON profiles are registered by the sonar-iac-enterprise plugin (YAML Extension).
+      context.addExtension(YamlEmptyBuiltInProfileDefinition.class);
+      context.addExtension(JsonEmptyBuiltInProfileDefinition.class);
+    }
 
     context.addExtension(DefaultAnalysisWarningsWrapper.class);
   }

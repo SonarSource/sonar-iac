@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 
-import static org.sonar.iac.common.yaml.YamlSensor.FILE_SEPARATOR;
+import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.FILE_SEPARATOR;
 
 public class YamlIdentifierFilePredicate implements FilePredicate {
 

@@ -18,8 +18,7 @@ package org.sonar.iac.common.json;
 
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-public class JsonBuiltInProfileDefinition implements BuiltInQualityProfilesDefinition {
-
+public class JsonEmptyBuiltInProfileDefinition implements BuiltInQualityProfilesDefinition {
   private static final String PROFILE_NAME = "Sonar way";
 
   @Override
@@ -28,5 +27,4 @@ public class JsonBuiltInProfileDefinition implements BuiltInQualityProfilesDefin
     profile.setDefault(true);
     profile.done();
   }
-
 }

@@ -24,7 +24,7 @@ import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
 import org.sonar.iac.common.extension.DurationStatistics;
 
 import static org.sonar.iac.common.languages.IacLanguages.KUBERNETES;
-import static org.sonar.iac.common.yaml.YamlSensor.YAML_LANGUAGE_KEY;
+import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
 
 public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
   private final FilePredicate delegate;

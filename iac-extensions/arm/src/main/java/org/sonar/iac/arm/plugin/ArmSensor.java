@@ -37,9 +37,9 @@ import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.common.yaml.YamlSensor;
+import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 
-public class ArmSensor extends YamlSensor {
+public class ArmSensor extends AbstractYamlLanguageSensor {
 
   public ArmSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, ArmLanguage language) {

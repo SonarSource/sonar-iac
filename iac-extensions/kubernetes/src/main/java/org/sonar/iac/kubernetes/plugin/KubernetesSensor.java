@@ -35,7 +35,7 @@ import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
-import org.sonar.iac.common.yaml.YamlSensor;
+import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
@@ -48,7 +48,7 @@ import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 
-public class KubernetesSensor extends YamlSensor {
+public class KubernetesSensor extends AbstractYamlLanguageSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
   private final HelmEvaluator helmEvaluator;
   @Nullable
