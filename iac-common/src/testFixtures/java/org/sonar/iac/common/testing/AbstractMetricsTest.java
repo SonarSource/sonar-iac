@@ -34,7 +34,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
-import org.sonar.iac.common.extension.visitors.SensorTelemetryMetrics;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -52,7 +52,7 @@ public abstract class AbstractMetricsTest {
   protected SensorContextTester sensorContext;
   protected DefaultInputFile inputFile;
   protected FileLinesContext fileLinesContext;
-  protected SensorTelemetryMetrics sensorTelemetryMetrics;
+  protected SensorTelemetry sensorTelemetry;
 
   @TempDir
   public File tempFolder;
@@ -63,7 +63,7 @@ public abstract class AbstractMetricsTest {
     fileLinesContext = mock(FileLinesContext.class);
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    sensorTelemetryMetrics = spy(new SensorTelemetryMetrics());
+    sensorTelemetry = spy(new SensorTelemetry());
 
     parser = treeParser();
     visitor = metricsVisitor(fileLinesContextFactory);
@@ -93,7 +93,7 @@ public abstract class AbstractMetricsTest {
 
   protected void verifyLinesOfCodeMetricsAndTelemetry(Integer... linesOfCode) {
     verifyNCLOCDataMetric(linesOfCode);
-    verify(sensorTelemetryMetrics).addLinesOfCode(linesOfCode.length);
+    verify(sensorTelemetry).addLinesOfCode(linesOfCode.length);
   }
 
   private void verifyNCLOCDataMetric(Integer... linesOfCode) {

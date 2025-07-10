@@ -32,77 +32,77 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-class SensorTelemetryMetricsTest {
+class SensorTelemetryTest {
 
   @TempDir
   private Path tempDir;
   private SensorContext context;
-  private SensorTelemetryMetrics sensorTelemetryMetrics;
+  private SensorTelemetry sensorTelemetry;
 
   @BeforeEach
   public void init() {
     context = spy(SensorContextTester.create(tempDir));
-    sensorTelemetryMetrics = new SensorTelemetryMetrics();
+    sensorTelemetry = new SensorTelemetry();
   }
 
   @Test
   void shouldReportCorrectLinesOfCodeForOneAddition() {
-    sensorTelemetryMetrics.addLinesOfCode(10);
-    sensorTelemetryMetrics.addAggregatedLinesOfCodeTelemetry("language");
+    sensorTelemetry.addLinesOfCode(10);
+    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
 
     reportTelemetryAndVerifySingleEntry("iac.language.loc", "10");
   }
 
   @Test
   void shouldNotReportLinesOfCodeWithoutAddingSome() {
-    sensorTelemetryMetrics.addAggregatedLinesOfCodeTelemetry("language");
-    sensorTelemetryMetrics.reportTelemetry(context);
+    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
+    sensorTelemetry.reportTelemetry(context);
     verify(context, never()).addTelemetryProperty(any(), any());
   }
 
   @Test
   void shouldNotReportLinesOfCodeWhenAddingNegativeLines() {
-    sensorTelemetryMetrics.addLinesOfCode(-10);
-    sensorTelemetryMetrics.addAggregatedLinesOfCodeTelemetry("language");
-    sensorTelemetryMetrics.reportTelemetry(context);
+    sensorTelemetry.addLinesOfCode(-10);
+    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
+    sensorTelemetry.reportTelemetry(context);
     verify(context, never()).addTelemetryProperty(any(), any());
   }
 
   @Test
   void addingLinesOfCodeAfterAddingTelemetryShouldNotChangeIt() {
-    sensorTelemetryMetrics.addLinesOfCode(10);
-    sensorTelemetryMetrics.addAggregatedLinesOfCodeTelemetry("language");
-    sensorTelemetryMetrics.addLinesOfCode(10);
+    sensorTelemetry.addLinesOfCode(10);
+    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
+    sensorTelemetry.addLinesOfCode(10);
     reportTelemetryAndVerifySingleEntry("iac.language.loc", "10");
   }
 
   @Test
   void shouldReportCorrectLinesOfCodeWhenAddingMultipleLines() {
-    sensorTelemetryMetrics.addLinesOfCode(1000);
-    sensorTelemetryMetrics.addLinesOfCode(9991123);
-    sensorTelemetryMetrics.addLinesOfCode(5);
-    sensorTelemetryMetrics.addLinesOfCode(1123);
-    sensorTelemetryMetrics.addLinesOfCode(22);
-    sensorTelemetryMetrics.addAggregatedLinesOfCodeTelemetry("language");
+    sensorTelemetry.addLinesOfCode(1000);
+    sensorTelemetry.addLinesOfCode(9991123);
+    sensorTelemetry.addLinesOfCode(5);
+    sensorTelemetry.addLinesOfCode(1123);
+    sensorTelemetry.addLinesOfCode(22);
+    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
 
     reportTelemetryAndVerifySingleEntry("iac.language.loc", "9993273");
   }
 
   @Test
   void shouldNotAddTelemetryPropertyWhenTelemetryNotAdded() {
-    sensorTelemetryMetrics.addLinesOfCode(10);
+    sensorTelemetry.addLinesOfCode(10);
 
-    sensorTelemetryMetrics.reportTelemetry(context);
+    sensorTelemetry.reportTelemetry(context);
     verify(context, never()).addTelemetryProperty(any(), any());
   }
 
   @Test
   void shouldCorrectlyReportMultipleTelemetries() {
-    sensorTelemetryMetrics.addTelemetry("firstKey", "firstValue");
-    sensorTelemetryMetrics.addTelemetry("secondKey", "secondValue");
+    sensorTelemetry.addTelemetry("firstKey", "firstValue");
+    sensorTelemetry.addTelemetry("secondKey", "secondValue");
 
-    sensorTelemetryMetrics.reportTelemetry(context);
-    assertThat(sensorTelemetryMetrics.getTelemetry())
+    sensorTelemetry.reportTelemetry(context);
+    assertThat(sensorTelemetry.getTelemetry())
       .containsExactly(entry("iac.firstKey", "firstValue"), entry("iac.secondKey", "secondValue"));
 
     verify(context).addTelemetryProperty("iac.firstKey", "firstValue");
@@ -111,9 +111,9 @@ class SensorTelemetryMetricsTest {
 
   @Test
   void shouldThrowWhenTryingToAddMultipleTelemetryWithSameKey() {
-    sensorTelemetryMetrics.addTelemetry("firstKey", "firstValue");
+    sensorTelemetry.addTelemetry("firstKey", "firstValue");
 
-    assertThatThrownBy(() -> sensorTelemetryMetrics.addTelemetry("firstKey", "anotherValue"))
+    assertThatThrownBy(() -> sensorTelemetry.addTelemetry("firstKey", "anotherValue"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("telemetry key is reported more than once: iac.firstKey");
   }
@@ -121,16 +121,16 @@ class SensorTelemetryMetricsTest {
   @Test
   void shouldNotDoAnythingOnUnsupportedRuntimeVersion() {
     context = spy(SensorContextTester.create(tempDir).setRuntime(IacTestUtils.SONAR_QUBE_9_9));
-    sensorTelemetryMetrics.addTelemetry("firstKey", "firstValue");
+    sensorTelemetry.addTelemetry("firstKey", "firstValue");
 
-    sensorTelemetryMetrics.reportTelemetry(context);
-    assertThat(sensorTelemetryMetrics.getTelemetry()).containsExactly(entry("iac.firstKey", "firstValue"));
+    sensorTelemetry.reportTelemetry(context);
+    assertThat(sensorTelemetry.getTelemetry()).containsExactly(entry("iac.firstKey", "firstValue"));
     verify(context, never()).addTelemetryProperty(any(), any());
   }
 
   private void reportTelemetryAndVerifySingleEntry(String key, String value) {
-    sensorTelemetryMetrics.reportTelemetry(context);
-    assertThat(sensorTelemetryMetrics.getTelemetry()).containsEntry(key, value);
+    sensorTelemetry.reportTelemetry(context);
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry(key, value);
     verify(context).addTelemetryProperty(key, value);
   }
 }

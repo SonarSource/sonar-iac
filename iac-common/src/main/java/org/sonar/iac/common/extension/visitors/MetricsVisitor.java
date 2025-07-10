@@ -35,16 +35,16 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
   public static final String NOSONAR_PREFIX = "NOSONAR";
   private final FileLinesContextFactory fileLinesContextFactory;
   private final NoSonarFilter noSonarFilter;
-  private final SensorTelemetryMetrics sensorTelemetryMetrics;
+  private final SensorTelemetry sensorTelemetry;
 
   private Set<Integer> linesOfCode;
   private Set<Integer> commentLines;
   private Set<Integer> noSonarLines;
 
-  protected MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetryMetrics sensorTelemetryMetrics) {
+  protected MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry) {
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.noSonarFilter = noSonarFilter;
-    this.sensorTelemetryMetrics = sensorTelemetryMetrics;
+    this.sensorTelemetry = sensorTelemetry;
     languageSpecificMetrics();
   }
 
@@ -69,7 +69,7 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
     linesOfCode.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));
     fileLinesContext.save();
     noSonarFilter.noSonarInFile(ctx.inputFile, noSonarLines);
-    sensorTelemetryMetrics.addLinesOfCode(linesOfCodeSize);
+    sensorTelemetry.addLinesOfCode(linesOfCodeSize);
   }
 
   protected void addCommentLines(List<Comment> comments) {

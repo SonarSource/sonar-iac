@@ -44,7 +44,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics) {
+    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry) {
     };
   }
 

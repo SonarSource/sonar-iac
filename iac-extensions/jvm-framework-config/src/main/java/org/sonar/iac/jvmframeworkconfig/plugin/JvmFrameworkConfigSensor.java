@@ -115,7 +115,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
       new ChecksVisitor(commonConfigChecks, statistics),
       new ChecksVisitor(springConfigChecks, statistics),
       new ChecksVisitor(micronautConfigChecks, statistics),
-      new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics),
+      new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry),
       new JvmFrameworkConfigHighlightingVisitor());
   }
 

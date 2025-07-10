@@ -38,7 +38,7 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
+    return new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
   }
 
   @Override

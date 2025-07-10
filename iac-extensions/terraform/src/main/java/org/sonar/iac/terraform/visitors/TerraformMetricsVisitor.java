@@ -19,11 +19,11 @@ package org.sonar.iac.terraform.visitors;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
-import org.sonar.iac.common.extension.visitors.SensorTelemetryMetrics;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 
 public class TerraformMetricsVisitor extends MetricsVisitor {
 
-  public TerraformMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetryMetrics sensorTelemetryMetrics) {
-    super(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
+  public TerraformMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry) {
+    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
   }
 }

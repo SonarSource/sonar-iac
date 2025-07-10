@@ -34,7 +34,7 @@ class JsonMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
+    return new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
   }
 
   @Override

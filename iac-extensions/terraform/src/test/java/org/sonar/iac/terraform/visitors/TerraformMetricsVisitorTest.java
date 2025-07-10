@@ -37,7 +37,7 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics);
+    return new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
   }
 
   @Override

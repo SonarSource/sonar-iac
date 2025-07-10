@@ -21,7 +21,7 @@ import java.util.Map;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 
-public class SensorTelemetryMetrics {
+public class SensorTelemetry {
 
   // `.` should be used for telemetry groups and every IaC key should start with `iac.`
   private static final String KEY_PREFIX = "iac.";
@@ -30,7 +30,7 @@ public class SensorTelemetryMetrics {
 
   private final Map<String, String> telemetry = new HashMap<>();
 
-  public SensorTelemetryMetrics() {
+  public SensorTelemetry() {
     // Empty constructor
   }
 

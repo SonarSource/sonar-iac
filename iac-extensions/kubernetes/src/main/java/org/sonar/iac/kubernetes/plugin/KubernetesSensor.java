@@ -125,7 +125,7 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     if (isNotSonarLintContext(sensorContext)) {
       visitors.add(new KubernetesHighlightingVisitor());
-      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetryMetrics));
+      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
     }
     visitors.add(new ProjectContextEnricherVisitor(projectContextImpl));
     return visitors;
