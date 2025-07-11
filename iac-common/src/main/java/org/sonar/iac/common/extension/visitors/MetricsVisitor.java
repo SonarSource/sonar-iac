@@ -61,15 +61,22 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
 
   @Override
   protected void after(InputFileContext ctx, Tree root) {
-    var linesOfCodeSize = linesOfCode.size();
-    saveMetric(ctx, CoreMetrics.NCLOC, linesOfCodeSize);
+    sendMetricsToServer(ctx);
+    addLoCTelemetry();
+  }
+
+  protected void sendMetricsToServer(InputFileContext ctx) {
+    saveMetric(ctx, CoreMetrics.NCLOC, linesOfCode.size());
     saveMetric(ctx, CoreMetrics.COMMENT_LINES, commentLines.size());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(ctx.inputFile);
     linesOfCode.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));
     fileLinesContext.save();
     noSonarFilter.noSonarInFile(ctx.inputFile, noSonarLines);
-    sensorTelemetry.addLinesOfCode(linesOfCodeSize);
+  }
+
+  protected void addLoCTelemetry() {
+    sensorTelemetry.addLinesOfCode(linesOfCode.size());
   }
 
   protected void addCommentLines(List<Comment> comments) {

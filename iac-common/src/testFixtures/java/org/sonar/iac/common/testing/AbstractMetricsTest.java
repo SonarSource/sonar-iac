@@ -40,6 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +60,7 @@ public abstract class AbstractMetricsTest {
 
   @BeforeEach
   void setUp() {
-    sensorContext = SensorContextTester.create(tempFolder);
+    sensorContext = spy(SensorContextTester.create(tempFolder));
     fileLinesContext = mock(FileLinesContext.class);
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
@@ -93,7 +94,12 @@ public abstract class AbstractMetricsTest {
 
   protected void verifyLinesOfCodeMetricsAndTelemetry(Integer... linesOfCode) {
     verifyNCLOCDataMetric(linesOfCode);
-    verify(sensorTelemetry).addLinesOfCode(linesOfCode.length);
+    verify(sensorContext, times(2)).newMeasure();
+    verifyTelemetry(linesOfCode.length);
+  }
+
+  protected void verifyTelemetry(Integer linesOfCode) {
+    verify(sensorTelemetry).addLinesOfCode(linesOfCode);
   }
 
   private void verifyNCLOCDataMetric(Integer... linesOfCode) {
