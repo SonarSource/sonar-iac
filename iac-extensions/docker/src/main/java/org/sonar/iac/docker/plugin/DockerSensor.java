@@ -19,7 +19,6 @@ package org.sonar.iac.docker.plugin;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
@@ -47,7 +46,6 @@ import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
-@Phase(name = Phase.Name.POST)
 public class DockerSensor extends IacSensor {
   private final Checks<IacCheck> checks;
   private final AnalysisWarningsWrapper analysisWarnings;

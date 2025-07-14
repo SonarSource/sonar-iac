@@ -22,11 +22,14 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.AnnotationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -45,6 +48,10 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
   protected abstract InputFile validFile();
 
   protected abstract void verifyDebugMessages(List<String> logs);
+
+  protected Phase.Name intendedPhase() {
+    return Phase.Name.DEFAULT;
+  }
 
   @Test
   void emptyFileShouldRaiseNoIssue() {
@@ -135,5 +142,16 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
     assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).isEmpty();
+  }
+
+  @Test
+  protected void shouldHaveIntendedPhaseAnnotation() {
+    Sensor sensor = sensor(checkFactory());
+    Phase phase = AnnotationUtils.getAnnotation(sensor, Phase.class);
+    Phase.Name actualPhaseName = Phase.Name.DEFAULT;
+    if (phase != null) {
+      actualPhaseName = phase.name();
+    }
+    assertThat(actualPhaseName).isEqualTo(intendedPhase());
   }
 }

@@ -17,13 +17,13 @@
 package org.sonar.iac.common.testing;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.issue.NoSonarFilter;
@@ -51,9 +51,10 @@ public abstract class AbstractMetricsTest {
   protected String language;
   protected MetricsVisitor visitor;
   protected SensorContextTester sensorContext;
-  protected DefaultInputFile inputFile;
+  protected InputFile inputFile;
   protected FileLinesContext fileLinesContext;
   protected SensorTelemetry sensorTelemetry;
+  protected FileLinesContextFactory fileLinesContextFactory;
 
   @TempDir
   public File tempFolder;
@@ -62,7 +63,7 @@ public abstract class AbstractMetricsTest {
   void setUp() {
     sensorContext = spy(SensorContextTester.create(tempFolder));
     fileLinesContext = mock(FileLinesContext.class);
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     sensorTelemetry = spy(new SensorTelemetry());
 
@@ -82,13 +83,21 @@ public abstract class AbstractMetricsTest {
   }
 
   protected MetricsVisitor scan(String code, String filename) {
-    inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, filename).getName())
+    return scan(new TestInputFileBuilder("moduleKey", new File(tempFolder, filename).getName())
       .setCharset(StandardCharsets.UTF_8)
       .setLanguage(language)
       .setContents(code)
-      .build();
+      .build());
+  }
+
+  protected MetricsVisitor scan(InputFile inputFile) {
+    this.inputFile = inputFile;
     var inputFileContext = new InputFileContext(sensorContext, inputFile);
-    visitor.scan(inputFileContext, parser.parse(code, inputFileContext));
+    try {
+      visitor.scan(inputFileContext, parser.parse(inputFile.contents(), inputFileContext));
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to retrieve content of inputFile: " + inputFile.filename(), e);
+    }
     return visitor;
   }
 
@@ -102,7 +111,7 @@ public abstract class AbstractMetricsTest {
     verify(sensorTelemetry).addLinesOfCode(linesOfCode);
   }
 
-  private void verifyNCLOCDataMetric(Integer... linesOfCode) {
+  protected void verifyNCLOCDataMetric(Integer... linesOfCode) {
     var linesOfCodeSet = Arrays.stream(linesOfCode).collect(Collectors.toSet());
     for (var lineNumber = 1; lineNumber <= inputFile.lines(); lineNumber++) {
       if (linesOfCodeSet.contains(lineNumber)) {
