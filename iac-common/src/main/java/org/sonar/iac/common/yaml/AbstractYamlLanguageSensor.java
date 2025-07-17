@@ -63,7 +63,7 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    if (isNotSonarLintContext(sensorContext)) {
+    if (isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new YamlHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
     }
@@ -74,9 +74,9 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     FileSystem fileSystem = sensorContext.fileSystem();
-    return fileSystem.predicates().and(fileSystem.predicates().and(
+    return fileSystem.predicates().and(
       fileSystem.predicates().hasLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY, language.getKey()),
-      fileSystem.predicates().hasType(InputFile.Type.MAIN)),
+      fileSystem.predicates().hasType(InputFile.Type.MAIN),
       customFilePredicate(sensorContext, statistics));
   }
 

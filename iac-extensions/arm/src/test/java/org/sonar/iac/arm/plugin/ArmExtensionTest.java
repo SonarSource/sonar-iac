@@ -46,4 +46,9 @@ class ArmExtensionTest extends AbstractExtensionTest {
   protected int extensionsCountOnSQ() {
     return 7;
   }
+
+  @Override
+  protected int extensionsCountOnSL() {
+    return 7;
+  }
 }

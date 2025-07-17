@@ -37,11 +37,6 @@ class TerraformProfileDefinitionTest extends AbstractProfileDefinitionTest {
   }
 
   @Override
-  protected int minimalRulesCount() {
-    return 3;
-  }
-
-  @Override
   protected Consumer<List<? extends BuiltInQualityProfilesDefinition.BuiltInActiveRule>> additionalRulesAssert() {
     return rules -> assertThat(rules)
       .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)

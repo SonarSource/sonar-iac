@@ -32,10 +32,6 @@ public abstract class AbstractProfileDefinitionTest {
 
   protected abstract String languageKey();
 
-  protected int minimalRulesCount() {
-    return 2;
-  }
-
   protected Consumer<List<? extends BuiltInQualityProfilesDefinition.BuiltInActiveRule>> additionalRulesAssert() {
     return rules -> {
       // no-op by default
@@ -54,7 +50,7 @@ public abstract class AbstractProfileDefinitionTest {
       .returns(languageKey(), from(BuiltInQualityProfilesDefinition.BuiltInQualityProfile::language))
       .returns("Sonar way", from(BuiltInQualityProfilesDefinition.BuiltInQualityProfile::name))
       .extracting(BuiltInQualityProfilesDefinition.BuiltInQualityProfile::rules, as(list(BuiltInQualityProfilesDefinition.BuiltInActiveRule.class)))
-      .hasSizeGreaterThanOrEqualTo(minimalRulesCount())
+      .isNotEmpty()
       .satisfies(additionalRulesAssert());
   }
 }

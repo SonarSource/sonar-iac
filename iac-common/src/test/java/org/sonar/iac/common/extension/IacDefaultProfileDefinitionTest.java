@@ -41,11 +41,6 @@ class IacDefaultProfileDefinitionTest extends AbstractProfileDefinitionTest {
   }
 
   @Override
-  protected int minimalRulesCount() {
-    return 1;
-  }
-
-  @Override
   protected Consumer<List<? extends BuiltInQualityProfilesDefinition.BuiltInActiveRule>> additionalRulesAssert() {
     return rules -> assertThat(rules)
       .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)

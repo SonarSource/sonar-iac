@@ -32,9 +32,7 @@ public abstract class AbstractExtensionTest {
 
   protected abstract int extensionsCountOnSQ();
 
-  protected int extensionsCountOnSL() {
-    return extensionsCountOnSQ();
-  }
+  protected abstract int extensionsCountOnSL();
 
   @Test
   void shouldDefineExtensionsOnSonarqube() {

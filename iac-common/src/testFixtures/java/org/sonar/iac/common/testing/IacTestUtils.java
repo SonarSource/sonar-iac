@@ -46,6 +46,8 @@ public final class IacTestUtils {
   public static final SonarRuntime SONAR_QUBE_9_9 = SonarRuntimeImpl.forSonarQube(Version.create(9, 9), SonarQubeSide.SERVER,
     SonarEdition.COMMUNITY);
   public static final SonarRuntime SONARLINT_RUNTIME_9_9 = SonarRuntimeImpl.forSonarLint(Version.create(9, 2));
+  public static final SonarRuntime SQS_HIDDEN_FILES_SUPPORTED_API_VERSION = SonarRuntimeImpl.forSonarQube(Version.create(12, 0), SonarQubeSide.SERVER,
+    SonarEdition.COMMUNITY);
 
   private IacTestUtils() {
     // utils class

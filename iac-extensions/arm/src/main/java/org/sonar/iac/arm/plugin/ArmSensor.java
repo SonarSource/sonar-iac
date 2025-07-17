@@ -91,7 +91,7 @@ public class ArmSensor extends AbstractYamlLanguageSensor {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     visitors.add(new ArmSymbolVisitor());
     visitors.add(new ChecksVisitor(checks, statistics));
-    if (isNotSonarLintContext(sensorContext)) {
+    if (isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
       visitors.add(new ArmHighlightingVisitor());
     }

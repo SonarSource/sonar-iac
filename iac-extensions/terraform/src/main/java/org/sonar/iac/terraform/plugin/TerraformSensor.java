@@ -82,7 +82,7 @@ public class TerraformSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    if (isNotSonarLintContext(sensorContext)) {
+    if (isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
       visitors.add(new TerraformHighlightingVisitor());
     }

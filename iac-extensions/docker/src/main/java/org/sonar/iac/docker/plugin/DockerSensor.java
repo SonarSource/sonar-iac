@@ -91,7 +91,7 @@ public class DockerSensor extends IacSensor {
     FilePredicate pathPatterns = p.matchesPathPattern("**/Dockerfile.*");
 
     // Remove this block after SLCORE-526 implements Language#filenamePatterns() in SonarLint
-    if (!isNotSonarLintContext(sensorContext)) {
+    if (!isNotSonarLintContext(sensorContext.runtime())) {
       pathPatterns = p.or(
         pathPatterns,
         p.matchesPathPattern("**/Dockerfile"),
@@ -133,7 +133,7 @@ public class DockerSensor extends IacSensor {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     visitors.add(new DockerSymbolVisitor());
     visitors.add(new ChecksVisitor(checks, statistics));
-    if (isNotSonarLintContext(sensorContext)) {
+    if (isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
       visitors.add(new DockerHighlightingVisitor());
     }
