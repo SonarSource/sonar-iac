@@ -4,7 +4,7 @@ blowdryer-gradle = "1.7.1"
 develocity = "3.18.2"
 jackson = "2.19.1"
 jfrog-gradle = "5.2.5"
-rule-api = "2.13.0.4426"
+rule-api = "2.14.0.4452"
 gradle-plugin-shadow = "8.3.8"
 
 [libraries]
