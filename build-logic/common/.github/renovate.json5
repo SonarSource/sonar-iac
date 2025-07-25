@@ -31,7 +31,7 @@
         "com.gradle.develocity",
         "com.gradle.develocity:com.gradle.develocity.gradle.plugin"
       ],
-      "allowedVersions": "<3.19"
+      "allowedVersions": "<4.1" // Develocity plugin >=4.1 requires Develocity Server >=2025.2
     }
   ],
   "reviewers": ["team:security-cloud-squad"]
