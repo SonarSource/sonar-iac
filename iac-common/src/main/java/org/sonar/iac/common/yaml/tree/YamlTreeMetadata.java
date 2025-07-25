@@ -119,7 +119,9 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
       if (mark == null) {
         throw new ParseException("Nodes are expected to have a start mark during conversion", null, null);
       }
-      return mark.getPointer();
+      // getIndex() returns the byte offset in the input stream, getPointer() sometimes returns a different value, making start pointer greater
+      // than end pointer
+      return mark.getIndex();
     }
 
     public static TextRange range(Node node) {
