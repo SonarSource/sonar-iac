@@ -22,11 +22,46 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public interface CheckContext {
 
+  /**
+   * Report an issue with a primary location.
+   *
+   * @param textRange the primary location of the issue
+   * @param message the message to report
+   */
   void reportIssue(TextRange textRange, String message);
 
+  /**
+   * Report an issue with a primary location and secondary locations.
+   *
+   * @param textRange the primary location of the issue
+   * @param message the message to report
+   * @param secondaryLocations the list of secondary locations
+   */
+  void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations);
+
+  /**
+   * Report an issue with a component as primary location.
+   *
+   * @param toHighlight the component to highlight
+   * @param message the message to report
+   */
   void reportIssue(HasTextRange toHighlight, String message);
 
+  /**
+   * Report an issue with a component as primary location and a secondary location.
+   *
+   * @param toHighlight the component to highlight
+   * @param message the message to report
+   * @param secondaryLocation the secondary location
+   */
   void reportIssue(HasTextRange toHighlight, String message, SecondaryLocation secondaryLocation);
 
+  /**
+   * Report an issue with a component as primary location and a secondary locations.
+   *
+   * @param toHighlight the component to highlight
+   * @param message the message to report
+   * @param secondaryLocations the list of secondary locations
+   */
   void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations);
 }

@@ -76,7 +76,7 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
     }
 
     @Override
-    protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+    public void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       if (currentCtx instanceof HelmInputFileContext helmCtx) {
         var shiftedTextRange = textRange;
         List<SecondaryLocation> allSecondaryLocations = new ArrayList<>();

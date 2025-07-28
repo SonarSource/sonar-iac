@@ -225,7 +225,12 @@ class AttributeObjectTest extends YamlTreeTest {
 
     @Override
     public void reportIssue(TextRange textRange, String message) {
-      raisedIssues.add(new TestIssue(textRange, message, Collections.emptyList()));
+      reportIssue(textRange, message, Collections.emptyList());
+    }
+
+    @Override
+    public void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+      raisedIssues.add(new TestIssue(textRange, message, secondaryLocations));
     }
 
     @Override
@@ -240,7 +245,7 @@ class AttributeObjectTest extends YamlTreeTest {
 
     @Override
     public void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations) {
-      raisedIssues.add(new AttributeObjectTest.TestIssue(toHighlight.textRange(), message, secondaryLocations));
+      reportIssue(toHighlight.textRange(), message, secondaryLocations);
     }
   }
 

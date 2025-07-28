@@ -321,7 +321,7 @@ public class KubernetesVerifier {
     }
 
     @Override
-    protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+    public void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       if (enableLocationShifting && inputFileContext instanceof HelmInputFileContext helmCtx) {
         var shiftedTextRange = LocationShifter.shiftLocation(helmCtx, textRange);
 

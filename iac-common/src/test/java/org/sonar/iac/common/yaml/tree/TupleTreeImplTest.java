@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 
@@ -38,5 +39,60 @@ class TupleTreeImplTest extends YamlTreeTest {
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.metadata().startPointer()).isZero();
     assertThat(tree.metadata().endPointer()).isEqualTo(4);
+  }
+
+  // In below test, the use of getPointer() in YamlTreeMetadata sometimes return an unexpected value, ending with metadata that have start
+  // pointer greater than end pointer. The use of getIndex() instead fix the issue.
+  @Test
+  void shouldProvideCorrectStartAndEndMarkForBigCode() {
+    var tree = parse("""
+      name: Example
+
+      on:
+        pull_request:
+          branches: [ main ]
+
+      jobs:
+        main:
+          runs-on: ubuntu-latest
+
+          steps:
+            # Noncompliant@+2{{Change this workflow to not use user-controlled data directly in a run block.}}
+            - name: Example Step 1
+              run: "echo \\"PR \\"\\"\\"\\"\\"\\"\\"title: ${{ github.event.pull_request.title }}\\""
+              #                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+            # Noncompliant@+2
+            - name: Example Step 2
+              run: echo "PR title ${{ github.event.pull_request.title }}
+              #                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+            # Noncompliant@+3
+            - name: Example Step 3
+              run: |
+                echo "PR title: ${{ github.event.pull_request.title }}"
+                something there
+              #                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^@-1
+
+            # Noncompliant@+4
+            - name: Example Step 4
+              run: |
+                something there
+                echo "PR title: ${{ github.event.head_commit.author.email }}"
+                something there
+              #                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^@-1
+      """, MappingTree.class);
+
+    var allTreeNodes = children(tree).toList();
+    allTreeNodes.forEach(node -> {
+      assertThat(node.metadata().startPointer()).isLessThanOrEqualTo(node.metadata().endPointer());
+    });
+  }
+
+  Stream<YamlTree> children(YamlTree tree) {
+    return Stream.concat(Stream.of(tree), tree.children()
+      .stream()
+      .map(YamlTree.class::cast)
+      .flatMap(this::children));
   }
 }

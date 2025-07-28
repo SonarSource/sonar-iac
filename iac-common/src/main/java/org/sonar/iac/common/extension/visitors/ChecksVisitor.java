@@ -90,7 +90,8 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
       reportIssue(toHighlight.textRange(), message, secondaryLocations);
     }
 
-    protected void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+    @Override
+    public void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       try {
         currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
       } catch (Exception e) {
