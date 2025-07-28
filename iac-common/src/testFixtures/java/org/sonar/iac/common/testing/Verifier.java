@@ -307,6 +307,7 @@ public final class Verifier {
 
     // "`contains` method might be a performance bottleneck". Order of added issues is important; moreover, this is the test code.
     @SuppressWarnings("java:S2250")
+    @Override
     public void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       var issue = new Issue(textRange, message, secondaryLocations);
       if (!raisedIssues.contains(issue)) {
