@@ -19,6 +19,7 @@ package org.sonar.iac.common.yaml;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.snakeyaml.engine.v2.exceptions.ScannerException;
@@ -26,6 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -107,4 +109,23 @@ class YamlParserTest {
     assertThatThrownBy(() -> parser.parse(input, inputFileContext))
       .isOfAnyClassIn(ParserException.class, ScannerException.class, ClassCastException.class);
   }
+
+  @ParameterizedTest
+  @CsvSource(
+    value = {
+      "single-tab-indentation-without-nesting.json, true",
+      "single-tab-indentation.yaml, false",
+      "double-tab-indentation.yaml, false",
+      "double-tab-indentation.json, false"
+    })
+  void snakeYamlParsingFromResourceFileShouldHaveExpectedBehavior(String filename, boolean shouldParse) {
+    InputFile customInputFile = IacTestUtils.inputFile("parser/" + filename, "");
+    if (shouldParse) {
+      assertThatNoException().isThrownBy(() -> parser.parse(customInputFile.contents(), inputFileContext));
+    } else {
+      assertThatThrownBy(() -> parser.parse(customInputFile.contents(), inputFileContext))
+        .isOfAnyClassIn(ParserException.class, ScannerException.class, ClassCastException.class);
+    }
+  }
+
 }
