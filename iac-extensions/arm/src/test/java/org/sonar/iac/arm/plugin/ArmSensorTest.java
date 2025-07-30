@@ -51,7 +51,7 @@ class ArmSensorTest extends ExtensionSensorTest {
   void shouldReturnArmDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("IaC AzureResourceManager Sensor");
+    assertThat(descriptor.name()).isEqualTo("IaC Azure Resource Manager Sensor");
     assertThat(descriptor.languages()).containsExactly("json", "azureresourcemanager");
     assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
   }
