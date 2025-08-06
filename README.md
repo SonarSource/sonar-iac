@@ -5,9 +5,9 @@ Code Quality and Security for Infrastructure-as-Code
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.sonarsource.iac%3Aiac&metric=coverage)](https://sonarcloud.io/summary/new_code?id=org.sonarsource.iac%3Aiac)
 
 This SonarSource project is a [static code analyzer](https://en.wikipedia.org/wiki/Static_program_analysis) for Infrastructure-as-Code (IaC) languages such as CloudFormation, Kubernetes, and Terraform.
-It is a component of the [SonarQube](https://www.sonarqube.org/) platform, and it runs the IaC features on [SonarCloud](https://sonarcloud.io/).
+It is a component of the [SonarQube Server](https://www.sonarqube.org/) platform, and it runs the IaC features on [SonarQube Cloud](https://sonarcloud.io/).
 
-It allows you to produce stable and easily supported [Clean Code](https://www.sonarsource.com/solutions/clean-code/?utm_medium=referral&utm_source=github&utm_campaign=clean-code&utm_content=sonar-iac) by helping you find and correct vulnerabilities and code smells in your projects.
+It enables developers to produce stable and easily supported [integrated code quality and security](https://www.sonarsource.com/solutions/for-developers/?utm_medium=referral&utm_source=github&utm_campaign=clean-code&utm_content=sonar-iac) by helping you find and correct vulnerabilities and code issues in your projects.
 
 # Features
 * 100+ rules
