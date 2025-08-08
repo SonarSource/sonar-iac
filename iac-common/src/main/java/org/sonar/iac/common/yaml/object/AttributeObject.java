@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.TupleTree;
@@ -108,6 +109,13 @@ public class AttributeObject extends YamlObject<TupleTree> {
       report(tree.value().toHighlight(), message, secondaryLocations);
     }
     return this;
+  }
+
+  public AttributeObject filterOnValue(Predicate<String> predicate) {
+    if (tree != null && tree.value() instanceof TextTree textTree && predicate.test(textTree.value())) {
+      return this;
+    }
+    return fromAbsent(ctx, key);
   }
 
   public boolean isValue(Predicate<YamlTree> predicate) {

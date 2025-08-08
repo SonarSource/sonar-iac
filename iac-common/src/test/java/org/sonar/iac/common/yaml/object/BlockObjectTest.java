@@ -26,6 +26,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.common.yaml.object.YamlObjectAssertions.assertThat;
 
 class BlockObjectTest extends YamlTreeTest {
 
@@ -36,7 +37,7 @@ class BlockObjectTest extends YamlTreeTest {
     MappingTree tree = parseMap("a: b");
     BlockObject block = BlockObject.fromPresent(ctx, tree, "a");
     assertThat(block.key).isEqualTo("a");
-    assertThat(block.status).isEqualTo(YamlObject.Status.PRESENT);
+    assertThat(block).isPresent();
     assertThat(block.tree).isEqualTo(tree);
     assertThat(block.ctx).isEqualTo(ctx);
   }
@@ -46,7 +47,7 @@ class BlockObjectTest extends YamlTreeTest {
     YamlTree tree = parse("a:b", YamlTree.class);
     BlockObject block = BlockObject.fromPresent(ctx, tree, "a");
     assertThat(block.key).isEqualTo("a");
-    assertThat(block.status).isEqualTo(YamlObject.Status.UNKNOWN);
+    assertThat(block).isUnknown();
     assertThat(block.tree).isNull();
     assertThat(block.ctx).isEqualTo(ctx);
   }
@@ -55,7 +56,7 @@ class BlockObjectTest extends YamlTreeTest {
   void shouldVerifyFromAbsent() {
     BlockObject block = BlockObject.fromAbsent(ctx, "a");
     assertThat(block.key).isEqualTo("a");
-    assertThat(block.status).isEqualTo(YamlObject.Status.ABSENT);
+    assertThat(block).isAbsent();
     assertThat(block.tree).isNull();
     assertThat(block.ctx).isEqualTo(ctx);
   }
@@ -83,34 +84,46 @@ class BlockObjectTest extends YamlTreeTest {
   void shouldVerifyBlock() {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo:\n key: value"), "a");
     BlockObject presentBlock = block.block("foo");
-    assertThat(presentBlock.status).isEqualTo(YamlObject.Status.PRESENT);
+    assertThat(presentBlock).isPresent();
 
     BlockObject absentBlock = block.block("bar");
-    assertThat(absentBlock.status).isEqualTo(YamlObject.Status.ABSENT);
+    assertThat(absentBlock).isAbsent();
   }
 
   @Test
   void shouldVerifyAttribute() {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: bar"), "a");
     AttributeObject presentAttr = block.attribute("foo");
-    assertThat(presentAttr.status).isEqualTo(YamlObject.Status.PRESENT);
+    assertThat(presentAttr).isPresent();
 
     AttributeObject absentAttr = block.attribute("bar");
-    assertThat(absentAttr.status).isEqualTo(YamlObject.Status.ABSENT);
+    assertThat(absentAttr).isAbsent();
+  }
+
+  @Test
+  void shouldVerifyAttributes() {
+    BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: bar"), "a");
+    var attrs = block.attributes(s -> s.contains("o")).toList();
+    assertThat(attrs).hasSize(1);
+    AttributeObject presentAttr = attrs.get(0);
+    assertThat(presentAttr).isPresent();
+
+    var noAttrs = block.attributes(s -> false).toList();
+    assertThat(noAttrs).isEmpty();
   }
 
   @Test
   void shouldVerifyList() {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: [bar, car]"), "a");
     ListObject listPresent = block.list("foo");
-    assertThat(listPresent.status).isEqualTo(YamlObject.Status.PRESENT);
+    assertThat(listPresent).isPresent();
     assertThat(listPresent.items.stream()
       .map(tree -> ((ScalarTree) tree).value()))
         .containsExactly("bar", "car");
 
     ListObject listAbsent = block.list("bar");
     assertThat(listAbsent.items).isEmpty();
-    assertThat(listAbsent.status).isEqualTo(YamlObject.Status.ABSENT);
+    assertThat(listAbsent).isAbsent();
   }
 
   public MappingTree parseMap(String source) {

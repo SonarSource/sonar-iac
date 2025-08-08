@@ -221,6 +221,19 @@ class AttributeObjectTest extends YamlTreeTest {
     assertThat(raisedIssues).isEmpty();
   }
 
+  @Test
+  void shouldFilterOnValue() {
+    var tree = parseTuple("a: b");
+    var attributeObject = AttributeObject.fromPresent(checkContext, tree, "a");
+    var filteredAttribute = attributeObject.filterOnValue("b"::equals);
+    assertThat(filteredAttribute.isPresent()).isTrue();
+    assertThat(filteredAttribute.key).isEqualTo("a");
+    assertThat(filteredAttribute.tree).isEqualTo(tree);
+
+    var filteredAttributeNotMatching = attributeObject.filterOnValue("c"::equals);
+    assertThat(filteredAttributeNotMatching.isAbsent()).isTrue();
+  }
+
   private static class TestContext implements CheckContext {
 
     @Override

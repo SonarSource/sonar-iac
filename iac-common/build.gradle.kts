@@ -37,6 +37,7 @@ dependencies {
     testImplementation(libs.sonar.plugin.api.impl)
     testImplementation(libs.sonar.plugin.api.test.fixtures)
     testImplementation(libs.sonar.analyzer.test.commons)
+    testImplementation(libs.fest.assertions)
     testRuntimeOnly(libs.junit.platform.launcher)
 
     testFixturesImplementation(libs.junit.jupiter)

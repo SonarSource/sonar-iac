@@ -17,9 +17,11 @@
 package org.sonar.iac.common.yaml.object;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.MappingTree;
@@ -72,6 +74,16 @@ public class BlockObject extends YamlObject<MappingTree> {
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
       .map(attribute -> AttributeObject.fromPresent(ctx, attribute, key))
       .orElse(AttributeObject.fromAbsent(ctx, key));
+  }
+
+  public Stream<AttributeObject> attributes(Predicate<String> predicate) {
+    return Optional.ofNullable(tree).stream()
+      .flatMap(tree -> PropertyUtils.getAll(tree, predicate))
+      .filter(TupleTree.class::isInstance)
+      .map(TupleTree.class::cast)
+      // We don't handle keys that are not TextTree
+      .filter(tuple -> tuple.key() instanceof TextTree)
+      .map(attribute -> AttributeObject.fromPresent(ctx, attribute, ((TextTree) attribute.key()).value()));
   }
 
   public ListObject list(String key) {

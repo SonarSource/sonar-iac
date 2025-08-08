@@ -35,6 +35,7 @@ import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 public abstract class AbstractKubernetesObjectCheck implements IacCheck {
 
   private final Map<String, List<Consumer<BlockObject>>> objectConsumersByKind = new HashMap<>();
+  private final List<Consumer<BlockObject>> anyKindObjectConsumers = new ArrayList<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -50,17 +51,25 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     visitDocumentOnEnd(documentTree, ctx);
   }
 
-  private void visitRoot(MappingTree specTree, CheckContext ctx) {
-    PropertyUtils.get(specTree, "kind")
-      .flatMap(kind -> TextUtils.getValue(kind.value()))
-      .filter(objectConsumersByKind::containsKey)
-      .ifPresent((String kind) -> {
-        if (shouldVisitWholeDocument()) {
-          visitMappingTreeForKind(specTree, ctx, kind);
-        } else {
-          visitSpecTreeForKind(specTree, ctx, kind);
-        }
-      });
+  private void visitRoot(MappingTree documentTree, CheckContext ctx) {
+    var optKind = PropertyUtils.get(documentTree, "kind")
+      .flatMap(kind -> TextUtils.getValue(kind.value()));
+
+    optKind.ifPresent((String kind) -> {
+      visitTree(documentTree, ctx, kind, anyKindObjectConsumers);
+      var kindSpecificObjectConsumers = objectConsumersByKind.get(kind);
+      if (kindSpecificObjectConsumers != null) {
+        visitTree(documentTree, ctx, kind, kindSpecificObjectConsumers);
+      }
+    });
+  }
+
+  private void visitTree(MappingTree documentTree, CheckContext ctx, String kind, List<Consumer<BlockObject>> consumers) {
+    if (shouldVisitWholeDocument()) {
+      visitMappingTree(documentTree, ctx, kind, consumers);
+    } else {
+      visitSpecTree(documentTree, ctx, kind, consumers);
+    }
   }
 
   public KubernetesCheckForOtherYaml prepareForEmbeddedYaml() {
@@ -88,18 +97,18 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     // default implementation does nothing; the rule can interact when leaving document
   }
 
-  private void visitSpecTreeForKind(MappingTree documentTree, CheckContext ctx, String kind) {
+  private static void visitSpecTree(MappingTree documentTree, CheckContext ctx, String kind, List<Consumer<BlockObject>> consumers) {
     PropertyUtils.get(documentTree, "spec")
       .filter(TupleTree.class::isInstance)
       .map(TupleTree.class::cast)
       .filter(spec -> spec.value() instanceof MappingTree)
       .map(spec -> (MappingTree) spec.value())
-      .ifPresent(specValue -> visitMappingTreeForKind(specValue, ctx, kind));
+      .ifPresent(specValue -> visitMappingTree(specValue, ctx, kind, consumers));
   }
 
-  private void visitMappingTreeForKind(MappingTree mappingTree, CheckContext ctx, String kind) {
+  private static void visitMappingTree(MappingTree mappingTree, CheckContext ctx, String kind, List<Consumer<BlockObject>> consumers) {
     var blockObject = BlockObject.fromPresent(ctx, mappingTree, kind);
-    objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(blockObject));
+    consumers.forEach(consumer -> consumer.accept(blockObject));
   }
 
   protected abstract void registerObjectCheck();
@@ -112,4 +121,7 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
     kinds.forEach(kind -> register(kind, consumer));
   }
 
+  protected void registerOnAnyKind(Consumer<BlockObject> consumer) {
+    anyKindObjectConsumers.add(consumer);
+  }
 }

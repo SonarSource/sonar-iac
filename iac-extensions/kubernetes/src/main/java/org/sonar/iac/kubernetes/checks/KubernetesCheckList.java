@@ -37,6 +37,7 @@ public final class KubernetesCheckList {
       DockerSocketCheck.class,
       DuplicatedEnvironmentVariablesCheck.class,
       ExposedAdministrationServicesCheck.class,
+      HardcodedCredentialsCheck.class,
       HostNamespacesCheck.class,
       KubernetesToDoCommentCheck.class,
       MemoryLimitCheck.class,
