@@ -16,26 +16,19 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.CommonExcludedPatterns;
-import org.sonar.iac.common.yaml.object.BlockObject;
 
 @Rule(key = "S2068")
-public class HardcodedCredentialsCheck extends AbstractKubernetesObjectCheck {
+public class HardcodedCredentialsCheck extends AbstractEnvCheck {
 
   private static final String MESSAGE = "Make sure this is not a hard-coded credential.";
   private static final String SECONDARY_MESSAGE = "\"%s\" detected here";
-  private static final String NAME_BLOCK = "name";
-  private static final String VALUE_BLOCK = "value";
-  private static final String CAPTURE_NAME = "name";
   private static final String DEFAULT_CREDENTIAL_WORDS = "password,passwd,pwd,passphrase";
   protected static final Predicate<String> VALUE_INCLUSION_PREDICATE = Pattern.compile("[\\w\\p{Punct} ]{6,}", Pattern.CASE_INSENSITIVE)
     .asMatchPredicate();
@@ -45,50 +38,14 @@ public class HardcodedCredentialsCheck extends AbstractKubernetesObjectCheck {
     description = "Comma-separated list of words identifying potential credentials",
     defaultValue = DEFAULT_CREDENTIAL_WORDS)
   public String credentialWords = DEFAULT_CREDENTIAL_WORDS;
-  private Pattern credentialsPattern;
 
   @Override
-  protected void registerObjectCheck() {
-    credentialsPattern = buildCredentialsPattern();
-    registerOnAnyKind(this::checkHardcodedCredentials);
+  protected String sensitiveKeywords() {
+    return credentialWords;
   }
 
-  private void checkHardcodedCredentials(BlockObject block) {
-    block.blocks("containers")
-      .forEach(container -> container.blocks("env")
-        .forEach(this::reportOnHardcodedCredentials));
-
-    block.block("template")
-      .block("spec")
-      .blocks("containers")
-      .forEach(container -> container.blocks("env")
-        .forEach(this::reportOnHardcodedCredentials));
-  }
-
-  private void reportOnHardcodedCredentials(BlockObject envBlock) {
-    var sensitiveNameAttribute = envBlock.attribute(NAME_BLOCK);
-    var sensitiveName = sensitiveNameAttribute.asStringValue();
-    if (sensitiveName != null) {
-      var matcher = credentialsPattern.matcher(sensitiveName);
-      if (matcher.find()) {
-        var sensitiveKeyword = matcher.group(CAPTURE_NAME);
-        var secondary = new SecondaryLocation(sensitiveNameAttribute.tree.value(), SECONDARY_MESSAGE.formatted(sensitiveKeyword));
-        envBlock.attribute(VALUE_BLOCK)
-          .reportIfValue(
-            tree -> tree instanceof TextTree textTree && isValueSensitive(sensitiveName, textTree.value()),
-            MESSAGE, List.of(secondary));
-      }
-    }
-  }
-
-  private Pattern buildCredentialsPattern() {
-    var pattern = Arrays.stream(credentialWords.split(","))
-      .map(String::trim)
-      .collect(Collectors.joining("|"));
-    return Pattern.compile("(?<%s>%s)".formatted(CAPTURE_NAME, pattern), Pattern.CASE_INSENSITIVE);
-  }
-
-  private static boolean isValueSensitive(String nameFieldValue, String valueFieldValue) {
+  @Override
+  protected boolean isValueSensitive(String nameFieldValue, String valueFieldValue) {
     return VALUE_INCLUSION_PREDICATE.test(valueFieldValue)
       && !isPlaceholder(nameFieldValue, valueFieldValue)
       && !CommonExcludedPatterns.isCommonExcludedPattern(valueFieldValue);
@@ -96,5 +53,11 @@ public class HardcodedCredentialsCheck extends AbstractKubernetesObjectCheck {
 
   private static boolean isPlaceholder(String nameFieldValue, String valueFieldValue) {
     return valueFieldValue.contains(nameFieldValue);
+  }
+
+  @Override
+  protected void reportSensitiveEnvVariable(CheckContext ctx, SensitiveEnvVariable sensitiveEnvVariable) {
+    var secondary = new SecondaryLocation(sensitiveEnvVariable.nameTree(), SECONDARY_MESSAGE.formatted(sensitiveEnvVariable.nameKeyword()));
+    ctx.reportIssue(sensitiveEnvVariable.valueTree(), MESSAGE, secondary);
   }
 }

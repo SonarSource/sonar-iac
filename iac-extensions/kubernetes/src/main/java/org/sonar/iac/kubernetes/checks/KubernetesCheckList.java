@@ -38,6 +38,7 @@ public final class KubernetesCheckList {
       DuplicatedEnvironmentVariablesCheck.class,
       ExposedAdministrationServicesCheck.class,
       HardcodedCredentialsCheck.class,
+      HardcodedSecretsCheck.class,
       HostNamespacesCheck.class,
       KubernetesToDoCommentCheck.class,
       MemoryLimitCheck.class,
