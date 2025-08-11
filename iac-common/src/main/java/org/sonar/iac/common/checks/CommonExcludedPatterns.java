@@ -27,7 +27,8 @@ import java.util.regex.Pattern;
  */
 public final class CommonExcludedPatterns {
   // Recognizable words we typically find
-  public static final String RECOGNIZABLE_WORDS_PATTERN = "sample|example|foo|bar|test|fake|abcd|redacted|cafebabe|deadbeef|123456|admin|pass|changeme|changeit|secret|unknown|optional|enabled|disabled|string|test|random|token";
+  public static final String RECOGNIZABLE_WORDS_PATTERN = "sample|example|foo|bar|test|fake|abcd|redacted|cafebabe|deadbeef|123456|admin|pass|changeme|changeit|secret|unknown|" +
+    "optional|enabled|disabled|string|test|random|token";
   // Path-like strings with at least 3 slashes, e.g. "/path/to/file"
   public static final String PATH_PATTERN = "(?:/[a-z0-9_-]++){3,}+";
 

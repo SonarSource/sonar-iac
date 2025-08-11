@@ -33,6 +33,7 @@ import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
+import org.sonar.iac.common.predicates.GithubActionsFilePredicate;
 import org.sonar.iac.common.predicates.JvmConfigFilePredicate;
 import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.common.yaml.YamlLanguage;
@@ -130,6 +131,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     var fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().not(
       fileSystem.predicates().or(
+        new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), false, statistics.timer("JvmNotGithubActionsFilePredicate")),
         new KubernetesOrHelmFilePredicate(sensorContext, false, statistics.timer("JvmNotKubernetesOrHelmFilePredicate")),
         new CloudFormationFilePredicate(sensorContext, false, statistics.timer("JvmNotCloudFormationFilePredicate"))));
   }

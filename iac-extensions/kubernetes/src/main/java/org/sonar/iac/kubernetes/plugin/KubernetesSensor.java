@@ -34,6 +34,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.predicates.GithubActionsFilePredicate;
 import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
@@ -150,10 +151,14 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    return new KubernetesOrHelmFilePredicate(
-      sensorContext,
-      isExtendedLoggingEnabled(sensorContext),
+    var predicates = sensorContext.fileSystem().predicates();
+    var githubActionsFilePredicate = new GithubActionsFilePredicate(predicates, isExtendedLoggingEnabled(sensorContext),
+      statistics.timer("KubernetesNotGithubActionsFilePredicate"));
+    var kubernetesOrHelmFilePredicate = new KubernetesOrHelmFilePredicate(sensorContext, isExtendedLoggingEnabled(sensorContext),
       statistics.timer("KubernetesOrHelmFilePredicate"));
+    return predicates.and(
+      predicates.not(githubActionsFilePredicate),
+      kubernetesOrHelmFilePredicate);
   }
 
   @Override

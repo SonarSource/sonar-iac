@@ -131,13 +131,27 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldSkipCloudFormationFileInGithubWorkflowFolder() {
+    var githubWorkflowFile = inputFile(".github/workflows/deploy.yaml", "AWSTemplateFormatVersion: 2010-09-09");
+
+    analyze(sensor(checkFactory()), githubWorkflowFile);
+    assertThat(context.allIssues()).isEmpty();
+
+    var logs = logTester.logs(Level.DEBUG);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0)).contains("Identified as Github file: .github/workflows/deploy.yaml");
+    assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed", "0/0 source files have been analyzed");
+    verifyLinesOfCodeTelemetry(0);
+  }
+
+  @Test
   void shouldLogPredicateInDurationStatistics() {
     settings.setProperty("sonar.iac.duration.statistics", "true");
 
     InputFile jvmFile = inputFile("file.json", "");
 
     analyze(sensor(checkFactory()), jvmFile);
-    assertThat(durationStatisticLog()).contains("CloudFormationFilePredicate");
+    assertThat(durationStatisticLog()).contains("CloudFormationFilePredicate", "CloudFormationNotGithubActionsFilePredicate");
     verifyLinesOfCodeTelemetry(0);
   }
 

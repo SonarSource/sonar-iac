@@ -158,7 +158,9 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
       emptyFileInResources("config.yaml"),
       emptyFileInResources("config.yml"),
       inputFile("application.properties", ""),
-      inputFile("src/test/resources/application.properties", ""));
+      inputFile("src/test/resources/application.properties", ""),
+      // should not be matched because considered as a github actions files
+      emptyFileInResources(".github/workflows/application.yaml"));
 
     var fileSystem = context.fileSystem();
     var inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context, new DurationStatistics(mock(Configuration.class))));
@@ -178,7 +180,8 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     InputFile jvmFile = inputFile("folder/src/main/resources/application.properties", "");
 
     analyze(sensor(checkFactory()), jvmFile);
-    assertThat(durationStatisticLog()).contains("JvmConfigFilePredicate", "JvmNotKubernetesOrHelmFilePredicate", "JvmNotCloudFormationFilePredicate");
+    assertThat(durationStatisticLog()).contains("JvmConfigFilePredicate", "JvmNotKubernetesOrHelmFilePredicate", "JvmNotCloudFormationFilePredicate",
+      "JvmNotGithubActionsFilePredicate");
   }
 
   @Test

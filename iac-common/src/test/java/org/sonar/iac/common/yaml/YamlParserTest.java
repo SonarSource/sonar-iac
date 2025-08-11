@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -118,12 +119,13 @@ class YamlParserTest {
       "double-tab-indentation.yaml, false",
       "double-tab-indentation.json, false"
     })
-  void snakeYamlParsingFromResourceFileShouldHaveExpectedBehavior(String filename, boolean shouldParse) {
+  void snakeYamlParsingFromResourceFileShouldHaveExpectedBehavior(String filename, boolean shouldParse) throws IOException {
     InputFile customInputFile = IacTestUtils.inputFile("parser/" + filename, "");
     if (shouldParse) {
       assertThatNoException().isThrownBy(() -> parser.parse(customInputFile.contents(), inputFileContext));
     } else {
-      assertThatThrownBy(() -> parser.parse(customInputFile.contents(), inputFileContext))
+      var content = customInputFile.contents();
+      assertThatThrownBy(() -> parser.parse(content, inputFileContext))
         .isOfAnyClassIn(ParserException.class, ScannerException.class, ClassCastException.class);
     }
   }
