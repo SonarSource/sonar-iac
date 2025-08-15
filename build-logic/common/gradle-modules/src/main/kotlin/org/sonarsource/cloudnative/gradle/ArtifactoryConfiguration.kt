@@ -47,4 +47,11 @@ interface ArtifactoryConfiguration {
     val repoKeyEnv: Property<String>
     val usernameEnv: Property<String>
     val passwordEnv: Property<String>
+
+    /**
+     * Set this to `true` to acknowledge that the publication is deliberately enabled for a project that is not a plugin.
+     * Normally, only plugins should be published to Artifactory. If there is a specific reason to publish a non-plugin project,
+     * this property acts a safety net to ensure that the user is aware of this decision.
+     */
+    val acknowledgePublicationOfNonPlugin: Property<Boolean>
 }

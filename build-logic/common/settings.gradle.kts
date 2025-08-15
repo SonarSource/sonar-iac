@@ -22,7 +22,7 @@ pluginManagement {
 }
 
 plugins {
-    id("com.gradle.develocity") version "4.0.1"
+    id("com.gradle.develocity") version "4.0.3"
 }
 
 rootProject.name = "cloud-native-gradle-modules"

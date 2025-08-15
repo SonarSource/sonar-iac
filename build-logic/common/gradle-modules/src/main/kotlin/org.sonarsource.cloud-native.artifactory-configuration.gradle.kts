@@ -22,22 +22,23 @@ plugins {
     id("com.jfrog.artifactory")
 }
 
-if (project.path != ":" && "-plugin" !in project.path) {
-    throw GradleException(
-        "This build script configures Artifactory connection for a build of a SonarQube plugin. " +
-            "This script must be applied either to the root project or in a \"-plugin\" project."
-    )
-}
-
 // this value is present on CI
 val buildNumber: String? = System.getProperty("buildNumber")
 
 val artifactoryConfiguration = extensions.create<ArtifactoryConfiguration>("artifactoryConfiguration")
+artifactoryConfiguration.acknowledgePublicationOfNonPlugin.convention(false)
 
 val projectVersion = project.version as String
 
 // `afterEvaluate` is required to inject configurable properties; see https://github.com/jfrog/artifactory-gradle-plugin/issues/71#issuecomment-1734977528
 project.afterEvaluate {
+    if (!artifactoryConfiguration.acknowledgePublicationOfNonPlugin.get() && project.path != ":" && "-plugin" !in project.path) {
+        throw GradleException(
+            "This build script configures Artifactory connection for a build of a SonarQube plugin. " +
+                "This script must be applied either to the root project or in a \"-plugin\" project."
+        )
+    }
+
     artifactory {
         if (artifactoryConfiguration.artifactsToPublish.isPresent) {
             clientConfig.info.addEnvironmentProperty(
