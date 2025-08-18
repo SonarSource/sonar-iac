@@ -70,7 +70,7 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    minimize()
+    minimizeJar = true
     exclude("META-INF/LICENSE*")
     exclude("META-INF/NOTICE*")
     exclude("META-INF/*.RSA")

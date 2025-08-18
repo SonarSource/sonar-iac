@@ -4,7 +4,7 @@ blowdryer-gradle = "1.7.1"
 develocity = "4.0.3"
 jackson = "2.19.2"
 jfrog-gradle = "5.2.5"
-gradle-plugin-shadow = "8.3.9"
+gradle-plugin-shadow = "9.0.2"
 
 [libraries]
 diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless-gradle" }
