@@ -42,7 +42,8 @@ public class ExcessiveFileUploadSizeLimitCheck extends AbstractSensitiveKeyCheck
 
   // size in bytes, taken from `ExcessiveContentRequestCheck` in sonar-java
   private static final long DEFAULT_LIMIT = 8_388_608;
-  @RuleProperty(key = "fileUploadSizeLimit")
+  @RuleProperty(key = "fileUploadSizeLimit",
+    defaultValue = "" + DEFAULT_LIMIT)
   public long fileUploadSizeLimit = DEFAULT_LIMIT;
 
   @Override
