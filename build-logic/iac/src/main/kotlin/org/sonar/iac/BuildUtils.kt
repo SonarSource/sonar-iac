@@ -17,9 +17,10 @@
 package org.sonar.iac
 
 import org.gradle.api.Project
-import org.gradle.configurationcache.extensions.capitalized
 
-fun String.toCamelCase() = replace("-[a-z]".toRegex()) { it.value.last().uppercase() }.capitalized()
+fun String.toCamelCase() =
+    replace("-[a-z]".toRegex()) { it.value.last().uppercase() }
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 
 fun Project.collectIacExtensionNames(exclusions: List<String>) =
     rootProject.allprojects.filter {

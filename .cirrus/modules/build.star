@@ -87,7 +87,9 @@ def build_test_env():
     env |= next_env()
     env |= {
         "DEPLOY_PULL_REQUEST": "false",
-        "BUILD_ARGUMENTS": "-x artifactoryPublish"
+        # --no-parallel because as of 6.2.0.5505 sonar-scanner-gradle doesn't work well with Gradle 9
+        # see https://community.sonarsource.com/t/error-when-running-sonar-task-with-gradle-9-0-0-rc-1/143857/12
+        "BUILD_ARGUMENTS": "-x artifactoryPublish --no-parallel"
     }
     return env
 
