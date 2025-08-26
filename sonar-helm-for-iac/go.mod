@@ -8,7 +8,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/samber/mo v1.15.0
 	github.com/sonarsource/go/src v1.23.4-1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	// When updating this dependency, update "google-protobuf-go" in "libs.versions.toml"
 	// Also update the "PROTOBUF_GO_VERSION" in "make.sh"
 	// Then run "go mod tidy" and "../gradlew generateProto"
