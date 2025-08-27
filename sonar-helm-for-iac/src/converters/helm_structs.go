@@ -181,7 +181,7 @@ func (files Files) Glob(pattern string) Files {
 }
 
 func (files Files) AsConfig() string {
-	if files == nil || len(files) == 0 {
+	if len(files) == 0 {
 		return ""
 	}
 
@@ -195,7 +195,7 @@ func (files Files) AsConfig() string {
 }
 
 func (files Files) AsSecrets() string {
-	if files == nil || len(files) == 0 {
+	if len(files) == 0 {
 		return ""
 	}
 

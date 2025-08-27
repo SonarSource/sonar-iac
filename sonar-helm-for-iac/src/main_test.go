@@ -53,12 +53,15 @@ func Test_exit_code_with_serialization_error(t *testing.T) {
 	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
 	stdin, _ := cmd.StdinPipe()
 	defer stdin.Close()
-	cmd.Start()
-	stdin.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x00"))
-	err := cmd.Wait()
+	errStart := cmd.Start()
+	_, errWrite := stdin.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x00"))
+
+	errWait := cmd.Wait()
 
 	var e *exec.ExitError
-	errors.As(err, &e)
+	assert.NoError(t, errStart)
+	assert.NoError(t, errWrite)
+	errors.As(errWait, &e)
 	assert.Equal(t, 1, e.ExitCode())
 }
 

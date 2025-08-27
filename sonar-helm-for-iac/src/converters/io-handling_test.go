@@ -25,11 +25,12 @@ import (
 
 func Test_read_single_template(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x0Dtemplate.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00"))
+	_, outputErr := output.Write([]byte("\x00\x00\x00\x0Dtemplate.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00"))
 	loggingTestCollector := NewDefaultLoggingCollector()
-	templateName, contents, err := ReadInput(input, &loggingTestCollector)
+	templateName, contents, inputErr := ReadInput(input, &loggingTestCollector)
 
-	assert.NoError(t, err)
+	assert.NoError(t, outputErr)
+	assert.NoError(t, inputErr)
 	assert.Equal(t, "template.yaml", templateName)
 	assert.Equal(t, 1, len(contents))
 	assert.Equal(t, "apiVersion: v1", contents.Get("template.yaml"))
@@ -40,11 +41,12 @@ func Test_read_single_template(t *testing.T) {
 func Test_read_long_template_name(t *testing.T) {
 	filename := strings.Repeat("/very/long/path", 100) + "/template.yaml"
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x05\xEA" + filename + "\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00"))
+	_, outputErr := output.Write([]byte("\x00\x00\x05\xEA" + filename + "\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x00"))
 	loggingTestCollector := NewDefaultLoggingCollector()
-	templateName, contents, err := ReadInput(input, &loggingTestCollector)
+	templateName, contents, inputErr := ReadInput(input, &loggingTestCollector)
 
-	assert.NoError(t, err)
+	assert.NoError(t, outputErr)
+	assert.NoError(t, inputErr)
 	assert.Equal(t, filename, templateName)
 	assert.Equal(t, 1, len(contents))
 	assert.Equal(t, "apiVersion: v1", contents.Get(filename))
@@ -53,11 +55,12 @@ func Test_read_long_template_name(t *testing.T) {
 
 func Test_read_template_and_empty_values(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x00"))
+	_, outputErr := output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x00"))
 	loggingTestCollector := NewDefaultLoggingCollector()
-	templateName, contents, err := ReadInput(input, &loggingTestCollector)
+	templateName, contents, inputErr := ReadInput(input, &loggingTestCollector)
 
-	assert.NoError(t, err)
+	assert.NoError(t, outputErr)
+	assert.NoError(t, inputErr)
 	assert.Equal(t, "foo.yaml", templateName)
 	assert.Equal(t, 2, len(contents))
 	assert.Equal(t, "apiVersion: v1", contents.Get("foo.yaml"))

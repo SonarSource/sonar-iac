@@ -55,7 +55,7 @@ func (c *DefaultConverter) ConvertTree(source string, ast *parse.Tree) *pbstruct
 	// But for the tree root, we expect a specific type - `ListNode`. Setting it with protobuf reflection seems to be sufficient.
 	tree.ProtoReflect().Set(
 		tree.ProtoReflect().Descriptor().Fields().ByName("root"),
-		protoreflect.ValueOf(context.Convert(&*ast.Root).ProtoReflect()))
+		protoreflect.ValueOf(context.Convert(ast.Root).ProtoReflect()))
 	return tree
 }
 
