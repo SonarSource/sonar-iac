@@ -85,12 +85,21 @@ public class DockerSensor extends IacSensor {
 
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
+    // Dockerfiles are detected either by being assigned to the DockerLanguage or by the path patterns defined below.
+    // Because not all Dockerfiles are matched and therefore assigned to the DockerLanguage,
+    // we can't use "Plugin-RequiredForLanguages": "docker" in the manifest to optimize Plugin Downloads
+    // Because of this reason we also can't use descriptor.onlyOnLanguage(DockerLanguage.KEY) for this sensor
+
     var fileSystem = sensorContext.fileSystem();
     FilePredicates p = fileSystem.predicates();
 
+    // Because we can't add "**/Dockerfile.*" as a filenamePattern to the DockerLanguage, we need to match the files here via a path pattern
+    // It's not possible to add it as a pattern because it would match files like "Dockerfile.java" which would result in a collision for the
+    // Docker and Java language.
     FilePredicate pathPatterns = p.matchesPathPattern("**/Dockerfile.*");
 
-    // Remove this block after SLCORE-526 implements Language#filenamePatterns() in SonarLint
+    // In SQ-IDE Language#filenamePatterns() is not implemented, so all Dockerfiles are detected by path patterns not via the Docker language
+    // Support will be implemented with SLCORE-526
     if (!isNotSonarLintContext(sensorContext.runtime())) {
       pathPatterns = p.or(
         pathPatterns,

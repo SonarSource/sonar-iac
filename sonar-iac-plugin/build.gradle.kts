@@ -42,6 +42,10 @@ dependencies {
 }
 
 // used to be done by sonar-packaging maven plugin
+// Plugin-RequiredForLanguages is not possible because of the way Docker files are detected
+// More details are mentioned in the DockerSensor
+// Technically .properties files are also a blocker here, but they not as important as Docker
+// For all other sensors / language it would be possible by using "bicep,json,yaml,terraform"
 tasks.jar {
     manifest {
         attributes(
