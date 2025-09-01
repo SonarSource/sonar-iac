@@ -88,8 +88,9 @@ tasks.shadowJar {
     } else {
         8_000_000L to 9_000_000L
     }
+    val logger = project.logger
     doLast {
-        enforceJarSize(archiveFile.get().asFile, minSize, maxSize)
+        enforceJarSize(archiveFile.get().asFile, minSize, maxSize, logger)
     }
 }
 

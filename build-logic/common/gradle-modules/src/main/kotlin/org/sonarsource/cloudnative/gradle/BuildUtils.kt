@@ -25,6 +25,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.file.FileOperations
+import org.gradle.api.logging.Logger
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Exec
 import org.gradle.internal.os.OperatingSystem
@@ -77,6 +78,7 @@ fun enforceJarSize(
     file: File,
     minSize: Long,
     maxSize: Long,
+    logger: Logger,
 ) {
     val size = file.length()
     if (size < minSize) {
@@ -84,6 +86,7 @@ fun enforceJarSize(
     } else if (size > maxSize) {
         throw GradleException("${file.path} size ($size) too large. Max is $maxSize")
     }
+    logger.info("Artifact ${file.name} has size $size")
 }
 
 fun checkJarEntriesPathUniqueness(file: File) {
