@@ -6,7 +6,7 @@ build_task:
   eks_container:
     dockerfile: build-logic/iac/Dockerfile
     cpu: 2
-    memory: 6G
+    memory: 8G
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       GO_VERSION: "1.23.4"
