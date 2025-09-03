@@ -14,50 +14,50 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.terraform.reports.tflint;
+package org.sonar.iac.cloudformation.reports;
 
+import org.sonar.iac.cloudformation.plugin.CfnLintRulesDefinition;
+import org.sonar.iac.cloudformation.plugin.CloudformationLanguage;
+import org.sonar.iac.cloudformation.plugin.CloudformationSettings;
 import org.sonar.iac.common.reports.AbstractExternalReportSensor;
 import org.sonar.iac.common.reports.AbstractExternalReportSensorTest;
-import org.sonar.iac.terraform.plugin.TFLintRulesDefinition;
-import org.sonar.iac.terraform.plugin.TerraformLanguage;
-import org.sonar.iac.terraform.plugin.TerraformSettings;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class TFLintSensorTest extends AbstractExternalReportSensorTest {
+class CfnLintSensorTest extends AbstractExternalReportSensorTest {
 
   @Override
   protected AbstractExternalReportSensor<?> getSensor() {
-    TFLintRulesDefinition rulesDefinition = getRulesDefinition();
-    return new TFLintSensor(rulesDefinition, null);
+    CfnLintRulesDefinition rulesDefinition = getRulesDefinition();
+    return new CfnLintSensor(rulesDefinition, null);
   }
 
   @Override
   protected String[] getExpectedLanguageKeys() {
-    return new String[] {TerraformLanguage.KEY};
+    return new String[] {CloudformationLanguage.KEY, "json", "yaml"};
   }
 
   @Override
   protected String getExpectedSensorName() {
-    return "IaC TFLint report Sensor";
+    return "IaC cfn-lint report Sensor";
   }
 
   @Override
   protected String getReportPropertyKey() {
-    return TerraformSettings.TFLINT_REPORTS_KEY;
+    return CloudformationSettings.CFN_LINT_REPORTS_KEY;
   }
 
   @Override
-  protected TFLintRulesDefinition getRulesDefinition() {
-    var rulesDefinition = mock(TFLintRulesDefinition.class);
+  protected CfnLintRulesDefinition getRulesDefinition() {
+    var rulesDefinition = mock(CfnLintRulesDefinition.class);
     when(rulesDefinition.getRuleLoader()).thenReturn(mock(ExternalRuleLoader.class));
     return rulesDefinition;
   }
 
   @Override
   protected Class<?> getExpectedImporterClass() {
-    return TFLintImporter.class;
+    return CfnLintImporter.class;
   }
 }

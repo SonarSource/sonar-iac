@@ -24,43 +24,21 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
-import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
 import org.sonar.iac.common.predicates.GithubActionsFilePredicate;
-import org.sonar.iac.common.reports.ExternalReportWildcardProvider;
-import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
-
-import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
 public class CloudformationSensor extends AbstractYamlLanguageSensor {
 
-  private final AnalysisWarningsWrapper analysisWarnings;
-  private final CfnLintRulesDefinition rulesDefinition;
-
   public CloudformationSensor(
     SonarRuntime sonarRuntime,
-    CfnLintRulesDefinition rulesDefinition,
     FileLinesContextFactory fileLinesContextFactory,
     CheckFactory checkFactory,
     NoSonarFilter noSonarFilter,
     CloudformationLanguage language) {
-    this(sonarRuntime, rulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter, language, NOOP_ANALYSIS_WARNINGS);
-  }
-
-  public CloudformationSensor(
-    SonarRuntime sonarRuntime,
-    CfnLintRulesDefinition rulesDefinition,
-    FileLinesContextFactory fileLinesContextFactory,
-    CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter,
-    CloudformationLanguage language,
-    AnalysisWarningsWrapper analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks());
-    this.analysisWarnings = analysisWarnings;
-    this.rulesDefinition = rulesDefinition;
   }
 
   @Override
@@ -77,12 +55,6 @@ public class CloudformationSensor extends AbstractYamlLanguageSensor {
   @Override
   protected String repositoryKey() {
     return CloudformationExtension.REPOSITORY_KEY;
-  }
-
-  @Override
-  protected void importExternalReports(SensorContext sensorContext) {
-    ExternalReportWildcardProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
-      .forEach(report -> new CfnLintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 
   @Override

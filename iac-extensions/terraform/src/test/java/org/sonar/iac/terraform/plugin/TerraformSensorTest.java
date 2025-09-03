@@ -43,8 +43,6 @@ import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPP
 
 class TerraformSensorTest extends ExtensionSensorTest {
 
-  private static final TFLintRulesDefinition tfLintRulesDefinition = new TFLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
-
   @Test
   void shouldReturnTerraformDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();

@@ -26,7 +26,7 @@ public abstract class AbstractExternalReportSensor<T extends AbstractJsonReportI
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
     sensorDescriptor
-      .onlyOnLanguage(getLanguageKey())
+      .onlyOnLanguages(getLanguageKeys())
       .name("IaC " + getName() + " Sensor");
   }
 
@@ -36,7 +36,7 @@ public abstract class AbstractExternalReportSensor<T extends AbstractJsonReportI
     getReportFiles(sensorContext).forEach(importer::importReport);
   }
 
-  protected abstract String getLanguageKey();
+  protected abstract String[] getLanguageKeys();
 
   protected abstract String getName();
 

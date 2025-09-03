@@ -34,7 +34,7 @@ public class CloudformationSettings {
   static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
 
-  static final String CFN_LINT_REPORTS_KEY = "sonar.cloudformation.cfn-lint.reportPaths";
+  public static final String CFN_LINT_REPORTS_KEY = "sonar.cloudformation.cfn-lint.reportPaths";
 
   private CloudformationSettings() {
   }

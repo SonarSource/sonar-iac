@@ -67,8 +67,8 @@ class AbstractExternalReportSensorTest {
     }
 
     @Override
-    protected String getLanguageKey() {
-      return "test-lang";
+    protected String[] getLanguageKeys() {
+      return new String[] {"test-lang"};
     }
 
     @Override

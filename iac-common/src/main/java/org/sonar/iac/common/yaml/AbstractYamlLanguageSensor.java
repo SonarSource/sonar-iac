@@ -40,7 +40,7 @@ import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 
 public abstract class AbstractYamlLanguageSensor extends IacSensor {
 
-  protected static final String JSON_LANGUAGE_KEY = "json";
+  public static final String JSON_LANGUAGE_KEY = "json";
   public static final String YAML_LANGUAGE_KEY = "yaml";
   public static final String FILE_SEPARATOR = "---";
 

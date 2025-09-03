@@ -166,7 +166,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, cfnLintRulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter,
+    return new CloudformationSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
       new CloudformationLanguage());
   }
 
