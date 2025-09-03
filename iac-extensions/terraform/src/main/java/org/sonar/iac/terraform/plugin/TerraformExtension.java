@@ -21,11 +21,11 @@ import java.util.List;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.iac.terraform.reports.tflint.TFLintSensor;
 
 public class TerraformExtension {
 
   public static final String REPOSITORY_KEY = "terraform";
-  public static final String REPOSITORY_NAME = "SonarQube";
 
   private TerraformExtension() {
   }
@@ -45,7 +45,9 @@ public class TerraformExtension {
     List<PropertyDefinition> properties = new ArrayList<>(TerraformSettings.getGeneralProperties());
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
-      context.addExtension(TFLintRulesDefinition.class);
+      context.addExtensions(
+        TFLintRulesDefinition.class,
+        TFLintSensor.class);
       properties.addAll(TerraformSettings.getExternalReportProperties());
     } else {
       // We do not import external reports in SonarLint so no need to define the tflint rules.

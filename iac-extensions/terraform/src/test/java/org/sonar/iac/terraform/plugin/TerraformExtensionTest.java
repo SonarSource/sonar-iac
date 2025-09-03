@@ -43,7 +43,7 @@ class TerraformExtensionTest extends AbstractExtensionTest {
 
   @Override
   protected int extensionsCountOnSQ() {
-    return 11;
+    return 12;
   }
 
   @Override

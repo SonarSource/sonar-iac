@@ -30,37 +30,23 @@ import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.common.reports.ExternalReportWildcardProvider;
-import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
 import org.sonar.iac.terraform.parser.HclParser;
-import org.sonar.iac.terraform.reports.tflint.TFLintImporter;
 import org.sonar.iac.terraform.visitors.TerraformChecksVisitor;
 import org.sonar.iac.terraform.visitors.TerraformHighlightingVisitor;
 import org.sonar.iac.terraform.visitors.TerraformMetricsVisitor;
-
-import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
 public class TerraformSensor extends IacSensor {
 
   private final Checks<IacCheck> checks;
   private final TerraformProviders providerVersions;
-  private final AnalysisWarningsWrapper analysisWarnings;
-  private final TFLintRulesDefinition rulesDefinition;
 
-  public TerraformSensor(SonarRuntime sonarRuntime, TFLintRulesDefinition rulesDefinition, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+  public TerraformSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions) {
-    this(sonarRuntime, rulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter, language, providerVersions, NOOP_ANALYSIS_WARNINGS);
-  }
-
-  public TerraformSensor(SonarRuntime sonarRuntime, TFLintRulesDefinition rulesDefinition, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions, AnalysisWarningsWrapper analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(TerraformCheckList.checks());
     this.providerVersions = providerVersions;
-    this.rulesDefinition = rulesDefinition;
-    this.analysisWarnings = analysisWarnings;
   }
 
   @Override
@@ -71,12 +57,6 @@ public class TerraformSensor extends IacSensor {
   @Override
   protected String repositoryKey() {
     return TerraformExtension.REPOSITORY_KEY;
-  }
-
-  @Override
-  protected void importExternalReports(SensorContext sensorContext) {
-    ExternalReportWildcardProvider.getReportFiles(sensorContext, TerraformSettings.TFLINT_REPORTS_KEY)
-      .forEach(report -> new TFLintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 
   @Override
