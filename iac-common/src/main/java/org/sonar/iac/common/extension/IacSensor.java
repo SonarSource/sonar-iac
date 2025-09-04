@@ -86,10 +86,6 @@ public abstract class IacSensor implements Sensor {
       return;
     }
 
-    if (isNotSonarLintContext(sensorContext.runtime())) {
-      importExternalReports(sensorContext);
-    }
-
     initContext(sensorContext);
 
     sensorTelemetry = new SensorTelemetry();
@@ -119,10 +115,6 @@ public abstract class IacSensor implements Sensor {
     return fileSystem.predicates().and(
       fileSystem.predicates().hasLanguage(languageKey()),
       fileSystem.predicates().hasType(InputFile.Type.MAIN));
-  }
-
-  protected void importExternalReports(SensorContext sensorContext) {
-    // Default is to do nothing. A child-sensor that does require importing external reports should override this.
   }
 
   public static boolean isNotSonarLintContext(SonarRuntime sonarRuntime) {

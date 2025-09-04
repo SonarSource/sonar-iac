@@ -42,8 +42,6 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   private static final String PARSING_ERROR_KEY = "S2260";
 
-  private final CfnLintRulesDefinition cfnLintRulesDefinition = new CfnLintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
-
   @Test
   void yamlFileWithRecursiveAnchorReferenceShouldRaiseParsingIssue() {
     analyze(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("loop.yaml",

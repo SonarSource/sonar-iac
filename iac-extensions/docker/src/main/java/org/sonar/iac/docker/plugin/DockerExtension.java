@@ -21,6 +21,7 @@ import java.util.List;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.iac.docker.reports.hadolint.HadolintSensor;
 
 public class DockerExtension {
   public static final String REPOSITORY_KEY = "docker";
@@ -42,7 +43,9 @@ public class DockerExtension {
     List<PropertyDefinition> properties = new ArrayList<>(DockerSettings.getGeneralProperties());
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
-      context.addExtension(HadolintRulesDefinition.class);
+      context.addExtensions(
+        HadolintRulesDefinition.class,
+        HadolintSensor.class);
       properties.addAll(DockerSettings.getExternalReportProperties());
     } else {
       // We do not import external reports in SonarLint so no need to define the Hadolint rules.

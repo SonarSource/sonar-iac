@@ -44,8 +44,6 @@ import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPP
 
 class DockerSensorTest extends ExtensionSensorTest {
 
-  private final HadolintRulesDefinition hadolintRulesDefinition = new HadolintRulesDefinition(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION);
-
   @Test
   void shouldReturnDockerDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
@@ -170,7 +168,6 @@ class DockerSensorTest extends ExtensionSensorTest {
   protected Sensor sensor(CheckFactory checkFactory, MapSettings settings) {
     return new DockerSensor(
       SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
-      hadolintRulesDefinition,
       fileLinesContextFactory,
       checkFactory,
       noSonarFilter,
@@ -240,7 +237,6 @@ class DockerSensorTest extends ExtensionSensorTest {
   private DockerSensor sonarLintSensor(String... rules) {
     return new DockerSensor(
       SONARLINT_RUNTIME_9_9,
-      hadolintRulesDefinition,
       fileLinesContextFactory,
       checkFactory(sonarLintContext, rules),
       noSonarFilter,

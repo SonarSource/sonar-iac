@@ -14,49 +14,49 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.cloudformation.reports;
+package org.sonar.iac.docker.reports.hadolint;
 
-import org.sonar.iac.cloudformation.plugin.CfnLintRulesDefinition;
-import org.sonar.iac.cloudformation.plugin.CloudformationSettings;
 import org.sonar.iac.common.reports.AbstractExternalReportSensor;
 import org.sonar.iac.common.reports.AbstractExternalReportSensorTest;
+import org.sonar.iac.docker.plugin.DockerSettings;
+import org.sonar.iac.docker.plugin.HadolintRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class CfnLintSensorTest extends AbstractExternalReportSensorTest {
+class HadolintSensorTest extends AbstractExternalReportSensorTest {
 
   @Override
   protected AbstractExternalReportSensor<?> getSensor() {
-    CfnLintRulesDefinition rulesDefinition = getRulesDefinition();
-    return new CfnLintSensor(rulesDefinition, null);
+    var rulesDefinition = getRulesDefinition();
+    return new HadolintSensor(rulesDefinition, null);
   }
 
   @Override
   protected String[] getExpectedLanguageKeys() {
-    return new String[] {"json", "yaml", "cloudformation"};
+    return new String[] {};
   }
 
   @Override
   protected String getExpectedSensorName() {
-    return "IaC cfn-lint report Sensor";
+    return "IaC hadolint report Sensor";
   }
 
   @Override
   protected String getReportPropertyKey() {
-    return CloudformationSettings.CFN_LINT_REPORTS_KEY;
+    return DockerSettings.HADOLINT_REPORTS_KEY;
   }
 
   @Override
-  protected CfnLintRulesDefinition getRulesDefinition() {
-    var rulesDefinition = mock(CfnLintRulesDefinition.class);
+  protected HadolintRulesDefinition getRulesDefinition() {
+    var rulesDefinition = mock(HadolintRulesDefinition.class);
     when(rulesDefinition.getRuleLoader()).thenReturn(mock(ExternalRuleLoader.class));
     return rulesDefinition;
   }
 
   @Override
   protected Class<?> getExpectedImporterClass() {
-    return CfnLintImporter.class;
+    return HadolintImporter.class;
   }
 }

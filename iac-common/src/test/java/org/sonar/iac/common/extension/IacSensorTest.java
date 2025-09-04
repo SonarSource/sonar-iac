@@ -408,16 +408,6 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void shouldNotImportExternalReportsInSonarLintContext() {
-    IacSensor sensor = sensor();
-    sensor.execute(context);
-    assertThat(((TestIacSensor) sensor).didImportExternalReports).isTrue();
-    sensor = sensor();
-    sensor.execute(sonarLintContext);
-    assertThat(((TestIacSensor) sensor).didImportExternalReports).isFalse();
-  }
-
-  @Test
   void shouldIncludeStackTraceInLogsWhenIssueIsReportedOnInvalidLineOffset() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
@@ -514,7 +504,6 @@ class IacSensorTest extends AbstractSensorTest {
   class TestIacSensor extends IacSensor {
     private final TreeParser<Tree> treeParser;
     private CheckFactory checkFactory;
-    private boolean didImportExternalReports = false;
 
     protected TestIacSensor(SonarRuntime sonarRuntime,
       FileLinesContextFactory fileLinesContextFactory,
@@ -546,11 +535,6 @@ class IacSensorTest extends AbstractSensorTest {
     @Override
     protected String getActivationSettingKey() {
       return "testsensor.active";
-    }
-
-    @Override
-    protected void importExternalReports(SensorContext sensorContext) {
-      didImportExternalReports = true;
     }
   }
 

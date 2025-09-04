@@ -23,7 +23,7 @@ import org.sonar.api.resources.AbstractLanguage;
 // AbstractLanguage#equals() should still be used
 @SuppressWarnings("java:S2160")
 public class DockerLanguage extends AbstractLanguage {
-  static final String KEY = "docker";
+  public static final String KEY = "docker";
   static final String NAME = "Docker";
   private final Configuration settings;
 

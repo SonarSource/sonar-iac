@@ -35,45 +35,24 @@ import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.common.reports.ExternalReportWildcardProvider;
-import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
-import org.sonar.iac.docker.reports.hadolint.HadolintImporter;
 import org.sonar.iac.docker.visitors.DockerHighlightingVisitor;
 import org.sonar.iac.docker.visitors.DockerMetricsVisitor;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
-import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
-
 public class DockerSensor extends IacSensor {
   private final Checks<IacCheck> checks;
-  private final AnalysisWarningsWrapper analysisWarnings;
-  private final HadolintRulesDefinition rulesDefinition;
 
   public DockerSensor(
     SonarRuntime sonarRuntime,
-    HadolintRulesDefinition rulesDefinition,
     FileLinesContextFactory fileLinesContextFactory,
     CheckFactory checkFactory,
     NoSonarFilter noSonarFilter,
     DockerLanguage language) {
-    this(sonarRuntime, rulesDefinition, fileLinesContextFactory, checkFactory, noSonarFilter, language, NOOP_ANALYSIS_WARNINGS);
-  }
-
-  public DockerSensor(
-    SonarRuntime sonarRuntime,
-    HadolintRulesDefinition rulesDefinition,
-    FileLinesContextFactory fileLinesContextFactory,
-    CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter,
-    DockerLanguage language,
-    AnalysisWarningsWrapper analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(DockerCheckList.checks());
-    this.analysisWarnings = analysisWarnings;
-    this.rulesDefinition = rulesDefinition;
   }
 
   @Override
@@ -129,12 +108,6 @@ public class DockerSensor extends IacSensor {
   @Override
   protected String repositoryKey() {
     return DockerExtension.REPOSITORY_KEY;
-  }
-
-  @Override
-  protected void importExternalReports(SensorContext sensorContext) {
-    ExternalReportWildcardProvider.getReportFiles(sensorContext, DockerSettings.HADOLINT_REPORTS_KEY)
-      .forEach(report -> new HadolintImporter(sensorContext, rulesDefinition, analysisWarnings).importReport(report));
   }
 
   @Override

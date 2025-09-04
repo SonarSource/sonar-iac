@@ -43,7 +43,7 @@ class DockerExtensionTest extends AbstractExtensionTest {
 
   @Override
   protected int extensionsCountOnSQ() {
-    return 8;
+    return 9;
   }
 
   @Override
