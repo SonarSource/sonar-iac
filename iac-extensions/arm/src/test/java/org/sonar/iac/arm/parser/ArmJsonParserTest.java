@@ -54,4 +54,18 @@ class ArmJsonParserTest {
     // assertThat(scalar.textRange()).hasRange(2, 12, 2, 25);
   }
 
+  @Test
+  void multilineStringsWithEmojisShouldHaveCorrectTextRange() {
+    var parser = new ArmJsonParser();
+    var file = parser.parseJson("""
+      {
+        "key1": "🧩📝🚀",
+        "key2": "🧩 line1 📝
+          🔍 line2 🚀"
+      }
+      """);
+    ScalarTree scalar = (ScalarTree) ((MappingTree) file.documents().get(0)).elements().get(1).value();
+    assertThat(scalar.value()).isEqualTo("\uD83E\uDDE9 line1 \uD83D\uDCDD\n    \uD83D\uDD0D line2 \uD83D\uDE80");
+  }
+
 }

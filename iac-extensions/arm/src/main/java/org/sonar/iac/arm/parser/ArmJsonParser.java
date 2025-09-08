@@ -92,7 +92,9 @@ public class ArmJsonParser implements TreeParser<Tree> {
     }
 
     private String originalStringValue(YamlTreeMetadata metadata) {
-      return source.substring(metadata.startPointer() + 1, metadata.endPointer() - 1);
+      var effectiveBeginIdx = source.offsetByCodePoints(0, metadata.startPointer() + 1);
+      var effectiveEndIdx = source.offsetByCodePoints(effectiveBeginIdx, metadata.endPointer() - 1 - metadata.startPointer() - 1);
+      return source.substring(effectiveBeginIdx, effectiveEndIdx);
     }
 
     private static boolean isMultilineScalar(YamlTreeMetadata metadata) {
