@@ -108,3 +108,6 @@ output outputStillUnused2 string = usedInOutput3['unusedVariable'].unusedVariabl
 output outputStillUnused3 array = [for i in range(0, 5): {
   unusedVariable: 'foo'
 }]
+
+@export()
+var unusedCompliant = 'bar' // Compliant: exported variables are considered used

@@ -17,7 +17,11 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.bicep.Declaration;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 
 @Rule(key = "S1481")
 public class UnusedVariablesCheck extends AbstractUnusedSymbolCheck {
@@ -25,6 +29,16 @@ public class UnusedVariablesCheck extends AbstractUnusedSymbolCheck {
   @Override
   ArmTree.Kind declarationKind() {
     return ArmTree.Kind.VARIABLE_DECLARATION;
+  }
+
+  @Override
+  protected boolean shouldIgnoreUnused(Declaration declaration) {
+    if (declaration instanceof HasDecorators hasDecorators) {
+      return hasDecorators.decorators().stream()
+        .map(Decorator::expression)
+        .anyMatch(CheckUtils.isFunctionCall("export"));
+    }
+    return false;
   }
 
   @Override

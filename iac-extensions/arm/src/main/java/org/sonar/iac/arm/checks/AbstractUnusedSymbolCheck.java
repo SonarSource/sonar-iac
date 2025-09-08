@@ -40,7 +40,7 @@ abstract class AbstractUnusedSymbolCheck implements IacCheck {
     if (symbolTable != null && !symbolTable.hasFoundUnresolvableSymbolAccess()) {
       symbolTable.getSymbols().forEach(symbol -> {
         var declaration = symbol.findAssignmentDeclaration();
-        if (declaration != null && declarationKind() == declaration.getKind() && symbol.isUnused()) {
+        if (declaration != null && declarationKind() == declaration.getKind() && symbol.isUnused() && !shouldIgnoreUnused(declaration)) {
           reportOnDeclaration(checkContext, declaration);
         }
       });
@@ -49,5 +49,9 @@ abstract class AbstractUnusedSymbolCheck implements IacCheck {
 
   private void reportOnDeclaration(CheckContext checkContext, Declaration declaration) {
     checkContext.reportIssue(declaration.declaratedName(), MESSAGE.formatted(typeOfSymbol(), declaration.declaratedName().value()));
+  }
+
+  protected boolean shouldIgnoreUnused(Declaration declaration) {
+    return false;
   }
 }
