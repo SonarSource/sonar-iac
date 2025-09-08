@@ -16,10 +16,8 @@
  */
 package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
@@ -100,7 +98,7 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "tracing.zipkin.http.proxy-password",
     "tracing.jaeger.sender.auth-password",
     "otel.exporter.zipkin.proxy-password");
-  private static final List<String> SENSITIVE_KEYS_REGEX = List.of(
+  private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
     "micronaut.http.services.[^.]++.proxy-password",
     "micronaut.http.services.[^.]++.ssl.key.password",
     "micronaut.http.services.[^.]++.ssl.key-store.password",
@@ -129,23 +127,20 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
   // Extra use case: combine both wildcard in the key and URL with password in value
   private static final Pattern PATTERN_SENSITIVE_RABBITMQ_PROPERTY = Pattern.compile("rabbitmq.servers.[^.]++.uri");
 
-  // Compiling patterns together is ~35% faster than checking patterns individually
-  private static final Predicate<String> PREDICATE_SENSITIVE_KEY_FULL_REGEX = Pattern.compile(String.join("|", SENSITIVE_KEYS_REGEX)).asMatchPredicate();
-
   @Override
   protected Set<String> sensitiveKeys() {
     return SENSITIVE_KEYS;
   }
 
   @Override
-  protected void checkTuple(CheckContext ctx, Tuple tuple) {
+  protected Set<String> sensitiveKeyPatterns() {
+    return SENSITIVE_KEY_PATTERNS;
+  }
+
+  @Override
+  protected void checkTupleWithAdditionalPatterns(CheckContext ctx, Tuple tuple) {
     var key = tuple.key().value().value();
-    if (sensitiveKeys().contains(key) || PREDICATE_SENSITIVE_KEY_FULL_REGEX.test(key)) {
-      var valueString = getStringValue(tuple);
-      if (valueString != null) {
-        checkValue(ctx, tuple, valueString);
-      }
-    } else if (SENSITIVE_KEYS_WITH_PATTERN_VALUE.containsKey(key)) {
+    if (SENSITIVE_KEYS_WITH_PATTERN_VALUE.containsKey(key)) {
       var pattern = SENSITIVE_KEYS_WITH_PATTERN_VALUE.get(key);
       checkValueWithPattern(ctx, pattern, tuple);
     } else {

@@ -93,8 +93,22 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "management.wavefront.api-token",
     "spring.devtools.remote.secret");
 
+  private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
+    "spring.ai.([^.]++.)+password",
+    "spring.ai.([^.]++.)+api-key",
+    "spring.ai.([^.]++.)+api.key",
+    "spring.ai.([^.]++.)+apiKey",
+    "spring.ai.([^.]++.)+secret-key",
+    "spring.ai.([^.]++.)+key-token",
+    "spring.ai.([^.]++.)+passPhrase");
+
   @Override
   protected Set<String> sensitiveKeys() {
     return SENSITIVE_KEYS;
+  }
+
+  @Override
+  protected Set<String> sensitiveKeyPatterns() {
+    return SENSITIVE_KEY_PATTERNS;
   }
 }
