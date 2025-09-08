@@ -679,7 +679,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   private void assertNoSourceFileIsParsed() {
-    assertNSourceFileIsParsed(0);
+    assertThat(logTester.logs(Level.INFO)).contains("There are no files to be analyzed for the Kubernetes language");
   }
 
   private void assertOneSourceFileIsParsed() {

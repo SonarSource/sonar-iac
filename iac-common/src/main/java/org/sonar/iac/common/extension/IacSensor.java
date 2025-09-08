@@ -18,6 +18,8 @@ package org.sonar.iac.common.extension;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -35,6 +37,8 @@ import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
 public abstract class IacSensor implements Sensor {
+
+  private static final Logger LOG = LoggerFactory.getLogger(IacSensor.class);
 
   public static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
   public static final String EXTENDED_LOGGING_PROPERTY_NAME = "sonar.internal.iac.extendedLogging";
@@ -91,6 +95,10 @@ public abstract class IacSensor implements Sensor {
     sensorTelemetry = new SensorTelemetry();
     var statistics = new DurationStatistics(sensorContext.config());
     List<InputFile> inputFiles = inputFiles(sensorContext, statistics);
+    if (inputFiles.isEmpty()) {
+      LOG.info("There are no files to be analyzed for the {} language", languageName());
+      return;
+    }
     var analyzer = createAnalyzer(sensorContext, statistics);
     analyzer.analyseFiles(sensorContext, inputFiles, languageName());
     statistics.log();

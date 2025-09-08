@@ -138,7 +138,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).hasSize(1);
     assertThat(logs.get(0)).contains("Identified as Github file: .github/workflows/deploy.yaml");
-    assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed", "0/0 source files have been analyzed");
+    assertThat(logTester.logs(Level.INFO)).contains("There are no files to be analyzed for the CloudFormation language");
     verifyLinesOfCodeTelemetry(0);
   }
 
@@ -146,11 +146,9 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   void shouldLogPredicateInDurationStatistics() {
     settings.setProperty("sonar.iac.duration.statistics", "true");
 
-    InputFile jvmFile = inputFile("file.json", "");
-
-    analyze(sensor(checkFactory()), jvmFile);
+    analyze(sensor(checkFactory()), validFile());
     assertThat(durationStatisticLog()).contains("CloudFormationFilePredicate", "CloudFormationNotGithubActionsFilePredicate");
-    verifyLinesOfCodeTelemetry(0);
+    verifyLinesOfCodeTelemetry(1);
   }
 
   private CloudformationSensor sensor(String... rules) {

@@ -107,6 +107,16 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
+  void testNoFile() {
+    analyze(sensor(checkFactory("S2260")));
+
+    assertThat(logTester.logs()).containsExactly("There are no files to be analyzed for the %s language".formatted(IacLanguage.IAC.getName()));
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(context.allAnalysisErrors()).isEmpty();
+    verifyLinesOfCodeTelemetry(0);
+  }
+
+  @Test
   void testEmptyFile() {
     analyze(sensor("S2260"), inputFile("emptyFile.iac", ""));
 
