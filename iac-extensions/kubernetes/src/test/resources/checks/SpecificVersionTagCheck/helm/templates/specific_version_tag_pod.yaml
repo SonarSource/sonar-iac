@@ -24,5 +24,22 @@ spec:
       # Noncompliant@+1
       image: "{{ .Values.pureImageName }}:{{ .Values.latestTag }}"
 #                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    - name: non_compliant_split_image_with_unresolved_image_name
+      # Noncompliant@+1
+      image: "{{ .Values.unresolvedImageName }}:latest"
+
     - name: compliant_split_image
       image: {{ .Values.pureImageName }}:{{ .Values.specifiedTag }}
+
+    - name: compliant_unresolved_image
+      image: {{ .Values.unresolvedImage }}
+
+    - name: compliant_unresolved_tag
+      image: "nginx:{{ .Values.unresolvedTag }}"
+
+    - name: compliant_unresolved_image_name
+      image: "{{ .Values.unresolvedImageName }}:1.14.2"
+
+    - name: compliant_unresolved_split_image
+      image: "{{ .Values.unresolvedImageName }}:{{ .Values.unresolvedTag }}"

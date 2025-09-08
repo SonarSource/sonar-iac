@@ -25,9 +25,6 @@ spec:
       image: nginx:$VAR
 
     - name: compliant_should_not_fail_and_raise_2
-      image: :latest
-
-    - name: compliant_should_not_fail_and_raise_2
       image: ":"
 
     - name: non_compliant_without_tag

@@ -29,6 +29,7 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
   private static final String MESSAGE = "Use a specific version tag for the image.";
   protected static final String KIND_POD = "Pod";
   protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
+  private static final Predicate<YamlTree> SENSITIVE_VERSION_TAG_PREDICATE = tree -> TextUtils.matchesValue(tree, SpecificVersionTagCheck::hasSensitiveVersionTag).isTrue();
 
   @Override
   protected void registerObjectCheck() {
@@ -36,7 +37,7 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
     register(KIND_WITH_TEMPLATE, document -> checkDocument(document, true));
   }
 
-  private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
+  private static void checkDocument(BlockObject document, boolean isKindWithTemplate) {
     Stream<BlockObject> containers;
 
     if (isKindWithTemplate) {
@@ -46,23 +47,20 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
     }
     containers
       .map(container -> container.attribute("image"))
-      .forEach(image -> image.reportIfValue(hasSensitiveVersionTag(), MESSAGE));
-  }
-
-  protected Predicate<YamlTree> hasSensitiveVersionTag() {
-    return tree -> TextUtils.matchesValue(tree, SpecificVersionTagCheck::hasSensitiveVersionTag).isTrue();
+      .forEach(image -> image.reportIfValue(SENSITIVE_VERSION_TAG_PREDICATE, MESSAGE));
   }
 
   private static boolean hasSensitiveVersionTag(String fullImageName) {
-    if (fullImageName.contains("@")) {
+    if (fullImageName.isBlank() || fullImageName.contains("@")) {
+      // image name is empty, unresolved with Helm, or using digest: do not raise an issue
       return false;
-    } else if (fullImageName.contains(":")) {
+    }
+    if (fullImageName.contains(":")) {
       // raise an issue if the version tag is "latest"
       String[] splitImageName = fullImageName.split(":");
-      return splitImageName.length > 1 && "latest".equals(splitImageName[1]) && !splitImageName[0].isBlank();
-    } else {
-      // no version tag specified, kubernetes assumes "latest"
-      return !fullImageName.startsWith("$");
+      return splitImageName.length > 1 && "latest".equals(splitImageName[1]);
     }
+    // no version tag specified, kubernetes assumes "latest"
+    return !fullImageName.startsWith("$");
   }
 }
