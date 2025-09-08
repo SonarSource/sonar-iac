@@ -52,7 +52,7 @@ analysis_sqc_eu_shadow_task:
   <<: *BASE_ANALYSIS
   alias: analysis_sqc_eu_shadow
   name: "Analysis on Sonarcloud.io"
-  only_if: ($CIRRUS_CRON == $CRON_NIGHTLY_JOB_NAME && $CIRRUS_BRANCH == "master") || $CIRRUS_PR_LABELS =~ \".*shadow_scan.*\""
+  only_if: ($CIRRUS_CRON == $CRON_NIGHTLY_JOB_NAME && $CIRRUS_BRANCH == "master") || $CIRRUS_PR_LABELS =~ ".*shadow_scan.*"
   env:
     SONAR_TOKEN: VAULT[development/kv/data/sonarcloud data.token]
     SONAR_HOST_URL: https://sonarcloud.io
@@ -62,7 +62,7 @@ analysis_sqc_us_shadow_task:
   <<: *BASE_ANALYSIS
   alias: analysis_sqc_us_shadow
   name: "Analysis on SonarQube.us"
-  only_if: ($CIRRUS_CRON == $CRON_NIGHTLY_JOB_NAME && $CIRRUS_BRANCH == "master") || $CIRRUS_PR_LABELS =~ \".*shadow_scan.*\""
+  only_if: ($CIRRUS_CRON == $CRON_NIGHTLY_JOB_NAME && $CIRRUS_BRANCH == "master") || $CIRRUS_PR_LABELS =~ ".*shadow_scan.*"
   env:
     SONAR_TOKEN: VAULT[development/kv/data/sonarqube-us data.token]
     SONAR_HOST_URL: https://sonarqube.us
