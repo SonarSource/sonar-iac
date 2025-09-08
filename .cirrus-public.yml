@@ -1,8 +1,7 @@
 env:
   CIRRUS_SHELL: bash
 
-build_task:
-  skip: $CIRRUS_BRANCH == "public_master"
+build_container_definition: &BUILD_CONTAINER_DEFINITION
   eks_container:
     dockerfile: build-logic/iac/Dockerfile
     cpu: 2
@@ -18,11 +17,13 @@ build_task:
     region: eu-central-1
     namespace: default
     use_in_memory_disk: true
+
+base_analysis_template: &BASE_ANALYSIS
+  <<: *BUILD_CONTAINER_DEFINITION
   env:
-    SONAR_HOST_URL: https://sonarcloud.io
-    SONAR_TOKEN: ENCRYPTED[!7a28d43095ea7e33c5e581fa3a6592ed0ac609d512213590cf41ce096e0849f360eb2f0881d7728f30cb148bed866ca5!]
     GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
     GRADLE_VERSION: "8.12"
+    CRON_NIGHTLY_JOB_NAME: "nightly"
   gradle_cache:
     folder: ${GRADLE_USER_HOME}/caches
     fingerprint_script: find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs cat
@@ -36,3 +37,33 @@ build_task:
     rm -rf "${GRADLE_USER_HOME}"/caches/transforms-*
     rm -rf "${GRADLE_USER_HOME}"/caches/journal-*
     /usr/bin/find "${GRADLE_USER_HOME}"/caches/ -name "*.lock" -type f -delete
+
+# primary analysis
+build_task:
+  <<: *BASE_ANALYSIS
+  alias: analysis_next
+  name: "Build and analysis on SonarQube NEXT"
+  env:
+    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    SONAR_PROJECT_KEY: SonarSource_sonar-iac
+
+analysis_sqc_eu_shadow_task:
+  <<: *BASE_ANALYSIS
+  alias: analysis_sqc_eu_shadow
+  name: "Analysis on Sonarcloud.io"
+  only_if: ($CIRRUS_CRON == $CRON_NIGHTLY_JOB_NAME && $CIRRUS_BRANCH == "master") || $CIRRUS_PR_LABELS =~ \".*shadow_scan.*\""
+  env:
+    SONAR_TOKEN: VAULT[development/kv/data/sonarcloud data.token]
+    SONAR_HOST_URL: https://sonarcloud.io
+    SONAR_PROJECT_KEY: SonarSource_sonar-iac
+
+analysis_sqc_us_shadow_task:
+  <<: *BASE_ANALYSIS
+  alias: analysis_sqc_us_shadow
+  name: "Analysis on SonarQube.us"
+  only_if: ($CIRRUS_CRON == $CRON_NIGHTLY_JOB_NAME && $CIRRUS_BRANCH == "master") || $CIRRUS_PR_LABELS =~ \".*shadow_scan.*\""
+  env:
+    SONAR_TOKEN: VAULT[development/kv/data/sonarqube-us data.token]
+    SONAR_HOST_URL: https://sonarqube.us
+    SONAR_PROJECT_KEY: SonarSource_sonar-iac
