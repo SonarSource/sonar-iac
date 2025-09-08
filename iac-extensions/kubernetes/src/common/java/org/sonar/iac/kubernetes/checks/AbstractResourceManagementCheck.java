@@ -67,7 +67,7 @@ public abstract class AbstractResourceManagementCheck<T extends ProjectResource>
   protected Collection<T> getGlobalResources(BlockObject document) {
     var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
     var inputFileContext = ((KubernetesCheckContext) document.ctx).inputFileContext();
-    return projectContext.getProjectResources(namespace, inputFileContext, getGlobalResourceType());
+    return projectContext.getNamespaceProjectResources(namespace, inputFileContext, getGlobalResourceType());
   }
 
   static boolean isSet(@Nullable String value) {

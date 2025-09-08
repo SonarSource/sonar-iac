@@ -30,6 +30,12 @@ public abstract class AbstractGlobalResourceCheck extends AbstractKubernetesObje
   protected <T extends ProjectResource> Set<T> findGlobalResources(Class<T> clazz, String namespace, BlockObject document) {
     var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
     var inputFileContext = ((KubernetesCheckContext) document.ctx).inputFileContext();
-    return projectContext.getProjectResources(namespace, inputFileContext, clazz);
+    return projectContext.getNamespaceProjectResources(namespace, inputFileContext, clazz);
+  }
+
+  protected <T extends ProjectResource> Set<T> findGlobalResources(Class<T> clazz, BlockObject document) {
+    var projectContext = ((KubernetesCheckContext) document.ctx).projectContext();
+    var inputFileContext = ((KubernetesCheckContext) document.ctx).inputFileContext();
+    return projectContext.getProjectResources(inputFileContext, clazz);
   }
 }

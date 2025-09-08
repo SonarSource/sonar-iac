@@ -42,6 +42,9 @@ class AutomountServiceAccountTokenCheckTest {
   @CsvSource(value = {
     "RoleBinding/service_account_role_bonded_token_pod_linked.yaml,RoleBinding/role_binding_service_token.yaml",
     "ClusterRoleBinding/service_account_role_bonded_token_pod_linked.yaml,ClusterRoleBinding/role_binding_service_token.yaml",
+    "ClusterRoleBindingDifferentNamespace/service_account_role_bonded_token_pod_linked.yaml,ClusterRoleBindingDifferentNamespace/role_binding_service_token.yaml",
+    "ClusterRoleBindingNoNamespace/service_account_role_bonded_token_pod_linked.yaml,ClusterRoleBindingNoNamespace/role_binding_service_token.yaml",
+    "ClusterRoleBindingNoNamespaceOneSideOnly/service_account_role_bonded_token_pod_linked.yaml,ClusterRoleBindingNoNamespaceOneSideOnly/role_binding_service_token.yaml",
     "ServiceAccountLinkedInSubfolder/automount_service_account_token_pod_linked.yaml,ServiceAccountLinkedInSubfolder/subfolder/linked_account_service_token.yaml",
     "ServiceAccountLinkedNoNamespace/automount_service_account_token_pod_linked.yaml,ServiceAccountLinkedNoNamespace/linked_account_service_token.yaml",
     "ServiceAccountLinkedSameNamespace/automount_service_account_token_pod_linked.yaml,ServiceAccountLinkedSameNamespace/linked_account_service_token.yaml",

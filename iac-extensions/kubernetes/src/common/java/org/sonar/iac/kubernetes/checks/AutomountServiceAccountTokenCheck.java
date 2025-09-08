@@ -94,16 +94,21 @@ public class AutomountServiceAccountTokenCheck extends AbstractGlobalResourceChe
   }
 
   private boolean hasAnyBoundRole(BlockObject document, String namespace, @Nullable String accountName) {
-    var roleBindings = findGlobalResources(RoleBinding.class, namespace, document);
-    var clusterRoleBindings = findGlobalResources(ClusterRoleBinding.class, namespace, document);
+    var roleBindingsSameNamespace = findGlobalResources(RoleBinding.class, namespace, document);
+    var clusterRoleBindingsAnyNamespace = findGlobalResources(ClusterRoleBinding.class, document);
     Stream<Subject> subjects = Stream.concat(
-      roleBindings.stream().flatMap(roleBinding -> roleBinding.subjects().stream()),
-      clusterRoleBindings.stream().flatMap(clusterRoleBinding -> clusterRoleBinding.subjects().stream()));
+      roleBindingsSameNamespace.stream().flatMap(roleBinding -> roleBinding.subjects().stream()),
+      clusterRoleBindingsAnyNamespace.stream().flatMap(clusterRoleBinding -> clusterRoleBinding.subjects().stream()));
     return subjects.anyMatch(subject -> isValidSubject(subject, namespace, accountName));
   }
 
   private static boolean isValidSubject(Subject subject, String namespace, @Nullable String accountName) {
-    return "ServiceAccount".equals(subject.kind()) && namespace.equals(subject.namespace()) && accountName != null && accountName.equals(subject.name());
+    return "ServiceAccount".equals(subject.kind()) && isSubjectNamespaceEqual(subject, namespace) && accountName != null && accountName.equals(subject.name());
+  }
+
+  private static boolean isSubjectNamespaceEqual(Subject subject, String namespace) {
+    return namespace.equals(subject.namespace())
+      || (subject.namespace() == null && namespace.isEmpty());
   }
 
   private static void reportIssueWithLinkedAccount(AttributeObject accountNameAttribute, ServiceAccount linkedAccount) {

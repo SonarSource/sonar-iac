@@ -30,7 +30,12 @@ public interface ProjectContext {
    * This means that the resources can be in the same file, or in the same directory, or in the descendant directories, but not in the ancestor directories.<br/>
    * If the file is part of a Helm project, all files inside the project are accessible. The location of the Chart.yaml serves as the root directory of the project.
    */
-  <T extends ProjectResource> Set<T> getProjectResources(String namespace, InputFileContext inputFileContext, Class<T> clazz);
+  <T extends ProjectResource> Set<T> getNamespaceProjectResources(String namespace, InputFileContext inputFileContext, Class<T> clazz);
+
+  /**
+   * Similar to the method {@link #getNamespaceProjectResources(String, InputFileContext, Class)}, but it looks into any namespace.
+   */
+  <T extends ProjectResource> Set<T> getProjectResources(InputFileContext inputFileContext, Class<T> clazz);
 
   @Nullable
   InputFileContext getInputFileContext(String path);

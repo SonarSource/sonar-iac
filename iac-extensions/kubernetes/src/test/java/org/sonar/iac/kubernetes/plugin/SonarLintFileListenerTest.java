@@ -101,7 +101,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     var inputFileContext2 = new InputFileContext(context, inputFile2);
-    var projectResources = sonarLintFileListener.getProjectContext().getProjectResources(
+    var projectResources = sonarLintFileListener.getProjectContext().getNamespaceProjectResources(
       "with-global-limit", inputFileContext2, LimitRange.class);
     assertThat(projectResources).isEmpty();
     assertThat(sonarLintFileListener.inputFilesContents()).isEmpty();
@@ -138,7 +138,7 @@ class SonarLintFileListenerTest {
     sonarLintFileListener.process(event);
 
     var inputFileContext2 = new InputFileContext(context, inputFile2);
-    var projectResources = sonarLintFileListener.getProjectContext().getProjectResources(
+    var projectResources = sonarLintFileListener.getProjectContext().getNamespaceProjectResources(
       "with-global-limit", inputFileContext2, LimitRange.class);
     assertThat(projectResources).isNotEmpty();
   }

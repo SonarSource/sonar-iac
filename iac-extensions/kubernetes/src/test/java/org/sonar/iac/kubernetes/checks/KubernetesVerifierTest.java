@@ -99,7 +99,7 @@ class KubernetesVerifierTest {
       register("Pod", (BlockObject pod) -> {
         var projectContext = ((KubernetesCheckContext) pod.ctx).projectContext();
         var currentContext = ((KubernetesVerifier.KubernetesTestContext) pod.ctx).inputFileContext();
-        var resources = projectContext.getProjectResources("", currentContext, LimitRange.class);
+        var resources = projectContext.getNamespaceProjectResources("", currentContext, LimitRange.class);
         if (!resources.isEmpty()) {
           pod.ctx.reportIssue(
             TextRanges.range(2, 0, 2, 10),

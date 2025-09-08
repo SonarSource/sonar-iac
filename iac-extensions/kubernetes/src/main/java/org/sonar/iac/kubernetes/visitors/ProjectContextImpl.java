@@ -18,6 +18,7 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -67,14 +68,8 @@ public final class ProjectContextImpl implements ProjectContext {
     this.chart = chart;
   }
 
-  /**
-   * Get all resources of a given {@code clazz} in a given {@code namespace} and that are accessible to a file in the given {@code inputFileContext}.
-   * This means that the resources can be in the same file, or in the same directory, or in the descendant directories, but not in the ancestor directories.<br/>
-   * If the file is part of a Helm project, all files inside the project are accessible. The location of the Chart.yaml serves as the root directory of the project.
-   */
-  @Override
-  public <T extends ProjectResource> Set<T> getProjectResources(String namespace, InputFileContext inputFileContext, Class<T> clazz) {
-    var basePath = Optional.of(inputFileContext)
+  private static String computeBasePath(InputFileContext inputFileContext) {
+    return Optional.of(inputFileContext)
       .filter(HelmInputFileContext.class::isInstance)
       .map(it -> ((HelmInputFileContext) it).getHelmProjectDirectory())
       .or(() -> Optional.ofNullable(Path.of(inputFileContext.inputFile.uri()).getParent()))
@@ -82,12 +77,36 @@ public final class ProjectContextImpl implements ProjectContext {
       .map(Path::toUri)
       .map(URI::toString)
       .orElse("");
+  }
+
+  /**
+   * Get all resources of a given {@code clazz} in a given {@code namespace} and that are accessible to a file in the given {@code inputFileContext}.
+   * This means that the resources can be in the same file, or in the same directory, or in the descendant directories, but not in the ancestor directories.<br/>
+   * If the file is part of a Helm project, all files inside the project are accessible. The location of the Chart.yaml serves as the root directory of the project.
+   */
+  @Override
+  public <T extends ProjectResource> Set<T> getNamespaceProjectResources(String namespace, InputFileContext inputFileContext, Class<T> clazz) {
+    var basePath = computeBasePath(inputFileContext);
 
     return projectResourcePerPathPerNamespace.entrySet().stream()
       .filter(entry -> entry.getKey().startsWith(basePath))
       .map(Map.Entry::getValue)
       .filter(entry -> nonNull(entry.get(namespace)))
       .flatMap(entry -> entry.get(namespace).stream())
+      .filter(clazz::isInstance)
+      .map(clazz::cast)
+      .collect(Collectors.toSet());
+  }
+
+  @Override
+  public <T extends ProjectResource> Set<T> getProjectResources(InputFileContext inputFileContext, Class<T> clazz) {
+    var basePath = computeBasePath(inputFileContext);
+
+    return projectResourcePerPathPerNamespace.entrySet().stream()
+      .filter(entry -> entry.getKey().startsWith(basePath))
+      .map(Map.Entry::getValue)
+      .flatMap(entries -> entries.values().stream())
+      .flatMap(Collection::stream)
       .filter(clazz::isInstance)
       .map(clazz::cast)
       .collect(Collectors.toSet());

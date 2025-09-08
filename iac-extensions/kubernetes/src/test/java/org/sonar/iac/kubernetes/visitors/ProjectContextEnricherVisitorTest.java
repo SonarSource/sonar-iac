@@ -68,8 +68,8 @@ class ProjectContextEnricherVisitorTest {
     visitor.scan(inputFileContext, tree);
 
     verify(projectContext, times(1)).addResource(anyString(), any(), any());
-    assertThat(projectContext.getProjectResources("my-namespace", toInputFileContext("dir1/dir2/test.yaml"), ServiceAccount.class)).isNotEmpty();
-    assertThat(projectContext.getProjectResources("my-namespace", toInputFileContext("dir1/dir2/test.yaml"), LimitRange.class)).isEmpty();
+    assertThat(projectContext.getNamespaceProjectResources("my-namespace", toInputFileContext("dir1/dir2/test.yaml"), ServiceAccount.class)).isNotEmpty();
+    assertThat(projectContext.getNamespaceProjectResources("my-namespace", toInputFileContext("dir1/dir2/test.yaml"), LimitRange.class)).isEmpty();
   }
 
   private static InputFileContext toInputFileContext(String path) {

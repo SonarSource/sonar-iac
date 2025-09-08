@@ -53,13 +53,13 @@ class ProjectContextImplTest {
     var resource22 = mock(ServiceAccount.class);
     ctx.addResource("namespace2", toUri("path2/resource22.yaml").toString(), resource22);
 
-    assertThat(ctx.getProjectResources("namespace1", toInputFileContext("path1/something.yaml"), ServiceAccount.class)).containsExactly(resource11);
-    assertThat(ctx.getProjectResources("namespace1", toInputFileContext("path1/something.yaml"), LimitRange.class)).containsExactly(resource12);
-    assertThat(ctx.getProjectResources("namespace1", toInputFileContext("path1/something.yaml"), TestResource.class)).isEmpty();
-    assertThat(ctx.getProjectResources("namespace2", toInputFileContext("path2/something.yaml"), ServiceAccount.class)).containsExactlyInAnyOrder(resource21,
+    assertThat(ctx.getNamespaceProjectResources("namespace1", toInputFileContext("path1/something.yaml"), ServiceAccount.class)).containsExactly(resource11);
+    assertThat(ctx.getNamespaceProjectResources("namespace1", toInputFileContext("path1/something.yaml"), LimitRange.class)).containsExactly(resource12);
+    assertThat(ctx.getNamespaceProjectResources("namespace1", toInputFileContext("path1/something.yaml"), TestResource.class)).isEmpty();
+    assertThat(ctx.getNamespaceProjectResources("namespace2", toInputFileContext("path2/something.yaml"), ServiceAccount.class)).containsExactlyInAnyOrder(resource21,
       resource22);
-    assertThat(ctx.getProjectResources("namespace1", toInputFileContext("wrong-path/something.yaml"), ServiceAccount.class)).isEmpty();
-    assertThat(ctx.getProjectResources("wrong-namespace", toInputFileContext("random-path/something.yaml"), ServiceAccount.class)).isEmpty();
+    assertThat(ctx.getNamespaceProjectResources("namespace1", toInputFileContext("wrong-path/something.yaml"), ServiceAccount.class)).isEmpty();
+    assertThat(ctx.getNamespaceProjectResources("wrong-namespace", toInputFileContext("random-path/something.yaml"), ServiceAccount.class)).isEmpty();
   }
 
   @Test
@@ -75,12 +75,12 @@ class ProjectContextImplTest {
     var resource4 = mock(TestResource.class);
     ctx.addResource("default", toUri("path1/subdir2/resource.yaml").toString(), resource4);
 
-    assertThat(ctx.getProjectResources("default", toInputFileContext("path1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource3,
+    assertThat(ctx.getNamespaceProjectResources("default", toInputFileContext("path1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource3,
       resource4);
-    assertThat(ctx.getProjectResources("default", toInputFileContext("path1/subdir1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource3);
-    assertThat(ctx.getProjectResources("default", toInputFileContext("path1/subdir2/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource4);
-    assertThat(ctx.getProjectResources("default", toInputFileContext("path1/subdir3/something.yaml"), TestResource.class)).isEmpty();
-    assertThat(ctx.getProjectResources("default", toInputFileContext("path2/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource2);
+    assertThat(ctx.getNamespaceProjectResources("default", toInputFileContext("path1/subdir1/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource3);
+    assertThat(ctx.getNamespaceProjectResources("default", toInputFileContext("path1/subdir2/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource4);
+    assertThat(ctx.getNamespaceProjectResources("default", toInputFileContext("path1/subdir3/something.yaml"), TestResource.class)).isEmpty();
+    assertThat(ctx.getNamespaceProjectResources("default", toInputFileContext("path2/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource2);
   }
 
   @Test
@@ -94,14 +94,14 @@ class ProjectContextImplTest {
     var resource3 = mock(TestResource.class);
     ctx.addResource("default", toUri("path2/resource.yaml").toString(), resource3);
 
-    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1,
+    assertThat(ctx.getNamespaceProjectResources("default", toHelmInputFileContext("path1/templates/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1,
       resource2);
-    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/subdir/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(
+    assertThat(ctx.getNamespaceProjectResources("default", toHelmInputFileContext("path1/templates/subdir/something.yaml"), TestResource.class)).containsExactlyInAnyOrder(
       resource1,
       resource2);
-    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/Chart.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource2);
-    assertThat(ctx.getProjectResources("default", toInputFileContext("path2/something.yaml"), TestResource.class)).containsExactly(resource3);
-    assertThat(ctx.getProjectResources("default", toInputFileContext("path2/subdir/something.yaml"), TestResource.class)).isEmpty();
+    assertThat(ctx.getNamespaceProjectResources("default", toHelmInputFileContext("path1/Chart.yaml"), TestResource.class)).containsExactlyInAnyOrder(resource1, resource2);
+    assertThat(ctx.getNamespaceProjectResources("default", toInputFileContext("path2/something.yaml"), TestResource.class)).containsExactly(resource3);
+    assertThat(ctx.getNamespaceProjectResources("default", toInputFileContext("path2/subdir/something.yaml"), TestResource.class)).isEmpty();
   }
 
   @Test
@@ -113,7 +113,7 @@ class ProjectContextImplTest {
     ctx.addResource("default", uri, resource1);
     ctx.removeResource(uri);
 
-    assertThat(ctx.getProjectResources("default", toHelmInputFileContext("path1/templates/resource.yaml"), TestResource.class)).isEmpty();
+    assertThat(ctx.getNamespaceProjectResources("default", toHelmInputFileContext("path1/templates/resource.yaml"), TestResource.class)).isEmpty();
   }
 
   private static URI toUri(String path) {
