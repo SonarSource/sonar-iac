@@ -1,5 +1,5 @@
 [versions]
-sonarqube = "25.8.0.112029"
+sonarqube = "25.9.0.112764"
 # Before updating the plugin-api version, make sure to check the compatibility matrix and stick to the lowest denominator
 # https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility
 sonar-plugin-api = "12.0.0.2960"
@@ -9,7 +9,7 @@ sonar-orchestrator = "5.6.2.2625"
 junit = "5.13.4"
 assertj = "3.27.4"
 mockito = "5.19.0"
-sonar-lint = "10.29.0.82203"
+sonar-lint = "10.30.0.82224"
 sslr = "1.24.0.633"
 archunit = "1.4.1"
 snakeyaml = "2.10"
