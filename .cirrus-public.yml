@@ -1,5 +1,16 @@
 env:
+  CIRRUS_VAULT_URL: https://vault.sonar.build:8200
+  CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
+  CIRRUS_VAULT_ROLE: cirrusci-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}
+
+  ARTIFACTORY_URL: VAULT[development/kv/data/repox data.url]
+  ARTIFACTORY_PRIVATE_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader
+  ARTIFACTORY_PRIVATE_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
+  ARTIFACTORY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   CIRRUS_SHELL: bash
+  DEPLOY_PULL_REQUEST: false
+  IS_COMMUNITY: true
+  CRON_NIGHTLY_JOB_NAME: "nightly"
 
 build_container_definition: &BUILD_CONTAINER_DEFINITION
   eks_container:
@@ -23,7 +34,6 @@ base_analysis_template: &BASE_ANALYSIS
   env:
     GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
     GRADLE_VERSION: "8.12"
-    CRON_NIGHTLY_JOB_NAME: "nightly"
   gradle_cache:
     folder: ${GRADLE_USER_HOME}/caches
     fingerprint_script: find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs cat
