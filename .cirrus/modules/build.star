@@ -187,6 +187,7 @@ def iris_general_env():
     return {
        "SONAR_SOURCE_IRIS_TOKEN": "VAULT[development/kv/data/iris data.next]",
        "SONAR_SOURCE_PROJECT_KEY": "org.sonarsource.iac:iac",
+       "CRON_NIGHTLY_JOB_NAME": "nightly",
     }
 
 def run_iris_task_template(env):
