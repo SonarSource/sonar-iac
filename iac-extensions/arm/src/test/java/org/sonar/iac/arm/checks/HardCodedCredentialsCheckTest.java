@@ -33,12 +33,10 @@ class HardCodedCredentialsCheckTest {
   @Test
   void shouldCheckHardCodedCredentialsJson() {
     ArmVerifier.verify("HardCodedCredentialsCheck/HardCodedCredentialsCheck.json", check,
-      issue(12, 8, 12, 37, "Revoke and change this secret, as it might be compromised."),
       issue(13, 8, 13, 48, "Revoke and change this secret, as it might be compromised."),
       issue(14, 8, 14, 30, "Revoke and change this secret, as it might be compromised."),
       issue(15, 8, 15, 27, "Revoke and change this secret, as it might be compromised."),
       issue(16, 8, 16, 36, "Revoke and change this secret, as it might be compromised."),
-      issue(17, 8, 17, 32, "Revoke and change this secret, as it might be compromised."),
       issue(39, 10, 39, 32, "Revoke and change this secret, as it might be compromised."));
   }
 

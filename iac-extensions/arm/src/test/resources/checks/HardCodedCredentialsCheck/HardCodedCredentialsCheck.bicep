@@ -1,15 +1,15 @@
 resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   name: 'noncompliant'
   properties: {
-    administratorLogin: 'admin' // Noncompliant {{Revoke and change this secret, as it might be compromised.}}
-//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    administratorLoginPassword: 'password' // Noncompliant
+    administratorLogin: 'admin'
+    administratorLoginPassword: 'password' // Noncompliant {{Revoke and change this secret, as it might be compromised.}}
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     password: 'password' // Noncompliant
     secret: 'password' // Noncompliant
     adminPassword: 'password' // Noncompliant
-    adminUsername: 'admin' // Noncompliant
+    adminUsername: 'admin'
     publishingPassword: 'password' // Noncompliant
-    publishingUserName: 'admin' // Noncompliant
+    publishingUserName: 'admin'
     randomProperty: 'password'
   }
 }

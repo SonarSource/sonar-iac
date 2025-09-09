@@ -32,14 +32,11 @@ public class HardCodedCredentialsCheck implements IacCheck {
   private static final String MESSAGE = "Revoke and change this secret, as it might be compromised.";
 
   private static final List<String> CREDENTIAL_PROPERTIES = List.of(
-    "administratorLogin",
     "administratorLoginPassword",
     "password",
     "secret",
     "adminPassword",
-    "adminUsername",
-    "publishingPassword",
-    "publishingUserName");
+    "publishingPassword");
 
   @Override
   public void initialize(InitContext init) {
