@@ -1,0 +1,46 @@
+#!/bin/bash
+set -euo pipefail
+
+: "${ARTIFACTORY_PRIVATE_USERNAME?}" "${ARTIFACTORY_PRIVATE_PASSWORD?}" "${ARTIFACTORY_URL?}"
+: "${SONAR_SOURCE_IRIS_TOKEN?}" "${SONAR_TARGET_IRIS_TOKEN?}" "${SONAR_TARGET_PROJECT_KEY?}" "${SONAR_TARGET_URL?}"
+
+function run_iris () {
+  java \
+    -Diris.source.projectKey="$SONAR_SOURCE_PROJECT_KEY" \
+    -Diris.source.url="https://next.sonarqube.com/sonarqube" \
+    -Diris.source.token="$SONAR_SOURCE_IRIS_TOKEN" \
+    -Diris.destination.projectKey="$SONAR_TARGET_PROJECT_KEY" \
+    -Diris.destination.url="$SONAR_TARGET_URL" \
+    -Diris.destination.token="$SONAR_TARGET_IRIS_TOKEN" \
+    -Diris.destination.organization="sonarsource" \
+    -Diris.dryrun=$1 \
+    -jar iris-\[RELEASE\]-jar-with-dependencies.jar
+}
+
+VERSION="\[RELEASE\]"
+HTTP_CODE=$(\
+  curl \
+    --write-out '%{http_code}' \
+    --location \
+    --remote-name \
+    --user "$ARTIFACTORY_PRIVATE_USERNAME:$ARTIFACTORY_PRIVATE_PASSWORD" \
+    "$ARTIFACTORY_URL/sonarsource-private-releases/com/sonarsource/iris/iris/$VERSION/iris-$VERSION-jar-with-dependencies.jar"\
+)
+
+if [ "$HTTP_CODE" != "200" ]; then
+  echo "Download $VERSION failed -> $HTTP_CODE"
+  exit 1
+else
+  echo "Downloaded $VERSION"
+fi
+
+echo "===== Execute IRIS as dry-run"
+run_iris "true"
+STATUS=$?
+if [ $STATUS -ne 0 ]; then
+  echo "===== Failed to run IRIS dry-run"
+  exit 1
+else
+  echo "===== Successful IRIS dry-run - executing IRIS for real."
+  run_iris "false"
+fi
