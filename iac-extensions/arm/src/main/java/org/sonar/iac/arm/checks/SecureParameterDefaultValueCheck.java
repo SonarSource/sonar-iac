@@ -30,6 +30,7 @@ import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isBlankString;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyObject;
@@ -46,8 +47,9 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
   private static final Predicate<Expression> predicateCompliantValue = isBlankString()
     .or(isEmptyObject())
     .or(isNull())
-    .or(isSecureParameterReference())
-    .or(isFunctionCallWithoutHardcodedString());
+    .or(SecureParameterDefaultValueCheck::isSecureParameterReference)
+    .or(SecureParameterDefaultValueCheck::isFunctionCallWithoutHardcodedString)
+    .or(SecureParameterDefaultValueCheck::hasNewGuidFunctionCall);
 
   @Override
   public void initialize(InitContext init) {
@@ -63,9 +65,9 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
     }
   }
 
-  private static Predicate<Expression> isSecureParameterReference() {
+  private static boolean isSecureParameterReference(Expression expression) {
     // TODO SONARIAC-1414: Bicep: Distinguish usages of variables and parameters in the AST
-    return expr -> expr instanceof HasIdentifier hasIdentifier &&
+    return expression instanceof HasIdentifier hasIdentifier &&
       hasIdentifier.identifier() instanceof Identifier identifier &&
       isSecureParameter(identifier, identifier.value());
   }
@@ -75,8 +77,14 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
     return param != null && SENSITIVE_TYPE_WITH_DISPLAY_TYPE.containsKey(param.type());
   }
 
-  private static Predicate<Expression> isFunctionCallWithoutHardcodedString() {
-    return (Expression expression) -> expression instanceof FunctionCall functionCall
+  private static boolean isFunctionCallWithoutHardcodedString(Expression expression) {
+    return expression instanceof FunctionCall functionCall
       && functionCall.argumentList().elements().stream().noneMatch(arg -> arg.is(ArmTree.Kind.STRING_LITERAL));
+  }
+
+  // Return true if the expression is a function call to newGuid or any of his child is.
+  private static boolean hasNewGuidFunctionCall(Tree tree) {
+    return (tree instanceof FunctionCall functionCall && "newGuid".equals(functionCall.name().value()))
+      || tree.children().stream().anyMatch(SecureParameterDefaultValueCheck::hasNewGuidFunctionCall);
   }
 }

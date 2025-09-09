@@ -50,6 +50,14 @@
       "type": "securestring",
       "defaultValue": "[other(1, 2, 3, 'string')]"
     },
+    "nonCompliant11": {
+      "type": "securestring",
+      "defaultValue": "newGuid()-staticstring"
+    },
+    "nonCompliant12": {
+      "type": "securestring",
+      "defaultValue": "[concat('something', '-staticstring')]"
+    },
     "compliant1": {
       "type": "securestring"
     },
@@ -111,6 +119,26 @@
     "compliant13": {
       "type": "securestring",
       "defaultValue": "[uniqueString(89, null)]"
+    },
+    "compliant14": {
+      "type": "securestring",
+      "defaultValue": "[format('{0}', newGuid())]"
+    },
+    "compliant15": {
+      "type": "securestring",
+      "defaultValue": "[format('{0}-staticstring-{1}', newGuid(), newGuid())]"
+    },
+    "compliant16": {
+      "type": "securestring",
+      "defaultValue": "[concat(format('{0}', newGuid()), '-staticstring')]"
+    },
+    "compliant17": {
+      "type": "securestring",
+      "defaultValue": "[concat(newGuid(), '-staticstring')]"
+    },
+    "compliant18": {
+      "type": "securestring",
+      "defaultValue": "[concat('staticstring-', newGuid())]"
     }
   }
 }
