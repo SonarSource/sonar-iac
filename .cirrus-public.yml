@@ -9,8 +9,11 @@ env:
   ARTIFACTORY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   CIRRUS_SHELL: bash
   DEPLOY_PULL_REQUEST: false
-  IS_COMMUNITY: true
   CRON_NIGHTLY_JOB_NAME: "nightly"
+
+only_sonarsource_qa: &ONLY_SONARSOURCE_QA
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
+
 
 build_container_definition: &BUILD_CONTAINER_DEFINITION
   eks_container:
@@ -31,6 +34,7 @@ build_container_definition: &BUILD_CONTAINER_DEFINITION
 
 base_analysis_template: &BASE_ANALYSIS
   <<: *BUILD_CONTAINER_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
   env:
     GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
     GRADLE_VERSION: "8.12"
