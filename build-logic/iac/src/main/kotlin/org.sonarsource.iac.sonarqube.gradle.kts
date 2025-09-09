@@ -18,10 +18,11 @@ plugins {
     id("org.sonarqube")
 }
 
+// Change some value here`
 sonar {
     properties {
         property("sonar.projectName", "SonarSource IaC Analyzer")
-        property("sonar.projectKey", "org.sonarsource.iac:iac")
+        property("sonar.projectKey", System.getenv("SONAR_PROJECT_KEY"))
         property("sonar.organization", "sonarsource")
         property("sonar.exclusions", "**/build/**/*")
         property("sonar.links.ci", "https://cirrus-ci.com/github/SonarSource/sonar-iac-enterprise")
