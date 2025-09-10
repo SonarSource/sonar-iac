@@ -26,7 +26,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6596")
 public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
-  private static final String MESSAGE = "Use a specific version tag for the image.";
+  public static final String MESSAGE = "Use a specific version tag for the image.";
   protected static final String KIND_POD = "Pod";
   protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
   private static final Predicate<YamlTree> SENSITIVE_VERSION_TAG_PREDICATE = tree -> TextUtils.matchesValue(tree, SpecificVersionTagCheck::hasSensitiveVersionTag).isTrue();
@@ -50,7 +50,7 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
       .forEach(image -> image.reportIfValue(SENSITIVE_VERSION_TAG_PREDICATE, MESSAGE));
   }
 
-  private static boolean hasSensitiveVersionTag(String fullImageName) {
+  public static boolean hasSensitiveVersionTag(String fullImageName) {
     if (fullImageName.isBlank() || fullImageName.contains("@")) {
       // image name is empty, unresolved with Helm, or using digest: do not raise an issue
       return false;
