@@ -20,7 +20,7 @@ plugins {
 
 sonar {
     properties {
-        property("sonar.projectName", "SonarSource IaC Analyzer")
+        property("sonar.projectName", "SonarIaC Enterprise")
         property("sonar.projectKey", System.getenv("SONAR_PROJECT_KEY"))
         property("sonar.organization", "sonarsource")
         property("sonar.exclusions", "**/build/**/*")
