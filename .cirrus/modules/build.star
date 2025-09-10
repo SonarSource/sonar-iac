@@ -131,7 +131,7 @@ def shadow_scan_general_env():
         "DEPLOY_PULL_REQUEST": "false",
         # --no-parallel because as of 6.2.0.5505 sonar-scanner-gradle doesn't work well with Gradle 9
         # see https://community.sonarsource.com/t/error-when-running-sonar-task-with-gradle-9-0-0-rc-1/143857/12
-        "BUILD_ARGUMENTS": "-x test -x artifactoryPublish --no-parallel",
+        "BUILD_ARGUMENTS": "-x artifactoryPublish --no-parallel",
         "CRON_NIGHTLY_JOB_NAME": "nightly",
         "SONAR_PROJECT_KEY": "SonarSource_sonar-iac-enterprise"
     }
