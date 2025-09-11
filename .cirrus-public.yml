@@ -18,7 +18,7 @@ build_container_definition: &BUILD_CONTAINER_DEFINITION
     memory: 10G
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      GO_VERSION: "1.23.4"
+      GO_VERSION: "1.25.1"
     builder_role: cirrus-builder
     builder_image: "docker-builder-v*"
     builder_subnet_id: ${CIRRUS_AWS_SUBNET}

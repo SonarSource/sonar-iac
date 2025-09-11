@@ -48,6 +48,10 @@ val Project.goVersion get() = providers.environmentVariable("GO_VERSION")
     .orElse(providers.gradleProperty("goVersion"))
     .orNull ?: error("Either `GO_VERSION` env variable or `goVersion` Gradle property must be set")
 
+val Project.goLangCiLintVersion get() = providers.environmentVariable("GOLANG_CI_LINT_VERSION")
+    .orElse(providers.gradleProperty("goLangCiLintVersion"))
+    .orNull ?: error("Either `GOLANG_CI_LINT_VERSION` env variable or `goLangCiLintVersion` Gradle property must be set")
+
 val Project.isCrossCompile: Provider<String> get() = providers.environmentVariable("GO_CROSS_COMPILE").orElse("0")
 
 fun Project.allGoSourcesAndMakeScripts(): FileTree =

@@ -18,6 +18,7 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.sonarsource.cloudnative.gradle.GO_BINARY_OUTPUT_DIR
 import org.sonarsource.cloudnative.gradle.GoBuild
 import org.sonarsource.cloudnative.gradle.allGoSourcesAndMakeScripts
+import org.sonarsource.cloudnative.gradle.goLangCiLintVersion
 import org.sonarsource.cloudnative.gradle.goVersion
 import org.sonarsource.cloudnative.gradle.isCi
 import org.sonarsource.cloudnative.gradle.isCrossCompile
@@ -66,6 +67,8 @@ val buildDockerImage by tasks.registering(Exec::class) {
         }
         add("--build-arg")
         add("GO_VERSION=$goVersion")
+        add("--build-arg")
+        add("GOLANG_CI_LINT_VERSION=$goLangCiLintVersion")
         add("--build-context")
         add("root=${project.rootDir.absolutePath}")
         add("--platform")
@@ -109,6 +112,8 @@ val dockerTasks = goBuildExtension.dockerCommands.map { tasksToCommands ->
                 "GO_CROSS_COMPILE=${inputs.properties["goCrossCompile"]}",
                 "--env",
                 "GO_VERSION=$goVersion",
+                "--env",
+                "GOLANG_CI_LINT_VERSION=$goLangCiLintVersion",
                 "${project.name}-builder",
                 "bash",
                 "-c",

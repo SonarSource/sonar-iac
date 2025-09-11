@@ -1,13 +1,13 @@
 module github.com/SonarSource/sonar-iac/sonar-helm-for-iac
 
-go 1.23.4
+go 1.25.1
 
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/gobwas/glob v0.2.3
 	github.com/samber/mo v1.15.0
-	github.com/sonarsource/go/src v1.23.4-1
+	github.com/sonarsource/go/src v1.25.1-1
 	github.com/stretchr/testify v1.11.1
 	// When updating this dependency, update "google-protobuf-go" in "libs.versions.toml"
 	// Also update the "PROTOBUF_GO_VERSION" in "make.sh"
