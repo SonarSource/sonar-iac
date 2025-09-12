@@ -29,7 +29,8 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
   public static final String MESSAGE = "Use a specific version tag for the image.";
   protected static final String KIND_POD = "Pod";
   protected static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");
-  private static final Predicate<YamlTree> SENSITIVE_VERSION_TAG_PREDICATE = tree -> TextUtils.matchesValue(tree, SpecificVersionTagCheck::hasSensitiveVersionTag).isTrue();
+  private static final Predicate<YamlTree> SENSITIVE_VERSION_TAG_PREDICATE = tree -> TextUtils.matchesValue(tree, SpecificVersionTagCheck::hasSensitiveVersionTag)
+    .isTrue();
 
   @Override
   protected void registerObjectCheck() {
@@ -37,7 +38,7 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
     register(KIND_WITH_TEMPLATE, document -> checkDocument(document, true));
   }
 
-  private static void checkDocument(BlockObject document, boolean isKindWithTemplate) {
+  private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
     Stream<BlockObject> containers;
 
     if (isKindWithTemplate) {
@@ -47,7 +48,11 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
     }
     containers
       .map(container -> container.attribute("image"))
-      .forEach(image -> image.reportIfValue(SENSITIVE_VERSION_TAG_PREDICATE, MESSAGE));
+      .forEach(image -> image.reportIfValue(sensitiveVersionTagPredicate(), MESSAGE));
+  }
+
+  public Predicate<YamlTree> sensitiveVersionTagPredicate() {
+    return SENSITIVE_VERSION_TAG_PREDICATE;
   }
 
   public static boolean hasSensitiveVersionTag(String fullImageName) {
