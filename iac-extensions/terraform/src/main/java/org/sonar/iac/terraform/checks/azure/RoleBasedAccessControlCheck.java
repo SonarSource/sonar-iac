@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
+import java.util.Objects;
 import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
@@ -56,9 +57,19 @@ public class RoleBasedAccessControlCheck extends AbstractNewResourceCheck {
     });
 
     // https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault
-    register("azurerm_key_vault", resource -> resource.attribute("enable_rbac_authorization")
-      .reportIf(isFalse(), DISABLED_MESSAGE)
-      .reportIfAbsent(MISSING_MESSAGE));
+    register("azurerm_key_vault", resource -> {
+      // Before 4.42
+      var oldArgument = resource.attribute("enable_rbac_authorization");
+      oldArgument.reportIf(isFalse(), DISABLED_MESSAGE);
+      if (oldArgument.is(Objects::nonNull)) {
+        // The old argument is used, skip the new one
+        return;
+      }
+      // Since 4.42
+      resource.attribute("rbac_authorization_enabled")
+        .reportIf(isFalse(), DISABLED_MESSAGE)
+        .reportIfAbsent(MISSING_MESSAGE);
+    });
   }
 
   private static void checkActiveDirectoryRoleBasedAccessControl(BlockSymbol adRbac) {
