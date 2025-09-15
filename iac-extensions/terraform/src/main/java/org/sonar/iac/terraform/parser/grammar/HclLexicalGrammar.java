@@ -17,6 +17,7 @@
 package org.sonar.iac.terraform.parser.grammar;
 
 import com.sonar.sslr.api.GenericTokenType;
+import org.sonar.iac.common.parser.grammar.CaseInsensitiveStringExpression;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -105,8 +106,8 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
     b.rule(NUMERIC_INDEX).is(b.regexp(LexicalConstant.NUMERIC_INDEX));
     b.rule(HEREDOC_LITERAL).is(SPACING, b.regexp(LexicalConstant.HEREDOC_LITERAL));
 
-    b.rule(BOOLEAN_LITERAL).is(b.firstOf(word(b, "TRUE"), word(b, "FALSE")));
-    b.rule(NULL).is(word(b, "NULL")).skip();
+    b.rule(BOOLEAN_LITERAL).is(b.firstOf(caseInsensitive(b, "TRUE"), caseInsensitive(b, "FALSE")));
+    b.rule(NULL).is(caseInsensitive(b, "NULL")).skip();
 
     b.rule(QUOTED_TEMPLATE_STRING_CHARACTERS).is(b.regexp(LexicalConstant.QUOTED_TEMPLATE_STRING_CHARACTERS));
   }
@@ -124,7 +125,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
     }
   }
 
-  private static Object word(LexerlessGrammarBuilder b, String word) {
-    return b.sequence(SPACING, b.regexp("(?i)" + word), b.nextNot(b.regexp(LexicalConstant.IDENTIFIER_PART)));
+  private static Object caseInsensitive(LexerlessGrammarBuilder b, String word) {
+    return b.sequence(SPACING, new CaseInsensitiveStringExpression(word), b.nextNot(b.regexp(LexicalConstant.IDENTIFIER_PART)));
   }
 }

@@ -28,6 +28,7 @@ class BlockTest {
   void testBlock() {
     Assertions.assertThat(HclLexicalGrammar.BLOCK)
       .matches("a{\n b = true \nc = null}")
+      .matches("a{\n b = true \nc = NULL}")
       .matches("a {\n}")
       .matches("a \"label\" {\n}")
       .matches("  a {\n   }")

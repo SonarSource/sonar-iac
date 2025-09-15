@@ -18,6 +18,7 @@ package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.GenericTokenType;
 import java.util.Arrays;
+import org.sonar.iac.common.parser.grammar.CaseInsensitiveStringExpression;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -180,8 +181,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(FLAG_PREFIX).is(SKIPPED_WHITESPACE, b.regexp("--"));
     b.rule(FLAG_NAME).is(b.regexp(DockerLexicalConstant.FLAG_NAME));
 
-    b.rule(ALIAS_AS).is(SKIPPED_WHITESPACE, b.regexp("(?i)AS"));
-    b.rule(HEALTHCHECK_NONE).is(SKIPPED_WHITESPACE, b.regexp("(?i)NONE"));
+    b.rule(ALIAS_AS).is(SKIPPED_WHITESPACE, new CaseInsensitiveStringExpression("AS"));
+    b.rule(HEALTHCHECK_NONE).is(SKIPPED_WHITESPACE, new CaseInsensitiveStringExpression("NONE"));
 
     b.rule(HEREDOC_EXPRESSION).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.HEREDOC_EXPRESSION));
 
@@ -192,6 +193,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   private static void keywords(LexerlessGrammarBuilder b) {
     Arrays.stream(DockerKeyword.values()).forEach(tokenType -> b.rule(tokenType).is(
       b.optional(SPACING),
-      b.regexp("(?i)" + tokenType.getValue())).skip());
+      new CaseInsensitiveStringExpression(tokenType.getValue())).skip());
   }
 }

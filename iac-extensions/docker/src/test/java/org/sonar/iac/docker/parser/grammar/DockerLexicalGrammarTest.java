@@ -62,6 +62,10 @@ public class DockerLexicalGrammarTest {
       .matches("CMD [\"foo\"]")
       .matches("CMD\t[\"foo\"]")
       .matches("CMD \\\nfoo")
+      .matches("cmd foo")
+      .matches("  cmd foo")
+      .matches("\tcmd foo")
+      .matches("CmD foo")
       .notMatches("CMD\\\nfoo")
       .notMatches("CMD\\foo");
 

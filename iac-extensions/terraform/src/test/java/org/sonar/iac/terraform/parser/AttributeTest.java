@@ -26,7 +26,11 @@ class AttributeTest {
   void test() {
     Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE)
       .matches("a = true")
+      .matches("a = TrUe")
+      .matches("a = false")
+      .matches("a = FALSE")
       .matches("a = null")
+      .matches("a = nuLL")
       .matches("a = trueFoo")
       .matches("a = nullFoo")
       .matches("a = null_Foo")
