@@ -16,11 +16,12 @@
 package converters
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_read_single_template(t *testing.T) {
@@ -91,7 +92,7 @@ func Test_read_with_empty_input(t *testing.T) {
 
 func Test_read_n_lines_from_input(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x11line1\nline2\nline3"))
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, contents, err := ReadInput(input, &loggingTestCollector)
@@ -106,7 +107,7 @@ func Test_read_all_lines_from_input_different_new_lines(t *testing.T) {
 	// the \u2028 character uses 3 bytes
 	content := "line1\r\nline2\nline3\rline4\u2028line5\u2029line6"
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x28" + content))
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, contents, err := ReadInput(input, &loggingTestCollector)
@@ -120,7 +121,7 @@ func Test_read_all_lines_from_input_different_new_lines(t *testing.T) {
 func Test_read_one_file_with_trailing_newline(t *testing.T) {
 	content := "line1\n"
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x06" + content))
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, contents, err := ReadInput(input, &loggingTestCollector)
@@ -133,7 +134,7 @@ func Test_read_one_file_with_trailing_newline(t *testing.T) {
 
 func Test_read_three_files(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x03" +
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x03" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x0Bline1\nline2" +
 		"\x00\x00\x00\x12templates/foo.yaml\x00\x00\x00\x05line3" +
 		"\x00\x00\x00\x16templates/_helpers.tpl\x00\x00\x00\x08\nline4\r\n"))
@@ -150,8 +151,8 @@ func Test_read_three_files(t *testing.T) {
 
 func Test_read_error_handling(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00"))
-	output.Close()
+	_, _ = output.Write([]byte("\x00"))
+	_ = output.Close()
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
@@ -161,8 +162,8 @@ func Test_read_error_handling(t *testing.T) {
 
 func Test_read_error_handling_2(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x11foo"))
-	output.Close()
+	_, _ = output.Write([]byte("\x00\x00\x00\x11foo"))
+	_ = output.Close()
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
@@ -172,8 +173,8 @@ func Test_read_error_handling_2(t *testing.T) {
 
 func Test_read_error_handling_3(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00"))
-	output.Close()
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00"))
+	_ = output.Close()
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
@@ -183,8 +184,8 @@ func Test_read_error_handling_3(t *testing.T) {
 
 func Test_read_error_handling_4(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersi"))
-	output.Close()
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersi"))
+	_ = output.Close()
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
@@ -194,8 +195,8 @@ func Test_read_error_handling_4(t *testing.T) {
 
 func Test_read_error_handling_5(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00"))
-	output.Close()
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00"))
+	_ = output.Close()
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
@@ -205,8 +206,8 @@ func Test_read_error_handling_5(t *testing.T) {
 
 func Test_read_error_handling_6(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x03"))
-	output.Close()
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x03"))
+	_ = output.Close()
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
@@ -231,7 +232,7 @@ func Test_only_one_file_provided(t *testing.T) {
 
 func Test_two_files_provided(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x00\x10templates/a.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
+	_, _ = output.Write([]byte("\x00\x00\x00\x10templates/a.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01" +
 		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x08foo: bar"))
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, err := ReadAndValidateSources(input, &loggingTestCollector)
@@ -267,8 +268,8 @@ func Test_template_struct_from_3_sources(t *testing.T) {
 
 func Test_read_byte_as_int(t *testing.T) {
 	input, output, _ := os.Pipe()
-	output.Write([]byte("\x00\x00\x55\x34"))
-	output.Close()
+	_, _ = output.Write([]byte("\x00\x00\x55\x34"))
+	_ = output.Close()
 	number, err := readBytesAsInt(input)
 
 	assert.NoError(t, err)

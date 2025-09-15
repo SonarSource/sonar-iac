@@ -17,15 +17,17 @@ package main
 
 import (
 	"errors"
-	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/converters"
-	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
-	"github.com/stretchr/testify/assert"
-	"google.golang.org/protobuf/proto"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 	"runtime"
 	"testing"
+
+	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/converters"
+	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
+	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 )
 
 type FailingProtobufSerializer struct{}
@@ -52,7 +54,10 @@ func Test_exit_code_with_serialization_error(t *testing.T) {
 	cmd := exec.Command(os.Args[0], "-test.run=Test_exit_code_with_serialization_error")
 	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
 	stdin, _ := cmd.StdinPipe()
-	defer stdin.Close()
+	defer func(stdin io.WriteCloser) {
+		// Process's stdin might have been already closed during cmd.Wait(), so we ignore the error
+		_ = stdin.Close()
+	}(stdin)
 	errStart := cmd.Start()
 	_, errWrite := stdin.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x01\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x00"))
 
@@ -673,7 +678,12 @@ func Test_Flushing_Logs_On_Failed_Template_Evaluation(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	defer os.Remove(tmpfile.Name()) // clean up
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			log.Fatalf("Could not remove temporary file %s: %s", name, err.Error())
+		}
+	}(tmpfile.Name()) // clean up
 
 	if _, err := tmpfile.Write(content); err != nil {
 		log.Fatal(err)
@@ -702,7 +712,12 @@ func Test_Flushing_Logs_On_Read_Error(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	defer os.Remove(tmpfile.Name()) // clean up
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			log.Fatalf("Could not remove temporary file %s: %s", name, err.Error())
+		}
+	}(tmpfile.Name()) // clean up
 
 	if _, err := tmpfile.Write(content); err != nil {
 		log.Fatal(err)

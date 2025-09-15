@@ -17,12 +17,13 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/converters"
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
 	"github.com/sonarsource/go/src/text/template"
 	"github.com/sonarsource/go/src/text/template/parse"
-	"os"
-	"strings"
 )
 
 var converter converters.Converter = &converters.DefaultConverter{}
@@ -53,7 +54,11 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to serialize evaluated template to Protobuf: %s\n", err.Error())
 		os.Exit(1)
 	}
-	os.Stdout.Write(result)
+	_, err = os.Stdout.Write(result)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to write evaluated template to stdout: %s\n", err.Error())
+		os.Exit(1)
+	}
 }
 
 type EvaluationResult struct {

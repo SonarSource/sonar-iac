@@ -16,12 +16,13 @@ package converters
 
 import (
 	"fmt"
+	"os"
+
 	pbstructs "github.com/SonarSource/sonar-iac/sonar-helm-for-iac/src/org.sonar.iac.helm"
 	"github.com/sonarsource/go/src/text/template/parse"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/anypb"
-	"os"
 )
 
 type Converter interface {
@@ -61,50 +62,50 @@ func (c *DefaultConverter) ConvertTree(source string, ast *parse.Tree) *pbstruct
 
 func (c ConversionContext) Convert(node parse.Node) proto.Message {
 	var nodeAsMessage proto.Message
-	switch node.(type) {
+	switch node := node.(type) {
 	case *parse.ActionNode:
-		nodeAsMessage = c.convertActionNode(*node.(*parse.ActionNode))
+		nodeAsMessage = c.convertActionNode(*node)
 	case *parse.BoolNode:
-		nodeAsMessage = c.convertBoolNode(*node.(*parse.BoolNode))
+		nodeAsMessage = c.convertBoolNode(*node)
 	// There is no `case *parse.BranchNode` as it is a base type which wouldn't be encountered directly.
 	case *parse.BreakNode:
-		nodeAsMessage = c.convertBreakNode(*node.(*parse.BreakNode))
+		nodeAsMessage = c.convertBreakNode(*node)
 	case *parse.ChainNode:
-		nodeAsMessage = c.convertChainNode(*node.(*parse.ChainNode))
+		nodeAsMessage = c.convertChainNode(*node)
 	case *parse.CommandNode:
-		nodeAsMessage = c.convertCommandNode(*node.(*parse.CommandNode))
+		nodeAsMessage = c.convertCommandNode(*node)
 	case *parse.CommentNode:
-		nodeAsMessage = c.convertCommentNode(*node.(*parse.CommentNode))
+		nodeAsMessage = c.convertCommentNode(*node)
 	case *parse.ContinueNode:
-		nodeAsMessage = c.convertContinueNode(*node.(*parse.ContinueNode))
+		nodeAsMessage = c.convertContinueNode(*node)
 	case *parse.DotNode:
-		nodeAsMessage = c.convertDotNode(*node.(*parse.DotNode))
+		nodeAsMessage = c.convertDotNode(*node)
 	case *parse.FieldNode:
-		nodeAsMessage = c.convertFieldNode(*node.(*parse.FieldNode))
+		nodeAsMessage = c.convertFieldNode(*node)
 	case *parse.IdentifierNode:
-		nodeAsMessage = c.convertIdentifierNode(*node.(*parse.IdentifierNode))
+		nodeAsMessage = c.convertIdentifierNode(*node)
 	case *parse.IfNode:
-		nodeAsMessage = c.convertIfNode(*node.(*parse.IfNode))
+		nodeAsMessage = c.convertIfNode(*node)
 	case *parse.ListNode:
-		nodeAsMessage = c.convertListNode(*node.(*parse.ListNode))
+		nodeAsMessage = c.convertListNode(*node)
 	case *parse.NilNode:
-		nodeAsMessage = c.convertNilNode(*node.(*parse.NilNode))
+		nodeAsMessage = c.convertNilNode(*node)
 	case *parse.NumberNode:
-		nodeAsMessage = c.convertNumberNode(*node.(*parse.NumberNode))
+		nodeAsMessage = c.convertNumberNode(*node)
 	case *parse.PipeNode:
-		nodeAsMessage = c.convertPipeNode(*node.(*parse.PipeNode))
+		nodeAsMessage = c.convertPipeNode(*node)
 	case *parse.RangeNode:
-		nodeAsMessage = c.convertRangeNode(*node.(*parse.RangeNode))
+		nodeAsMessage = c.convertRangeNode(*node)
 	case *parse.StringNode:
-		nodeAsMessage = c.convertStringNode(*node.(*parse.StringNode))
+		nodeAsMessage = c.convertStringNode(*node)
 	case *parse.TemplateNode:
-		nodeAsMessage = c.convertTemplateNode(*node.(*parse.TemplateNode))
+		nodeAsMessage = c.convertTemplateNode(*node)
 	case *parse.TextNode:
-		nodeAsMessage = c.convertTextNode(*node.(*parse.TextNode))
+		nodeAsMessage = c.convertTextNode(*node)
 	case *parse.VariableNode:
-		nodeAsMessage = c.convertVariableNode(*node.(*parse.VariableNode))
+		nodeAsMessage = c.convertVariableNode(*node)
 	case *parse.WithNode:
-		nodeAsMessage = c.convertWithNode(*node.(*parse.WithNode))
+		nodeAsMessage = c.convertWithNode(*node)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown node type: %T\n", node)
 		nodeAsMessage = &pbstructs.Node{
