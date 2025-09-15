@@ -38,11 +38,13 @@ public class PolicyValidator {
         continue;
       }
 
-      statement.resource().flatMap(PolicyValidator::findInsecureResource).ifPresent(resource -> statement.effect().filter(PolicyValidator::isAllowEffect)
-        .ifPresent(effect -> result.add(new PolicyValidator.InsecureStatement(resource, effect, resourceAccessAction))));
+      statement.resource().flatMap(PolicyValidator::findInsecureResource)
+        .ifPresent(resource -> statement.effect().filter(PolicyValidator::isAllowEffect)
+          .ifPresent(effect -> result.add(new PolicyValidator.InsecureStatement(resource, effect, resourceAccessAction))));
 
-      statement.notResource().flatMap(PolicyValidator::findInsecureResource).ifPresent(notResource -> statement.effect().filter(PolicyValidator::isDenyEffect)
-        .ifPresent(effect -> result.add(new PolicyValidator.InsecureStatement(notResource, effect, resourceAccessAction))));
+      statement.notResource().flatMap(PolicyValidator::findInsecureResource)
+        .ifPresent(notResource -> statement.effect().filter(PolicyValidator::isDenyEffect)
+          .ifPresent(effect -> result.add(new PolicyValidator.InsecureStatement(notResource, effect, resourceAccessAction))));
     }
     return result;
   }
@@ -84,15 +86,6 @@ public class PolicyValidator {
     return TextUtils.isValue(effect, "Deny").isTrue();
   }
 
-  public static class InsecureStatement {
-    public final Tree resource;
-    public final Tree effect;
-    public final Tree action;
-
-    public InsecureStatement(Tree resource, Tree effect, Tree action) {
-      this.resource = resource;
-      this.effect = effect;
-      this.action = action;
-    }
+  public record InsecureStatement(Tree resource, Tree effect, Tree action) {
   }
 }

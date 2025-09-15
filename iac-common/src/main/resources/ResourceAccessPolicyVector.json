@@ -8510,7 +8510,6 @@
     "logs:PutSubscriptionFilter",
     "logs:AssociateKmsKey",
     "logs:DescribeLogStreams",
-    "logs:DescribeLogGroups",
     "logs:DeleteMetricFilter",
     "logs:DeleteSubscriptionFilter",
     "logs:GetLogGroupFields",

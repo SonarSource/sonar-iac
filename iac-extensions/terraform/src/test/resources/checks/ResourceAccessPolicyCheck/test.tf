@@ -242,3 +242,22 @@ resource "aws_kms_key" "a_key" { # The resource type for KMS keys
     ]
   })
 }
+
+resource "aws_iam_policy" "step_function" {
+  name        = "Step-Policy"
+  description = "Policy for Step Function"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:DescribeLogGroups", // Requires a wildcard following the AWS doc
+          "logs:CreateLogDelivery"
+        ]
+        Resource = "*" // Should be compliant because of the Action above
+      }
+    ]
+  })
+}

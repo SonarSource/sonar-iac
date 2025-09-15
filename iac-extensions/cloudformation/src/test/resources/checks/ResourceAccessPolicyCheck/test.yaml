@@ -134,3 +134,14 @@ Resources:
             AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
           Action: kms:*
           Resource: '*' # Compliant
+
+  CompliantWithActionThatRequiresFullAccess:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Resource: "*"
+            Action:
+              - "logs:CreateLogDelivery"
+              - "logs:DescribeLogGroups" # Compliant, requires full access
