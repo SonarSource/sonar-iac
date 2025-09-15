@@ -25,7 +25,9 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.PrefixExpressionTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
@@ -73,8 +75,10 @@ public class AwsIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck {
   }
 
   private static boolean isAllProtocols(Tree tree) {
-    return tree instanceof PrefixExpressionTree prefixExpression && "-".equals(prefixExpression.prefix().value()) &&
-      TextUtils.isValue(prefixExpression.expression(), "1").isTrue();
+    // Value is either a literal value -1 or a literal string "-1"
+    return (tree instanceof PrefixExpressionTree prefixExpression && "-".equals(prefixExpression.prefix().value()) &&
+      TextUtils.isValue(prefixExpression.expression(), "1").isTrue())
+      || (tree instanceof LiteralExprTree literalExprTree && literalExprTree.is(TerraformTree.Kind.STRING_LITERAL) && "-1".equals(literalExprTree.value()));
   }
 
   private static boolean rangeContainsSensitivePort(Tree from, Tree to) {

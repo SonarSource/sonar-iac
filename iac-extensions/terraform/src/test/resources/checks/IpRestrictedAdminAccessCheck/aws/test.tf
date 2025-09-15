@@ -7,6 +7,13 @@ resource "aws_security_group" "all_protocols" {
   }
 }
 
+resource "aws_security_group" "all_protocols_string" {
+  ingress {
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"] # Noncompliant
+  }
+}
+
 resource "aws_security_group" "cidr_ipv6" {
   ingress {
     protocol         = -1
