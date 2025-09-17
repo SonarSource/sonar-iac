@@ -37,21 +37,6 @@ public interface PredicateUtils {
     return s -> compiledPattern.matcher(s).matches();
   }
 
-  /** Given a regex string literal, compiles a regex pattern, and creates a string predicate
-   * that will test a string 'true' only iff the regex pattern matches any substring of the given string.
-   */
-  static Predicate<String> containsMatchStringPredicate(String regex) {
-    return containsMatchStringPredicate(regex, 0);
-  }
-
-  /** Given a regex string literal and regex flags, compiles a regex pattern, and creates a string predicate
-   * that will test a string 'true' only iff the regex pattern matches any substring of the given string.
-   */
-  static Predicate<String> containsMatchStringPredicate(String regex, int flags) {
-    final Pattern compiledPattern = Pattern.compile(regex, flags);
-    return s -> compiledPattern.matcher(s).find();
-  }
-
   /** Given a string predicate creates a tree predicate that tests a tree 'true'
    * only iff the string predicate tests tree's value 'true'
    */

@@ -43,6 +43,7 @@ import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
@@ -83,18 +84,18 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
   }
 
   private static void checkPublicAccessBlocks(CheckContext ctx, BlockTree pab, @Nullable S3Bucket s3Bucket) {
-    List<SecondaryLocation> secLoc = checkWrongConfiguration(pab);
-    if (!secLoc.isEmpty() || hasMissingStatement(pab)) {
+    var secondaryLocations = checkWrongConfiguration(pab);
+    if (!secondaryLocations.isEmpty() || hasMissingStatement(pab)) {
       if (s3Bucket != null) {
-        secLoc.add(new SecondaryLocation(s3Bucket.label(), SECONDARY_MSG_BUCKET));
+        secondaryLocations.add(new SecondaryLocation(s3Bucket.label(), SECONDARY_MSG_BUCKET));
       }
-      ctx.reportIssue(pab.labels().get(0), MESSAGE, secLoc);
+      ctx.reportIssue(pab.labels().get(0), MESSAGE, secondaryLocations);
     }
   }
 
   private static List<SecondaryLocation> checkWrongConfiguration(BlockTree publicAccessBlock) {
     return PAB_STATEMENTS.stream()
-      .map(e -> PropertyUtils.value(publicAccessBlock, e))
+      .map(stmt -> PropertyUtils.value(publicAccessBlock, stmt))
       .flatMap(Optional::stream)
       .filter(TextUtils::isValueFalse)
       .map(value -> new SecondaryLocation(value, SECONDARY_MSG_PROPERTY))
@@ -160,19 +161,18 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
     protected void after(TreeContext ctx, Tree root) {
       resources.stream().filter(resource -> !resource.labels().isEmpty())
         .forEach(resource -> PropertyUtils.value(resource, "bucket", TerraformTree.class).ifPresent(identifier -> {
-          if (identifier.is(TerraformTree.Kind.STRING_LITERAL)) {
-            assignByBucketName((LiteralExprTree) identifier, resource);
-          } else if (identifier.is(TerraformTree.Kind.ATTRIBUTE_ACCESS)) {
-            assignByResourceName((AttributeAccessTree) identifier, resource);
+          if (identifier instanceof LiteralExprTree literal) {
+            assignByBucketName(literal, resource);
+          } else if (identifier instanceof AttributeAccessTree attributeAccess) {
+            assignByResourceName(attributeAccess, resource);
           }
         }));
     }
 
     private void assignByResourceName(AttributeAccessTree identifier, BlockTree resource) {
-      if (identifier.object().is(TerraformTree.Kind.ATTRIBUTE_ACCESS)) {
-        String name = ((AttributeAccessTree) identifier.object()).attribute().value();
-        buckets.stream().filter(bucket -> name.equals(bucket.resourceName)).forEach(bucket -> bucket.assignResource(resource));
-      }
+      TerraformUtils.getResourceName(identifier.object())
+        .ifPresent(name -> buckets.stream().filter(bucket -> name.equals(bucket.resourceName))
+          .forEach(bucket -> bucket.assignResource(resource)));
     }
 
     private void assignByBucketName(LiteralExprTree bucketName, BlockTree resource) {

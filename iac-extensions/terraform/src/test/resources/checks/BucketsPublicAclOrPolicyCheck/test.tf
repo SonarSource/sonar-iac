@@ -126,3 +126,67 @@ resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_invalid_attr_a
 resource "aws_s3_bucket" {  # Noncompliant
   bucket = "mynoncompliantmissing6212name"
 }
+
+# Example with `count` meta-argument and indexing with `count.index`
+resource "aws_s3_bucket" "mycompliants6281" {
+  count = 2 # Defines that 2 needs to be deployed
+  bucket = "mycompliants6281myname"
+}
+
+resource "aws_s3_bucket_public_access_block" "mycompliants6281_publicaccess" {
+  count = 2
+  bucket = aws_s3_bucket.mycompliants6281[count.index].id # References the right bucket ID through this "count.index"
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Non compliant example with `count` meta-argument and indexing with `count.index`
+resource "aws_s3_bucket" "mynoncompliants6281" {
+#        ^^^^^^^^^^^^^^^>
+  count = 2
+  bucket = "mycompliants6281myname"
+}
+
+resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_publicaccess" { # Noncompliant
+#        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  count = 2
+  bucket = aws_s3_bucket.mynoncompliants6281[count.index].id
+}
+
+# Example with `count` meta-argument and indexing with numbers
+resource "aws_s3_bucket" "log_bucket_with_count" {
+  count  = var.bucket_logs_enabled || var.bucket_trails_enabled? 1 : 0
+  bucket = join("-", [local.bucket_name, "logs"])
+  force_destroy = true
+  tags          = local.tags
+
+}
+
+resource "aws_s3_bucket_public_access_block" "log_bucket_pab" {
+  count  = var.bucket_logs_enabled || var.bucket_trails_enabled? 1 : 0
+  bucket = aws_s3_bucket.log_bucket_with_count[0].id # Compliant, references correct bucket
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Example with `for_each` meta-argument and indexing with `each.key`
+resource "aws_s3_bucket" "mycompliants6281" {
+  for_each = local.buckets
+  bucket = each.key
+  tags = each.value.tags
+}
+
+resource "aws_s3_bucket_public_access_block" "mycompliants6281_publicaccess" {
+  for_each = local.buckets
+  bucket = aws_s3_bucket.mycompliants6281[each.key].id # References the right bucket ID through this "each.key"
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}

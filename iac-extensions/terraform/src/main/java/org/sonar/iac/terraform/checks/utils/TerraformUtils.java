@@ -16,10 +16,12 @@
  */
 package org.sonar.iac.terraform.checks.utils;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.IndexAccessExprTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
 import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.ATTRIBUTE_ACCESS;
@@ -49,5 +51,22 @@ public class TerraformUtils {
     }
     sb.append(attributeAccess.attribute().value());
     return sb.toString();
+  }
+
+  /**
+   * Extract resource name from Terraform expression. Resource names are in a form {@code resource_type.resource_name},
+   * for example {@code aws_s3_bucket.example}. This method extracts the {@code example} part from such expressions.
+   * <p>
+   */
+  public static Optional<String> getResourceName(ExpressionTree expression) {
+    if (expression instanceof AttributeAccessTree attributeAccess) {
+      // Using resource identifier directly, like aws_s3_bucket.example; we need to capture the `example` part
+      return Optional.of(attributeAccess.attribute().value());
+    } else if (expression instanceof IndexAccessExprTree indexAccess && indexAccess.subject() instanceof AttributeAccessTree subject) {
+      // Expression is like aws_s3_bucket.example[X] when `count` or `for_each` meta-arg is used.
+      // X can be number, `count.index`, `each.key`, etc. Again, we need to capture the `example` part.
+      return Optional.of(subject.attribute().value());
+    }
+    return Optional.empty();
   }
 }
