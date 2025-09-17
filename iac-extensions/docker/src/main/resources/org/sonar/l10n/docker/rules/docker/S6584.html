@@ -14,8 +14,8 @@ RUN aptitude install ca-certificates
 RUN apt install ca-certificates
 RUN gdebi /tmp/package.deb
 </pre>
-<p>Here each line represents a package installation command command for the most popular package managers. Each of them is trying to perform an
-installation in interactive mode, it will wait for prompt that will never come, so it will result in aborted execution.</p>
+<p>Here each line represents a package installation command for the most popular package managers. Each of them is trying to perform an installation
+in interactive mode, it will wait for prompt that will never come, so it will result in aborted execution.</p>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 RUN apt-get -y install ca-certificates

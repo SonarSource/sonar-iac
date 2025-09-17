@@ -37,8 +37,14 @@ resource "azurerm_kubernetes_cluster" "example2" {
   }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a>:</p>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a> since 4.42.0:</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
+resource "azurerm_key_vault" "example" {
+  rbac_authorization_enabled = false # Sensitive
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a> before 4.42.0:</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
 resource "azurerm_key_vault" "example" {
   enable_rbac_authorization = false # Sensitive
 }
@@ -63,10 +69,16 @@ resource "azurerm_kubernetes_cluster" "example" {
   }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a>:</p>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a> since 4.42.0:</p>
 <pre data-diff-id="2" data-diff-type="compliant">
 resource "azurerm_key_vault" "example" {
-  enable_rbac_authorization   = true
+  rbac_authorization_enabled = true
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a> before 4.42.0:</p>
+<pre data-diff-id="3" data-diff-type="compliant">
+resource "azurerm_key_vault" "example" {
+  enable_rbac_authorization = true
 }
 </pre>
 <h2>See</h2>

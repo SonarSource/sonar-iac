@@ -12,7 +12,7 @@ information, disrupt services or elevate privileges.</p>
 <p>The most restrictive possible permissions should be assigned to files and directories.</p>
 <p>To be secure, remove the unnecessary permissions. If required, use <code>--chown</code> to set the target user and group.</p>
 <h2>Sensitive Code Example</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 # Sensitive
 ADD --chmod=777 src dst
 # Sensitive
@@ -23,7 +23,7 @@ RUN chmod +x resource
 RUN chmod u+s resource
 </pre>
 <h2>Compliant Solution</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 ADD --chmod=754 src dst
 COPY --chown=user:user --chmod=744 src dst
 RUN chmod u+x resource

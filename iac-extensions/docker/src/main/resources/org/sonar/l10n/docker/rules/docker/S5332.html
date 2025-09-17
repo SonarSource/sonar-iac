@@ -47,11 +47,11 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 <p>It is recommended to secure all transport channels, even on local networks, as it can take a single non-secure connection to compromise an entire
 application or system.</p>
 <h2>Sensitive Code Example</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 RUN curl http://www.example.com/
 </pre>
 <h2>Compliant Solution</h2>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 RUN curl https://www.example.com/
 </pre>
 <h2>See</h2>
