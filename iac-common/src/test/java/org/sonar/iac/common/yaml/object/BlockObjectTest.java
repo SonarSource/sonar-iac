@@ -18,8 +18,6 @@ package org.sonar.iac.common.yaml.object;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 import org.sonar.iac.common.yaml.tree.MappingTree;
@@ -126,52 +124,6 @@ class BlockObjectTest extends YamlTreeTest {
     ListObject listAbsent = block.list("bar");
     assertThat(listAbsent.items).isEmpty();
     assertThat(listAbsent).isAbsent();
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"foo: [bar, car]",
-    """
-      foo:
-        - bar
-        - car
-      """})
-  void shouldVerifyLists(String code) {
-    BlockObject block = BlockObject.fromPresent(ctx, parseMap(code), "a");
-    List<ListObject> lists = block.lists("foo"::equals).toList();
-    assertThat(lists).hasSize(1);
-    var listPresent = lists.get(0);
-    assertThat(listPresent.items.stream()
-      .map(tree -> ((ScalarTree) tree).value()))
-        .containsExactly("bar", "car");
-
-    ListObject listAbsent = block.list("bar");
-    assertThat(listAbsent.items).isEmpty();
-    assertThat(listAbsent).isAbsent();
-  }
-
-  @Test
-  void shouldVerifyListsEmpty() {
-    BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: [bar, car]"), "a");
-    List<ListObject> lists = block.lists("bob"::equals).toList();
-    assertThat(lists).isEmpty();
-  }
-
-  @Test
-  void shouldVerifyListsMultipleResult() {
-    BlockObject block = BlockObject.fromPresent(ctx, parseMap("""
-      foo1: [bar, car]
-      foo2: [tar, jar]
-      """), "a");
-    List<ListObject> lists = block.lists(s -> s.startsWith("foo")).toList();
-    assertThat(lists).hasSize(2);
-    var list1 = lists.get(0);
-    assertThat(list1.items.stream()
-      .map(tree -> ((ScalarTree) tree).value()))
-        .containsExactly("bar", "car");
-    var list2 = lists.get(1);
-    assertThat(list2.items.stream()
-      .map(tree -> ((ScalarTree) tree).value()))
-        .containsExactly("tar", "jar");
   }
 
   public MappingTree parseMap(String source) {

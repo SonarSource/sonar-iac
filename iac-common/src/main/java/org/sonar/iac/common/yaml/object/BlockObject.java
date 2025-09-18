@@ -21,7 +21,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -80,7 +79,10 @@ public class BlockObject extends YamlObject<MappingTree> {
   public Stream<AttributeObject> attributes(Predicate<String> predicate) {
     return Optional.ofNullable(tree).stream()
       .flatMap(tree -> PropertyUtils.getAll(tree, predicate))
-      .flatMap(BlockObject::textTupleOnly)
+      .filter(TupleTree.class::isInstance)
+      .map(TupleTree.class::cast)
+      // We don't handle keys that are not TextTree
+      .filter(tuple -> tuple.key() instanceof TextTree)
       .map(attribute -> AttributeObject.fromPresent(ctx, attribute, ((TextTree) attribute.key()).value()));
   }
 
@@ -89,20 +91,5 @@ public class BlockObject extends YamlObject<MappingTree> {
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
       .map(attribute -> ListObject.fromPresent(ctx, attribute, key, null))
       .orElse(ListObject.fromAbsent(ctx, key));
-  }
-
-  public Stream<ListObject> lists(Predicate<String> predicate) {
-    return Optional.ofNullable(tree).stream()
-      .flatMap(tree -> PropertyUtils.getAll(tree, predicate))
-      .flatMap(BlockObject::textTupleOnly)
-      .map(attribute -> ListObject.fromPresent(ctx, attribute, ((TextTree) attribute.key()).value(), null));
-  }
-
-  private static Stream<TupleTree> textTupleOnly(PropertyTree propertyTree) {
-    return Optional.of(propertyTree).stream()
-      .filter(TupleTree.class::isInstance)
-      .map(TupleTree.class::cast)
-      // We don't handle keys that are not TextTree
-      .filter(tuple -> tuple.key() instanceof TextTree);
   }
 }
