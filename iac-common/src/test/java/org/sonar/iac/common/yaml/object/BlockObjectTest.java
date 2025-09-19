@@ -136,7 +136,7 @@ class BlockObjectTest extends YamlTreeTest {
         - car
       """})
   void shouldVerifyLists(String code) {
-    BlockObject block = BlockObject.fromPresent(ctx, parseMap(code), "a");
+    BlockObject block = BlockObject.fromPresent(ctx, parseMap(code), "anything");
     List<ListObject> lists = block.lists("foo"::equals).toList();
     assertThat(lists).hasSize(1);
     var listPresent = lists.get(0);
@@ -151,7 +151,7 @@ class BlockObjectTest extends YamlTreeTest {
 
   @Test
   void shouldVerifyListsEmpty() {
-    BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: [bar, car]"), "a");
+    BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: [bar, car]"), "anything");
     List<ListObject> lists = block.lists("bob"::equals).toList();
     assertThat(lists).isEmpty();
   }
@@ -161,7 +161,7 @@ class BlockObjectTest extends YamlTreeTest {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("""
       foo1: [bar, car]
       foo2: [tar, jar]
-      """), "a");
+      """), "anything");
     List<ListObject> lists = block.lists(s -> s.startsWith("foo")).toList();
     assertThat(lists).hasSize(2);
     var list1 = lists.get(0);
