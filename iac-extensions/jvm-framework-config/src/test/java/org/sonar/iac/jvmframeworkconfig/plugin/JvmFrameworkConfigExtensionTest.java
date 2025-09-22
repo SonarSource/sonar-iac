@@ -44,11 +44,11 @@ class JvmFrameworkConfigExtensionTest extends AbstractExtensionTest {
 
   @Override
   protected int extensionsCountOnSQ() {
-    return 4;
+    return 3;
   }
 
   @Override
   protected int extensionsCountOnSL() {
-    return 4;
+    return 3;
   }
 }

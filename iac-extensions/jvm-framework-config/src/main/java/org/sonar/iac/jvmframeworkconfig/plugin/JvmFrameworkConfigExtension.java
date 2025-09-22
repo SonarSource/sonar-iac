@@ -29,10 +29,7 @@ public final class JvmFrameworkConfigExtension {
   }
 
   public static void define(Plugin.Context context) {
-    context.addExtensions(List.of(
-      JvmFrameworkConfigSensor.class,
-      JvmFrameworkConfigSettings.class));
-
+    context.addExtensions(List.of(JvmFrameworkConfigSensor.class));
     context.addExtensions(JvmFrameworkConfigSettings.getGeneralProperties());
   }
 }
