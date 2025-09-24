@@ -23,7 +23,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
@@ -65,7 +68,10 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
+import static org.sonar.iac.common.testing.IacTestUtils.SQS_HIDDEN_FILES_SUPPORTED_API_VERSION;
+import static org.sonar.iac.common.testing.IacTestUtils.SQS_WITHOUT_HIDDEN_FILES_SUPPORT_API_VERSION;
 
 class IacSensorTest extends AbstractSensorTest {
 
@@ -458,6 +464,31 @@ class IacSensorTest extends AbstractSensorTest {
     context.settings().setProperty(EXTENDED_LOGGING_PROPERTY_NAME, false);
     var extendedLoggingEnabled = sensor(checkFactory()).isExtendedLoggingEnabled(context);
     assertThat(extendedLoggingEnabled).isFalse();
+  }
+
+  @Test
+  void shouldProcessHiddenFilesWhenActivatedAndSupportedByApi() {
+    var descriptor = new DefaultSensorDescriptor();
+    var sensor = sensor(SQS_HIDDEN_FILES_SUPPORTED_API_VERSION, checkFactory());
+    sensor.describe(descriptor);
+    sensor.activateHiddenFilesProcessing(descriptor);
+    assertThat(descriptor.isProcessesHiddenFiles()).isTrue();
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldNotProcessHiddenFilesWhenActivatedButNotSupportedByApi(SonarRuntime sonarRuntime) {
+    var descriptor = new DefaultSensorDescriptor();
+    var sensor = sensor(sonarRuntime, checkFactory());
+    sensor.describe(descriptor);
+    sensor.activateHiddenFilesProcessing(descriptor);
+    assertThat(descriptor.isProcessesHiddenFiles()).isFalse();
+  }
+
+  static Stream<SonarRuntime> shouldNotProcessHiddenFilesWhenActivatedButNotSupportedByApi() {
+    return Stream.of(
+      SQS_WITHOUT_HIDDEN_FILES_SUPPORT_API_VERSION,
+      SONARLINT_RUNTIME_9_9);
   }
 
   @Override
