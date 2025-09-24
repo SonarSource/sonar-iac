@@ -14,6 +14,8 @@ sslr = "1.24.0.633"
 archunit = "1.4.1"
 snakeyaml = "2.10"
 minimaljson = "0.9.5"
+tree-sitter = "0.25.3"
+tree-sitter-bash = "0.23.3"
 sonar-scanner-gradle = "6.3.1.5724"
 google-protobuf = "4.32.0"
 google-protobuf-gradle = "0.9.5"
@@ -51,6 +53,8 @@ sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref 
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 snakeyaml = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeyaml" }
 minimaljson = { module = "com.eclipsesource.minimal-json:minimal-json", version.ref = "minimaljson" }
+tree-sitter = { module = "io.github.bonede:tree-sitter", version.ref = "tree-sitter" }
+tree-sitter-bash = { module = "io.github.bonede:tree-sitter-bash", version.ref = "tree-sitter-bash" }
 sonar-scanner-gradle = { module = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin", version.ref = "sonar-scanner-gradle" }
 google-protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "google-protobuf" }
 apache-commons-lang = { module = "commons-lang:commons-lang", version.ref = "apache-commons-lang" }
