@@ -8,7 +8,6 @@ load(".cirrus/modules/env.star", "env")
 load(
     ".cirrus/modules/build.star",
     "build_task",
-    "sca_scan_task",
     "build_test_analyze_task",
     "shadow_scan_sqc_eu_task",
     "shadow_scan_sqc_us_task",
@@ -33,7 +32,6 @@ def private_pipeline_builder():
     merge_dict(conf, env())
     merge_dict(conf, build_task())
     merge_dict(conf, build_test_analyze_task())
-    merge_dict(conf, sca_scan_task())
     merge_dict(conf, qa_plugin_task())
     merge_dict(conf, qa_ruling_task())
     merge_dict(conf, qa_arm64_task())

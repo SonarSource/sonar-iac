@@ -357,9 +357,9 @@ variables.
 Example:
 
 ```Python
-def whitesource_api_env():
+def sqc_api_env():
     return {
-        "WS_API_KEY": "VAULT[development/kv/data/mend data.apikey]"
+        "SQC_TOKEN": "VAULT[development/kv/data/sonarcloud data.token]"
     }
 ```
 
