@@ -86,6 +86,10 @@ if (isCi()) {
         commandLine(
             "golangci-lint",
             "run",
+            // Don't limit the number of issues in the report
+            "--max-issues-per-linter=0",
+            "--max-same-issues=0",
+            // Output format for SonarQube ingestion
             "--output.checkstyle.path",
             "${reportPath.get().asFile}"
         )
