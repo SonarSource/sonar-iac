@@ -200,6 +200,30 @@ class TFLintImporterTest {
     verify(mockAnalysisWarnings).addWarning(expectedLog);
   }
 
+  @Test
+  void shouldThrowExceptionWhenInvalidRuleObject() {
+    String path = PATH_PREFIX + "/invalidRuleObject.json";
+    File reportFile = new File(path);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
+
+    importer.importReport(reportFile);
+
+    assertThat(logTester.logs(Level.WARN))
+      .contains("TFLint report importing: could not save 1 out of 1 issues from %s.".formatted(path.replace("/", File.separator)));
+  }
+
+  @Test
+  void shouldThrowExceptionWhenInvalidIssueLocation() {
+    String path = PATH_PREFIX + "/invalidIssueLocation.json";
+    File reportFile = new File(path);
+    TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
+
+    importer.importReport(reportFile);
+
+    assertThat(logTester.logs(Level.WARN))
+      .contains("TFLint report importing: could not save 1 out of 1 issues from %s.".formatted(path.replace("/", File.separator)));
+  }
+
   private void assertTextRange(TextRange actual, int startLine, int startLineOffset, int endLine, int endLineOffset) {
     SoftAssertions.assertSoftly(softly -> {
       softly.assertThat(actual.start().line()).as("startLine mismatch").isEqualTo(startLine);

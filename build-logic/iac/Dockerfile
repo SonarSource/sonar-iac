@@ -24,7 +24,11 @@ FROM dev_base AS dev_image
 # This mode can be activated by providing build argument `BUILD_ENV=dev_custom_cert`.
 FROM dev_base AS dev_custom_cert_image
 
-ARG CA_CERT=Sonar-FGT-FW-TLS-Traffic-Inspection
+# If you have issue like:
+# failed to solve: failed to compute cache key: failed to calculate checksum of ref xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx::yyyyyyyyyyyyyyyyyyyyyyyyy: "/Sonar-CloudFlare-Inspection-Cert.cer": not found
+# please copy the certificate file into `sonar-helm-for-iac` folder, or
+# define `trafficInspection=false` property, e.g.: `./gradlew -PtrafficInspection=false build`
+ARG CA_CERT=Sonar-CloudFlare-Inspection-Cert
 ARG CERT_LOCATION=/usr/local/share/ca-certificates
 
 ONBUILD COPY ${CA_CERT}.cer ${CERT_LOCATION}/${CA_CERT}.cer

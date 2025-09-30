@@ -28,7 +28,11 @@ public class ReportFormatSonarqube implements ReportFormat {
 
   @Override
   public String getPath(JSONObject issueJson) {
-    return ((String) ((JSONObject) issueJson.get(PRIMARY_LOCATION)).get("filePath"));
+    var object = issueJson.get(PRIMARY_LOCATION);
+    if (object instanceof JSONObject jsonObject) {
+      return (String) jsonObject.get("filePath");
+    }
+    throw new IllegalStateException("Invalid JSON format: missing 'primaryLocation' object, or it is not a JSON object");
   }
 
   @Override
@@ -38,12 +42,21 @@ public class ReportFormatSonarqube implements ReportFormat {
 
   @Override
   public String getMessage(JSONObject issueJson) {
-    return ((String) ((JSONObject) issueJson.get(PRIMARY_LOCATION)).get("message"));
+    var object = issueJson.get(PRIMARY_LOCATION);
+    if (object instanceof JSONObject jsonObject) {
+      return (String) jsonObject.get("message");
+    }
+    throw new IllegalStateException("Invalid JSON format: missing 'primaryLocation' object, or it is not a JSON object");
   }
 
   @Override
   public NewIssueLocation getIssueLocation(JSONObject issueJson, NewExternalIssue externalIssue, InputFile inputFile) {
-    JSONObject jsonTextRange = (JSONObject) ((JSONObject) issueJson.get(PRIMARY_LOCATION)).get("textRange");
+    var object = issueJson.get(PRIMARY_LOCATION);
+    if (!(object instanceof JSONObject jsonObject)) {
+      throw new IllegalStateException("Invalid JSON format: missing 'primaryLocation' object, or it is not a JSON object");
+    }
+
+    JSONObject jsonTextRange = (JSONObject) jsonObject.get("textRange");
 
     TextRange range;
     try {

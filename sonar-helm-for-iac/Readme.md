@@ -13,13 +13,13 @@ It is a small glue code for re-use the implementation of Helm Charts templates e
 
 ### Build Docker Image
 
-Building the docker image locally requires the traffic inspection certificate to be located in the directory of the Go subproject.
+Building the docker image locally requires the traffic inspection certificate to be located in `sonar-helm-for-iac` directory.
 
 ```shell
 ../gradlew :sonar-helm-for-iac:buildDockerImage
 ```
 
-In case you system does not require the certificate for traffic inspection set `trafficInspection=false` while running any Gradle task.
+In case you system does not require the certificate for traffic inspection set `trafficInspection=false` properties while running any Gradle task.
 
 ```shell
 ../gradlew -DtrafficInspection=false :sonar-helm-for-iac:buildDockerImage

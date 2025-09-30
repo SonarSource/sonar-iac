@@ -1,0 +1,15 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "terraform_comment_syntax",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_comment_syntax.md"
+      },
+      "message": "Single line comments should begin with #",
+      "range": [],
+      "callers": []
+    }
+  ],
+  "errors": []
+}

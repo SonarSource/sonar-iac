@@ -72,6 +72,19 @@ For more information see [README.md](https://github.com/SonarSource/cloud-native
 ./gradlew build -x test
 ```
 
+### Certificate issue during the build
+If you are behind a corporate proxy, you might encounter certificate issues during the build, with following error:
+
+```text
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx::yyyyyyyyyyyyyyyyyyyyyyyyy: "/Sonar-FGT-FW-TLS-Traffic-Inspection.cer": not found
+```
+
+To fix the issue please copy the certificate to `sonar-helm-for-iac` directory or specify `-DtrafficInspection=false` property during the build:
+
+```shell
+./gradlew -DtrafficInspection=false build
+```
+
 ### Fix code formatting issues
 
 During the Gradle build, a spotless formatting check is executed.

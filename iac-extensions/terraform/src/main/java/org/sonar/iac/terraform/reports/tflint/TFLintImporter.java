@@ -72,18 +72,21 @@ public class TFLintImporter extends AbstractJsonReportImporter {
 
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
-    JSONObject rule = (JSONObject) issueJson.get("rule");
     NewExternalIssue externalIssue;
     String severity;
     var type = RuleType.CODE_SMELL;
     Long effortInMinutes = 5L;
     // TFLint report contains 2 types: issues & errors. Errors do not contain `rule` object
-    if (rule == null) {
+    var ruleObject = issueJson.get("rule");
+    if (ruleObject == null) {
       severity = (String) issueJson.get("severity");
       externalIssue = context.newExternalIssue()
         .ruleId("tflint.error");
       externalIssue.at(errorLocation(issueJson, externalIssue));
     } else {
+      if (!(ruleObject instanceof JSONObject rule)) {
+        throw new IllegalStateException("Invalid JSON format: missing 'rule' object, or it is not a JSON object");
+      }
       String ruleId = (String) rule.get("name");
       severity = (String) rule.get("severity");
 
@@ -108,15 +111,19 @@ public class TFLintImporter extends AbstractJsonReportImporter {
   }
 
   private NewIssueLocation issueLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
-    return rangeToLocation((JSONObject) issueJson.get("range"), externalIssue)
+    var rangeObject = issueJson.get("range");
+    if (!(rangeObject instanceof JSONObject range)) {
+      throw new IllegalStateException("Invalid JSON format: missing 'range' object, or it is not a JSON object");
+    }
+    return rangeToLocation(range, externalIssue)
       .message((String) issueJson.get("message"));
   }
 
   private NewIssueLocation errorLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
     NewIssueLocation location;
-    var rangeJson = (JSONObject) issueJson.get("range");
     var messageJson = (String) issueJson.get("message");
-    if (rangeJson != null) {
+    var range = issueJson.get("range");
+    if (range instanceof JSONObject rangeJson) {
       // Starting with tfLint 0.35.0, errors contain range object
       location = rangeToLocation(rangeJson, externalIssue);
     } else {
