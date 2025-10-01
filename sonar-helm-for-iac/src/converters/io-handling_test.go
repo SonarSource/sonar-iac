@@ -118,6 +118,20 @@ func Test_read_all_lines_from_input_different_new_lines(t *testing.T) {
 	assert.Equal(t, 2, len(loggingTestCollector.GetLogs()))
 }
 
+func Test_read_empty_file(t *testing.T) {
+	input, output, _ := os.Pipe()
+	_, _ = output.Write([]byte("\x00\x00\x00\x08foo.yaml\x00\x00\x00\x0EapiVersion: v1\x00\x00\x00\x02" +
+		"\x00\x00\x00\x0Bvalues.yaml\x00\x00\x00\x00\x00\x00\x00\x0AChart.yaml\x00\x00\x00\x10name: test chart"))
+	loggingTestCollector := NewDefaultLoggingCollector()
+	_, contents, err := ReadInput(input, &loggingTestCollector)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(contents))
+	assert.Equal(t, "", contents.Get("values.yaml"))
+	assert.Equal(t, "name: test chart", contents.Get("Chart.yaml"))
+	assert.Equal(t, 3, len(loggingTestCollector.GetLogs()))
+}
+
 func Test_read_one_file_with_trailing_newline(t *testing.T) {
 	content := "line1\n"
 	input, output, _ := os.Pipe()

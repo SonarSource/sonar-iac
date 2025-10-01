@@ -86,6 +86,9 @@ func readSingleFile(input *os.File, loggingCollector *LoggingCollector) (string,
 // Calling File.Read(buf) reads sometimes fewer bytes than it is needed so there is a need to read again
 // and concatenate the results
 func readBytes(input *os.File, contentLength int) ([]byte, int, error) {
+	if contentLength == 0 {
+		return []byte{}, 0, nil
+	}
 	contentBytes := make([]byte, contentLength)
 	numberOfBytesRead, err := input.Read(contentBytes)
 	if err != nil {
