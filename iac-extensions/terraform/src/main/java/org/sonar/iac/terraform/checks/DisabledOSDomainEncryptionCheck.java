@@ -16,24 +16,33 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 
 @Rule(key = "S6308")
-public class DisabledESDomainEncryptionCheck extends AbstractNewResourceCheck {
+public class DisabledOSDomainEncryptionCheck extends AbstractNewResourceCheck {
 
-  private static final String MESSAGE = "Make sure that using unencrypted Elasticsearch domains is safe here.";
-  private static final String OMITTING_MESSAGE = "Omitting \"encrypt_at_rest.enabled\" disables Elasticsearch domains encryption. Make sure it is safe here.";
+  private static final String MESSAGE = "Make sure that using unencrypted %s domains is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"encrypt_at_rest.enabled\" disables %s domains encryption. Make sure it is safe here.";
   private static final String SECONDARY_MESSAGE = "Related domain";
 
   @Override
   protected void registerResourceConsumer() {
-    register("aws_elasticsearch_domain",
+    register(Set.of("aws_opensearch_domain", "aws_elasticsearch_domain"),
       resource -> resource.block("encrypt_at_rest")
-        .reportIfAbsent(OMITTING_MESSAGE)
+        .reportIfAbsent(OMITTING_MESSAGE.formatted(convertToDisplayName(resource)))
         .attribute("enabled")
-        .reportIfAbsent(OMITTING_MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
-        .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE)));
+        .reportIfAbsent(OMITTING_MESSAGE.formatted(convertToDisplayName(resource)), resource.toSecondary(SECONDARY_MESSAGE))
+        .reportIf(isFalse(), MESSAGE.formatted(convertToDisplayName(resource)), resource.toSecondary(SECONDARY_MESSAGE)));
+  }
+
+  private static String convertToDisplayName(ResourceSymbol resource) {
+    if ("aws_opensearch_domain".equals(resource.type)) {
+      return "OpenSearch";
+    }
+    return "Elasticsearch";
   }
 }

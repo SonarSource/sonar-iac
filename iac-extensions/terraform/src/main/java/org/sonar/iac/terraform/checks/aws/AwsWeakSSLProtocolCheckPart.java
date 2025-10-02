@@ -35,7 +35,7 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
   protected void registerResourceChecks() {
     register(AwsWeakSSLProtocolCheckPart::checkApiGatewayDomainName, "aws_api_gateway_domain_name");
     register(AwsWeakSSLProtocolCheckPart::checkApiGatewayV2DomainName, "aws_apigatewayv2_domain_name");
-    register(AwsWeakSSLProtocolCheckPart::checkElasticsearchDomain, "aws_elasticsearch_domain");
+    register(AwsWeakSSLProtocolCheckPart::checkOpenSearchDomain, "aws_elasticsearch_domain", "aws_opensearch_domain");
   }
 
   private static void checkApiGatewayDomainName(CheckContext ctx, BlockTree resource) {
@@ -49,7 +49,7 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
       () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, "domain_name_configuration.security_policy")));
   }
 
-  private static void checkElasticsearchDomain(CheckContext ctx, BlockTree resource) {
+  private static void checkOpenSearchDomain(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
       .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
         () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, "domain_endpoint_options.tls_security_policy")));

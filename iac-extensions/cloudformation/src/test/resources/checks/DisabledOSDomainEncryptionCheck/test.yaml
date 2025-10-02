@@ -1,5 +1,40 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
+  OsDomain1:
+    # Noncompliant@+1 {{Omitting "EncryptionAtRestOptions.Enabled" disables OpenSearch Service domains encryption. Make sure it is safe here.}}
+    Type: AWS::OpenSearchService::Domain
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      DomainName: 'myDomain'
+
+  OsDomain2:
+    Type: AWS::OpenSearchService::Domain
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Related domain}}
+    Properties:
+      DomainName: 'myDomain'
+      # Noncompliant@+1 {{Omitting "EncryptionAtRestOptions.Enabled" disables OpenSearch Service domains encryption. Make sure it is safe here.}}
+      EncryptionAtRestOptions:
+    # ^^^^^^^^^^^^^^^^^^^^^^^
+        KmsKeyId: 123
+
+  OsDomain3:
+    Type: AWS::OpenSearchService::Domain
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Related domain}}
+    Properties:
+      DomainName: 'myDomain'
+      EncryptionAtRestOptions:
+        KmsKeyId: 123
+        Enabled: false # Noncompliant {{Make sure that using unencrypted OpenSearch Service domains is safe here.}}
+    #   ^^^^^^^
+
+  OsDomain4:
+    Type: AWS::OpenSearchService::Domain # Compliant
+    Properties:
+      DomainName: 'myDomain'
+      EncryptionAtRestOptions:
+        KmsKeyId: 123
+        Enabled: true
+
   ESDomain1:
     # Noncompliant@+1 {{Omitting "EncryptionAtRestOptions.Enabled" disables Elasticsearch domains encryption. Make sure it is safe here.}}
     Type: AWS::Elasticsearch::Domain
@@ -35,5 +70,5 @@ Resources:
         KmsKeyId: 123
         Enabled: true
 
-  NotESDomain:
+  NotSensitiveDomain:
     Type: Some::Other::Type # Compliant

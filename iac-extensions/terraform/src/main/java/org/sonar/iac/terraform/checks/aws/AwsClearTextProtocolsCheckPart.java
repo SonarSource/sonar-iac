@@ -35,7 +35,8 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
   @Override
   protected void registerResourceChecks() {
     register(AwsClearTextProtocolsCheckPart::checkMskCluster, "aws_msk_cluster");
-    register(AwsClearTextProtocolsCheckPart::checkESDomain, "aws_elasticsearch_domain");
+    register(AwsClearTextProtocolsCheckPart::checkOSDomain, "aws_elasticsearch_domain");
+    register(AwsClearTextProtocolsCheckPart::checkOSDomain, "aws_opensearch_domain");
     register(AwsClearTextProtocolsCheckPart::checkLbListener, "aws_lb_listener");
     register(AwsClearTextProtocolsCheckPart::checkESReplicationGroup, "aws_elasticache_replication_group");
     register(AwsClearTextProtocolsCheckPart::checkEcsTaskDefinition, "aws_ecs_task_definition");
@@ -57,7 +58,7 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
       .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, MESSAGE_CLEAR_TEXT));
   }
 
-  private static void checkESDomain(CheckContext ctx, BlockTree resource) {
+  private static void checkOSDomain(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
       .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", MESSAGE_CLEAR_TEXT));
 

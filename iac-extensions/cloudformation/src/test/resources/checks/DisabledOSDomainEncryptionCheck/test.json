@@ -1,6 +1,41 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Resources": {
+    "OSDomain1": {
+      "Type": "AWS::OpenSearchService::Domain",
+      "Properties": {
+        "DomainName": "myDomain"
+      }
+    },
+    "OSDomain2": {
+      "Type": "AWS::OpenSearchService::Domain",
+      "Properties": {
+        "DomainName": "myDomain",
+        "EncryptionAtRestOptions": {
+          "KmsKeyId": 123
+        }
+      }
+    },
+    "OSDomain3": {
+      "Type": "AWS::OpenSearchService::Domain",
+      "Properties": {
+        "DomainName": "myDomain",
+        "EncryptionAtRestOptions": {
+          "KmsKeyId": 123,
+          "Enabled": false
+        }
+      }
+    },
+    "OSDomain4": {
+      "Type": "AWS::OpenSearchService::Domain",
+      "Properties": {
+        "DomainName": "myDomain",
+        "EncryptionAtRestOptions": {
+          "KmsKeyId": 123,
+          "Enabled": true
+        }
+      }
+    },
     "ESDomain1": {
       "Type": "AWS::Elasticsearch::Domain",
       "Properties": {
@@ -36,7 +71,7 @@
         }
       }
     },
-    "NotESDomain": {
+    "NotSensitiveDomain": {
       "Type": "Some::Other::Type",
     }
   }

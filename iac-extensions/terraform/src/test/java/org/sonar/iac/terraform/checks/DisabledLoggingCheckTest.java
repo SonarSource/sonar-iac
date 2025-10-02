@@ -90,6 +90,11 @@ class DisabledLoggingCheckTest {
   }
 
   @Test
+  void shouldValidateAwsOpenSearchDomain() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_open_search_domain.tf", check);
+  }
+
+  @Test
   void shouldValidateAwsCloudfrontDistribution() {
     TerraformVerifier.verify("DisabledLoggingCheck/aws_cloudfront_distribution.tf", check);
   }

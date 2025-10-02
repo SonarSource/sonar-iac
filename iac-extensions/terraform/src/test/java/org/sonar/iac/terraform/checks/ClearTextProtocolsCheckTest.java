@@ -31,13 +31,18 @@ class ClearTextProtocolsCheckTest {
   }
 
   @Test
+  void aws_opensearch_domain() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/aws_opensearch_domain.tf", new ClearTextProtocolsCheck());
+  }
+
+  @Test
   void aws_lb_listener() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/aws_lb_listener.tf", new ClearTextProtocolsCheck());
   }
 
   @Test
   void aws_elasticsearch_replication_group() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/aws_elasticsearch_replication_group.tf", new ClearTextProtocolsCheck());
+    TerraformVerifier.verify("ClearTextProtocolsCheck/aws_elasticache_replication_group.tf", new ClearTextProtocolsCheck());
   }
 
   @Test

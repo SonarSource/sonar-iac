@@ -36,6 +36,11 @@ class WeakSSLProtocolCheckTest {
   }
 
   @Test
+  void testAwsOpenSearchDomain() {
+    TerraformVerifier.verify("WeakSSLProtocolCheck/aws_opensearch_domain.tf", new WeakSSLProtocolCheck());
+  }
+
+  @Test
   void testAzureMysqlServerAzurermV2() {
     TerraformVerifier.verifyWithProviderVersion("WeakSSLProtocolCheck/azure_mysql_server.tf", new WeakSSLProtocolCheck(), "2.99.0");
   }

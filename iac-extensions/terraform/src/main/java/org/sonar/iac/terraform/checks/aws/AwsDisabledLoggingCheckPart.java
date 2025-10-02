@@ -159,7 +159,8 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
       .reportIfAbsent(MESSAGE));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticsearch_domain
-    register("aws_elasticsearch_domain", resource -> resource.blocks("log_publishing_options")
+    // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearch_domain
+    register(Set.of("aws_opensearch_domain", "aws_elasticsearch_domain"), resource -> resource.blocks("log_publishing_options")
       .filter(block -> block.attribute("log_type").is(notEqualTo("AUDIT_LOGS").negate()))
       .findFirst()
       .ifPresentOrElse(auditLog -> auditLog.attribute("enabled").reportIf(isFalse(), MESSAGE),

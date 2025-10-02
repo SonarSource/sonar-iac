@@ -18,10 +18,10 @@ package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
 
-class DisabledESDomainEncryptionCheckTest {
+class DisabledOSDomainEncryptionCheckTest {
 
   @Test
   void test() {
-    TerraformVerifier.verify("DisabledESDomainEncryptionCheck/test.tf", new DisabledESDomainEncryptionCheck());
+    TerraformVerifier.verify("DisabledOSDomainEncryptionCheck/test.tf", new DisabledOSDomainEncryptionCheck());
   }
 }

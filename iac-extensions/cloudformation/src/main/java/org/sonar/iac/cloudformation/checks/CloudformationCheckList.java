@@ -38,7 +38,7 @@ public class CloudformationCheckList {
       BucketsPublicAclOrPolicyCheck.class,
       ClearTextProtocolsCheck.class,
       DisabledEFSEncryptionCheck.class,
-      DisabledESDomainEncryptionCheck.class,
+      DisabledOSDomainEncryptionCheck.class,
       DisabledDBEncryptionCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledLoggingCheck.class,
