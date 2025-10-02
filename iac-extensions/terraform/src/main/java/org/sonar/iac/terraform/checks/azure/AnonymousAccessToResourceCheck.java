@@ -43,8 +43,14 @@ public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
       "azurerm_app_service_slot",
       "azurerm_function_app",
       "azurerm_function_app_slot",
+      "azurerm_linux_function_app",
+      "azurerm_linux_function_app_slot",
+      "azurerm_windows_function_app",
+      "azurerm_windows_function_app_slot",
       "azurerm_windows_web_app",
-      "azurerm_linux_web_app");
+      "azurerm_windows_web_app_slot",
+      "azurerm_linux_web_app",
+      "azurerm_linux_web_app_slot");
     register(AnonymousAccessToResourceCheck::checkApiManagementApi, "azurerm_api_management_api");
     register(AnonymousAccessToResourceCheck::checkApiManagement, "azurerm_api_management");
     register(AnonymousAccessToResourceCheck::checkDataFactorLinkServiceOdata, "azurerm_data_factory_linked_service_odata");

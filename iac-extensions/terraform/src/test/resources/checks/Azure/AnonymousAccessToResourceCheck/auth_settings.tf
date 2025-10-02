@@ -30,9 +30,21 @@ resource "azurerm_function_app" "sensitive_web_app" { # Noncompliant
 }
 resource "azurerm_function_app_slot" "sensitive_web_app" { # Noncompliant
 }
+resource "azurerm_linux_function_app" { # Noncompliant
+}
+resource "azurerm_linux_function_app_slot" { # Noncompliant
+}
+resource "azurerm_windows_function_app" { # Noncompliant
+}
+resource "azurerm_windows_function_app_slot" { # Noncompliant
+}
 resource "azurerm_windows_web_app" "sensitive_web_app" { # Noncompliant
 }
+resource "azurerm_windows_web_app_slot" "sensitive_web_app" { # Noncompliant
+}
 resource "azurerm_linux_web_app" "sensitive_web_app" { # Noncompliant
+}
+resource "azurerm_linux_web_app_slot" "sensitive_web_app" { # Noncompliant
 }
 
 resource "azurerm_app_service_slot" "compliant_web_app" {

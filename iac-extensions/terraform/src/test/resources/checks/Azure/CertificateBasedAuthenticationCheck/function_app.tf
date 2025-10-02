@@ -12,6 +12,24 @@ resource "azurerm_function_app" "sensitive1" {
 resource "azurerm_function_app" "sensitive2" {
 }
 
+resource "azurerm_linux_function_app" "sensitive_linux_function_app" {
+  client_certificate_mode = "Optional" # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+resource "azurerm_linux_function_app_slot" "sensitive_linux_function_app_slot" {
+  client_certificate_mode = "Optional" # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+
+resource "azurerm_windows_function_app" "sensitive_windows_function_app" {
+  client_certificate_mode = "Optional" # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+resource "azurerm_windows_function_app_slot" "sensitive_windows_function_app_slot" {
+  client_certificate_mode = "Optional" # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+
 resource "azurerm_function_app" "compliant1" {
   client_cert_mode = "Mandatory" # Compliant
 }

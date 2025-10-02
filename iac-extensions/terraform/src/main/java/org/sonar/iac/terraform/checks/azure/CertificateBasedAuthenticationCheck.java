@@ -49,7 +49,8 @@ public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
   @Override
   protected void registerResourceChecks() {
     register(CertificateBasedAuthenticationCheck::checkAppService, "azurerm_app_service");
-    register(CertificateBasedAuthenticationCheck::checkApps, "azurerm_function_app", "azurerm_logic_app_standard");
+    register(CertificateBasedAuthenticationCheck::checkApps, "azurerm_function_app", "azurerm_linux_function_app", "azurerm_linux_function_app_slot",
+      "azurerm_windows_function_app", "azurerm_windows_function_app_slot", "azurerm_logic_app_standard");
     register(CertificateBasedAuthenticationCheck::checkWebApps, "azurerm_linux_web_app", "azurerm_windows_web_app");
     register(CertificateBasedAuthenticationCheck::checkApiManagement, "azurerm_api_management");
     register(CertificateBasedAuthenticationCheck::checkLinkedServices, "azurerm_data_factory_linked_service_sftp", "azurerm_data_factory_linked_service_web");
