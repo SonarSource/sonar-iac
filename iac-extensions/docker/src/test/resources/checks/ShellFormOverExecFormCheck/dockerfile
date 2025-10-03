@@ -17,6 +17,8 @@ ONBUILD CMD echo "Welcome!"
 # Compliant
 HEALTHCHECK --interval=30s CMD node healthcheck.js
 
+HEALTHCHECK CMD curl --fail http://localhost:8080/healthcheck || exit 1
+
 # Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
 CMD echo $message
 
