@@ -64,4 +64,13 @@ public interface CheckContext {
    * @param secondaryLocations the list of secondary locations
    */
   void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations);
+
+  /**
+   * Report an issue with a components as primary location.
+   *
+   * @param toHighlight the list of components to highlight
+   * @param message the message to report
+   */
+  <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message);
+
 }

@@ -49,4 +49,18 @@ class TrileanTest {
     assertThat(Trilean.fromBoolean(false)).isEqualTo(Trilean.FALSE);
     assertThat(Trilean.fromBoolean(null)).isEqualTo(Trilean.UNKNOWN);
   }
+
+  @Test
+  void testFromString() {
+    assertThat(Trilean.fromString("true")).isEqualTo(Trilean.TRUE);
+    assertThat(Trilean.fromString("TRUE")).isEqualTo(Trilean.TRUE);
+    assertThat(Trilean.fromString("TruE")).isEqualTo(Trilean.TRUE);
+    assertThat(Trilean.fromString("false")).isEqualTo(Trilean.FALSE);
+    assertThat(Trilean.fromString("FALSE")).isEqualTo(Trilean.FALSE);
+    assertThat(Trilean.fromString("False")).isEqualTo(Trilean.FALSE);
+    assertThat(Trilean.fromString("")).isEqualTo(Trilean.UNKNOWN);
+    assertThat(Trilean.fromString("xxx")).isEqualTo(Trilean.UNKNOWN);
+    assertThat(Trilean.fromString("trueeeeee")).isEqualTo(Trilean.UNKNOWN);
+
+  }
 }

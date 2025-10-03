@@ -260,6 +260,11 @@ class AttributeObjectTest extends YamlTreeTest {
     public void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations) {
       reportIssue(toHighlight.textRange(), message, secondaryLocations);
     }
+
+    @Override
+    public <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message) {
+      reportIssue(TextRanges.mergeElementsWithTextRange(toHighlight), message, Collections.emptyList());
+    }
   }
 
   private static class TestIssue {

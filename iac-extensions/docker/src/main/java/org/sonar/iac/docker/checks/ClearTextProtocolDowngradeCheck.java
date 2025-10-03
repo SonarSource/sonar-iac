@@ -55,15 +55,6 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final Predicate<String> REDIRECTION_PREDICATES = longFlagContainingOneOf(REDIRECTION_FLAGS).or(SHORT_REDIRECTION_FLAG);
 
   // actual detectors
-  // matching "curl -L --proto https://redirecttoinsecure.example.com"
-  private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION = CommandDetector.builder()
-    .with(CURL_COMMAND)
-    .withAnyFlagFollowedBy(PROTO_FLAG)
-    .notWith(EQUALS_PROTO_FLAG_OPTION)
-    .contains(REDIRECTION_PREDICATES)
-    .contains(SENSITIVE_HTTPS_URL_BEGINNING)
-    .build();
-
   // matching "curl -L https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_MISSING_FLAG = CommandDetector.builder()
     .with(CURL_COMMAND)
@@ -90,7 +81,6 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .build();
 
   private static final Set<CommandDetector> SENSITIVE_CURL_COMMAND_DETECTORS = Set.of(
-    SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION,
     SENSITIVE_CURL_COMMAND_MISSING_FLAG,
     SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION);
 

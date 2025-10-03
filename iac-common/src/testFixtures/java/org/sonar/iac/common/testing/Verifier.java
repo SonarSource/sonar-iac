@@ -305,6 +305,11 @@ public final class Verifier {
       reportIssue(toHighlight.textRange(), message, secondaryLocations);
     }
 
+    @Override
+    public <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message) {
+      reportIssue(TextRanges.mergeElementsWithTextRange(toHighlight), message, Collections.emptyList());
+    }
+
     // "`contains` method might be a performance bottleneck". Order of added issues is important; moreover, this is the test code.
     @SuppressWarnings("java:S2250")
     @Override

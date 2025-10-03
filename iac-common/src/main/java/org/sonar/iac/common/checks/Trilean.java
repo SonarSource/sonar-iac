@@ -47,4 +47,15 @@ public enum Trilean {
       return FALSE;
     }
   }
+
+  public static Trilean fromString(@Nullable String str) {
+    if (str != null) {
+      if ("true".equalsIgnoreCase(str)) {
+        return TRUE;
+      } else if ("false".equalsIgnoreCase(str)) {
+        return FALSE;
+      }
+    }
+    return UNKNOWN;
+  }
 }
