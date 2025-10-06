@@ -26,24 +26,23 @@ import org.sonar.iac.docker.checks.utils.CommandDetector;
  */
 public class ShortFlagPredicate implements Predicate<String> {
 
-  private static final Predicate<String> SHORT_FLAG = s -> s.startsWith("-") && (s.length() == 1 || s.charAt(1) != '-');
-
-  private final Predicate<String> predicate;
+  private final char flag;
 
   /**
    * Package private constructor, should be used via
    * {@link StandardCommandDetectors#shortFlagPredicate(char)}.
    */
   ShortFlagPredicate(char flag) {
-    predicate = SHORT_FLAG.and((String str) -> {
-      var flagNoDash = str.substring(1);
-      var characters = flagNoDash.chars().mapToObj(c -> (char) c).toList();
-      return characters.contains(flag);
-    });
+    this.flag = flag;
   }
 
   @Override
   public boolean test(String argument) {
-    return predicate.test(argument);
+    if (argument.startsWith("-") && (argument.length() == 1 || argument.charAt(1) != '-')) {
+      var flagNoDash = argument.substring(1);
+      var characters = flagNoDash.chars().mapToObj(c -> (char) c).toList();
+      return characters.contains(flag);
+    }
+    return false;
   }
 }

@@ -46,6 +46,8 @@ RUN wget --secure-protocol=TLSv1_2 https://might-redirect.example.com/install.sh
 RUN wget --secure-protocol=TLSv1_2 -q -O - --max-redirect=0 -- https://might-redirect.example.com/install.sh
 RUN wget --secure-protocol=TLSv1_2 -q -O - --max-redirect="0" https://might-redirect.example.com/install.sh
 RUN wget --secure-protocol=TLSv1_2 -q -O - --max-redirect='0' https://might-redirect.example.com/install.sh
+RUN wget --secure-protocol=TLSv1_2 -q -O - '--max-redirect=0' https://might-redirect.example.com/install.sh
+RUN wget --secure-protocol=TLSv1_2 -q -O - "--max-redirect=0" https://might-redirect.example.com/install.sh
 
 # This is technically a FN, because a flag after `--` will be treated as a file name and have no effect. However, this is most probably a
 # user error, that we should not report.
