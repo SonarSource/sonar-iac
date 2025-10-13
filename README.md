@@ -1,8 +1,8 @@
 Code Quality and Security for Infrastructure-as-Code
 ==========
 [![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonar-iac.svg?branch=master)](https://cirrus-ci.com/github/SonarSource/sonar-iac)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=org.sonarsource.iac%3Aiac&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=org.sonarsource.iac%3Aiac)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.sonarsource.iac%3Aiac&metric=coverage)](https://sonarcloud.io/summary/new_code?id=org.sonarsource.iac%3Aiac)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SonarSource_sonar-iac&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=SonarSource_sonar-iac)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SonarSource_sonar-iac&metric=coverage)](https://sonarcloud.io/summary/new_code?id=SonarSource_sonar-iac)
 
 This SonarSource project is a [static code analyzer](https://en.wikipedia.org/wiki/Static_program_analysis) for Infrastructure-as-Code (IaC) languages such as CloudFormation, Kubernetes, and Terraform.
 It is a component of the [SonarQube Server](https://www.sonarqube.org/) platform, and it runs the IaC features on [SonarQube Cloud](https://sonarcloud.io/).
