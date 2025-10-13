@@ -90,7 +90,7 @@ def build_test_env():
         # --no-parallel because as of 6.2.0.5505 sonar-scanner-gradle doesn't work well with Gradle 9
         # see https://community.sonarsource.com/t/error-when-running-sonar-task-with-gradle-9-0-0-rc-1/143857/12
         "BUILD_ARGUMENTS": "-x artifactoryPublish --no-parallel",
-        "SONAR_PROJECT_KEY": "org.sonarsource.iac:iac"
+        "SONAR_PROJECT_KEY": "SonarSource_sonar-iac-enterprise"
     }
     return env
 
@@ -115,7 +115,6 @@ def build_test_analyze_task():
             "cleanup_gradle_script": cleanup_gradle_script(),
         }
     }
-
 
 #
 # Shadow Scans
@@ -185,7 +184,7 @@ def shadow_scan_sqc_us_task():
 def iris_general_env():
     return {
        "SONAR_SOURCE_IRIS_TOKEN": "VAULT[development/kv/data/iris data.next]",
-       "SONAR_SOURCE_PROJECT_KEY": "org.sonarsource.iac:iac",
+       "SONAR_SOURCE_PROJECT_KEY": "SonarSource_sonar-iac-enterprise",
        "CRON_NIGHTLY_JOB_NAME": "nightly",
     }
 
@@ -223,7 +222,7 @@ def iris_next_enterprise_to_sqc_eu_public_env():
     env |= {
        "SONAR_TARGET_URL": "https://sonarcloud.io",
        "SONAR_TARGET_IRIS_TOKEN": "VAULT[development/kv/data/iris data.sqc-eu]",
-       "SONAR_TARGET_PROJECT_KEY": "org.sonarsource.iac:iac",
+       "SONAR_TARGET_PROJECT_KEY": "SonarSource_sonar-iac",
     }
     return env
 
