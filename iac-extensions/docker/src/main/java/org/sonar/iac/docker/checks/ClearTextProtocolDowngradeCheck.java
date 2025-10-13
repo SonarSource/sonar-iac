@@ -30,7 +30,7 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 import static java.util.function.Predicate.not;
-import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.shortFlagPredicate;
+import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.combinedFlagPredicate;
 import static org.sonar.iac.docker.checks.utils.command.StringPredicate.equalsIgnoreQuotes;
 import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWithIgnoreQuotes;
 
@@ -49,7 +49,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final Predicate<String> SENSITIVE_HTTPS_URL_BEGINNING = startsWithIgnoreQuotes("https");
 
   private static final Predicate<String> LONG_FLAG = s -> s.startsWith("--");
-  private static final Predicate<String> SHORT_REDIRECTION_FLAG = shortFlagPredicate(REDIRECTION_SHORT_FLAG);
+  private static final Predicate<String> SHORT_REDIRECTION_FLAG = combinedFlagPredicate(REDIRECTION_SHORT_FLAG);
 
   // common predicates of detectors
   private static final Predicate<String> REDIRECTION_PREDICATES = longFlagContainingOneOf(REDIRECTION_FLAGS).or(SHORT_REDIRECTION_FLAG);

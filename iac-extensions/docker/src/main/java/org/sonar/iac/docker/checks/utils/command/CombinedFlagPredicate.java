@@ -20,19 +20,21 @@ import java.util.function.Predicate;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 
 /**
- * Predicate for {@link CommandDetector} to detect short flags.
- * In many shell commands like {@code curl} the short version options that do not need any additional values can be used immediately next
- * to each other, e.g.: options -O, -L and -v can be defined at once as -OLv.
+ * Predicate for {@link CommandDetector} to detect combined flags.
+ * In many shell commands like {@code curl} or {@code ls} the short version flags that do not need any additional values can be used
+ * immediately next to each other, e.g.: options {@code -O}, {@code -L} and {@code -v} can be defined at once as {@code -OLv}.
+ * <br/>
+ * Another example is {@code ls -la}, which is equivalent to {@code ls -l -a}.
  */
-public class ShortFlagPredicate implements Predicate<String> {
+public class CombinedFlagPredicate implements Predicate<String> {
 
   private final char flag;
 
   /**
    * Package private constructor, should be used via
-   * {@link StandardCommandDetectors#shortFlagPredicate(char)}.
+   * {@link StandardCommandDetectors#combinedFlagPredicate(char)}.
    */
-  ShortFlagPredicate(char flag) {
+  CombinedFlagPredicate(char flag) {
     this.flag = flag;
   }
 

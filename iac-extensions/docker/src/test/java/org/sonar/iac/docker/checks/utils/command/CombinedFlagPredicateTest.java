@@ -20,12 +20,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.shortFlagPredicate;
+import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.combinedFlagPredicate;
 
-class ShortFlagPredicateTest {
+class CombinedFlagPredicateTest {
 
-  ShortFlagPredicate predicate = new ShortFlagPredicate('X');
-  ShortFlagPredicate predicateCreatedByStaticMethod = shortFlagPredicate('X');
+  CombinedFlagPredicate predicate = new CombinedFlagPredicate('X');
+  CombinedFlagPredicate predicateCreatedByStaticMethod = combinedFlagPredicate('X');
 
   @ParameterizedTest
   @ValueSource(strings = {

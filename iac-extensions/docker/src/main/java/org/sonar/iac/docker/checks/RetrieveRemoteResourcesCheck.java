@@ -32,7 +32,7 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.Variable;
 
-import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.shortFlagPredicate;
+import static org.sonar.iac.docker.checks.utils.command.StandardCommandDetectors.combinedFlagPredicate;
 import static org.sonar.iac.docker.checks.utils.command.StringPredicate.startsWithIgnoreQuotes;
 
 @Rule(key = "S7026")
@@ -53,7 +53,7 @@ public class RetrieveRemoteResourcesCheck implements IacCheck {
     "--form", "-F", "--form-escape", "--form-string", "--header", "-H", "--json", "--referer", "-e", "--request", "-X", "--user-agent", "-A");
   private static final List<String> CURL_STDOUT_REDIRECT = List.of(">", ">>", "1>", "1>>");
   private static final Predicate<String> CURL_DOWNLOAD_FLAG_PREDICATE = startsWithIgnoreQuotes("-o", "--output", "--remote-name");
-  private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = shortFlagPredicate('O');
+  private static final Predicate<String> CURL_SHORT_DOWNLOAD_FLAG = combinedFlagPredicate('O');
 
   private static final Predicate<String> URL_PREDICATE = startsWithIgnoreQuotes("http");
 

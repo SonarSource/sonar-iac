@@ -62,7 +62,7 @@ public final class StandardCommandDetectors {
       .build();
   }
 
-  public static ShortFlagPredicate shortFlagPredicate(char flag) {
-    return new ShortFlagPredicate(flag);
+  public static CombinedFlagPredicate combinedFlagPredicate(char flag) {
+    return new CombinedFlagPredicate(flag);
   }
 }
