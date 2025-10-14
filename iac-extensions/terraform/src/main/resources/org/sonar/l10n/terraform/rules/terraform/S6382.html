@@ -30,7 +30,7 @@ resource "azurerm_linux_web_app" "example2" {
 <p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
 href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
-resource "azurerm_function_app" "example" {
+resource "azurerm_linux_function_app" "example" {
   client_cert_mode = "Optional" # Sensitive
 }
 </pre>
@@ -64,7 +64,7 @@ resource "azurerm_linux_web_app" "example" {
 <p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
 href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
 <pre data-diff-id="2" data-diff-type="compliant">
-resource "azurerm_function_app" "example" {
+resource "azurerm_linux_function_app" "example" {
   client_cert_mode = "Required"
 }
 </pre>

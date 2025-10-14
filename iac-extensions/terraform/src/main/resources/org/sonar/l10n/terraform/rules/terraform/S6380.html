@@ -18,7 +18,7 @@ incidents.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-resource "azurerm_function_app" "example" {
+resource "azurerm_linux_function_app" "example" {
   name = "example"
 
   auth_settings {
@@ -72,7 +72,7 @@ resource "azurerm_redis_cache" "example" {
 <h2>Compliant Solution</h2>
 <p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
-resource "azurerm_function_app" "example" {
+resource "azurerm_linux_function_app" "example" {
   name = "example"
 
   auth_settings {

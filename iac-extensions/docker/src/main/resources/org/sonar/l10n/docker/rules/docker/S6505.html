@@ -33,6 +33,8 @@ RUN npm install --ignore-scripts
 FROM node:latest
 
 RUN yarn install --ignore-scripts
+# for yarn 2.x and later
+RUN YARN_ENABLE_SCRIPTS=false yarn install
 </pre>
 <h2>See</h2>
 <ul>

@@ -1,6 +1,6 @@
-<p>Amazon Elasticsearch Service (ES) is a managed service to host Elasticsearch instances.</p>
-<p>To harden domain (cluster) data in case of unauthorized access, ES provides data-at-rest encryption if the Elasticsearch version is 5.1 or above.
-Enabling encryption at rest will help protect:</p>
+<p>Amazon OpenSearch Service is a managed service to host OpenSearch instances. It replaces Elasticsearch Service, which has been deprecated.</p>
+<p>To harden domain (cluster) data in case of unauthorized access, OpenSearch provides data-at-rest encryption if the engine is OpenSearch (any
+version), or Elasticsearch with a version of 5.1 or above. Enabling encryption at rest will help protect:</p>
 <ul>
   <li> indices </li>
   <li> logs </li>
@@ -8,7 +8,7 @@ Enabling encryption at rest will help protect:</p>
   <li> data in the application directory </li>
   <li> automated snapshots </li>
 </ul>
-<p>Thus, if adversaries gain physical access to the storage medium, they cannot access the data.</p>
+<p>Thus, adversaries cannot access the data if they gain physical access to the storage medium.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The database contains sensitive data that could cause harm when leaked. </li>
@@ -16,36 +16,36 @@ Enabling encryption at rest will help protect:</p>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It is recommended to encrypt Elasticsearch domains that contain sensitive information.</p>
-<p>Encryption and decryption are handled transparently by ES, so no further modifications to the application are necessary.</p>
+<p>It is recommended to encrypt OpenSearch domains that contain sensitive information.</p>
+<p>OpenSearch handles encryption and decryption transparently, so no further modifications to the application are necessary.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a
-href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticsearch-domain.html">AWS::Elasticsearch::Domain</a>:</p>
+href="https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-opensearchservice-domain.html">AWS::OpenSearchService::Domain</a>:</p>
 <pre>
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  Elasticsearch:
-    Type: AWS::Elasticsearch::Domain
+  OpenSearchServiceDomain:
+    Type: AWS::OpenSearchService::Domain
     Properties:
       EncryptionAtRestOptions:
         Enabled: false  # Sensitive, disabled by default
 </pre>
 <h2>Compliant Solution</h2>
 <p>For <a
-href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticsearch-domain.html">AWS::Elasticsearch::Domain</a>:</p>
+href="https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-opensearchservice-domain.html">AWS::OpenSearchService::Domain</a>:</p>
 <pre>
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  Elasticsearch:
-    Type: AWS::Elasticsearch::Domain
+  OpenSearchServiceDomain:
+    Type: AWS::OpenSearchService::Domain
     Properties:
       EncryptionAtRestOptions:
         Enabled: true
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/encryption-at-rest.html">AWS Documentation</a> - Encryption of
-  data at rest for Amazon Elasticsearch Service </li>
+  <li> <a href="https://docs.aws.amazon.com/opensearch-service/latest/developerguide/encryption-at-rest.html">AWS Documentation</a> - Encryption of
+  data at rest for Amazon OpenSearch Service </li>
   <li> CWE - <a href="https://cwe.mitre.org/data/definitions/311">CWE-311 - Missing Encryption of Sensitive Data</a> </li>
   <li> STIG Viewer - <a href="https://stigviewer.com/stigs/application_security_and_development/2024-12-06/finding/V-222588">Application Security and
   Development: V-222588</a> - The application must implement approved cryptographic mechanisms to prevent unauthorized modification of information at
