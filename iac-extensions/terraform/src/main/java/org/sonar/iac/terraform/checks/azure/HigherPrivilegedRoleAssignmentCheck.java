@@ -87,8 +87,12 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
       register(BlockTree.class, (ctx, blockTree) -> {
         if (isResource(blockTree, "azuread_directory_role") && hasReferenceLabel(blockTree)) {
           collectHigherPrivilegedRole(blockTree);
+        } else if (isResource(blockTree, "azuread_directory_role_assignment")) {
+          collectDirectoryRoleMember(blockTree, "role_id");
         } else if (isResource(blockTree, "azuread_directory_role_member")) {
-          collectDirectoryRoleMember(blockTree);
+          // this is an older version of role assignment resource:
+          // https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/directory_role_member
+          collectDirectoryRoleMember(blockTree, "role_object_id");
         }
       });
     }
@@ -103,15 +107,20 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
         .ifPresent(id -> higherPrivilegedRoles.putIfAbsent(getReferenceLabel(resource), id));
     }
 
-    private void collectDirectoryRoleMember(BlockTree resource) {
-      PropertyUtils.get(resource, "role_object_id", AttributeTree.class)
+    private void collectDirectoryRoleMember(BlockTree resource, String key) {
+      PropertyUtils.get(resource, key, AttributeTree.class)
         .filter(attribute -> attribute.value().is(TerraformTree.Kind.ATTRIBUTE_ACCESS))
-        .filter(attribute -> isObjectIdReference((AttributeAccessTree) attribute.value()))
+        // The old API accepts only `object_id`, but the new one also accepts `template_id`
+        .filter(attribute -> isObjectIdReference((AttributeAccessTree) attribute.value()) || isTemplateIdReference((AttributeAccessTree) attribute.value()))
         .ifPresent(attribute -> roleMember.putIfAbsent(getObjectReferenceLabel((AttributeAccessTree) attribute.value()), attribute));
     }
 
     private static boolean isObjectIdReference(AttributeAccessTree tree) {
       return "object_id".equals(tree.attribute().value()) && tree.object() instanceof AttributeAccessTree;
+    }
+
+    private static boolean isTemplateIdReference(AttributeAccessTree tree) {
+      return "template_id".equals(tree.attribute().value()) && tree.object() instanceof AttributeAccessTree;
     }
 
     private static String getObjectReferenceLabel(AttributeAccessTree tree) {

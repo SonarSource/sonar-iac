@@ -12,6 +12,18 @@ resource "azuread_directory_role_member" "privileged-role-administrator-membersh
   member_object_id = data.azuread_user.user.object_id
 }
 
+# Same, but with the new API
+resource "azuread_directory_role" "privileged-role-administrator-2" {
+  # Noncompliant@+1 {{Make sure that assigning the Privileged Role Administrator role is safe here.}}
+  display_name = "Privileged Role Administrator"
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+resource "azuread_directory_role_assignment" "privileged-role-administrator-assignment" {
+  role_id   = azuread_directory_role.privileged-role-administrator-2.template_id
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{Role assigned here.}}
+  principal_object_id = data.azuread_user.user.object_id
+}
+
 # Template id based role definition
 resource "azuread_directory_role" "groups-administrator" {
   # Noncompliant@+1 {{Make sure that assigning the Application Administrator role is safe here.}}
