@@ -24,7 +24,7 @@ plugins {
 description = "SonarSource IaC Analyzer :: Common"
 
 dependencies {
-    api(libs.sonar.plugin.api)
+    compileOnlyApi(libs.sonar.plugin.api)
     api(libs.sonar.analyzer.commons)
     api(libs.sslr)
     api(libs.minimaljson)

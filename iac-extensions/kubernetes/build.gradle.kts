@@ -48,7 +48,10 @@ dependencies {
 
     // Alternatively, `implementation(common.output)` could be used. However, it cannot be analyzed by the releasability check.
     implementation(project(":iac-extensions:kubernetes", configuration = "common"))
-    api(libs.sonar.lint.plugin.api)
+    implementation(libs.sonar.lint.plugin.api) {
+        // sonar-plugin-api is provided by the platform at runtime
+        exclude(group = "org.sonarsource.api.plugin", module = "sonar-plugin-api")
+    }
     implementation(project(":sonar-helm-for-iac", "goBinaries"))
     implementation(project(":sonar-helm-for-iac"))
     implementation(libs.google.protobuf)
