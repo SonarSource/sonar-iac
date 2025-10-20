@@ -33,7 +33,7 @@ import org.gradle.internal.os.OperatingSystem
 fun isCi() = System.getenv("CI")?.equals("true") == true
 
 fun Project.signingCondition(): Boolean {
-    val branch = System.getenv()["CIRRUS_BRANCH"] ?: ""
+    val branch = System.getenv("GITHUB_REF_NAME") ?: System.getenv("CIRRUS_BRANCH") ?: ""
     return (branch == "master" || branch.matches("branch-.+".toRegex())) &&
         gradle.taskGraph.hasTask(":artifactoryPublish")
 }
@@ -49,8 +49,10 @@ internal fun RepositoryHandler.repox(
 
         // This authentication relies on env vars configured on Cirrus CI or on Gradle properties (`-P<prop>` flags or `gradle.properties` file)
         val artifactoryUsername = providers.environmentVariable("ARTIFACTORY_PRIVATE_USERNAME")
+            .orElse(providers.environmentVariable("ARTIFACTORY_USERNAME"))
             .orElse(providers.gradleProperty("artifactoryUsername"))
         val artifactoryPassword = providers.environmentVariable("ARTIFACTORY_PRIVATE_PASSWORD")
+            .orElse(providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN"))
             .orElse(providers.gradleProperty("artifactoryPassword"))
 
         if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
