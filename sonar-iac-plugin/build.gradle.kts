@@ -86,7 +86,7 @@ tasks.shadowJar {
     val (minSize, maxSize) = if (isCrossCompile) {
         21_500_000L to 22_000_000L
     } else {
-        8_000_000L to 9_000_000L
+        7_500_000L to 8_500_000L
     }
     val logger = project.logger
     doLast {
