@@ -6,9 +6,7 @@ set -euo pipefail
 
 INITIAL_VERSION=$(grep version gradle.properties | awk -F= '{print $2}')
 
-# --no-parallel because as of 6.2.0.5505 sonar-scanner-gradle doesn't work well with Gradle 9
-# see https://community.sonarsource.com/t/error-when-running-sonar-task-with-gradle-9-0-0-rc-1/143857/12
-./gradlew --no-daemon --info --no-parallel --console plain \
+./gradlew --no-daemon --info --console plain \
   -DbuildNumber="$CI_BUILD_NUMBER" \
   build sonar \
   -Dsonar.host.url="$SONAR_HOST_URL" \
