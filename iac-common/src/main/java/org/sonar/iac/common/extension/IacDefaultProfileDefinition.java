@@ -16,6 +16,9 @@
  */
 package org.sonar.iac.common.extension;
 
+import java.util.Collection;
+import java.util.List;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
@@ -28,7 +31,13 @@ public abstract class IacDefaultProfileDefinition implements BuiltInQualityProfi
     String languageKey = languageKey();
     NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, languageKey);
     BuiltInQualityProfileJsonLoader.load(profile, languageKey, sonarWayPath());
+    getExternalDefaultProfileRuleKeys()
+      .forEach(ruleKey -> profile.activateRule(ruleKey.repository(), ruleKey.rule()));
     profile.setDefault(true);
     profile.done();
+  }
+
+  protected Collection<RuleKey> getExternalDefaultProfileRuleKeys() {
+    return List.of();
   }
 }

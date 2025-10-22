@@ -32,8 +32,12 @@ public class ParseException extends RuntimeException {
   private final transient String details;
 
   public static ParseException createGeneralParseException(String action, @Nullable InputFile inputFile, Exception cause, @Nullable TextPointer position) {
-    String message = String.format("Cannot %s '%s'", action, filenameAndPosition(inputFile, position));
-    return new ParseException(message, position, cause.getMessage());
+    return createGeneralParseException(action, inputFile, cause.getMessage(), position);
+  }
+
+  public static ParseException createGeneralParseException(String action, @Nullable InputFile inputFile, String details, @Nullable TextPointer position) {
+    var message = String.format("Cannot %s '%s'", action, filenameAndPosition(inputFile, position));
+    return new ParseException(message, position, details);
   }
 
   public static ParseException createParseException(String message, @Nullable InputFileContext inputFileContext, @Nullable TextPointer position) {
