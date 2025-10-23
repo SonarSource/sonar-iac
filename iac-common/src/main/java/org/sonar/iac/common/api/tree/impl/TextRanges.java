@@ -18,7 +18,9 @@ package org.sonar.iac.common.api.tree.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonarsource.analyzer.commons.TokenLocation;
@@ -63,5 +65,14 @@ public class TextRanges {
 
   public static boolean isValidAndNotEmpty(TextRange range) {
     return range.end().compareTo(range.start()) > 0;
+  }
+
+  public static boolean endsBeforeAnotherEnds(HasTextRange target, HasTextRange base) {
+    return target.textRange().end().compareTo(base.textRange().end()) <= 0;
+  }
+
+  public static <T> Comparator<T> comparingTextRangeStart(Function<T, HasTextRange> mapper) {
+    return Comparator.comparingInt((T tree) -> mapper.apply(tree).textRange().start().line())
+      .thenComparingInt(tree -> mapper.apply(tree).textRange().start().lineOffset());
   }
 }
