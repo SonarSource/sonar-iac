@@ -39,7 +39,7 @@ public abstract class AbstractProfileDefinitionTest {
   }
 
   @Test
-  void shouldCreateAnsibleProfileDefinition() {
+  void shouldCreateProfileDefinition() {
     var definition = getProfileDefinition();
     var context = new BuiltInQualityProfilesDefinition.Context();
 
