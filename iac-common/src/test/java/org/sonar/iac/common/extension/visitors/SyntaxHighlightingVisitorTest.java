@@ -29,6 +29,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.checks.CommonTestUtils;
 import org.sonar.iac.common.testing.AbstractHighlightingTest;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 
@@ -63,6 +64,20 @@ class SyntaxHighlightingVisitorTest extends AbstractHighlightingTest {
 
     assertHighlighting(0, 4, KEYWORD);
     assertHighlighting(6, 10, null);
+  }
+
+  @Test
+  void shouldNotThrowWhenInvalidTextRange() {
+    var source = "# Comment with blabla";
+    var treeWithInvalidRange = new CommonTestUtils.TestTextTree(source, Collections.emptyList()) {
+      @Override
+      public TextRange textRange() {
+        // Text range with an invalid end column (25) that exceeds the actual line length
+        return TextRanges.range(1, 0, 1, 25);
+      }
+    };
+
+    assertThatNoException().isThrownBy(() -> highlight(treeWithInvalidRange));
   }
 
   static class TestTree implements Tree, HasComments {

@@ -16,6 +16,8 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -28,6 +30,8 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 
 public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SyntaxHighlightingVisitor.class);
 
   private NewHighlighting newHighlighting;
   private InputFile inputFile;
@@ -61,13 +65,23 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
       return;
     }
 
-    newHighlighting.highlight(
-      inputFile.newRange(
+    try {
+      newHighlighting.highlight(
+        inputFile.newRange(
+          textRange.start().line(),
+          textRange.start().lineOffset(),
+          textRange.end().line(),
+          textRange.end().lineOffset()),
+        typeOfText);
+    } catch (IllegalArgumentException e) {
+      LOG.debug("Failed to highlight text range {}:{} to {}:{} in file {}. {}",
         textRange.start().line(),
         textRange.start().lineOffset(),
         textRange.end().line(),
-        textRange.end().lineOffset()),
-      typeOfText);
+        textRange.end().lineOffset(),
+        inputFile.filename(),
+        e.getMessage());
+    }
   }
 
   public void highlightComments(Tree tree) {
