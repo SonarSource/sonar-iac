@@ -48,6 +48,7 @@ open class CommonSettingsPlugin
                 }
             }
 
+            // TODO: this task is deprecated and should be removed once all projects are migrated to GHA
             settings.gradle.rootProject {
                 tasks.register("storeProjectVersion") {
                     group = "build"
@@ -112,18 +113,26 @@ open class CommonSettingsPlugin
                         }
                     }
 
-                    tag(if (System.getenv("CI").isNullOrEmpty()) "local" else "CI")
+                    // See https://docs.github.com/en/actions/reference/workflows-and-actions/variables for GHA env vars reference
+                    tag(if (isCI) "local" else "CI")
                     tag(System.getProperty("os.name"))
-                    if (System.getenv("CIRRUS_BRANCH") == "master") {
+                    val branch = System.getenv("CIRRUS_BRANCH") ?: System.getenv("GITHUB_REF_NAME")
+                    if (branch == "master") {
                         tag("master")
                     }
-                    if (System.getenv("CIRRUS_PR")?.isBlank() == false) {
+                    val isPr = (System.getenv("CIRRUS_PR")?.isBlank() == false)
+                        .or(System.getenv("GITHUB_REF_NAME")?.endsWith("/merge") == true)
+                    if (isPr) {
                         tag("PR")
                     }
                     value("Build Number", System.getenv("BUILD_NUMBER"))
-                    value("Branch", System.getenv("CIRRUS_BRANCH"))
-                    value("PR", System.getenv("CIRRUS_PR"))
-                    value("PR Title", System.getenv("CIRRUS_PR_TITLE"))
+                    value("Branch", branch)
+                    val prNumber = if (isPr) {
+                        System.getenv("CIRRUS_PR") ?: System.getenv("GITHUB_REF_NAME")?.substringBeforeLast("/merge")
+                    } else {
+                        null
+                    }
+                    value("PR", prNumber)
 
                     capture {
                         // `properties` task can log sensitive information, so we disable uploading of build logs for it
