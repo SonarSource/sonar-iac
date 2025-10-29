@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
 import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
@@ -47,7 +47,7 @@ public class ArmSettings {
         .name("Activate AzureResourceManager analysis")
         .description("Activate analysis of JSON and Bicep files recognized as ARM files.")
         .type(PropertyType.BOOLEAN)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(ARM_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .deprecatedKey("sonar.arm.activate")
@@ -58,7 +58,7 @@ public class ArmSettings {
         .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
         .name("File Suffixes")
         .description("List of suffixes of AzureResourceManager files to analyze next to JSON.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(ARM_CATEGORY)
         .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
@@ -71,7 +71,7 @@ public class ArmSettings {
         .description("ARM JSON templates without any of the identifiers are excluded from the analysis. " +
           "The identifier can be anywhere in the file. " +
           "Only one identifier of the list needs to be matched for the file to be included.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .category(ARM_CATEGORY)
         .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
