@@ -30,10 +30,6 @@ import org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.terraform.plugin.TerraformExtension;
 
-import static org.sonar.api.SonarEdition.COMMUNITY;
-import static org.sonar.api.SonarProduct.SONARLINT;
-import static org.sonar.api.SonarProduct.SONARQUBE;
-
 public class IacPlugin implements Plugin {
 
   @Override
@@ -52,13 +48,15 @@ public class IacPlugin implements Plugin {
     context.addExtension(JsonFileFilter.class);
     context.addExtension(JsonLanguage.getProperty());
 
-    if ((context.getRuntime().getProduct() == SONARQUBE && context.getRuntime().getEdition() == COMMUNITY) || context.getRuntime().getProduct() == SONARLINT) {
-      // For SonarQube Community Edition, we add built-in quality profiles for YAML and JSON languages.
-      // In other editions, the YAML and JSON profiles are registered by the sonar-iac-enterprise plugin (YAML Extension).
+    context.addExtension(DefaultAnalysisWarningsWrapper.class);
+
+    if (shouldDefineJsonYamlEmptyBuiltInProfileDefinition()) {
       context.addExtension(YamlEmptyBuiltInProfileDefinition.class);
       context.addExtension(JsonEmptyBuiltInProfileDefinition.class);
     }
+  }
 
-    context.addExtension(DefaultAnalysisWarningsWrapper.class);
+  protected boolean shouldDefineJsonYamlEmptyBuiltInProfileDefinition() {
+    return true;
   }
 }

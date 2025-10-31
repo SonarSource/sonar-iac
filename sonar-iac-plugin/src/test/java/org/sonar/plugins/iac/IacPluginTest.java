@@ -33,27 +33,11 @@ class IacPluginTest {
   private final IacPlugin iacPlugin = new IacPlugin();
 
   @Test
-  void sonarqubeServerExtensionsShouldBeDefinedForCommunityEdition() {
+  void extensionsShouldBeDefined() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     iacPlugin.define(context);
     assertThat(context.getExtensions()).hasSize(55);
-  }
-
-  @Test
-  void sonarqubeServerExtensionsShouldBeDefinedForDeveloperEdition() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
-    Plugin.Context context = new Plugin.Context(runtime);
-    iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(53);
-  }
-
-  @Test
-  void sonarqubeCloudExtensionsShouldBeDefined() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SERVER, SonarEdition.SONARCLOUD);
-    Plugin.Context context = new Plugin.Context(runtime);
-    iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(53);
   }
 
   @Test
