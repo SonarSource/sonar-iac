@@ -13,20 +13,20 @@ spec:
       image: {{ .Values.complexImageWithTag }}
 
     - name: non_compliant_without_tag
-      # Noncompliant@+1
+      # Noncompliant@+1 {{`{{Use a specific version tag for the image.}}`}}
       image: {{ .Values.pureImageName }}
 #               ^^^^^^^^^^^^^^^^^^^^^
     - name: non_compliant_with_latest_tag
-      # Noncompliant@+1
+      # Noncompliant@+1 {{`{{Use a specific version tag for the image instead of "latest".}}`}}
       image: {{ .Values.imageWithLatestTag }}
 #               ^^^^^^^^^^^^^^^^^^^^^^^^^^
     - name: non_compliant_split_image
-      # Noncompliant@+1
+      # Noncompliant@+1 {{`{{Use a specific version tag for the image instead of "latest".}}`}}
       image: "{{ .Values.pureImageName }}:{{ .Values.latestTag }}"
 #                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     - name: non_compliant_split_image_with_unresolved_image_name
-      # Noncompliant@+1
+      # Noncompliant@+1 {{`{{Use a specific version tag for the image instead of "latest".}}`}}
       image: "{{ .Values.unresolvedImageName }}:latest"
 
     - name: compliant_split_image
