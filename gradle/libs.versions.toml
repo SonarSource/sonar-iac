@@ -6,10 +6,10 @@ sonar-plugin-api = "12.0.0.2960"
 sonar-commons = "2.18.0.3393"
 sonar-license-api = "3.4"
 sonar-orchestrator = "6.0.0.3852"
-junit = "6.0.0"
+junit = "6.0.1"
 assertj = "3.27.6"
 mockito = "5.20.0"
-sonar-lint = "10.34.1.83453"
+sonar-lint = "10.35.0.83547"
 sslr = "1.24.0.633"
 archunit = "1.4.1"
 snakeyaml = "2.10"
@@ -47,7 +47,7 @@ sonar-lint-core = { module = "org.sonarsource.sonarlint.core:sonarlint-core", ve
 sonar-lint-plugin-api = { module = "org.sonarsource.sonarlint.core:sonarlint-plugin-api", version.ref = "sonar-lint" }
 sonar-lint-rpc-java-client = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-java-client", version.ref = "sonar-lint" }
 sonar-lint-rpc-impl = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-impl", version.ref = "sonar-lint" }
-sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.19.0.40387" }
+sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.20.0.40630" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
 sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref = "sslr" }
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
