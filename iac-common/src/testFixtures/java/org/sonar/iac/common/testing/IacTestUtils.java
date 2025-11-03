@@ -50,6 +50,7 @@ public final class IacTestUtils {
     SonarEdition.COMMUNITY);
   public static final SonarRuntime SQS_WITHOUT_HIDDEN_FILES_SUPPORT_API_VERSION = SonarRuntimeImpl.forSonarQube(Version.create(11, 4), SonarQubeSide.SERVER,
     SonarEdition.ENTERPRISE);
+  public static final SonarRuntime SONARQUBE_CLOUD_RUNTIME = SonarRuntimeImpl.forSonarQube(Version.create(12, 0), SonarQubeSide.SERVER, SonarEdition.SONARCLOUD);
 
   private IacTestUtils() {
     // utils class
