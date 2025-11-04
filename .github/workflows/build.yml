@@ -34,6 +34,11 @@ jobs:
         with:
           version: 2025.7.12
 
+      - name: Install golangci-lint
+        run: |
+          curl --proto "=https" -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /home/runner/go/bin v${GOLANG_CI_LINT_VERSION}
+          echo "/opt/go/bin:/opt/protoc/bin:/opt/musl/bin:/home/runner/go/bin" >> $GITHUB_PATH
+
       - name: Checkout build logic
         run: |
           git submodule update --init --depth 1 -- build-logic/common
