@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - branch-*
+      - SONARIAC-2200 # TODO remove this
   workflow_dispatch:
   schedule:
     - cron: '0 17 * * *'
