@@ -62,7 +62,7 @@ jobs:
             xargs cat 2>/dev/null | sha256sum | xargs echo $RUNNER_OS $RUNNER_ARCH | tr -s ' ' '-')
           echo "GOCACHE_KEY=${GOCACHE_KEY}" >> $GITHUB_ENV
 
-      - name: Build and analyze on SonarQube NEXT
+      - name: Build and analyze
         uses: SonarSource/ci-github-actions/build-gradle@v1
         with:
           public: true
