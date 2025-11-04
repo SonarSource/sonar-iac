@@ -15,6 +15,7 @@ concurrency:
 
 env:
   GO_VERSION: "1.25.1"
+  GOLANG_CI_LINT_VERSION: "1.61.0"
   GRADLE_VERSION: "8.12"
   SONAR_PROJECT_KEY: "SonarSource_sonar-iac"
 
