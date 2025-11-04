@@ -62,7 +62,7 @@ jobs:
           public: true
           deploy-pull-request: false
           skip-tests: false
-          use-develocity: true
+          use-develocity: false # TODO enable back when ready
           gradle-args: --build-cache -x artifactoryPublish
           disable-caching: true
 
