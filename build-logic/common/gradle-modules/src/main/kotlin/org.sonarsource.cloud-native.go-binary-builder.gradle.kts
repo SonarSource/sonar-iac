@@ -67,6 +67,9 @@ if (isCi()) {
         outputs.files(goBuildExtension.additionalOutputFiles)
         outputs.cacheIf { true }
 
+        // TODO - ensure the project target a master version of build-logic/common
+        environment("GO_CROSS_COMPILE", isCrossCompile.get())
+
         callMake("build")
     }
     goBinariesJar.configure { dependsOn(compileGo) }
