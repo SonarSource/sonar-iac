@@ -25,6 +25,8 @@ RUN gdebi -q
 RUN gdebi -o APT_OPTS /tmp/package.deb
 # Noncompliant@+1
 RUN gdebi /tmp/package.deb && other_command -n
+# Noncompliant@+1
+RUN aptitude install -qq libcurl
 
 RUN apt-get install -y libcurl
 RUN apt-get update
@@ -36,6 +38,9 @@ RUN apt install -y libcurl
 RUN aptitude install -y libcurl
 RUN apt-get install -tym libcurl
 RUN apt-get install --yes libcurl
+RUN apt-get install -qq libcurl
+RUN apt-get install -yqq libcurl
+RUN apt-get install --trivial-only libcurl
 RUN gdebi -n /tmp/package.deb
 RUN gdebi --n /tmp/package.deb
 RUN gdebi -n --n /tmp/package.deb
