@@ -47,6 +47,14 @@ spec:
           image: curlimages/curl
           command: ["curl"]
           args: ["http://::1"] # Compliant
+        - name: curlCloudMetadataIpv4
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["http://169.254.169.254/"] # Compliant
+        - name: curlCloudMetadataIpv6
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["http://[fd00:ec2::254]/"] # Compliant
         - name: curl-secure-https
           image: curlimages/curl
           command: ["curl"]

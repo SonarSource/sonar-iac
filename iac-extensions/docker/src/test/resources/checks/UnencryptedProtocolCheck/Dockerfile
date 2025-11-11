@@ -24,6 +24,11 @@ RUN curl http://::1
 RUN curl http://1:1:1:1:1:1:1:1
 # Noncompliant@+1
 RUN curl http://10:20:30:40:50:60:70:80
+RUN curl http://169.254.169.254/
+RUN curl http://169.254.169.254
+RUN curl http://169.254.169.254/metadata/
+RUN curl http://[fd00:ec2::254]/
+RUN curl http://[fd00:ec2::254]
 
 # Noncompliant@+1
 ENTRYPOINT command http://www.httpvshttps.com/

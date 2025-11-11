@@ -20,18 +20,17 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.network.UrlUtils;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck implements IacCheck {
   private static final String MESSAGE = "Make sure that using clear-text protocols is safe here.";
   private static final List<String> INSECURE_PROTOCOLS = List.of("http://", "ftp://");
-  private static final Pattern LOOPBACK_PATTERN = Pattern.compile("localhost|127(?:\\.\\d+){0,2}\\.\\d+$|^(?:0*:)*+:?0*1", Pattern.CASE_INSENSITIVE);
 
   @Override
   public void initialize(InitContext init) {
@@ -46,7 +45,7 @@ public class ClearTextProtocolsCheck implements IacCheck {
     try {
       var url = new URL(scalar);
       var domain = url.getHost();
-      if (!LOOPBACK_PATTERN.matcher(domain).find()) {
+      if (!UrlUtils.COMPLIANT_HTTP_DOMAINS.matcher(domain).find()) {
         ctx.reportIssue(scalarTree, MESSAGE);
       }
     } catch (IOException e) {
