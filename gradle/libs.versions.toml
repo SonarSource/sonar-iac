@@ -7,6 +7,7 @@ sonar-commons = "2.18.0.3393"
 sonar-license-api = "3.4"
 sonar-orchestrator = "6.0.0.3852"
 junit = "6.0.1"
+junit-pioneer = "2.3.0"
 assertj = "3.27.6"
 mockito = "5.20.0"
 sonar-lint = "10.35.0.83547"
@@ -40,6 +41,7 @@ sonar-orchestrator-junit5 = { module = "org.sonarsource.orchestrator:sonar-orche
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 # Version of JUnit Platform is taken from the JUnit BOM that is imported by junit-jupiter
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-pioneer = { module = "org.junit-pioneer:junit-pioneer", version.ref = "junit-pioneer" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 sonar-lint-analysis-engine = { module = "org.sonarsource.sonarlint.core:sonarlint-analysis-engine", version.ref = "sonar-lint" }

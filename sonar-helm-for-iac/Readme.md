@@ -55,9 +55,10 @@ To make new changes and use them in sonar-iac, tag the relevant commit on the `S
 
 ## Tips and Tricks
 
-### Failing cirrus build task with the following message:
+### Build failure: uncommitted Go generated files
+If the build fails with the following message:
 ```
-Checking if any files are uncommitted in the Go code (this may happen to the generated code). 
+Checking if any files are uncommitted in the Go code (this may happen to the generated code).
 In case of of failure, run ./gradlew generateProto locally and commit the generated files.
 git diff --exit-code --name-only -- sonar-helm-for-iac/
 sonar-helm-for-iac/src/org.sonar.iac.helm/ast.pb.go

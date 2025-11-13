@@ -94,4 +94,33 @@ class FileSystemUtilsTest {
 
     assertThat(result).isNull();
   }
+
+  @Test
+  void shouldHandleIOExceptionWhenResolvingCanonicalPath() throws IOException {
+    Files.createFile(baseDir.resolve("Chart.yaml"));
+    Files.createFile(baseDir.resolve("test.yaml"));
+    var inputFilePath = baseDir.resolve("test.yaml");
+
+    // Layer 1: Mock File that throws IOException on getCanonicalFile()
+    var mockFileFromToFile = Mockito.mock(java.io.File.class);
+    when(mockFileFromToFile.getCanonicalFile()).thenThrow(new IOException("Test IOException in canonical path resolution"));
+
+    // Layer 2: Mock Path that returns the mock File from Layer 1 on toFile()
+    var mockPathFromBaseDir = Mockito.spy(baseDir.resolve(""));
+    when(mockPathFromBaseDir.toFile()).thenReturn(mockFileFromToFile);
+
+    // Layer 3: Mock File that returns the mock Path from Layer 2 on toPath()
+    var mockBaseDirFile = Mockito.mock(java.io.File.class);
+    when(mockBaseDirFile.toPath()).thenReturn(mockPathFromBaseDir);
+
+    // Layer 4: Mock FileSystem that returns the mock File from Layer 3 on baseDir()
+    var mockFileSystem = Mockito.mock(org.sonar.api.batch.fs.FileSystem.class);
+    when(mockFileSystem.baseDir()).thenReturn(mockBaseDirFile);
+
+    var result = FileSystemUtils.retrieveHelmProjectFolder(
+      inputFilePath,
+      mockFileSystem,
+      path -> Files.exists(path) && Files.isRegularFile(path) && path.getFileName().toString().equals("Chart.yaml"));
+    assertThat(result).isEqualTo(baseDir);
+  }
 }

@@ -31,6 +31,7 @@ dependencies {
         exclude("ch.qos.logback", "logback-core")
     }
     implementation(libs.shadow)
+    implementation(libs.license.report)
 }
 
 gradlePlugin {

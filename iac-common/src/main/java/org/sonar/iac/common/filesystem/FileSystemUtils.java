@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.common.filesystem;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Predicate;
@@ -35,6 +36,12 @@ public class FileSystemUtils {
 
   public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem, Predicate<Path> chartYamlExist) {
     var baseDirPath = fileSystem.baseDir().toPath();
+    // Resolve the absolute path, in order to not get a short path on Windows system
+    try {
+      baseDirPath = baseDirPath.toFile().getCanonicalFile().toPath();
+    } catch (IOException e) {
+      // In case of error, we keep the original baseDirPath
+    }
 
     var helmProjectDirectoryPath = inputFilePath;
 

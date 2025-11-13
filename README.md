@@ -1,6 +1,6 @@
 Code Quality and Security for Infrastructure-as-Code
 ==========
-[![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonar-iac.svg?branch=master)](https://cirrus-ci.com/github/SonarSource/sonar-iac)
+[![Build Status](https://github.com/SonarSource/sonar-iac-enterprise/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/SonarSource/sonar-iac-enterprise/actions/workflows/build.yml?query=branch%3Amaster)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SonarSource_sonar-iac&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=SonarSource_sonar-iac)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SonarSource_sonar-iac&metric=coverage)](https://sonarcloud.io/summary/new_code?id=SonarSource_sonar-iac)
 

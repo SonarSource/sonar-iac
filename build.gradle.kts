@@ -53,7 +53,7 @@ project(":sonar-helm-for-iac") {
 tasks.artifactoryPublish { skip = true }
 
 artifactoryConfiguration {
-    buildName = providers.environmentVariable("CIRRUS_REPO_NAME").orElse("sonar-iac")
+    buildName = providers.environmentVariable("PROJECT").orElse("sonar-iac")
     artifactsToPublish = "org.sonarsource.iac:sonar-iac-plugin:jar"
     artifactsToDownload = ""
     repoKeyEnv = "ARTIFACTORY_DEPLOY_REPO"
