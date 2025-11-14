@@ -85,11 +85,15 @@ public abstract class AbstractCheckListTest {
     for (Class<?> cls : checks()) {
       // Exception on class from the common package
       if (!cls.getName().contains("iac.common.checks")) {
-        String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
+        String testName = getCheckTestResourcePath(cls);
         assertThat(getClass().getResource(testName))
           .overridingErrorMessage("No test for " + cls.getSimpleName())
           .isNotNull();
       }
     }
+  }
+
+  protected String getCheckTestResourcePath(Class<?> checkClass) {
+    return '/' + checkClass.getName().replace('.', '/') + "Test.class";
   }
 }
