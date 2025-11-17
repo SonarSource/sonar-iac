@@ -67,8 +67,13 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
       visitors.add(new YamlHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
     }
+    visitors.addAll(preChecksVisitors());
     visitors.add(new ChecksVisitor(checks, statistics));
     return visitors;
+  }
+
+  protected List<TreeVisitor<InputFileContext>> preChecksVisitors() {
+    return List.of();
   }
 
   @Override
