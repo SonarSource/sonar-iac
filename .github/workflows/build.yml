@@ -69,5 +69,5 @@ jobs:
           deploy-pull-request: false
           skip-tests: false
           use-develocity: true
-          gradle-args: --build-cache -x artifactoryPublish
+          gradle-args: --build-cache -x artifactoryPublish -Dsonar.projectName=SonarIaC
           disable-caching: true
