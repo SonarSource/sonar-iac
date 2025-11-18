@@ -58,12 +58,16 @@ class FileSystemUtilsTest {
   }
 
   @Test
-  void shouldReturnNullIfParentIsNull() {
+  void shouldReturnNullIfParentIsNull() throws IOException {
     try (var ignored = Mockito.mockStatic(Files.class)) {
       when(Files.exists(any())).thenReturn(false);
 
       var inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(null);
+      var canonicalFile = mock(File.class);
+      when(inputFilePath.toFile()).thenReturn(canonicalFile);
+      when(canonicalFile.getCanonicalFile()).thenReturn(canonicalFile);
+      when(canonicalFile.toPath()).thenReturn(inputFilePath);
 
       var parentPath = retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
       assertThat(parentPath).isNull();
@@ -71,12 +75,16 @@ class FileSystemUtilsTest {
   }
 
   @Test
-  void shouldReturnNullIfParentIsNotNullAndDirectoryIsIncorrect() {
+  void shouldReturnNullIfParentIsNotNullAndDirectoryIsIncorrect() throws IOException {
     try (var ignored = Mockito.mockStatic(Files.class)) {
       when(Files.exists(any())).thenReturn(false);
 
       var inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(mock(Path.class));
+      var canonicalFile = mock(File.class);
+      when(inputFilePath.toFile()).thenReturn(canonicalFile);
+      when(canonicalFile.getCanonicalFile()).thenReturn(canonicalFile);
+      when(canonicalFile.toPath()).thenReturn(inputFilePath);
 
       var parentPath = retrieveHelmProjectFolder(inputFilePath, context.fileSystem());
       assertThat(parentPath).isNull();

@@ -38,6 +38,7 @@ var resourceThirdPartyDir = resourceLicenseDir.dir("THIRD_PARTY_LICENSES")
 
 licenseReport {
     renderers = arrayOf<ReportRenderer>(AnalyzerLicensingPackagingRenderer(buildLicenseReportDirectory.get().asFile.toPath()))
+    excludeGroups = arrayOf(project.group.toString(), project.group.toString().replace("com.sonarsource", "org.sonarsource"))
 }
 
 tasks.named("check") {

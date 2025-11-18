@@ -148,13 +148,17 @@ class HelmFileSystemTest {
   }
 
   @Test
-  void shouldReturnNullIfParentIsNullSonarLint() {
+  void shouldReturnNullIfParentIsNullSonarLint() throws IOException {
     try (var ignored = Mockito.mockStatic(Files.class)) {
       when(Files.exists(any())).thenReturn(false);
 
       var inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(null);
       when(inputFilePath.resolve("Chart.yaml")).thenReturn(Path.of("foo", "Chart.yaml"));
+      var canonicalFile = mock(File.class);
+      when(inputFilePath.toFile()).thenReturn(canonicalFile);
+      when(canonicalFile.getCanonicalFile()).thenReturn(canonicalFile);
+      when(canonicalFile.toPath()).thenReturn(inputFilePath);
       var sonarLintFileListener = mock(SonarLintFileListener.class);
 
       var actual = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), sonarLintFileListener);
@@ -163,7 +167,7 @@ class HelmFileSystemTest {
   }
 
   @Test
-  void shouldReturnNullIfParentIsNotNullAndDirectoryIsIncorrectSonarLint() {
+  void shouldReturnNullIfParentIsNotNullAndDirectoryIsIncorrectSonarLint() throws IOException {
     try (var ignored = Mockito.mockStatic(Files.class)) {
       when(Files.exists(any())).thenReturn(false);
 
@@ -172,6 +176,10 @@ class HelmFileSystemTest {
       var inputFilePath = mock(Path.class);
       when(inputFilePath.getParent()).thenReturn(parentPath);
       when(inputFilePath.resolve("Chart.yaml")).thenReturn(Path.of("foo/bar", "Chart.yaml"));
+      var canonicalFile = mock(File.class);
+      when(inputFilePath.toFile()).thenReturn(canonicalFile);
+      when(canonicalFile.getCanonicalFile()).thenReturn(canonicalFile);
+      when(canonicalFile.toPath()).thenReturn(inputFilePath);
       var sonarLintFileListener = mock(SonarLintFileListener.class);
 
       var actual = HelmFileSystem.retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), sonarLintFileListener);

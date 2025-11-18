@@ -35,7 +35,7 @@ def build_task():
             "env": gradle_base_env() | gradle_develocity_env() | {
                 "CIRRUS_CLONE_DEPTH": 10,
             },
-            "eks_container": base_image_container_builder(cpu=1, memory="4G"),
+            "eks_container": base_image_container_builder(cpu=1, memory="4G", image="${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j21-latest"),
             "gradle_cache": gradle_cache(),
             "gradle_wrapper_cache": gradle_wrapper_cache(),
             "build_script": [

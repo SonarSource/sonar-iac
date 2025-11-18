@@ -1,5 +1,5 @@
 [tools]
 # Tool versions for sonar-iac-enterprise
-java = "17.0"
+java = "21.0"
 gradle = "8.12"
 go = "1.25.1"

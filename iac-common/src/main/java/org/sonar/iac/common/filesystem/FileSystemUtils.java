@@ -35,9 +35,13 @@ public class FileSystemUtils {
   }
 
   public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem, Predicate<Path> chartYamlExist) {
+    if (inputFilePath == null) {
+      return null;
+    }
     var baseDirPath = fileSystem.baseDir().toPath();
     // Resolve the absolute path, in order to not get a short path on Windows system
     try {
+      inputFilePath = inputFilePath.toFile().getCanonicalFile().toPath();
       baseDirPath = baseDirPath.toFile().getCanonicalFile().toPath();
     } catch (IOException e) {
       // In case of error, we keep the original baseDirPath

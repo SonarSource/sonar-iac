@@ -1,6 +1,4 @@
-Copyright (c) 2007, Eclipse Foundation, Inc. and its licensors.
-
-All rights reserved.
+Copyright <YEAR> <COPYRIGHT HOLDER>
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
