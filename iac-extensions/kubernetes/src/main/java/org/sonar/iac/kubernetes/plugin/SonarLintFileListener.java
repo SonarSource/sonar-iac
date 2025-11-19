@@ -72,7 +72,9 @@ public class SonarLintFileListener implements ModuleFileListener {
       inputFilesContents = inputFiles.stream()
         .collect(Collectors.toMap(SonarLintFileListener::getPath, SonarLintFileListener::content));
       updateProjectContext(sensorContext, inputFiles);
-      LOG.info("Finished building Kubernetes Project Context");
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Finished building Kubernetes Project Context");
+      }
     }
     initialized = true;
   }
@@ -87,8 +89,10 @@ public class SonarLintFileListener implements ModuleFileListener {
     InputFile target = moduleFileEvent.getTarget();
     String language = target.language();
     if (language == null || !HelmFileSystem.INCLUDED_EXTENSIONS.contains(language)) {
-      LOG.info("Module file event for {} for file {} has been ignored because it's not a Kubernetes file.",
-        moduleFileEvent.getType(), moduleFileEvent.getTarget());
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Module file event for {} for file {} has been ignored because it's not a Kubernetes file.",
+          moduleFileEvent.getType(), moduleFileEvent.getTarget());
+      }
       return;
     }
 
@@ -96,11 +100,15 @@ public class SonarLintFileListener implements ModuleFileListener {
     // In that case modifying projectContext should be skipped
     // It happens when starting IDE
     if (!initialized) {
-      LOG.info("Module file event {} for file {}, ignored as context was not initialized", moduleFileEvent.getType(), moduleFileEvent.getTarget());
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Module file event {} for file {}, ignored as context was not initialized", moduleFileEvent.getType(), moduleFileEvent.getTarget());
+      }
       return;
     }
 
-    LOG.info("Module file event {} for file {}", moduleFileEvent.getType(), moduleFileEvent.getTarget());
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Module file event {} for file {}", moduleFileEvent.getType(), moduleFileEvent.getTarget());
+    }
     var uri = getPath(moduleFileEvent);
     projectContext.removeResource(uri);
     inputFilesContents.remove(uri);
@@ -108,7 +116,6 @@ public class SonarLintFileListener implements ModuleFileListener {
       inputFilesContents.put(uri, content(moduleFileEvent.getTarget()));
       updateProjectContext(sensorContext, List.of(moduleFileEvent.getTarget()));
     }
-    LOG.info("Kubernetes Project Context updated");
   }
 
   public Map<String, String> inputFilesContents() {

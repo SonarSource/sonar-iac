@@ -58,7 +58,7 @@ class SonarLintFileListenerTest {
   private InputFile inputFileTOException;
 
   @BeforeEach
-  public void init() throws IOException {
+  void init() throws IOException {
     inputFile1 = inputFile("limit_range.yaml", BASE_DIR, "yaml");
     inputFile2 = inputFile("memory_limit_pod.yaml", BASE_DIR, "yaml");
     inputFileJava = inputFile("FactoryBuilder.java", BASE_DIR, "java");
@@ -77,11 +77,12 @@ class SonarLintFileListenerTest {
 
     assertThat(sonarLintFileListener.inputFilesContents().keySet())
       .allMatch(key -> key.endsWith("limit_range.yaml") || key.endsWith("memory_limit_pod.yaml"));
-    assertThat(logTester.logs(Level.INFO)).contains("Finished building Kubernetes Project Context");
+    assertThat(logTester.logs(Level.DEBUG)).contains("Finished building Kubernetes Project Context");
   }
 
   @Test
   void shouldRemoveResourceWhenRemoveEvent() {
+    logTester.setLevel(Level.TRACE);
     sonarLintFileListener.initContext(context, null);
     var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.DELETED);
 
@@ -89,13 +90,12 @@ class SonarLintFileListenerTest {
 
     assertThat(sonarLintFileListener.inputFilesContents().keySet())
       .allMatch(key -> key.endsWith("memory_limit_pod.yaml"));
-    assertThat(logTester.logs(Level.INFO)).contains(
-      "Module file event DELETED for file limit_range.yaml",
-      "Kubernetes Project Context updated");
+    assertThat(logTester.logs(Level.TRACE)).contains("Module file event DELETED for file limit_range.yaml");
   }
 
   @Test
   void shouldNotModifyProjectContextOrContentsWhenNotInitialized() {
+    logTester.setLevel(Level.TRACE);
     var event = DefaultModuleFileEvent.of(inputFile1, ModuleFileEvent.Type.MODIFIED);
 
     sonarLintFileListener.process(event);
@@ -105,27 +105,29 @@ class SonarLintFileListenerTest {
       "with-global-limit", inputFileContext2, LimitRange.class);
     assertThat(projectResources).isEmpty();
     assertThat(sonarLintFileListener.inputFilesContents()).isEmpty();
-    assertThat(logTester.logs(Level.INFO)).contains(
+    assertThat(logTester.logs(Level.TRACE)).contains(
       "Module file event MODIFIED for file limit_range.yaml, ignored as context was not initialized");
   }
 
   @Test
   void shouldIgnoreJavaFile() {
+    logTester.setLevel(Level.TRACE);
     var event = DefaultModuleFileEvent.of(inputFileJava, ModuleFileEvent.Type.MODIFIED);
 
     sonarLintFileListener.process(event);
 
-    assertThat(logTester.logs(Level.INFO))
+    assertThat(logTester.logs(Level.TRACE))
       .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
   @Test
   void shouldIgnoreFileWithoutLanguage() {
+    logTester.setLevel(Level.TRACE);
     var event = DefaultModuleFileEvent.of(inputFileNoLanguage, ModuleFileEvent.Type.MODIFIED);
 
     sonarLintFileListener.process(event);
 
-    assertThat(logTester.logs(Level.INFO))
+    assertThat(logTester.logs(Level.TRACE))
       .contains("Module file event for MODIFIED for file FactoryBuilder.java has been ignored because it's not a Kubernetes file.");
   }
 
@@ -157,9 +159,10 @@ class SonarLintFileListenerTest {
 
   @Test
   void shouldNotCallAnalyseFilesWhenAlreadyInitialized() {
+    logTester.setLevel(Level.TRACE);
     sonarLintFileListener.initContext(context, null);
     sonarLintFileListener.initContext(context, null);
-    assertThat(logTester.logs(Level.INFO))
+    assertThat(logTester.logs())
       .containsOnly(
         "2 source files to be parsed",
         "2/2 source files have been parsed",
