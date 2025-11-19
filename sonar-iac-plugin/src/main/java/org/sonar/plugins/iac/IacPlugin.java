@@ -54,6 +54,13 @@ public class IacPlugin implements Plugin {
       context.addExtension(YamlEmptyBuiltInProfileDefinition.class);
       context.addExtension(JsonEmptyBuiltInProfileDefinition.class);
     }
+
+    specificExtensions(context);
+  }
+
+  // All extensions specific to the community editions that can be override in other editions
+  protected void specificExtensions(Context context) {
+    DockerExtension.defineSpecific(context);
   }
 
   protected boolean shouldDefineJsonYamlEmptyBuiltInProfileDefinition() {

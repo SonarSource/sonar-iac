@@ -33,13 +33,10 @@ public class DockerExtension {
     context.addExtensions(
       // Language
       DockerLanguage.class,
-      // Sensor
-      DockerSensor.class,
       // Rules and profiles
       DockerRulesDefinition.class,
-      DockerProfileDefinition.class
-    // Additional extensions
-    );
+      DockerProfileDefinition.class);
+
     List<PropertyDefinition> properties = new ArrayList<>(DockerSettings.getGeneralProperties());
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
@@ -53,5 +50,10 @@ public class DockerExtension {
     }
 
     context.addExtensions(properties);
+  }
+
+  // All extensions specific to the community editions that can be override in other editions
+  public static void defineSpecific(Plugin.Context context) {
+    context.addExtension(DockerSensor.class);
   }
 }

@@ -38,7 +38,10 @@ class DockerExtensionTest extends AbstractExtensionTest {
 
   @Override
   protected Consumer<Plugin.Context> extensionDefiner() {
-    return DockerExtension::define;
+    return (Plugin.Context ctx) -> {
+      DockerExtension.define(ctx);
+      DockerExtension.defineSpecific(ctx);
+    };
   }
 
   @Override

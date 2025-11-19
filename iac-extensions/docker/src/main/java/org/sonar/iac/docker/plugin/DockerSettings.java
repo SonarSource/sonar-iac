@@ -27,7 +27,7 @@ public class DockerSettings {
   // filename extension matching is case-insensitive, so '*.Dockerfile' is also matched
   static final String DEFAULT_FILE_PATTERNS = "Dockerfile,*.dockerfile";
   public static final String HADOLINT_REPORTS_KEY = "sonar.docker.hadolint.reportPaths";
-  static final String ACTIVATION_KEY = "sonar.docker.activate";
+  public static final String ACTIVATION_KEY = "sonar.docker.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
   private static final String DOCKER_CATEGORY = "Docker";
   private static final String GENERAL_SUBCATEGORY = "General";
