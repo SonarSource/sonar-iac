@@ -14,14 +14,36 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
-/**
- * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#entrypoint">ENTRYPOINT</> instruction.
- * It is a strict implementation of the {@link CodeInstruction} interface.
- * <pre>
- *   ENTRYPOINT {@link #code()}
- * </pre>
- */
-public interface EntrypointInstruction extends CodeInstruction {
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.ShellCode;
+
+public abstract class AbstractShellCodeImpl<T extends Tree> extends AbstractDockerTreeImpl implements ShellCode<T> {
+  private final T code;
+
+  protected AbstractShellCodeImpl(T code) {
+    this.code = code;
+  }
+
+  @Override
+  public T code() {
+    return code;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.SHELL_CODE;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return List.of(code);
+  }
+
+  @Override
+  public String toString() {
+    return code.toString();
+  }
 }

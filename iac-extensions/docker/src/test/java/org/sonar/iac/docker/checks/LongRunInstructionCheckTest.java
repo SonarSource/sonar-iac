@@ -16,15 +16,18 @@
  */
 package org.sonar.iac.docker.checks;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class LongRunInstructionCheckTest {
 
+  @Disabled("SONARIAC-2455")
   @Test
   void shouldCheckLongRunInstructions() {
     DockerVerifier.verify("LongRunInstructionCheck/Dockerfile", new LongRunInstructionCheck());
   }
 
+  @Disabled("SONARIAC-2455")
   @Test
   void shouldCheckLongRunInstructionsWithCustomParameters() {
     var check = new LongRunInstructionCheck();

@@ -22,23 +22,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.TreeUtils;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.tree.api.ShellForm;
+import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class RunInstructionImplTest {
 
@@ -231,7 +227,9 @@ class RunInstructionImplTest {
       DockerLexicalGrammar.RUN);
 
     assertThat(tree.options()).isEmpty();
-    assertThat(tree.arguments()).hasSize(13);
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class, shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class,
+      syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("TEST=test &&         ls &&         curl sLO https://google.com &&        echo TEST | sha256sum --check")));
   }
 
   @Test
@@ -241,7 +239,9 @@ class RunInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 36);
 
-    assertThat(tree.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ArgumentList.class,
+      argumentList -> assertThat(argumentList.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2"));
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
@@ -255,32 +255,12 @@ class RunInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 28);
 
-    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("executable param1 param2")));
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
-    assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);
-  }
-
-  @ParameterizedTest
-  @MethodSource
-  void shouldCheckParseRunShellFormTreeWithEnvVariable(String code, String[] expectedArguments) {
-    RunInstruction tree = DockerTestUtils.parse(code, DockerLexicalGrammar.RUN);
-
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
-    assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.textRange()).hasRange(1, 0, 1, code.length());
-
-    assertArgumentsValue(tree.arguments(), expectedArguments);
-
-    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
-    assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);
-  }
-
-  public static Stream<Arguments> shouldCheckParseRunShellFormTreeWithEnvVariable() {
-    return Stream.of(
-      arguments("RUN VAR=value executable param", new String[] {"VAR=value", "executable", "param"}),
-      arguments("RUN VAR='value and more' executable param", new String[] {"VAR=value and more", "executable", "param"}),
-      arguments("RUN VAR=\"value and more\" executable param", new String[] {"VAR=value and more", "executable", "param"}));
+    assertThat(tree.children().get(1)).isInstanceOf(ShellCode.class);
   }
 
   @Test
@@ -296,7 +276,9 @@ class RunInstructionImplTest {
     assertThat(ArgumentResolution.of(option.value()).value()).isEqualTo("type=cache,target=/root/.cache/pip");
     assertThat(option.textRange()).hasRange(1, 4, 1, 46);
 
-    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ArgumentList.class,
+      argumentList -> assertThat(argumentList.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2"));
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
@@ -317,11 +299,13 @@ class RunInstructionImplTest {
     assertThat(ArgumentResolution.of(option.value()).value()).isEqualTo("type=");
     assertThat(option.textRange()).hasRange(1, 4, 1, 35);
 
-    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("executable param1 param2")));
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
-    assertThat(tree.children().get(2)).isInstanceOf(ShellForm.class);
+    assertThat(tree.children().get(2)).isInstanceOf(ShellCode.class);
   }
 
   @Test
@@ -330,10 +314,11 @@ class RunInstructionImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).isEmpty();
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ExecForm.class,
+      execForm -> assertThat(execForm.arguments()).isEmpty());
 
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
-    assertThat(tree.arguments()).isEmpty();
   }
 
   @Test
@@ -342,121 +327,68 @@ class RunInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
 
-    assertThat(tree.arguments()).isEmpty();
+    assertThat(tree.code()).isNull();
   }
 
-  @Test
-  void shouldCheckParseRunMultiLineFileEnding() {
-    String toParse = """
-      RUN <<FILE1
-      line 1
-      line 2
-      FILE1""";
-    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertThat(tree.textRange()).hasRange(1, 0, 4, 5);
-
-    assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(6);
-    assertArgumentsValue(tree.arguments(), "<<FILE1", "line", "1", "line", "2", "FILE1");
+  static Stream<Arguments> shouldParseMultilineRun() {
+    return Stream.of(
+      Arguments.arguments(
+        """
+          RUN <<FILE1
+          line 1
+          line 2
+          line 3
+          FILE1""", ""),
+      Arguments.arguments(
+        """
+          RUN <<-FILE1 line 0
+          line 1
+          line 2
+          line 3
+          FILE1""", "HEALTHCHECK NONE"),
+      Arguments.arguments(
+        """
+          RUN <<FILE1 <<FILE2
+          line file 1
+          FILE1
+          line file 2
+          FILE2""", ""));
   }
 
-  @Test
-  void shouldCheckParseRunMultiLineFollowedByOtherInstructionAndDash() {
-    String toParse = """
-      RUN <<-FILE1 line 0
-      line 1
-      line 2
-      FILE1
-      HEALTHCHECK NONE""";
-    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertThat(tree.textRange()).hasRange(1, 0, 4, 5);
-
-    assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(8);
-    assertArgumentsValue(tree.arguments(), "<<-FILE1", "line", "0", "line", "1", "line", "2", "FILE1");
-  }
-
-  @Test
-  void shouldCheckParseRunMultiLineMultipleRedirect() {
-    String toParse = """
-      RUN <<FILE1 <<FILE2
-      line file 1
-      FILE1
-      line file 2
-      FILE2
-      HEALTHCHECK NONE""";
+  @ParameterizedTest
+  @MethodSource
+  void shouldParseMultilineRun(String runContent, String extraContent) {
+    String toParse = "RUN %s".formatted(runContent);
+    if (!extraContent.isEmpty()) {
+      toParse += "\n" + extraContent;
+    }
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.textRange()).hasRange(1, 0, 5, 5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(10);
-    assertArgumentsValue(tree.arguments(), "<<FILE1", "<<FILE2", "line", "file", "1", "FILE1", "line", "file", "2", "FILE2");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo(runContent)));
   }
 
   @ParameterizedTest
   @ValueSource(strings = {
     "RUN executable    \\\n# my comment\nparameters",
     "RUN executable  \\\n# my comment\n  parameters",
-    "RUN executable  \\\n# com\n  \n  parameters",
-    "RUN executable  \\\n# com\n  \n# com\n  parameters"
+    "RUN executable  \\\n# my comment\n  \n  parameters",
   })
-  void shouldHaveInlineCommentAttachedToInaccessibleWhitespace(String toParse) {
+  void shouldHaveInlineCommentAttachedToSyntaxToken(String toParse) {
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(2);
-    assertArgumentsValue(tree.arguments(), "executable", "parameters");
-
-    // Comments are associated to the whitespace which are not accessible from the tree because they are ignored/not stored on the grammar
-    SyntaxTokenImpl syntaxToken1 = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree.arguments().get(0), SyntaxTokenImpl.class::isInstance).get();
-    assertThat(syntaxToken1.value()).isEqualTo("executable");
-    assertThat(syntaxToken1.comments()).isEmpty();
-    SyntaxTokenImpl syntaxToken2 = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree.arguments().get(1), SyntaxTokenImpl.class::isInstance).get();
-    assertThat(syntaxToken2.value()).isEqualTo("parameters");
-    assertThat(syntaxToken2.comments()).isEmpty();
-  }
-
-  @Test
-  void shouldHaveInlineCommentAttachedToPreviousToken() {
-    String toParse = """
-      RUN executable\\
-      # my comment
-           parameters""";
-    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertThat(tree.textRange()).hasRange(1, 0, 3, 15);
-
-    assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(2);
-    assertArgumentsValue(tree.arguments(), "executable", "parameters");
-
-    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree.arguments().get(0), SyntaxTokenImpl.class::isInstance).get();
-    assertThat(syntaxToken.value()).isEqualTo("executable");
-
-    assertThat(syntaxToken.comments()).hasSize(1);
-    Comment comment = syntaxToken.comments().get(0);
-    assertThat(comment.value()).isEqualTo("# my comment");
-    assertThat(comment.contentText()).isEqualTo("my comment");
-    assertThat(comment.textRange()).hasRange(2, 0, 2, 12);
-  }
-
-  @Test
-  void shouldHaveInlineCommentAttachedToMergedTokens() {
-    String toParse = """
-      RUN executable\\
-      # my comment
-      parameters""";
-    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertThat(tree.textRange()).hasRange(1, 0, 3, 10);
-
-    assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(1);
-    assertArgumentsValue(tree.arguments(), "executableparameters");
-
-    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
-    assertThat(syntaxToken.value()).isEqualTo("executableparameters");
-    assertThat(syntaxToken.comments())
-      .hasSize(1)
-      .extracting("value").containsExactly("# my comment");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class, shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> {
+      assertThat(syntaxToken.value()).isEqualTo("executable    parameters");
+      // Comments are associated to the whitespace which are not accessible from the tree because they are ignored/not stored on the grammar
+      assertThat(syntaxToken.comments())
+        .hasSize(1)
+        .extracting("value").containsExactly("# my comment");
+    }));
   }
 
   @Test
@@ -470,14 +402,13 @@ class RunInstructionImplTest {
     assertThat(tree.textRange()).hasRange(1, 0, 4, 10);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(1);
-    assertArgumentsValue(tree.arguments(), "executableparameters");
-
-    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
-    assertThat(syntaxToken.value()).isEqualTo("executableparameters");
-    assertThat(syntaxToken.comments())
-      .hasSize(2)
-      .extracting("value").containsExactly("# my comment 1", "# my comment 2");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class, shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> {
+      assertThat(syntaxToken.value()).isEqualTo("executableparameters");
+      assertThat(syntaxToken.comments())
+        .hasSize(2)
+        .extracting("value").containsExactly("# my comment 1", "# my comment 2");
+    }));
   }
 
   @Test
@@ -489,12 +420,11 @@ class RunInstructionImplTest {
     assertThat(tree.textRange()).hasRange(1, 0, 2, 12);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(1);
-    assertArgumentsValue(tree.arguments(), "executable");
-
-    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
-    assertThat(syntaxToken.value()).isEqualTo("executable");
-    assertThat(syntaxToken.comments()).isEmpty();
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class, shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> {
+      assertThat(syntaxToken.value()).isEqualTo("executable");
+      assertThat(syntaxToken.comments()).isEmpty();
+    }));
   }
 
   @Test
@@ -505,44 +435,51 @@ class RunInstructionImplTest {
       TEXT1
       Text2
       TEXT2
+      RUN bob
       """;
     var run = DockerTestUtils.<RunInstruction>parse(code, DockerLexicalGrammar.RUN);
 
-    assertThat(run.arguments())
-      .map(a -> ((Literal) a.expressions().get(0)).value())
-      .containsExactly("cat", "<<TEXT1", "&&", "cat", "<<TEXT2", "Text1", "TEXT1", "Text2", "TEXT2");
+    assertThat(run.code()).isNotNull();
+    assertThat(run.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("""
+        cat <<TEXT1 && cat <<TEXT2
+        Text1
+        TEXT1
+        Text2
+        TEXT2""")));
   }
 
   @Test
   void shouldTreatMalformedExecFormAsShellForm() {
     var tree = DockerTestUtils.<RunInstruction>parse("RUN [ \"/bin/bash”, “-c” ]", DockerLexicalGrammar.RUN);
 
-    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertArgumentsValue(tree.arguments(), "[", "\"/bin/bash”, “-c” ]");
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("[ \"/bin/bash”, “-c” ]")));
   }
 
   @Test
   void shouldParseWeirdButValidExecForm() {
     var tree = DockerTestUtils.<RunInstruction>parse("RUN [ \"/bin/bash”, “-c\" ]", DockerLexicalGrammar.RUN);
 
-    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.EXEC_FORM);
-    assertArgumentsValue(tree.arguments(), "/bin/bash”, “-c");
+    assertThat(tree.code()).isInstanceOf(ExecForm.class);
+    assertThat(tree.code()).isInstanceOfSatisfying(ArgumentList.class,
+      argumentList -> assertThat(argumentList.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("/bin/bash”, “-c"));
   }
 
   @Test
   void shouldParseMalformedButValidShellForm() {
     var tree = DockerTestUtils.<RunInstruction>parse("RUN [ '/bin/bash”, “-c” ]", DockerLexicalGrammar.RUN);
 
-    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertArgumentsValue(tree.arguments(), "[", "'/bin/bash”, “-c” ]");
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("[ '/bin/bash”, “-c” ]")));
   }
 
   @Test
   void shouldTreatAnotherMalformedExecFormAsShellForm() {
     var tree = DockerTestUtils.<RunInstruction>parse("RUN [ '/bin/bash”, “-c' ]", DockerLexicalGrammar.RUN);
 
-    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertArgumentsValue(tree.arguments(), "[", "/bin/bash”, “-c", "]");
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("[ '/bin/bash”, “-c' ]")));
   }
 
   @Test

@@ -78,7 +78,7 @@ class CopyInstructionImplTest {
   void copyInstructionShellForm() {
     CopyInstruction tree = parse("COPY src1 src2 dest", DockerLexicalGrammar.COPY);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.COPY);
-    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
+    assertThat(tree.srcsAndDest().getKind()).isEqualTo(DockerTree.Kind.SHELL_FORM);
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.arguments()).isNotNull();

@@ -1,43 +1,33 @@
 FROM scratch
 
 # Non compliant test cases
-# Noncompliant@+1 {{Surround this variable with double quotes; otherwise, it can lead to unexpected behavior.}}
-RUN $test
-#   ^^^^^
-
-# Noncompliant@+1
+# FN: shell form not supported in community edition
 RUN ./exec $test
-# Noncompliant@+1
-RUN my random command $test with value
-# Noncompliant@+1 2
-RUN $test$val
-# Noncompliant@+1
-RUN $test"other"
-#   ^^^^^
-# Noncompliant@+2
+
+# FNs: exec form with explicit shell invocation are not supported
+RUN ["sh", "-c", "./exec $test"]
+RUN ["sh", "-c", "my random command $test with value"]
+RUN ["sh", "-c", "$test$val"]
+RUN ["sh", "-c", "$test\"other\""]
+RUN ["sh", "-c", "del -$flag"]
+
 RUN <<EOT
   $test some value
-# ^^^^^
 EOT
-# Noncompliant@+1
-RUN del -$flag
-#        ^^^^^
 
 
 # Compliant test cases
-RUN "$test"
-RUN ./exec "$test"
-RUN my random command "$test" with value
-RUN '$test'
-RUN ./exec '$test'
-RUN my random command '$test' with value
+RUN ["sh", "-c", "\"$test\""]
+RUN ["sh", "-c", "./exec \"$test\""]
+RUN ["sh", "-c", "my random command \"$test\" with value"]
+RUN ["sh", "-c", "'$test'"]
+RUN ["sh", "-c", "./exec '$test'"]
+RUN ["sh", "-c", "my random command '$test' with value"]
 RUN ["$test"]
 
 
 # Other instructions supported by the rule
-# Noncompliant@+1
-CMD $test
-# Noncompliant@+1
+CMD ["sh", "-c", "$test"]
 ENTRYPOINT $test
 
 
@@ -47,15 +37,13 @@ COPY $test
 
 # Compliant because the original variable definition is enclosed in double quotes
 ARG my_var_arg="my_value"
-RUN $my_var_arg
+ENTRYPOINT $my_var_arg
 
 ENV my_var_env="my_value"
-RUN $my_var_env
+ENTRYPOINT $my_var_env
 
 ARG no_end_quote="my_value"ishere
-# Noncompliant@+1
-RUN $no_end_quote
+ENTRYPOINT $no_end_quote
 
 ARG no_start_quote=ishere"my_value"
-# Noncompliant@+1
-RUN $no_start_quote
+ENTRYPOINT $no_start_quote

@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 @Rule(key = "S7018")
@@ -65,18 +65,14 @@ public class SortedArgumentListCheck implements IacCheck {
   }
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
-    if (runInstruction.getKindOfArgumentList() == DockerTree.Kind.HEREDOCUMENT) {
-      // TODO SONARIAC-1557 Heredoc should be treated as multiple instructions
-      // Otherwise, it's not clear where to stop the matcher, and the next command can be captured.
-      return;
+    if (runInstruction.code() instanceof ArgumentList argumentList) {
+      var argumentResolutions = argumentList.arguments().stream().map(ArgumentResolution::of).toList();
+      COMMAND_DETECTORS.stream()
+        .map(it -> it.search(argumentResolutions))
+        .filter(it -> !it.isEmpty())
+        .flatMap(List::stream)
+        .forEach(command -> checkInstallationCommand(ctx, command));
     }
-
-    var argumentResolutions = runInstruction.arguments().stream().map(ArgumentResolution::of).toList();
-    COMMAND_DETECTORS.stream()
-      .map(it -> it.search(argumentResolutions))
-      .filter(it -> !it.isEmpty())
-      .flatMap(List::stream)
-      .forEach(command -> checkInstallationCommand(ctx, command));
   }
 
   private static void checkInstallationCommand(CheckContext ctx, CommandDetector.Command command) {

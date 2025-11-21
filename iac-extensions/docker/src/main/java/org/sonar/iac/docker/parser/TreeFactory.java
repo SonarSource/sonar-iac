@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
@@ -54,6 +55,7 @@ import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
@@ -92,6 +94,7 @@ import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SingleArgumentListImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
+import org.sonar.iac.docker.tree.impl.SyntaxTokenShellCodeImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
 import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
@@ -181,16 +184,20 @@ public class TreeFactory {
     return new FlagImpl(prefix, name, equals.orNull(), value.orNull());
   }
 
-  public CmdInstruction cmd(SyntaxToken token, Optional<ArgumentList> execFormOrShellForm) {
-    return new CmdInstructionImpl(token, execFormOrShellForm.orNull());
-  }
-
-  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<ArgumentList> execFormOrShellForm) {
+  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<Tree> execFormOrShellForm) {
     return new EntrypointInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public RunInstruction run(SyntaxToken token, Optional<List<Flag>> options, Optional<ArgumentList> execFormOrShellForm) {
+  public RunInstruction run(SyntaxToken token, Optional<List<Flag>> options, Optional<Tree> execFormOrShellForm) {
     return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
+  }
+
+  public CmdInstruction cmd(SyntaxToken token, Optional<Tree> execFormOrShellForm) {
+    return new CmdInstructionImpl(token, execFormOrShellForm.orNull());
+  }
+
+  public ShellCode<?> shellCode(SyntaxToken code) {
+    return new SyntaxTokenShellCodeImpl(code);
   }
 
   public UserInstruction user(SyntaxToken keyword, List<Argument> arguments) {

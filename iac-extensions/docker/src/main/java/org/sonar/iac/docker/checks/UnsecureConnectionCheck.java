@@ -26,6 +26,8 @@ import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
+import static org.sonar.iac.docker.checks.utils.CheckUtils.codeToArgumentList;
+
 @Rule(key = "S4830")
 public class UnsecureConnectionCheck implements IacCheck {
 
@@ -49,9 +51,11 @@ public class UnsecureConnectionCheck implements IacCheck {
   }
 
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
-    List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).toList();
+    codeToArgumentList(runInstruction).ifPresent(argumentList -> {
+      List<ArgumentResolution> resolvedArgument = argumentList.arguments().stream().map(ArgumentResolution::of).toList();
 
-    SENSITIVE_CURL_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-    SENSITIVE_WGET_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+      SENSITIVE_CURL_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+      SENSITIVE_WGET_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    });
   }
 }

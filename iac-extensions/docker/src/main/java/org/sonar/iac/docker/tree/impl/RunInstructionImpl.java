@@ -20,17 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class RunInstructionImpl extends AbstractCommandInstructionImpl implements RunInstruction {
+public class RunInstructionImpl extends AbstractShellCodeInstructionImpl implements RunInstruction {
 
   private final List<Flag> options;
 
-  public RunInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable ArgumentList arguments) {
-    super(keyword, arguments);
+  public RunInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable Tree code) {
+    super(keyword, code);
     this.options = options;
   }
 
@@ -44,8 +43,8 @@ public class RunInstructionImpl extends AbstractCommandInstructionImpl implement
     List<Tree> result = new ArrayList<>();
     result.add(keyword);
     result.addAll(options);
-    if (arguments != null) {
-      result.add(arguments);
+    if (code != null) {
+      result.add(code);
     }
     return result;
   }
@@ -57,6 +56,6 @@ public class RunInstructionImpl extends AbstractCommandInstructionImpl implement
 
   @Override
   public String toString() {
-    return keyword + " " + arguments;
+    return keyword + " " + code;
   }
 }

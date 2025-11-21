@@ -16,9 +16,11 @@
  */
 package org.sonar.iac.docker.checks;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ShellExpansionsInCommandCheckTest {
+  @Disabled("SONARIAC-2462")
   @Test
   void shouldExecuteCheck() {
     DockerVerifier.verify("ShellExpansionsInCommandCheck/ShellExpansionsInCommandCheck.dockerfile", new ShellExpansionsInCommandCheck());

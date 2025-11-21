@@ -26,12 +26,13 @@ import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
-import org.sonar.iac.docker.tree.api.CommandInstruction;
+import org.sonar.iac.docker.tree.api.CodeInstruction;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
-import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringHeredoc;
+import static org.sonar.iac.docker.checks.utils.CheckUtils.codeToArgumentList;
 
 @Rule(key = "S6597")
 public class WorkdirInsteadCdCheck implements IacCheck {
@@ -44,12 +45,16 @@ public class WorkdirInsteadCdCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, ignoringHeredoc(WorkdirInsteadCdCheck::checkCommandInstruction));
+    init.register(RunInstruction.class, WorkdirInsteadCdCheck::checkCommandInstruction);
     init.register(CmdInstruction.class, WorkdirInsteadCdCheck::checkCommandInstruction);
     init.register(EntrypointInstruction.class, WorkdirInsteadCdCheck::checkCommandInstruction);
   }
 
-  private static void checkCommandInstruction(CheckContext ctx, CommandInstruction commandInstruction) {
+  private static void checkCommandInstruction(CheckContext ctx, CodeInstruction codeInstruction) {
+    codeToArgumentList(codeInstruction).ifPresent(argumentList -> checkCommandInstruction(ctx, argumentList));
+  }
+
+  private static void checkCommandInstruction(CheckContext ctx, ArgumentList commandInstruction) {
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(commandInstruction);
     List<List<ArgumentResolution>> separatedArguments = ArgumentResolutionSplitter.splitCommands(argumentResolutions).elements();
 

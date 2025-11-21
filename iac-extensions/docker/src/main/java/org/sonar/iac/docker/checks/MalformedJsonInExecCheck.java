@@ -27,7 +27,9 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.ShellForm;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 @Rule(key = "S7030")
 public class MalformedJsonInExecCheck implements IacCheck {
@@ -41,6 +43,7 @@ public class MalformedJsonInExecCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(ShellForm.class, MalformedJsonInExecCheck::checkShellForm);
+    init.register(ShellCode.class, MalformedJsonInExecCheck::checkShellCode);
   }
 
   private static void checkShellForm(CheckContext ctx, ShellForm shellForm) {
@@ -49,8 +52,18 @@ public class MalformedJsonInExecCheck implements IacCheck {
     }
   }
 
+  private static void checkShellCode(CheckContext ctx, ShellCode<?> shellCode) {
+    if (shellCode.code() instanceof SyntaxToken syntaxToken && looksLikeExecForm(syntaxToken.value())) {
+      ctx.reportIssue(syntaxToken, MESSAGE);
+    }
+  }
+
   private static boolean isMalformedExec(ShellForm shellForm) {
     String command = resolveFullCommand(shellForm.arguments());
+    return looksLikeExecForm(command);
+  }
+
+  private static boolean looksLikeExecForm(@Nullable String command) {
     return command != null && command.startsWith("[") && !EXCLUDE_TOO_LONG_AFTER_OBJECT.test(command) && !EXCLUDE_NO_QUOTES.test(command);
   }
 

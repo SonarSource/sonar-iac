@@ -30,12 +30,10 @@ import org.sonar.iac.docker.checks.utils.MultiStageBuildInspector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Body;
-import org.sonar.iac.docker.tree.api.CmdInstruction;
-import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
+import org.sonar.iac.docker.tree.api.TransferInstruction;
 import org.sonar.iac.docker.tree.api.Variable;
 
 import static org.sonar.iac.docker.tree.TreeUtils.getDockerImageName;
@@ -46,9 +44,6 @@ public class ShellFormOverExecFormCheck implements IacCheck {
 
   private static final String DEFAULT_MESSAGE = "Replace this shell form with exec form.";
   private static final String WRAPPING_SCRIPT_MESSAGE = "Consider wrapping this instruction in a script file and call it with exec form.";
-  private static final Set<Class<? extends CommandInstruction>> classes = Set.of(
-    CmdInstruction.class,
-    EntrypointInstruction.class);
   private static final Pattern UNSUPPORTED_FEATURES_IN_EXEC_FORM = Pattern.compile("&&|\\|\\||\\||;");
 
   private final ShellInstructionsInfo checkContext = new ShellInstructionsInfo();
@@ -59,7 +54,7 @@ public class ShellFormOverExecFormCheck implements IacCheck {
     init.register(Body.class, this::initFileAnalysis);
     init.register(DockerImage.class, this::resetShellInstruction);
     init.register(ShellInstruction.class, this::tagDockerImageWithShellInstruction);
-    classes.forEach(klass -> init.register(klass, this::checkCommandInstructionForm));
+    // TODO SONARIAC-2460
   }
 
   private void initFileAnalysis(CheckContext ctx, Body body) {
@@ -76,23 +71,23 @@ public class ShellFormOverExecFormCheck implements IacCheck {
     getDockerImageName(shellInstruction).ifPresent(checkContext.imageNameWithShellInstruction::add);
   }
 
-  private void checkCommandInstructionForm(CheckContext ctx, CommandInstruction commandInstruction) {
-    if (commandInstruction.getKindOfArgumentList() == DockerTree.Kind.SHELL_FORM && !checkContext.hasShellInstructionInCurrentImage
-      && !hasAnyParentDockerImageWithShellInstruction(commandInstruction)
-      && !commandInstruction.parent().is(DockerTree.Kind.HEALTHCHECK)) {
-      var firstArg = commandInstruction.arguments().get(0);
-      var lastArg = commandInstruction.arguments().get(commandInstruction.arguments().size() - 1);
+  private void checkCommandInstructionForm(CheckContext ctx, TransferInstruction tr) {
+    if (tr.srcsAndDest().getKind() == DockerTree.Kind.SHELL_FORM && !checkContext.hasShellInstructionInCurrentImage
+      && !hasAnyParentDockerImageWithShellInstruction(tr)
+      && !tr.parent().is(DockerTree.Kind.HEALTHCHECK)) {
+      var firstArg = tr.srcsAndDest().arguments().get(0);
+      var lastArg = tr.srcsAndDest().arguments().get(tr.srcsAndDest().arguments().size() - 1);
       var textRange = TextRanges.mergeElementsWithTextRange(List.of(firstArg, lastArg));
       var message = DEFAULT_MESSAGE;
-      if (containFeatureNotSupportedByExecForm(commandInstruction)) {
+      if (containFeatureNotSupportedByExecForm(tr)) {
         message = WRAPPING_SCRIPT_MESSAGE;
       }
       ctx.reportIssue(textRange, message);
     }
   }
 
-  private boolean hasAnyParentDockerImageWithShellInstruction(CommandInstruction commandInstruction) {
-    return getParentDockerImageName(commandInstruction)
+  private boolean hasAnyParentDockerImageWithShellInstruction(TransferInstruction transferInstruction) {
+    return getParentDockerImageName(transferInstruction)
       .map((String parentDockerImageName) -> {
         if (hasShellInstruction(parentDockerImageName)) {
           return true;
@@ -107,8 +102,8 @@ public class ShellFormOverExecFormCheck implements IacCheck {
     return checkContext.imageNameWithShellInstruction.contains(imageName);
   }
 
-  private static boolean containFeatureNotSupportedByExecForm(CommandInstruction commandInstruction) {
-    for (Argument arg : commandInstruction.arguments()) {
+  private static boolean containFeatureNotSupportedByExecForm(TransferInstruction transferInstruction) {
+    for (Argument arg : transferInstruction.srcsAndDest().arguments()) {
       if (hasVariableReference(arg)) {
         return true;
       }

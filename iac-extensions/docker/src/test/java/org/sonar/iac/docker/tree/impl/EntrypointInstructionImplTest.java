@@ -20,12 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class EntrypointInstructionImplTest {
 
@@ -80,7 +81,8 @@ class EntrypointInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 43);
 
-    assertThat(tree.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2");
+    assertThat(tree.code()).isInstanceOfSatisfying(ArgumentList.class,
+      argumentList -> assertThat(argumentList.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2"));
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(tree.children().get(1)).isInstanceOf(ExecFormImpl.class);
@@ -94,7 +96,8 @@ class EntrypointInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 35);
 
-    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("executable param1 param2")));
   }
 
   @Test
@@ -104,7 +107,7 @@ class EntrypointInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
-    assertThat(tree.arguments()).isEmpty();
+    assertThat(tree.code()).isInstanceOfSatisfying(ArgumentList.class, argumentList -> assertThat(argumentList.arguments()).isEmpty());
   }
 
   @Test
@@ -112,8 +115,8 @@ class EntrypointInstructionImplTest {
     EntrypointInstructionImpl tree = DockerTestUtils.parse("ENTRYPOINT", DockerLexicalGrammar.ENTRYPOINT);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
+    assertThat(tree.code()).isNull();
 
-    assertThat(tree.arguments()).isEmpty();
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(tree.children()).hasSize(1);
   }

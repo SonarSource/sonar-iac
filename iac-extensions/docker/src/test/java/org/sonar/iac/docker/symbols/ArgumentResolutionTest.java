@@ -32,12 +32,14 @@ import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.VolumeInstruction;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
@@ -175,14 +177,14 @@ class ArgumentResolutionTest {
 
   @ParameterizedTest
   @MethodSource
-  void shouldCorrectlyHandleQuotes(String runInstruction, String expectedSecondArgument) {
+  void shouldCorrectlyHandleQuotes(String shellForm, String expectedSecondArgument) {
     File file = parseFileAndAnalyzeSymbols("""
       FROM scratch
       ARG FOO="foo"
-      %s
-      """.formatted(runInstruction));
+      VOLUME %s
+      """.formatted(shellForm));
 
-    List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, RunInstruction.class).get());
+    List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, VolumeInstruction.class).get());
     ArgumentResolution stringArgument = argumentResolutions.get(1);
 
     assertThat(stringArgument.value()).isEqualTo(expectedSecondArgument);
@@ -191,42 +193,37 @@ class ArgumentResolutionTest {
   static Stream<Arguments> shouldCorrectlyHandleQuotes() {
     return Stream.of(
       // argument of `echo` is StringLiteral
-      "RUN echo foo#foo",
-      "RUN echo \"foo\"#\"foo\"",
-      "RUN echo 'foo'#'foo'",
-      "RUN echo '\"foo\"'#'\"foo\"'",
-      "RUN echo \"\"foo\"\"#\"\"foo\"\"",
-      "RUN echo \"'foo'\"#\"'foo'\"",
+      "echo foo#foo",
+      "echo \"foo\"#\"foo\"",
+      "echo 'foo'#'foo'",
+      "echo '\"foo\"'#'\"foo\"'",
+      "echo \"\"foo\"\"#\"\"foo\"\"",
+      "echo \"'foo'\"#\"'foo'\"",
       // argument of `echo` is ExpandableStringLiteral
-      "RUN echo $FOO#foo",
-      "RUN echo \"$FOO\"#\"foo\"",
+      "echo $FOO#foo",
+      "echo \"$FOO\"#\"foo\"",
       // single-quoted variables are not substituted by Docker, so we shouldn't resolve them
-      "RUN echo '$FOO'#'$FOO'",
-      "RUN echo \"\"$FOO\"\"#\"\"foo\"\"",
-      "RUN echo ${FOO}#foo",
-      "RUN echo \"${FOO}\"#\"foo\"",
-      "RUN echo '${FOO}'#'${FOO}'",
-      "RUN echo \"\"${FOO}\"\"#\"\"foo\"\"",
+      "echo '$FOO'#'$FOO'",
+      "echo \"\"$FOO\"\"#\"\"foo\"\"",
+      "echo ${FOO}#foo",
+      "echo \"${FOO}\"#\"foo\"",
+      "echo '${FOO}'#'${FOO}'",
+      "echo \"\"${FOO}\"\"#\"\"foo\"\"",
       // in ExecForm all arguments in an array are ExpandableStringLiterals
-      "RUN [\"echo\", \"$FOO\"]#foo",
-      "RUN [\"echo\", \"'$FOO'\"]#'foo'",
-      "RUN [\"echo\", \"${FOO}\"]#foo",
-      "RUN [\"echo\", \"'${FOO}'\"]#'foo'",
+      "[\"echo\", \"$FOO\"]#foo",
+      "[\"echo\", \"'$FOO'\"]#'foo'",
+      "[\"echo\", \"${FOO}\"]#foo",
+      "[\"echo\", \"'${FOO}'\"]#'foo'",
       // in ExecForm quotes have to be escaped and we are not un-escaping them
-      "RUN [\"echo\", \"\\\"$FOO\\\"\"]#\\\"foo\\\"",
-      "RUN [\"echo\", \"\\\"${FOO}\\\"\"]#\\\"foo\\\"")
+      "[\"echo\", \"\\\"$FOO\\\"\"]#\\\"foo\\\"",
+      "[\"echo\", \"\\\"${FOO}\\\"\"]#\\\"foo\\\"")
       .map(s -> s.split("#"))
       .map(Arguments::of);
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "FROM scratch\nRUN echo \"date; $APP_ROOT_PATH/bin/magento\"",
-    "FROM scratch\nRUN echo \"date; /usr/bin/magento\"",
-    "FROM scratch\nRUN [\"echo\", \"\\\"date; $APP_ROOT_PATH/bin/magento\\\"\"]",
-  })
-  void shouldPreserveQuotesInArguments(String input) {
-    File file = parseFileAndAnalyzeSymbols(input);
+  @Test
+  void shouldPreserveQuotesInArguments() {
+    File file = parseFileAndAnalyzeSymbols("FROM scratch\nRUN [\"echo\", \"\\\"date; $APP_ROOT_PATH/bin/magento\\\"\"]");
 
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, RunInstruction.class).get());
     ArgumentResolution stringArgument = argumentResolutions.get(1);
@@ -296,11 +293,15 @@ class ArgumentResolutionTest {
     assertThat(argumentResolution).hasToString("\"foo\"");
   }
 
-  private File parseFileAndAnalyzeSymbols(String input) {
-    File file = parse(input, DockerLexicalGrammar.FILE);
+  private <T extends DockerTree> T parseFileAndAnalyzeSymbols(String input, Class<T> dockerTreeClass, DockerLexicalGrammar lexicalGrammar) {
+    T tree = dockerTreeClass.cast(parse(input, lexicalGrammar));
     DockerSymbolVisitor visitor = new DockerSymbolVisitor();
-    visitor.scan(inputFileContext, file);
-    return file;
+    visitor.scan(inputFileContext, tree);
+    return tree;
+  }
+
+  private File parseFileAndAnalyzeSymbols(String input) {
+    return parseFileAndAnalyzeSymbols(input, File.class, DockerLexicalGrammar.FILE);
   }
 
   private static Argument parseArgument(String input) {

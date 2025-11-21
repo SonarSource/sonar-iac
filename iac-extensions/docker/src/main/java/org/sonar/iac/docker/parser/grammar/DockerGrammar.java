@@ -47,6 +47,7 @@ import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
@@ -252,16 +253,6 @@ public class DockerGrammar {
           SHELL_FORM())));
   }
 
-  public CmdInstruction CMD() {
-    return b.<CmdInstruction>nonterminal(DockerLexicalGrammar.CMD).is(
-      f.cmd(
-        b.token(DockerKeyword.CMD),
-        b.optional(
-          b.firstOf(
-            EXEC_FORM(),
-            SHELL_FORM_GENERIC()))));
-  }
-
   public EntrypointInstruction ENTRYPOINT() {
     return b.<EntrypointInstruction>nonterminal(DockerLexicalGrammar.ENTRYPOINT).is(
       f.entrypoint(
@@ -269,7 +260,7 @@ public class DockerGrammar {
         b.optional(
           b.firstOf(
             EXEC_FORM(),
-            SHELL_FORM_GENERIC()))));
+            SHELL_CODE()))));
   }
 
   public RunInstruction RUN() {
@@ -280,9 +271,23 @@ public class DockerGrammar {
           FLAG()),
         b.optional(
           b.firstOf(
-            HEREDOC(),
             EXEC_FORM(),
-            SHELL_FORM_GENERIC()))));
+            SHELL_CODE()))));
+  }
+
+  public CmdInstruction CMD() {
+    return b.<CmdInstruction>nonterminal(DockerLexicalGrammar.CMD).is(
+      f.cmd(
+        b.token(DockerKeyword.CMD),
+        b.optional(
+          b.firstOf(
+            EXEC_FORM(),
+            SHELL_CODE()))));
+  }
+
+  public ShellCode<?> SHELL_CODE() {
+    return b.<ShellCode<?>>nonterminal(DockerLexicalGrammar.SHELL_CODE).is(
+      f.shellCode(b.token(DockerLexicalGrammar.CODE)));
   }
 
   public HealthCheckInstruction HEALTHCHECK() {

@@ -28,6 +28,7 @@ import org.sonar.iac.common.checks.Chmod;
 import org.sonar.iac.docker.checks.utils.ArgumentChmod;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
 
@@ -43,10 +44,12 @@ public class PosixPermissionCheck implements IacCheck {
   }
 
   private static void checkRunChmodPermission(CheckContext ctx, RunInstruction runInstruction) {
-    for (ArgumentChmod chmod : ArgumentChmod.extractChmodsFromArguments(runInstruction.arguments())) {
-      if (chmod.hasPermission("o+w") || chmod.hasPermission("g+s") || chmod.hasPermission("u+s")) {
-        TextRange textRange = TextRanges.merge(List.of(chmod.chmodArg.textRange(), chmod.permissionsArg.textRange()));
-        ctx.reportIssue(textRange, MESSAGE);
+    if (runInstruction.code() instanceof ArgumentList argumentList) {
+      for (ArgumentChmod chmod : ArgumentChmod.extractChmodsFromArguments(argumentList.arguments())) {
+        if (chmod.hasPermission("o+w") || chmod.hasPermission("g+s") || chmod.hasPermission("u+s")) {
+          TextRange textRange = TextRanges.merge(List.of(chmod.chmodArg.textRange(), chmod.permissionsArg.textRange()));
+          ctx.reportIssue(textRange, MESSAGE);
+        }
       }
     }
   }

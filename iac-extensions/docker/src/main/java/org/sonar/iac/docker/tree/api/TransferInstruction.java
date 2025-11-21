@@ -31,6 +31,8 @@ public interface TransferInstruction extends Instruction {
    */
   List<Flag> options();
 
+  ArgumentList srcsAndDest();
+
   /**
    * @return The list of sources of type {@link Argument} to transfer.
    */

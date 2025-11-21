@@ -24,16 +24,19 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.File;
+import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.ShellCode;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.docker.tree.api.DockerTree.Kind.EXEC_FORM;
-import static org.sonar.iac.docker.tree.api.DockerTree.Kind.SHELL_FORM;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class DockerParserTest {
@@ -112,8 +115,18 @@ class DockerParserTest {
     assertThat(file.body().dockerImages()).hasSize(1);
     var dockerImage = file.body().dockerImages().get(0);
     var entrypoint = (EntrypointInstruction) dockerImage.instructions().get(0);
-    assertThat(entrypoint.getKindOfArgumentList()).isEqualTo(SHELL_FORM);
+    assertThat(entrypoint.code()).isInstanceOf(ShellCode.class);
     var cmd = (CmdInstruction) dockerImage.instructions().get(1);
-    assertThat(cmd.getKindOfArgumentList()).isEqualTo(EXEC_FORM);
+    assertThat(cmd.code()).isInstanceOf(ArgumentList.class);
+  }
+
+  @Test
+  void shouldParseRunInstructionShellForm() {
+    var code = "RUN this is my command";
+    var tree = (RunInstruction) parse(code, DockerLexicalGrammar.INSTRUCTION);
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class, shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> {
+      assertThat(syntaxToken.value()).isEqualTo("this is my command");
+      assertThat(syntaxToken.textRange()).hasRange(1, 4, 1, 22);
+    }));
   }
 }

@@ -21,10 +21,10 @@ import java.util.List;
 /**
  * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#run">RUN</> instruction.
  * <pre>
- *   RUN {@link #options()} {@link #arguments()}
+ *   RUN {@link #options()} {@link #code()}
  * </pre>
  */
-public interface RunInstruction extends CommandInstruction {
+public interface RunInstruction extends CodeInstruction {
 
   /**
    * @return the options as a list of {@link Flag}s.

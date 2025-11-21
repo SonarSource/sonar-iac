@@ -24,10 +24,11 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
+import org.sonar.iac.docker.tree.api.ShellCode;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class HealthCheckInstructionImplTest {
   @Test
@@ -77,7 +78,8 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.cmdInstruction().getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.options()).isEmpty();
 
-    assertArgumentsValue(tree.cmdInstruction().arguments(), "command", "param");
+    assertThat(tree.cmdInstruction().code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("command param")));
   }
 
   @Test
@@ -89,7 +91,8 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.none()).isNull();
     assertThat(tree.options()).hasSize(2);
 
-    assertArgumentsValue(tree.cmdInstruction().arguments(), "command");
+    assertThat(tree.cmdInstruction().code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("command")));
 
     List<Flag> options = tree.options();
     assertThat(options.get(0).name()).isEqualTo("interval");

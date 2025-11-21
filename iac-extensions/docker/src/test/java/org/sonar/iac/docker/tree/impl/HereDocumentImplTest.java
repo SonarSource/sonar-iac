@@ -17,16 +17,16 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.HereDocument;
-import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.ShellCode;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
@@ -70,7 +70,7 @@ class HereDocumentImplTest {
     String code = """
       FROM scratch
 
-      RUN <<-INPUT
+      ENTRYPOINT <<-INPUT
         apt-get install wget
       INPUT""";
     File file = DockerTestUtils.parse(code, DockerLexicalGrammar.FILE);
@@ -81,19 +81,22 @@ class HereDocumentImplTest {
     DockerImage dockerImage = file.body().dockerImages().get(0);
     assertThat(dockerImage.instructions()).hasSize(1);
 
-    RunInstruction runInstruction = (RunInstruction) dockerImage.instructions().get(0);
-    assertArgumentsValue(runInstruction.arguments(), "<<-INPUT", "apt-get", "install", "wget", "INPUT");
-    assertThat(runInstruction.arguments().get(0).textRange()).hasRange(3, 4, 3, 12);
-
-    TextRange fullTextRange = TextRanges.merge(runInstruction.arguments().stream().map(HasTextRange::textRange).toList());
-    assertThat(fullTextRange).hasRange(3, 4, 5, 5);
+    EntrypointInstruction entrypointInstruction = (EntrypointInstruction) dockerImage.instructions().get(0);
+    assertThat(entrypointInstruction.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> {
+        assertThat(syntaxToken.value()).isEqualTo("""
+          <<-INPUT
+            apt-get install wget
+          INPUT""");
+        TextRangeAssert.assertThat(syntaxToken.textRange()).hasRange(3, 11, 5, 5);
+      }));
   }
 
   @Test
   void shouldParseEmptyHeredoc() {
     String code = """
       FROM scratch
-      RUN <<EOT
+      ENTRYPOINT <<EOT
       EOT""";
     File file = DockerTestUtils.parse(code, DockerLexicalGrammar.FILE);
 
@@ -103,10 +106,13 @@ class HereDocumentImplTest {
     DockerImage dockerImage = file.body().dockerImages().get(0);
     assertThat(dockerImage.instructions()).hasSize(1);
 
-    RunInstruction runInstruction = (RunInstruction) dockerImage.instructions().get(0);
-    assertArgumentsValue(runInstruction.arguments(), "<<EOT", "EOT");
-
-    TextRange fullTextRange = TextRanges.merge(runInstruction.arguments().stream().map(HasTextRange::textRange).toList());
-    assertThat(fullTextRange).hasRange(2, 4, 3, 3);
+    EntrypointInstruction entrypointInstruction = (EntrypointInstruction) dockerImage.instructions().get(0);
+    assertThat(entrypointInstruction.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> {
+        assertThat(syntaxToken.value()).isEqualTo("""
+          <<EOT
+          EOT""");
+        TextRangeAssert.assertThat(syntaxToken.textRange()).hasRange(2, 11, 3, 3);
+      }));
   }
 }

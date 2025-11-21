@@ -17,7 +17,6 @@
 package org.sonar.iac.docker.checks;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
@@ -29,13 +28,7 @@ import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.CmdInstruction;
-import org.sonar.iac.docker.tree.api.CommandInstruction;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.EntrypointInstruction;
-import org.sonar.iac.docker.tree.api.RunInstruction;
-
-import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringSpecificForms;
+import org.sonar.iac.docker.tree.api.HasArguments;
 
 @Rule(key = "S6573")
 public class ShellExpansionsInCommandCheck implements IacCheck {
@@ -47,21 +40,13 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
     "--",
     // pattern matching in for loops is not a subject to the issue
     "for");
-  /**
-   * We don't run the check on heredoc form or exec form.
-   * Here document are not supported with CommandDetector, so we don't run the check on them.
-   * Unlike the shell form, the exec form does not invoke a command shell. This means that normal shell processing does not happen.
-   */
-  private static final Set<DockerTree.Kind> EXCLUDED_FORMS = EnumSet.of(DockerTree.Kind.EXEC_FORM, DockerTree.Kind.HEREDOCUMENT);
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, ignoringSpecificForms(EXCLUDED_FORMS, ShellExpansionsInCommandCheck::check));
-    init.register(CmdInstruction.class, ignoringSpecificForms(EXCLUDED_FORMS, ShellExpansionsInCommandCheck::check));
-    init.register(EntrypointInstruction.class, ignoringSpecificForms(EXCLUDED_FORMS, ShellExpansionsInCommandCheck::check));
+    // TODO SONARIAC-2462
   }
 
-  private static void check(CheckContext ctx, CommandInstruction cmd) {
+  private static void check(CheckContext ctx, HasArguments cmd) {
     SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(CheckUtils.resolveInstructionArguments(cmd));
     CommandDetector shellExpansionDetector = CommandDetector.builder()
       .with(ShellExpansionsInCommandCheck::isShellExpansion)

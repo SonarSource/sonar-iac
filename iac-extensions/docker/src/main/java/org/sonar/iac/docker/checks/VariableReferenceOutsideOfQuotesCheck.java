@@ -22,8 +22,9 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
-import org.sonar.iac.docker.tree.api.CommandInstruction;
+import org.sonar.iac.docker.tree.api.CodeInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.Expression;
@@ -43,8 +44,14 @@ public class VariableReferenceOutsideOfQuotesCheck implements IacCheck {
     init.register(EntrypointInstruction.class, VariableReferenceOutsideOfQuotesCheck::checkVariableReference);
   }
 
-  private static void checkVariableReference(CheckContext ctx, CommandInstruction commandInstruction) {
-    for (Argument argument : commandInstruction.arguments()) {
+  private static void checkVariableReference(CheckContext ctx, CodeInstruction codeInstruction) {
+    if (codeInstruction.code() instanceof ArgumentList argumentList) {
+      checkVariableReference(ctx, argumentList);
+    }
+  }
+
+  private static void checkVariableReference(CheckContext ctx, ArgumentList argumentList) {
+    for (Argument argument : argumentList.arguments()) {
       for (Expression expression : argument.expressions()) {
         if (expression.is(DockerTree.Kind.REGULAR_VARIABLE) && !isVariableDefinedWithDoubleQuotes((RegularVariable) expression)) {
           ctx.reportIssue(expression, MESSAGE);

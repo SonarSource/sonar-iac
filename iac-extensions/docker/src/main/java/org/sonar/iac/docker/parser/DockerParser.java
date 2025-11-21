@@ -39,14 +39,18 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
   private final DockerPreprocessor preprocessor = new DockerPreprocessor();
   private final DockerNodeBuilder nodeBuilder;
 
-  protected DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
+  protected DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule, TreeFactory treeFactory, Class grammarClass) {
     super(StandardCharsets.UTF_8,
       DockerLexicalGrammar.createGrammarBuilder(),
-      DockerGrammar.class,
-      new TreeFactory(),
+      grammarClass,
+      treeFactory,
       nodeBuilder,
       rootRule);
     this.nodeBuilder = nodeBuilder;
+  }
+
+  protected DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
+    this(nodeBuilder, rootRule, new TreeFactory(), DockerGrammar.class);
   }
 
   public static DockerParser create() {
@@ -85,9 +89,10 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
 
   private static void setParents(DockerTree tree) {
     for (Tree children : tree.children()) {
-      DockerTree child = (DockerTree) children;
-      child.setParent(tree);
-      setParents(child);
+      if (children instanceof DockerTree child) {
+        child.setParent(tree);
+        setParents(child);
+      }
     }
   }
 

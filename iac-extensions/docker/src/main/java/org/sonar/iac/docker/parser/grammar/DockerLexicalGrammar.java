@@ -121,7 +121,11 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   ENCAPS_VAR_MODIFIER_SEPARATOR,
   ENCAPS_VAR_MODIFIER_GENERIC,
 
-  KEY_VALUE_PAIR;
+  KEY_VALUE_PAIR,
+
+  // Code content of RUN/CMD instructions
+  CODE,
+  SHELL_CODE;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -188,6 +192,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(ANY_CHAR_STRING_LITERAL).is(b.optional(SKIPPED_WHITESPACE), b.regexp(DockerLexicalConstant.ANY_CHAR_STRING_LITERAL));
     b.rule(RBRACKET_END_EXEC_FORM).is(b.optional(SKIPPED_WHITESPACE), b.regexp(DockerLexicalConstant.RBRACKET_END_EXEC_FORM));
+
+    b.rule(CODE).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.CODE));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

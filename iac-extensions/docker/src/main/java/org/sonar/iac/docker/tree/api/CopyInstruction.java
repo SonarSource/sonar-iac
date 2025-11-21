@@ -18,7 +18,7 @@ package org.sonar.iac.docker.tree.api;
 
 /**
  * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#copy">COPY</> instruction.
- * It is a combination of the {@link TransferInstruction} and {@link CommandInstruction} interfaces, offering two ways to retrieve the arguments.
+ * It is a combination of the {@link TransferInstruction} and {@link HasArguments} interfaces, offering two ways to retrieve the arguments.
  * <pre>
  *   COPY {@link #options()} {@link #srcs()} {@link #dest()}
  *   COPY {@link #srcs()} {@link #dest()}
@@ -26,5 +26,5 @@ package org.sonar.iac.docker.tree.api;
  *   COPY {@link #arguments()}
  * </pre>
  */
-public interface CopyInstruction extends TransferInstruction, CommandInstruction {
+public interface CopyInstruction extends TransferInstruction, HasArguments {
 }

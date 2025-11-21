@@ -19,83 +19,61 @@ HEALTHCHECK --interval=30s CMD node healthcheck.js
 
 HEALTHCHECK CMD curl --fail http://localhost:8080/healthcheck || exit 1
 
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo $message
+# FNs: exec form with explicit shell invocation are not supported
+CMD ["sh", "-c", "echo $message"]
+CMD ["sh", "-c", "echo ${message-default}"]
+CMD ["sh", "-c", "echo ${message:=default}"]
+CMD ["sh", "-c", "echo ${message:+var}"]
+CMD ["sh", "-c", "echo ${message:7}"]
+CMD ["sh", "-c", "echo ${message:7:0}"]
+CMD ["sh", "-c", "echo \"$message\""]
+CMD ["sh", "-c", "echo \"Welcome\" && echo \"Goodbye\""]
+CMD ["sh", "-c", "echo \"Welcome\" || echo \"Goodbye\""]
+CMD ["sh", "-c", "echo \"Welcome\" ; echo \"Goodbye\""]
+CMD ["sh", "-c", "echo \"Welcome\" | echo \"Goodbye\""]
+CMD ["sh", "-c", "echo \"Welcome\" && echo \"Goodbye\" || echo \"Goodbye\" ; echo \"Goodbye\" | echo \"Goodbye\""]
 
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo ${message-default}
 
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo ${message:=default}
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo ${message:+var}
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo ${message:7}
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo ${message:7:0}
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo "$message"
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo "Welcome" && echo "Goodbye"
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo "Welcome" || echo "Goodbye"
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo "Welcome" ; echo "Goodbye"
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo "Welcome" | echo "Goodbye"
-
-# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
-CMD echo "Welcome" && echo "Goodbye" || echo "Goodbye" ; echo "Goodbye" | echo "Goodbye"
-
-# Noncompliant@+1
 CMD this is a very \
-# ^[el=+2;sc=4;ec=14]
   long multi-line  \
   instruction
 
 # Noncompliant@+1
-CMD this is a very long instruction that is settled on a single line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CMD ["this", "is", "a", "very", "long", "instruction", "that", "is", "settled", "on", "a", "single", "line", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+# FN: shell form not supported in community edition
 RUN echo "Welcome!"
 CMD ["echo", "Welcome!"]
 ENTRYPOINT ["echo", "Welcome!"]
 
 SHELL ["sh", "-c"]
 # Compliant: if we met a SHELL instruction before, then we consider it's a conscious decision and don't raise an issue
-CMD echo "Welcome!"
-CMD echo "Welcome" && echo "Goodbye" || echo "Goodbye" ; echo "Goodbye" | echo "Goodbye"
+CMD ["echo", "\"Welcome!\""]
+CMD ["sh", "-c", "echo \"Welcome\" && echo \"Goodbye\" || echo \"Goodbye\" ; echo \"Goodbye\" | echo \"Goodbye\""]
 
 FROM scratch
 # Noncompliant@+1
-CMD echo "Welcome!"
+CMD ["echo", "\"Welcome!\""]
 
 FROM base as base2
 # Compliant: the parent image has a SHELL instruction
-CMD echo "Welcome!"
+CMD ["echo", "\"Welcome!\""]
 
 FROM base2
 # Compliant: the parent's parent image has a SHELL instruction
-CMD echo "Welcome!"
+CMD ["echo", "\"Welcome!\""]
 
 FROM $my_image
 # Compliant: the parent resolved image name has a SHELL instruction
-CMD echo "Welcome!"
+CMD ["echo", "\"Welcome!\""]
 
 FROM $unknown
 # If we cannot resolved the image name, we don't consider this image come from any local image, so it cannot have a SHELL instruction
 # Noncompliant@+1
-CMD echo "Welcome!"
+CMD ["echo", "\"Welcome!\""]
 
 FROM scratch
 SHELL ["sh", "-c"]
 # Compliant: extra use case with a SHELL instruction in an image without alias
-CMD echo "Welcome!"
+CMD ["echo", "\"Welcome!\""]

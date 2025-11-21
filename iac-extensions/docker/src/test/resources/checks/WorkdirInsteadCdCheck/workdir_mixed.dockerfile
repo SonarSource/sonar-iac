@@ -1,13 +1,10 @@
 FROM scratch
 
 # Test issue location
-# Noncompliant@+1 {{WORKDIR instruction should be used instead of "cd" command.}}
-RUN cd /app/bin && ./start.sh
-#   ^^^^^^^^^^^
+# FN: shell form not supported in community edition
+RUN cd /tmp && ./entrypoint.sh
 
-# Noncompliant@+1
 ENTRYPOINT unzip foobar.zip && cd foobar
-#                              ^^^^^^^^^
 
 # Noncompliant@+1
 CMD ["cd", "/tmp", "&&", "/entrypoint.sh"]

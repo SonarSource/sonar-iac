@@ -102,6 +102,9 @@ public final class DockerLexicalConstant {
 
   public static final String IMAGE_ALIAS = "[-a-zA-Z0-9_\\.]+";
 
+  // Regex to match the code content of a RUN, CMD or ENTRYPOINT instruction.
+  public static final String CODE = "(?:.*?" + HEREDOC_EXPRESSION + ")|(?:.+?(?=\r\n|\n|$))";
+
   private DockerLexicalConstant() {
   }
 }

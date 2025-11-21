@@ -24,9 +24,10 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.CommandInstruction;
+import org.sonar.iac.docker.tree.api.CodeInstruction;
 
 import static org.sonar.iac.common.checks.network.UrlUtils.isUnencryptedUrl;
+import static org.sonar.iac.docker.checks.utils.CheckUtils.codeToArgumentList;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ENTRYPOINT;
@@ -39,11 +40,11 @@ public class UnencryptedProtocolCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(CommandInstruction.class, (ctx, commandInstruction) -> {
+    init.register(CodeInstruction.class, (ctx, commandInstruction) -> {
       if (!commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN)) {
         return;
       }
-      checkUnencryptedProtocols(ctx, commandInstruction.arguments());
+      codeToArgumentList(commandInstruction).ifPresent(argumentList -> checkUnencryptedProtocols(ctx, argumentList.arguments()));
     });
 
     init.register(AddInstruction.class, (ctx, add) -> {

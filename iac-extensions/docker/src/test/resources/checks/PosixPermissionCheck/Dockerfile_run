@@ -1,103 +1,113 @@
 FROM scratch
 
 ## All sensitive numbers
-# Noncompliant@+1 {{Make sure granting write access to others is safe here.}}
+# FN: shell form not supported in community edition
   RUN chmod 002
-#     ^^^^^^^^^
+
+# FNs: exec form with explicit shell invocation are not supported
+RUN ["sh", "-c", "chmod u+wr resource && chmod o+w resource"]
+RUN ["sh", "-c", "chmod o+w resource && chmod u+wr resource"]
+RUN ["sh", "-c", "chmod 002 resource && other_command"]
+RUN ["sh", "-c", "other_command && chmod 002 resource && other_command"]
+RUN ["sh", "-c", "chmod 00$sensitive_digit"]
+RUN ["sh", "-c", "chmod 00${sensitive_digit}"]
+RUN ["sh", "-c", "chmod $sensitive_right"]
+
 # Noncompliant@+1
-RUN chmod 003
+RUN ["chmod", "003"]
+#    ^^^^^^^^^^^^^^
 # Noncompliant@+1
-RUN chmod 006
+RUN ["chmod", "006"]
 # Noncompliant@+1
-RUN chmod 007
+RUN ["chmod", "007"]
 # Noncompliant@+1
-RUN chmod 2000
+RUN ["chmod", "2000"]
 # Noncompliant@+1
-RUN chmod 3000
+RUN ["chmod", "3000"]
 # Noncompliant@+1
-RUN chmod 4000
+RUN ["chmod", "4000"]
 # Noncompliant@+1
-RUN chmod 5000
+RUN ["chmod", "5000"]
 # Noncompliant@+1
-RUN chmod 6000
+RUN ["chmod", "6000"]
 # Noncompliant@+1
-RUN chmod 7000
+RUN ["chmod", "7000"]
 
 ## All sensitive AlphaNumerical
 # Noncompliant@+1
-RUN chmod o+w
+RUN ["chmod", "o+w"]
 # Noncompliant@+1
-RUN chmod a+w
+RUN ["chmod", "a+w"]
 # Noncompliant@+1
-RUN chmod +w
+RUN ["chmod", "+w"]
 # Noncompliant@+1
-RUN chmod o+wx
+RUN ["chmod", "o+wx"]
 # Noncompliant@+1
-RUN chmod a+wx
+RUN ["chmod", "a+wx"]
 # Noncompliant@+1
-RUN chmod +wx
+RUN ["chmod", "+wx"]
 # Noncompliant@+1
-RUN chmod o+wX
+RUN ["chmod", "o+wX"]
 # Noncompliant@+1
-RUN chmod a+wX
+RUN ["chmod", "a+wX"]
 # Noncompliant@+1
-RUN chmod +wX
+RUN ["chmod", "+wX"]
 # Noncompliant@+1
-RUN chmod o+rw
+RUN ["chmod", "o+rw"]
 # Noncompliant@+1
-RUN chmod a+rw
+RUN ["chmod", "a+rw"]
 # Noncompliant@+1
-RUN chmod +rw
+RUN ["chmod", "+rw"]
 # Noncompliant@+1
-RUN chmod o+rwx
+RUN ["chmod", "o+rwx"]
 # Noncompliant@+1
-RUN chmod a+rwx
+RUN ["chmod", "a+rwx"]
 # Noncompliant@+1
-RUN chmod +rwx
+RUN ["chmod", "+rwx"]
 # Noncompliant@+1
-RUN chmod o+rwX
+RUN ["chmod", "o+rwX"]
 # Noncompliant@+1
-RUN chmod a+rwX
+RUN ["chmod", "a+rwX"]
 # Noncompliant@+1
-RUN chmod +rwX
+RUN ["chmod", "+rwX"]
 # Noncompliant@+1
-RUN chmod g+s
+RUN ["chmod", "g+s"]
 # Noncompliant@+1
-RUN chmod g+st
+RUN ["chmod", "g+st"]
 # Noncompliant@+1
-RUN chmod u+s
+RUN ["chmod", "u+s"]
 # Noncompliant@+1
-RUN chmod u+st
+RUN ["chmod", "u+st"]
 # Noncompliant@+1
-RUN chmod gu+s
+RUN ["chmod", "gu+s"]
 # Noncompliant@+1
-RUN chmod +s
+RUN ["chmod", "+s"]
 # Noncompliant@+1
-RUN chmod gu+st
+RUN ["chmod", "gu+st"]
 # Noncompliant@+1
-RUN chmod +st
+RUN ["chmod", "+st"]
 
 ## All compliant numbers
-RUN chmod 000
-RUN chmod 001
-RUN chmod 004
-RUN chmod 005
-RUN chmod 0000
-RUN chmod 1000
+RUN ["chmod", "0000"]
+RUN ["chmod", "001"]
+RUN ["chmod", "004"]
+RUN ["chmod", "005"]
+RUN ["chmod", "0000"]
+RUN ["chmod", "1000"]
 
 ## All compliant AlphaNumerical
-RUN chmod o+x
-RUN chmod a+x
-RUN chmod +x
-RUN chmod o+r
-RUN chmod a+r
-RUN chmod +r
-RUN chmod o+X
-RUN chmod a+X
-RUN chmod +X
-RUN chmod g+t
-RUN chmod u+t
-RUN chmod +t
+RUN ["chmod", "o+x"]
+RUN ["chmod", "a+x"]
+RUN ["chmod", "+x"]
+RUN ["chmod", "o+r"]
+RUN ["chmod", "a+r"]
+RUN ["chmod", "+r"]
+RUN ["chmod", "o+X"]
+RUN ["chmod", "a+X"]
+RUN ["chmod", "+X"]
+RUN ["chmod", "g+t"]
+RUN ["chmod", "u+t"]
+RUN ["chmod", "+t"]
 
 
 ## Other cases
@@ -108,35 +118,23 @@ ARG compliant_digit=0
 
 # Sensitive
 # Noncompliant@+1
-RUN chmod 0002
+RUN ["chmod", "0002"]
 # Noncompliant@+1
-RUN chmod 02
+RUN ["chmod", "02"]
 # Noncompliant@+1
-RUN chmod 2
+RUN ["chmod", "2"]
 # Noncompliant@+1
-RUN chmod 2002
+RUN ["chmod", "2002"]
 # Noncompliant@+1
-RUN chmod -R 002
+RUN ["chmod", "-R", "002"]
 # Noncompliant@+1
-RUN chmod --recursive 002
+RUN ["chmod", "--recursive", "002"]
 # Noncompliant@+1
-RUN chmod --recursive -f --changes 002
+RUN ["chmod", "--recursive", "-f", "--changes", "002"]
 # Noncompliant@+1
-RUN chmod 002 resource
+RUN ["chmod", "002", "resource"]
 # Noncompliant@+1
-RUN chmod 002 src dest
-# Noncompliant@+1
-RUN chmod 002 \
-  resource && \
-  other_command
-# Noncompliant@+1
-RUN other_command && chmod 002 resource && other_command
-# Noncompliant@+1
-RUN chmod 00$sensitive_digit
-# Noncompliant@+1
-RUN chmod 00${sensitive_digit}
-# Noncompliant@+1
-RUN chmod $sensitive_right
+RUN ["chmod", "002", "src", "dest"]
 # Noncompliant@+1
 RUN ["chmod", "002"]
 # Noncompliant@+1
@@ -144,69 +142,56 @@ RUN ["chmod", "-R", "002"]
 # Noncompliant@+1
 RUN ["chmod", "o+w"]
 # Noncompliant@+1
-RUN chmod o=w
+RUN ["chmod", "o=w"]
 # Noncompliant@+1
-RUN chmod o+rw
+RUN ["chmod", "o+rw"]
 # Noncompliant@+1
-RUN chmod o+wr
+RUN ["chmod", "o+wr"]
 # Noncompliant@+1
-RUN chmod u+w,o+w
+RUN ["chmod", "u+w,o+w"]
 # Noncompliant@+1
-RUN chmod u+r,o+w
+RUN ["chmod", "u+r,o+w"]
 # Noncompliant@+1
-RUN chmod o+w,u+r
+RUN ["chmod", "o+w,u+r"]
 # Noncompliant@+1
-  RUN chmod u-w,o+w
-#     ^^^^^^^^^^^^^
+RUN ["chmod", "u-w,o+w"]
+#    ^^^^^^^^^^^^^^^^^^
 # Noncompliant@+1
-  RUN chmod u+wr resource && chmod o+w resource
-#                            ^^^^^^^^^
+RUN ["chmod", "chmod", "o+w", "resource"]
 # Noncompliant@+1
-RUN chmod o+w resource && chmod u+wr resource
-# Noncompliant@+1
-RUN chmod chmod o+w resource
-# Noncompliant@+1
-RUN chmod g=u,o+w resource
-# Noncompliant@+2
-RUN <<-SCRIPT
-  chmod +st
-# ^^^^^^^^^
-SCRIPT
+RUN ["chmod", "g=u,o+w", "resource"]
+RUN ["sh", "-c", "chmod +st"]
 
 # Compliant
-RUN chmod 0000
-RUN chmod -R 000
-RUN chmod --recursive 000
-RUN chmod --recursive -f --changes 000
-RUN chmod 000 resource
-RUN chmod 000 src dest
-RUN chmod 000 \
-  resource && \
-  other_command
-RUN other_command && chmod 000 resource && other_command
-RUN chmod 00$compliant_digit
-RUN chmod 00${compliant_digit}
-RUN chmod $compliant_right
+RUN ["chmod", "0000"]
+RUN ["chmod", "-R", "000"]
+RUN ["chmod", "--recursive", "000"]
+RUN ["chmod", "--recursive", "-f", "--changes", "000"]
+RUN ["chmod", "000", "resource"]
+RUN ["chmod", "000", "src", "dest"]
+RUN ["sh", "-c", "chmod 000 resource && other_command"]
+RUN ["sh", "-c", "other_command && chmod 000 resource && other_command"]
+RUN ["sh", "-c", "chmod 00$compliant_digit"]
+RUN ["sh", "-c", "chmod 00${compliant_digit}"]
+RUN ["sh", "-c", "chmod $compliant_right"]
 RUN ["chmod", "0", "0", "2"]
 RUN ["chmod", "random", "002"]
 RUN ["chmod", "u+w"]
-RUN chmod o+rx
-RUN chmod o+xr
-RUN chmod o+rX
-RUN chmod u+w
-RUN chmod o-w
-RUN chmod u+wr
-RUN chmod u=wr
-RUN chmod u+w,o-w
-RUN chmod u+w resource && chmod u+wr resource
-RUN <<-SCRIPT
-  chmod u+w
-SCRIPT
+RUN ["chmod", "o+rx"]
+RUN ["chmod", "o+xr"]
+RUN ["chmod", "o+rX"]
+RUN ["chmod", "u+w"]
+RUN ["chmod", "o-w"]
+RUN ["chmod", "u+wr"]
+RUN ["chmod", "u=wr"]
+RUN ["chmod", "u+w,o-w"]
+RUN ["sh", "-c", "chmod u+w resource && chmod u+wr resource"]
+RUN ["sh", "-c", "chmod u+w"]
 
 ## Specific case which can cause parsing error
-RUN chmod
-RUN chmod -R
-RUN chmod u+wr,
-RUN chmod u=g
+RUN ["chmod"]
+RUN ["chmod", "-R"]
+RUN ["chmod", "u+wr,"]
+RUN ["chmod", "u=g"]
 RUN ["chmod"]
 RUN ["chmod", "-R"]

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.sonar.check.Rule;
@@ -36,6 +38,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
@@ -49,6 +52,7 @@ public class LongRunInstructionCheck implements IacCheck {
   public static final int DEFAULT_MAX_LENGTH = 120;
   public static final int MIN_WORD_TO_TRIGGER = 7;
   private static final String MESSAGE = "Split this RUN instruction line into multiple lines.";
+  private static final Predicate<String> HAS_URL = Pattern.compile("\\b((https?|ftp)://|(www|ftp)\\.)\\S++").asPredicate();
 
   @RuleProperty(
     key = "maxLength",
@@ -115,8 +119,34 @@ public class LongRunInstructionCheck implements IacCheck {
     Map<Integer, Integer> wordsPerLine = new HashMap<>();
     incrementWordCountOnLine(wordsPerLine, runInstruction.keyword());
     runInstruction.options().forEach(flag -> incrementWordCountOnLine(wordsPerLine, flag));
-    runInstruction.arguments().forEach(argument -> incrementWordCountOnLine(wordsPerLine, argument));
+    if (runInstruction.code() instanceof SyntaxToken syntaxToken) {
+      incrementWordCountOnLine(wordsPerLine, syntaxToken.textRange().start().line(), countWordsInString(syntaxToken.value()));
+    } else if (runInstruction.code() instanceof ArgumentList argumentList) {
+      argumentList.arguments().forEach(argument -> incrementWordCountOnLine(wordsPerLine, argument));
+    }
     return wordsPerLine;
+  }
+
+  private static int countWordsInString(String text) {
+    // 1. Fast fail for null or empty
+    if (text.isEmpty()) {
+      return 0;
+    }
+    int count = 0;
+    boolean isWord = false;
+    int length = text.length();
+    for (int i = 0; i < length; i++) {
+      char c = text.charAt(i);
+      // 2. Check if the character is whitespace (equivalent to \s)
+      if (Character.isWhitespace(c)) {
+        isWord = false;
+      } else if (!isWord) {
+        // 3. If we weren't in a word, and now we are, increment count
+        count++;
+        isWord = true;
+      }
+    }
+    return count;
   }
 
   private static void incrementWordCountOnLine(Map<Integer, Integer> wordsPerLine, Tree tree) {
@@ -130,15 +160,26 @@ public class LongRunInstructionCheck implements IacCheck {
     wordsPerLine.merge(line, 1, Integer::sum);
   }
 
+  private static void incrementWordCountOnLine(Map<Integer, Integer> wordsPerLine, int line, int wordCount) {
+    wordsPerLine.merge(line, wordCount, Integer::sum);
+  }
+
   private static Set<Integer> getLinesWithUrl(RunInstruction runInstruction) {
-    return runInstruction.arguments().stream()
-      .filter(LongRunInstructionCheck::isArgumentUrl)
-      .flatMap((Argument urlArgument) -> {
-        int startLine = urlArgument.textRange().start().line();
-        int endLine = urlArgument.textRange().end().line();
-        return IntStream.rangeClosed(startLine, endLine).boxed();
-      })
-      .collect(Collectors.toSet());
+    if (runInstruction.code() instanceof SyntaxToken syntaxToken) {
+      if (HAS_URL.test(syntaxToken.value())) {
+        return Set.of(syntaxToken.textRange().start().line());
+      }
+    } else if (runInstruction.code() instanceof ArgumentList argumentList) {
+      return argumentList.arguments().stream()
+        .filter(LongRunInstructionCheck::isArgumentUrl)
+        .flatMap((Argument urlArgument) -> {
+          int startLine = urlArgument.textRange().start().line();
+          int endLine = urlArgument.textRange().end().line();
+          return IntStream.rangeClosed(startLine, endLine).boxed();
+        })
+        .collect(Collectors.toSet());
+    }
+    return Set.of();
   }
 
   private static boolean isArgumentUrl(Argument argument) {

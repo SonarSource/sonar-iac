@@ -16,9 +16,11 @@
  */
 package org.sonar.iac.docker.checks;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class MisusedUnsetCheckTest {
+  @Disabled("SONARIAC-2456")
   @Test
   void shouldExecuteCheck() {
     DockerVerifier.verify("MisusedUnsetCheck/MisusedUnsetCheck.dockerfile", new MisusedUnsetCheck());

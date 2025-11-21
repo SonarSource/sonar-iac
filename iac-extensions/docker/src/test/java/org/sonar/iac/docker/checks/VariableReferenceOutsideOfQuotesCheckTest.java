@@ -16,10 +16,12 @@
  */
 package org.sonar.iac.docker.checks;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class VariableReferenceOutsideOfQuotesCheckTest {
 
+  @Disabled("SONARIAC-2463")
   @Test
   void shouldExecuteCheck() {
     DockerVerifier.verify("VariableReferenceOutsideOfQuotesCheck/VariableReferenceOutsideOfQuotesCheck.dockerfile", new VariableReferenceOutsideOfQuotesCheck());

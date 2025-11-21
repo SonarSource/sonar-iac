@@ -26,11 +26,13 @@ import java.util.stream.Stream;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.CommandInstruction;
+import org.sonar.iac.docker.tree.api.ArgumentList;
+import org.sonar.iac.docker.tree.api.CodeInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HasArguments;
 import org.sonar.iac.docker.tree.api.ShellForm;
+import org.sonar.iac.docker.tree.api.TransferInstruction;
 import org.sonar.iac.docker.tree.api.Variable;
 
 public final class CheckUtils {
@@ -47,19 +49,36 @@ public final class CheckUtils {
       .toList();
   }
 
+  public static List<ArgumentResolution> resolveInstructionArguments(CodeInstruction codeInstruction) {
+    if (codeInstruction.code() instanceof ArgumentList argumentList) {
+      return argumentList.arguments().stream()
+        .map(ArgumentResolution::ofWithoutStrippingQuotes)
+        .flatMap(CheckUtils::resolvePartsAfterInitialResolution)
+        .toList();
+    }
+    return List.of();
+  }
+
+  public static Optional<ArgumentList> codeToArgumentList(CodeInstruction codeInstruction) {
+    if (codeInstruction.code() instanceof ArgumentList argumentList) {
+      return Optional.of(argumentList);
+    }
+    return Optional.empty();
+  }
+
   public static Optional<Flag> getParamByName(Collection<Flag> params, String name) {
     return params.stream().filter(param -> name.equals(param.name())).findFirst();
   }
 
-  public static <T extends CommandInstruction> BiConsumer<CheckContext, T> ignoringHeredoc(BiConsumer<CheckContext, T> visitor) {
+  public static <T extends TransferInstruction> BiConsumer<CheckContext, T> ignoringHeredoc(BiConsumer<CheckContext, T> visitor) {
     return ignoringSpecificForms(Set.of(DockerTree.Kind.HEREDOCUMENT), visitor);
   }
 
-  public static <T extends CommandInstruction> BiConsumer<CheckContext, T> ignoringSpecificForms(Collection<DockerTree.Kind> formKinds, BiConsumer<CheckContext, T> visitor) {
-    return (ctx, commandInstruction) -> {
-      var kind = commandInstruction.getKindOfArgumentList();
-      if (kind == null || !formKinds.contains(commandInstruction.getKindOfArgumentList())) {
-        visitor.accept(ctx, commandInstruction);
+  public static <T extends TransferInstruction> BiConsumer<CheckContext, T> ignoringSpecificForms(Collection<DockerTree.Kind> formKinds, BiConsumer<CheckContext, T> visitor) {
+    return (ctx, hasArguments) -> {
+      var kind = hasArguments.srcsAndDest().getKind();
+      if (kind == null || !formKinds.contains(kind)) {
+        visitor.accept(ctx, hasArguments);
       }
     };
   }

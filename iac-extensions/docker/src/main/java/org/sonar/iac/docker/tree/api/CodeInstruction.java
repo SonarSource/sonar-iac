@@ -16,12 +16,15 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import javax.annotation.CheckForNull;
+import org.sonar.iac.common.api.tree.Tree;
+
 /**
- * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#entrypoint">ENTRYPOINT</> instruction.
- * It is a strict implementation of the {@link CodeInstruction} interface.
- * <pre>
- *   ENTRYPOINT {@link #code()}
- * </pre>
+ * Marker interface to define the contract of Dockerfile instructions that contain code to be executed,
+ * such as {@code RUN}, {@code CMD}.
+ * The code can either be a {@link ShellCode} (shell form) or a {@link ArgumentList} (exec form).
  */
-public interface EntrypointInstruction extends CodeInstruction {
+public interface CodeInstruction extends Instruction {
+  @CheckForNull
+  Tree code();
 }

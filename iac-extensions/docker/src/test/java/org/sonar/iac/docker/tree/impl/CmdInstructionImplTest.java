@@ -22,15 +22,15 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.docker.tree.api.ShellForm;
+import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class CmdInstructionImplTest {
 
@@ -86,8 +86,9 @@ class CmdInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 36);
 
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().stream().map(t -> ArgumentResolution.of(t).value())).containsExactly("executable", "param1", "param2");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ArgumentList.class,
+      argumentList -> assertThat(argumentList.arguments().stream().map(t -> ArgumentResolution.of(t).value())).containsExactly("executable", "param1", "param2"));
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
@@ -101,11 +102,12 @@ class CmdInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 28);
 
-    assertThat(tree.arguments()).isNotNull();
-    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class,
+      shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class, syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("executable param1 param2")));
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("CMD");
-    assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);
+    assertThat(tree.children().get(1)).isInstanceOf(ShellCode.class);
   }
 
   @Test
@@ -113,8 +115,10 @@ class CmdInstructionImplTest {
     CmdInstruction tree = DockerTestUtils.parse("CMD []", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments()).isEmpty();
+    assertThat(tree.code()).isNotNull();
+    assertThat(tree.code()).isInstanceOfSatisfying(ArgumentList.class, argumentList -> {
+      assertThat(argumentList.arguments()).isEmpty();
+    });
   }
 
   @Test
@@ -122,15 +126,14 @@ class CmdInstructionImplTest {
     CmdInstruction tree = DockerTestUtils.parse("CMD", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments()).isEmpty();
+    assertThat(tree.code()).isNull();
   }
 
   @Test
   void shouldParseMalformedExecFormAsShellForm() {
     CmdInstruction tree = DockerTestUtils.parse("CMD [\"executable\", \"option\"] something behind", DockerLexicalGrammar.CMD);
-    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertArgumentsValue(tree.arguments(), "[executable,", "option]", "something", "behind");
+    assertThat(tree.code()).isInstanceOfSatisfying(ShellCode.class, shellCode -> assertThat(shellCode.code()).isInstanceOfSatisfying(SyntaxToken.class,
+      syntaxToken -> assertThat(syntaxToken.value()).isEqualTo("[\"executable\", \"option\"] something behind")));
   }
 
   @ParameterizedTest
@@ -141,7 +144,7 @@ class CmdInstructionImplTest {
   })
   void shouldParseExecFormProperly(String input) {
     CmdInstruction tree = DockerTestUtils.parse(input, DockerLexicalGrammar.CMD);
-    assertThat(tree.getKindOfArgumentList()).isEqualTo(DockerTree.Kind.EXEC_FORM);
-    assertArgumentsValue(tree.arguments(), "executable", "option");
+    assertThat(tree.code()).isInstanceOfSatisfying(ArgumentList.class,
+      argumentList -> assertThat(argumentList.arguments().stream().map(t -> ArgumentResolution.of(t).value())).containsExactly("executable", "option"));
   }
 }

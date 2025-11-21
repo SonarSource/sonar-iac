@@ -17,7 +17,6 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
@@ -38,11 +37,5 @@ public class CopyInstructionImpl extends AbstractTransferInstructionImpl impleme
   @Override
   public List<Argument> arguments() {
     return srcsAndDest.arguments();
-  }
-
-  @CheckForNull
-  @Override
-  public Kind getKindOfArgumentList() {
-    return srcsAndDest.getKind();
   }
 }
