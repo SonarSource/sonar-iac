@@ -43,7 +43,6 @@ public final class DockerCheckList {
       LongRunInstructionCheck.class,
       MalformedJsonInExecCheck.class,
       MandatoryLabelCheck.class,
-      MisusedUnsetCheck.class,
       MountWorldPermissionCheck.class,
       PackageInstallationCacheCheck.class,
       PackageInstallationCheck.class,
