@@ -4,7 +4,7 @@ RUN curl "http://www.httpvshttps.com/"
 
 # Noncompliant@+1 {{Make sure that using clear-text protocols is safe here.}}
 RUN ["curl", "http://www.httpvshttps.com/"]
-#    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Noncompliant@+1
 RUN ["curl", "ftp://www.httpvshttps.com/"]
 # Noncompliant@+1

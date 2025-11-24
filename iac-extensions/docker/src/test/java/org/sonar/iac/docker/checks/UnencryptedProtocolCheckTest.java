@@ -16,12 +16,10 @@
  */
 package org.sonar.iac.docker.checks;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class UnencryptedProtocolCheckTest {
 
-  @Disabled("SONARIAC-2461")
   @Test
   void test() {
     DockerVerifier.verify("UnencryptedProtocolCheck/Dockerfile", new UnencryptedProtocolCheck());
