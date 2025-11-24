@@ -34,7 +34,6 @@ public class DockerExtension {
       // Language
       DockerLanguage.class,
       // Rules and profiles
-      DockerRulesDefinition.class,
       DockerProfileDefinition.class);
 
     List<PropertyDefinition> properties = new ArrayList<>(DockerSettings.getGeneralProperties());
@@ -55,5 +54,6 @@ public class DockerExtension {
   // All extensions specific to the community editions that can be override in other editions
   public static void defineSpecific(Plugin.Context context) {
     context.addExtension(DockerSensor.class);
+    context.addExtension(DockerRulesDefinition.class);
   }
 }

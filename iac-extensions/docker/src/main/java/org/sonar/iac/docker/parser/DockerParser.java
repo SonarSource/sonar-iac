@@ -66,7 +66,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     var preprocessorResult = preprocessor.process(source);
     nodeBuilder.setPreprocessorResult(preprocessorResult);
     try {
-      DockerTree tree = super.parse(preprocessorResult.processedSourceCode());
+      DockerTree tree = parseFile(source, preprocessorResult.processedSourceCode());
       setParents(tree);
       return tree;
     } catch (RecognitionException e) {
@@ -80,6 +80,10 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
         preprocessorResult.sourceOffset(),
         inputFile);
     }
+  }
+
+  protected DockerTree parseFile(String originalSourceCode, String preprocessedSourceCode) {
+    return super.parse(preprocessedSourceCode);
   }
 
   @Override

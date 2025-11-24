@@ -30,7 +30,6 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
@@ -134,7 +133,8 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private static Optional<UserInstruction> getLastUser(DockerImage dockerImage) {
-    return TreeUtils.lastDescendant(dockerImage, tree -> ((DockerTree) tree).is(DockerTree.Kind.USER)).map(UserInstruction.class::cast);
+    return TreeUtils.lastDescendant(dockerImage, UserInstruction.class::isInstance)
+      .map(UserInstruction.class::cast);
   }
 
   // All possible image use cases

@@ -52,7 +52,11 @@ public class DockerSensor extends IacSensor {
     DockerLanguage language) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
-    checks.addAnnotatedChecks(DockerCheckList.checks());
+    checks.addAnnotatedChecks(getChecks());
+  }
+
+  protected List<Class<?>> getChecks() {
+    return DockerCheckList.checks();
   }
 
   @Override

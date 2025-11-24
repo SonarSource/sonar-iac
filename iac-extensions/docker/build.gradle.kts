@@ -17,6 +17,7 @@
 plugins {
     id("org.sonarsource.cloud-native.code-style-conventions")
     id("org.sonarsource.cloud-native.java-conventions")
+    id("java-test-fixtures")
 }
 
 description = "SonarSource IaC Analyzer :: Extensions :: Docker"
