@@ -114,12 +114,17 @@ public class DockerSensor extends IacSensor {
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     visitors.add(new DockerSymbolVisitor());
+    visitors.addAll(preCheckVisitors());
     visitors.add(new ChecksVisitor(checks, statistics));
     if (isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
       visitors.add(new DockerHighlightingVisitor());
     }
     return visitors;
+  }
+
+  protected List<TreeVisitor<InputFileContext>> preCheckVisitors() {
+    return List.of();
   }
 
   @Override
