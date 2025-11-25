@@ -18,6 +18,8 @@ import org.sonarsource.cloudnative.gradle.enforceJarSize
 
 plugins {
     id("org.sonarsource.cloud-native.sonar-plugin")
+    id("org.sonarsource.cloud-native.license-file-generator")
+    id("org.sonarsource.cloud-native.go-license-file-generator")
 }
 
 description = "SonarSource IaC Analyzer :: Sonar Plugin"
@@ -114,4 +116,17 @@ publishingConfiguration {
         url = "https://sonarsource.com/license/ssal/"
         distribution = "repo"
     }
+}
+
+goLicenseGenerationConfig {
+    packagedBinaries = setOf(
+        "sonar-helm-for-iac-darwin-amd64",
+        "sonar-helm-for-iac-darwin-arm64",
+        "sonar-helm-for-iac-linux-amd64",
+        "sonar-helm-for-iac-linux-arm64",
+        "sonar-helm-for-iac-windows-amd64"
+    )
+    binaryLicenseFile = project.rootDir.resolve("LICENSE.txt")
+    buildGoLicenseFilesDir = project.rootDir.resolve("sonar-helm-for-iac/build/go-licenses")
+    generatingGoLicensesGradleTask = ":sonar-helm-for-iac:dockerCompileGo"
 }

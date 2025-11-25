@@ -15,18 +15,18 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import com.github.jk1.license.render.ReportRenderer
-import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import java.security.MessageDigest
 import org.sonarsource.cloudnative.gradle.AnalyzerLicensingPackagingRenderer
+import org.sonarsource.cloudnative.gradle.areDirectoriesEqual
+import org.sonarsource.cloudnative.gradle.copyDirectory
 
 plugins {
     id("com.github.jk1.dependency-license-report")
 }
 
 /**
- * This plugin is used for generating license files for third-party dependencies into the resources folder.
+ * This plugin is used for generating license files for third-party runtime-dependencies into the resources folder.
  * It provides a validation task to ensure that the license files in the resource folder are up-to-date.
  * It provides a task to regenerate the license files into the resources folder.
  * This tasks expects the license of the analyzer to be present one level above the (project-)plugin directory.
@@ -52,7 +52,7 @@ tasks.register("validateLicenseFiles") {
     dependsOn("generateLicenseReport")
 
     doLast {
-        if (!areDirectoriesEqual(buildLicenseOutputToCopyDir.asFile, resourceThirdPartyDir.asFile)) {
+        if (!areDirectoriesEqual(buildLicenseOutputToCopyDir.asFile, resourceThirdPartyDir.asFile, logger)) {
             val message = """
                 [FAILURE] License file validation failed!
                 Generated license files differ from committed files at $resourceThirdPartyDir.
@@ -109,104 +109,6 @@ tasks.register("generateLicenseResources") {
             resourceLicenseDir.file("LICENSE.txt").asFile.toPath(),
             StandardCopyOption.REPLACE_EXISTING
         )
-        copyDirectory(buildLicenseReportDirectory.get().dir("licenses").asFile, resourceThirdPartyDir.asFile)
-    }
-}
-
-/**
- * Compares two directories recursively to check for equality.
- * * Two directories are considered equal if they have the exact same
- * directory structure and all corresponding files have identical content.
- *
- * @param dir1 The first directory.
- * @param dir2 The second directory.
- * @return `true` if the directories are equal, `false` otherwise.
- */
-fun areDirectoriesEqual(
-    dir1: File,
-    dir2: File,
-): Boolean {
-    if (!dir1.isDirectory || !dir2.isDirectory) {
-        logger.warn("One or both paths are not directories.")
-        return false
-    }
-    logger.lifecycle("Comparing directories: ${dir1.name} and ${dir2.name}")
-
-    try {
-        // 1. Walk both directory trees and map files by their relative path
-        val files1 = dir1.walk()
-            .filter { it.isFile }
-            .associateBy { it.relativeTo(dir1) }
-
-        val files2 = dir2.walk()
-            .filter { it.isFile }
-            .associateBy { it.relativeTo(dir2) }
-
-        // 2. Compare the directory structure (based on file paths)
-        if (files1.keys != files2.keys) {
-            logger.warn("Directory structures do not match.")
-            logger.warn("Files only in ${dir1.name}: ${files1.keys - files2.keys}")
-            logger.warn("Files only in ${dir2.name}: ${files2.keys - files1.keys}")
-            return false
-        }
-
-        // 3. Compare the content of each matching file
-        for (relativePath in files1.keys) {
-            val file1 = files1[relativePath]!!
-            val file2 = files2[relativePath]!!
-
-            // Quick check: compare file sizes first
-            if (file1.length() != file2.length()) {
-                logger.warn("File size mismatch: $relativePath")
-                return false
-            }
-
-            // Full check: compare byte content
-            val checksum1 = getFileChecksum(file1)
-            val checksum2 = getFileChecksum(file2)
-            if (checksum1 != checksum2) {
-                logger.warn("File content mismatch: $relativePath")
-                return false
-            }
-        }
-
-        // If all checks pass, the directories are equal
-        return true
-    } catch (e: IOException) {
-        logger.error("An error occurred during comparison: ${e.message}")
-        return false
-    }
-}
-
-fun getFileChecksum(file: File): String {
-    val md = MessageDigest.getInstance("SHA-256")
-    val digestBytes = md.digest(file.readBytes())
-
-    // 4. Convert the byte array to a hexadecimal string
-    // "%02x" formats each byte as two lowercase hex digits
-    return digestBytes.joinToString("") { "%02x".format(it) }
-}
-
-fun copyDirectory(
-    sourceDir: File,
-    destinationDir: File,
-) {
-    val errors = mutableListOf<String>()
-
-    destinationDir.deleteRecursively()
-    sourceDir.copyRecursively(
-        target = destinationDir,
-        overwrite = true,
-        onError = { file, exception ->
-            logger.warn("Failed to copy $file: ${exception.message}")
-            errors.add(file.name)
-            OnErrorAction.SKIP // Skip this file and continue
-        }
-    )
-
-    if (errors.isEmpty()) {
-        logger.lifecycle("Directory ${sourceDir.name} copied successfully to ${destinationDir.name}")
-    } else {
-        throw GradleException("Failed to copy ${errors.size} files.")
+        copyDirectory(buildLicenseReportDirectory.get().dir("licenses").asFile, resourceThirdPartyDir.asFile, logger)
     }
 }

@@ -26,6 +26,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 
 const val GO_BINARY_OUTPUT_DIR = "build/executable"
+const val GO_LICENSES_OUTPUT_DIR = "build/go-licenses"
 
 interface GoBuild {
     val dockerfile: RegularFileProperty

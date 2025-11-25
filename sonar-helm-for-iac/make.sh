@@ -116,6 +116,12 @@ compile_binaries() {
     echo "Building for platform: ${GOOS}/${GOARCH}"
     build_for_platform "${GOOS}" "${GOARCH}"
   fi
+  echo "Generating licenses for go libraries"
+  ${path_to_binary} install github.com/google/go-licenses/v2@v2.0.1
+  # Removing stale files, but we don't want to fail in case the directory doesn't exist
+  rm -rf build/go-licenses || true
+  # GOBIN is defined in the CI, locally go-licenses will be resolvable
+  ${GOBIN:+${GOBIN}/}go-licenses save ./src --save_path=build/go-licenses/generated --ignore github.com/SonarSource/sonar-iac/sonar-helm-for-iac
 }
 
 generate_test_report() {

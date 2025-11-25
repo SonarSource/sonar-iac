@@ -16,6 +16,7 @@
  */
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.sonarsource.cloudnative.gradle.GO_BINARY_OUTPUT_DIR
+import org.sonarsource.cloudnative.gradle.GO_LICENSES_OUTPUT_DIR
 import org.sonarsource.cloudnative.gradle.GoBuild
 import org.sonarsource.cloudnative.gradle.allGoSourcesAndMakeScripts
 import org.sonarsource.cloudnative.gradle.goLangCiLintVersion
@@ -96,6 +97,7 @@ val dockerTasks = goBuildExtension.dockerCommands.map { tasksToCommands ->
             inputs.property("goCrossCompile", isCrossCompile)
             outputs.files(goBuildExtension.additionalOutputFiles)
             outputs.dir(GO_BINARY_OUTPUT_DIR)
+            outputs.dir(GO_LICENSES_OUTPUT_DIR)
             outputs.cacheIf { true }
 
             val workDir = goBuildExtension.dockerWorkDir.get()

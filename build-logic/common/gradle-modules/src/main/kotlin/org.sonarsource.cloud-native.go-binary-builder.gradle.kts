@@ -16,6 +16,7 @@
  */
 import org.gradle.kotlin.dsl.registering
 import org.sonarsource.cloudnative.gradle.GO_BINARY_OUTPUT_DIR
+import org.sonarsource.cloudnative.gradle.GO_LICENSES_OUTPUT_DIR
 import org.sonarsource.cloudnative.gradle.GoBuild
 import org.sonarsource.cloudnative.gradle.allGoSourcesAndMakeScripts
 import org.sonarsource.cloudnative.gradle.callMake
@@ -64,6 +65,7 @@ if (isCi()) {
         inputs.files(allGoSourcesAndMakeScripts())
 
         outputs.dir(GO_BINARY_OUTPUT_DIR)
+        outputs.dir(GO_LICENSES_OUTPUT_DIR)
         outputs.files(goBuildExtension.additionalOutputFiles)
         outputs.cacheIf { true }
 

@@ -49,6 +49,7 @@ Desktop.ini
 sonar-helm-for-iac/sonar-helm-for-iac
 **/sonar-helm-for-iac.exe
 **/sonar-helm-for-iac-*
+!**/licenses/sonar-helm-for-iac-*-licenses/
 
 #Docker cache
 sonar-helm-for-iac/.cache/*

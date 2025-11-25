@@ -44,6 +44,8 @@ class AnalyzerLicensingPackagingRenderer(
         put("BSD", "BSD-2.txt")
         put("GNU LGPL 3", "GNU-LGPL-3.txt")
         put("Go License", "Go.txt")
+        put("MIT License", "MIT.txt")
+        put("MIT", "MIT.txt")
     }
     private val dependenciesWithUnusableLicenseFileInside: Set<String> = setOf(
         "com.fasterxml.jackson.dataformat.jackson-dataformat-smile",
