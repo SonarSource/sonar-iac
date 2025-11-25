@@ -78,23 +78,32 @@ class YamlParserTest {
       """);
   }
 
-  @Test
-  void testSnakeyamlSucceeding() {
+  @ParameterizedTest
+  @ValueSource(
     // language=yaml
-    var validYaml = """
-      foo:
-        bar: baz
-      # block comment before
-      ---
-      # block comment after
-      foo: bar
-      --- !foo bar
-      --- >
-        foo
-      --- |
-        foo
-      """;
-
+    strings = {
+      """
+        foo:
+          bar: baz
+        # block comment before
+        ---
+        # block comment after
+        foo: bar
+        --- !foo bar
+        --- >
+          foo
+        --- |
+          foo
+        """,
+      """
+        minimal:
+          example: |
+        ---
+        another: key
+        """
+    })
+  void testSnakeyamlSucceeding(String validYaml) {
+    // language=yaml
     assertThatNoException().isThrownBy(() -> parser.parse(validYaml, inputFileContext));
   }
 

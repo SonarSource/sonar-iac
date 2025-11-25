@@ -35,7 +35,10 @@ public interface IacYamlParser<T extends Tree> extends TreeParser<T> {
   T convert(List<Node> nodes);
 
   default T parse(String source, @Nullable InputFileContext inputFileContext) {
-    var settings = LoadSettings.builder().setParseComments(shouldParseComments(inputFileContext)).build();
+    var settings = LoadSettings.builder()
+      .setParseComments(shouldParseComments(inputFileContext))
+      .setAllowNonScalarKeys(true)
+      .build();
     var reader = new StreamReader(settings, source);
     var scanner = new ScannerImpl(settings, reader);
     var parser = new ParserImpl(settings, scanner);
