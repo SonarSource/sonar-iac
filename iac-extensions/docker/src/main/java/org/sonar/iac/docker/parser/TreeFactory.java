@@ -253,6 +253,12 @@ public class TreeFactory {
     return new ExecFormImpl(leftBracket, separatedList, rightBracket);
   }
 
+  public DockerTree execFormCommand(SyntaxToken leftBracket, Optional<Argument> firstArgument,
+    Optional<List<Tuple<SyntaxToken, Argument>>> otherArguments,
+    SyntaxToken rightBracket) {
+    return execForm(leftBracket, firstArgument, otherArguments, rightBracket);
+  }
+
   public ShellForm shellForm(Iterable<ArgumentList> argumentLists) {
     var allArguments = new ArrayList<Argument>();
     for (var argumentList : argumentLists) {

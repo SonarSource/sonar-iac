@@ -24,9 +24,9 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
-import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
+import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellCode;
@@ -117,7 +117,7 @@ class DockerParserTest {
     var entrypoint = (EntrypointInstruction) dockerImage.instructions().get(0);
     assertThat(entrypoint.code()).isInstanceOf(ShellCode.class);
     var cmd = (CmdInstruction) dockerImage.instructions().get(1);
-    assertThat(cmd.code()).isInstanceOf(ArgumentList.class);
+    assertThat(cmd.code()).isInstanceOf(ExecForm.class);
   }
 
   @Test

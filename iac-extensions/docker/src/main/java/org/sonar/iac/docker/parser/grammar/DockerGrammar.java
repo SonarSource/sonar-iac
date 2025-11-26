@@ -28,6 +28,7 @@ import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -259,7 +260,7 @@ public class DockerGrammar {
         b.token(DockerKeyword.ENTRYPOINT),
         b.optional(
           b.firstOf(
-            EXEC_FORM(),
+            EXEC_FORM_COMMAND(),
             SHELL_CODE()))));
   }
 
@@ -271,7 +272,7 @@ public class DockerGrammar {
           FLAG()),
         b.optional(
           b.firstOf(
-            EXEC_FORM(),
+            EXEC_FORM_COMMAND(),
             SHELL_CODE()))));
   }
 
@@ -281,7 +282,7 @@ public class DockerGrammar {
         b.token(DockerKeyword.CMD),
         b.optional(
           b.firstOf(
-            EXEC_FORM(),
+            EXEC_FORM_COMMAND(),
             SHELL_CODE()))));
   }
 
@@ -315,6 +316,26 @@ public class DockerGrammar {
   public ExecForm EXEC_FORM() {
     return b.<ExecForm>nonterminal(DockerLexicalGrammar.EXEC_FORM).is(
       f.execForm(
+        b.token(Punctuator.LBRACKET),
+        b.optional(
+          f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
+            f.singleExpressionArgument(EXPANDABLE_STRING_LITERAL()))),
+        b.zeroOrMore(
+          f.tuple(
+            b.token(Punctuator.COMMA),
+            f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
+              f.singleExpressionArgument(EXPANDABLE_STRING_LITERAL())))),
+        b.token(DockerLexicalGrammar.RBRACKET_END_EXEC_FORM)));
+  }
+
+  /**
+   * This is an overridable version of the Exec Form that can return any kind of {@link DockerTree}.
+   * Used especially in the Enterprise Edition to execute the bash parser.
+   * It is used by only by instructions CMD, ENTRYPOINT and RUN.
+   */
+  public DockerTree EXEC_FORM_COMMAND() {
+    return b.<DockerTree>nonterminal(DockerLexicalGrammar.EXEC_FORM_COMMAND).is(
+      f.execFormCommand(
         b.token(Punctuator.LBRACKET),
         b.optional(
           f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),

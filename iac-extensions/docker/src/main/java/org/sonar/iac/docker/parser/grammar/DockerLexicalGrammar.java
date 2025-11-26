@@ -80,6 +80,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   FLAG_PREFIX,
   FLAG_NAME,
   EXEC_FORM,
+  EXEC_FORM_COMMAND,
   SHELL_FORM,
   SHELL_FORM_GENERIC,
   HEREDOC,
