@@ -29,7 +29,6 @@ import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class HereDocumentImplTest {

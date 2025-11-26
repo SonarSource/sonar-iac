@@ -37,9 +37,13 @@ public abstract class IacRulesDefinition implements RulesDefinition, UsesRulesFo
   public void define(Context context) {
     NewRepository repository = context.createRepository(languageKey(), languageKey())
       .setName(REPOSITORY_NAME);
-    var defaultProfilePath = sonarWayPath();
-    var metadataLoader = new RuleMetadataLoader(resourceFolder(), defaultProfilePath, runtime);
-    metadataLoader.addRulesByAnnotatedClass(repository, checks());
+    loadRepository(repository, resourceFolder(), checks());
     repository.done();
+  }
+
+  protected void loadRepository(RulesDefinition.NewRepository repository, String resourceFolder, List<Class<?>> checkClasses) {
+    var defaultProfilePath = sonarWayPath();
+    var ruleMetadataLoader = new RuleMetadataLoader(resourceFolder, defaultProfilePath, runtime);
+    ruleMetadataLoader.addRulesByAnnotatedClass(repository, checkClasses);
   }
 }
