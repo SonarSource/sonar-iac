@@ -20,11 +20,11 @@ import java.util.function.BiConsumer;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.checks.utils.MultiStageBuildInspector;
 import org.sonar.iac.docker.tree.api.Body;
-import org.sonar.iac.docker.tree.api.DockerTree;
 
 public abstract class AbstractFinalImageCheck implements IacCheck {
 
@@ -38,7 +38,7 @@ public abstract class AbstractFinalImageCheck implements IacCheck {
 
   protected abstract void initializeOnFinalImage();
 
-  protected <T extends DockerTree> void register(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
+  protected <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
     visitor.register(cls, (ctx, node) -> consumer.accept(ctx.checkContext, node));
   }
 
