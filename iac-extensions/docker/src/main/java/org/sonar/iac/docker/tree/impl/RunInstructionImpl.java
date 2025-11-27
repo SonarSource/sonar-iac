@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -28,7 +29,7 @@ public class RunInstructionImpl extends AbstractShellCodeInstructionImpl impleme
 
   private final List<Flag> options;
 
-  public RunInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable Tree code) {
+  public RunInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable DockerTree code) {
     super(keyword, code);
     this.options = options;
   }

@@ -21,13 +21,14 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.CodeInstruction;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public abstract class AbstractShellCodeInstructionImpl extends InstructionImpl implements CodeInstruction {
 
-  protected final Tree code;
+  protected final DockerTree code;
 
-  protected AbstractShellCodeInstructionImpl(SyntaxToken keyword, @Nullable Tree code) {
+  protected AbstractShellCodeInstructionImpl(SyntaxToken keyword, @Nullable DockerTree code) {
     super(keyword);
     this.code = code;
   }
@@ -43,7 +44,7 @@ public abstract class AbstractShellCodeInstructionImpl extends InstructionImpl i
   }
 
   @Override
-  public Tree code() {
+  public DockerTree code() {
     return code;
   }
 }

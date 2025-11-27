@@ -16,11 +16,9 @@
  */
 package org.sonar.iac.docker.checks;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ShellFormOverExecFormCheckTest {
-  @Disabled("SONARIAC-2460")
   @Test
   void shouldExecuteCheck() {
     DockerVerifier.verify("ShellFormOverExecFormCheck/dockerfile", new ShellFormOverExecFormCheck());

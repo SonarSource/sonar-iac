@@ -17,13 +17,13 @@
 package org.sonar.iac.docker.tree.impl;
 
 import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class EntrypointInstructionImpl extends AbstractShellCodeInstructionImpl implements EntrypointInstruction {
 
-  public EntrypointInstructionImpl(SyntaxToken keyword, @Nullable Tree code) {
+  public EntrypointInstructionImpl(SyntaxToken keyword, @Nullable DockerTree code) {
     super(keyword, code);
   }
 

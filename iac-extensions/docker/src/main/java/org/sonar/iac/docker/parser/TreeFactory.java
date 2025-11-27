@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.SeparatedList;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
@@ -184,15 +183,15 @@ public class TreeFactory {
     return new FlagImpl(prefix, name, equals.orNull(), value.orNull());
   }
 
-  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<Tree> execFormOrShellForm) {
+  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<DockerTree> execFormOrShellForm) {
     return new EntrypointInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public RunInstruction run(SyntaxToken token, Optional<List<Flag>> options, Optional<Tree> execFormOrShellForm) {
+  public RunInstruction run(SyntaxToken token, Optional<List<Flag>> options, Optional<DockerTree> execFormOrShellForm) {
     return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
   }
 
-  public CmdInstruction cmd(SyntaxToken token, Optional<Tree> execFormOrShellForm) {
+  public CmdInstruction cmd(SyntaxToken token, Optional<DockerTree> execFormOrShellForm) {
     return new CmdInstructionImpl(token, execFormOrShellForm.orNull());
   }
 

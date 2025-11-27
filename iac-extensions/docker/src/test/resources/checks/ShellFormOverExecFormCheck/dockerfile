@@ -33,16 +33,16 @@ CMD ["sh", "-c", "echo \"Welcome\" ; echo \"Goodbye\""]
 CMD ["sh", "-c", "echo \"Welcome\" | echo \"Goodbye\""]
 CMD ["sh", "-c", "echo \"Welcome\" && echo \"Goodbye\" || echo \"Goodbye\" ; echo \"Goodbye\" | echo \"Goodbye\""]
 
-
+# Noncompliant@+1
 CMD this is a very \
   long multi-line  \
   instruction
 
 # Noncompliant@+1
-CMD ["this", "is", "a", "very", "long", "instruction", "that", "is", "settled", "on", "a", "single", "line", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
-#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CMD this is a very long instruction that is settled on a single line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-# FN: shell form not supported in community edition
+
 RUN echo "Welcome!"
 CMD ["echo", "Welcome!"]
 ENTRYPOINT ["echo", "Welcome!"]
@@ -54,7 +54,11 @@ CMD ["sh", "-c", "echo \"Welcome\" && echo \"Goodbye\" || echo \"Goodbye\" ; ech
 
 FROM scratch
 # Noncompliant@+1
-CMD ["echo", "\"Welcome!\""]
+CMD echo "Welcome!"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Hello" && echo "World"
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 FROM base as base2
 # Compliant: the parent image has a SHELL instruction
@@ -71,7 +75,7 @@ CMD ["echo", "\"Welcome!\""]
 FROM $unknown
 # If we cannot resolved the image name, we don't consider this image come from any local image, so it cannot have a SHELL instruction
 # Noncompliant@+1
-CMD ["echo", "\"Welcome!\""]
+CMD echo "Welcome!"
 
 FROM scratch
 SHELL ["sh", "-c"]

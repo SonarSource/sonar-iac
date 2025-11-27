@@ -23,4 +23,9 @@ public class SyntaxTokenShellCodeImpl extends AbstractShellCodeImpl<SyntaxToken>
   public SyntaxTokenShellCodeImpl(SyntaxToken code) {
     super(code);
   }
+
+  @Override
+  public String sources() {
+    return code().value();
+  }
 }

@@ -20,4 +20,6 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public interface ShellCode<T extends Tree> extends DockerTree {
   T code();
+
+  String sources();
 }

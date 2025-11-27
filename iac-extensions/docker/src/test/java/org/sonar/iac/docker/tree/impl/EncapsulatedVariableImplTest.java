@@ -47,9 +47,9 @@ class EncapsulatedVariableImplTest {
       .matches("${foo:+${bar:-'foobar'}}")
       .matches("${foo:+${bar:-${foobar:+'foobar'}}}")
       .matches("${23}")
+      .matches("${foo:*$bar}")
 
       .notMatches("$foo")
-      .notMatches("${foo:*$bar}")
       .notMatches("${foo:+bar $bar}")
       .notMatches("${foo }")
       .notMatches("${\"foo\"}")
