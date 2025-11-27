@@ -33,6 +33,9 @@ import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ENTRYPOINT;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.RUN;
 
+/**
+ * This check is currently still needed in community edition, as we also raise on ADD instructions.
+ */
 @Rule(key = "S5332")
 public class UnencryptedProtocolCheck implements IacCheck {
 

@@ -30,7 +30,6 @@ public final class DockerCheckList {
     return Arrays.asList(
       ArgDefinedOutsideOfScopeCheck.class,
       BuilderSandboxCheck.class,
-      ClearTextProtocolDowngradeCheck.class,
       ConsecutiveRunInstructionCheck.class,
       DebugModeCheck.class,
       DeprecatedInstructionCheck.class,
@@ -46,8 +45,6 @@ public final class DockerCheckList {
       MountWorldPermissionCheck.class,
       PackageInstallationCacheCheck.class,
       PackageInstallationCheck.class,
-      PackageInstallationScriptExecutionCheck.class,
-      PackageManagerConsentFlagCheck.class,
       PackageManagerUpdateWithoutInstallCheck.class,
       ParsingErrorCheck.class,
       PinnedDigestVersionCheck.class,
