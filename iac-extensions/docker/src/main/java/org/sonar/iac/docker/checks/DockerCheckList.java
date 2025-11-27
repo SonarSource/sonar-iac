@@ -45,7 +45,6 @@ public final class DockerCheckList {
       MountWorldPermissionCheck.class,
       PackageInstallationCacheCheck.class,
       PackageInstallationCheck.class,
-      PackageManagerUpdateWithoutInstallCheck.class,
       ParsingErrorCheck.class,
       PinnedDigestVersionCheck.class,
       PosixPermissionCheck.class,
