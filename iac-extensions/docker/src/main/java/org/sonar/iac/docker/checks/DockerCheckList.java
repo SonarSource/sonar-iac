@@ -56,9 +56,6 @@ public final class DockerCheckList {
       SpecificVersionTagCheck.class,
       UnencryptedProtocolCheck.class,
       UniqueInstructionPresenceCheck.class,
-      UnsecureConnectionCheck.class,
-      WeakHashAlgorithmsCheck.class,
-      WeakSslTlsProtocolsCheck.class,
       WorkdirAbsolutPathCheck.class);
   }
 }

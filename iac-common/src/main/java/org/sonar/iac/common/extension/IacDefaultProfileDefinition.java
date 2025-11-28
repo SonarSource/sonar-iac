@@ -24,7 +24,7 @@ import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public abstract class IacDefaultProfileDefinition implements BuiltInQualityProfilesDefinition, UsesRulesFolder {
 
-  private static final String PROFILE_NAME = "Sonar way";
+  public static final String PROFILE_NAME = "Sonar way";
 
   @Override
   public void define(Context context) {

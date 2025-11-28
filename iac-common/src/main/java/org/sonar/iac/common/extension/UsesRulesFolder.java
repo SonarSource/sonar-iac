@@ -21,8 +21,12 @@ public interface UsesRulesFolder extends ProvideLanguageKey {
     return "org";
   }
 
+  default String resourceFolderWithCustomPathPrefix(String pathPrefix) {
+    return "%s/sonar/l10n/%s/rules/%s".formatted(pathPrefix, languageKey(), repositoryKey());
+  }
+
   default String resourceFolder() {
-    return "%s/sonar/l10n/%s/rules/%s".formatted(pathPrefix(), languageKey(), repositoryKey());
+    return resourceFolderWithCustomPathPrefix(pathPrefix());
   }
 
   default String repositoryKey() {
@@ -31,6 +35,10 @@ public interface UsesRulesFolder extends ProvideLanguageKey {
 
   default String sonarWayPath() {
     return resourceFolder() + "/Sonar_way_profile.json";
+  }
+
+  default String sonarWayPathWithCustomPathPrefix(String pathPrefix) {
+    return resourceFolderWithCustomPathPrefix(pathPrefix) + "/Sonar_way_profile.json";
   }
 
   default String externalRulesPath() {

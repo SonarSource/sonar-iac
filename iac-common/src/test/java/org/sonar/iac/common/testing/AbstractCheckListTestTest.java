@@ -37,7 +37,7 @@ public class AbstractCheckListTestTest extends AbstractCheckListTest {
   }
 
   @Override
-  void test() {
+  protected void test() {
     // overridden for test purpose
   }
 

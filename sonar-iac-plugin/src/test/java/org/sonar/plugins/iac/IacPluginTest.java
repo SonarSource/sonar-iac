@@ -23,6 +23,7 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.docker.plugin.DockerProfileDefinition;
 import org.sonar.iac.docker.plugin.DockerSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,5 +57,6 @@ class IacPluginTest {
     Plugin.Context context = new Plugin.Context(runtime);
     iacPlugin.define(context);
     assertThat(context.getExtensions()).contains(DockerSensor.class);
+    assertThat(context.getExtensions()).contains(DockerProfileDefinition.class);
   }
 }

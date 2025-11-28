@@ -81,8 +81,9 @@ public abstract class AbstractCheckListTest {
    * Enforces that each check has a test
    */
   @Test
-  void test() {
-    for (Class<?> cls : checks()) {
+  protected void test() {
+    List<Class<?>> checks = checks();
+    for (Class<?> cls : checks) {
       // Exception on class from the common package
       if (!cls.getName().contains("iac.common.checks")) {
         String testName = getCheckTestResourcePath(cls);
