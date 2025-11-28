@@ -16,16 +16,22 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.SyntaxTokenShellCode;
 
 public class SyntaxTokenShellCodeImpl extends AbstractShellCodeImpl<SyntaxToken> implements SyntaxTokenShellCode {
-  public SyntaxTokenShellCodeImpl(SyntaxToken code) {
+  private final String originalSourceCode;
+
+  public SyntaxTokenShellCodeImpl(SyntaxToken code, @Nullable String originalSourceCode) {
     super(code);
+    this.originalSourceCode = originalSourceCode;
   }
 
   @Override
-  public String sources() {
-    return code().value();
+  @CheckForNull
+  public String originalSourceCode() {
+    return originalSourceCode;
   }
 }

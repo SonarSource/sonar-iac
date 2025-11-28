@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -44,7 +43,9 @@ import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.SyntaxTokenShellCode;
 
 @Rule(key = "S7020")
 public class LongRunInstructionCheck implements IacCheck {
@@ -52,7 +53,7 @@ public class LongRunInstructionCheck implements IacCheck {
   public static final int DEFAULT_MAX_LENGTH = 120;
   public static final int MIN_WORD_TO_TRIGGER = 7;
   private static final String MESSAGE = "Split this RUN instruction line into multiple lines.";
-  private static final Predicate<String> HAS_URL = Pattern.compile("\\b((https?|ftp)://|(www|ftp)\\.)\\S++").asPredicate();
+  private static final Pattern HAS_URL = Pattern.compile("\\b((\\w++)://|(www|ftp)\\.)[^\r\n\t\f \"']++");
 
   @RuleProperty(
     key = "maxLength",
@@ -66,7 +67,8 @@ public class LongRunInstructionCheck implements IacCheck {
   }
 
   private void checkInstruction(CheckContext ctx, RunInstruction runInstruction) {
-    List<TooLongLine> tooLongLines = computeTooLongLines(runInstruction);
+    var tooLongLines = computeTooLongLines(runInstruction);
+
     for (TooLongLine tooLongLine : tooLongLines) {
       ctx.reportIssue(TextRanges.range(tooLongLine.line, tooLongLine.startOffset, tooLongLine.line, tooLongLine.endOffset), MESSAGE);
     }
@@ -76,10 +78,10 @@ public class LongRunInstructionCheck implements IacCheck {
     List<TooLongLine> result = new ArrayList<>();
     var runInstructionData = computeRunInstructionDataPerLines(runInstruction);
 
-    for (Map.Entry<Integer, Integer> linesWithOffsets : runInstructionData.tooLongLinesWithLastOffset.entrySet()) {
+    for (var linesWithOffsets : runInstructionData.tooLongLinesWithLastOffset.entrySet()) {
       int line = linesWithOffsets.getKey();
-      if (runInstructionData.wordsPerLine.getOrDefault(line, 0) >= MIN_WORD_TO_TRIGGER
-        && !runInstructionData.linesWithUrl.contains(line)) {
+      if (runInstructionData.wordsPerLine.getOrDefault(line, 0) >= MIN_WORD_TO_TRIGGER &&
+        !runInstructionData.linesWithUrl.contains(line)) {
         int startOffset = runInstructionData.firstOffsetPerLine.get(line);
         int endOffset = linesWithOffsets.getValue();
         result.add(new TooLongLine(line, startOffset, endOffset));
@@ -100,27 +102,72 @@ public class LongRunInstructionCheck implements IacCheck {
     var runInstructionData = new RunInstructionData(new HashMap<>(), new HashMap<>(), wordsPerLine, linesWithUrl);
 
     TreeVisitor<TreeContext> visitor = new TreeVisitor<>();
-    visitor.register(SyntaxToken.class, (TreeContext ctx, SyntaxToken token) -> {
-      runInstructionData.firstOffsetPerLine.computeIfAbsent(token.textRange().start().line(), line -> token.textRange().start().lineOffset());
-      // Special case of token that finish on a different line: consider the first offset of the end line to start at 0.
-      if (token.textRange().start().line() != token.textRange().end().line()) {
-        runInstructionData.firstOffsetPerLine.put(token.textRange().end().line(), 0);
-      }
-      if (token.textRange().end().lineOffset() > maxLength) {
-        runInstructionData.tooLongLinesWithLastOffset.put(token.textRange().end().line(), token.textRange().end().lineOffset());
-      }
-    });
+    visitor.register(ShellCode.class, (TreeContext ctx, ShellCode shellCode) -> processShellCode(shellCode, runInstruction, runInstructionData));
+    visitor.register(SyntaxToken.class, (TreeContext ctx, SyntaxToken token) -> processSyntaxToken(token, runInstructionData));
     visitor.scan(new TreeContext(), runInstruction);
 
     return runInstructionData;
+  }
+
+  private void processShellCode(ShellCode shellCode, RunInstruction runInstruction, RunInstructionData runInstructionData) {
+    var originalSourceCode = shellCode.originalSourceCode();
+    if (originalSourceCode == null) {
+      return;
+    }
+    var codeLines = originalSourceCode.lines().toList();
+    for (int i = 0; i < codeLines.size(); i++) {
+      var line = codeLines.get(i);
+      var lineOffset = (i == 0) ? runInstruction.textRange().start().lineOffset() : getFirstNonWhitespaceIndex(line);
+      runInstructionData.firstOffsetPerLine.computeIfAbsent(
+        runInstruction.textRange().start().line() + i,
+        idx -> lineOffset);
+      var lineLength = line.length();
+      if (i == 0) {
+        lineLength += shellCode.textRange().start().lineOffset();
+      }
+      if (lineLength > maxLength) {
+        runInstructionData.tooLongLinesWithLastOffset.put(runInstruction.textRange().start().line() + i, lineLength);
+      }
+    }
+  }
+
+  private void processSyntaxToken(SyntaxToken token, RunInstructionData runInstructionData) {
+    if (token.parent() instanceof SyntaxTokenShellCode) {
+      // Skip tokens that are part of ShellCode, as they are already handled by processShellCode
+      return;
+    }
+
+    runInstructionData.firstOffsetPerLine.computeIfAbsent(token.textRange().start().line(), line -> token.textRange().start().lineOffset());
+    // Special case of token that finish on a different line: consider the first offset of the end line to start at 0.
+    if (token.textRange().start().line() != token.textRange().end().line()) {
+      runInstructionData.firstOffsetPerLine.put(token.textRange().end().line(), 0);
+    }
+    if (token.textRange().end().lineOffset() > maxLength) {
+      runInstructionData.tooLongLinesWithLastOffset.put(token.textRange().end().line(), token.textRange().end().lineOffset());
+    }
+  }
+
+  private static int getFirstNonWhitespaceIndex(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      if (!Character.isWhitespace(s.charAt(i))) {
+        return i;
+      }
+    }
+    return 0;
   }
 
   private static Map<Integer, Integer> countWordsPerLine(RunInstruction runInstruction) {
     Map<Integer, Integer> wordsPerLine = new HashMap<>();
     incrementWordCountOnLine(wordsPerLine, runInstruction.keyword());
     runInstruction.options().forEach(flag -> incrementWordCountOnLine(wordsPerLine, flag));
-    if (runInstruction.code() instanceof SyntaxToken syntaxToken) {
-      incrementWordCountOnLine(wordsPerLine, syntaxToken.textRange().start().line(), countWordsInString(syntaxToken.value()));
+    if (runInstruction.code() instanceof ShellCode shellCode && shellCode.originalSourceCode() != null) {
+      var syntaxToken = shellCode.code();
+      var originalSourceCode = shellCode.originalSourceCode();
+      var codeLines = originalSourceCode.lines().toList();
+      for (int i = 0; i < codeLines.size(); i++) {
+        var line = codeLines.get(i);
+        incrementWordCountOnLine(wordsPerLine, syntaxToken.textRange().start().line() + i, countWordsInString(line));
+      }
     } else if (runInstruction.code() instanceof ArgumentList argumentList) {
       argumentList.arguments().forEach(argument -> incrementWordCountOnLine(wordsPerLine, argument));
     }
@@ -165,11 +212,7 @@ public class LongRunInstructionCheck implements IacCheck {
   }
 
   private static Set<Integer> getLinesWithUrl(RunInstruction runInstruction) {
-    if (runInstruction.code() instanceof SyntaxToken syntaxToken) {
-      if (HAS_URL.test(syntaxToken.value())) {
-        return Set.of(syntaxToken.textRange().start().line());
-      }
-    } else if (runInstruction.code() instanceof ArgumentList argumentList) {
+    if (runInstruction.code() instanceof ArgumentList argumentList) {
       return argumentList.arguments().stream()
         .filter(LongRunInstructionCheck::isArgumentUrl)
         .flatMap((Argument urlArgument) -> {
@@ -177,6 +220,26 @@ public class LongRunInstructionCheck implements IacCheck {
           int endLine = urlArgument.textRange().end().line();
           return IntStream.rangeClosed(startLine, endLine).boxed();
         })
+        .collect(Collectors.toSet());
+    } else if (runInstruction.code() instanceof ShellCode shellCode && shellCode.originalSourceCode() != null) {
+      var originalSourceCode = shellCode.originalSourceCode();
+      var codeLines = originalSourceCode.lines().toList();
+      return IntStream.range(0, codeLines.size())
+        .filter(i -> {
+          var matcher = HAS_URL.matcher(codeLines.get(i));
+          while (matcher.find()) {
+            String urlCandidate = matcher.group();
+            if (urlCandidate.contains("$")) {
+              // Skip potential variable expansions in URLs, because they make the URL invalid from Java perspective
+              urlCandidate = urlCandidate.substring(0, urlCandidate.indexOf("$"));
+            }
+            if (isStringUrl(urlCandidate)) {
+              return true;
+            }
+          }
+          return false;
+        })
+        .mapToObj(i -> shellCode.code().textRange().start().line() + i)
         .collect(Collectors.toSet());
     }
     return Set.of();

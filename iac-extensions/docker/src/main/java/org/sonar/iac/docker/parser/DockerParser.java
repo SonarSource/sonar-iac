@@ -38,6 +38,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
 
   private final DockerPreprocessor preprocessor = new DockerPreprocessor();
   private final DockerNodeBuilder nodeBuilder;
+  private final SourceCodeFinder sourceCodeFinder;
 
   protected DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule, TreeFactory treeFactory, Class grammarClass) {
     super(StandardCharsets.UTF_8,
@@ -47,10 +48,11 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       nodeBuilder,
       rootRule);
     this.nodeBuilder = nodeBuilder;
+    this.sourceCodeFinder = treeFactory.sourceCodeFinder;
   }
 
   protected DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
-    this(nodeBuilder, rootRule, new TreeFactory(), DockerGrammar.class);
+    this(nodeBuilder, rootRule, new TreeFactory(new SourceCodeFinder()), DockerGrammar.class);
   }
 
   public static DockerParser create() {
@@ -83,6 +85,9 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
   }
 
   protected DockerTree parseFile(String originalSourceCode, String preprocessedSourceCode) {
+    if (sourceCodeFinder != null) {
+      sourceCodeFinder.setSource(originalSourceCode);
+    }
     return super.parse(preprocessedSourceCode);
   }
 

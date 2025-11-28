@@ -16,10 +16,18 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.Tree;
 
 public interface ShellCode<T extends Tree> extends DockerTree {
   T code();
 
-  String sources();
+  /**
+   * Returns the original source code for this shell code before preprocessing.
+   * This is useful for checks that need to analyze the original line structure.
+   *
+   * @return the original source code, or null if not available (e.g., in Community edition)
+   */
+  @CheckForNull
+  String originalSourceCode();
 }

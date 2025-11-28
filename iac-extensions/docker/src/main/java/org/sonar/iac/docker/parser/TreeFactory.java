@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.docker.tree.api.AddInstruction;
@@ -106,6 +107,20 @@ import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList
 public class TreeFactory {
 
   private static final DockerHeredocParser HEREDOC_PARSER = DockerHeredocParser.create();
+
+  protected final SourceCodeFinder sourceCodeFinder;
+
+  // Empty constructor is needed for SSLR compatibility, as it uses reflection to instantiate a TreeFactory,
+  // but it is not the one used in the parsing process.
+  @SuppressWarnings("unused")
+  public TreeFactory() {
+    this(null);
+  }
+
+  // SSLR doesn't allow to define normal public method for TreeFactory, so we must pass the SourceCodeFinder via constructor.
+  public TreeFactory(@Nullable SourceCodeFinder sourceCodeFinder) {
+    this.sourceCodeFinder = sourceCodeFinder;
+  }
 
   public File file(Optional<Body> body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileImpl(body.or(new BodyImpl(List.of(), List.of())), eof);
@@ -196,7 +211,15 @@ public class TreeFactory {
   }
 
   public ShellCode<?> shellCode(SyntaxToken code) {
-    return new SyntaxTokenShellCodeImpl(code);
+    String originalSource = null;
+    if (sourceCodeFinder != null) {
+      try {
+        originalSource = sourceCodeFinder.findSourceCode(code);
+      } catch (Exception e) {
+        // Ignore and use null
+      }
+    }
+    return new SyntaxTokenShellCodeImpl(code, originalSource);
   }
 
   public UserInstruction user(SyntaxToken keyword, List<Argument> arguments) {

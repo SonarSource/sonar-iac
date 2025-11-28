@@ -101,7 +101,7 @@ public class ShellFormOverExecFormCheck implements IacCheck {
   }
 
   private static boolean containFeatureNotSupportedByExecForm(ShellCode<?> code) {
-    return UNSUPPORTED_FEATURES_IN_EXEC_FORM.matcher(code.sources()).find();
+    return UNSUPPORTED_FEATURES_IN_EXEC_FORM.matcher(code.originalSourceCode()).find();
   }
 
   private static boolean hasVariableReference(Tree tree) {
