@@ -48,7 +48,6 @@ public final class DockerCheckList {
       PosixPermissionCheck.class,
       PreferCopyOverAddCheck.class,
       PrivilegedUserCheck.class,
-      RetrieveRemoteResourcesCheck.class,
       ToDoCommentCheck.class,
       SecretsGenerationCheck.class,
       SecretsHandlingCheck.class,
