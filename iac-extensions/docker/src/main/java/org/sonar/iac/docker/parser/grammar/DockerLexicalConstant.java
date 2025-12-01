@@ -30,9 +30,9 @@ public final class DockerLexicalConstant {
   public static final String RBRACKET_END_EXEC_FORM = "\\](?=[" + LexicalConstant.WHITESPACE + "]*+(?:[\r\n]|$))";
 
   // ** IDENTIFIERS **
-  private static final String VAR_IDENTIFIER_START = "[a-zA-Z_\\-0-9]";
+  private static final String VAR_IDENTIFIER_START = "[a-zA-Z_0-9]";
   public static final String VAR_IDENTIFIER = VAR_IDENTIFIER_START + "++";
-  public static final String ENCAPS_VAR_MODIFIER_SEPARATOR = ":(-|\\+)?";
+  public static final String ENCAPS_VAR_MODIFIER_SEPARATOR = "(:[-+=?]?|[-+=?]|[#%/^,@]{1,2}|/#|/%)";
   public static final String ENCAPS_VAR_MODIFIER_GENERIC = "(\\\\}|[^}])+";
   public static final String FLAG_NAME = "[a-z][-a-z]*+";
 

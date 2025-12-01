@@ -22,6 +22,7 @@ HEALTHCHECK CMD curl --fail http://localhost:8080/healthcheck || exit 1
 # FNs: exec form with explicit shell invocation are not supported
 CMD ["sh", "-c", "echo $message"]
 CMD ["sh", "-c", "echo ${message-default}"]
+CMD ["sh", "-c", "echo ${message:-default}"]
 CMD ["sh", "-c", "echo ${message:=default}"]
 CMD ["sh", "-c", "echo ${message:+var}"]
 CMD ["sh", "-c", "echo ${message:7}"]

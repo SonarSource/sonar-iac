@@ -45,12 +45,12 @@ class AddInstructionImplTest {
       .matches("ADD \"src\" \"dest\"")
       .matches("ADD --option= src dest")
       .matches("ADD ${myadd:-test} dest")
+      .matches("ADD ${myadd%%[a-z]+} dest")
 
       .notMatches("ADD--option= src dest")
       .notMatches("ADDD --option= src dest")
       .notMatches("ADD")
       .notMatches("ADD ")
-      .notMatches("ADD ${myadd%%[a-z]+} dest")
       .notMatches("ADD --option=value");
   }
 

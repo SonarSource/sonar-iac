@@ -41,7 +41,8 @@ class VolumeInstructionImplTest {
       .matches("VOLUME $myvolume")
       .matches("VOLUME ${myvolume}")
       .matches("VOLUME ${myvolume:-test}")
-      .notMatches("VOLUME ${myvolume%%[a-z]+}")
+      .matches("VOLUME ${myvolume%%[a-z]+}")
+
       .notMatches("VOLUME")
       .notMatches("VOLUME ")
       .notMatches("VOLUMEE 80");

@@ -59,14 +59,15 @@ class CopyInstructionImplTest {
       .matches("COPY <<-EOT\n  mkdir -p foo/bar\nEOT")
       .matches("COPY <<\"EOT\"\n  mkdir -p foo/bar\nEOT")
       .matches("COPY ${mycopy:-test} dest")
+      .matches("COPY ${mycopy%%[a-z]+} dest")
       .matches("COPY --chmod=755 <<'EOF' file.sh\necho \"Hello, World!\"\nEOF")
+
       .notMatches("COPY <EOT\n  mkdir -p foo/bar\nEOT")
       .notMatches("COPY <<EOT\n  mkdir -p foo/bar\nEOT5")
       .notMatches("COPY--option= src dest")
       .notMatches("COPYY --option= src dest")
       .notMatches("COPY")
       .notMatches("COPY ")
-      .notMatches("COPY ${mycopy%%[a-z]+} dest")
       .notMatches("COPY --option=value");
 
     for (char c : FORBIDDEN_CHARACTERS_AFTER_KEYWORD) {
