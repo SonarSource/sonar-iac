@@ -19,6 +19,27 @@ HEALTHCHECK --interval=30s CMD node healthcheck.js
 
 HEALTHCHECK CMD curl --fail http://localhost:8080/healthcheck || exit 1
 
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo $message
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message-default}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message:=default}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message:+var}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message:7}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo ${message:7:0}
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "$message"
+
 # FNs: exec form with explicit shell invocation are not supported
 CMD ["sh", "-c", "echo $message"]
 CMD ["sh", "-c", "echo ${message-default}"]
@@ -34,6 +55,21 @@ CMD ["sh", "-c", "echo \"Welcome\" ; echo \"Goodbye\""]
 CMD ["sh", "-c", "echo \"Welcome\" | echo \"Goodbye\""]
 CMD ["sh", "-c", "echo \"Welcome\" && echo \"Goodbye\" || echo \"Goodbye\" ; echo \"Goodbye\" | echo \"Goodbye\""]
 
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" && echo "Goodbye"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" || echo "Goodbye"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" ; echo "Goodbye"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" | echo "Goodbye"
+
+# Noncompliant@+1 {{Consider wrapping this instruction in a script file and call it with exec form.}}
+CMD echo "Welcome" && echo "Goodbye" || echo "Goodbye" ; echo "Goodbye" | echo "Goodbye"
+
 # Noncompliant@+1
 CMD this is a very \
   long multi-line  \
@@ -43,13 +79,14 @@ CMD this is a very \
 CMD this is a very long instruction that is settled on a single line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
 RUN echo "Welcome!"
 CMD ["echo", "Welcome!"]
 ENTRYPOINT ["echo", "Welcome!"]
 
 SHELL ["sh", "-c"]
 # Compliant: if we met a SHELL instruction before, then we consider it's a conscious decision and don't raise an issue
+CMD echo "Welcome!"
+CMD echo "Welcome" && echo "Goodbye" || echo "Goodbye" ; echo "Goodbye" | echo "Goodbye"
 CMD ["echo", "\"Welcome!\""]
 CMD ["sh", "-c", "echo \"Welcome\" && echo \"Goodbye\" || echo \"Goodbye\" ; echo \"Goodbye\" | echo \"Goodbye\""]
 
@@ -82,3 +119,10 @@ FROM scratch
 SHELL ["sh", "-c"]
 # Compliant: extra use case with a SHELL instruction in an image without alias
 CMD ["echo", "\"Welcome!\""]
+
+ FROM scratch AS builder2
+# Invalid exec form: no quotes around python. Parsed as shell form.
+# Noncompliant@+1
+CMD [python, /usr/src/app/app.py]
+# Noncompliant@+1
+ENTRYPOINT [top, -b]

@@ -23,7 +23,6 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.checks.utils.MultiStageBuildInspector;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
@@ -33,7 +32,6 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
-import org.sonar.iac.docker.tree.api.Variable;
 
 import static org.sonar.iac.docker.tree.TreeUtils.getDockerImageName;
 import static org.sonar.iac.docker.tree.TreeUtils.getParentDockerImageName;
@@ -43,7 +41,10 @@ public class ShellFormOverExecFormCheck implements IacCheck {
 
   private static final String DEFAULT_MESSAGE = "Replace this shell form with exec form.";
   private static final String WRAPPING_SCRIPT_MESSAGE = "Consider wrapping this instruction in a script file and call it with exec form.";
-  private static final Pattern UNSUPPORTED_FEATURES_IN_EXEC_FORM = Pattern.compile("&&|\\|\\||\\||;");
+  /**
+   * Because exec form doesn't create a shell, it does not support chaining commands or using variables.
+   */
+  private static final Pattern UNSUPPORTED_FEATURES_IN_EXEC_FORM = Pattern.compile("&&|\\|\\||\\||;|\\$");
 
   private final ShellInstructionsInfo checkContext = new ShellInstructionsInfo();
   private MultiStageBuildInspector multiStageBuildInspector = null;
@@ -84,8 +85,8 @@ public class ShellFormOverExecFormCheck implements IacCheck {
     }
   }
 
-  private boolean hasAnyParentDockerImageWithShellInstruction(CodeInstruction transferInstruction) {
-    return getParentDockerImageName(transferInstruction)
+  private boolean hasAnyParentDockerImageWithShellInstruction(CodeInstruction instruction) {
+    return getParentDockerImageName(instruction)
       .map((String parentDockerImageName) -> {
         if (hasShellInstruction(parentDockerImageName)) {
           return true;
@@ -101,11 +102,11 @@ public class ShellFormOverExecFormCheck implements IacCheck {
   }
 
   private static boolean containFeatureNotSupportedByExecForm(ShellCode<?> code) {
-    return UNSUPPORTED_FEATURES_IN_EXEC_FORM.matcher(code.originalSourceCode()).find();
-  }
-
-  private static boolean hasVariableReference(Tree tree) {
-    return tree instanceof Variable || tree.children().stream().anyMatch(ShellFormOverExecFormCheck::hasVariableReference);
+    var originalCode = code.originalSourceCode();
+    if (originalCode != null) {
+      return UNSUPPORTED_FEATURES_IN_EXEC_FORM.matcher(originalCode).find();
+    }
+    return false;
   }
 
   static class ShellInstructionsInfo {
