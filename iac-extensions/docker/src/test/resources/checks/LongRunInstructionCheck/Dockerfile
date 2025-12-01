@@ -83,3 +83,22 @@ RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag "https://www.pyt
 # FP, URL not detected
 # Noncompliant@+1
 RUN wget -O python.tar.xz.asc -firstFlag -secondFlag -thirdFlag -fourthFlag -fifthFlag "www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz.asc"
+
+# Noncompliant@+3
+RUN \
+  echo First line && \
+  echo We should correctly raise on this long line even when there is a line break right after the RUN keyword. aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa && \
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  echo Last line
+
+# Noncompliant@+3
+RUN \
+\
+echo Should correctly highlight a long line directly after an empty line. aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa && \
+xx-verify --static /dockerfile-frontend
+
+# Noncompliant@+2
+RUN <<EOT
+echo Should correctly highlight a long line at the beginning of a heredoc. aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+xx-verify --static /dockerfile-frontend
+EOT

@@ -117,16 +117,23 @@ public class LongRunInstructionCheck implements IacCheck {
     var codeLines = originalSourceCode.lines().toList();
     for (int i = 0; i < codeLines.size(); i++) {
       var line = codeLines.get(i);
-      var lineOffset = (i == 0) ? runInstruction.textRange().start().lineOffset() : getFirstNonWhitespaceIndex(line);
+      var lineNumber = shellCode.textRange().start().line() + i;
+
+      var lineOffset = switch (i) {
+        case 0 -> shellCode.textRange().start().line() == runInstruction.textRange().start().line() ? runInstruction.textRange().start().lineOffset()
+          : shellCode.textRange().start().lineOffset();
+        default -> getFirstNonWhitespaceIndex(line);
+      };
       runInstructionData.firstOffsetPerLine.computeIfAbsent(
-        runInstruction.textRange().start().line() + i,
+        lineNumber,
         idx -> lineOffset);
       var lineLength = line.length();
       if (i == 0) {
+        // lineLength is only the part belonging to ShellCode; add the length of preceding parts of the Run instruction
         lineLength += shellCode.textRange().start().lineOffset();
       }
       if (lineLength > maxLength) {
-        runInstructionData.tooLongLinesWithLastOffset.put(runInstruction.textRange().start().line() + i, lineLength);
+        runInstructionData.tooLongLinesWithLastOffset.put(lineNumber, lineLength);
       }
     }
   }
