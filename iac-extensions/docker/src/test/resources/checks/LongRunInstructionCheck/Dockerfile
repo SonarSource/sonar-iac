@@ -4,7 +4,7 @@ FROM scratch
 RUN this is a short instruction that is totally compliant\
 a
 
-# Noncompliant@+1 {{Split this RUN instruction line into multiple lines.}}
+# Noncompliant@+1 {{Line is too long. Split it into multiple lines using backslash continuations.}}
 RUN this is a very long run instruction on y single line, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaa
 # ^[sc=1;ec=129]
 

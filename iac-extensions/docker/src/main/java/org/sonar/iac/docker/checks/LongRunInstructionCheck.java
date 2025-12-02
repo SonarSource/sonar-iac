@@ -52,7 +52,7 @@ public class LongRunInstructionCheck implements IacCheck {
 
   public static final int DEFAULT_MAX_LENGTH = 120;
   public static final int MIN_WORD_TO_TRIGGER = 7;
-  private static final String MESSAGE = "Split this RUN instruction line into multiple lines.";
+  private static final String MESSAGE = "Line is too long. Split it into multiple lines using backslash continuations.";
   private static final Pattern HAS_URL = Pattern.compile("\\b((\\w++)://|(www|ftp)\\.)[^\r\n\t\f \"']++");
 
   @RuleProperty(
