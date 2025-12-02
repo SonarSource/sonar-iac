@@ -1,5 +1,5 @@
 [versions]
-spotless-gradle = "8.0.0"
+spotless-gradle = "8.1.0"
 blowdryer-gradle = "1.7.1"
 develocity = "4.0.3"
 jackson = "2.20.1"

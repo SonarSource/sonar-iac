@@ -1,0 +1,41 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - branch-*
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+        with:
+          version: 2025.7.12
+      - name: get secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/develocity token | DEVELOCITY_TOKEN;
+
+      # The SonarSource/ci-github-actions/build-gradle fails because of no access to ARTIFACTORY_DEPLOY_USERNAME
+      # it is not needed in this case, so the Gradle is called directly
+      - name: Build with Gradle
+        env:
+          DEVELOCITY_ACCESS_KEY: develocity-public.sonar.build=${{ fromJSON(steps.secrets.outputs.vault).DEVELOCITY_TOKEN }}
+        run: |
+          ./gradlew build

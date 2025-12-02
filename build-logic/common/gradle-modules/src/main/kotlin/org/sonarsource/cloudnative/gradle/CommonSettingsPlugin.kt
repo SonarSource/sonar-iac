@@ -75,21 +75,31 @@ open class CommonSettingsPlugin
         private fun Settings.configureRepositories() {
             pluginManagement {
                 repositories {
-                    mavenCentral()
-                    gradlePluginPortal()
-                    repox("sonarsource", settings.providers, fileOperations)
+                    ifAuthenticatedOrElse(providers, { artifactoryUsername, artifactoryPassword ->
+                        repox("sonarsource", artifactoryUsername, artifactoryPassword, fileOperations)
+                    }) {
+                        mavenCentral()
+                        gradlePluginPortal()
+                    }
                 }
             }
 
             dependencyResolutionManagement {
                 repositories {
-                    mavenCentral()
-                    repox("sonarsource", settings.providers, fileOperations)
+                    ifAuthenticatedOrElse(providers, { artifactoryUsername, artifactoryPassword ->
+                        repox("sonarsource", artifactoryUsername, artifactoryPassword, fileOperations)
+                    }) {
+                        mavenCentral()
+                    }
                 }
             }
 
             buildscript.repositories {
-                gradlePluginPortal()
+                ifAuthenticatedOrElse(providers, { artifactoryUsername, artifactoryPassword ->
+                    repox("plugins.gradle.org", artifactoryUsername, artifactoryPassword, fileOperations)
+                }) {
+                    gradlePluginPortal()
+                }
             }
         }
 

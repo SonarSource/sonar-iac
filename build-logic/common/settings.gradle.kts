@@ -1,3 +1,5 @@
+import java.net.URI
+
 /*
  * SonarSource Cloud Native Gradle Modules
  * Copyright (C) 2024-2025 SonarSource Sàrl
@@ -15,9 +17,31 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 pluginManagement {
+    // Note: because of the way how settings are initialized, we cannot reuse functions defined later in this file.
+    val artifactoryUsername = providers.environmentVariable("ARTIFACTORY_PRIVATE_USERNAME")
+        .orElse(providers.environmentVariable("ARTIFACTORY_USERNAME"))
+        .orElse(providers.gradleProperty("artifactoryUsername"))
+    val artifactoryPassword = providers.environmentVariable("ARTIFACTORY_PRIVATE_PASSWORD")
+        .orElse(providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN"))
+        .orElse(providers.gradleProperty("artifactoryPassword"))
+
     repositories {
-        mavenCentral()
-        gradlePluginPortal()
+        if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
+            maven {
+                name = "artifactory"
+                url = uri("https://repox.jfrog.io/repox/plugins.gradle.org")
+
+                authentication {
+                    credentials {
+                        username = artifactoryUsername.get()
+                        password = artifactoryPassword.get()
+                    }
+                }
+            }
+        } else {
+            mavenCentral()
+            gradlePluginPortal()
+        }
     }
 }
 
@@ -30,13 +54,18 @@ include("gradle-modules")
 
 dependencyResolutionManagement {
     repositories {
-        mavenCentral()
-        gradlePluginPortal()
+        ifAuthenticatedOrElse(providers, { artifactoryUsername, artifactoryPassword ->
+            repox("sonarsource", artifactoryUsername, artifactoryPassword, ::uri)
+            repox("plugins.gradle.org", artifactoryUsername, artifactoryPassword, ::uri)
+        }) {
+            mavenCentral()
+            gradlePluginPortal()
+        }
     }
 }
 
 develocity {
-    server.set("https://develocity.sonar.build")
+    server.set("https://develocity-public.sonar.build/")
 }
 
 val isCI = System.getenv("CI") != null
@@ -47,5 +76,43 @@ buildCache {
     remote(develocity.buildCache) {
         isEnabled = true
         isPush = isCI
+    }
+}
+
+internal fun RepositoryHandler.repox(
+    repository: String,
+    artifactoryUsername: String,
+    artifactoryPassword: String,
+    uri: (Any) -> URI,
+): MavenArtifactRepository =
+    maven {
+        name = "artifactory"
+        url = uri("https://repox.jfrog.io/repox/$repository")
+
+        authentication {
+            credentials {
+                username = artifactoryUsername
+                password = artifactoryPassword
+            }
+        }
+    }
+
+internal fun ifAuthenticatedOrElse(
+    providers: ProviderFactory,
+    onAuthenticated: (artifactoryUsername: String, artifactoryPassword: String) -> Unit,
+    onNotAuthenticated: () -> Unit,
+) {
+    // This authentication relies on env vars configured on Cirrus CI or on Gradle properties (`-P<prop>` flags or `gradle.properties` file)
+    val artifactoryUsername = providers.environmentVariable("ARTIFACTORY_PRIVATE_USERNAME")
+        .orElse(providers.environmentVariable("ARTIFACTORY_USERNAME"))
+        .orElse(providers.gradleProperty("artifactoryUsername"))
+    val artifactoryPassword = providers.environmentVariable("ARTIFACTORY_PRIVATE_PASSWORD")
+        .orElse(providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN"))
+        .orElse(providers.gradleProperty("artifactoryPassword"))
+
+    if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
+        onAuthenticated(artifactoryUsername.get(), artifactoryPassword.get())
+    } else {
+        onNotAuthenticated()
     }
 }

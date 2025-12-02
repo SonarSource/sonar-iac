@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import org.sonarsource.cloudnative.gradle.RuleApiExtension
+import org.sonarsource.cloudnative.gradle.ifAuthenticatedOrElse
 import org.sonarsource.cloudnative.gradle.registerRuleApiGenerateTask
 import org.sonarsource.cloudnative.gradle.registerRuleApiUpdateTask
 import org.sonarsource.cloudnative.gradle.repox
@@ -23,12 +24,15 @@ val ruleApi: Configuration = configurations.create("ruleApi")
 val ruleApiExtension = extensions.create<RuleApiExtension>("ruleApi")
 
 repositories {
-    repox("sonarsource-private-releases", providers, ruleApiExtension.fileOperations)
-    mavenCentral()
+    ifAuthenticatedOrElse(providers, { artifactoryUsername, artifactoryPassword ->
+        repox("sonarsource-private-releases", artifactoryUsername, artifactoryPassword, ruleApiExtension.fileOperations)
+    }) {
+        error("Downloading dependencies from sonarsource-private-releases requires authentication.")
+    }
 }
 
 dependencies {
-    ruleApi("com.sonarsource.rule-api:rule-api:2.16.0.5596")
+    ruleApi("com.sonarsource.rule-api:rule-api:2.17.0.5605")
     ruleApi("org.slf4j:slf4j-nop:1.7.36") {
         because(
             "To get rid of a warning. A logging backend is not needed, because the rule API logs everything important to stdout. " +

@@ -17,7 +17,6 @@
 package org.sonarsource.cloudnative.gradle
 
 import java.io.File
-import java.util.HashSet
 import java.util.Locale
 import java.util.jar.JarInputStream
 import org.gradle.api.GradleException
@@ -40,27 +39,18 @@ fun Project.signingCondition(): Boolean {
 
 internal fun RepositoryHandler.repox(
     repository: String,
-    providers: ProviderFactory,
+    artifactoryUsername: String,
+    artifactoryPassword: String,
     fileOperations: FileOperations,
 ): MavenArtifactRepository =
     maven {
         name = "artifactory"
         url = fileOperations.uri("https://repox.jfrog.io/repox/$repository")
 
-        // This authentication relies on env vars configured on Cirrus CI or on Gradle properties (`-P<prop>` flags or `gradle.properties` file)
-        val artifactoryUsername = providers.environmentVariable("ARTIFACTORY_PRIVATE_USERNAME")
-            .orElse(providers.environmentVariable("ARTIFACTORY_USERNAME"))
-            .orElse(providers.gradleProperty("artifactoryUsername"))
-        val artifactoryPassword = providers.environmentVariable("ARTIFACTORY_PRIVATE_PASSWORD")
-            .orElse(providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN"))
-            .orElse(providers.gradleProperty("artifactoryPassword"))
-
-        if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
-            authentication {
-                credentials {
-                    username = artifactoryUsername.get()
-                    password = artifactoryPassword.get()
-                }
+        authentication {
+            credentials {
+                username = artifactoryUsername
+                password = artifactoryPassword
             }
         }
     }
@@ -127,5 +117,25 @@ fun getArchitecture(): String {
     return when {
         arch.contains("aarch64") -> "arm64"
         else -> "amd64"
+    }
+}
+
+internal fun ifAuthenticatedOrElse(
+    providers: ProviderFactory,
+    onAuthenticated: (artifactoryUsername: String, artifactoryPassword: String) -> Unit,
+    onNotAuthenticated: () -> Unit,
+) {
+    // This authentication relies on env vars configured on Cirrus CI or on Gradle properties (`-P<prop>` flags or `gradle.properties` file)
+    val artifactoryUsername = providers.environmentVariable("ARTIFACTORY_PRIVATE_USERNAME")
+        .orElse(providers.environmentVariable("ARTIFACTORY_USERNAME"))
+        .orElse(providers.gradleProperty("artifactoryUsername"))
+    val artifactoryPassword = providers.environmentVariable("ARTIFACTORY_PRIVATE_PASSWORD")
+        .orElse(providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN"))
+        .orElse(providers.gradleProperty("artifactoryPassword"))
+
+    if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
+        onAuthenticated(artifactoryUsername.get(), artifactoryPassword.get())
+    } else {
+        onNotAuthenticated()
     }
 }

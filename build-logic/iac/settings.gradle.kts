@@ -14,11 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+pluginManagement {
+    includeBuild("../common")
+}
+
+plugins {
+    id("org.sonarsource.cloud-native.common-settings")
+}
+
 dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-    }
     versionCatalogs {
         create("libs") {
             from(files("../../gradle/libs.versions.toml"))
