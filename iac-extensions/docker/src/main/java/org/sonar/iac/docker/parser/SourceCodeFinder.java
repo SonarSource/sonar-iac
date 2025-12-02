@@ -52,6 +52,9 @@ public class SourceCodeFinder {
 
     var nodeSource = IntStream.rangeClosed(startLine, endLine)
       .mapToObj(i -> {
+        if (i >= lines.size() && lines.get(lines.size() - 1).stripTrailing().endsWith("\\")) {
+          return "";
+        }
         var line = lines.get(i);
         int start = (i == startLine) ? startLineOffset : 0;
         int end = (i == endLine) ? endLineOffset : line.length();
