@@ -52,7 +52,7 @@ public class SourceCodeFinder {
 
     var nodeSource = IntStream.rangeClosed(startLine, endLine)
       .mapToObj(i -> {
-        if (i >= lines.size() && lines.get(lines.size() - 1).stripTrailing().endsWith("\\")) {
+        if (i >= lines.size()) {
           return "";
         }
         var line = lines.get(i);
@@ -65,6 +65,9 @@ public class SourceCodeFinder {
   }
 
   public String lineSeparator() {
+    if (lineSeparator == null) {
+      getSourceLines();
+    }
     return lineSeparator;
   }
 

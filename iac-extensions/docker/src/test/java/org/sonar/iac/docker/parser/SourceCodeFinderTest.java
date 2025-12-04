@@ -352,6 +352,23 @@ class SourceCodeFinderTest {
       .isInstanceOf(IndexOutOfBoundsException.class);
   }
 
+  @Test
+  void shouldReturnSourceWithEmptyLinesIfTextRangeEndLineIsOutOfSource() {
+    var source = "a\nb";
+    finder.setSource(source);
+    var token = createSyntaxToken(1, 0, 4, 5);
+    var result = finder.findSourceCode(token);
+
+    assertThat(result).isEqualTo("a\nb\n\n");
+  }
+
+  @Test
+  void shouldReturnLineSeparatorWhenSourceIsEmpty() {
+    var source = "";
+    finder.setSource(source);
+    assertThat(finder.lineSeparator()).isEqualTo("\n");
+  }
+
   // Helper method to create a mock SyntaxToken with a specific text range
   private SyntaxToken createSyntaxToken(int startLine, int startOffset, int endLine, int endOffset) {
     var token = mock(SyntaxToken.class);
