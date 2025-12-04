@@ -26,6 +26,7 @@ val ruleApiExtension = extensions.create<RuleApiExtension>("ruleApi")
 repositories {
     ifAuthenticatedOrElse(providers, { artifactoryUsername, artifactoryPassword ->
         repox("sonarsource-private-releases", artifactoryUsername, artifactoryPassword, ruleApiExtension.fileOperations)
+        repox("sonarsource", artifactoryUsername, artifactoryPassword, ruleApiExtension.fileOperations)
     }) {
         error("Downloading dependencies from sonarsource-private-releases requires authentication.")
     }
