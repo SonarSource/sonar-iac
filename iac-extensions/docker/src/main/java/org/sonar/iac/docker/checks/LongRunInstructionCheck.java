@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +33,12 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
@@ -114,6 +117,7 @@ public class LongRunInstructionCheck implements IacCheck {
     if (originalSourceCode == null) {
       return;
     }
+    var commentsByLine = getCommentLengthsByLine(shellCode);
     var codeLines = originalSourceCode.lines().toList();
     for (int i = 0; i < codeLines.size(); i++) {
       var line = codeLines.get(i);
@@ -132,10 +136,20 @@ public class LongRunInstructionCheck implements IacCheck {
         // lineLength is only the part belonging to ShellCode; add the length of preceding parts of the Run instruction
         lineLength += shellCode.textRange().start().lineOffset();
       }
+      lineLength -= commentsByLine.getOrDefault(lineNumber, 0);
       if (lineLength > maxLength) {
+
         runInstructionData.tooLongLinesWithLastOffset.put(lineNumber, lineLength);
       }
     }
+  }
+
+  private static Map<Integer, Integer> getCommentLengthsByLine(Tree from) {
+    return TreeUtils.descendants(from).filter(HasComments.class::isInstance)
+      .map(HasComments.class::cast)
+      .map(HasComments::comments)
+      .flatMap(Collection::stream)
+      .collect(Collectors.toMap(comment -> comment.textRange().start().line(), comment -> comment.contentText().length(), (c1, c2) -> c1));
   }
 
   private void processSyntaxToken(SyntaxToken token, RunInstructionData runInstructionData) {

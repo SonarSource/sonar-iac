@@ -16,9 +16,11 @@
  */
 package org.sonar.iac.docker.tree;
 
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -48,13 +50,40 @@ public final class TreeUtils {
     return descendants(root).filter(predicate).reduce((first, second) -> second);
   }
 
-  private static Stream<Tree> descendants(@Nullable Tree root) {
-    if (root == null || root.children().isEmpty()) {
-      return Stream.empty();
+  public static Stream<Tree> descendants(@Nullable Tree root) {
+    if (root == null) {
+      return Stream.of();
     }
-    Spliterator<Tree> spliterator = Spliterators.spliteratorUnknownSize(root.children().iterator(), Spliterator.ORDERED);
-    Stream<Tree> stream = StreamSupport.stream(spliterator, false);
-    return stream.flatMap(tree -> Stream.concat(Stream.of(tree), descendants(tree)));
+    // A queue to hold the nodes to visit, maintaining BFS order
+    var queue = new ArrayDeque<Tree>();
+    queue.add(root);
+
+    // Create an Iterator based on the BFS logic
+    var iterator = new Iterator<Tree>() {
+      @Override
+      public boolean hasNext() {
+        return !queue.isEmpty();
+      }
+
+      @Override
+      public Tree next() {
+        // Get the next node
+        var node = queue.poll();
+        if (node == null) {
+          throw new NoSuchElementException();
+        }
+
+        // Add all children of the current node to the queue for later processing
+        queue.addAll(node.children());
+        return node;
+      }
+    };
+
+    // Create a Spliterator from the iterator, specifying it's unordered,
+    // non-null, and finite, then convert it to a sequential stream.
+    return StreamSupport.stream(
+      Spliterators.spliteratorUnknownSize(iterator, 0),
+      false);
   }
 
   public static Optional<DockerTree> firstAncestor(DockerTree node, Predicate<DockerTree> predicate) {
