@@ -71,3 +71,23 @@ jobs:
           use-develocity: true
           gradle-args: --build-cache -x artifactoryPublish -Dsonar.projectName=SonarIaC
           disable-caching: true
+
+  notify_slack:
+    name: Notify Slack on Failure
+    needs: [ build ]
+    if: >-
+      !cancelled() && failure() &&
+      (github.ref_name == github.event.repository.default_branch ||
+      startsWith(github.ref_name, 'branch-') ||
+      startsWith(github.ref_name, 'feature/'))
+    permissions:
+      id-token: write
+      statuses: read
+    runs-on: github-ubuntu-latest-s
+    steps:
+      - uses: SonarSource/release-github-actions/notify-slack@v1
+        with:
+          project-name: "SonarIaC - Public"
+          slack-channel: "squad-security-cloud-notifs"
+          icon: ':face_in_clouds:'
+          jobs: ${{ toJSON(needs) }}
