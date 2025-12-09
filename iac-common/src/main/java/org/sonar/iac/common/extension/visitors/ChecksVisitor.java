@@ -71,6 +71,14 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     }
 
     @Override
+    public <T extends Tree> void registerPost(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
+      ChecksVisitor.this.registerPost(cls, statistics.time(ruleKey.rule(), (ctx, tree) -> {
+        currentCtx = ctx;
+        visitor.accept(this, tree);
+      }));
+    }
+
+    @Override
     public void reportIssue(TextRange textRange, String message) {
       reportIssue(textRange, message, List.of());
     }

@@ -83,6 +83,62 @@ class TreeVisitorTest {
     assertThat(ancestors.get(subtree2)).containsExactly(tree1, root);
   }
 
+  @Test
+  void registerPost_called_after_children() {
+    List<String> events = new ArrayList<>();
+    visitor.register(Tree.class, (ctx, tree) -> events.add("pre:" + treeName(tree)));
+    visitor.registerPost(Tree.class, (ctx, tree) -> events.add("post:" + treeName(tree)));
+    Tree child = new SubTestTree();
+    Tree parent = new TestTree(child);
+    visitor.scan(new TreeContext(), parent);
+    // pre-visit parent, pre-visit child, post-visit child, post-visit parent
+    assertThat(events).containsExactly("pre:TestTree", "pre:SubTestTree", "post:SubTestTree", "post:TestTree");
+  }
+
+  @Test
+  void registerPost_visits_all_trees() {
+    List<Tree> visited = new ArrayList<>();
+    visitor.registerPost(Tree.class, (ctx, tree) -> visited.add(tree));
+    visitor.scan(new TreeContext(), root);
+    assertThat(visited).containsOnly(root, tree1, tree2, subtree1, subtree2, subtree3);
+  }
+
+  @Test
+  void registerPost_visits_subtypes() {
+    List<Tree> visited = new ArrayList<>();
+    visitor.registerPost(SubTestTree.class, (ctx, tree) -> visited.add(tree));
+    visitor.scan(new TreeContext(), root);
+    assertThat(visited).containsOnly(subtree1, subtree2, subtree3);
+  }
+
+  @Test
+  void registerPost_with_complex_tree() {
+    List<String> events = new ArrayList<>();
+    visitor.register(Tree.class, (ctx, tree) -> events.add("pre:" + treeName(tree)));
+    visitor.registerPost(Tree.class, (ctx, tree) -> events.add("post:" + treeName(tree)));
+    // Tree: root -> [tree1 -> [subtree1, subtree2], tree2 -> [subtree3]]
+    visitor.scan(new TreeContext(), root);
+    // Expected order: depth-first with pre-visit before children and post-visit after children
+    assertThat(events).containsExactly(
+      "pre:TestTree", // root
+      "pre:TestTree", // tree1
+      "pre:SubTestTree", // subtree1
+      "post:SubTestTree", // subtree1
+      "pre:SubTestTree", // subtree2
+      "post:SubTestTree", // subtree2
+      "post:TestTree", // tree1
+      "pre:TestTree", // tree2
+      "pre:SubTestTree", // subtree3
+      "post:SubTestTree", // subtree3
+      "post:TestTree", // tree2
+      "post:TestTree" // root
+    );
+  }
+
+  private static String treeName(Tree tree) {
+    return tree.getClass().getSimpleName();
+  }
+
   static class TestTree extends AbstractTestTree {
 
     private final List<Tree> children;

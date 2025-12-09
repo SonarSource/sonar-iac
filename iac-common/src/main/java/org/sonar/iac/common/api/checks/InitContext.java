@@ -22,4 +22,6 @@ import org.sonar.iac.common.api.tree.Tree;
 public interface InitContext {
 
   <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor);
+
+  <T extends Tree> void registerPost(Class<T> cls, BiConsumer<CheckContext, T> visitor);
 }

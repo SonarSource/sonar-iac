@@ -25,6 +25,7 @@ import org.sonar.iac.common.api.tree.Tree;
 public class TreeVisitor<C extends TreeContext> {
 
   protected final List<ConsumerFilter<C, ?>> consumers = new ArrayList<>();
+  protected final List<ConsumerFilter<C, ?>> consumersPost = new ArrayList<>();
 
   public void scan(C ctx, @Nullable Tree root) {
     if (root != null) {
@@ -42,6 +43,9 @@ public class TreeVisitor<C extends TreeContext> {
         consumer.accept(ctx, node);
       }
       node.children().forEach(child -> visit(ctx, child));
+      for (ConsumerFilter<C, ?> consumer : consumersPost) {
+        consumer.accept(ctx, node);
+      }
       ctx.leave();
     }
   }
@@ -56,6 +60,11 @@ public class TreeVisitor<C extends TreeContext> {
 
   public final <T extends Tree> TreeVisitor<C> register(Class<T> cls, BiConsumer<C, T> visitor) {
     consumers.add(new ConsumerFilter<>(cls, visitor));
+    return this;
+  }
+
+  public final <T extends Tree> TreeVisitor<C> registerPost(Class<T> cls, BiConsumer<C, T> visitor) {
+    consumersPost.add(new ConsumerFilter<>(cls, visitor));
     return this;
   }
 

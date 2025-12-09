@@ -286,6 +286,11 @@ public final class Verifier {
     }
 
     @Override
+    public <T extends Tree> void registerPost(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
+      visitor.registerPost(cls, (ctx, node) -> consumer.accept(this, node));
+    }
+
+    @Override
     public void reportIssue(TextRange textRange, String message) {
       reportIssue(textRange, message, Collections.emptyList());
     }
