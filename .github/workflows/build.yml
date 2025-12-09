@@ -65,12 +65,12 @@ jobs:
         env:
           GO_CROSS_COMPILE: "1"
         with:
-          public: true
           deploy-pull-request: false
           skip-tests: false
           use-develocity: true
           gradle-args: --build-cache -x artifactoryPublish -Dsonar.projectName=SonarIaC
           disable-caching: true
+          run-shadow-scans: ${{ github.event_name == 'schedule' }}
 
   notify_slack:
     name: Notify Slack on Failure
