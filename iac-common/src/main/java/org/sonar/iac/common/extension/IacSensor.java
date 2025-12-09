@@ -113,8 +113,8 @@ public abstract class IacSensor implements Sensor {
   protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
     var fileSystem = sensorContext.fileSystem();
     var predicate = mainFilePredicate(sensorContext, statistics);
-    return StreamSupport.stream(fileSystem.inputFiles(predicate).spliterator(), false)
-      .toList();
+    return statistics.time("Scanner file retrieval", () -> StreamSupport.stream(fileSystem.inputFiles(predicate).spliterator(), false)
+      .toList());
   }
 
   // statistics param is needed in subclasses
