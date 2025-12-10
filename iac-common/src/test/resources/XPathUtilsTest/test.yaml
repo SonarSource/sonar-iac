@@ -4,6 +4,7 @@ Resources:
     Type: 'AWS::S3::Bucket' # Sensitive
     Properties:
       BucketName: "mynoncompliantbucket"
+      AccessControl: Private
 
   S3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'

@@ -60,6 +60,16 @@ public class XPathUtils {
   }
 
   void visitTree(YamlTree tree, StringTokenizer tokenizer, String token) {
+    if ("*".equals(token)) {
+      var children = getChildValues(tree);
+      if (!tokenizer.hasMoreTokens()) {
+        result.addAll(children);
+      } else {
+        String nextToken = tokenizer.nextToken();
+        children.forEach(e -> visitTree(e, tokenizer, nextToken));
+      }
+      return;
+    }
     boolean expectSequence = false;
     if (token.endsWith("[]")) {
       expectSequence = true;
@@ -87,6 +97,16 @@ public class XPathUtils {
         tuples.forEach(t -> visitTree(t.value(), tokenizer));
       }
     }
+  }
+
+  private static List<YamlTree> getChildValues(YamlTree node) {
+    if (node instanceof MappingTree mappingTree) {
+      return mappingTree.elements()
+        .stream()
+        .map(TupleTree::value)
+        .toList();
+    }
+    return node.children();
   }
 
   static class InvalidXPathExpression extends RuntimeException {

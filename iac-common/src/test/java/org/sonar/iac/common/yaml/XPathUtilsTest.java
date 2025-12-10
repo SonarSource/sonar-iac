@@ -18,8 +18,10 @@ package org.sonar.iac.common.yaml;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
@@ -77,6 +79,26 @@ class XPathUtilsTest {
   @Test
   void test_only_root_expression() {
     assertThat(XPathUtils.getSingleTree(firstDocument, "/")).isPresent().get().isEqualTo(firstDocument);
+  }
+
+  @Test
+  void test_globe_in_the_middle_of_the_path() {
+    assertThat(XPathUtils.getTrees(firstDocument, "/Resources/*/Type"))
+      .isNotEmpty().hasSize(2)
+      .allMatch(ScalarTree.class::isInstance)
+      .extracting(TextUtils::getValue)
+      .extracting(Optional::get)
+      .containsExactly("AWS::S3::Bucket", "AWS::S3::BucketPolicy");
+  }
+
+  @Test
+  void test_globe_in_the_end_of_the_path() {
+    assertThat(XPathUtils.getTrees(firstDocument, "/Resources/S3Bucket/Properties/*"))
+      .isNotEmpty().hasSize(2)
+      .allMatch(ScalarTree.class::isInstance)
+      .extracting(TextUtils::getValue)
+      .extracting(Optional::get)
+      .containsExactly("mynoncompliantbucket", "Private");
   }
 
 }
