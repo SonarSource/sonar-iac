@@ -34,12 +34,20 @@ public class XPathUtils {
   private XPathUtils() {
   }
 
+  public static <T extends YamlTree> Optional<T> getSingleTreeOfType(YamlTree root, String expression, Class<T> type) {
+    return getSingleTree(root, expression).filter(type::isInstance).map(type::cast);
+  }
+
   public static Optional<YamlTree> getSingleTree(YamlTree root, String expression) {
     List<YamlTree> trees = getTrees(root, expression);
     if (trees.size() == 1) {
       return Optional.of(trees.get(0));
     }
     return Optional.empty();
+  }
+
+  public static <T extends YamlTree> List<T> getTreesOfType(YamlTree root, String expression, Class<T> type) {
+    return getTrees(root, expression).stream().filter(type::isInstance).map(type::cast).toList();
   }
 
   public static List<YamlTree> getTrees(YamlTree root, String expression) {

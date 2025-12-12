@@ -18,11 +18,13 @@ package org.sonar.iac.common.yaml;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.testing.Verifier;
+import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -44,7 +46,7 @@ class XPathUtilsTest {
   }
 
   @Test
-  void test_getTrees() {
+  void testGetTrees() {
     assertThat(XPathUtils.getTrees(firstDocument, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]/Principal/AWS"))
       .isNotEmpty().hasSize(1)
       .satisfies(t -> {
@@ -57,7 +59,7 @@ class XPathUtilsTest {
   }
 
   @Test
-  void test_getSingleTree() {
+  void testGetSingleTree() {
     assertThat(XPathUtils.getSingleTree(firstDocument, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]"))
       .isNotPresent();
     assertThat(XPathUtils.getSingleTree(firstDocument, "/Resources/S3BucketPolicy/Properties/PolicyDocument"))
@@ -65,24 +67,24 @@ class XPathUtilsTest {
   }
 
   @Test
-  void test_getSingleTree_with_custom_root() {
+  void testGetSingleTreeWithCustomRoot() {
     assertThat(XPathUtils.getSingleTree(firstDocument, "/Resources/S3BucketPolicy")).isPresent()
       .satisfies(o -> assertThat(XPathUtils.getSingleTree(o.get(), "/Properties/PolicyDocument")).isPresent());
   }
 
   @Test
-  void test_invalid_expression() {
+  void testInvalidExpression() {
     assertThatThrownBy(() -> XPathUtils.getSingleTree(firstDocument, "Resources/S3BucketPolicy"))
       .isInstanceOf(XPathUtils.InvalidXPathExpression.class);
   }
 
   @Test
-  void test_only_root_expression() {
+  void testOnlyRootExpression() {
     assertThat(XPathUtils.getSingleTree(firstDocument, "/")).isPresent().get().isEqualTo(firstDocument);
   }
 
   @Test
-  void test_globe_in_the_middle_of_the_path() {
+  void testGlobeInTheMiddleOfThePath() {
     assertThat(XPathUtils.getTrees(firstDocument, "/Resources/*/Type"))
       .isNotEmpty().hasSize(2)
       .allMatch(ScalarTree.class::isInstance)
@@ -92,13 +94,59 @@ class XPathUtilsTest {
   }
 
   @Test
-  void test_globe_in_the_end_of_the_path() {
+  void testGlobeInTheEndOfThePath() {
     assertThat(XPathUtils.getTrees(firstDocument, "/Resources/S3Bucket/Properties/*"))
       .isNotEmpty().hasSize(2)
       .allMatch(ScalarTree.class::isInstance)
       .extracting(TextUtils::getValue)
       .extracting(Optional::get)
       .containsExactly("mynoncompliantbucket", "Private");
+  }
+
+  @Test
+  void testGetSingleTreeOfTypeReturnsTreeWhenTypeMatches() {
+    Optional<MappingTree> result = XPathUtils.getSingleTreeOfType(firstDocument, "/Resources/S3Bucket/Properties", MappingTree.class);
+    assertThat(result).isPresent();
+    assertThat(result.get()).isInstanceOf(MappingTree.class);
+  }
+
+  @Test
+  void testGetSingleTreeOfTypeReturnsEmptyWhenTypeDoesNotMatch() {
+    // /Resources/S3Bucket/Properties/BucketName is a ScalarTree, not a MappingTree
+    Optional<MappingTree> result = XPathUtils.getSingleTreeOfType(firstDocument, "/Resources/S3Bucket/Properties/BucketName", MappingTree.class);
+    assertThat(result).isNotPresent();
+  }
+
+  @Test
+  void testGetSingleTreeOfTypeReturnsEmptyWhenPathNotFound() {
+    Optional<ScalarTree> result = XPathUtils.getSingleTreeOfType(firstDocument, "/NonExistent/Path", ScalarTree.class);
+    assertThat(result).isNotPresent();
+  }
+
+  @Test
+  void testGetTreesOfTypeReturnsOnlyMatchingTypes() {
+    // /Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[] returns multiple trees
+    // but we filter to only ScalarTree instances
+    List<ScalarTree> result = XPathUtils.getTreesOfType(firstDocument, "/Resources/*/Type", ScalarTree.class);
+    assertThat(result)
+      .hasSize(2)
+      .allMatch(ScalarTree.class::isInstance)
+      .extracting(TextUtils::getValue)
+      .extracting(Optional::get)
+      .containsExactly("AWS::S3::Bucket", "AWS::S3::BucketPolicy");
+  }
+
+  @Test
+  void testGetTreesOfTypeReturnsEmptyWhenNoTypeMatches() {
+    // /Resources/*/Type returns ScalarTree instances, not MappingTree
+    List<MappingTree> result = XPathUtils.getTreesOfType(firstDocument, "/Resources/*/Type", MappingTree.class);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void testGetTreesOfTypeReturnsEmptyWhenPathNotFound() {
+    List<ScalarTree> result = XPathUtils.getTreesOfType(firstDocument, "/NonExistent/Path[]", ScalarTree.class);
+    assertThat(result).isEmpty();
   }
 
 }
