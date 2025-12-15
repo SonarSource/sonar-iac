@@ -76,7 +76,7 @@ For more information see [README.md](https://github.com/SonarSource/cloud-native
 If you are behind a corporate proxy, you might encounter certificate issues during the build, with following error:
 
 ```text
-ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx::yyyyyyyyyyyyyyyyyyyyyyyyy: "/Sonar-FGT-FW-TLS-Traffic-Inspection.cer": not found
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx::yyyyyyyyyyyyyyyyyyyyyyyy: "/Sonar-FGT-FW-TLS-Traffic-Inspection.cer": not found
 ```
 
 To fix the issue please copy the certificate to `sonar-helm-for-iac` directory or specify `-DtrafficInspection=false` property during the build:
