@@ -126,8 +126,12 @@ public abstract class IacSensor implements Sensor {
       fileSystem.predicates().hasType(InputFile.Type.MAIN));
   }
 
+  public static boolean isSonarLintContext(SonarRuntime sonarRuntime) {
+    return sonarRuntime.getProduct() == SonarProduct.SONARLINT;
+  }
+
   public static boolean isNotSonarLintContext(SonarRuntime sonarRuntime) {
-    return sonarRuntime.getProduct() != SonarProduct.SONARLINT;
+    return !isSonarLintContext(sonarRuntime);
   }
 
   protected boolean isActive(SensorContext sensorContext) {

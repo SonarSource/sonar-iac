@@ -46,7 +46,7 @@ class DockerLanguageTest {
   @Test
   void shouldHaveDefaultFilenamePatternsWithNoProvidedProperty() {
     DockerLanguage language = new DockerLanguage(new MapSettings().asConfig());
-    assertThat(language.filenamePatterns()).hasSize(2);
+    assertThat(language.filenamePatterns()).hasSize(3);
     assertThat(language.filenamePatterns()).containsExactly(DockerSettings.DEFAULT_FILE_PATTERNS.split(","));
   }
 
@@ -57,7 +57,7 @@ class DockerLanguageTest {
 
     DockerLanguage language = new DockerLanguage(settings.asConfig());
 
-    assertThat(language.filenamePatterns()).hasSize(2);
+    assertThat(language.filenamePatterns()).hasSize(3);
     assertThat(language.filenamePatterns()).containsExactly(DockerSettings.DEFAULT_FILE_PATTERNS.split(","));
   }
 
@@ -72,7 +72,7 @@ class DockerLanguageTest {
   @Test
   void shouldReturnTrueWhenDefaultFilePatternIsUsedEvenInDifferentOrder() {
     MapSettings settings = new MapSettings();
-    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "*.dockerfile,Dockerfile");
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "dockerfile,*.dockerfile,Dockerfile");
     DockerLanguage language = new DockerLanguage(settings.asConfig());
     assertThat(language.isUsingDefaultFilePattern()).isTrue();
   }
@@ -95,6 +95,7 @@ class DockerLanguageTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
+    "dockerfile",
     "Dockerfile",
     "filename.dockerfile",
     "filename.Dockerfile",
@@ -106,7 +107,6 @@ class DockerLanguageTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-    "dockerfile",
     "somefile",
     "FooDockerfile",
     "DockerfileFoo",

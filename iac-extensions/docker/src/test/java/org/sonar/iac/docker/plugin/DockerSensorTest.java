@@ -19,8 +19,12 @@ package org.sonar.iac.docker.plugin;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
@@ -40,7 +44,8 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
-import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
+import static org.sonar.iac.common.testing.IacTestUtils.SQS_HIDDEN_FILES_SUPPORTED_API_VERSION;
+import static org.sonar.iac.common.testing.IacTestUtils.SQS_WITHOUT_HIDDEN_FILES_SUPPORT_API_VERSION;
 
 class DockerSensorTest extends ExtensionSensorTest {
 
@@ -68,10 +73,23 @@ class DockerSensorTest extends ExtensionSensorTest {
     DockerSensor sensor = sensor();
     analyze(sensor,
       // should be included based on pattern matching
+      inputFileWithoutAssociatedLanguage("dockerfile.foo", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile.foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile-foo", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile-foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile_foo", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile_foo.bar", ""),
+
       inputFileWithoutAssociatedLanguage("Dockerfile.foo", ""),
       inputFileWithoutAssociatedLanguage("Dockerfile.foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile-foo", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile-foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile_foo", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile_foo.bar", ""),
+
       // should be included based on associated language
       inputFile("Dockerfile", ""),
+      inputFile("dockerfile", ""),
       inputFile("Foo.Dockerfile", ""),
       inputFile("Foo.dockerfile", ""),
       // should not be included after applying file predicates
@@ -79,6 +97,7 @@ class DockerSensorTest extends ExtensionSensorTest {
       inputFileWithoutAssociatedLanguage("FooDockerfile", ""),
       // should be excluded because of .j2 extension and default file pattern used
       inputFile("Dockerfile.j2", ""),
+      inputFile("Dockerfile.md", ""),
       // should be included because .j2 is not the extension
       inputFile("Dockerfile.j2.bar", ""));
 
@@ -88,12 +107,30 @@ class DockerSensorTest extends ExtensionSensorTest {
     assertThat(inputFiles)
       .map(IndexedFile::filename)
       .containsExactlyInAnyOrder(
-        "Dockerfile",
-        "Dockerfile.foo.bar",
+        // path pattern
+        "dockerfile.foo",
+        "dockerfile.foo.bar",
+        "dockerfile-foo",
+        "dockerfile-foo.bar",
+        "dockerfile_foo",
+        "dockerfile_foo.bar",
+
         "Dockerfile.foo",
+        "Dockerfile.foo.bar",
+        "Dockerfile-foo",
+        "Dockerfile-foo.bar",
+        "Dockerfile_foo",
+        "Dockerfile_foo.bar",
+
+        // associated language
+        "Dockerfile",
+        "dockerfile",
         "Foo.Dockerfile",
         "Foo.dockerfile",
+
+        // .j2 is not the extension
         "Dockerfile.j2.bar");
+
     verifyLinesOfCodeTelemetry(0);
   }
 
@@ -119,16 +156,33 @@ class DockerSensorTest extends ExtensionSensorTest {
 
     analyze(sonarLintContext, sonarLintSensor,
       // should be included based on pattern matching
+      inputFileWithoutAssociatedLanguage("dockerfile.foo", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile.foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile-foo", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile-foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile_foo", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile_foo.bar", ""),
+
       inputFileWithoutAssociatedLanguage("Dockerfile.foo", ""),
       inputFileWithoutAssociatedLanguage("Dockerfile.foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile-foo", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile-foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile_foo", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile_foo.bar", ""),
+
       inputFileWithoutAssociatedLanguage("Dockerfile", ""),
+      inputFileWithoutAssociatedLanguage("dockerfile", ""),
       inputFileWithoutAssociatedLanguage("Foo.Dockerfile", ""),
       inputFileWithoutAssociatedLanguage("Foo.dockerfile", ""),
+
       // should not be included after applying file predicates
       inputFileWithoutAssociatedLanguage("DockerfileFoo", ""),
       inputFileWithoutAssociatedLanguage("FooDockerfile", ""),
       // should be excluded because of .j2 extension and default file pattern used
-      inputFileWithoutAssociatedLanguage("Dockerfile.j2", ""));
+      inputFileWithoutAssociatedLanguage("Dockerfile.j2", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile.md", ""),
+      // should be included because .j2 is not the extension
+      inputFileWithoutAssociatedLanguage("Dockerfile.j2.bar", ""));
 
     FileSystem fileSystem = sonarLintContext.fileSystem();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sonarLintSensor.mainFilePredicate(sonarLintContext, new DurationStatistics(mock(Configuration.class))));
@@ -136,11 +190,28 @@ class DockerSensorTest extends ExtensionSensorTest {
     assertThat(inputFiles)
       .map(IndexedFile::filename)
       .containsExactlyInAnyOrder(
-        "Dockerfile",
-        "Dockerfile.foo.bar",
+        // path pattern
+        "dockerfile.foo",
+        "dockerfile.foo.bar",
+        "dockerfile-foo",
+        "dockerfile-foo.bar",
+        "dockerfile_foo",
+        "dockerfile_foo.bar",
+
         "Dockerfile.foo",
+        "Dockerfile.foo.bar",
+        "Dockerfile-foo",
+        "Dockerfile-foo.bar",
+        "Dockerfile_foo",
+        "Dockerfile_foo.bar",
+
+        "Dockerfile",
+        "dockerfile",
         "Foo.Dockerfile",
-        "Foo.dockerfile");
+        "Foo.dockerfile",
+
+        // .j2 is not the extension
+        "Dockerfile.j2.bar");
     verifyLinesOfCodeTelemetry(0);
   }
 
@@ -162,12 +233,12 @@ class DockerSensorTest extends ExtensionSensorTest {
 
   @Override
   protected Sensor sensor(CheckFactory checkFactory) {
-    return sensor(checkFactory, new MapSettings());
+    return sensor(checkFactory, new MapSettings(), SQS_HIDDEN_FILES_SUPPORTED_API_VERSION);
   }
 
-  protected Sensor sensor(CheckFactory checkFactory, MapSettings settings) {
+  protected Sensor sensor(CheckFactory checkFactory, MapSettings settings, SonarRuntime sonarRuntime) {
     return new DockerSensor(
-      SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
+      sonarRuntime,
       fileLinesContextFactory,
       checkFactory,
       noSonarFilter,
@@ -217,12 +288,27 @@ class DockerSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
 
+  @ParameterizedTest
+  @MethodSource
+  void descriptorShouldNotProcessHiddenFilesWhenPluginApiDoesntSupportIt(SonarRuntime sonarRuntime) {
+    var descriptor = new DefaultSensorDescriptor();
+    sensor(checkFactory(), new MapSettings(), sonarRuntime).describe(descriptor);
+    assertThat(descriptor.name()).isEqualTo("IaC Docker Sensor");
+    assertThat(descriptor.isProcessesHiddenFiles()).isFalse();
+  }
+
+  static Stream<SonarRuntime> descriptorShouldNotProcessHiddenFilesWhenPluginApiDoesntSupportIt() {
+    return Stream.of(
+      SQS_WITHOUT_HIDDEN_FILES_SUPPORT_API_VERSION,
+      SONARLINT_RUNTIME_9_9);
+  }
+
   private DockerSensor sensor(String... rules) {
     return (DockerSensor) sensor(checkFactory(rules));
   }
 
   private DockerSensor sensor(MapSettings settings, String... rules) {
-    return (DockerSensor) sensor(checkFactory(rules), settings);
+    return (DockerSensor) sensor(checkFactory(rules), settings, SQS_HIDDEN_FILES_SUPPORTED_API_VERSION);
   }
 
   private InputFile inputFileWithoutAssociatedLanguage(String relativePath, String content) {

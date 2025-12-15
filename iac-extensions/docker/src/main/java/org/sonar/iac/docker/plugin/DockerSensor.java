@@ -17,7 +17,9 @@
 package org.sonar.iac.docker.plugin;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -64,6 +66,7 @@ public class DockerSensor extends IacSensor {
     descriptor
       .processesFilesIndependently()
       .name("IaC " + language.getName() + " Sensor");
+    activateHiddenFilesProcessing(descriptor);
   }
 
   @Override
@@ -76,28 +79,39 @@ public class DockerSensor extends IacSensor {
     var fileSystem = sensorContext.fileSystem();
     FilePredicates p = fileSystem.predicates();
 
+    Set<String> pathPatterns = new HashSet<>();
+
     // Because we can't add "**/Dockerfile.*" as a filenamePattern to the DockerLanguage, we need to match the files here via a path pattern
     // It's not possible to add it as a pattern because it would match files like "Dockerfile.java" which would result in a collision for the
     // Docker and Java language.
-    FilePredicate pathPatterns = p.matchesPathPattern("**/Dockerfile.*");
+    pathPatterns.add("**/Dockerfile.*");
+    pathPatterns.add("**/Dockerfile-*");
+    pathPatterns.add("**/Dockerfile_*");
+
+    // same patterns in lowercase
+    pathPatterns.add("**/dockerfile.*");
+    pathPatterns.add("**/dockerfile-*");
+    pathPatterns.add("**/dockerfile_*");
 
     // In SQ-IDE Language#filenamePatterns() is not implemented, so all Dockerfiles are detected by path patterns not via the Docker language
     // Support will be implemented with SLCORE-526
-    if (!isNotSonarLintContext(sensorContext.runtime())) {
-      pathPatterns = p.or(
-        pathPatterns,
-        p.matchesPathPattern("**/Dockerfile"),
-        p.matchesPathPattern("**/**.Dockerfile"),
-        p.matchesPathPattern("**/**.dockerfile"));
+    if (isSonarLintContext(sensorContext.runtime())) {
+      pathPatterns.add("**/Dockerfile");
+      pathPatterns.add("**/dockerfile");
+      pathPatterns.add("**/**.Dockerfile");
+      pathPatterns.add("**/**.dockerfile");
     }
 
     FilePredicate dockerLanguageOrPathPattern = p.or(
       p.hasLanguage(DockerLanguage.KEY),
-      pathPatterns);
+      p.matchesPathPatterns(pathPatterns.toArray(new String[0])));
 
     if (((DockerLanguage) language).isUsingDefaultFilePattern()) {
       dockerLanguageOrPathPattern = p.and(
-        p.doesNotMatchPathPattern("*.j2"),
+        // Equivalent to p.doesNotMatchPathPattern("*.j2", "*.md"), but more efficient as the scanner has an extension cache
+        p.not(p.or(
+          p.hasExtension("md"),
+          p.hasExtension("j2"))),
         dockerLanguageOrPathPattern);
     }
 
