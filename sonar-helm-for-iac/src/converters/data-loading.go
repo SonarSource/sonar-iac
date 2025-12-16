@@ -16,10 +16,11 @@ package converters
 
 import (
 	"fmt"
-	"github.com/samber/mo"
-	"sigs.k8s.io/yaml"
 	"strings"
 	"unicode"
+
+	"github.com/samber/mo"
+	"sigs.k8s.io/yaml"
 )
 
 // TemplateSources contains all the sources needed to evaluate a template
@@ -53,7 +54,11 @@ func (ts *TemplateSources) TemplateFile() string {
 }
 
 func (ts *TemplateSources) Values() string {
-	valuesFile, _ := ts.SourceFile("values.yaml")
+	valuesFile, err := ts.SourceFile("values.yaml")
+	if err != nil {
+		// Values file is not found; try to evaluate with empty values.
+		return ""
+	}
 	return string(valuesFile)
 }
 

@@ -172,6 +172,25 @@ class HelmEvaluatorTest {
       .noneMatch(log -> log.startsWith("[sonar-helm-for-iac]"));
   }
 
+  @Test
+  void shouldEvaluateTemplateWithoutValuesYaml() throws IOException {
+    var templateDependencies = Map.of("Chart.yaml", "name: foo");
+    var evaluationResult = helmEvaluator.evaluateTemplate("templates/baz.yaml", "value: {{ print \"true\" }}", templateDependencies);
+
+    assertThat(evaluationResult.getTemplate()).contains("value: true");
+    assertThat(logTester.logs()).noneMatch(log -> log.startsWith("[sonar-helm-for-iac]"));
+  }
+
+  @Test
+  void shouldFailOnTemplateWithoutValuesYamlThatUsesValues() {
+    var templateDependencies = Map.of("Chart.yaml", "name: foo");
+
+    assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("templates/baz.yaml", "value: {{ .Values.container.port }}", templateDependencies))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Evaluation error in Go library: template: foo/templates/baz.yaml:1:10: " +
+        "executing \"foo/templates/baz.yaml\" at <.Values.container.port>: nil pointer evaluating interface {}.port");
+  }
+
   @ParameterizedTest
   @CsvSource({
     "0,00 00 00 00",

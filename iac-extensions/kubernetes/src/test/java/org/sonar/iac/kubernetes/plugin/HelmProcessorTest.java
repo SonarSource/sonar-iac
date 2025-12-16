@@ -159,17 +159,6 @@ class HelmProcessorTest {
   }
 
   @Test
-  void validateAndReadFilesShouldThrowExceptionIfValuesFileNotFound() {
-    Map<String, String> files = new HashMap<>();
-    defaultInputFileContext.setAdditionalFiles(files);
-    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
-    helmProcessor.initialize();
-    assertThatThrownBy(() -> helmProcessor.processHelmTemplate("{{ /* dummy */}}", defaultInputFileContext))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Failed to find values file");
-  }
-
-  @Test
   void validateAndReadFilesShouldThrowExceptionIfMainFileNameContainsLineBreak() {
     var inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn("file\n.yaml");

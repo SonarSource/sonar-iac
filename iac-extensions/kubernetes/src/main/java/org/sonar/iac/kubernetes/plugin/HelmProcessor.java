@@ -98,10 +98,6 @@ public class HelmProcessor {
     var relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(inputFileContext);
     inputFileContext.setAdditionalFiles(relatedHelmFiles);
 
-    if (inputFileContext.getValuesFilePath() == null) {
-      throw parseExceptionFor(inputFileContext.inputFile, "Failed to find values file", null);
-    }
-
     var path = HelmFileSystem.getFileRelativePath(inputFileContext);
     return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, relatedHelmFiles);
   }

@@ -15,9 +15,10 @@
 package converters
 
 import (
+	"testing"
+
 	"github.com/samber/mo"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func Test_store_multiple_sources_in_memory(t *testing.T) {
@@ -91,6 +92,18 @@ func Test_error_when_preparing_data(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, "source file Chart.yaml not found")
+}
+
+func Test_no_values_file_when_preparing_data(t *testing.T) {
+	templateSources := NewTemplateSources("templates/a.yaml", filesFromStrings(map[string]string{
+		"templates/a.yaml": "apiVersion: v1",
+		"Chart.yaml":       "name: test-project",
+	}))
+
+	result, err := PrepareChartValues(templateSources)
+
+	assert.NoError(t, err)
+	assert.Empty(t, result["Values"])
 }
 
 func Test_base_path(t *testing.T) {
