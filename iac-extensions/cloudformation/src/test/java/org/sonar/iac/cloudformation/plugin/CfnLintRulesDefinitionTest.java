@@ -56,7 +56,7 @@ class CfnLintRulesDefinitionTest {
         "cfn-lint",
         "CFN-LINT",
         "cloudformation",
-        234,
+        263,
         shouldSupportCCT);
     } else {
       assertNoRepositoryIsDefined(context, rulesDefinition);

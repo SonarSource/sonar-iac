@@ -51,7 +51,7 @@ class HadolintRulesDefinitionTest {
         "hadolint",
         "HADOLINT",
         "docker",
-        99,
+        101,
         shouldSupportCCT);
     } else {
       assertNoRepositoryIsDefined(context, rulesDefinition);

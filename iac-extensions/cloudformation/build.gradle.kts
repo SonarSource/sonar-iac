@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import de.undercouch.gradle.tasks.download.Download
-import org.sonar.iac.CfnLintRulesGenerator.extractRules
-import org.sonar.iac.asJson
+import org.sonar.iac.GENERATE_EXTERNAL_RULES_TASK_NAME
+import org.sonar.iac.GenerateCfnLintRulesTask
 
 plugins {
     id("org.sonarsource.cloud-native.code-style-conventions")
@@ -47,20 +47,17 @@ val downloadCfnLintRules by tasks.registering(Download::class) {
     dest(layout.buildDirectory.file("cfn-lint-rules.md"))
 }
 
-val generateCfnLintRules by tasks.registering(Task::class) {
+val generateCfnLintRules by tasks.registering(GenerateCfnLintRulesTask::class) {
     group = "build"
     description = "Generate the list of rules from the cfn-lint linter"
     dependsOn(downloadCfnLintRules)
 
-    doFirst {
-        val rules = extractRules(downloadCfnLintRules.get().dest.readText())
-        val rulesFile = file("src/main/resources/org/sonar/l10n/cloudformation/rules/cfn-lint/rules.json")
-        rulesFile.writeText(
-            """
-                |[
-                ${rules.joinToString(separator = ",\n") { it.asJson(margin = 2) }}
-                |]
-            """.trimMargin().plus("\n")
-        )
-    }
+    rulesMarkdownFile.set(downloadCfnLintRules.get().dest)
+    rulesFile.set(file("src/main/resources/org/sonar/l10n/cloudformation/rules/cfn-lint/rules.json"))
+}
+
+tasks.register(GENERATE_EXTERNAL_RULES_TASK_NAME) {
+    group = "build"
+    description = "Generate external linter rules for CloudFormation"
+    dependsOn(generateCfnLintRules)
 }

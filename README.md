@@ -141,6 +141,18 @@ To fetch static files for a rule SXXXX from RSPEC for one of the languages, exec
 
 Additionally, an optional property `-Pbranch=<branch name>` can be set to fetch rule metadata from a specific branch.
 
+### Generate metadata for external linter rules
+
+To update rules from external linters (Hadolint, TFLint, CfnLint, Ansible Lint) from their upstream sources, execute the following command:
+
+```shell
+./gradlew generateExternalRules
+```
+
+This will update all external linter rules across all extensions. To update rules for a specific extension, run the task `generateExternalRules` on a specific Gradle subproject, for example :iac-extensions:terraform:generateExternalRules`.
+
+These tasks automatically download the latest rule documentation from upstream sources and regenerate the `rules.json` files.
+
 # License
 
 Copyright 2021-2025 SonarSource.

@@ -55,7 +55,7 @@ class TFLintRulesDefinitionTest {
         "tflint",
         "TFLINT",
         "terraform",
-        1712,
+        1679,
         shouldSupportCCT);
     } else {
       assertNoRepositoryIsDefined(context, rulesDefinition);

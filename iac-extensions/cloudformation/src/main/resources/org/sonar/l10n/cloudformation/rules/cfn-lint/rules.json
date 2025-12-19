@@ -11,7 +11,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -27,7 +27,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -43,7 +43,55 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E0003",
+    "name": "Error with cfn-lint configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E0003",
+    "tags": ["base","rule"],
+    "description": "This issue is raised by the rule [E0003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Error as a result of the cfn-lint configuration",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E0100",
+    "name": "Validate deployment file configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E0100",
+    "tags": ["base"],
+    "description": "This issue is raised by the rule [E0100] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate if a deployment file has the correct syntax for one of the supported formats",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E0200",
+    "name": "Validate parameter file configuration",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E0200",
+    "tags": ["base"],
+    "description": "This issue is raised by the rule [E0200] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate if a parameter file has the correct syntax for one of the supported formats",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -59,7 +107,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -75,7 +123,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -91,7 +139,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -107,7 +155,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -123,7 +171,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -139,7 +187,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -155,7 +203,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -171,7 +219,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -187,7 +235,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -203,7 +251,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -219,7 +267,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -235,7 +283,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -251,7 +299,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -267,7 +315,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -283,7 +331,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -299,7 +347,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -315,7 +363,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -331,7 +379,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -347,7 +395,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -363,7 +411,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -379,7 +427,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -395,7 +443,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -403,7 +451,7 @@
     "key": "E1040",
     "name": "Check if GetAtt matches destination format",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E1040",
-    "tags": ["parameters","ec2","imageid"],
+    "tags": ["functions","getatt"],
     "description": "This issue is raised by the rule [E1040] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate that if source and destination format exists that they match",
     "constantDebtMinutes": 5,
     "type": "BUG",
@@ -411,7 +459,23 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E1041",
+    "name": "Check if Ref matches destination format",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E1041",
+    "tags": ["functions","ref"],
+    "description": "This issue is raised by the rule [E1041] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When source and destination format exists validate that they match in a Ref",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -427,7 +491,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -443,7 +507,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -459,7 +523,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -475,7 +539,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -491,7 +555,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -507,7 +571,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -523,7 +587,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -539,7 +603,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -555,7 +619,55 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E1154",
+    "name": "Validate VPC subnet id format",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E1154",
+    "tags": [],
+    "description": "This issue is raised by the rule [E1154] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that a VPC subnet id matches a pattern",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E1155",
+    "name": "Validate CloudWatch logs group name",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E1155",
+    "tags": [],
+    "description": "This issue is raised by the rule [E1155] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check that a CloudWatch log group name matches a pattern",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E1156",
+    "name": "Validate IAM role ARN format",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E1156",
+    "tags": [],
+    "description": "This issue is raised by the rule [E1156] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate IAM role ARN validation for ref/gett and string values",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -571,7 +683,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -587,7 +699,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -603,7 +715,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -619,7 +731,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -635,7 +747,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -651,7 +763,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -667,7 +779,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -683,7 +795,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -699,7 +811,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -715,7 +827,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -731,7 +843,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -747,7 +859,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -763,39 +875,23 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
   {
-    "key": "E2540",
-    "name": "CodePipeline Stages",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E2540",
-    "tags": ["properties","codepipeline"],
-    "description": "This issue is raised by the rule [E2540] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: See if CodePipeline stages are set correctly",
+    "key": "E2900",
+    "name": "Validate deployment file parameters are valid against template parameters",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E2900",
+    "tags": ["parameters"],
+    "description": "This issue is raised by the rule [E2900] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates that required properties are provided, allowed values are valid, types are correct, and the pattern matches in a deployment file for the parameters specified in a template",
     "constantDebtMinutes": 5,
     "type": "BUG",
     "severity": "MAJOR",
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
-      }
-    }
-  },
-  {
-    "key": "E2541",
-    "name": "CodePipeline Stage Actions",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E2541",
-    "tags": ["resources","codepipeline"],
-    "description": "This issue is raised by the rule [E2541] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: See if CodePipeline stage actions are set correctly",
-    "constantDebtMinutes": 5,
-    "type": "BUG",
-    "severity": "MAJOR",
-    "code": {
-      "attribute": "LOGICAL",
-      "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -811,7 +907,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -827,7 +923,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -843,7 +939,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -859,7 +955,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -875,7 +971,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -891,7 +987,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -907,7 +1003,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -923,7 +1019,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -939,7 +1035,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -955,7 +1051,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -971,7 +1067,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -987,7 +1083,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1003,7 +1099,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1019,7 +1115,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1035,7 +1131,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1051,7 +1147,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1067,7 +1163,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1083,7 +1179,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1099,7 +1195,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1115,7 +1211,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1131,7 +1227,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1147,7 +1243,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1163,7 +1259,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1179,7 +1275,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1195,7 +1291,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1211,7 +1307,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1227,7 +1323,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1243,7 +1339,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1259,7 +1355,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1275,7 +1371,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1291,7 +1387,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1307,7 +1403,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1323,7 +1419,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1339,7 +1435,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1355,7 +1451,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1371,7 +1467,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1387,7 +1483,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1403,7 +1499,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1419,7 +1515,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1435,7 +1531,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1451,7 +1547,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1467,7 +1563,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1483,7 +1579,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1499,7 +1595,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1515,7 +1611,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1531,7 +1627,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1547,7 +1643,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1563,7 +1659,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1579,7 +1675,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1595,7 +1691,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1611,7 +1707,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1627,7 +1723,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1643,7 +1739,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1659,7 +1755,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1675,23 +1771,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
-      }
-    }
-  },
-  {
-    "key": "E3056",
-    "name": "ECS service using HealthCheckGracePeriodSeconds must also have LoadBalancers specified",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3056",
-    "tags": ["properties","ecs","service","container"],
-    "description": "This issue is raised by the rule [E3056] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using a HealthCheckGracePeriodSeconds on an ECS service, the service must also have a LoadBalancers specified with at least one LoadBalancer in the array.",
-    "constantDebtMinutes": 5,
-    "type": "BUG",
-    "severity": "MAJOR",
-    "code": {
-      "attribute": "LOGICAL",
-      "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1707,7 +1787,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1723,7 +1803,103 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3059",
+    "name": "Validate subnet CIDRs are within the CIDRs of the VPC",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3059",
+    "tags": ["resources","ec2","vpc","subnet"],
+    "description": "This issue is raised by the rule [E3059] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When specifying subnet CIDRs for a VPC the subnet CIDRs most be within the VPC CIDRs",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3060",
+    "name": "Validate subnet CIDRs do not overlap with other subnets",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3060",
+    "tags": ["resources","ec2","vpc","subnet"],
+    "description": "This issue is raised by the rule [E3060] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When specifying subnet CIDRs for a VPC the subnet CIDRs most not overlap with eachother",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3061",
+    "name": "Validate the days for tierings in IntelligentTieringConfigurations",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3061",
+    "tags": ["resources","s3"],
+    "description": "This issue is raised by the rule [E3061] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using AWS::S3::Bucket to configure IntelligentTieringConfigurations the Tierings have minimum and maximum values",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3062",
+    "name": "Validates RDS DB Instance Class based on Engine and EngineVersion",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3062",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [E3062] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates the RDS DB instance types based on 'Engine' and 'EngineVersion'. 'EngineVersion' is based on the minor version.",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3501",
+    "name": "Validate SQS queue properties are valid",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3501",
+    "tags": ["resources","sqs"],
+    "description": "This issue is raised by the rule [E3501] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Depending on if the queue is FIFO or not the properties and allowed values change. This rule validates properties and values based on the queue type.",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3502",
+    "name": "Validate SQS DLQ queues are the same type",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3502",
+    "tags": ["resources","sqs"],
+    "description": "This issue is raised by the rule [E3502] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: SQS queues using DLQ have to have the destination queue as the same type (FIFO or standard)",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1739,7 +1915,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1755,7 +1931,23 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3505",
+    "name": "Validate SQS 'VisibilityTimeout' is greater than a function's 'Timeout'",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3505",
+    "tags": ["resources","lambda","sqs"],
+    "description": "This issue is raised by the rule [E3505] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When attaching a Lambda function to a SQS queue to a Lambda function the SQS 'VisibilityTimeout' has to be greater than or equal to  the lambda functions's 'Timeout'",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1771,7 +1963,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1787,7 +1979,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1803,7 +1995,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1819,7 +2011,23 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3514",
+    "name": "Validate IAM resource policy resource ARNs",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3514",
+    "tags": ["parameters","iam"],
+    "description": "This issue is raised by the rule [E3514] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validates an IAM resource policy has a compliant resource ARN",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1835,7 +2043,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1851,7 +2059,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1867,7 +2075,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1883,7 +2091,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1899,7 +2107,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1915,7 +2123,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1931,7 +2139,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1947,7 +2155,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1963,7 +2171,23 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3636",
+    "name": "Validate CodeBuild projects using S3 also have Location",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3636",
+    "tags": ["resources","codebuild"],
+    "description": "This issue is raised by the rule [E3636] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using 'S3' for 'Type' then you must also specify 'Location'",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1979,7 +2203,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -1995,7 +2219,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2011,7 +2235,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2027,7 +2251,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2043,7 +2267,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2059,7 +2283,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2075,7 +2299,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2091,7 +2315,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2107,7 +2331,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2123,7 +2347,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2139,7 +2363,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2155,7 +2379,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2171,7 +2395,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2187,7 +2411,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2203,7 +2427,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2219,7 +2443,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2235,7 +2459,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2251,7 +2475,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2267,7 +2491,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2283,7 +2507,23 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3681",
+    "name": "Validate target group target type property restrictions",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3681",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [E3681] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When a TargetGroup target type is lambda or not there are different restrictions on properties.",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2299,7 +2539,39 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3683",
+    "name": "Validate target group protocol property restrictions",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3683",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [E3683] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When a TargetGroup protocol is HTTP/HTTPS or GENEVE there are different restrictions on properties.",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3684",
+    "name": "Validate target group health check protocol property restrictions",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3684",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [E3684] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When a TargetGroup health check protocol is specified there are restrictions on other properties.",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2315,7 +2587,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2331,7 +2603,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2347,7 +2619,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2363,7 +2635,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2379,7 +2651,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2395,7 +2667,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2411,7 +2683,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2427,7 +2699,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2443,7 +2715,87 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3695",
+    "name": "Validate Elasticache Cluster Engine and Engine Version",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3695",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [E3695] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the Elasticache cluster engine along with the engine version",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3700",
+    "name": "Validate CodePipeline Source actions are only in the first stage",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3700",
+    "tags": ["resources","codepipeline"],
+    "description": "This issue is raised by the rule [E3700] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using AWS::CodePipeline::Pipeline this rule will validate that Source actions are only used in the first stage",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3701",
+    "name": "Validate input and output artifact names are used properly",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3701",
+    "tags": ["resources","codepipeline"],
+    "description": "This issue is raised by the rule [E3701] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using AWS::CodePipeline::Pipeline InputArtifacts names have to be previously used OutputArtifact names. Additionally, the OutputArtifacts names have to be unique",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3702",
+    "name": "Validate the number of input and output artifacts in a CodePipeline",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3702",
+    "tags": ["resources","codepipeline"],
+    "description": "This issue is raised by the rule [E3702] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using AWS::CodePipeline::Pipeline action types have different contraints for InputArtifacts and OutputArtifacts",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "E3703",
+    "name": "Validate the configuration of a pipeline action",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E3703",
+    "tags": ["resources","codepipeline"],
+    "description": "This issue is raised by the rule [E3703] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When definition a CodePipeline certain action types have configuration constraints so this rule validates them",
+    "constantDebtMinutes": 5,
+    "type": "BUG",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "LOGICAL",
+      "impacts": {
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2459,7 +2811,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2475,7 +2827,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2491,7 +2843,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2507,7 +2859,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2523,7 +2875,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2539,7 +2891,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2555,7 +2907,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2571,7 +2923,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2587,7 +2939,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2603,7 +2955,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2619,7 +2971,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2635,7 +2987,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2651,7 +3003,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2667,7 +3019,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2683,7 +3035,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2699,7 +3051,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2715,7 +3067,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2731,7 +3083,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2747,7 +3099,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2763,7 +3115,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2779,7 +3131,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2787,7 +3139,7 @@
     "key": "E8007",
     "name": "Check Condition structure for validity",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#E8007",
-    "tags": ["functions","and"],
+    "tags": ["functions","condition"],
     "description": "This issue is raised by the rule [E8007] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check Condition has a value of another condition",
     "constantDebtMinutes": 5,
     "type": "BUG",
@@ -2795,7 +3147,7 @@
     "code": {
       "attribute": "LOGICAL",
       "impacts": {
-          "RELIABILITY": "MEDIUM"
+        "RELIABILITY": "MEDIUM"
       }
     }
   },
@@ -2811,7 +3163,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2827,7 +3179,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2843,7 +3195,23 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
+      }
+    }
+  },
+  {
+    "key": "I2003",
+    "name": "Validate AllowedPattern is a valid regexs",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#I2003",
+    "tags": ["parameters","allowed-pattern"],
+    "description": "This issue is raised by the rule [I2003] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the pattern defined in a AllowedPattern. This is informational as the service side regex library is different than the Python one",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "INFO",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2859,7 +3227,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2875,7 +3243,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2891,7 +3259,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2907,7 +3275,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2923,7 +3291,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2939,7 +3307,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2955,7 +3323,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2971,7 +3339,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -2987,7 +3355,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -3003,7 +3371,23 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
+      }
+    }
+  },
+  {
+    "key": "I3510",
+    "name": "Validate statement resources match the actions",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#I3510",
+    "tags": ["resources","iam"],
+    "description": "This issue is raised by the rule [I3510] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: IAM policy statements have different constraints between actions and resources. This rule validates that resource ARNs or asterisks match the actions.",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "INFO",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -3019,7 +3403,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -3035,7 +3419,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -3051,7 +3435,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -3067,7 +3451,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "LOW"
+        "MAINTAINABILITY": "LOW"
       }
     }
   },
@@ -3083,7 +3467,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3099,7 +3483,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3115,7 +3499,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3131,7 +3515,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3147,7 +3531,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3163,7 +3547,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3179,7 +3563,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3195,7 +3579,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3211,7 +3595,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3227,7 +3611,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3243,7 +3627,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3259,7 +3643,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3275,7 +3659,39 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "W1051",
+    "name": "Validate dynamic references to secrets manager are not used when a secrets manager ARN was expected",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W1051",
+    "tags": ["functions","dynamic-reference"],
+    "description": "This issue is raised by the rule [W1051] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Certain properties expect a secret manager ARN. This rule validates if you may be accidently using a secret in place of the ARN",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "W1100",
+    "name": "Validate if the template is using YAML merge",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W1100",
+    "tags": ["yaml"],
+    "description": "This issue is raised by the rule [W1100] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: The CloudFormation service does not support YAML anchors, aliases, or merging. This rule validates if the merge capability is being used",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3291,7 +3707,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3307,7 +3723,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3323,7 +3739,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3339,7 +3755,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3355,7 +3771,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3371,7 +3787,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3387,7 +3803,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3403,7 +3819,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3419,7 +3835,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3435,7 +3851,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3451,7 +3867,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3467,7 +3883,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3483,7 +3899,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3499,7 +3915,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3515,23 +3931,23 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
   {
-    "key": "W3037*",
+    "key": "W3037",
     "name": "Check IAM Permission configuration",
-    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W3037*",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W3037",
     "tags": ["properties","iam","permissions"],
-    "description": "This issue is raised by the rule [W3037*] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check for valid IAM Permissions",
+    "description": "This issue is raised by the rule [W3037] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Check for valid IAM Permissions",
     "constantDebtMinutes": 5,
     "type": "CODE_SMELL",
     "severity": "MAJOR",
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3547,7 +3963,23 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "W3660",
+    "name": "Validate if multiple resources are modifying a Rest API definition",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W3660",
+    "tags": ["resources","apigateway"],
+    "description": "This issue is raised by the rule [W3660] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: When using AWS::ApiGateway::RestApi with 'Body' or 'BodyS3Location' the resource handler will use PutRestApi with mode overwrite. Depending on how resources are updated the IaC template will drift and create orphaned resources.",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3563,7 +3995,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3579,7 +4011,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3595,7 +4027,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3611,7 +4043,39 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "W3690",
+    "name": "Validate DB Cluster Engine Version is not deprecated",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W3690",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [W3690] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the DB Cluster engine version is not deprecated and can be used to create new instances",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "W3691",
+    "name": "Validate DB Instance Engine Version is not deprecated",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W3691",
+    "tags": ["resources"],
+    "description": "This issue is raised by the rule [W3691] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: Validate the DB Instance engine version is not deprecated and can be used to create new instances",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3627,7 +4091,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3643,7 +4107,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3659,7 +4123,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3675,7 +4139,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3691,7 +4155,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3707,7 +4171,7 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
@@ -3723,23 +4187,23 @@
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   },
   {
     "key": "cfn-lint.fallback",
-    "name": "Cfn-lint Rule",
+    "name": "cfn-lint Rule",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#",
     "tags": ["cfn-lint"],
-    "description": "This issue is raised by the rule [cfn-lint.fallback] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
+    "description": "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
     "constantDebtMinutes": 5,
     "type": "CODE_SMELL",
     "severity": "MAJOR",
     "code": {
       "attribute": "CONVENTIONAL",
       "impacts": {
-          "MAINTAINABILITY": "MEDIUM"
+        "MAINTAINABILITY": "MEDIUM"
       }
     }
   }

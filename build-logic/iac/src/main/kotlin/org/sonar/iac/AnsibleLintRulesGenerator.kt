@@ -48,27 +48,27 @@ object AnsibleLintRulesGenerator {
 
     // titles for rules where shortdesc/description is missing or contains unexpected characters or is too long
     private val ruleTitles = mapOf(
-        Pair("empty-string-compare", "Don't compare to empty string"),
-        Pair("ignore-errors", "Use failed_when and specify error conditions instead of using ignore_errors"),
-        Pair("jinja", "Rule that looks inside jinja2 templates"),
-        Pair("key-order", "Ensure specific order of keys in mappings"),
-        Pair("literal-compare", "Don't compare to literal True/False"),
-        Pair("loop-var-prefix", "Looping inside roles has the risk of clashing with loops from user-playbooks"),
-        Pair("meta-incorrect", "The meta/main.yml default values should be changed"),
-        Pair("meta-video-links", "The meta/main.yml video_links should be formatted correctly"),
-        Pair("no-changed-when", "Commands should not change things if nothing needs doing"),
-        Pair("no-jinja-when", """The \"when\" is a raw Jinja2 expression, remove redundant \"{{ }}\" from variable(s)"""),
-        Pair("no-same-owner", "Do not preserve the owner and group when transferring files across hosts"),
-        Pair("package-latest", "Package installs should not use latest"),
-        Pair("partial-become", """The \"become_user\" should have a corresponding \"become\" at the play or task level"""),
-        Pair("playbook-extension", """Playbooks should have the \".yml\" or \".yaml\" extension"""),
-        Pair("risky-file-permissions", "File permissions unset or incorrect"),
-        Pair("risky-shell-pipe", "Shells that use pipes should set the pipefail option"),
-        Pair("sanity", "Ignore entries in sanity ignore files must match an allow list"),
-        Pair("schema", "Perform JSON Schema Validation for known lintable kinds"),
-        Pair("syntax-check", "Ansible syntax check failed"),
-        Pair("var-naming", "All variables should be named using only lowercase and underscores"),
-        Pair("yaml", "Violations reported by yamllint")
+        "empty-string-compare" to "Don't compare to empty string",
+        "ignore-errors" to "Use failed_when and specify error conditions instead of using ignore_errors",
+        "jinja" to "Rule that looks inside jinja2 templates",
+        "key-order" to "Ensure specific order of keys in mappings",
+        "literal-compare" to "Don't compare to literal True/False",
+        "loop-var-prefix" to "Looping inside roles has the risk of clashing with loops from user-playbooks",
+        "meta-incorrect" to "The meta/main.yml default values should be changed",
+        "meta-video-links" to "The meta/main.yml video_links should be formatted correctly",
+        "no-changed-when" to "Commands should not change things if nothing needs doing",
+        "no-jinja-when" to """The \"when\" is a raw Jinja2 expression, remove redundant \"{{ }}\" from variable(s)""",
+        "no-same-owner" to "Do not preserve the owner and group when transferring files across hosts",
+        "package-latest" to "Package installs should not use latest",
+        "partial-become" to """The \"become_user\" should have a corresponding \"become\" at the play or task level""",
+        "playbook-extension" to """Playbooks should have the \".yml\" or \".yaml\" extension""",
+        "risky-file-permissions" to "File permissions unset or incorrect",
+        "risky-shell-pipe" to "Shells that use pipes should set the pipefail option",
+        "sanity" to "Ignore entries in sanity ignore files must match an allow list",
+        "schema" to "Perform JSON Schema Validation for known lintable kinds",
+        "syntax-check" to "Ansible syntax check failed",
+        "var-naming" to "All variables should be named using only lowercase and underscores",
+        "yaml" to "Violations reported by yamllint"
     )
 
     private val multipleRules = mapOf(
@@ -375,45 +375,37 @@ object AnsibleLintRulesGenerator {
 
     private fun extractAttributes(id: String): List<String> {
         val idNoBrackets = idNoBrackets(id)
-        return if (bugs.contains(id) || bugs.contains(idNoBrackets)) {
-            listOf("BUG", "LOGICAL", "RELIABILITY", "MEDIUM")
-        } else if (vulnerabilityHighTrustworthy.contains(id) || vulnerabilityHighTrustworthy.contains(idNoBrackets)) {
-            listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "HIGH")
-        } else if (securityHotspotMediumComplete.contains(id) || securityHotspotMediumComplete.contains(idNoBrackets)) {
-            listOf("SECURITY_HOTSPOT", "COMPLETE", "SECURITY", "MEDIUM")
-        } else if (securityHotspotMediumConventional.contains(id) || securityHotspotMediumConventional.contains(idNoBrackets)) {
-            listOf("SECURITY_HOTSPOT", "CONVENTIONAL", "SECURITY", "MEDIUM")
-        } else if (codeSmellsLowClear.contains(id) || codeSmellsLowClear.contains(idNoBrackets)) {
-            listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "LOW")
-        } else if (codeSmellsHighClear.contains(id) || codeSmellsHighClear.contains(idNoBrackets)) {
-            listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "HIGH")
-        } else if (codeSmellLowConventional.contains(id) || codeSmellLowConventional.contains(idNoBrackets)) {
-            listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "LOW")
-        } else if (codeSmellHighConventional.contains(id) || codeSmellHighConventional.contains(idNoBrackets)) {
-            listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "HIGH")
-        } else if (codeSmellsLowFormatted.contains(id) || codeSmellsLowFormatted.contains(idNoBrackets)) {
-            listOf("CODE_SMELL", "FORMATTED", "MAINTAINABILITY", "LOW")
-        } else if (codeSmellMediumLogical.contains(id) || codeSmellMediumLogical.contains(idNoBrackets)) {
-            listOf("CODE_SMELL", "LOGICAL", "MAINTAINABILITY", "MEDIUM")
-        } else if (codeSmellLowIdentifiable.contains(id) || codeSmellLowIdentifiable.contains(idNoBrackets)) {
-            listOf("CODE_SMELL", "IDENTIFIABLE", "MAINTAINABILITY", "LOW")
-        } else {
-            listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
+        return when {
+            bugs.contains(id) || bugs.contains(idNoBrackets) ->
+                listOf("BUG", "LOGICAL", "RELIABILITY", "MEDIUM")
+            vulnerabilityHighTrustworthy.contains(id) || vulnerabilityHighTrustworthy.contains(idNoBrackets) ->
+                listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "HIGH")
+            securityHotspotMediumComplete.contains(id) || securityHotspotMediumComplete.contains(idNoBrackets) ->
+                listOf("SECURITY_HOTSPOT", "COMPLETE", "SECURITY", "MEDIUM")
+            securityHotspotMediumConventional.contains(id) || securityHotspotMediumConventional.contains(idNoBrackets) ->
+                listOf("SECURITY_HOTSPOT", "CONVENTIONAL", "SECURITY", "MEDIUM")
+            codeSmellsLowClear.contains(id) || codeSmellsLowClear.contains(idNoBrackets) ->
+                listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "LOW")
+            codeSmellsHighClear.contains(id) || codeSmellsHighClear.contains(idNoBrackets) ->
+                listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "HIGH")
+            codeSmellLowConventional.contains(id) || codeSmellLowConventional.contains(idNoBrackets) ->
+                listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "LOW")
+            codeSmellHighConventional.contains(id) || codeSmellHighConventional.contains(idNoBrackets) ->
+                listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "HIGH")
+            codeSmellsLowFormatted.contains(id) || codeSmellsLowFormatted.contains(idNoBrackets) ->
+                listOf("CODE_SMELL", "FORMATTED", "MAINTAINABILITY", "LOW")
+            codeSmellMediumLogical.contains(id) || codeSmellMediumLogical.contains(idNoBrackets) ->
+                listOf("CODE_SMELL", "LOGICAL", "MAINTAINABILITY", "MEDIUM")
+            codeSmellLowIdentifiable.contains(id) || codeSmellLowIdentifiable.contains(idNoBrackets) ->
+                listOf("CODE_SMELL", "IDENTIFIABLE", "MAINTAINABILITY", "LOW")
+            else -> listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
         }
     }
 
-    private val fallbackRule = Rule(
-        id = "ansible-lint.fallback",
-        title = "Ansible Lint Rule",
-        url = RULE_URL_DEFAULT,
-        description = "This reporting may be triggered by a custom ansible-lint rule or by a default ansible-lint rule " +
-            "that has not yet been added to the Sonar IaC analyzer",
-        tags = listOf("ansible-lint"),
-        type = "CODE_SMELL",
-        severity = "MAJOR",
-        attribute = "CONVENTIONAL",
-        softwareQuality = "MAINTAINABILITY",
-        qualityImpact = "MEDIUM"
+    private val fallbackRule = createFallbackRule(
+        toolId = "ansible-lint",
+        toolName = "Ansible Lint",
+        docUrl = RULE_URL_DEFAULT
     )
 
     private fun standardRules(): List<Rule> {

@@ -14,10 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import de.undercouch.gradle.tasks.download.Download
+import org.sonar.iac.GENERATE_EXTERNAL_RULES_TASK_NAME
+import org.sonar.iac.GenerateHadolintRulesTask
+
 plugins {
     id("org.sonarsource.cloud-native.code-style-conventions")
     id("org.sonarsource.cloud-native.java-conventions")
     id("java-test-fixtures")
+    alias(libs.plugins.download)
 }
 
 description = "SonarSource IaC Analyzer :: Extensions :: Docker"
@@ -34,4 +39,27 @@ dependencies {
     testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
     testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+val downloadHadolintReadme by tasks.registering(Download::class) {
+    group = "build"
+    description = "Download Hadolint README from GitHub"
+
+    src("https://raw.githubusercontent.com/hadolint/hadolint/master/README.md")
+    dest(layout.buildDirectory.file("hadolint-readme.md"))
+}
+
+val generateHadolintRules by tasks.registering(GenerateHadolintRulesTask::class) {
+    group = "build"
+    description = "Generate Hadolint rules from GitHub README"
+    dependsOn(downloadHadolintReadme)
+
+    readmeFile.set(downloadHadolintReadme.get().dest)
+    rulesFile.set(file("src/main/resources/org/sonar/l10n/docker/rules/hadolint/rules.json"))
+}
+
+tasks.register(GENERATE_EXTERNAL_RULES_TASK_NAME) {
+    group = "build"
+    description = "Generate external linter rules for Docker"
+    dependsOn(generateHadolintRules)
 }
