@@ -3,7 +3,7 @@ module github.com/SonarSource/sonar-iac/sonar-helm-for-iac
 go 1.25.1
 
 require (
-	github.com/BurntSushi/toml v1.5.0
+	github.com/BurntSushi/toml v1.6.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/gobwas/glob v0.2.3
 	github.com/samber/mo v1.16.0
