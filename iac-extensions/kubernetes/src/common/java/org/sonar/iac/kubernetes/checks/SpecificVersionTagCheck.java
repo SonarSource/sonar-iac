@@ -75,8 +75,12 @@ public class SpecificVersionTagCheck extends AbstractKubernetesObjectCheck {
     if (!tagInfo.shouldProcess) {
       return false;
     }
+    return isSensitiveVersionTag(tagInfo.tag);
+  }
+
+  public static boolean isSensitiveVersionTag(@Nullable String tag) {
     // Flag if explicit "latest" or no tag specified (implicit latest)
-    return tagInfo.tag == null || "latest".equals(tagInfo.tag);
+    return tag == null || "latest".equals(tag);
   }
 
   @Nullable
