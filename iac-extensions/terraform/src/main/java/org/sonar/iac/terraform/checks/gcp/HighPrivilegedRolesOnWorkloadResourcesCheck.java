@@ -45,7 +45,10 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewReso
   @Override
   public void initialize(InitContext init) {
     super.initialize(init);
-    init.register(FileTree.class, (ctx, tree) -> collector.scan(new TreeContext(), tree));
+    init.register(FileTree.class, (ctx, tree) -> {
+      collector.reset();
+      collector.scan(new TreeContext(), tree);
+    });
   }
 
   @Override

@@ -46,4 +46,14 @@ class HighPrivilegedRolesOnWorkloadResourcesCheckTest {
     TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/iam_policy.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
   }
 
+  /**
+   * If there is any state being kept in the check, analysis on the second file will try to create two secondary locations.
+   */
+  @Test
+  void shouldNotPolluteState() {
+    var check = new HighPrivilegedRolesOnWorkloadResourcesCheck();
+    TerraformVerifier.verifyNoIssue("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/cross_file_pollution_file1.tf", check);
+    TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/cross_file_pollution_file2.tf", check);
+  }
+
 }

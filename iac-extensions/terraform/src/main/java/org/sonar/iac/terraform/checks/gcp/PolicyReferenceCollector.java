@@ -17,10 +17,10 @@
 package org.sonar.iac.terraform.checks.gcp;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -33,6 +33,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.ATTRIBUTE_ACCESS;
 import static org.sonar.iac.terraform.checks.AbstractNewResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractNewResourceCheck.resourceType;
@@ -51,6 +52,10 @@ class PolicyReferenceCollector extends TreeVisitor<TreeContext> {
     });
   }
 
+  public void reset() {
+    policyReferences.clear();
+  }
+
   private void collectReference(BlockTree tree) {
     PropertyUtils.get(tree, "policy_data", AttributeTree.class)
       .filter(policyData -> policyData.value().is(ATTRIBUTE_ACCESS))
@@ -61,22 +66,21 @@ class PolicyReferenceCollector extends TreeVisitor<TreeContext> {
   }
 
   private List<AttributeTree> getReferrersList(String policyDataName) {
-    List<AttributeTree> res = policyReferences.get(String.format("data.google_iam_policy.%s.policy_data", policyDataName));
-    return res == null ? Collections.emptyList() : res;
+    return policyReferences.getOrDefault("data.google_iam_policy.%s.policy_data".formatted(policyDataName), emptyList());
   }
 
-  public void checkPolicy(ResourceSymbol data, Predicate<ExpressionTree> isSensitiveRole, String primaryMsg, String secondaryMsg) {
-    List<AttributeTree> referrers = getReferrersList(data.name);
-    if (referrers.isEmpty()) {
-      return;
-    }
+  public void checkPolicy(ResourceSymbol data, Predicate<ExpressionTree> isSensitiveRole, String primaryMessage, String secondaryMsg) {
+    Optional.ofNullable(data.name)
+      .map(this::getReferrersList)
+      .filter(referrers -> !referrers.isEmpty())
+      .ifPresent(referrers -> {
+        var secondaryLocations = referrers.stream()
+          .map(referrer -> new SecondaryLocation(referrer, secondaryMsg))
+          .toArray(SecondaryLocation[]::new);
 
-    SecondaryLocation[] secondary = referrers.stream()
-      .map(referrer -> new SecondaryLocation(referrer, secondaryMsg))
-      .toArray(SecondaryLocation[]::new);
-
-    data.blocks("binding").forEach(
-      binding -> binding.attribute("role")
-        .reportIf(isSensitiveRole, primaryMsg, secondary));
+        data.blocks("binding").forEach(
+          binding -> binding.attribute("role")
+            .reportIf(isSensitiveRole, primaryMessage, secondaryLocations));
+      });
   }
 }
