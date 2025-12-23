@@ -19,10 +19,10 @@ import org.sonarsource.cloudnative.gradle.GO_BINARY_OUTPUT_DIR
 import org.sonarsource.cloudnative.gradle.GO_LICENSES_OUTPUT_DIR
 import org.sonarsource.cloudnative.gradle.GoBuild
 import org.sonarsource.cloudnative.gradle.allGoSourcesAndMakeScripts
+import org.sonarsource.cloudnative.gradle.crossCompileEnv
 import org.sonarsource.cloudnative.gradle.goLangCiLintVersion
 import org.sonarsource.cloudnative.gradle.goVersion
 import org.sonarsource.cloudnative.gradle.isCi
-import org.sonarsource.cloudnative.gradle.isCrossCompile
 
 val goBuildExtension = extensions.findByType<GoBuild>() ?: extensions.create<GoBuild>("goBuild")
 
@@ -94,7 +94,7 @@ val dockerTasks = goBuildExtension.dockerCommands.map { tasksToCommands ->
             errorOutput = System.out
 
             inputs.files(allGoSourcesAndMakeScripts())
-            inputs.property("goCrossCompile", isCrossCompile)
+            inputs.property("goCrossCompile", crossCompileEnv)
             outputs.files(goBuildExtension.additionalOutputFiles)
             outputs.dir(GO_BINARY_OUTPUT_DIR)
             outputs.dir(GO_LICENSES_OUTPUT_DIR)

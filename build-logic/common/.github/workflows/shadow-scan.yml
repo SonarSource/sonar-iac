@@ -1,23 +1,22 @@
-name: Build
+name: Shadow scans
 on:
-  push:
-    branches:
-      - master
-      - branch-*
   pull_request:
-  workflow_dispatch:
+  schedule:
+    # Run the workflow every day at 01:00 UTC
+    - cron: "0 1 * * *"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: read
+  statuses: read
+  checks: read
 
 jobs:
   build:
-    name: Build
     runs-on: github-ubuntu-latest-s
-    permissions:
-      id-token: write
-      contents: write
+    name: Build
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'shadow_scan')
     steps:
       - uses: actions/checkout@v5
         with:
@@ -25,13 +24,6 @@ jobs:
       - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
         with:
           version: 2025.7.12
-
-      - name: get secrets
-        id: secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/kv/data/develocity token | DEVELOCITY_TOKEN;
 
       - name: Create Gradle User Home
         shell: bash
@@ -52,10 +44,21 @@ jobs:
           key: gradle-${{ env.GRADLE_CACHE_KEY }}
 
       - uses: SonarSource/ci-github-actions/build-gradle@v1
-        env:
-          DEVELOCITY_ACCESS_KEY: develocity-public.sonar.build=${{ fromJSON(steps.secrets.outputs.vault).DEVELOCITY_TOKEN }}
         with:
           deploy: false
-          use-develocity: true
+          use-develocity: false
           artifactory-reader-role: private-reader
+          run-shadow-scans: 'true'
+          # Disable develocity for shadow scans
+          gradle-args: --no-scan
           disable-caching: 'true'
+
+      - name: Run IRIS Analysis
+        uses: SonarSource/unified-dogfooding-actions/run-iris@v1
+        with:
+          primary_project_key: "SonarSource_cloud-native-gradle-modules"
+          primary_platform: "Next"
+          shadow1_project_key: "SonarSource_cloud-native-gradle-modules"
+          shadow1_platform: "SQC-EU"
+          shadow2_project_key: "SonarSource_cloud-native-gradle-modules"
+          shadow2_platform: "SQC-US"

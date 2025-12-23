@@ -20,13 +20,13 @@ import org.sonarsource.cloudnative.gradle.GO_LICENSES_OUTPUT_DIR
 import org.sonarsource.cloudnative.gradle.GoBuild
 import org.sonarsource.cloudnative.gradle.allGoSourcesAndMakeScripts
 import org.sonarsource.cloudnative.gradle.callMake
+import org.sonarsource.cloudnative.gradle.crossCompileEnv
 import org.sonarsource.cloudnative.gradle.getArchitecture
 import org.sonarsource.cloudnative.gradle.getPlatform
 import org.sonarsource.cloudnative.gradle.goLangCiLintVersion
 import org.sonarsource.cloudnative.gradle.goSources
 import org.sonarsource.cloudnative.gradle.goVersion
 import org.sonarsource.cloudnative.gradle.isCi
-import org.sonarsource.cloudnative.gradle.isCrossCompile
 
 plugins {
     id("org.sonarsource.cloud-native.go-docker-environment")
@@ -61,7 +61,12 @@ if (isCi()) {
         description = "Compile the go code for the local system."
         group = "build"
 
-        inputs.property("GO_CROSS_COMPILE", isCrossCompile)
+        inputs.property("GO_CROSS_COMPILE", crossCompileEnv)
+        if (crossCompileEnv.get() == "0") {
+            // Additional inputs only when not cross-compiling to reuse cached results only from the relevant platform
+            inputs.property("platform", getPlatform())
+            inputs.property("architecture", getArchitecture())
+        }
         inputs.files(allGoSourcesAndMakeScripts())
 
         outputs.dir(GO_BINARY_OUTPUT_DIR)
@@ -69,7 +74,7 @@ if (isCi()) {
         outputs.files(goBuildExtension.additionalOutputFiles)
         outputs.cacheIf { true }
 
-        environment("GO_CROSS_COMPILE", isCrossCompile.get())
+        environment("GO_CROSS_COMPILE", crossCompileEnv.get())
         callMake("build")
     }
     goBinariesJar.configure { dependsOn(compileGo) }
