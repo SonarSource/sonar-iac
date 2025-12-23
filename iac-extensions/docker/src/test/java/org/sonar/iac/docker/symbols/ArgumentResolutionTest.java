@@ -28,7 +28,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -37,9 +36,7 @@ import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
-import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.tree.api.VolumeInstruction;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
@@ -173,63 +170,6 @@ class ArgumentResolutionTest {
     ArgumentResolution resolution = ArgumentResolution.of(label);
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(UNRESOLVED);
-  }
-
-  @ParameterizedTest
-  @MethodSource
-  void shouldCorrectlyHandleQuotes(String shellForm, String expectedSecondArgument) {
-    File file = parseFileAndAnalyzeSymbols("""
-      FROM scratch
-      ARG FOO="foo"
-      VOLUME %s
-      """.formatted(shellForm));
-
-    List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, VolumeInstruction.class).get());
-    ArgumentResolution stringArgument = argumentResolutions.get(1);
-
-    assertThat(stringArgument.value()).isEqualTo(expectedSecondArgument);
-  }
-
-  static Stream<Arguments> shouldCorrectlyHandleQuotes() {
-    return Stream.of(
-      // argument of `echo` is StringLiteral
-      "echo foo#foo",
-      "echo \"foo\"#\"foo\"",
-      "echo 'foo'#'foo'",
-      "echo '\"foo\"'#'\"foo\"'",
-      "echo \"\"foo\"\"#\"\"foo\"\"",
-      "echo \"'foo'\"#\"'foo'\"",
-      // argument of `echo` is ExpandableStringLiteral
-      "echo $FOO#foo",
-      "echo \"$FOO\"#\"foo\"",
-      // single-quoted variables are not substituted by Docker, so we shouldn't resolve them
-      "echo '$FOO'#'$FOO'",
-      "echo \"\"$FOO\"\"#\"\"foo\"\"",
-      "echo ${FOO}#foo",
-      "echo \"${FOO}\"#\"foo\"",
-      "echo '${FOO}'#'${FOO}'",
-      "echo \"\"${FOO}\"\"#\"\"foo\"\"",
-      // in ExecForm all arguments in an array are ExpandableStringLiterals
-      "[\"echo\", \"$FOO\"]#foo",
-      "[\"echo\", \"'$FOO'\"]#'foo'",
-      "[\"echo\", \"${FOO}\"]#foo",
-      "[\"echo\", \"'${FOO}'\"]#'foo'",
-      // in ExecForm quotes have to be escaped and we are not un-escaping them
-      "[\"echo\", \"\\\"$FOO\\\"\"]#\\\"foo\\\"",
-      "[\"echo\", \"\\\"${FOO}\\\"\"]#\\\"foo\\\"")
-      .map(s -> s.split("#"))
-      .map(Arguments::of);
-  }
-
-  @Test
-  void shouldPreserveQuotesInArguments() {
-    File file = parseFileAndAnalyzeSymbols("FROM scratch\nRUN [\"echo\", \"\\\"date; $APP_ROOT_PATH/bin/magento\\\"\"]");
-
-    List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(TreeUtils.firstDescendant(file, RunInstruction.class).get());
-    ArgumentResolution stringArgument = argumentResolutions.get(1);
-    assertThat(stringArgument.value())
-      .matches(s -> s.startsWith("\"") || s.startsWith("\\\""))
-      .matches(s -> s.endsWith("\"") || s.endsWith("\\\""));
   }
 
   static Stream<Arguments> shouldHandleInterpolatedVariable() {

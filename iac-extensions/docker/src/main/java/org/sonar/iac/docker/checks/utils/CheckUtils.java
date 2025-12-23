@@ -17,46 +17,19 @@
 package org.sonar.iac.docker.checks.utils;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CodeInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.tree.api.HasArguments;
-import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
-import org.sonar.iac.docker.tree.api.Variable;
 
 public final class CheckUtils {
-  private static final ResolvedCommandPartParser RESOLVED_COMMAND_PART_PARSER = ResolvedCommandPartParser.create();
-
   private CheckUtils() {
     // utils class
-  }
-
-  public static List<ArgumentResolution> resolveInstructionArguments(HasArguments instructionWithArguments) {
-    return instructionWithArguments.arguments().stream()
-      .map(ArgumentResolution::ofWithoutStrippingQuotes)
-      .flatMap(CheckUtils::resolvePartsAfterInitialResolution)
-      .toList();
-  }
-
-  public static List<ArgumentResolution> resolveInstructionArguments(CodeInstruction codeInstruction) {
-    if (codeInstruction.code() instanceof ArgumentList argumentList) {
-      return argumentList.arguments().stream()
-        .map(ArgumentResolution::ofWithoutStrippingQuotes)
-        .flatMap(CheckUtils::resolvePartsAfterInitialResolution)
-        .toList();
-    }
-    return List.of();
   }
 
   public static Optional<ArgumentList> codeToArgumentList(CodeInstruction codeInstruction) {
@@ -85,18 +58,5 @@ public final class CheckUtils {
 
   public static boolean isScratchImage(String imageName) {
     return "scratch".equals(imageName);
-  }
-
-  private static Stream<ArgumentResolution> resolvePartsAfterInitialResolution(ArgumentResolution argument) {
-    var expressions = argument.argument().expressions();
-    if (argument.isResolved() && !argument.value().isBlank() && expressions.stream().anyMatch(Variable.class::isInstance)) {
-      // If the argument represents a resolved variable, it may in fact be a part of the command and not just a single value.
-      var shellForm = (ShellForm) RESOLVED_COMMAND_PART_PARSER.parseWithTextRange(
-        TextRanges.merge(argument.argument().expressions().stream().map(DockerTree::textRange).filter(Objects::nonNull).toList()),
-        " " + argument.value());
-      return shellForm.arguments().stream().map(ArgumentResolution::ofWithoutStrippingQuotes);
-    } else {
-      return Stream.of(argument);
-    }
   }
 }
