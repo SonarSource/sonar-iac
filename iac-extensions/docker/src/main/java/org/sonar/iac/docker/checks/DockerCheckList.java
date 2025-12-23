@@ -49,7 +49,6 @@ public final class DockerCheckList {
       PreferCopyOverAddCheck.class,
       PrivilegedUserCheck.class,
       ToDoCommentCheck.class,
-      SecretsGenerationCheck.class,
       SecretsHandlingCheck.class,
       ShellFormOverExecFormCheck.class,
       SpaceBeforeEqualInKeyValuePairCheck.class,
