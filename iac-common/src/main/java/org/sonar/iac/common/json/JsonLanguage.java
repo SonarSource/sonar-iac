@@ -32,6 +32,8 @@ public class JsonLanguage extends ConfigurationLanguage {
   public static final String FILE_SUFFIXES_KEY = "sonar.json.file.suffixes";
   public static final String DEFAULT_FILE_SUFFIXES = ".json";
   public static final String ACTIVATION_KEY = "sonar.json.activate";
+  public static final String EXCLUSIONS_KEY = "sonar.json.exclusions";
+  public static final String DEFAULT_EXCLUSIONS = "**/package-lock.json,**/packages.lock.json,**/deno.lock.json";
 
   public JsonLanguage(Configuration configuration) {
     super(KEY, NAME, configuration, FILE_SUFFIXES_KEY, DEFAULT_FILE_SUFFIXES);
