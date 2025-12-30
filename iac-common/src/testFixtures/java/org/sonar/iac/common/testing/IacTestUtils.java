@@ -27,12 +27,15 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -117,6 +120,12 @@ public final class IacTestUtils {
     when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.language()).thenReturn(languageKey);
+
+    // It is needed in some tests that calls inputFileContext.reportParseError(...)
+    var newAnalysisError = mock(NewAnalysisError.class);
+    when(newAnalysisError.message(any())).thenReturn(newAnalysisError);
+    when(inputFileContext.sensorContext.newAnalysisError()).thenReturn(newAnalysisError);
+    when(inputFileContext.sensorContext.activeRules()).thenReturn(mock(ActiveRules.class));
     return inputFileContext;
   }
 }
