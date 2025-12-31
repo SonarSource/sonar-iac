@@ -17,7 +17,6 @@
 package org.sonar.iac.terraform.parser.utils;
 
 import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
@@ -32,14 +31,9 @@ import org.sonar.iac.terraform.tree.impl.TerraformTreeImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
-import org.sonar.sslr.tests.RuleAssert;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
 public class Assertions {
-
-  public static RuleAssert assertThat(Rule actual) {
-    return new RuleAssert(actual);
-  }
 
   public static ParserAssert assertThat(GrammarRuleKey rule) {
     return assertThat(HclLexicalGrammar.createGrammarBuilder(), rule);

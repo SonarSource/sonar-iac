@@ -16,7 +16,6 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.fest.assertions.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -246,9 +245,9 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     assertThat(tree.decorators()).hasSize(1);
     Decorator decorator = tree.decorators().get(0);
-    Assertions.assertThat(decorator.is(ArmTree.Kind.DECORATOR)).isTrue();
-    Assertions.assertThat(decorator.expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
-    Assertions.assertThat(decorator.children()).hasSize(2);
+    assertThat(decorator.is(ArmTree.Kind.DECORATOR)).isTrue();
+    assertThat(decorator.expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
+    assertThat(decorator.children()).hasSize(2);
   }
 
   @Test

@@ -22,7 +22,7 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.common.api.tree.Comment;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
 class CommentTest extends BicepTreeModelTest {

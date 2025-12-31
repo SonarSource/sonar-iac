@@ -17,19 +17,16 @@
 package org.sonar.iac.docker.parser.utils;
 
 import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
 import javax.annotation.Nullable;
-import org.fest.assertions.GenericAssert;
+import org.assertj.core.api.ObjectAssert;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.docker.parser.DockerParser;
-import org.sonar.iac.docker.parser.grammar.DockerKeyword;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.impl.AbstractDockerTreeImpl;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
-import org.sonar.sslr.tests.RuleAssert;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
 /**
@@ -38,28 +35,14 @@ import org.sonarsource.analyzer.commons.TokenLocation;
  */
 public class Assertions {
 
-  public static RuleAssert assertThat(Rule actual) {
-    return new RuleAssert(actual);
-  }
-
   public static ParserAssert assertThat(DockerLexicalGrammar rule) {
     return new ParserAssert(DockerParser.create(rule));
   }
 
-  /**
-   * In most cases you need {@link #assertThat(DockerLexicalGrammar)} method.
-   * <p>
-   * This one is added to avoid mistakes like passing {@link DockerKeyword} and expected {@link DockerTree}
-   * instead of {@link org.sonar.iac.docker.tree.api.SyntaxToken}.
-   */
-  public static ParserAssert assertKeyword(DockerKeyword rule) {
-    return new ParserAssert(DockerParser.create(rule));
-  }
-
-  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<DockerTree>> {
+  public static class ParserAssert extends ObjectAssert<ActionParser<DockerTree>> {
 
     public ParserAssert(ActionParser<DockerTree> actual) {
-      super(ParserAssert.class, actual);
+      super(actual);
     }
 
     private void parseTillEof(String input) {

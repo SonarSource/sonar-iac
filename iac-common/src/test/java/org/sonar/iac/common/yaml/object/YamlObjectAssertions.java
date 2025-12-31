@@ -17,7 +17,7 @@
 package org.sonar.iac.common.yaml.object;
 
 import org.assertj.core.api.Assertions;
-import org.fest.assertions.GenericAssert;
+import org.assertj.core.api.ObjectAssert;
 
 public class YamlObjectAssertions {
 
@@ -25,10 +25,10 @@ public class YamlObjectAssertions {
     return new YamlObjectAssert(yamlObject);
   }
 
-  public static class YamlObjectAssert extends GenericAssert<YamlObjectAssert, YamlObject> {
+  public static class YamlObjectAssert extends ObjectAssert<YamlObject> {
 
     public YamlObjectAssert(YamlObject actual) {
-      super(YamlObjectAssert.class, actual);
+      super(actual);
     }
 
     public YamlObjectAssert isPresent() {

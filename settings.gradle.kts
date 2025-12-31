@@ -44,3 +44,18 @@ var extraSettings = File(rootDir, "private/extraSettings.gradle.kts")
 if (extraSettings.exists()) {
     apply(extraSettings)
 }
+
+dependencyResolutionManagement {
+    components {
+        withModule("org.sonarsource.sslr:sslr-testing-harness") {
+            allVariants {
+                withDependencies {
+                    removeAll {
+                        // Exclude transitive dependency on an old assertions framework (superseded by AssertJ)
+                        it.group == "org.easytesting"
+                    }
+                }
+            }
+        }
+    }
+}

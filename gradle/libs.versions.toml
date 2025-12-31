@@ -27,7 +27,6 @@ yguard = "4.1.1"
 awaitility = "4.3.0"
 slf4j = "2.0.17"
 logback = "1.5.23"
-fest = "1.4"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
@@ -66,7 +65,6 @@ yguard = { module = "com.yworks:yguard", version.ref = "yguard"}
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility"}
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-fest-assertions = { module = "org.easytesting:fest-assert", version.ref = "fest" }
 
 [plugins]
 google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf-gradle" }

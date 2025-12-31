@@ -26,7 +26,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
 class ArrayExpressionImplTest extends BicepTreeModelTest {

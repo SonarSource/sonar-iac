@@ -19,16 +19,16 @@ package org.sonar.iac.arm.parser.utils;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import javax.annotation.Nullable;
-import org.fest.assertions.GenericAssert;
+import org.assertj.core.api.ObjectAssert;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
-public class ParserAssert extends GenericAssert<ParserAssert, ActionParser<ArmTree>> {
+public class ParserAssert extends ObjectAssert<ActionParser<ArmTree>> {
 
   public ParserAssert(ActionParser<ArmTree> actual) {
-    super(ParserAssert.class, actual);
+    super(actual);
   }
 
   private void parseTillEof(String input) {

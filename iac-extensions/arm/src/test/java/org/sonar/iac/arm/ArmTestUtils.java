@@ -17,7 +17,6 @@
 package org.sonar.iac.arm;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,7 +34,6 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public class ArmTestUtils {
 
@@ -55,11 +53,12 @@ public class ArmTestUtils {
   }
 
   public static ResourceDeclaration parseResource(String code) {
-    String wrappedCode = code("{",
-      "  \"resources\": [",
-      code,
-      "  ]",
-      "}");
+    String wrappedCode = """
+      {
+        "resources": [
+          %s
+        ]
+      }""".formatted(code);
     File file = (File) PARSER.parse(wrappedCode, null);
     return (ResourceDeclaration) file.statements().get(0);
   }
@@ -74,33 +73,35 @@ public class ArmTestUtils {
   }
 
   public static Property parseProperty(String propertyCode) {
-    String wrappedPropertyCode = code("{",
-      "    \"name\": \"dummy resource\",",
-      "    \"type\": \"resource type\",",
-      "    \"apiVersion\": \"version\",",
-      "    \"properties\": {",
-      propertyCode,
-      "    }",
-      "}");
+    String wrappedPropertyCode = """
+      {
+          "name": "dummy resource",
+          "type": "resource type",
+          "apiVersion": "version",
+          "properties": {
+            %s
+          }
+      }""".formatted(propertyCode);
     ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
     return resourceDeclaration.properties().get(0);
   }
 
   public static ObjectExpression parseObject(String objectCode) {
-    String wrappedPropertyCode = code("{",
-      "    \"name\": \"dummy resource\",",
-      "    \"type\": \"resource type\",",
-      "    \"apiVersion\": \"version\",",
-      "    \"properties\": {",
-      "      \"object\": " + objectCode,
-      "    }",
-      "}");
+    String wrappedPropertyCode = """
+      {
+          "name": "dummy resource",
+          "type": "resource type",
+          "apiVersion": "version",
+          "properties": {
+            "object": %s
+          }
+      }""".formatted(objectCode);
     ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
     return (ObjectExpression) resourceDeclaration.properties().get(0).value();
   }
 
   public static List<String> recursiveTransformationOfTreeChildrenToStrings(Tree tree) {
-    return recursiveTransformationOfTreeChildrenToStrings(tree, 10).collect(Collectors.toList());
+    return recursiveTransformationOfTreeChildrenToStrings(tree, 10).toList();
   }
 
   public static Stream<String> recursiveTransformationOfTreeChildrenToStrings(Tree tree, int maxDepth) {
