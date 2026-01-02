@@ -1,6 +1,6 @@
 /*
  * SonarQube IaC Plugin
- * Copyright (C) 2021-2025 SonarSource Sàrl
+ * Copyright (C) 2021-2026 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,13 @@ package org.sonar.iac.common.parser.grammar;
 import org.junit.jupiter.api.Test;
 import org.sonar.sslr.internal.vm.Machine;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class CaseInsensitiveStringExpressionTest {
 
