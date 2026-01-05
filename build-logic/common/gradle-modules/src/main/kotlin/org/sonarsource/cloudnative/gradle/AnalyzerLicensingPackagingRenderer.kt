@@ -1,6 +1,6 @@
 /*
  * SonarSource Cloud Native Gradle Modules
- * Copyright (C) 2024-2025 SonarSource Sàrl
+ * Copyright (C) 2024-2026 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
