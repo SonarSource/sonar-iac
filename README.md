@@ -51,12 +51,12 @@ which get loaded by the main plugin class and are structured similarly to other 
 ### Setup
 To configure build dependencies, run the following command:
 
-```bash
+```shell
 git submodule update --init -- build-logic/common
 ```
 To always get the latest version of the build logic during git operations, set the following configuration:
 
-```
+```shell
 git config submodule.recurse true
 ```
 For more information see [README.md](https://github.com/SonarSource/cloud-native-gradle-modules/blob/master/README.md) of cloud-native-gradle-modules.
