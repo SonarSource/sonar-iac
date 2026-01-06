@@ -522,7 +522,9 @@ public class BicepGrammar {
       f.objectType(
         b.token(Punctuator.LCURLYBRACE),
         b.zeroOrMore(
-          OBJECT_TYPE_PROPERTY()),
+          f.tuple(
+            OBJECT_TYPE_PROPERTY(),
+            b.optional(b.token(Punctuator.COMMA)))),
         b.token(Punctuator.RCURLYBRACE)));
   }
 

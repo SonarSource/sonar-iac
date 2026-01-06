@@ -22,29 +22,30 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ObjectTypeImpl extends AbstractArmTreeImpl implements ObjectType {
   private final SyntaxToken openingCurlyBracket;
-  private final List<ArmTree> properties;
+  private final SeparatedList<ArmTree, SyntaxToken> objectTypePropertiesWithSeparators;
   private final SyntaxToken closingCurlyBracket;
 
-  public ObjectTypeImpl(SyntaxToken openingCurlyBracket, List<ArmTree> properties, SyntaxToken closingCurlyBracket) {
+  public ObjectTypeImpl(SyntaxToken openingCurlyBracket, SeparatedList<ArmTree, SyntaxToken> objectTypePropertiesWithSeparators, SyntaxToken closingCurlyBracket) {
     this.openingCurlyBracket = openingCurlyBracket;
-    this.properties = properties;
+    this.objectTypePropertiesWithSeparators = objectTypePropertiesWithSeparators;
     this.closingCurlyBracket = closingCurlyBracket;
   }
 
   @Override
   public List<ArmTree> properties() {
-    return properties;
+    return objectTypePropertiesWithSeparators.elements();
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(openingCurlyBracket);
-    children.addAll(properties);
+    children.addAll(objectTypePropertiesWithSeparators.elementsAndSeparators());
     children.add(closingCurlyBracket);
     return children;
   }

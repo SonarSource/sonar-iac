@@ -69,6 +69,15 @@ class TypeExpressionImplTest extends BicepTreeModelTest {
       .matches("very.long[1].type.*.foo")
       .matches("bool[][]? | int")
       .matches("bool[][] | int?")
+      .matches("""
+        {
+          shape: string
+          size: int
+        }""")
+      .matches("{ shape: string, size: int }")
+      .matches("{ shape: string, }")
+      .matches("{ shape: '*', size: '*' }")
+      .matches("('heffalump' | 'woozle' | { shape: '*', size: '*' } | 10 | -10 | true | !true | null)[]")
 
       .notMatches("array[]?[]")
       .notMatches("array??")
@@ -76,7 +85,12 @@ class TypeExpressionImplTest extends BicepTreeModelTest {
       .notMatches("int??")
       .notMatches("|")
       .notMatches("values |")
-      .notMatches("| | values");
+      .notMatches("| | values")
+      .notMatches("{ string int }")
+      .notMatches("{ string: }")
+      .notMatches("{ : }")
+      .notMatches("{ : int }")
+      .notMatches("{ , size: int }");
   }
 
   @Test

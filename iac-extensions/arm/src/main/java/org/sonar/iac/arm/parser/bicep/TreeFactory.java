@@ -491,8 +491,8 @@ public class TreeFactory {
     return new ParenthesizedTypeExpressionImpl(openingParenthesis, typeExpression, closingParenthesis);
   }
 
-  public ObjectType objectType(SyntaxToken openingCurlyBracket, Optional<List<ArmTree>> properties, SyntaxToken closingCurlyBracket) {
-    return new ObjectTypeImpl(openingCurlyBracket, properties.or(List.of()), closingCurlyBracket);
+  public ObjectType objectType(SyntaxToken openingCurlyBracket, Optional<List<Tuple<ArmTree, Optional<SyntaxToken>>>> properties, SyntaxToken closingCurlyBracket) {
+    return new ObjectTypeImpl(openingCurlyBracket, toSeparatedList(properties), closingCurlyBracket);
   }
 
   public ObjectTypeProperty objectTypeProperty(Optional<List<Decorator>> decorators, TextTree name, SyntaxToken colon, TypeExpressionAble typeExpression) {
