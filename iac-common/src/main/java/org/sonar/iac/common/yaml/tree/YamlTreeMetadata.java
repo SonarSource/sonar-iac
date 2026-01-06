@@ -33,10 +33,7 @@ import org.sonar.iac.common.extension.ParseException;
 public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer, int endPointer, List<Comment> comments) implements HasTextRange {
 
   /**
-   *
-   * @param tag
-   * @param node
-   * @return
+   * @deprecated use {@link Builder} instead
    */
   @Deprecated
   public static YamlTreeMetadata fromNode(String tag, Node node) {
@@ -46,6 +43,9 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
       .build();
   }
 
+  /**
+   * @deprecated use {@link Builder} instead
+   */
   @Deprecated
   public static YamlTreeMetadata fromNode(Node node) {
     return builder()
@@ -53,6 +53,9 @@ public record YamlTreeMetadata(String tag, TextRange textRange, int startPointer
       .build();
   }
 
+  /**
+   * @deprecated use {@link Builder} instead
+   */
   @Deprecated
   public static YamlTreeMetadata fromNodes(String tag, Node firstNode, Node secondNode) {
     return builder()
