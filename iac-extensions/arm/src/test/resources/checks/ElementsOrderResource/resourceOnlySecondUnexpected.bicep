@@ -38,3 +38,10 @@ resource resourceName3 'type@version' = {
   otherProperty: {}
   properties: {}
 }
+
+resource resourceName1 'type@version' = {
+  parent: parentRef
+  scope: demo
+  location: location
+  name: 'Compliant expected order'
+}

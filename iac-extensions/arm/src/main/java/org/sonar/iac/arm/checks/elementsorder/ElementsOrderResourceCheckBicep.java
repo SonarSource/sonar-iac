@@ -52,9 +52,9 @@ public class ElementsOrderResourceCheckBicep implements IacCheck {
     ELEMENTS_ORDER.put("parent", 0);
     ELEMENTS_ORDER.put("scope", 1);
     ELEMENTS_ORDER.put("name", 2);
-    ELEMENTS_ORDER.put("location", 3);
+    ELEMENTS_ORDER.put("location", 2);
     // extendedLocation has the same weight as location
-    ELEMENTS_ORDER.put("extendedLocation", 3);
+    ELEMENTS_ORDER.put("extendedLocation", 2);
     ELEMENTS_ORDER.put("zones", 4);
     ELEMENTS_ORDER.put("sku", 5);
     ELEMENTS_ORDER.put("kind", 6);
