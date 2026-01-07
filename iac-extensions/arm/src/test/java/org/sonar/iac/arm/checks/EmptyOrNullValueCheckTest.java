@@ -77,4 +77,43 @@ class EmptyOrNullValueCheckTest {
     emptyOrNullValueCheck.ignoredProperties = "var1,var2,prop1,prop2,out1,out2";
     ArmVerifier.verifyNoIssue("EmptyOrNullValueCheckTest/emptyOrNullValue-ignored.json", emptyOrNullValueCheck);
   }
+
+  @Test
+  void shouldAllowKeyVaultEmptyAccessPoliciesJson() {
+    // SONARIAC-2046: KeyVault accessPolicies is commonly empty when using RBAC-based access control
+    ArmVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue-keyVaultException.json", CHECK,
+      // KeyVault with empty API version - the empty string itself raises
+      issue(24, 6, 24, 22, "Remove this empty string or complete with real code."),
+      // KeyVault with empty API version - accessPolicies raises (version doesn't match exception)
+      issue(34, 8, 34, 28, "Remove this empty array or complete with real code."),
+      // KeyVault with different API version (2022-07-01) should still raise
+      issue(49, 8, 49, 28, "Remove this empty array or complete with real code."),
+      // KeyVault with other empty properties should still raise
+      issue(64, 8, 64, 25, "Remove this empty object or complete with real code."),
+      // Other resource types should still raise for empty arrays
+      issue(78, 10, 78, 23, "Remove this empty array or complete with real code."));
+  }
+
+  @Test
+  void shouldAllowKeyVaultEmptyAccessPoliciesBicep() {
+    // SONARIAC-2046: KeyVault accessPolicies is commonly empty when using RBAC-based access control
+    BicepVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue-keyVaultException.bicep", CHECK);
+  }
+
+  @Test
+  void shouldAllowKeyVaultWithIgnoredPropertiesJson() {
+    // SONARIAC-2046: Test combining resource type exception with user-configured ignored properties
+    // This covers the branch where isPropertyException=false but ignoredPropertiesSet.contains=true
+    var emptyOrNullValueCheck = new EmptyOrNullValueCheck();
+    emptyOrNullValueCheck.ignoredProperties = "networkAcls";
+    ArmVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue-keyVaultException.json", emptyOrNullValueCheck,
+      // KeyVault with empty API version - the empty string itself raises
+      issue(24, 6, 24, 22, "Remove this empty string or complete with real code."),
+      // KeyVault with empty API version - accessPolicies raises (version doesn't match exception)
+      issue(34, 8, 34, 28, "Remove this empty array or complete with real code."),
+      // KeyVault with different API version (2022-07-01) should still raise
+      issue(49, 8, 49, 28, "Remove this empty array or complete with real code."));
+    // networkAcls is ignored via ignoredProperties config, so no issue for line 64
+    // ipRules (line 78) is also not checked because it's inside networkAcls which is skipped
+  }
 }

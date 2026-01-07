@@ -17,10 +17,12 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -52,6 +54,14 @@ public class EmptyOrNullValueCheck implements IacCheck {
   private static final String DEFAULT_IGNORED_PROPERTIES = "";
   private Set<String> ignoredPropertiesSet = Set.of();
 
+  /**
+   * Map of resource types to properties that should be ignored when empty.
+   * These are properties that are commonly empty by design (e.g., when using RBAC instead of access policies).
+   * Resource type comparison is case-insensitive.
+   */
+  private static final Map<String, Set<String>> IGNORED_EMPTY_PROPERTIES_BY_RESOURCE_TYPE = Map.of(
+    "microsoft.keyvault/vaults@2023-07-01", Set.of("accessPolicies"));
+
   @RuleProperty(
     key = "ignoredProperties",
     description = "Comma separated list of ignored properties.")
@@ -75,8 +85,8 @@ public class EmptyOrNullValueCheck implements IacCheck {
   private void checkResource(CheckContext ctx, ResourceDeclaration resource) {
     for (Property property : resource.resourceProperties()) {
       var propertyName = property.key().value();
-      if (!isResourcePropertyException(property) && !ignoredPropertiesSet.contains(propertyName)) {
-        checkExpression(ctx, property, property.value(), "property");
+      if (!isPropertyException(property, resource) && !ignoredPropertiesSet.contains(propertyName)) {
+        checkExpression(ctx, property, property.value(), "property", resource);
       }
     }
   }
@@ -84,7 +94,7 @@ public class EmptyOrNullValueCheck implements IacCheck {
   private void checkVariable(CheckContext ctx, VariableDeclaration variable) {
     var varName = variable.declaratedName().value();
     if (!ignoredPropertiesSet.contains(varName)) {
-      checkExpression(ctx, variable, variable.value(), "variable");
+      checkExpression(ctx, variable, variable.value(), "variable", null);
     }
   }
 
@@ -98,7 +108,7 @@ public class EmptyOrNullValueCheck implements IacCheck {
     if (outputValue.is(ArmTree.Kind.FOR_EXPRESSION)) {
       checkForOutput(ctx, (ForExpression) outputValue);
     } else {
-      checkExpression(ctx, output, outputValue, "output");
+      checkExpression(ctx, output, outputValue, "output", null);
     }
   }
 
@@ -108,44 +118,80 @@ public class EmptyOrNullValueCheck implements IacCheck {
    *   <li>Top-level `properties` of a resource declaration</li>
    *   <li>Property `userAssignedIdentities -> {ID}`, where ID value has to be null for several resource types, and ID
    *   itself can be an arbitrary string or variable</li>
+   *   <li>Properties defined in {@link #IGNORED_EMPTY_PROPERTIES_BY_RESOURCE_TYPE} for specific resource types</li>
    * </ul>
    */
-  private static boolean isResourcePropertyException(Property property) {
-    var isTopLevelPropertiesProperty = TextUtils.isValue(property.key(), "properties").isTrue() && isEmpty(property.value());
+  private static boolean isPropertyException(Property property, @Nullable ResourceDeclaration resource) {
+    return isTopLevelPropertiesProperty(property) || isUserAssignedIdentitiesIdProperty(property) || isIgnoredEmptyPropertyForResourceType(property, resource);
+  }
 
-    var isUserAssignedIdentitiesIdProperty = Optional.ofNullable(property.parent())
+  private static boolean isTopLevelPropertiesProperty(Property property) {
+    return TextUtils.isValue(property.key(), "properties").isTrue() && isEmpty(property.value());
+  }
+
+  private static boolean isUserAssignedIdentitiesIdProperty(Property property) {
+    return Optional.ofNullable(property.parent())
       .map(ArmTree::parent)
       .map(parent -> parent instanceof Property parentProperty && TextUtils.isValue(parentProperty.key(), "userAssignedIdentities").isTrue())
       .orElse(false);
-    return isTopLevelPropertiesProperty || isUserAssignedIdentitiesIdProperty;
   }
 
-  private void checkExpression(CheckContext ctx, HasTextRange propertyToReport, Expression expression, String kind) {
+  /**
+   * Checks if the property is in the list of ignored empty properties for the given resource type.
+   */
+  private static boolean isIgnoredEmptyPropertyForResourceType(Property property, @Nullable ResourceDeclaration resource) {
+    if (resource == null || !isEmpty(property.value())) {
+      return false;
+    }
+
+    String fullResourceType = getFullResourceType(resource);
+    Set<String> ignoredProperties = IGNORED_EMPTY_PROPERTIES_BY_RESOURCE_TYPE.get(fullResourceType.toLowerCase(Locale.ROOT));
+
+    if (ignoredProperties == null) {
+      return false;
+    }
+
+    String propertyName = property.key().value();
+    return ignoredProperties.contains(propertyName);
+  }
+
+  /**
+   * Returns the full resource type including API version (e.g., "Microsoft.KeyVault/vaults@2023-07-01").
+   */
+  private static String getFullResourceType(ResourceDeclaration resource) {
+    String type = resource.type().value();
+    return TextUtils.getValue(resource.version())
+      .filter(v -> !v.isEmpty())
+      .map(v -> type + "@" + v)
+      .orElse(type);
+  }
+
+  private void checkExpression(CheckContext ctx, HasTextRange propertyToReport, Expression expression, String kind, @Nullable ResourceDeclaration resource) {
     if (isEmpty(expression)) {
       ctx.reportIssue(propertyToReport, message(expression.getKind(), kind));
     } else if (expression.is(ArmTree.Kind.OBJECT_EXPRESSION)) {
-      checkObject(ctx, (ObjectExpression) expression);
+      checkObject(ctx, (ObjectExpression) expression, resource);
     } else if (expression.is(ArmTree.Kind.ARRAY_EXPRESSION)) {
-      checkArray(ctx, (ArrayExpression) expression);
+      checkArray(ctx, (ArrayExpression) expression, resource);
     }
   }
 
-  private void checkObject(CheckContext ctx, ObjectExpression object) {
+  private void checkObject(CheckContext ctx, ObjectExpression object, @Nullable ResourceDeclaration resource) {
     for (PropertyTree property : object.properties()) {
       var value = property.value();
       var name = TextUtils.getValue(property.key()).orElse("");
       if (value instanceof Expression expression
-        && !isResourcePropertyException((Property) property)
+        && !isPropertyException((Property) property, resource)
         && !ignoredPropertiesSet.contains(name)) {
-        checkExpression(ctx, property, expression, "property");
+        checkExpression(ctx, property, expression, "property", resource);
       }
     }
   }
 
-  private void checkArray(CheckContext ctx, ArrayExpression array) {
+  private void checkArray(CheckContext ctx, ArrayExpression array, @Nullable ResourceDeclaration resource) {
     for (Expression expression : array.elements()) {
       if (expression instanceof ObjectExpression object) {
-        checkObject(ctx, object);
+        checkObject(ctx, object, resource);
       }
     }
   }
@@ -156,7 +202,7 @@ public class EmptyOrNullValueCheck implements IacCheck {
       for (PropertyTree property : forBody.properties()) {
         Tree value = property.value();
         if (value instanceof Expression expression) {
-          checkExpression(ctx, property, expression, "output");
+          checkExpression(ctx, property, expression, "output", null);
         }
       }
     }
