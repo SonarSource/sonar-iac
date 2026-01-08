@@ -19,5 +19,9 @@
   "ruleSpecification": "RSPEC-6413",
   "sqKey": "S6413",
   "scope": "Main",
-  "securityStandards": {}
+  "securityStandards": {
+    "CWE": [
+      778
+    ]
+  }
 }

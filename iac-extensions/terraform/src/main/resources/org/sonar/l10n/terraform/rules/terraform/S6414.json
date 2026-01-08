@@ -25,6 +25,9 @@
     ],
     "PCI DSS 4.0": [
       "10.2"
+    ],
+    "CWE": [
+      778
     ]
   },
   "quickfix": "unknown"

@@ -19,5 +19,9 @@
   "ruleSpecification": "RSPEC-6378",
   "sqKey": "S6378",
   "scope": "Main",
-  "securityStandards": {}
+  "securityStandards": {
+    "CWE": [
+      287
+    ]
+  }
 }
