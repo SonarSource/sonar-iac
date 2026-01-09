@@ -41,6 +41,16 @@ class WeakSSLProtocolCheckTest {
   }
 
   @Test
+  void testAwsLbListener() {
+    TerraformVerifier.verify("WeakSSLProtocolCheck/aws_lb_listener.tf", new WeakSSLProtocolCheck());
+  }
+
+  @Test
+  void testAwsAlbListener() {
+    TerraformVerifier.verify("WeakSSLProtocolCheck/aws_alb_listener.tf", new WeakSSLProtocolCheck());
+  }
+
+  @Test
   void testAzureMysqlServerAzurermV2() {
     TerraformVerifier.verifyWithProviderVersion("WeakSSLProtocolCheck/azure_mysql_server.tf", new WeakSSLProtocolCheck(), "2.99.0");
   }

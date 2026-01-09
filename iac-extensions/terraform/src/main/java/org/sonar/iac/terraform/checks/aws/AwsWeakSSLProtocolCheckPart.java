@@ -17,7 +17,9 @@
 package org.sonar.iac.terraform.checks.aws;
 
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
@@ -30,12 +32,16 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
   private static final String STRONG_SSL_PROTOCOL = "TLS_1_2";
   private static final String ELASTIC_WEAK_POLICY = "Policy-Min-TLS-1-0-2019-07";
   private static final String SECURITY_POLICY = "security_policy";
+  private static final String SSL_POLICY = "ssl_policy";
 
   @Override
   protected void registerResourceChecks() {
     register(AwsWeakSSLProtocolCheckPart::checkApiGatewayDomainName, "aws_api_gateway_domain_name");
     register(AwsWeakSSLProtocolCheckPart::checkApiGatewayV2DomainName, "aws_apigatewayv2_domain_name");
     register(AwsWeakSSLProtocolCheckPart::checkOpenSearchDomain, "aws_elasticsearch_domain", "aws_opensearch_domain");
+    register(AwsWeakSSLProtocolCheckPart::checkLbListener, "aws_lb_listener", "aws_alb_listener");
+    // Note: Classic ELB (aws_elb) is not checked here because the ssl_policy is set on a separate aws_load_balancer_policy resources
+    // which are difficult to track without cross-file analysis.
   }
 
   private static void checkApiGatewayDomainName(CheckContext ctx, BlockTree resource) {
@@ -45,7 +51,8 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
   }
 
   private static void checkApiGatewayV2DomainName(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class).ifPresentOrElse(config -> checkDomainNameConfiguration(ctx, config),
+    PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class).ifPresentOrElse(config -> checkDomainNameConfiguration(ctx,
+      config),
       () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, "domain_name_configuration.security_policy")));
   }
 
@@ -65,5 +72,28 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
     PropertyUtils.get(options, "tls_security_policy", AttributeTree.class)
       .ifPresentOrElse(policy -> reportSensitiveValue(ctx, policy, ELASTIC_WEAK_POLICY, WEAK_SSL_MESSAGE),
         () -> ctx.reportIssue(options.key(), String.format(OMITTING_WEAK_SSL_MESSAGE, "tls_security_policy")));
+  }
+
+  private static void checkLbListener(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "protocol", AttributeTree.class)
+      .filter(protocol -> TextUtils.matchesValue(protocol.value(), it -> "HTTPS".equalsIgnoreCase(it) || "TLS".equalsIgnoreCase(it)).isTrue())
+      .ifPresent(protocol -> checkLbListenerSslPolicy(ctx, resource));
+  }
+
+  private static void checkLbListenerSslPolicy(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, SSL_POLICY, AttributeTree.class)
+      .ifPresentOrElse(policy -> checkElbSslPolicy(ctx, policy.value()),
+        () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, SSL_POLICY)));
+  }
+
+  private static void checkElbSslPolicy(CheckContext ctx, Tree policy) {
+    if (isWeakElbSslPolicy(policy)) {
+      ctx.reportIssue(policy, WEAK_SSL_MESSAGE);
+    }
+  }
+
+  private static boolean isWeakElbSslPolicy(Tree policy) {
+    return TextUtils.matchesValue(policy, policyValue -> policyValue.contains("-1-0-") || policyValue.contains("-1-1-") ||
+      "ELBSecurityPolicy-2016-08".equals(policyValue)).isTrue();
   }
 }

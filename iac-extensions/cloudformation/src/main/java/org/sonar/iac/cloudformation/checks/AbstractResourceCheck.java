@@ -77,13 +77,17 @@ public abstract class AbstractResourceCheck implements IacCheck {
       return type;
     }
 
+    public String typeAsString() {
+      return TextUtils.getValue(type).orElse("null");
+    }
+
     @CheckForNull
     public YamlTree properties() {
       return properties;
     }
 
     public boolean isType(String expectedType) {
-      return TextUtils.getValue(type).orElse("null").equalsIgnoreCase(expectedType);
+      return typeAsString().equalsIgnoreCase(expectedType);
     }
   }
 

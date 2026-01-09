@@ -114,3 +114,190 @@ Resources:
     Properties:
       DomainNameConfigurations:
         - SecurityPolicy: !GetAtt security.policy
+
+  # ELBv2 Listener tests
+  Elbv2ListenerWeakPolicy10:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-TLS13-1-0-2021-06"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
+
+  Elbv2ListenerWeakPolicy11:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-TLS13-1-1-2021-06"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
+
+  Elbv2ListenerWeakPolicy2016:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Protocol: TLS
+      SslPolicy: "ELBSecurityPolicy-2016-08"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
+
+  Elbv2ListenerWeakPolicyExplicit:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-TLS-1-1-2017-01"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
+
+  Elbv2ListenerMissingPolicy:
+    Type: AWS::ElasticLoadBalancingV2::Listener # Noncompliant {{Set "SslPolicy" to disable support of older TLS versions.}}
+    Properties:
+      Protocol: HTTPS
+
+  Elbv2ListenerStrongPolicy:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-TLS13-1-2-2021-06"
+
+  Elbv2ListenerStrongPolicyRes:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
+
+  # Compliant, HTTP protocol is covered by another check
+  Elbv2ListenerHttpProtocol:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Protocol: HTTP
+
+  Elbv2ListenerNoProtocol:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Port: 443
+
+  # Classic ELB tests
+  ClassicElbWeakPolicy:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners:
+        - Protocol: HTTPS
+          LoadBalancerPort: 443
+          InstancePort: 80
+          PolicyNames:
+            - MyWeakPolicy
+      Policies:
+        - PolicyName: MyWeakPolicy
+          PolicyType: SSLNegotiationPolicyType
+          Attributes:
+            - Name: Reference-Security-Policy
+              Value: "ELBSecurityPolicy-2016-08"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
+
+  ClassicElbWeakPolicy10:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners:
+        - Protocol: SSL
+          LoadBalancerPort: 443
+          InstancePort: 80
+          PolicyNames:
+            - MyWeakPolicy10
+      Policies:
+        - PolicyName: MyWeakPolicy10
+          PolicyType: SSLNegotiationPolicyType
+          Attributes:
+            - Name: Reference-Security-Policy
+              Value: "ELBSecurityPolicy-TLS13-1-0-2021-06"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
+
+  # A strong policy is defined, but not referenced by the listener => we raise
+  ClassicElbMissingPolicyReference:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners: # Noncompliant {{Set "PolicyNames" to disable support of older TLS versions.}}
+        - Protocol: HTTPS
+          LoadBalancerPort: 443
+          InstancePort: 80
+      Policies:
+        - PolicyName: MyPolicy
+          PolicyType: SSLNegotiationPolicyType
+          Attributes:
+            - Name: Reference-Security-Policy
+              Value: "ELBSecurityPolicy-TLS13-1-2-2021-06"
+
+  ClassicElbMissingPolicies:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners: # Noncompliant {{Set "Policies" to disable support of older TLS versions.}}
+        - Protocol: HTTPS
+          LoadBalancerPort: 443
+          InstancePort: 80
+          PolicyNames:
+            - MyPolicy
+
+  ClassicElbMissingPolicyValue:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners:
+        - Protocol: HTTPS
+          LoadBalancerPort: 443
+          InstancePort: 80
+          PolicyNames:
+            - MyPolicy
+      Policies:
+        - PolicyName: MyPolicy # Noncompliant {{Set "Reference-Security-Policy" to disable support of older TLS versions.}}
+          PolicyType: SSLNegotiationPolicyType
+          Attributes:
+            - Name: SomeOtherAttribute
+              Value: "foo"
+
+  ClassicElbStrongPolicy:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners:
+        - Protocol: HTTPS
+          LoadBalancerPort: 443
+          InstancePort: 80
+          PolicyNames:
+            - MyStrongPolicy
+      Policies:
+        - PolicyName: MyStrongPolicy
+          PolicyType: SSLNegotiationPolicyType
+          Attributes:
+            - Name: Reference-Security-Policy
+              Value: "ELBSecurityPolicy-TLS13-1-2-2021-06"
+
+  ClassicElbHttpProtocol:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners:
+        - Protocol: HTTP
+          LoadBalancerPort: 80
+          InstancePort: 80
+
+  ClassicElbNonSslPolicy:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners: # Noncompliant {{Add a policy of type "SSLNegotiationPolicyType" to disable support of older TLS versions}}
+        - Protocol: HTTPS
+          LoadBalancerPort: 443
+          InstancePort: 80
+          PolicyNames:
+            - MyOtherPolicy
+      Policies:
+        - PolicyName: MyOtherPolicy
+          PolicyType: SomeOtherPolicyType
+
+  # Multiple policies - with one weak SSL policy
+  ClassicElbMultiplePoliciesWithWeakSsl:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Listeners:
+        - Protocol: HTTPS
+          LoadBalancerPort: 443
+          InstancePort: 80
+          PolicyNames:
+            - MyAppCookiePolicy
+            - MySslPolicy
+      Policies:
+        - PolicyName: MyAppCookiePolicy
+          PolicyType: AppCookieStickinessPolicyType
+          Attributes:
+            - Name: CookieName
+              Value: my-cookie
+        - PolicyName: MySslPolicy
+          PolicyType: SSLNegotiationPolicyType
+          Attributes:
+            - Name: Reference-Security-Policy
+              Value: "ELBSecurityPolicy-2016-08"  # Noncompliant {{Change this code to disable support of older TLS versions.}}

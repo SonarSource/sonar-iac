@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 class WeakSSLProtocolCheckTest {
 
   @Test
-  void test_yaml() {
+  void shouldDetectIssues() {
     CloudformationVerifier.verify("WeakSSLProtocolCheck/WeakSSLProtocolCheck.yaml", new WeakSSLProtocolCheck());
   }
 }
