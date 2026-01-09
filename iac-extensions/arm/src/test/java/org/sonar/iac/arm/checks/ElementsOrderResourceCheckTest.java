@@ -35,10 +35,12 @@ class ElementsOrderResourceCheckTest {
   private static final ElementsOrderResourceCheck CHECK = new ElementsOrderResourceCheck();
 
   @ParameterizedTest
-  @ValueSource(strings = {"resourceExpected.json",
+  @ValueSource(strings = {
+    "resourceExpected.json",
     "resourceExpectedMoreResources.json",
-    "resourceExpectedMoreResources.json",
-    "resourceExpectedSmall.json"})
+    "resourceExpectedSmall.json",
+    "resourceExpectedVSCode.json"
+  })
   void shouldVerifyExpectedResourceJson(String filename) {
     ArmVerifier.verifyNoIssue(DIR + filename, CHECK);
   }

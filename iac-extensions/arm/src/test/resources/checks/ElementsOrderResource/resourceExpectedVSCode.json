@@ -1,0 +1,14 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "resources": [
+    {
+      "scope": "% parent scope %",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "resourceName",
+      "resourceGroup": "a",
+      "apiVersion": "2023-09-01",
+      "dependsOn": {},
+      "properties": {}
+    }
+  ]
+}
