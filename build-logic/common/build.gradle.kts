@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 plugins {
-    id("org.sonarqube") version "7.2.0.6526"
+    alias(libs.plugins.sonarqube)
 }
 
 sonar {
