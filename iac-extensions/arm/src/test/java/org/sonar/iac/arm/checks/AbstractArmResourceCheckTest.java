@@ -32,7 +32,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class AbstractArmResourceCheckTest {
 
@@ -116,22 +115,23 @@ class AbstractArmResourceCheckTest {
       }
     };
 
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"parentType\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\",",
-      "      \"resources\": [",
-      "         {",
-      "           \"type\": \"childType\",",
-      "           \"apiVersion\": \"2022-12-29\",",
-      "           \"name\": \"myResource\",",
-      "         }",
-      "      ]",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "parentType",
+            "apiVersion": "2022-12-29",
+            "name": "myResource",
+            "resources": [
+               {
+                 "type": "childType",
+                 "apiVersion": "2022-12-29",
+                 "name": "myResource",
+               }
+            ]
+          }
+        ]
+      }""";
 
     Tree tree = parser.parse(code, null);
     check.initialize(ctx);
@@ -143,19 +143,20 @@ class AbstractArmResourceCheckTest {
 
   private Tree parseResources(String... resourceTypes) {
     StringBuilder sb = new StringBuilder();
-    sb.append(code("{",
-      "  \"resources\": ["));
+    sb.append("""
+      {
+        "resources": [""");
     for (String resourceType : resourceTypes) {
-      sb.append(code(
-        "{",
-        "      \"type\": \"" + resourceType + "\",",
-        "      \"apiVersion\": \"2022-12-29\",",
-        "      \"name\": \"myResource\"",
-        "    },"));
+      sb.append("""
+        {
+              "type": "%s",
+              "apiVersion": "2022-12-29",
+              "name": "myResource"
+            },""".formatted(resourceType));
     }
-    sb.append(code(
-      "  ]",
-      "}"));
+    sb.append("""
+        ]
+      }""");
 
     return parser.parse(sb.toString(), null);
   }

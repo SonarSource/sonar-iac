@@ -24,13 +24,12 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class CompoundTextRangeTest {
 
   @Test
   void shouldReturnCorrectIndexForSingleLine() {
-    var ranges = ranges(code("this test is good"));
+    var ranges = ranges("this test is good");
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
     TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "test");
@@ -39,7 +38,7 @@ class CompoundTextRangeTest {
 
   @Test
   void shouldReturnCorrectIndexForEmptyValue() {
-    var ranges = ranges(code("this test is good"));
+    var ranges = ranges("this test is good");
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
     TextRange range = compoundTextRange.computeTextRangeAtIndex(5, "");
@@ -48,9 +47,9 @@ class CompoundTextRangeTest {
 
   @Test
   void shouldReturnCorrectIndexForTwoLine() {
-    var ranges = ranges(code(
-      "this test_",
-      "value is good"));
+    var ranges = ranges("""
+      this test_
+      value is good""");
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
     TextRange range1 = compoundTextRange.computeTextRangeAtIndex(5, "test_");
@@ -61,9 +60,9 @@ class CompoundTextRangeTest {
 
   @Test
   void shouldReturnCorrectIndexStartingNotOnFirstLine() {
-    var ranges = ranges(code(
-      "multi line code",
-      "with test value"));
+    var ranges = ranges("""
+      multi line code
+      with test value""");
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
     TextRange range = compoundTextRange.computeTextRangeAtIndex(21, "test");
@@ -72,11 +71,11 @@ class CompoundTextRangeTest {
 
   @Test
   void shouldReturnCorrectIndexForMultiLineWithEmptyLines() {
-    var ranges = ranges(code(
-      "this test_",
-      "",
-      "",
-      "value in my code"));
+    var ranges = ranges("""
+      this test_
+
+
+      value in my code""");
     CompoundTextRange compoundTextRange = new CompoundTextRange(ranges);
 
     TextRange range1 = compoundTextRange.computeTextRangeAtIndex(5, "test_");

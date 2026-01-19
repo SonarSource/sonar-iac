@@ -19,7 +19,6 @@ package org.sonar.iac.arm.tree.impl.json;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -73,7 +72,7 @@ class OutputDeclarationImplTest {
         linesOfCode.set(i, line.substring(0, line.indexOf(":")).toUpperCase(Locale.ROOT) + line.substring(line.indexOf(":")));
       }
     }
-    String code = StringUtils.join(linesOfCode, "\n");
+    String code = String.join("\n", linesOfCode);
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();

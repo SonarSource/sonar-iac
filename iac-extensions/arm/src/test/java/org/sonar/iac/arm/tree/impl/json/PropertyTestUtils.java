@@ -21,8 +21,6 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 
-import static org.sonar.iac.common.testing.IacTestUtils.code;
-
 public class PropertyTestUtils {
 
   public static final int LINE_OFFSET = 8;
@@ -34,18 +32,19 @@ public class PropertyTestUtils {
   }
 
   private static String getCode(String property) {
-    return code("{",
-      "  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\",",
-      "      \"properties\": {",
-      property,
-      "      }",
-      "    }",
-      "  ]",
-      "}");
+    return """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "resources": [
+          {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2022-12-29",
+            "name": "myResource",
+            "properties": {
+      %s
+            }
+          }
+        ]
+      }""".formatted(property);
   }
 }

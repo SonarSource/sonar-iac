@@ -28,7 +28,6 @@ import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
 
@@ -48,8 +47,7 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleTargetScopeDeclaration() {
-    String code = code("targetScope='str'");
-    TargetScopeDeclaration tree = parse(code, BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
+    TargetScopeDeclaration tree = parse("targetScope='str'", BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.TARGET_SCOPE_DECLARATION)).isTrue();
     assertThat(tree.scope()).isEqualTo(File.Scope.UNKNOWN);
     assertThat(((StringLiteral) tree.value()).value()).isEqualTo("str");
@@ -66,8 +64,7 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
     "${foo},          UNKNOWN"
   })
   void shouldParseProperTarget(String targetScopeCode, String targetScopeEnum) {
-    String code = code("targetScope='" + targetScopeCode + "'");
-    TargetScopeDeclaration tree = parse(code, BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
+    TargetScopeDeclaration tree = parse("targetScope='" + targetScopeCode + "'", BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
     assertThat(tree.scope()).isEqualTo(File.Scope.valueOf(targetScopeEnum));
   }
 }

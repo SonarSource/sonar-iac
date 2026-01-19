@@ -35,7 +35,6 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class FunctionCallImplTest {
 
@@ -61,9 +60,7 @@ class FunctionCallImplTest {
 
   @Test
   void shouldParseFunctionCallWithDetailedAssertions() {
-    String code = code("functionName123(123, 456)");
-
-    FunctionCall tree = (FunctionCall) parser.parse(code, null);
+    FunctionCall tree = (FunctionCall) parser.parse("functionName123(123, 456)", null);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
     softly.assertThat(tree.name().is(ArmTree.Kind.IDENTIFIER)).isTrue();

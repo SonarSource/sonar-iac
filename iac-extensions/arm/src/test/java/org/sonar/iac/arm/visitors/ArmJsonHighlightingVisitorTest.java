@@ -21,7 +21,6 @@ import org.sonar.iac.arm.parser.ArmJsonParser;
 import org.sonar.iac.common.testing.AbstractHighlightingTest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ArmJsonHighlightingVisitorTest extends AbstractHighlightingTest {
 
@@ -31,15 +30,16 @@ class ArmJsonHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void shouldNotThrowExceptionWhenHighlightingResourceDeclaration() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\"",
-      "    }",
-      "  ]",
-      "}");
+    String code = """
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2022-12-29",
+            "name": "myResource"
+          }
+        ]
+      }""";
     assertThatNoException().isThrownBy(() -> highlight(code));
   }
 }

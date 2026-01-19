@@ -28,7 +28,6 @@ import org.sonar.iac.common.checks.TextUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ObjectTypePropertyImplTest extends BicepTreeModelTest {
 
@@ -43,7 +42,10 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
       .matches("'''\nsingle\nmultiline\n''' : abc")
       .matches("@minLength(10) identifier:abc")
       .matches("@sys.minLength(10) identifier:abc")
-      .matches(code("@sys.minLength(10)", "@decorator()", "identifier:abc"))
+      .matches("""
+        @sys.minLength(10)
+        @decorator()
+        identifier:abc""")
       .matches("identifier: ( array )")
       .matches("identifier: ( bool | int )")
 
@@ -58,9 +60,7 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleObjectTypeProperty() {
-    String code = code("@minLength(10) identifier : abc");
-
-    ObjectTypeProperty tree = parse(code, BicepLexicalGrammar.OBJECT_TYPE_PROPERTY);
+    ObjectTypeProperty tree = parse("@minLength(10) identifier : abc", BicepLexicalGrammar.OBJECT_TYPE_PROPERTY);
 
     assertThat(tree.is(ArmTree.Kind.OBJECT_TYPE_PROPERTY)).isTrue();
     assertThat(tree.name())

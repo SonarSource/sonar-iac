@@ -25,27 +25,28 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.VARIABLE_DECLARATION;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class VariableDeclarationImplTest {
 
   private final ArmParser parser = new ArmParser();
 
   private String parserVariable(String name, String value) {
-    return code("{",
-      "  \"variables\": {",
-      "    \"" + name + "\": " + value,
-      "  }",
-      "}");
+    return """
+      {
+        "variables": {
+          "%s": %s
+        }
+      }""".formatted(name, value);
   }
 
   @Test
   void shouldParseVariable() {
-    String code = code("{",
-      "  \"variables\": {",
-      "    \"var\": \"val\"",
-      "  }",
-      "}");
+    String code = """
+      {
+        "variables": {
+          "var": "val"
+        }
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
@@ -60,21 +61,23 @@ class VariableDeclarationImplTest {
 
   @Test
   void shouldParseNoVariables() {
-    String code = code("{",
-      "  \"variables\": {",
-      "  }",
-      "}");
+    String code = """
+      {
+        "variables": {
+        }
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).isEmpty();
   }
 
   @Test
   void shouldParseVariableCaseInsensitive() {
-    String code = code("{",
-      "  \"VARIABLES\": {",
-      "    \"var\": \"val\"",
-      "  }",
-      "}");
+    String code = """
+      {
+        "VARIABLES": {
+          "var": "val"
+        }
+      }""";
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();

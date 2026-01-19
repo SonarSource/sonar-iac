@@ -26,7 +26,6 @@ import org.sonar.iac.arm.tree.api.Variable;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class IfConditionImplTest extends BicepTreeModelTest {
 
@@ -45,9 +44,7 @@ class IfConditionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseIfConditionWithDetailedAssertions() {
-    String code = code("if(condition){key:value}");
-
-    IfCondition tree = parse(code, BicepLexicalGrammar.IF_CONDITION);
+    IfCondition tree = parse("if(condition){key:value}", BicepLexicalGrammar.IF_CONDITION);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.IF_CONDITION)).isTrue();
 

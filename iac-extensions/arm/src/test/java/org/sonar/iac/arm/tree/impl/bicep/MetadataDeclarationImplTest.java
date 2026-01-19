@@ -27,7 +27,6 @@ import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class MetadataDeclarationImplTest {
   BicepParser parser = BicepParser.create(BicepLexicalGrammar.METADATA_DECLARATION);
@@ -52,9 +51,7 @@ class MetadataDeclarationImplTest {
 
   @Test
   void shouldParseSimpleMetadataDeclaration() {
-    String code = code("metadata identifier123=abc");
-
-    MetadataDeclaration tree = (MetadataDeclaration) parser.parse(code, null);
+    MetadataDeclaration tree = (MetadataDeclaration) parser.parse("metadata identifier123=abc", null);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.METADATA_DECLARATION)).isTrue();
     softly.assertThat(tree.declaratedName().is(ArmTree.Kind.IDENTIFIER)).isTrue();

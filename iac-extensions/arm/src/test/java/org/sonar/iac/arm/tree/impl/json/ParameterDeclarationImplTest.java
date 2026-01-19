@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -42,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PARAMETER_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ParameterDeclarationImplTest {
@@ -55,13 +53,14 @@ class ParameterDeclarationImplTest {
 
   @Test
   void shouldParseMinimalParameter() {
-    String code = code("{",
-      "  \"parameters\": {",
-      "    \"enabledForDeployment\": {",
-      "      \"type\": \"bool\"",
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "parameters": {
+          "enabledForDeployment": {
+            "type": "bool"
+          }
+        }
+      }""";
 
     File tree = (File) parser.parse(code, null);
 
@@ -95,13 +94,14 @@ class ParameterDeclarationImplTest {
     "\"type\": \"code\", \"metadata\": { \"description\": 5}",
   })
   void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
-    String code = code("{",
-      "  \"parameters\": {",
-      "    \"invalid_parameter\": {",
-      invalidPropertyType,
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "parameters": {
+          "invalid_parameter": {
+      %s
+          }
+        }
+      }""".formatted(invalidPropertyType);
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
@@ -110,16 +110,17 @@ class ParameterDeclarationImplTest {
 
   @Test
   void shouldParseMetadataParameter() {
-    String code = code("{",
-      "  \"parameters\": {",
-      "    \"enabledForDeployment\": {",
-      "      \"type\": \"bool\",",
-      "      \"metadata\": {",
-      "        \"description\": \"some description\"",
-      "      }",
-      "    }",
-      "  }",
-      "}");
+    String code = """
+      {
+        "parameters": {
+          "enabledForDeployment": {
+            "type": "bool",
+            "metadata": {
+              "description": "some description"
+            }
+          }
+        }
+      }""";
 
     File tree = (File) parser.parse(code, null);
 
@@ -156,7 +157,7 @@ class ParameterDeclarationImplTest {
         linesOfCode.set(i, linesOfCode.get(i).toLowerCase(Locale.ROOT));
       }
     }
-    String code = StringUtils.join(linesOfCode, "\n");
+    String code = String.join("\n", linesOfCode);
 
     File tree = (File) parser.parse(code, null);
 
@@ -175,14 +176,15 @@ class ParameterDeclarationImplTest {
 
   @Test
   void shouldFailOnInvalidAllowedValues() {
-    String code = code("{",
-      "    \"parameters\": {",
-      "        \"exampleParam\": {",
-      "            \"type\": \"string\",",
-      "            \"allowedValues\": \"invalid format\"",
-      "        }",
-      "    }",
-      "}");
+    String code = """
+      {
+          "parameters": {
+              "exampleParam": {
+                  "type": "string",
+                  "allowedValues": "invalid format"
+              }
+          }
+      }""";
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
       .hasMessage("Couldn't convert 'allowedValues' into ArrayExpression: expecting SequenceTree, got ScalarTreeImpl instead at null:5:29");
@@ -190,14 +192,15 @@ class ParameterDeclarationImplTest {
 
   @Test
   void shouldFailOnInvalidFloatValue() {
-    String code = code("{",
-      "    \"parameters\": {",
-      "        \"exampleParam\": {",
-      "            \"type\": \"string\",",
-      "            \"minLength\":test",
-      "        }",
-      "    }",
-      "}");
+    String code = """
+      {
+          "parameters": {
+              "exampleParam": {
+                  "type": "string",
+                  "minLength":test
+              }
+          }
+      }""";
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to parse float value 'test at null:5:24");
@@ -206,14 +209,15 @@ class ParameterDeclarationImplTest {
   @Test
   @Disabled("TODO: Should enforce on the Parameter converter that we have only literals in allowed values.")
   void shouldFailOnInvalidAllowedValuesList() {
-    String code = code("{",
-      "    \"parameters\": {",
-      "        \"exampleParam\": {",
-      "            \"type\": \"string\",",
-      "            \"allowedValues\": [\"good\", [\"bad\"]]",
-      "        }",
-      "    }",
-      "}");
+    String code = """
+      {
+          "parameters": {
+              "exampleParam": {
+                  "type": "string",
+                  "allowedValues": ["good", ["bad"]]
+              }
+          }
+      }""";
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
@@ -221,14 +225,15 @@ class ParameterDeclarationImplTest {
   }
 
   private String parserParameterDefaultValue(String parameterName, String type, String defaultValue) {
-    return code("{",
-      "    \"parameters\": {",
-      "        \"" + parameterName + "\": {",
-      "            \"type\": \"" + type + "\",",
-      "            \"defaultValue\": " + defaultValue,
-      "        }",
-      "    }",
-      "}");
+    return """
+      {
+          "parameters": {
+              "%s": {
+                  "type": "%s",
+                  "defaultValue": %s
+              }
+          }
+      }""".formatted(parameterName, type, defaultValue);
   }
 
   @Test
@@ -243,18 +248,20 @@ class ParameterDeclarationImplTest {
 
   @Test
   void shouldParseParameterFile() {
-    String code = code("{",
-      "    \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\",",
-      "    \"contentVersion\": \"1.0.0.0\",",
-      "    \"parameters\": {",
-      "        \"existingVirtualNetworkName\": {",
-      "            \"value\": \"GEN-VNET-NAME\"",
-      "        },",
-      "        \"existingVirtualNetworkResourceGroup\": {  ",
-      "            \"value\": \"GEN-VNET-RESOURCEGROUP-NAME\" ",
-      "        } ",
-      "    }",
-      "}\n");
+    String code = """
+      {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+              "existingVirtualNetworkName": {
+                  "value": "GEN-VNET-NAME"
+              },
+              "existingVirtualNetworkResourceGroup": {\s\s
+                  "value": "GEN-VNET-RESOURCEGROUP-NAME"\s
+              }\s
+          }
+      }
+      """;
 
     File tree = (File) parser.parse(code, mockFile);
 

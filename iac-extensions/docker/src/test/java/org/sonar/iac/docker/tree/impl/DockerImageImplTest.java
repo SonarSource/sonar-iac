@@ -30,7 +30,6 @@ import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.TestUtils.assertFrom;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
@@ -50,10 +49,10 @@ class DockerImageImplTest {
 
   @Test
   void imageWithInstructions() {
-    DockerImage dockerImage = parse(code(
-      "FROM foobar",
-      "MAINTAINER bob",
-      "EXPOSE 80"), DockerLexicalGrammar.DOCKERIMAGE);
+    DockerImage dockerImage = parse("""
+      FROM foobar
+      MAINTAINER bob
+      EXPOSE 80""", DockerLexicalGrammar.DOCKERIMAGE);
     assertThat(dockerImage.getKind()).isEqualTo(DockerTree.Kind.DOCKERIMAGE);
     IacCommonAssertions.assertThat(dockerImage.textRange()).hasRange(1, 0, 3, 9);
 
@@ -67,13 +66,13 @@ class DockerImageImplTest {
 
   @Test
   void multipleImagesWithInstructions() {
-    File file = parse(code(
-      "FROM foo",
-      "MAINTAINER bob",
-      "EXPOSE 80",
-      "FROM bar",
-      "USER bob",
-      "LABEL key1=value1"), DockerLexicalGrammar.FILE);
+    File file = parse("""
+      FROM foo
+      MAINTAINER bob
+      EXPOSE 80
+      FROM bar
+      USER bob
+      LABEL key1=value1""", DockerLexicalGrammar.FILE);
     assertThat(file.body().dockerImages()).hasSize(2);
 
     DockerImage dockerImage1 = file.body().dockerImages().get(0);

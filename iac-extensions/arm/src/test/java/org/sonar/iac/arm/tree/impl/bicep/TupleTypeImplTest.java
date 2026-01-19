@@ -28,7 +28,6 @@ import org.sonar.iac.arm.tree.api.bicep.TupleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class TupleTypeImplTest extends BicepTreeModelTest {
 
@@ -58,7 +57,10 @@ class TupleTypeImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleTupleType() {
-    String code = code("[\n@functionName123() typeExpr\n]");
+    String code = """
+      [
+      @functionName123() typeExpr
+      ]""";
     TupleType tree = parse(code, BicepLexicalGrammar.TUPLE_TYPE);
     assertThat(tree.is(ArmTree.Kind.TUPLE_TYPE)).isTrue();
 

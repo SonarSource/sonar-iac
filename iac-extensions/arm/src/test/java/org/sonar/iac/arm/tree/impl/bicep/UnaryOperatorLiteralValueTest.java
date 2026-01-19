@@ -24,7 +24,6 @@ import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class UnaryOperatorLiteralValueTest extends BicepTreeModelTest {
 
@@ -55,8 +54,7 @@ class UnaryOperatorLiteralValueTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleUnaryOperatorLiteralValue() {
-    String code = code("- 5");
-    UnaryExpression tree = parse(code, BicepLexicalGrammar.UNARY_OPERATOR_LITERAL_VALUE);
+    UnaryExpression tree = parse("- 5", BicepLexicalGrammar.UNARY_OPERATOR_LITERAL_VALUE);
     assertThat(tree.is(ArmTree.Kind.UNARY_EXPRESSION)).isTrue();
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("-", "5");
     assertThat(tree.operator().value()).isEqualTo("-");

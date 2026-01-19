@@ -28,16 +28,15 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class InstructionImplTest {
 
   @Test
   void commentBeforeInstruction() {
-    String code = code(
-      "# instruction comment",
-      "FROM foo");
+    String code = """
+      # instruction comment
+      FROM foo""";
 
     File file = parse(code, DockerLexicalGrammar.FILE);
     DockerImage dockerImage = file.body().dockerImages().get(0);
@@ -51,10 +50,10 @@ class InstructionImplTest {
 
   @Test
   void commentInMultilineInstruction() {
-    String code = code(
-      "FROM foo \\",
-      "# multiline comment",
-      "AS bar");
+    String code = """
+      FROM foo \\
+      # multiline comment
+      AS bar""";
 
     File file = parse(code, DockerLexicalGrammar.FILE);
     DockerImage dockerImage = file.body().dockerImages().get(0);
@@ -72,9 +71,9 @@ class InstructionImplTest {
 
   @Test
   void shouldParseCommentWithoutSpace() {
-    File file = parse(code(
-      "#foobar",
-      "FROM foo"), DockerLexicalGrammar.FILE);
+    File file = parse("""
+      #foobar
+      FROM foo""", DockerLexicalGrammar.FILE);
 
     DockerImage image = TreeUtils.firstDescendant(file, DockerImage.class).get();
     List<Comment> comments = image.from().keyword().comments();
@@ -83,9 +82,9 @@ class InstructionImplTest {
 
   @Test
   void shouldParseEmptyComment() {
-    File file = parse(code(
-      "#",
-      "FROM foo"), DockerLexicalGrammar.FILE);
+    File file = parse("""
+      #
+      FROM foo""", DockerLexicalGrammar.FILE);
 
     DockerImage image = TreeUtils.firstDescendant(file, DockerImage.class).get();
     List<Comment> comments = image.from().keyword().comments();

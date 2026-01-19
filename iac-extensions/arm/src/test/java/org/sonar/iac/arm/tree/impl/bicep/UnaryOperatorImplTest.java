@@ -24,7 +24,6 @@ import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class UnaryOperatorImplTest extends BicepTreeModelTest {
 
@@ -49,8 +48,7 @@ class UnaryOperatorImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleUnaryOperator() {
-    String code = code("-");
-    UnaryOperator tree = parse(code, BicepLexicalGrammar.UNARY_OPERATOR);
+    UnaryOperator tree = parse("-", BicepLexicalGrammar.UNARY_OPERATOR);
     assertThat(tree.is(ArmTree.Kind.UNARY_OPERATOR)).isTrue();
     assertThat(tree.value()).isEqualTo("-");
     assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("-");

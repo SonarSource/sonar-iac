@@ -26,7 +26,6 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ObjectTypeImplTest extends BicepTreeModelTest {
 
@@ -57,7 +56,7 @@ class ObjectTypeImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleObjectType() {
-    ObjectType tree = parse(code("{ identifier : abc }"), BicepLexicalGrammar.OBJECT_TYPE);
+    ObjectType tree = parse("{ identifier : abc }", BicepLexicalGrammar.OBJECT_TYPE);
 
     assertThat(tree.is(ArmTree.Kind.OBJECT_TYPE)).isTrue();
     ObjectTypeProperty property = (ObjectTypeProperty) tree.properties().get(0);

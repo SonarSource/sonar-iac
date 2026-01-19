@@ -28,8 +28,6 @@ import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.testing.IacCommonAssertions;
 
-import static org.sonar.iac.common.testing.IacTestUtils.code;
-
 class ModuleDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseValidDeclarations() {
@@ -40,7 +38,10 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
       .matches("module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
       .matches("@batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
       .matches("@sys.batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
-      .matches(code("@sys.batchSize(4)", "@decorator()", "module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}"))
+      .matches("""
+        @sys.batchSize(4)
+        @decorator()
+        module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}""")
       // defining a module of name the same as keyword is possible
       .matches("module for 'resource.bicep' = { name: 'foo' }")
       .matches("module if 'resource.bicep' = { name: 'foo' }")

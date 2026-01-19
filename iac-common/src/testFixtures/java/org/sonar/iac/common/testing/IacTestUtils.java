@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -57,14 +56,6 @@ public final class IacTestUtils {
 
   private IacTestUtils() {
     // utils class
-  }
-
-  /**
-   * @deprecated Text blocks from Java 15 should be used instead.
-   */
-  @Deprecated(since = "1.28", forRemoval = true)
-  public static String code(String... lines) {
-    return StringUtils.join(lines, "\n");
   }
 
   public static InputFile inputFile(String fileName, String language) {

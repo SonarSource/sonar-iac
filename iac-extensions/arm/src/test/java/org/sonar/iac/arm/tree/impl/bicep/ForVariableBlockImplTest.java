@@ -25,7 +25,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ForVariableBlockImplTest {
 
@@ -49,9 +48,7 @@ class ForVariableBlockImplTest {
 
   @Test
   void shouldParseForVariableBlockWithDetailedAssertions() {
-    String code = code("(itemIdentifier123,indexIdentifier123)");
-
-    ForVariableBlock tree = (ForVariableBlock) parser.parse(code, null);
+    ForVariableBlock tree = (ForVariableBlock) parser.parse("(itemIdentifier123,indexIdentifier123)", null);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.FOR_VARIABLE_BLOCK)).isTrue();
 

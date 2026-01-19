@@ -45,6 +45,5 @@ dependencies {
     testFixturesImplementation(libs.sonar.plugin.api.impl)
     testFixturesImplementation(libs.sonar.plugin.api.test.fixtures)
     testFixturesImplementation(libs.sonar.analyzer.test.commons)
-    testFixturesImplementation(libs.apache.commons.lang)
     testFixturesImplementation(libs.logback.classic)
 }

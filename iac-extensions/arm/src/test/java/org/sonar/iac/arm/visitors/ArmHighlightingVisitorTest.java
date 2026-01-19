@@ -26,7 +26,6 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CONSTANT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD_LIGHT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
@@ -66,12 +65,12 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testDecoratorAndParam() {
-    highlight(code(
-      "@description('The list of logic app')",
-      "@sys.metadata({",
-      "  key: 'value'",
-      "})",
-      "param logicAppReceivers array = []"));
+    highlight("""
+      @description('The list of logic app')
+      @sys.metadata({
+        key: 'value'
+      })
+      param logicAppReceivers array = []""");
     assertHighlighting("@description", KEYWORD);
     assertHighlighting("'The list of logic app'", STRING);
 
@@ -88,15 +87,15 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testResourceDeclaration() {
-    highlight(code(
-      "resource actionGroup 'Microsoft.Insights/actionGroups@2019-06-01' = {",
-      "  name: actionGroupName",
-      "  location: 'Global'",
-      "  properties: {",
-      "    groupShortName: actionGroupShortName",
-      "    enabled: true",
-      "  }",
-      "}"));
+    highlight("""
+      resource actionGroup 'Microsoft.Insights/actionGroups@2019-06-01' = {
+        name: actionGroupName
+        location: 'Global'
+        properties: {
+          groupShortName: actionGroupShortName
+          enabled: true
+        }
+      }""");
     assertHighlighting(1, "resource", KEYWORD);
     assertHighlighting(1, "actionGroup", KEYWORD_LIGHT);
     assertHighlighting(1, "'Microsoft.Insights/actionGroups@2019-06-01'", STRING);
@@ -118,13 +117,13 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testResourceDeclarationIfCondition() {
-    highlight(code(
-      "resource myName1 'type@version' = if (!empty(logAnalytics)) {",
-      "  key: value",
-      "  properties: {",
-      "    prop1: val1",
-      "  }",
-      "}"));
+    highlight("""
+      resource myName1 'type@version' = if (!empty(logAnalytics)) {
+        key: value
+        properties: {
+          prop1: val1
+        }
+      }""");
     assertHighlighting(1, "resource", KEYWORD);
     assertHighlighting(1, "myName1", KEYWORD_LIGHT);
     assertHighlighting(1, "'type@version'", STRING);
@@ -142,10 +141,10 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testResourceDeclarationForExpression() {
-    highlight(code(
-      "resource myName 'type@version' existing = {",
-      "  key: value",
-      "}"));
+    highlight("""
+      resource myName 'type@version' existing = {
+        key: value
+      }""");
     assertHighlighting(1, "resource", KEYWORD);
     assertHighlighting(1, "myName", KEYWORD_LIGHT);
     assertHighlighting(1, "'type@version'", STRING);
@@ -157,7 +156,7 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testTargetScope() {
-    highlight(code("targetScope = 123"));
+    highlight("targetScope = 123");
     assertHighlighting(1, "targetScope", KEYWORD);
     assertHighlighting(1, "123", CONSTANT);
   }
@@ -183,10 +182,10 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testVariableDeclaration() {
-    highlight(code(
-      "var foo = 42",
-      "var aa = null",
-      "var bb = true"));
+    highlight("""
+      var foo = 42
+      var aa = null
+      var bb = true""");
     assertHighlighting("var", KEYWORD);
     assertHighlighting("foo", KEYWORD_LIGHT);
     assertHighlighting("42", CONSTANT);
@@ -210,10 +209,10 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testModuleDeclaration() {
-    highlight(code(
-      "module foo1 'path-to-file' = [for dd in deployments: 'expression']",
-      "module foo2 'path-to-file' = if (bar) {}",
-      "module for 'resource.bicep' = { name: 'foo' }"));
+    highlight("""
+      module foo1 'path-to-file' = [for dd in deployments: 'expression']
+      module foo2 'path-to-file' = if (bar) {}
+      module for 'resource.bicep' = { name: 'foo' }""");
     assertHighlighting("module", KEYWORD);
     assertHighlighting("foo1", KEYWORD_LIGHT);
     assertHighlighting("'path-to-file'", STRING);
@@ -238,9 +237,9 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testOutputDeclaration() {
-    highlight(code(
-      "output myOutput string = myValue",
-      "output myOutput string = virtualNetwork::subnet1.id"));
+    highlight("""
+      output myOutput string = myValue
+      output myOutput string = virtualNetwork::subnet1.id""");
     assertHighlighting(1, "output", KEYWORD);
     assertHighlighting(1, "myOutput", KEYWORD_LIGHT);
     assertHighlighting(1, "string", KEYWORD);
@@ -254,9 +253,9 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
   @Test
   void testFunctionDeclaration() {
-    highlight(code(
-      "func myFunction1() string => 'result'",
-      "func myFunction2(foo int, bar object) int => 0"));
+    highlight("""
+      func myFunction1() string => 'result'
+      func myFunction2(foo int, bar object) int => 0""");
     assertHighlighting(1, "func", KEYWORD);
     assertHighlighting(1, "myFunction1", KEYWORD_LIGHT);
     assertHighlighting(1, "string", KEYWORD);

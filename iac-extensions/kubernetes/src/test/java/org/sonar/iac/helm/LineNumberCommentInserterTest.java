@@ -16,7 +16,6 @@
  */
 package org.sonar.iac.helm;
 
-import org.apache.commons.lang.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -212,7 +211,7 @@ class LineNumberCommentInserterTest {
   }
 
   String codeSpecific(String carriageReturn, String... lines) {
-    return StringUtils.join(lines, carriageReturn);
+    return String.join(carriageReturn, lines);
   }
 
   String code(String... lines) {
