@@ -1,0 +1,50 @@
+[
+  {
+    "key": "test-rule-1",
+    "name": "Test Rule 1",
+    "url": "https://example.com/test-rule-1",
+    "tags": ["test"],
+    "description": "This is a test rule 1",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "test-rule-2",
+    "name": "Test Rule 2",
+    "url": "https://example.com/test-rule-2",
+    "tags": ["test"],
+    "description": "This is a test rule 2",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  },
+  {
+    "key": "test.fallback",
+    "name": "Test SARIF Fallback Rule",
+    "url": "https://example.com/test",
+    "tags": ["test"],
+    "description": "This reporting may be triggered by a custom test rule not yet added to the analyzer.",
+    "constantDebtMinutes": 5,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR",
+    "code": {
+      "attribute": "CONVENTIONAL",
+      "impacts": {
+        "MAINTAINABILITY": "MEDIUM"
+      }
+    }
+  }
+]
