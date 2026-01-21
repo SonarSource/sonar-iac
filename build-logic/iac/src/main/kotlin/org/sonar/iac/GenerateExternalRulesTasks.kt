@@ -139,3 +139,24 @@ abstract class GenerateAnsibleLintRulesTask : DefaultTask() {
         logger.lifecycle("Generated ${rules.size} Ansible Lint rules to ${rulesFile.asFile.get().path}")
     }
 }
+
+/**
+ * Gradle task to generate Actionlint rules.
+ *
+ * Actionlint rules are extracted from the actionlint Go source files
+ * in the git submodule at private/its/sources/github-actions/actionlint.
+ * To update rules, update the submodule commit.
+ */
+abstract class GenerateActionlintRulesTask : DefaultTask() {
+    @get:OutputFile
+    abstract val rulesFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val rules = ActionlintRulesGenerator.extractActionlintRules(project.rootDir)
+
+        writeRulesJson(rules, rulesFile.asFile.get())
+
+        logger.lifecycle("Generated ${rules.size} Actionlint rules to ${rulesFile.asFile.get().path}")
+    }
+}
