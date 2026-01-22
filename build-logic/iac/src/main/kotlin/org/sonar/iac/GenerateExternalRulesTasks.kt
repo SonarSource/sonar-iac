@@ -160,3 +160,24 @@ abstract class GenerateActionlintRulesTask : DefaultTask() {
         logger.lifecycle("Generated ${rules.size} Actionlint rules to ${rulesFile.asFile.get().path}")
     }
 }
+
+/**
+ * Gradle task to generate Spectral rules.
+ *
+ * Spectral rules are extracted from TypeScript ruleset files
+ * in the git submodule at private/its/sources/spectral/spectral/packages/rulesets/src/.
+ * To update rules, update the submodule commit.
+ */
+abstract class GenerateSpectralRulesTask : DefaultTask() {
+    @get:OutputFile
+    abstract val rulesFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val rules = SpectralRulesGenerator.extractSpectralRules()
+
+        writeRulesJson(rules, rulesFile.asFile.get())
+
+        logger.lifecycle("Generated ${rules.size} Spectral rules to ${rulesFile.asFile.get().path}")
+    }
+}

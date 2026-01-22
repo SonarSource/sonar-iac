@@ -58,3 +58,6 @@
 [submodule "private/its/sources/github-actions/actionlint"]
 	path = private/its/sources/github-actions/actionlint
 	url = https://github.com/rhysd/actionlint
+[submodule "private/its/sources/spectral/spectral"]
+	path = private/its/sources/spectral/spectral
+	url = https://github.com/stoplightio/spectral.git
