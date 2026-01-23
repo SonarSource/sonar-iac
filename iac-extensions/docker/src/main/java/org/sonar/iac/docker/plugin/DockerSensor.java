@@ -33,6 +33,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -66,7 +67,7 @@ public class DockerSensor extends IacSensor {
     descriptor
       .processesFilesIndependently()
       .name("IaC " + language.getName() + " Sensor");
-    activateHiddenFilesProcessing(descriptor);
+    SonarRuntimeUtils.activateHiddenFilesProcessing(sonarRuntime, descriptor);
   }
 
   @Override
@@ -95,7 +96,7 @@ public class DockerSensor extends IacSensor {
 
     // In SQ-IDE Language#filenamePatterns() is not implemented, so all Dockerfiles are detected by path patterns not via the Docker language
     // Support will be implemented with SLCORE-526
-    if (isSonarLintContext(sensorContext.runtime())) {
+    if (SonarRuntimeUtils.isSonarLintContext(sensorContext.runtime())) {
       pathPatterns.add("**/Dockerfile");
       pathPatterns.add("**/dockerfile");
       pathPatterns.add("**/**.Dockerfile");
@@ -134,7 +135,7 @@ public class DockerSensor extends IacSensor {
     visitors.add(new DockerSymbolVisitor());
     visitors.addAll(preCheckVisitors());
     visitors.add(new ChecksVisitor(checks, statistics));
-    if (isNotSonarLintContext(sensorContext.runtime())) {
+    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
       visitors.add(new DockerHighlightingVisitor());
     }

@@ -27,6 +27,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -62,7 +63,7 @@ public class TerraformSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    if (isNotSonarLintContext(sensorContext.runtime())) {
+    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
       visitors.add(new TerraformHighlightingVisitor());
     }

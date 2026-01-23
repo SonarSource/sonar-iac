@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -42,7 +41,6 @@ public abstract class IacSensor implements Sensor {
 
   public static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
   public static final String EXTENDED_LOGGING_PROPERTY_NAME = "sonar.internal.iac.extendedLogging";
-  public static final Version HIDDEN_FILES_SUPPORTED_API_VERSION = Version.create(12, 0);
 
   protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
@@ -126,14 +124,6 @@ public abstract class IacSensor implements Sensor {
       fileSystem.predicates().hasType(InputFile.Type.MAIN));
   }
 
-  public static boolean isSonarLintContext(SonarRuntime sonarRuntime) {
-    return sonarRuntime.getProduct() == SonarProduct.SONARLINT;
-  }
-
-  public static boolean isNotSonarLintContext(SonarRuntime sonarRuntime) {
-    return !isSonarLintContext(sonarRuntime);
-  }
-
   protected boolean isActive(SensorContext sensorContext) {
     return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
   }
@@ -145,19 +135,6 @@ public abstract class IacSensor implements Sensor {
   protected void afterExecute(SensorContext sensorContext) {
     sensorTelemetry.addAggregatedLinesOfCodeTelemetry(repositoryKey());
     sensorTelemetry.reportTelemetry(sensorContext);
-  }
-
-  protected void activateHiddenFilesProcessing(SensorDescriptor descriptor) {
-    if (isHiddenFilesAnalysisSupported(sonarRuntime)) {
-      descriptor.processesHiddenFiles();
-    }
-  }
-
-  private static boolean isHiddenFilesAnalysisSupported(SonarRuntime sonarRuntime) {
-    // Temporarily exclude SonarLint context, as it's breaking integration tests, where sonar-plugin-api is retrieved from the classpath, and
-    // not from the SQ-IDE library
-    // SonarLint is handling hidden files differently, so we still are able to analyze them without calling `descriptor.processesHiddenFiles()`
-    return isNotSonarLintContext(sonarRuntime) && sonarRuntime.getApiVersion().isGreaterThanOrEqual(HIDDEN_FILES_SUPPORTED_API_VERSION);
   }
 
   public static boolean isFailFast(SensorContext context) {

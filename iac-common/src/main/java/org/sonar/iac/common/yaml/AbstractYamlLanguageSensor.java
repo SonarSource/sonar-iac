@@ -32,6 +32,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -63,7 +64,7 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    if (isNotSonarLintContext(sensorContext.runtime())) {
+    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new YamlHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
     }

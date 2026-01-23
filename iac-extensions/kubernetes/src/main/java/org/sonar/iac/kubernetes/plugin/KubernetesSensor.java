@@ -31,6 +31,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -124,7 +125,7 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    if (isNotSonarLintContext(sensorContext.runtime())) {
+    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new KubernetesHighlightingVisitor());
       visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
     }

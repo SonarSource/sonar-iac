@@ -471,7 +471,7 @@ class IacSensorTest extends AbstractSensorTest {
     var descriptor = new DefaultSensorDescriptor();
     var sensor = sensor(SQS_HIDDEN_FILES_SUPPORTED_API_VERSION, checkFactory());
     sensor.describe(descriptor);
-    sensor.activateHiddenFilesProcessing(descriptor);
+    SonarRuntimeUtils.activateHiddenFilesProcessing(sensor.sonarRuntime, descriptor);
     assertThat(descriptor.isProcessesHiddenFiles()).isTrue();
   }
 
@@ -481,7 +481,7 @@ class IacSensorTest extends AbstractSensorTest {
     var descriptor = new DefaultSensorDescriptor();
     var sensor = sensor(sonarRuntime, checkFactory());
     sensor.describe(descriptor);
-    sensor.activateHiddenFilesProcessing(descriptor);
+    SonarRuntimeUtils.activateHiddenFilesProcessing(sensor.sonarRuntime, descriptor);
     assertThat(descriptor.isProcessesHiddenFiles()).isFalse();
   }
 
