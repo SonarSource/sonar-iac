@@ -47,13 +47,13 @@ spotless {
     kotlin {
         ktlint().setEditorConfigPath("$rootDir/.editorconfig")
         target("src/**/*.kt")
-        licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
+        licenseHeaderFile(rootProject.file("LICENSE_HEADER"))
     }
 
     val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
     kotlinGradle {
         ktlint().setEditorConfigPath("$rootDir/.editorconfig")
         target("*.gradle.kts", "src/**/*.gradle.kts")
-        licenseHeaderFile(rootProject.file("LICENSE_HEADER"), kotlinGradleDelimiter).updateYearWithLatest(true)
+        licenseHeaderFile(rootProject.file("LICENSE_HEADER"), kotlinGradleDelimiter)
     }
 }

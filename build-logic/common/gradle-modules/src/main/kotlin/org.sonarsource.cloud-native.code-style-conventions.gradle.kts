@@ -49,17 +49,17 @@ spotless {
                         "540ef32ba22c301f6d05a5305f4e1dbd204839f3/eclipse/sonar-formatter.xml"
                 )
             )
-        licenseHeaderFile(licenseHeaderFile).updateYearWithLatest(true)
+        licenseHeaderFile(licenseHeaderFile)
         targetExclude("*/generated-sources/**", "*/generated-src/**", "*/generated/sources/**")
         toggleOffOn()
     }
     kotlinGradle {
         ktlint().setEditorConfigPath(codeStyleConvention.editorConfigPath)
-        licenseHeaderFile(licenseHeaderFile, kotlinGradleDelimiter).updateYearWithLatest(true)
+        licenseHeaderFile(licenseHeaderFile, kotlinGradleDelimiter)
     }
     format("javaMisc") {
         target("src/**/package-info.java")
-        licenseHeaderFile(licenseHeaderFile, "@javax.annotation").updateYearWithLatest(true)
+        licenseHeaderFile(licenseHeaderFile, "@javax.annotation")
     }
 }
 

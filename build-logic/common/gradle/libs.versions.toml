@@ -4,7 +4,7 @@ blowdryer-gradle = "1.7.1"
 develocity = "4.0.3"
 jackson = "2.20.1"
 jfrog-gradle = "6.0.4"
-gradle-plugin-shadow = "9.2.2"
+gradle-plugin-shadow = "9.3.1"
 gradle-license-report = "3.0.1"
 sonar-scanner-gradle = "7.1.0.6387"
 

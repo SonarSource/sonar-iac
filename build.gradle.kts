@@ -78,7 +78,7 @@ spotless {
     kotlin {
         target("build-logic/iac/src/**/*.kt")
         ktlint().setEditorConfigPath("$rootDir/build-logic/common/.editorconfig")
-        licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
+        licenseHeaderFile(rootProject.file("LICENSE_HEADER"))
     }
     kotlinGradle {
         target("build-logic/iac/src/**/*.gradle.kts", "build-logic/iac/*.gradle.kts", "*.gradle.kts")

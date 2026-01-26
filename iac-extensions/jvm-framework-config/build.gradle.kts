@@ -72,6 +72,6 @@ configurations.testImplementation.configure {
 spotless {
     antlr4 {
         target("src/main/antlr/**/*.g4")
-        licenseHeaderFile("$rootDir/LICENSE_HEADER").updateYearWithLatest(true)
+        licenseHeaderFile("$rootDir/LICENSE_HEADER")
     }
 }
