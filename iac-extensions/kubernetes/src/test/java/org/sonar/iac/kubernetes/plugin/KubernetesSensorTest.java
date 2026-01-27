@@ -248,9 +248,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNoSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(3);
-    assertThat(logs.get(1)).isEqualTo("Initializing Helm processor");
-    assertThat(logs.get(2))
+    assertThat(logs).hasSize(4);
+    assertThat(logs.get(0)).startsWith("Kubernetes sensor initialized with");
+    assertThat(logs.get(1)).isEqualTo("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
+    assertThat(logs.get(2)).isEqualTo("Initializing Helm processor");
+    assertThat(logs.get(3))
       .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
     verifyLinesOfCodeTelemetry(0);
   }
@@ -262,8 +264,9 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNoSourceFileIsParsed();
 
     assertThat(logTester.logs(Level.DEBUG))
-      .hasSize(2)
+      .hasSize(3)
       .noneMatch(log -> log.startsWith("File without Kubernetes identifier:"))
+      .anyMatch(log -> log.startsWith("Kubernetes sensor initialized with"))
       .contains("Initializing Helm processor", "Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
   }
 
@@ -275,8 +278,9 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNoSourceFileIsParsed();
 
     assertThat(logTester.logs(Level.DEBUG))
-      .hasSize(2)
+      .hasSize(3)
       .noneMatch(log -> log.startsWith("File without Kubernetes identifier:"))
+      .anyMatch(log -> log.startsWith("Kubernetes sensor initialized with"))
       .contains("Initializing Helm processor", "Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
   }
 
@@ -736,12 +740,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
     return new KubernetesSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
-      mock(HelmEvaluator.class));
+      mock(HelmEvaluator.class), new KustomizationInfoProvider());
   }
 
   protected KubernetesSensor sensorSonarLint() {
     return new KubernetesSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory(), noSonarFilter, new KubernetesLanguage(),
-      mock(HelmEvaluator.class), sonarLintFileListener);
+      mock(HelmEvaluator.class), sonarLintFileListener, new KustomizationInfoProvider());
   }
 
   protected KubernetesSensor sensor(HelmProcessor helmProcessor, CheckFactory checkFactory) {
@@ -794,25 +798,31 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .isEqualTo("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
+      .startsWith("Kubernetes sensor initialized with");
     assertThat(logTester.logs(Level.DEBUG).get(1))
-      .isEqualTo("Initializing Helm processor");
+      .isEqualTo("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
     assertThat(logTester.logs(Level.DEBUG).get(2))
-      .isEqualTo(message1);
+      .isEqualTo("Initializing Helm processor");
     assertThat(logTester.logs(Level.DEBUG).get(3))
-      .startsWith(message2);
+      .isEqualTo(message1);
     assertThat(logTester.logs(Level.DEBUG).get(4))
+      .startsWith(message2);
+    assertThat(logTester.logs(Level.DEBUG).get(5))
       .startsWith("Kubernetes Parsing Statistics");
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(5);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(6);
   }
 
   private KubernetesSensor sonarLintSensor(String... rules) {
+    var slfl = mock(SonarLintFileListener.class);
+    when(slfl.getProjectContext()).thenReturn(new ProjectContextImpl());
     return new KubernetesSensor(
       SONARLINT_RUNTIME_9_9,
       fileLinesContextFactory,
       checkFactory(sonarLintContext, rules),
       noSonarFilter,
       new KubernetesLanguage(),
-      mock(HelmEvaluator.class));
+      mock(HelmEvaluator.class),
+      slfl,
+      new KustomizationInfoProvider());
   }
 }

@@ -18,6 +18,7 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -133,6 +134,79 @@ class ProjectContextImplTest {
       when(retrieveHelmProjectFolder(any(), any())).thenReturn(baseDir.resolve("path1"));
       return new HelmInputFileContext(mock(SensorContext.class), inputFile, null);
     }
+  }
+
+  @Test
+  void shouldTrackKustomizationReferencedFiles() {
+    var ctx = new ProjectContextImpl();
+
+    // Set kustomization-referenced files
+    var file1 = baseDir.resolve("overlays/dev/deployment.yaml").normalize();
+    var file2 = baseDir.resolve("overlays/dev/service.yaml").normalize();
+    var file3 = baseDir.resolve("base/deployment.yaml").normalize();
+
+    ctx.setKustomizationReferencedFiles(Set.of(file1, file2, file3));
+
+    // Create input file contexts with matching paths
+    var inputFileContext1 = toInputFileContext("overlays/dev/deployment.yaml");
+    var inputFileContext2 = toInputFileContext("overlays/dev/service.yaml");
+    var inputFileContext3 = toInputFileContext("base/deployment.yaml");
+    var inputFileContext4 = toInputFileContext("base/service.yaml"); // Not in kustomization
+
+    // Verify isKustomizationResource works correctly
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext1)).isTrue();
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext2)).isTrue();
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext3)).isTrue();
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext4)).isFalse();
+  }
+
+  @Test
+  void shouldHandleEmptyKustomizationReferencedFiles() {
+    var ctx = new ProjectContextImpl();
+
+    var inputFileContext = toInputFileContext("some/file.yaml");
+
+    // No files added, should return false
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext)).isFalse();
+  }
+
+  @Test
+  void shouldNormalizePathsWhenCheckingKustomizationResource() {
+    var ctx = new ProjectContextImpl();
+
+    // Set a normalized path
+    var normalizedPath = baseDir.resolve("overlays/dev/deployment.yaml").normalize();
+    ctx.setKustomizationReferencedFiles(Set.of(normalizedPath));
+
+    // Create context with path that needs normalization
+    var inputFileContext = toInputFileContext("overlays/dev/./deployment.yaml");
+
+    // Should still match due to normalization
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext)).isTrue();
+  }
+
+  @Test
+  void shouldReplaceKustomizationReferencedFilesWhenCalledMultipleTimes() {
+    var ctx = new ProjectContextImpl();
+
+    // Set initial files
+    var file1 = baseDir.resolve("overlays/dev/deployment.yaml").normalize();
+    var file2 = baseDir.resolve("overlays/dev/service.yaml").normalize();
+    ctx.setKustomizationReferencedFiles(Set.of(file1, file2));
+
+    var inputFileContext1 = toInputFileContext("overlays/dev/deployment.yaml");
+    var inputFileContext2 = toInputFileContext("overlays/dev/service.yaml");
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext1)).isTrue();
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext2)).isTrue();
+
+    // Replace with new files
+    var file3 = baseDir.resolve("base/deployment.yaml").normalize();
+    ctx.setKustomizationReferencedFiles(Set.of(file3));
+
+    var inputFileContext3 = toInputFileContext("base/deployment.yaml");
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext1)).isFalse(); // Should be removed
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext2)).isFalse(); // Should be removed
+    assertThat(ctx.isKustomizationReferencedFile(inputFileContext3)).isTrue(); // Should be added
   }
 
   private static class TestResource implements ProjectResource {

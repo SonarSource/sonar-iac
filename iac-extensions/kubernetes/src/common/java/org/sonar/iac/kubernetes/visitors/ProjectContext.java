@@ -42,4 +42,14 @@ public interface ProjectContext {
 
   @CheckForNull
   Chart getChart();
+
+  /**
+   * Checks if the given file is referenced as a resource or patch in any kustomization.yaml file.
+   * Files that are kustomization resources may be incomplete and should be handled differently by checks
+   * to avoid false positives.
+   *
+   * @param inputFileContext the input file context to check
+   * @return true if the file is referenced in any kustomization.yaml, false otherwise
+   */
+  boolean isKustomizationReferencedFile(InputFileContext inputFileContext);
 }

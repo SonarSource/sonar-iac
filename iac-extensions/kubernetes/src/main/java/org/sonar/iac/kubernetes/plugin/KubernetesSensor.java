@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
@@ -50,26 +51,30 @@ import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 
+@DependsUpon("KustomizationSensor")
 public class KubernetesSensor extends AbstractYamlLanguageSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
   private final HelmEvaluator helmEvaluator;
   @Nullable
   private final SonarLintFileListener sonarLintFileListener;
+  private final KustomizationInfoProvider kustomizationInfoProvider;
   private final ProjectContextImpl projectContextImpl;
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator) {
-    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, helmEvaluator, null);
+    NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator, KustomizationInfoProvider kustomizationInfoProvider) {
+    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, helmEvaluator, null, kustomizationInfoProvider);
   }
 
   // Constructor for SonarLint
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator, @Nullable SonarLintFileListener sonarLintFileListener) {
+    NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator, @Nullable SonarLintFileListener sonarLintFileListener,
+    KustomizationInfoProvider kustomizationInfoProvider) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks());
     this.helmEvaluator = helmEvaluator;
     this.sonarLintFileListener = sonarLintFileListener;
+    this.kustomizationInfoProvider = kustomizationInfoProvider;
     if (sonarLintFileListener != null) {
       projectContextImpl = sonarLintFileListener.getProjectContext();
     } else {
@@ -89,6 +94,9 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
 
   @Override
   protected void initContext(SensorContext sensorContext) {
+    projectContextImpl.setKustomizationReferencedFiles(kustomizationInfoProvider.kustomizationReferencedFiles());
+    LOG.debug("Kubernetes sensor initialized with {} kustomization referenced files: {}",
+      kustomizationInfoProvider.kustomizationReferencedFiles().size(), kustomizationInfoProvider.kustomizationReferencedFiles());
     var fileSystemProvider = createFileSystemProvider(sensorContext);
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
