@@ -29,7 +29,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: jdx/mise-action@e3d7b8d67a7958d1207f6ed871e83b1ea780e7b0 # v3.3.1
+      - uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
         with:
           version: 2025.7.12
 
