@@ -39,7 +39,7 @@ class IacPluginTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(55);
+    assertThat(context.getExtensions()).hasSize(57);
   }
 
   @Test
@@ -48,7 +48,7 @@ class IacPluginTest {
     Plugin.Context context = new Plugin.Context(runtime);
     iacPlugin.define(context);
     // Doesn't contain 3 external report properties (tf, cf, docker) but k8s sonarlintfilelistener
-    assertThat(context.getExtensions()).hasSize(50);
+    assertThat(context.getExtensions()).hasSize(52);
   }
 
   @Test

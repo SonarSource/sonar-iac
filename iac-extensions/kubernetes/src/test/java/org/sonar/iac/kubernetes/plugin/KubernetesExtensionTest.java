@@ -48,11 +48,11 @@ class KubernetesExtensionTest extends AbstractExtensionTest {
 
   @Override
   protected int extensionsCountOnSQ() {
-    return 7;
+    return 9;
   }
 
   @Override
   protected int extensionsCountOnSL() {
-    return 8;
+    return 10;
   }
 }

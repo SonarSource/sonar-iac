@@ -32,6 +32,8 @@ public class KubernetesExtension {
       context.addExtension(SonarLintFileListener.class);
     }
     context.addExtensions(
+      KustomizationInfoProvider.class,
+      KustomizationSensor.class,
       // Language
       KubernetesLanguage.class,
       // Sensor
