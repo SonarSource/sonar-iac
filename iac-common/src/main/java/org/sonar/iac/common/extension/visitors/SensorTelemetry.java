@@ -16,7 +16,10 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
@@ -27,6 +30,8 @@ public class SensorTelemetry {
   private static final String KEY_PREFIX = "iac.";
   private static final Version TELEMETRY_SUPPORTED_API_VERSION = Version.create(10, 9);
   private long aggregatedLinesOfCode;
+  private long maxFileSize;
+  private final List<Long> fileSizeList = new ArrayList<>();
 
   private final Map<String, String> telemetry = new HashMap<>();
 
@@ -36,6 +41,11 @@ public class SensorTelemetry {
 
   public void addLinesOfCode(int numberOfLines) {
     aggregatedLinesOfCode += numberOfLines;
+  }
+
+  public void addFileSize(long fileSize) {
+    maxFileSize = Math.max(fileSize, maxFileSize);
+    fileSizeList.add(fileSize);
   }
 
   public void addTelemetry(String key, String value) {
@@ -52,6 +62,14 @@ public class SensorTelemetry {
     }
   }
 
+  public void addAggregatedFileSizeTelemetry(String language) {
+    if (!fileSizeList.isEmpty()) {
+      addTelemetry(language + ".files.maxSize", String.valueOf(maxFileSize));
+      addTelemetry(language + ".files.count", String.valueOf(fileSizeList.size()));
+      addTelemetry(language + ".files.medianSize", String.valueOf(calculateMedian(fileSizeList)));
+    }
+  }
+
   public void reportTelemetry(SensorContext sensorContext) {
     var isTelemetrySupported = sensorContext.runtime().getApiVersion().isGreaterThanOrEqual(TELEMETRY_SUPPORTED_API_VERSION);
     if (isTelemetrySupported) {
@@ -64,5 +82,19 @@ public class SensorTelemetry {
   // Getter method for testing
   protected Map<String, String> getTelemetry() {
     return telemetry;
+  }
+
+  static long calculateMedian(List<Long> numbers) {
+    if (numbers.isEmpty()) {
+      return 0;
+    }
+    Collections.sort(numbers);
+    int size = numbers.size();
+    int middle = size / 2;
+    if (size % 2 == 1) {
+      return numbers.get(middle);
+    } else {
+      return (numbers.get(middle - 1) + numbers.get(middle)) / 2;
+    }
   }
 }

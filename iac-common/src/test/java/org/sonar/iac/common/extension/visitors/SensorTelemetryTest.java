@@ -17,9 +17,17 @@
 package org.sonar.iac.common.extension.visitors;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -28,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -128,9 +137,55 @@ class SensorTelemetryTest {
     verify(context, never()).addTelemetryProperty(any(), any());
   }
 
+  @ParameterizedTest
+  @MethodSource("provideFileSizeMetricTestData")
+  void shouldVerifyFileSizeMetricEntry(List<Long> fileSizeList, String entryKey, String entryValue) {
+    fileSizeList.forEach(fileSize -> sensorTelemetry.addFileSize(fileSize));
+
+    sensorTelemetry.addAggregatedFileSizeTelemetry("language");
+
+    reportTelemetryAndVerifySingleEntry(entryKey, entryValue);
+  }
+
+  static Stream<Arguments> provideFileSizeMetricTestData() {
+    return Stream.of(
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L), "iac.language.files.maxSize", "11"),
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L), "iac.language.files.count", "4"),
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), "iac.language.files.medianSize", "8"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideMedianCalculationTestData")
+  void shouldVerifyMedianCalculation(List<Long> numbers, long median) {
+    assertThat(SensorTelemetry.calculateMedian(numbers)).isEqualTo(median);
+  }
+
+  static Stream<Arguments> provideMedianCalculationTestData() {
+    return Stream.of(
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), 8),
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L, 9L), 8),
+      Arguments.of(new ArrayList<>(List.of(10L)), 10),
+      Arguments.of(Collections.emptyList(), 0));
+  }
+
+  @Test
+  void shouldNotReportFilesMetricWhenFilesIsEmpty() {
+    sensorTelemetry.addAggregatedFileSizeTelemetry("language");
+
+    reportTelemetryAndVerifyNotContainEntry("iac.language.files.maxSize");
+    reportTelemetryAndVerifyNotContainEntry("iac.language.files.count");
+    reportTelemetryAndVerifyNotContainEntry("iac.language.files.medianSize");
+  }
+
   private void reportTelemetryAndVerifySingleEntry(String key, String value) {
     sensorTelemetry.reportTelemetry(context);
     assertThat(sensorTelemetry.getTelemetry()).containsEntry(key, value);
     verify(context).addTelemetryProperty(key, value);
+  }
+
+  private void reportTelemetryAndVerifyNotContainEntry(String key) {
+    sensorTelemetry.reportTelemetry(context);
+    assertThat(sensorTelemetry.getTelemetry().containsKey(key)).isFalse();
+    verify(context, never()).addTelemetryProperty(eq(key), any());
   }
 }

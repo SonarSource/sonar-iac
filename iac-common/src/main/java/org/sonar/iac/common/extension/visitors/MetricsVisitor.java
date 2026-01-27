@@ -79,6 +79,10 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
     sensorTelemetry.addLinesOfCode(linesOfCode.size());
   }
 
+  protected void addFileSize(long filesize) {
+    sensorTelemetry.addFileSize(filesize);
+  }
+
   protected void addCommentLines(List<Comment> comments) {
     for (Comment comment : comments) {
       String[] lines = comment.contentText().split("(\r)?\n|\r", -1);
