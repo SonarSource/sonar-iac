@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,13 +52,23 @@ class CpuLimitCheckTest {
   }
 
   @Test
-  void testKindWithTemplate() {
-    KubernetesVerifier.verify("CpuLimitCheck/cpu_limit_deployment.yaml", check);
+  void teskKustomized() {
+    KubernetesVerifier.verifyNoIssue("CpuLimitCheck/kustomized_cpu_limit_deployment.yaml", check, ((inputFileContext, fileNames) -> {
+      var kustomizationReferencedPath = KubernetesVerifier.BASE_DIR.resolve("CpuLimitCheck/kustomized_cpu_limit_deployment.yaml").toAbsolutePath().normalize();
+      var ctx = KubernetesVerifier.prepareProjectContext(inputFileContext, fileNames);
+      ctx.setKustomizationReferencedFiles(Set.of(kustomizationReferencedPath));
+      return ctx;
+    }));
   }
 
   @Test
   void testKindWithTemplateWithGlobalLimit() {
     KubernetesVerifier.verifyNoIssue("CpuLimitCheck/cpu_limit_deployment_with_global_limit.yaml", check, "CpuLimitCheck/limit_ranges.yaml");
+  }
+
+  @Test
+  void testKindWithTemplate() {
+    KubernetesVerifier.verify("CpuLimitCheck/cpu_limit_deployment.yaml", check);
   }
 
   @ParameterizedTest

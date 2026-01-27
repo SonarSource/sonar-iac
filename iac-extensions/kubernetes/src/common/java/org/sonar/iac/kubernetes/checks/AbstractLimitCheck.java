@@ -26,6 +26,7 @@ import org.sonar.iac.common.yaml.TreePredicates;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonar.iac.kubernetes.model.LimitRangeItem;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck<LimitRange> {
 
@@ -38,6 +39,9 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
   }
 
   private void checkDocument(BlockObject document, boolean isKindWithTemplate) {
+    if (shouldSkipDocumentCheck(document)) {
+      return;
+    }
     var globalResources = getGlobalResources(document);
 
     BlockObject spec;
@@ -53,6 +57,10 @@ public abstract class AbstractLimitCheck extends AbstractResourceManagementCheck
     containers.filter(container -> !hasLimitDefinedGlobally(globalResources))
       .filter(this::shouldInvestigateContainer)
       .forEach(this::reportMissingLimit);
+  }
+
+  protected boolean shouldSkipDocumentCheck(BlockObject document) {
+    return document.ctx instanceof KubernetesCheckContext ctx && ctx.projectContext().isKustomizationReferencedFile(ctx.inputFileContext());
   }
 
   protected void reportMissingLimit(BlockObject container) {

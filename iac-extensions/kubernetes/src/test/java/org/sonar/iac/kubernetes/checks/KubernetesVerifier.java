@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -142,16 +143,20 @@ public class KubernetesVerifier {
       new ProjectContextImpl()));
   }
 
-  public static void verifyNoIssue(String templateFileName, IacCheck check, String... fileNames) {
+  public static void verifyNoIssue(String templateFileName, IacCheck check, BiFunction<InputFileContext, String[], ProjectContextImpl> projectContextFactory, String... fileNames) {
     var initialization = initializeVerification(templateFileName, fileNames);
     var inputFileContext = initialization.first();
     var commentsVisitor = initialization.second();
     Verifier.verifyNoIssue(PARSER, inputFileContext, check,
       multiFileVerifier -> {
-        var projectContext = prepareProjectContext(inputFileContext, fileNames);
+        var projectContext = projectContextFactory.apply(inputFileContext, fileNames);
         return new KubernetesTestContext(multiFileVerifier, inputFileContext, projectContext);
       },
       commentsVisitor);
+  }
+
+  public static void verifyNoIssue(String templateFileName, IacCheck check, String... fileNames) {
+    verifyNoIssue(templateFileName, check, KubernetesVerifier::prepareProjectContext, fileNames);
   }
 
   private static Tuple<InputFileContext, BiConsumer<Tree, Map<Integer, Set<Comment>>>> initializeVerification(String templateFileName,
@@ -206,7 +211,7 @@ public class KubernetesVerifier {
       new TreeVisitor<>(), null);
   }
 
-  private static ProjectContextImpl prepareProjectContext(InputFileContext inputFileContext, String... additionalFiles) {
+  public static ProjectContextImpl prepareProjectContext(InputFileContext inputFileContext, String... additionalFiles) {
     var projectContext = new ProjectContextImpl();
     var projectContextEnricherVisitor = new ProjectContextEnricherVisitor(projectContext);
 
