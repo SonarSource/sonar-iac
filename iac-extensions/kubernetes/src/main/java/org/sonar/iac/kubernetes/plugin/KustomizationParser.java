@@ -73,7 +73,7 @@ public class KustomizationParser {
       var inputFileContext = new InputFileContext(sensorContext, inputFile);
       var content = inputFile.contents();
       var tree = yamlParser.parse(content, inputFileContext);
-
+      LOG.debug("Extracting referenced files from the file: {}", kustomizationFilePath);
       return extractReferencedFiles(tree, parentDirPath);
     } catch (IOException e) {
       LOG.debug("Failed to parse kustomization file {}: {}", inputFile, e.getMessage());
