@@ -91,7 +91,7 @@ public abstract class IacSensor implements Sensor {
 
     initContext(sensorContext);
 
-    sensorTelemetry = new SensorTelemetry();
+    sensorTelemetry = new SensorTelemetry(sensorContext.config());
     var statistics = new DurationStatistics(sensorContext.config());
     List<InputFile> inputFiles = inputFiles(sensorContext, statistics);
     if (inputFiles.isEmpty()) {

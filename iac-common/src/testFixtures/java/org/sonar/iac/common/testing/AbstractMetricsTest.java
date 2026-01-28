@@ -26,6 +26,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -62,10 +63,15 @@ public abstract class AbstractMetricsTest {
   @BeforeEach
   void setUp() {
     sensorContext = spy(SensorContextTester.create(tempFolder));
+    var contextTest = SensorContextTester.create(tempFolder);
+    var settings = new MapSettings();
+    settings.setProperty("sonar.iac.duration.statistics", true);
+    contextTest.setSettings(settings);
+
     fileLinesContext = mock(FileLinesContext.class);
     fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    sensorTelemetry = spy(new SensorTelemetry());
+    sensorTelemetry = spy(new SensorTelemetry(sensorContext.config()));
 
     parser = treeParser();
     visitor = metricsVisitor(fileLinesContextFactory);

@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,8 +51,12 @@ class SensorTelemetryTest {
 
   @BeforeEach
   public void init() {
-    context = spy(SensorContextTester.create(tempDir));
-    sensorTelemetry = new SensorTelemetry();
+    var contextTest = SensorContextTester.create(tempDir);
+    var settings = new MapSettings();
+    settings.setProperty("sonar.iac.duration.statistics", true);
+    contextTest.setSettings(settings);
+    context = spy(contextTest);
+    sensorTelemetry = new SensorTelemetry(context.config());
   }
 
   @Test

@@ -21,22 +21,30 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.Version;
 
 public class SensorTelemetry {
 
+  // Property key to enable log, currently using the DurationStatistics one
+  private static final String PROPERTY_KEY = "sonar.iac.duration.statistics";
   // `.` should be used for telemetry groups and every IaC key should start with `iac.`
   private static final String KEY_PREFIX = "iac.";
+  private static final Logger LOG = LoggerFactory.getLogger(SensorTelemetry.class);
   private static final Version TELEMETRY_SUPPORTED_API_VERSION = Version.create(10, 9);
+
   private long aggregatedLinesOfCode;
   private long maxFileSize;
   private final List<Long> fileSizeList = new ArrayList<>();
 
+  private final boolean recordStat;
   private final Map<String, String> telemetry = new HashMap<>();
 
-  public SensorTelemetry() {
-    // Empty constructor
+  public SensorTelemetry(Configuration config) {
+    recordStat = config.getBoolean(PROPERTY_KEY).orElse(false);
   }
 
   public void addLinesOfCode(int numberOfLines) {
@@ -75,7 +83,12 @@ public class SensorTelemetry {
     if (isTelemetrySupported) {
       // addTelemetryProperty is added in 10.9:
       // https://github.com/SonarSource/sonar-plugin-api/releases/tag/10.9.0.2362
-      telemetry.forEach(sensorContext::addTelemetryProperty);
+      telemetry.forEach((String key, String value) -> {
+        if (recordStat) {
+          LOG.debug("Reporting telemetry: {}={}", key, value);
+        }
+        sensorContext.addTelemetryProperty(key, value);
+      });
     }
   }
 

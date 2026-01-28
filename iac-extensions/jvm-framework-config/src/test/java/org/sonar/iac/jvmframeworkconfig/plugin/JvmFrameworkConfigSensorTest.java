@@ -189,7 +189,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     analyze(sensor(checkFactory("S2260")), validFile());
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG).stream().filter(s -> !s.contains("Reporting telemetry")))
       .hasSize(1)
       .anyMatch(log -> log.startsWith("Identified as JVM Config file"));
   }
@@ -200,7 +200,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     analyze(sensor(checkFactory("S2260")), validFile());
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG).stream().filter(s -> !s.contains("Reporting telemetry"))).isEmpty();
   }
 
   @Test
@@ -211,7 +211,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     analyze(sensor(checkFactory("S2260")), validFile());
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG).stream().filter(s -> !s.contains("Reporting telemetry"))).isEmpty();
   }
 
   private InputFile emptyFileInResources(String filename) {
