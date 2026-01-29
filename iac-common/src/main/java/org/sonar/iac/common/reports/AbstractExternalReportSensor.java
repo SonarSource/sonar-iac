@@ -22,7 +22,7 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 
-public abstract class AbstractExternalReportSensor<T extends AbstractJsonReportImporter> implements Sensor {
+public abstract class AbstractExternalReportSensor<T extends AbstractReportImporter> implements Sensor {
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
     sensorDescriptor
@@ -31,9 +31,26 @@ public abstract class AbstractExternalReportSensor<T extends AbstractJsonReportI
   }
 
   @Override
-  public void execute(SensorContext sensorContext) {
-    var importer = createImporter(sensorContext);
-    getReportFiles(sensorContext).forEach(importer::importReport);
+  public final void execute(SensorContext sensorContext) {
+    var reportFiles = getReportFiles(sensorContext);
+
+    if (!reportFiles.isEmpty()) {
+      var importer = createImporter(sensorContext);
+      reportFiles.forEach(importer::importReport);
+    }
+
+    afterExecute(sensorContext, reportFiles);
+  }
+
+  /**
+   * Hook method called after execute completes.
+   * Override to add custom post-processing behavior such as telemetry reporting.
+   *
+   * @param sensorContext the sensor context
+   * @param reportFiles the report files that were processed (may be empty)
+   */
+  protected void afterExecute(SensorContext sensorContext, Collection<File> reportFiles) {
+    // Default: do nothing
   }
 
   protected abstract String[] getLanguageKeys();

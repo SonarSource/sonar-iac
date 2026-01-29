@@ -33,8 +33,11 @@ import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseExcepti
 /**
  * Abstract base class for importing SARIF format reports.
  * SARIF (Static Analysis Results Interchange Format) is a standard format for the output of static analysis tools.
+ * SARIF files are JSON objects (not arrays) with a "runs" array containing "results".
+ * <p>
+ * For reports using a simple JSON array format, use {@link AbstractJsonArrayReportImporter} instead.
  */
-public abstract class AbstractSarifReportImporter extends AbstractJsonReportImporter {
+public abstract class AbstractSarifReportImporter extends AbstractReportImporter {
 
   protected AbstractSarifReportImporter(SensorContext context,
     AbstractExternalRulesDefinition externalRulesDefinition,
@@ -60,6 +63,25 @@ public abstract class AbstractSarifReportImporter extends AbstractJsonReportImpo
    */
   protected String getMessageFor(String ruleId, String providedMessage) {
     return providedMessage;
+  }
+
+  @Override
+  protected String getExpectedFileFormat() {
+    return "SARIF JSON object with 'runs' array";
+  }
+
+  @Override
+  protected JSONArray extractIssues(File reportFile) throws IOException, ParseException {
+    JSONObject parsedJson;
+    try (var reader = Files.newBufferedReader(reportFile.toPath())) {
+      parsedJson = (JSONObject) jsonParser.parse(reader);
+    }
+    JSONArray runs = (JSONArray) parsedJson.get("runs");
+    if (runs == null || runs.isEmpty()) {
+      throw new IllegalStateException("Invalid SARIF format: missing or empty 'runs' array");
+    }
+
+    return (JSONArray) ((JSONObject) runs.get(0)).get("results");
   }
 
   @Override
@@ -124,20 +146,6 @@ public abstract class AbstractSarifReportImporter extends AbstractJsonReportImpo
       .at(range);
   }
 
-  @Override
-  protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
-    JSONObject parsedJson;
-    try (var reader = Files.newBufferedReader(reportFile.toPath())) {
-      parsedJson = (JSONObject) jsonParser.parse(reader);
-    }
-    JSONArray runs = (JSONArray) parsedJson.get("runs");
-    if (runs == null || runs.isEmpty()) {
-      throw new IllegalStateException("Invalid SARIF format: missing or empty 'runs' array");
-    }
-
-    return (JSONArray) ((JSONObject) runs.get(0)).get("results");
-  }
-
   /**
    * Extracts the file path from the SARIF issue JSON.
    */
@@ -165,7 +173,7 @@ public abstract class AbstractSarifReportImporter extends AbstractJsonReportImpo
 
   /**
    * Extracts severity from SARIF level field.
-   * Maps: error → CRITICAL, warning → MAJOR, note → MINOR
+   * Maps: error -> CRITICAL, warning -> MAJOR, note -> MINOR
    */
   protected static Severity extractSeverity(JSONObject issueJson) {
     var level = (String) issueJson.get("level");

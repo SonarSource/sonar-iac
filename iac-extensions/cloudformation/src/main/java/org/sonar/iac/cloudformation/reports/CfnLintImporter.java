@@ -22,11 +22,11 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.iac.cloudformation.plugin.CfnLintRulesDefinition;
-import org.sonar.iac.common.reports.AbstractJsonReportImporter;
+import org.sonar.iac.common.reports.AbstractJsonArrayReportImporter;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 
-public class CfnLintImporter extends AbstractJsonReportImporter {
+public class CfnLintImporter extends AbstractJsonArrayReportImporter {
   public static final String LINE_NUMBER_KEY = "LineNumber";
   public static final String COLUMN_NUMBER_KEY = "ColumnNumber";
   private static final String MESSAGE_PREFIX = "Cfn-lint report importing: ";

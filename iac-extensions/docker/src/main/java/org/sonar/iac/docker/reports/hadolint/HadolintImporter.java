@@ -23,14 +23,14 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.rules.RuleType;
-import org.sonar.iac.common.reports.AbstractJsonReportImporter;
+import org.sonar.iac.common.reports.AbstractJsonArrayReportImporter;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.docker.plugin.HadolintRulesDefinition;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
-public class HadolintImporter extends AbstractJsonReportImporter {
+public class HadolintImporter extends AbstractJsonArrayReportImporter {
   private static final String MESSAGE_PREFIX = "Hadolint report importing: ";
 
   public HadolintImporter(SensorContext context, HadolintRulesDefinition hadolintRulesDefinition,
@@ -39,7 +39,7 @@ public class HadolintImporter extends AbstractJsonReportImporter {
   }
 
   @Override
-  protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
+  protected JSONArray extractIssues(File reportFile) throws IOException, ParseException {
     Object parsedJson;
     try (var reader = Files.newBufferedReader(reportFile.toPath())) {
       parsedJson = jsonParser.parse(reader);

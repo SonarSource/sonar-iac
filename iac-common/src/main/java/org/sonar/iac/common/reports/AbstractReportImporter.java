@@ -18,7 +18,6 @@ package org.sonar.iac.common.reports;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,8 +37,14 @@ import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.JSONParser;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
-public abstract class AbstractJsonReportImporter {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractJsonReportImporter.class);
+/**
+ * Abstract base class for importing external linter reports.
+ * Provides common functionality for parsing JSON-based reports and saving issues.
+ * JSON-base can either be a JSON array or a JSON object containing an array of issues.
+ * Subclasses should implement {@link #parseJson(File)} to handle their specific file format.
+ */
+public abstract class AbstractReportImporter {
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractReportImporter.class);
   protected static final JSONParser jsonParser = new JSONParser();
   protected final ExternalRuleLoader externalRuleLoader;
   protected final SensorContext context;
@@ -47,7 +52,7 @@ public abstract class AbstractJsonReportImporter {
   private final String warningPrefix;
   private Set<String> unresolvedPaths;
 
-  protected AbstractJsonReportImporter(SensorContext context,
+  protected AbstractReportImporter(SensorContext context,
     AbstractExternalRulesDefinition externalRulesDefinition,
     AnalysisWarningsWrapper analysisWarnings,
     String warningPrefix) {
@@ -75,10 +80,17 @@ public abstract class AbstractJsonReportImporter {
     });
   }
 
+  /**
+   * Parses the report file and extracts issues as a list of JSONArrays.
+   * Each JSONArray contains issue objects that will be processed by {@link #toExternalIssue(JSONObject)}.
+   *
+   * @param reportFile the report file to parse
+   * @return a list of JSONArrays containing issues, or empty list if parsing fails
+   */
   protected List<JSONArray> parseJson(File reportFile) {
     JSONArray issuesJson = null;
     try {
-      issuesJson = parseFileAsArray(reportFile);
+      issuesJson = extractIssues(reportFile);
     } catch (IOException e) {
       var message = String.format("could not read report file %s", reportFile.getPath());
       logWarning(message);
@@ -86,7 +98,7 @@ public abstract class AbstractJsonReportImporter {
       var message = String.format("could not parse file as JSON %s", reportFile.getPath());
       logWarning(message);
     } catch (RuntimeException e) {
-      var message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());
+      var message = String.format("file is expected to contain a %s but didn't %s", getExpectedFileFormat(), reportFile.getPath());
       logWarning(message);
     }
     if (issuesJson == null) {
@@ -95,11 +107,22 @@ public abstract class AbstractJsonReportImporter {
     return List.of(issuesJson);
   }
 
-  protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
-    try (var reader = Files.newBufferedReader(reportFile.toPath())) {
-      return (JSONArray) jsonParser.parse(reader);
-    }
-  }
+  /**
+   * Extracts the issues array from the report file.
+   * Subclasses implement this to handle their specific file format.
+   *
+   * @param reportFile the report file to parse
+   * @return the JSONArray containing issues
+   * @throws IOException if the file cannot be read
+   * @throws ParseException if the file is not valid JSON
+   */
+  protected abstract JSONArray extractIssues(File reportFile) throws IOException, ParseException;
+
+  /**
+   * Returns the expected file format description for error messages.
+   * For example: "a JSON array" or "a SARIF object".
+   */
+  protected abstract String getExpectedFileFormat();
 
   protected int saveIssues(JSONArray issuesJson) {
     var failedToSaveIssues = 0;

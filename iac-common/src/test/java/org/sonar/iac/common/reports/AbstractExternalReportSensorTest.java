@@ -48,12 +48,31 @@ class AbstractExternalReportSensorTest {
   }
 
   @Test
-  void shouldCreateImporterAndImportResults() {
+  void shouldCreateImporterAndImportResultsWhenReportFilesExist() {
+    var mockSensorContext = mock(SensorContext.class);
+    var testSensor = spy(new TestSensorWithReportFiles(mockRulesDefinition, mockAnalysisWarnings));
+    testSensor.execute(mockSensorContext);
+
+    verify(testSensor).createImporter(mockSensorContext);
+  }
+
+  @Test
+  void shouldNotCreateImporterWhenNoReportFiles() {
     var mockSensorContext = mock(SensorContext.class);
     var testSensor = spy(new TestSensor(mockRulesDefinition, mockAnalysisWarnings));
     testSensor.execute(mockSensorContext);
 
-    verify(testSensor).createImporter(mockSensorContext);
+    verify(testSensor).getReportFiles(mockSensorContext);
+    verify(testSensor).afterExecute(mockSensorContext, List.of());
+  }
+
+  @Test
+  void shouldCallAfterExecuteWithReportFiles() {
+    var mockSensorContext = mock(SensorContext.class);
+    var testSensor = spy(new TestSensorWithReportFiles(mockRulesDefinition, mockAnalysisWarnings));
+    testSensor.execute(mockSensorContext);
+
+    verify(testSensor).afterExecute(mockSensorContext, TestSensorWithReportFiles.REPORT_FILES);
   }
 
   static class TestSensor extends AbstractExternalReportSensor<TestImporter> {
@@ -87,7 +106,20 @@ class AbstractExternalReportSensorTest {
     }
   }
 
-  static class TestImporter extends AbstractJsonReportImporter {
+  static class TestSensorWithReportFiles extends TestSensor {
+    static final List<File> REPORT_FILES = List.of(new File("fake-report.json"));
+
+    public TestSensorWithReportFiles(AbstractExternalRulesDefinition rulesDefinition, AnalysisWarningsWrapper analysisWarnings) {
+      super(rulesDefinition, analysisWarnings);
+    }
+
+    @Override
+    protected Collection<File> getReportFiles(@Nonnull SensorContext sensorContext) {
+      return REPORT_FILES;
+    }
+  }
+
+  static class TestImporter extends AbstractJsonArrayReportImporter {
     protected TestImporter(SensorContext context, AbstractExternalRulesDefinition rulesDefinition, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
       super(context, rulesDefinition, analysisWarnings, warningPrefix);
     }

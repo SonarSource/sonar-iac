@@ -29,7 +29,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
-import org.sonar.iac.common.reports.AbstractJsonReportImporter;
+import org.sonar.iac.common.reports.AbstractJsonArrayReportImporter;
 import org.sonar.iac.common.reports.ReportImporterException;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.terraform.plugin.TFLintRulesDefinition;
@@ -47,7 +47,7 @@ import static org.sonar.iac.terraform.plugin.TFLintRulesDefinition.LINTER_KEY;
  * Command to generate TFLint report in JSON format:
  * <pre>docker run --rm -v $(pwd):/data -t ghcr.io/terraform-linters/tflint:v0.55.1 --format=json</pre>
  */
-public class TFLintImporter extends AbstractJsonReportImporter {
+public class TFLintImporter extends AbstractJsonArrayReportImporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(TFLintImporter.class);
 
@@ -60,7 +60,7 @@ public class TFLintImporter extends AbstractJsonReportImporter {
   }
 
   @Override
-  protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
+  protected JSONArray extractIssues(File reportFile) throws IOException, ParseException {
     try (var reader = Files.newBufferedReader(reportFile.toPath())) {
       Object parsedJson = jsonParser.parse(reader);
       JSONArray issuesArray = ((JSONArray) ((JSONObject) parsedJson).get("issues"));

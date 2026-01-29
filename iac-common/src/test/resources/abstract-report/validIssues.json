@@ -1,0 +1,12 @@
+[
+  {
+    "filename": "test-file.txt",
+    "line": 1,
+    "message": "Test issue 1"
+  },
+  {
+    "filename": "test-file.txt",
+    "line": 2,
+    "message": "Test issue 2"
+  }
+]

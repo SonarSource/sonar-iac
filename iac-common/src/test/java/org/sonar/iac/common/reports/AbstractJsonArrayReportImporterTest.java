@@ -18,8 +18,6 @@ package org.sonar.iac.common.reports;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.List;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -28,24 +26,20 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
-import org.sonarsource.analyzer.commons.internal.json.simple.parser.JSONParser;
-import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
-import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.sonar.iac.common.testing.IacTestUtils.addFileToSensorContext;
 
-class AbstractJsonReportImporterTest {
+class AbstractJsonArrayReportImporterTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -123,77 +117,9 @@ class AbstractJsonReportImporterTest {
       path));
   }
 
-  @Test
-  void asIntShouldSucceedOnLong() {
-    long numberAsLong = 5;
-    int numberAsInt = TestImporter.asInt(numberAsLong);
-    assertThat(numberAsLong).isEqualTo(numberAsInt);
-  }
-
-  @Test
-  void asIntShouldSucceedOnParsedJsonObject() throws ParseException {
-    JSONParser jsonParser = new JSONParser();
-    Object parsedJson = jsonParser.parse("5");
-    int numberAsInt = TestImporter.asInt(parsedJson);
-    assertThat(numberAsInt).isEqualTo(5);
-  }
-
-  @Test
-  void asIntShouldFailOnAnythingOtherThanLongAndJsonWithLong() throws ParseException {
-    SoftAssertions softly = new SoftAssertions();
-
-    JSONParser jsonParser = new JSONParser();
-    Object parsedDouble = jsonParser.parse("1.5");
-
-    List<Object> objects = List.of(5, (short) 5, "string", parsedDouble);
-
-    for (Object object : objects) {
-      softly.assertThatExceptionOfType(ClassCastException.class)
-        .isThrownBy(() -> TestImporter.asInt(object));
-    }
-
-    softly.assertAll();
-  }
-
-  @Test
-  void shouldThrowExceptionWhenNullReportFile() {
-    TestImporter importer = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
-
-    Throwable throwable = catchThrowable(() -> importer.inputFile(null));
-
-    assertThat(throwable)
-      .isInstanceOf(ReportImporterException.class)
-      .hasMessage("Empty path");
-  }
-
-  @Test
-  void shouldThrowExceptionWhenFileDoesntExist() {
-    String path = "doNotExist.tf";
-    File reportFile = new File("src/test/resources/ext-json-report/validIssue.json");
-    TestImporter importer = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
-    importer.importReport(reportFile);
-
-    Throwable throwable = catchThrowable(() -> importer.inputFile(path));
-
-    assertThat(throwable)
-      .isInstanceOf(ReportImporterException.class)
-      .hasMessage("The file: doNotExist.tf could not be resolved");
-  }
-
-  @Test
-  void shouldResolveFile() {
-    String path = "noArray.json";
-    File reportFile = new File("src/test/resources/ext-json-report/validIssue.json");
-    TestImporter importer = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
-    importer.importReport(reportFile);
-
-    InputFile inputFile = importer.inputFile(path);
-
-    assertThat(inputFile).isNotNull();
-  }
 }
 
-class TestImporter extends AbstractJsonReportImporter {
+class TestImporter extends AbstractJsonArrayReportImporter {
   private static final Logger LOG = LoggerFactory.getLogger(TestImporter.class);
 
   protected TestImporter(SensorContext context, AbstractExternalRulesDefinition rulesDefinition, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
@@ -207,7 +133,7 @@ class TestImporter extends AbstractJsonReportImporter {
   }
 }
 
-class TestImporterThrowReportImporterExceptionWhenSaveIssue extends AbstractJsonReportImporter {
+class TestImporterThrowReportImporterExceptionWhenSaveIssue extends AbstractJsonArrayReportImporter {
 
   protected TestImporterThrowReportImporterExceptionWhenSaveIssue(SensorContext context, AbstractExternalRulesDefinition rulesDefinition,
     AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {

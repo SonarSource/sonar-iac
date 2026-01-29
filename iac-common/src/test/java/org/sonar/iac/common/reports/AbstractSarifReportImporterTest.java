@@ -74,8 +74,8 @@ class AbstractSarifReportImporterTest {
   @CsvSource({
     "/doesNotExist.json, Test SARIF importing: path does not seem to point to a file %s",
     "/parseError.json, Test SARIF importing: could not parse file as JSON %s",
-    "/emptyRunsArray.json, Test SARIF importing: file is expected to contain a JSON array but didn't %s",
-    "/missingRunsArray.json, Test SARIF importing: file is expected to contain a JSON array but didn't %s"
+    "/emptyRunsArray.json, Test SARIF importing: file is expected to contain a SARIF JSON object with 'runs' array but didn't %s",
+    "/missingRunsArray.json, Test SARIF importing: file is expected to contain a SARIF JSON object with 'runs' array but didn't %s"
   })
   void shouldLogWarningForInvalidFiles(String reportPath, String expectedLog) {
     reportPath = PATH_PREFIX + reportPath;
@@ -271,6 +271,22 @@ class AbstractSarifReportImporterTest {
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
     assertThat(issue.primaryLocation().message()).isEqualTo("Custom: This is a test issue");
+  }
+
+  @Test
+  void shouldHandleValidFullTextRange() {
+    File reportFile = new File(PATH_PREFIX + "/validFullRange.json");
+
+    importReport(reportFile);
+
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    // Line 2 is "info:" - range should be startLine=2, startColumn=0, endLine=2, endColumn=4
+    assertThat(issue.primaryLocation().textRange()).isNotNull();
+    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(2);
+    assertThat(issue.primaryLocation().textRange().start().lineOffset()).isZero();
+    assertThat(issue.primaryLocation().textRange().end().line()).isEqualTo(2);
+    assertThat(issue.primaryLocation().textRange().end().lineOffset()).isEqualTo(4);
   }
 
   private void importReport(File reportFile) {
