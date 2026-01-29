@@ -25,6 +25,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +38,10 @@ class KustomizationSensorTest {
 
   @BeforeEach
   void setUp() {
+    var settings = new MapSettings();
+    settings.setProperty(KubernetesSettings.ACTIVATION_KEY, true);
     context = SensorContextTester.create(BASE_DIR);
+    context.setSettings(settings);
     kustomizationInfoProvider = new KustomizationInfoProvider();
     sensor = new KustomizationSensor(kustomizationInfoProvider, new KubernetesLanguage());
   }
@@ -49,6 +53,26 @@ class KustomizationSensorTest {
 
     assertThat(descriptor.name()).isEqualTo("IaC Kustomization Sensor");
     assertThat(descriptor.languages()).containsExactlyInAnyOrder("yaml", "kubernetes");
+  }
+
+  @Test
+  void shouldSkipProcessWhenSettingDisabled() {
+    var settings = new MapSettings();
+    settings.setProperty(KubernetesSettings.ACTIVATION_KEY, false);
+    context.setSettings(settings);
+    var kustomizationContent = """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - deployment.yaml
+        - service.yaml
+      """;
+    var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
+    context.fileSystem().add(inputFile);
+
+    sensor.execute(context);
+
+    assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
   }
 
   @Test

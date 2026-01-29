@@ -22,16 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.resources.Language;
+import org.sonar.iac.common.extension.TogglableSensor;
 import org.sonar.iac.common.yaml.YamlParser;
 
 import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
 
 @DependedUpon("KustomizationSensor")
-public class KustomizationSensor implements Sensor {
+public class KustomizationSensor extends TogglableSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KustomizationSensor.class);
   private static final Set<String> KUSTOMIZATION_FILE_NAMES = Set.of("kustomization.yaml", "kustomization.yml");
 
@@ -54,7 +54,7 @@ public class KustomizationSensor implements Sensor {
   }
 
   @Override
-  public void execute(SensorContext context) {
+  public void executeIfActive(SensorContext context) {
     context.fileSystem()
       .inputFiles(KustomizationSensor::isKustomizationFile)
       .forEach(inputFile -> processKustomizationFile(context, inputFile));
@@ -62,6 +62,11 @@ public class KustomizationSensor implements Sensor {
     var kustomizationReferencedFiles = kustomizationInfoProvider.kustomizationReferencedFiles();
     LOG.debug("Kustomization sensor collected {} referenced files: {}",
       kustomizationReferencedFiles.size(), kustomizationReferencedFiles);
+  }
+
+  @Override
+  protected String getActivationSettingKey() {
+    return KubernetesSettings.ACTIVATION_KEY;
   }
 
   private static boolean isKustomizationFile(InputFile f) {

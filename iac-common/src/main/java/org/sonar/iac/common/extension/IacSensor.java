@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
@@ -35,7 +34,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
-public abstract class IacSensor implements Sensor {
+public abstract class IacSensor extends TogglableSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(IacSensor.class);
 
@@ -81,14 +80,8 @@ public abstract class IacSensor implements Sensor {
 
   protected abstract List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics);
 
-  protected abstract String getActivationSettingKey();
-
   @Override
-  public void execute(SensorContext sensorContext) {
-    if (!isActive(sensorContext)) {
-      return;
-    }
-
+  public void executeIfActive(SensorContext sensorContext) {
     initContext(sensorContext);
 
     sensorTelemetry = new SensorTelemetry(sensorContext.config());
@@ -122,10 +115,6 @@ public abstract class IacSensor implements Sensor {
     return fileSystem.predicates().and(
       fileSystem.predicates().hasLanguage(languageKey()),
       fileSystem.predicates().hasType(InputFile.Type.MAIN));
-  }
-
-  protected boolean isActive(SensorContext sensorContext) {
-    return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
   }
 
   protected boolean isExtendedLoggingEnabled(SensorContext sensorContext) {
