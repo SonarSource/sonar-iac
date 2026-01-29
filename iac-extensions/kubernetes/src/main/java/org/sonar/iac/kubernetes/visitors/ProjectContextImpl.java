@@ -40,11 +40,13 @@ public final class ProjectContextImpl implements ProjectContext {
 
   private final Map<String, Map<String, Set<ProjectResource>>> projectResourcePerPathPerNamespace = new HashMap<>();
   private final Map<String, InputFileContext> inputFileContextPerPath = new HashMap<>();
+
   /**
    * Set of absolute normalized file paths that are referenced in kustomization.yaml files.
    * These files may be incomplete (resources or patches) and should be handled differently by checks.
    */
   private final Set<Path> kustomizationReferencedFiles = new HashSet<>();
+  private final Map<InputFileContext, Boolean> kustomizationReferencedFilesCache = new HashMap<>();
   /**
    * The Chart of the project, if the project is a Helm project.
    */
@@ -138,6 +140,7 @@ public final class ProjectContextImpl implements ProjectContext {
   public void setKustomizationReferencedFiles(Set<Path> paths) {
     kustomizationReferencedFiles.clear();
     kustomizationReferencedFiles.addAll(paths);
+    kustomizationReferencedFilesCache.clear();
   }
 
   @Override
@@ -145,7 +148,9 @@ public final class ProjectContextImpl implements ProjectContext {
     if (kustomizationReferencedFiles.isEmpty()) {
       return false;
     }
-    var filePath = Path.of(inputFileContext.inputFile.uri()).normalize();
-    return kustomizationReferencedFiles.contains(filePath);
+    return kustomizationReferencedFilesCache.computeIfAbsent(inputFileContext, ifc -> {
+      var filePath = Path.of(ifc.inputFile.uri()).normalize();
+      return kustomizationReferencedFiles.contains(filePath);
+    });
   }
 }
