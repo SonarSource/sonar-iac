@@ -17,6 +17,7 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -36,6 +37,17 @@ class AutomountServiceAccountTokenCheckTest {
   @Test
   void testKindWithTemplate() {
     KubernetesVerifier.verify("AutomountServiceAccountTokenCheck/automount_service_account_token_deployment.yaml", check);
+  }
+
+  @Test
+  void testKustomized() {
+    var fileName = "AutomountServiceAccountTokenCheck/kustomized_automount_service_account_token_deployment.yaml";
+    KubernetesVerifier.verifyNoIssue(fileName, check, ((inputFileContext, fileNames) -> {
+      var kustomizationReferencedUri = KubernetesVerifier.BASE_DIR.resolve(fileName).toAbsolutePath().normalize().toUri();
+      var ctx = KubernetesVerifier.prepareProjectContext(inputFileContext, fileNames);
+      ctx.setKustomizationReferencedFiles(Set.of(kustomizationReferencedUri));
+      return ctx;
+    }));
   }
 
   @ParameterizedTest

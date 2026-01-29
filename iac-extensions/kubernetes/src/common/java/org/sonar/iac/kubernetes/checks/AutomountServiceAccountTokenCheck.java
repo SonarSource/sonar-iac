@@ -31,6 +31,7 @@ import org.sonar.iac.kubernetes.model.ClusterRoleBinding;
 import org.sonar.iac.kubernetes.model.RoleBinding;
 import org.sonar.iac.kubernetes.model.ServiceAccount;
 import org.sonar.iac.kubernetes.model.Subject;
+import org.sonar.iac.kubernetes.visitors.KubernetesCheckContext;
 
 @Rule(key = "S6865")
 public class AutomountServiceAccountTokenCheck extends AbstractGlobalResourceCheck {
@@ -48,12 +49,16 @@ public class AutomountServiceAccountTokenCheck extends AbstractGlobalResourceChe
   }
 
   private void checkResource(BlockObject document, BlockObject spec) {
-    if (isAutomountDisabled(spec) || isContainersAbsent(spec)) {
+    if (shouldSkipDocumentCheck(document) || isAutomountDisabled(spec) || isContainersAbsent(spec)) {
       return;
     }
     var namespace = CheckUtils.retrieveNamespace(document);
     var accountName = CheckUtils.retrieveAttributeAsString(spec, SERVICE_ACCOUNT_NAME);
     checkAccountSecurity(document, spec, namespace, accountName);
+  }
+
+  protected boolean shouldSkipDocumentCheck(BlockObject document) {
+    return document.ctx instanceof KubernetesCheckContext ctx && ctx.projectContext().isKustomizationReferencedFile(ctx.inputFileContext());
   }
 
   private static boolean isAutomountDisabled(BlockObject spec) {
