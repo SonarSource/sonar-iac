@@ -31,6 +31,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide
 public class KustomizationInfoProvider {
+  private int kustomizationFilesCount = 0;
   private final Set<Path> kustomizationReferencedFiles = new HashSet<>();
 
   public void addKustomizationReferencedFiles(Collection<Path> c) {
@@ -41,4 +42,15 @@ public class KustomizationInfoProvider {
     return kustomizationReferencedFiles;
   }
 
+  public int kustomizationReferencedFilesCount() {
+    return kustomizationReferencedFiles.size();
+  }
+
+  public int kustomizationFilesCount() {
+    return kustomizationFilesCount;
+  }
+
+  public void incrementKustomizationFilesCount() {
+    kustomizationFilesCount++;
+  }
 }

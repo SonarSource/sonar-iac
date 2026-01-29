@@ -20,7 +20,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -38,7 +37,8 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
  */
 public class KubernetesParserStatistics {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesParserStatistics.class);
-  private static final String COUNT_KUSTOMIZE_KEY = "iac.kustomize";
+  public static final String COUNT_KUSTOMIZE_KEY = "iac.kustomize";
+  public static final String COUNT_KUSTOMIZE_REFERENCED_KEY = "iac.kustomize.referenced";
   private static final String COUNT_HELM_KEY = "iac.helm";
   private static final Version MIN_VERSION_WITH_TELEMETRY_SUPPORT = Version.create(10, 9);
 
@@ -46,7 +46,6 @@ public class KubernetesParserStatistics {
   private int pureKubernetesParsedFileCount;
   private int helmFileCount;
   private int helmParsedFileCount;
-  private int kustomizeFileCount;
 
   public <T> T recordFile(Supplier<T> o, @Nullable InputFileContext inputFileContext) {
     T result;
@@ -65,32 +64,23 @@ public class KubernetesParserStatistics {
   public void storeTelemetry(SensorContext sensorContext) {
     if (isKubernetesProject() && sensorContext.runtime().getApiVersion().isGreaterThanOrEqual(MIN_VERSION_WITH_TELEMETRY_SUPPORT)) {
       sensorContext.addTelemetryProperty(COUNT_HELM_KEY, helmFileCount == 0 ? "0" : "1");
-      sensorContext.addTelemetryProperty(COUNT_KUSTOMIZE_KEY, kustomizeFileCount == 0 ? "0" : "1");
     }
   }
 
   public void logStatistics() {
     if (isKubernetesProject()) {
       LOG.debug("Kubernetes Parsing Statistics: Pure Kubernetes files count: {}, parsed: {}, not parsed: {}; Helm files count: {}, " +
-        "parsed: {}, not parsed: {}; Kustomize file count: {}",
+        "parsed: {}, not parsed: {}",
         pureKubernetesFileCount,
         pureKubernetesParsedFileCount,
         (pureKubernetesFileCount - pureKubernetesParsedFileCount),
         helmFileCount,
         helmParsedFileCount,
-        (helmFileCount - helmParsedFileCount),
-        kustomizeFileCount);
+        (helmFileCount - helmParsedFileCount));
     }
   }
 
   private boolean isKubernetesProject() {
     return pureKubernetesFileCount != 0 || helmFileCount != 0;
-  }
-
-  public void recordKustomizeFile(InputFile inputFile) {
-    var filename = inputFile.filename();
-    if ("kustomization.yaml".equals(filename) || "kustomization.yml".equals(filename)) {
-      kustomizeFileCount++;
-    }
   }
 }

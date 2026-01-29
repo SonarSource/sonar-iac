@@ -20,16 +20,24 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics.COUNT_KUSTOMIZE_KEY;
+import static org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics.COUNT_KUSTOMIZE_REFERENCED_KEY;
 
 class KustomizationSensorTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   private static final Path BASE_DIR = Path.of("src/test/resources");
   private SensorContextTester context;
@@ -69,7 +77,6 @@ class KustomizationSensorTest {
       """;
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
-
     sensor.execute(context);
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
@@ -250,6 +257,128 @@ class KustomizationSensorTest {
       .containsExactlyInAnyOrder(
         BASE_DIR.toAbsolutePath().resolve("base/deployment.yaml").normalize(),
         BASE_DIR.toAbsolutePath().resolve("overlays/local/service.yaml").normalize());
+  }
+
+  @Test
+  void shouldLogTelemetryWhenProcessingKustomizationFiles() {
+    var kustomizationContent = """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - deployment.yaml
+        - service.yaml
+      """;
+    var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
+    context.fileSystem().add(inputFile);
+
+    sensor.execute(context);
+
+    var debugLogs = logTester.logs(Level.DEBUG);
+    assertThat(debugLogs)
+      .anyMatch(log -> log.contains("Kustomization sensor processed 1 kustomization files and collected 2 referenced files"));
+  }
+
+  @Test
+  void shouldLogTelemetryWhenProcessingMultipleKustomizationFiles() {
+    var kustomization1 = createInputFile("base/kustomization.yaml", """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - deployment.yaml
+      """);
+    var kustomization2 = createInputFile("overlay/kustomization.yaml", """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - service.yaml
+        - ingress.yaml
+      """);
+    context.fileSystem().add(kustomization1);
+    context.fileSystem().add(kustomization2);
+
+    sensor.execute(context);
+
+    var debugLogs = logTester.logs(Level.DEBUG);
+    assertThat(debugLogs)
+      .anyMatch(log -> log.contains("Kustomization sensor processed 2 kustomization files and collected 3 referenced files"));
+  }
+
+  @Test
+  void shouldLogTelemetryWhenNoKustomizationFiles() {
+    sensor.execute(context);
+
+    var debugLogs = logTester.logs(Level.DEBUG);
+    assertThat(debugLogs)
+      .anyMatch(log -> log.contains("Kustomization sensor processed 0 kustomization files and collected 0 referenced files"));
+  }
+
+  @Test
+  void shouldAddTelemetryPropertiesWhenProcessingKustomizationFiles() {
+    var kustomizationContent = """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - deployment.yaml
+        - service.yaml
+      """;
+    var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
+    context.fileSystem().add(inputFile);
+
+    sensor.execute(context);
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry(COUNT_KUSTOMIZE_KEY, "1")
+      .containsEntry(COUNT_KUSTOMIZE_REFERENCED_KEY, "2");
+  }
+
+  @Test
+  void shouldAddTelemetryPropertiesWhenProcessingMultipleKustomizationFiles() {
+    var kustomization1 = createInputFile("base/kustomization.yaml", """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - deployment.yaml
+      """);
+    var kustomization2 = createInputFile("overlay/kustomization.yaml", """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - service.yaml
+        - ingress.yaml
+      """);
+    context.fileSystem().add(kustomization1);
+    context.fileSystem().add(kustomization2);
+
+    sensor.execute(context);
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry(COUNT_KUSTOMIZE_KEY, "2")
+      .containsEntry(COUNT_KUSTOMIZE_REFERENCED_KEY, "3");
+  }
+
+  @Test
+  void shouldAddTelemetryPropertiesWhenNoKustomizationFiles() {
+    sensor.execute(context);
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry(COUNT_KUSTOMIZE_KEY, "0")
+      .containsEntry(COUNT_KUSTOMIZE_REFERENCED_KEY, "0");
+  }
+
+  @Test
+  void shouldAddTelemetryPropertiesWhenKustomizationFileHasNoResources() {
+    var kustomizationContent = """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      """;
+    var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
+    context.fileSystem().add(inputFile);
+
+    sensor.execute(context);
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry(COUNT_KUSTOMIZE_KEY, "1")
+      .containsEntry(COUNT_KUSTOMIZE_REFERENCED_KEY, "0");
   }
 
   private org.sonar.api.batch.fs.InputFile createInputFile(String relativePath, String content) {

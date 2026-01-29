@@ -29,6 +29,8 @@ import org.sonar.iac.common.extension.TogglableSensor;
 import org.sonar.iac.common.yaml.YamlParser;
 
 import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
+import static org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics.COUNT_KUSTOMIZE_KEY;
+import static org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics.COUNT_KUSTOMIZE_REFERENCED_KEY;
 
 @DependedUpon("KustomizationSensor")
 public class KustomizationSensor extends TogglableSensor {
@@ -55,13 +57,24 @@ public class KustomizationSensor extends TogglableSensor {
 
   @Override
   public void executeIfActive(SensorContext context) {
+    processFiles(context);
+    addTelemetry(context);
+  }
+
+  private void processFiles(SensorContext context) {
     context.fileSystem()
       .inputFiles(KustomizationSensor::isKustomizationFile)
       .forEach(inputFile -> processKustomizationFile(context, inputFile));
+  }
 
+  private void addTelemetry(SensorContext context) {
     var kustomizationReferencedFiles = kustomizationInfoProvider.kustomizationReferencedFiles();
-    LOG.debug("Kustomization sensor collected {} referenced files: {}",
-      kustomizationReferencedFiles.size(), kustomizationReferencedFiles);
+    var kustomizationFilesCount = Integer.toString(kustomizationInfoProvider.kustomizationFilesCount());
+    var kustomizationReferencedFilesCount = Integer.toString(kustomizationInfoProvider.kustomizationReferencedFilesCount());
+    context.addTelemetryProperty(COUNT_KUSTOMIZE_KEY, kustomizationFilesCount);
+    context.addTelemetryProperty(COUNT_KUSTOMIZE_REFERENCED_KEY, kustomizationReferencedFilesCount);
+    LOG.debug("Kustomization sensor processed {} kustomization files and collected {} referenced files: {}",
+      kustomizationFilesCount, kustomizationReferencedFilesCount, kustomizationReferencedFiles);
   }
 
   @Override
@@ -76,5 +89,6 @@ public class KustomizationSensor extends TogglableSensor {
   private void processKustomizationFile(SensorContext context, InputFile inputFile) {
     var referencedFiles = kustomizationParser.parse(context, inputFile);
     kustomizationInfoProvider.addKustomizationReferencedFiles(referencedFiles);
+    kustomizationInfoProvider.incrementKustomizationFilesCount();
   }
 }

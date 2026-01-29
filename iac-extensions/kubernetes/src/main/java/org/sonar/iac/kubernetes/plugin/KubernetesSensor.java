@@ -111,18 +111,6 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
     }
   }
 
-  @Override
-  protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
-    countFiles(sensorContext);
-    return super.inputFiles(sensorContext, statistics);
-  }
-
-  private void countFiles(SensorContext sensorContext) {
-    var fileSystem = sensorContext.fileSystem();
-    fileSystem.inputFiles(f -> true)
-      .forEach(kubernetesParserStatistics::recordKustomizeFile);
-  }
-
   private FileSystemProvider createFileSystemProvider(SensorContext sensorContext) {
     if (sonarLintFileListener != null) {
       return new SonarLintFileSystemProvider(sonarLintFileListener);
