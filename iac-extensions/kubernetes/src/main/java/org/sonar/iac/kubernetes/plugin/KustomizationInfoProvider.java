@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.nio.file.Path;
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,13 +32,13 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @SonarLintSide
 public class KustomizationInfoProvider {
   private int kustomizationFilesCount = 0;
-  private final Set<Path> kustomizationReferencedFiles = new HashSet<>();
+  private final Set<URI> kustomizationReferencedFiles = new HashSet<>();
 
-  public void addKustomizationReferencedFiles(Collection<Path> c) {
+  public void addKustomizationReferencedFiles(Collection<URI> c) {
     kustomizationReferencedFiles.addAll(c);
   }
 
-  public Set<Path> kustomizationReferencedFiles() {
+  public Set<URI> kustomizationReferencedFiles() {
     return kustomizationReferencedFiles;
   }
 

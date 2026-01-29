@@ -17,6 +17,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -68,18 +69,18 @@ class KustomizationParserTest {
 
     var result = parser.parse(context, inputFile);
 
-    // Convert expected paths (relative to baseDir) to absolute paths
-    var expectedAbsolutePaths = new Path[expectedPathsFromBaseDir.length];
+    // Convert expected paths (relative to baseDir) to absolute URIs
+    var expectedAbsoluteUris = new URI[expectedPathsFromBaseDir.length];
     for (int i = 0; i < expectedPathsFromBaseDir.length; i++) {
-      expectedAbsolutePaths[i] = baseDir.toRealPath(LinkOption.NOFOLLOW_LINKS).resolve(expectedPathsFromBaseDir[i]).normalize();
+      expectedAbsoluteUris[i] = baseDir.toRealPath(LinkOption.NOFOLLOW_LINKS).resolve(expectedPathsFromBaseDir[i]).normalize().toUri();
     }
 
-    if (expectedAbsolutePaths.length == 0) {
+    if (expectedAbsoluteUris.length == 0) {
       assertThat(result).isEmpty();
     } else {
       assertThat(result)
-        .hasSize(expectedAbsolutePaths.length)
-        .containsExactlyInAnyOrder(expectedAbsolutePaths);
+        .hasSize(expectedAbsoluteUris.length)
+        .containsExactlyInAnyOrder(expectedAbsoluteUris);
     }
   }
 

@@ -21,6 +21,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -62,9 +63,14 @@ public class KustomizationSensor extends TogglableSensor {
   }
 
   private void processFiles(SensorContext context) {
-    context.fileSystem()
-      .inputFiles(KustomizationSensor::isKustomizationFile)
+    context.fileSystem().inputFiles(getFilePredicate(context))
       .forEach(inputFile -> processKustomizationFile(context, inputFile));
+  }
+
+  private static FilePredicate getFilePredicate(SensorContext context) {
+    var predicates = context.fileSystem().predicates();
+    return predicates
+      .and(predicates.hasType(InputFile.Type.MAIN), KustomizationSensor::isKustomizationFile);
   }
 
   private void addTelemetry(SensorContext context) {

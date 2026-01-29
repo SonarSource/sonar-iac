@@ -123,7 +123,7 @@ class ProjectContextImplTest {
 
   private static InputFileContext toInputFileContext(String path) {
     var inputFileContext = createInputFileContextMock(path);
-    when(inputFileContext.inputFile.uri()).thenReturn(baseDir.resolve(path).toUri());
+    when(inputFileContext.inputFile.uri()).thenReturn(baseDir.resolve(path).normalize().toUri());
     return inputFileContext;
   }
 
@@ -141,9 +141,9 @@ class ProjectContextImplTest {
     var ctx = new ProjectContextImpl();
 
     // Set kustomization-referenced files
-    var file1 = baseDir.resolve("overlays/dev/deployment.yaml").normalize();
-    var file2 = baseDir.resolve("overlays/dev/service.yaml").normalize();
-    var file3 = baseDir.resolve("base/deployment.yaml").normalize();
+    var file1 = baseDir.resolve("overlays/dev/deployment.yaml").normalize().toUri();
+    var file2 = baseDir.resolve("overlays/dev/service.yaml").normalize().toUri();
+    var file3 = baseDir.resolve("base/deployment.yaml").normalize().toUri();
 
     ctx.setKustomizationReferencedFiles(Set.of(file1, file2, file3));
 
@@ -174,9 +174,9 @@ class ProjectContextImplTest {
   void shouldNormalizePathsWhenCheckingKustomizationResource() {
     var ctx = new ProjectContextImpl();
 
-    // Set a normalized path
-    var normalizedPath = baseDir.resolve("overlays/dev/deployment.yaml").normalize();
-    ctx.setKustomizationReferencedFiles(Set.of(normalizedPath));
+    // Set a normalized URI
+    var normalizedUri = baseDir.resolve("overlays/dev/deployment.yaml").normalize().toUri();
+    ctx.setKustomizationReferencedFiles(Set.of(normalizedUri));
 
     // Create context with path that needs normalization
     var inputFileContext = toInputFileContext("overlays/dev/./deployment.yaml");
@@ -190,8 +190,8 @@ class ProjectContextImplTest {
     var ctx = new ProjectContextImpl();
 
     // Set initial files
-    var file1 = baseDir.resolve("overlays/dev/deployment.yaml").normalize();
-    var file2 = baseDir.resolve("overlays/dev/service.yaml").normalize();
+    var file1 = baseDir.resolve("overlays/dev/deployment.yaml").normalize().toUri();
+    var file2 = baseDir.resolve("overlays/dev/service.yaml").normalize().toUri();
     ctx.setKustomizationReferencedFiles(Set.of(file1, file2));
 
     var inputFileContext1 = toInputFileContext("overlays/dev/deployment.yaml");
@@ -200,7 +200,7 @@ class ProjectContextImplTest {
     assertThat(ctx.isKustomizationReferencedFile(inputFileContext2)).isTrue();
 
     // Replace with new files
-    var file3 = baseDir.resolve("base/deployment.yaml").normalize();
+    var file3 = baseDir.resolve("base/deployment.yaml").normalize().toUri();
     ctx.setKustomizationReferencedFiles(Set.of(file3));
 
     var inputFileContext3 = toInputFileContext("base/deployment.yaml");

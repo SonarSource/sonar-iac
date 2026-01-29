@@ -54,9 +54,9 @@ class CpuLimitCheckTest {
   @Test
   void teskKustomized() {
     KubernetesVerifier.verifyNoIssue("CpuLimitCheck/kustomized_cpu_limit_deployment.yaml", check, ((inputFileContext, fileNames) -> {
-      var kustomizationReferencedPath = KubernetesVerifier.BASE_DIR.resolve("CpuLimitCheck/kustomized_cpu_limit_deployment.yaml").toAbsolutePath().normalize();
+      var kustomizationReferencedUri = KubernetesVerifier.BASE_DIR.resolve("CpuLimitCheck/kustomized_cpu_limit_deployment.yaml").toAbsolutePath().normalize().toUri();
       var ctx = KubernetesVerifier.prepareProjectContext(inputFileContext, fileNames);
-      ctx.setKustomizationReferencedFiles(Set.of(kustomizationReferencedPath));
+      ctx.setKustomizationReferencedFiles(Set.of(kustomizationReferencedUri));
       return ctx;
     }));
   }

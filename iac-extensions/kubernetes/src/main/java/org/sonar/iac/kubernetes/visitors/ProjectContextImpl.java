@@ -42,10 +42,10 @@ public final class ProjectContextImpl implements ProjectContext {
   private final Map<String, InputFileContext> inputFileContextPerPath = new HashMap<>();
 
   /**
-   * Set of absolute normalized file paths that are referenced in kustomization.yaml files.
+   * Set of URIs that are referenced in kustomization.yaml files.
    * These files may be incomplete (resources or patches) and should be handled differently by checks.
    */
-  private final Set<Path> kustomizationReferencedFiles = new HashSet<>();
+  private final Set<URI> kustomizationReferencedFiles = new HashSet<>();
   private final Map<InputFileContext, Boolean> kustomizationReferencedFilesCache = new HashMap<>();
   /**
    * The Chart of the project, if the project is a Helm project.
@@ -133,13 +133,12 @@ public final class ProjectContextImpl implements ProjectContext {
 
   /**
    * Sets the kustomization-referenced files, replacing any previously stored files.
-   * The paths should be absolute and normalized.
    *
-   * @param paths the set of absolute normalized paths to store
+   * @param uris the set of URIs to store
    */
-  public void setKustomizationReferencedFiles(Set<Path> paths) {
+  public void setKustomizationReferencedFiles(Set<URI> uris) {
     kustomizationReferencedFiles.clear();
-    kustomizationReferencedFiles.addAll(paths);
+    kustomizationReferencedFiles.addAll(uris);
     kustomizationReferencedFilesCache.clear();
   }
 
@@ -149,8 +148,8 @@ public final class ProjectContextImpl implements ProjectContext {
       return false;
     }
     return kustomizationReferencedFilesCache.computeIfAbsent(inputFileContext, ifc -> {
-      var filePath = Path.of(ifc.inputFile.uri()).normalize();
-      return kustomizationReferencedFiles.contains(filePath);
+      var fileUri = ifc.inputFile.uri();
+      return kustomizationReferencedFiles.contains(fileUri);
     });
   }
 }

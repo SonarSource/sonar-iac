@@ -17,6 +17,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
@@ -43,7 +44,7 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
  * - patchesStrategicMerge: legacy list of patch files
  * - patchesJson6902: list of JSON patches (with path field)
  *
- * Paths are resolved relative to the kustomization file location and returned as absolute normalized paths.
+ * Paths are resolved relative to the kustomization file location and returned as URIs.
  */
 public class KustomizationParser {
   private static final Logger LOG = LoggerFactory.getLogger(KustomizationParser.class);
@@ -58,12 +59,12 @@ public class KustomizationParser {
    *
    * @param sensorContext the sensor context
    * @param inputFile the input file for the kustomization file
-   * @return set of absolute normalized file paths referenced in the kustomization
+   * @return set of URIs referenced in the kustomization
    */
-  public Set<Path> parse(SensorContext sensorContext, InputFile inputFile) {
+  public Set<URI> parse(SensorContext sensorContext, InputFile inputFile) {
     try {
-      // Also extract and return the referenced files directly
-      var kustomizationFilePath = Path.of(inputFile.uri()).toAbsolutePath();
+      var kustomizationFileUri = inputFile.uri();
+      var kustomizationFilePath = Path.of(kustomizationFileUri).toAbsolutePath();
       var parentDirPath = kustomizationFilePath.getParent();
       if (parentDirPath == null) {
         LOG.debug("Cannot determine parent directory for kustomization file: {}", kustomizationFilePath);
@@ -82,14 +83,14 @@ public class KustomizationParser {
   }
 
   /**
-   * Extracts all file paths referenced in a kustomization file and resolves them to absolute paths.
+   * Extracts all file URIs referenced in a kustomization file and resolves them to absolute URIs.
    * This includes resources and all types of patches.
    *
    * @param fileTree the parsed kustomization file
    * @param parentDirPath the absolute path to the kustomization file parent (used for resolving relative paths)
-   * @return set of absolute normalized file paths referenced in the kustomization
+   * @return set of URIs referenced in the kustomization
    */
-  private static Set<Path> extractReferencedFiles(FileTree fileTree, Path parentDirPath) {
+  private static Set<URI> extractReferencedFiles(FileTree fileTree, Path parentDirPath) {
     return fileTree.documents().stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
@@ -105,17 +106,18 @@ public class KustomizationParser {
   }
 
   /**
-   * Resolves a relative path from a kustomization file to an absolute normalized path.
+   * Resolves a relative path from a kustomization file to an absolute normalized URI.
    *
    * @param parentDirPath the absolute path to the kustomization file parent
    * @param relativePath the relative path from the kustomization file
-   * @return normalized absolute path, or null if resolution fails
+   * @return normalized absolute URI, or null if resolution fails
    */
-  private static Path resolvePath(Path parentDirPath, String relativePath) {
+  private static URI resolvePath(Path parentDirPath, String relativePath) {
     try {
       var resolvedPath = parentDirPath.resolve(relativePath).normalize();
+      var uri = resolvedPath.toUri();
       LOG.debug("Resolved kustomization reference: {}", relativePath);
-      return resolvedPath;
+      return uri;
     } catch (Exception e) {
       LOG.debug("Failed to resolve path '{}' relative to '{}': {}", relativePath, parentDirPath, e.getMessage());
       return null;

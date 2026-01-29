@@ -99,8 +99,8 @@ class KustomizationSensorTest {
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(2);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
       .containsExactlyInAnyOrder(
-        BASE_DIR.toAbsolutePath().resolve("deployment.yaml").normalize(),
-        BASE_DIR.toAbsolutePath().resolve("service.yaml").normalize());
+        BASE_DIR.toAbsolutePath().resolve("deployment.yaml").normalize().toUri(),
+        BASE_DIR.toAbsolutePath().resolve("service.yaml").normalize().toUri());
   }
 
   @Test
@@ -118,7 +118,7 @@ class KustomizationSensorTest {
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(1);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
-      .containsExactly(BASE_DIR.toAbsolutePath().resolve("config.yaml").normalize());
+      .containsExactly(BASE_DIR.toAbsolutePath().resolve("config.yaml").normalize().toUri());
   }
 
   @ParameterizedTest
@@ -196,8 +196,8 @@ class KustomizationSensorTest {
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(2);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
       .containsExactlyInAnyOrder(
-        BASE_DIR.toAbsolutePath().resolve("deployment.yaml").normalize(),
-        BASE_DIR.toAbsolutePath().resolve("patch.yaml").normalize());
+        BASE_DIR.toAbsolutePath().resolve("deployment.yaml").normalize().toUri(),
+        BASE_DIR.toAbsolutePath().resolve("patch.yaml").normalize().toUri());
   }
 
   @Test
@@ -219,9 +219,9 @@ class KustomizationSensorTest {
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(3);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
       .containsExactlyInAnyOrder(
-        BASE_DIR.toAbsolutePath().resolve("deployment.yaml").normalize(),
-        BASE_DIR.toAbsolutePath().resolve("patch1.yaml").normalize(),
-        BASE_DIR.toAbsolutePath().resolve("patch2.yaml").normalize());
+        BASE_DIR.toAbsolutePath().resolve("deployment.yaml").normalize().toUri(),
+        BASE_DIR.toAbsolutePath().resolve("patch1.yaml").normalize().toUri(),
+        BASE_DIR.toAbsolutePath().resolve("patch2.yaml").normalize().toUri());
   }
 
   @Test
@@ -255,8 +255,8 @@ class KustomizationSensorTest {
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(2);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
       .containsExactlyInAnyOrder(
-        BASE_DIR.toAbsolutePath().resolve("base/deployment.yaml").normalize(),
-        BASE_DIR.toAbsolutePath().resolve("overlays/local/service.yaml").normalize());
+        BASE_DIR.toAbsolutePath().resolve("base/deployment.yaml").normalize().toUri(),
+        BASE_DIR.toAbsolutePath().resolve("overlays/local/service.yaml").normalize().toUri());
   }
 
   @Test
