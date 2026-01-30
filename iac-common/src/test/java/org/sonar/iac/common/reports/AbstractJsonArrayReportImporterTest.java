@@ -84,7 +84,23 @@ class AbstractJsonArrayReportImporterTest {
     assertThat(logTester.logs(Level.INFO))
       .containsExactly(
         String.format("PREFIX Importing external report from: %s", path),
-        "Issue saved");
+        "Issue saved",
+        "PREFIX Imported 1 issue(s).");
+  }
+
+  @Test
+  void shouldLogWhenNoIssuesImported() {
+    String filename = "src/test/resources/ext-json-report/emptyArray.json";
+    String path = File.separatorChar == '/' ? filename : Paths.get(filename).toString();
+    File reportFile = new File(path);
+    TestImporter testImporter = new TestImporter(context, mockRulesDefinition, mockAnalysisWarnings, "PREFIX ");
+
+    testImporter.importReport(reportFile);
+
+    assertThat(logTester.logs(Level.INFO))
+      .containsExactly(
+        String.format("PREFIX Importing external report from: %s", path),
+        "PREFIX No issues to import.");
   }
 
   @Test

@@ -77,7 +77,17 @@ public abstract class AbstractReportImporter {
       if (failedToSaveIssues > 0) {
         addWarning(reportFile.getPath(), issuesJson.size(), failedToSaveIssues);
       }
+      logImportSummary(issuesJson.size(), failedToSaveIssues);
     });
+  }
+
+  private void logImportSummary(int totalIssues, int failedToSaveIssues) {
+    int importedIssues = totalIssues - failedToSaveIssues;
+    if (totalIssues == 0) {
+      LOG.info("{}No issues to import.", warningPrefix);
+    } else if (importedIssues > 0) {
+      LOG.info("{}Imported {} issue(s).", warningPrefix, importedIssues);
+    }
   }
 
   /**
