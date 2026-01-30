@@ -109,9 +109,9 @@ class HelmProcessorTest {
 
   @Test
   void shouldRaiseExceptionIfEvaluatorIsNotInitialized() throws IOException {
-    var helmEvaluator = mock(HelmEvaluator.class);
-    doThrow(new IOException()).when(helmEvaluator).initialize();
-    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    var uninitializedHelmEvaluator = mock(HelmEvaluator.class);
+    doThrow(new IOException()).when(uninitializedHelmEvaluator).initialize();
+    var helmProcessor = new HelmProcessor(uninitializedHelmEvaluator, mock(HelmFileSystem.class));
     helmProcessor.initialize();
 
     assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo", null))

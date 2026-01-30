@@ -68,7 +68,7 @@ class KubernetesChecksVisitorTest {
   @BeforeEach
   void setUp() {
     context = (KubernetesChecksVisitor.KubernetesContextAdapter) visitor.context(RuleKey.of("testRepo", "testRule"));
-    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree.textRange(), "testIssue"));
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, node) -> ctx.reportIssue(node.textRange(), "testIssue"));
     validCheck.initialize(context);
     when(tree.textRange()).thenReturn(TREE_TEXT_RANGE);
   }

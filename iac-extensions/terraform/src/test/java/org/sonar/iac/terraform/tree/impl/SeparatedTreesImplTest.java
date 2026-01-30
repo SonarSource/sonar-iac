@@ -35,9 +35,9 @@ class SeparatedTreesImplTest {
 
   @Test
   void empty() {
-    SeparatedTreesImpl<TerraformTree> list = SeparatedTreesImpl.empty();
-    assertThat(list.trees()).isEmpty();
-    assertThat(list.treesAndSeparators()).isEmpty();
+    SeparatedTreesImpl<TerraformTree> emptyList = SeparatedTreesImpl.empty();
+    assertThat(emptyList.trees()).isEmpty();
+    assertThat(emptyList.treesAndSeparators()).isEmpty();
   }
 
   @Test
