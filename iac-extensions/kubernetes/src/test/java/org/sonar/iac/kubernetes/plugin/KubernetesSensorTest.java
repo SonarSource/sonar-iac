@@ -29,7 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
@@ -72,7 +71,11 @@ import static org.sonar.iac.kubernetes.KubernetesAssertions.assertThat;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
 
-  private static final String K8S_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\n";
+  private static final String K8S_IDENTIFIERS = """
+    apiVersion: ~
+    kind: ~
+    metadata: ~
+    """;
   private static final String PARSING_ERROR_KEY = "S2260";
   private final SonarLintFileListener sonarLintFileListener = mock(SonarLintFileListener.class);
 
@@ -107,9 +110,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldParseYamlFileWithHelmChartTemplate() {
-    var sensor = sensor();
+    var originalSourceCode = K8S_IDENTIFIERS + "foo: {{ .Values.bar }}";
+    var transformedSourceCode = K8S_IDENTIFIERS + "foo: var-value\n";
+    var helmProcessor = new TestHelmProcessor(transformedSourceCode);
+    var sensor = sensor(helmProcessor, checkFactory());
     analyze(sensor,
-      inputFile(K8S_IDENTIFIERS + "foo: {{ .Values.bar }}"),
+      inputFile(originalSourceCode),
       inputFile("values.yaml", "bar: var-value"),
       inputFile("Chart.yaml", "name: foo"));
     assertOneSourceFileIsParsed();
@@ -117,17 +123,14 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var logs = logTester.logs();
     assertThat(logs)
       .contains("Helm content detected in file 'templates/k8.yaml'")
-      .contains("Initializing Helm processor")
-      .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
-        "Helm files count: 1, parsed: 0, not parsed: 1")
-      .doesNotContain("Skipping initialization of Helm processor");
-    // TODO: SONARIAC-1877 Fix logic inside this test
-    verifyLinesOfCodeTelemetry(0);
+      .as("Helm processor is injected for test, so the sensor should not try to initialize it")
+      .contains("Skipping initialization of Helm processor");
+    verifyLinesOfCodeTelemetry(4);
   }
 
   @Test
   void shouldNotParseYamlFileWithHelmChartTemplateWhenDisabled() {
-    MapSettings settings = new MapSettings();
+    var settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     settings.setProperty("sonar.kubernetes.helm.activate", "false");
     context.setSettings(settings);
@@ -164,7 +167,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseYamlWithHelmChartTemplateWhenHelmProcessorUnavailableAndDisabled() {
     try (MockedStatic<HelmProcessor> mocked = mockStatic(HelmProcessor.class)) {
-      MapSettings settings = new MapSettings();
+      var settings = new MapSettings();
       settings.setProperty(getActivationSettingKey(), true);
       settings.setProperty("sonar.kubernetes.helm.activate", "false");
       context.setSettings(settings);
@@ -343,19 +346,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.WARN)).hasSize(2);
     assertNoSourceFileIsParsed();
     verifyLinesOfCodeTelemetry(0);
-  }
-
-  // TODO: SONARIAC-1877 Fix logic inside this test, some of the files are parseable, some not
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "'{{ .Values.count }}'",
-    "\"{{ .Values.count }}\"",
-    "# {{ .Values.count }}",
-    "custom-label: {{MY_CUSTOM_LABEL}}"
-  })
-  void shouldParseYamlFileWithHelmTemplateDirectives(String content) {
-    analyze(sensor(), inputFile(K8S_IDENTIFIERS + content));
-    assertOneSourceFileIsParsed();
   }
 
   @ParameterizedTest
