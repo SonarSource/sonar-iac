@@ -27,7 +27,6 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "spring.sendgrid.api-key",
     "spring.cassandra.password",
     "spring.couchbase.password",
-    "spring.data.mongodb.password",
     "spring.data.redis.password",
     "spring.data.redis.sentinel.password",
     "spring.datasource.hikari.password",
@@ -89,9 +88,23 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "management.server.ssl.key-password",
     "management.server.ssl.key-store-password",
     "management.server.ssl.trust-store-password",
-    "management.signalfx.metrics.export.access-token",
+    "spring.devtools.remote.secret",
+
+    // 2.02.26 Added properties by scrapping the official common
+    // application properties documentation.
+    "management.prometheus.metrics.export.pushgateway.token",
+    "spring.artemis.embedded.cluster-password",
+    "spring.couchbase.authentication.jks.password",
+    "spring.datasource.dbcp2.password",
+    "spring.elasticsearch.api-key",
+    "spring.liquibase.license-key",
+    "spring.mongodb.password",
+
+    // The properties below are abcent in docs and/or
+    // deprecated as of 2.02.26
     "management.wavefront.api-token",
-    "spring.devtools.remote.secret");
+    "management.signalfx.metrics.export.access-token",
+    "spring.data.mongodb.password");
 
   private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
     "spring.ai.([^.]++.)+password",
