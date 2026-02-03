@@ -154,9 +154,9 @@ class SensorTelemetryTest {
 
   static Stream<Arguments> provideFileSizeMetricTestData() {
     return Stream.of(
-      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L), "iac.language.files.maxSize", "11"),
       Arguments.of(Arrays.asList(10L, 3L, 7L, 11L), "iac.language.files.count", "4"),
-      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), "iac.language.files.medianSize", "8"));
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), "iac.language.files.medianSize", "8"),
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), "iac.language.files.largestFiles", "[11, 10, 8, 7, 3]"));
   }
 
   @ParameterizedTest
@@ -173,13 +173,28 @@ class SensorTelemetryTest {
       Arguments.of(Collections.emptyList(), 0));
   }
 
+  @ParameterizedTest
+  @MethodSource("provideGetLargestNumbersTestData")
+  void shouldVerifyGetLargestNumbers(List<Long> numbers, int limit, List<Long> result) {
+    assertThat(SensorTelemetry.getLargestNumbers(numbers, limit)).isEqualTo(result);
+  }
+
+  static Stream<Arguments> provideGetLargestNumbersTestData() {
+    return Stream.of(
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), 2, Arrays.asList(11L, 10L)),
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), -1, Collections.emptyList()),
+      Arguments.of(new ArrayList<>(List.of(10L)), 3, new ArrayList<>(List.of(10L))),
+      Arguments.of(Collections.emptyList(), 2, Collections.emptyList()),
+      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), 0, Collections.emptyList()));
+  }
+
   @Test
   void shouldNotReportFilesMetricWhenFilesIsEmpty() {
     sensorTelemetry.addAggregatedFileSizeTelemetry("language");
 
-    reportTelemetryAndVerifyNotContainEntry("iac.language.files.maxSize");
     reportTelemetryAndVerifyNotContainEntry("iac.language.files.count");
     reportTelemetryAndVerifyNotContainEntry("iac.language.files.medianSize");
+    reportTelemetryAndVerifyNotContainEntry("iac.language.files.largestFiles");
   }
 
   private void reportTelemetryAndVerifySingleEntry(String key, String value) {

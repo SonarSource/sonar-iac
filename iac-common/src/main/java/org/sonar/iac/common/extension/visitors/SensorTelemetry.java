@@ -18,6 +18,7 @@ package org.sonar.iac.common.extension.visitors;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,6 @@ public class SensorTelemetry {
   private static final Version TELEMETRY_SUPPORTED_API_VERSION = Version.create(10, 9);
 
   private long aggregatedLinesOfCode;
-  private long maxFileSize;
   private final List<Long> fileSizeList = new ArrayList<>();
 
   private final boolean recordStat;
@@ -52,7 +52,6 @@ public class SensorTelemetry {
   }
 
   public void addFileSize(long fileSize) {
-    maxFileSize = Math.max(fileSize, maxFileSize);
     fileSizeList.add(fileSize);
   }
 
@@ -72,9 +71,10 @@ public class SensorTelemetry {
 
   public void addAggregatedFileSizeTelemetry(String language) {
     if (!fileSizeList.isEmpty()) {
-      addTelemetry(language + ".files.maxSize", String.valueOf(maxFileSize));
+      long median = calculateMedian(fileSizeList);
       addTelemetry(language + ".files.count", String.valueOf(fileSizeList.size()));
-      addTelemetry(language + ".files.medianSize", String.valueOf(calculateMedian(fileSizeList)));
+      addTelemetry(language + ".files.medianSize", String.valueOf(median));
+      addTelemetry(language + ".files.largestFiles", String.valueOf(getLargestNumbers(fileSizeList, 20)));
     }
   }
 
@@ -109,5 +109,15 @@ public class SensorTelemetry {
     } else {
       return (numbers.get(middle - 1) + numbers.get(middle)) / 2;
     }
+  }
+
+  static List<Long> getLargestNumbers(List<Long> numbers, int limit) {
+    if (limit < 0) {
+      return Collections.emptyList();
+    }
+    return numbers.stream()
+      .sorted(Comparator.reverseOrder())
+      .limit(limit)
+      .toList();
   }
 }
