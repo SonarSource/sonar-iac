@@ -1,7 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>SonarSource/renovate-config:languages-team"
+    "github>SonarSource/renovate-config:languages-team",
+    ":semanticCommitsDisabled"
   ],
   "schedule": [
     "before 4am on Monday"
