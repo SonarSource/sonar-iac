@@ -26,7 +26,7 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CodeInstruction;
 
-import static org.sonar.iac.common.checks.network.UrlUtils.isUnencryptedUrl;
+import static org.sonar.iac.common.checks.network.UrlUtils.isSensitiveUnencryptedUrl;
 import static org.sonar.iac.docker.checks.utils.CheckUtils.codeToArgumentList;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
@@ -59,7 +59,7 @@ public class UnencryptedProtocolCheck implements IacCheck {
   private static void checkUnencryptedProtocols(CheckContext ctx, List<Argument> paths) {
     for (Argument path : paths) {
       String resolvedPath = ArgumentResolution.of(path).value();
-      if (resolvedPath != null && isUnencryptedUrl(resolvedPath)) {
+      if (resolvedPath != null && isSensitiveUnencryptedUrl(resolvedPath)) {
         ctx.reportIssue(path, MESSAGE);
       }
     }

@@ -40,9 +40,14 @@ public final class UrlUtils {
   private UrlUtils() {
   }
 
-  public static boolean isUnencryptedUrl(String url) {
+  public static boolean isSensitiveUnencryptedUrl(String url) {
     var matcher = UNENCRYPTED_PROTOCOLS.matcher(url);
     return matcher.find() && !COMPLIANT_HTTP_DOMAINS.matcher(matcher.group("rest")).find();
+  }
+
+  public static boolean isUnencryptedUrl(String url) {
+    var matcher = UNENCRYPTED_PROTOCOLS.matcher(url);
+    return matcher.find();
   }
 
   public static List<TextRange> findUnencryptedUrlsOffsets(TextPointer start, String value) {
