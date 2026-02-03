@@ -51,6 +51,8 @@ import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 
+import static org.sonar.iac.kubernetes.plugin.KustomizationSensor.KUSTOMIZATION_SENSOR_NAME;
+
 @DependsUpon("KustomizationSensor")
 public class KubernetesSensor extends AbstractYamlLanguageSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesSensor.class);
@@ -94,10 +96,10 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
 
   @Override
   protected void initContext(SensorContext sensorContext) {
-    projectContextImpl.setKustomizationReferencedFiles(kustomizationInfoProvider.kustomizationReferencedFiles());
     var kustomizationReferencedFiles = kustomizationInfoProvider.kustomizationReferencedFiles();
-    LOG.debug("Kubernetes sensor initialized with {} kustomization referenced files: {}",
-      kustomizationReferencedFiles.size(), kustomizationReferencedFiles);
+    projectContextImpl.setKustomizationReferencedFiles(kustomizationReferencedFiles);
+    LOG.debug("Kubernetes sensor initialized with {} kustomization referenced files detected in '{}'",
+      kustomizationReferencedFiles.size(), KUSTOMIZATION_SENSOR_NAME);
     var fileSystemProvider = createFileSystemProvider(sensorContext);
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");

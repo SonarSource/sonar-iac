@@ -16,8 +16,10 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -277,7 +279,7 @@ class KustomizationSensorTest {
 
     var debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs)
-      .anyMatch(log -> log.contains("Kustomization sensor processed 1 kustomization files and collected 2 referenced files"));
+      .anyMatch(log -> log.contains("Kustomization sensor processed 1 kustomization files and collected 2 referenced files: [deployment.yaml, service.yaml]"));
   }
 
   @Test
@@ -302,7 +304,8 @@ class KustomizationSensorTest {
 
     var debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs)
-      .anyMatch(log -> log.contains("Kustomization sensor processed 2 kustomization files and collected 3 referenced files"));
+      .anyMatch(log -> log
+        .contains("Kustomization sensor processed 2 kustomization files and collected 3 referenced files: [overlay/service.yaml, base/deployment.yaml, overlay/ingress.yaml]"));
   }
 
   @Test
@@ -385,6 +388,21 @@ class KustomizationSensorTest {
       .containsEntry(KUSTOMIZE_PRESENT, "1")
       .containsEntry(KUSTOMIZE_FILES_COUNT, "1")
       .containsEntry(KUSTOMIZE_REFERENCED_FILES_COUNT, "0");
+  }
+
+  @Test
+  void createKustomizeReferencedFilesLogShouldNotFailOnUnexpectedInput() {
+    String kustomizeReferencedFilesLog = sensor.createKustomizeReferencedFilesLog(context, Set.of(URI.create("non-relative-to-base")));
+
+    assertThat(kustomizeReferencedFilesLog).isEqualTo("[non-relative-to-base]");
+  }
+
+  @Test
+  void createKustomizeReferencedFilesLogShouldCorrectlyRelativizePaths() {
+    var inputFile = createInputFile("myFile.yaml", "");
+    String kustomizeReferencedFilesLog = sensor.createKustomizeReferencedFilesLog(context, Set.of(context.fileSystem().baseDir().toURI(), inputFile.uri()));
+
+    assertThat(kustomizeReferencedFilesLog).isEqualTo("[myFile.yaml]");
   }
 
   private org.sonar.api.batch.fs.InputFile createInputFile(String relativePath, String content) {

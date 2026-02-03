@@ -16,8 +16,10 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.net.URI;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
@@ -36,6 +38,7 @@ import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE
 public class KustomizationSensor extends TogglableSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KustomizationSensor.class);
   private static final Set<String> KUSTOMIZATION_FILE_NAMES = Set.of("kustomization.yaml", "kustomization.yml");
+  static final String KUSTOMIZATION_SENSOR_NAME = "IaC Kustomization Sensor";
 
   private final KustomizationParser kustomizationParser;
   private final Language language;
@@ -52,7 +55,7 @@ public class KustomizationSensor extends TogglableSensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguages(YAML_LANGUAGE_KEY, language.getKey())
-      .name("IaC Kustomization Sensor");
+      .name(KUSTOMIZATION_SENSOR_NAME);
 
   }
 
@@ -60,7 +63,7 @@ public class KustomizationSensor extends TogglableSensor {
   public void executeIfActive(SensorContext context) {
     sensorTelemetry = new SensorTelemetry(context.config());
     processFiles(context);
-    addTelemetry();
+    addTelemetry(context);
     sensorTelemetry.reportTelemetry(context);
   }
 
@@ -75,7 +78,7 @@ public class KustomizationSensor extends TogglableSensor {
       .and(predicates.hasType(InputFile.Type.MAIN), KustomizationSensor::isKustomizationFile);
   }
 
-  private void addTelemetry() {
+  private void addTelemetry(SensorContext sensorContext) {
     var kustomizationReferencedFiles = kustomizationInfoProvider.kustomizationReferencedFiles();
     var kustomizationFilesCount = kustomizationInfoProvider.kustomizationFilesCount();
     var kustomizationReferencedFilesCount = kustomizationInfoProvider.kustomizationReferencedFilesCount();
@@ -84,8 +87,11 @@ public class KustomizationSensor extends TogglableSensor {
     sensorTelemetry.addTelemetry("kustomize.files.count", Integer.toString(kustomizationFilesCount));
     sensorTelemetry.addTelemetry("kustomize.referenced.files.count", Integer.toString(kustomizationReferencedFilesCount));
 
-    LOG.debug("Kustomization sensor processed {} kustomization files and collected {} referenced files: {}",
-      kustomizationFilesCount, kustomizationReferencedFilesCount, kustomizationReferencedFiles);
+    if (LOG.isDebugEnabled()) {
+      String kustomizeReferencedFilesLog = createKustomizeReferencedFilesLog(sensorContext, kustomizationReferencedFiles);
+      LOG.debug("Kustomization sensor processed {} kustomization files and collected {} referenced files: {}",
+        kustomizationFilesCount, kustomizationReferencedFilesCount, kustomizeReferencedFilesLog);
+    }
   }
 
   @Override
@@ -101,5 +107,14 @@ public class KustomizationSensor extends TogglableSensor {
     var referencedFiles = kustomizationParser.parse(context, inputFile);
     kustomizationInfoProvider.addKustomizationReferencedFiles(referencedFiles);
     kustomizationInfoProvider.incrementKustomizationFilesCount();
+  }
+
+  String createKustomizeReferencedFilesLog(SensorContext sensorContext, Set<URI> referencesFiles) {
+    URI baseDir = sensorContext.fileSystem().baseDir().toURI();
+    Set<URI> relativeUris = referencesFiles.stream()
+      .map(baseDir::relativize)
+      .filter(relativeUri -> !relativeUri.toString().isEmpty())
+      .collect(Collectors.toSet());
+    return relativeUris.toString();
   }
 }
