@@ -289,9 +289,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldParseYamlFilesWithinSingleStream() {
     analyze(sensor(), inputFile(K8S_IDENTIFIERS + "---\n" + K8S_IDENTIFIERS));
     assertOneSourceFileIsParsed();
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
-        "Helm files count: 0, parsed: 0, not parsed: 0");
     verifyLinesOfCodeTelemetry(7);
   }
 
@@ -299,9 +296,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldParseYamlFilesWithAtLeastOneDocumentWithIdentifiers() {
     analyze(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n---\n" + K8S_IDENTIFIERS));
     assertOneSourceFileIsParsed();
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
-        "Helm files count: 0, parsed: 0, not parsed: 0");
     verifyLinesOfCodeTelemetry(7);
   }
 
@@ -365,9 +359,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(textRange).hasRange(4, 1, 4, 5);
 
     assertThat(issue.flows()).isEmpty();
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
-        "Helm files count: 1, parsed: 1, not parsed: 0");
     verifyLinesOfCodeTelemetry(4);
   }
 
@@ -413,9 +404,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(issue1.primaryLocation().textRange()).hasRange(5, 9, 5, 22);
     assertThat(issue2.primaryLocation().inputComponent().key()).isEqualTo("moduleKey:file1.yaml");
     assertThat(issue2.primaryLocation().textRange()).hasRange(4, 9, 4, 22);
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 0, parsed: 0, not parsed: 0; " +
-        "Helm files count: 2, parsed: 2, not parsed: 0");
     verifyLinesOfCodeTelemetry(10);
   }
 
@@ -596,9 +584,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
     analyze(sensor(), kustomizeHelm, kustomizeK8s);
     assertNSourceFileIsParsed(2);
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Kubernetes Parsing Statistics: Pure Kubernetes files count: 1, parsed: 1, not parsed: 0; " +
-        "Helm files count: 1, parsed: 0, not parsed: 1");
     // helm file is not parseable, only kustomize file is counted
     verifyLinesOfCodeTelemetry(3);
   }
@@ -787,9 +772,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       .isEqualTo(message1);
     assertThat(logTester.logs(Level.DEBUG).get(4))
       .startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG).get(5))
-      .startsWith("Kubernetes Parsing Statistics");
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(6);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(5);
   }
 
   private KubernetesSensor sonarLintSensor(String... rules) {

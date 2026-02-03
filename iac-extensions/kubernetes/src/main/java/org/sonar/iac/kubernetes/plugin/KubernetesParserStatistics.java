@@ -18,11 +18,8 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 /**
@@ -30,22 +27,16 @@ import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
  * <ul>
  *   <li>{@code pureKubernetesParsedFileCount} <= {@code pureKubernetesFileCount} files that are not part of a Helm project</li>
  *   <li>{@code helmParsedFileCount} <= {@code helmFileCount} files that are part of a Helm project</li>
- *   <li>{@code kustomizeFileCount} number of {@code kustomize.y[a]ml} encountered in a whole file system project</li>
+ *   <li>{@code kustomizeFileCount} number of {@code kustomize.y[a]ml} encountered in a whole file system project.
+ *   Because of missing identifiers, should normally be not included in other counts.</li>
  * </ul>
- * Usually kustomization files doesn't contain Kubernetes identifiers so they are not parsed or counted in {@code pureKubernetesFileCount}
- * or {@code helmFileCount}.
  */
 public class KubernetesParserStatistics {
-  private static final Logger LOG = LoggerFactory.getLogger(KubernetesParserStatistics.class);
-  public static final String COUNT_KUSTOMIZE_KEY = "iac.kustomize";
-  public static final String COUNT_KUSTOMIZE_REFERENCED_KEY = "iac.kustomize.referenced";
-  private static final String COUNT_HELM_KEY = "iac.helm";
-  private static final Version MIN_VERSION_WITH_TELEMETRY_SUPPORT = Version.create(10, 9);
-
   private int pureKubernetesFileCount;
   private int pureKubernetesParsedFileCount;
   private int helmFileCount;
   private int helmParsedFileCount;
+  private boolean helmInitializationFailed;
 
   public <T> T recordFile(Supplier<T> o, @Nullable InputFileContext inputFileContext) {
     T result;
@@ -61,23 +52,23 @@ public class KubernetesParserStatistics {
     return result;
   }
 
-  public void storeTelemetry(SensorContext sensorContext) {
-    if (isKubernetesProject() && sensorContext.runtime().getApiVersion().isGreaterThanOrEqual(MIN_VERSION_WITH_TELEMETRY_SUPPORT)) {
-      sensorContext.addTelemetryProperty(COUNT_HELM_KEY, helmFileCount == 0 ? "0" : "1");
+  public void storeTelemetry(SensorTelemetry sensorTelemetry) {
+    if (isKubernetesProject()) {
+      sensorTelemetry.addTelemetry("kubernetes.pure.files.count", String.valueOf(pureKubernetesFileCount));
+      sensorTelemetry.addTelemetry("kubernetes.pure.files.parsed", String.valueOf(pureKubernetesParsedFileCount));
+      sensorTelemetry.addTelemetry("kubernetes.helm.files.count", String.valueOf(helmFileCount));
+      sensorTelemetry.addTelemetry("kubernetes.helm.files.parsed", String.valueOf(helmParsedFileCount));
+
+      sensorTelemetry.addTelemetry("helm", helmFileCount == 0 ? "0" : "1");
+
+      if (helmInitializationFailed) {
+        sensorTelemetry.addTelemetry("helm.initialization.failed", "1");
+      }
     }
   }
 
-  public void logStatistics() {
-    if (isKubernetesProject()) {
-      LOG.debug("Kubernetes Parsing Statistics: Pure Kubernetes files count: {}, parsed: {}, not parsed: {}; Helm files count: {}, " +
-        "parsed: {}, not parsed: {}",
-        pureKubernetesFileCount,
-        pureKubernetesParsedFileCount,
-        (pureKubernetesFileCount - pureKubernetesParsedFileCount),
-        helmFileCount,
-        helmParsedFileCount,
-        (helmFileCount - helmParsedFileCount));
-    }
+  public void setHelmInitializationFailed(boolean failed) {
+    this.helmInitializationFailed = failed;
   }
 
   private boolean isKubernetesProject() {

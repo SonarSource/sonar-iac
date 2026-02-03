@@ -27,11 +27,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.extension.TogglableSensor;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.yaml.YamlParser;
 
 import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
-import static org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics.COUNT_KUSTOMIZE_KEY;
-import static org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics.COUNT_KUSTOMIZE_REFERENCED_KEY;
 
 @DependedUpon("KustomizationSensor")
 public class KustomizationSensor extends TogglableSensor {
@@ -41,6 +40,7 @@ public class KustomizationSensor extends TogglableSensor {
   private final KustomizationParser kustomizationParser;
   private final Language language;
   private final KustomizationInfoProvider kustomizationInfoProvider;
+  private SensorTelemetry sensorTelemetry;
 
   public KustomizationSensor(KustomizationInfoProvider kustomizationInfoProvider, KubernetesLanguage language) {
     this.kustomizationInfoProvider = kustomizationInfoProvider;
@@ -58,8 +58,10 @@ public class KustomizationSensor extends TogglableSensor {
 
   @Override
   public void executeIfActive(SensorContext context) {
+    sensorTelemetry = new SensorTelemetry(context.config());
     processFiles(context);
-    addTelemetry(context);
+    addTelemetry();
+    sensorTelemetry.reportTelemetry(context);
   }
 
   private void processFiles(SensorContext context) {
@@ -73,12 +75,15 @@ public class KustomizationSensor extends TogglableSensor {
       .and(predicates.hasType(InputFile.Type.MAIN), KustomizationSensor::isKustomizationFile);
   }
 
-  private void addTelemetry(SensorContext context) {
+  private void addTelemetry() {
     var kustomizationReferencedFiles = kustomizationInfoProvider.kustomizationReferencedFiles();
-    var kustomizationFilesCount = Integer.toString(kustomizationInfoProvider.kustomizationFilesCount());
-    var kustomizationReferencedFilesCount = Integer.toString(kustomizationInfoProvider.kustomizationReferencedFilesCount());
-    context.addTelemetryProperty(COUNT_KUSTOMIZE_KEY, kustomizationFilesCount);
-    context.addTelemetryProperty(COUNT_KUSTOMIZE_REFERENCED_KEY, kustomizationReferencedFilesCount);
+    var kustomizationFilesCount = kustomizationInfoProvider.kustomizationFilesCount();
+    var kustomizationReferencedFilesCount = kustomizationInfoProvider.kustomizationReferencedFilesCount();
+
+    sensorTelemetry.addTelemetry("kustomize", kustomizationFilesCount == 0 ? "0" : "1");
+    sensorTelemetry.addTelemetry("kustomize.files.count", Integer.toString(kustomizationFilesCount));
+    sensorTelemetry.addTelemetry("kustomize.referenced.files.count", Integer.toString(kustomizationReferencedFilesCount));
+
     LOG.debug("Kustomization sensor processed {} kustomization files and collected {} referenced files: {}",
       kustomizationFilesCount, kustomizationReferencedFilesCount, kustomizationReferencedFiles);
   }

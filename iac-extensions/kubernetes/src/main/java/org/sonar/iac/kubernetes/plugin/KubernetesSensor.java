@@ -95,13 +95,14 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   @Override
   protected void initContext(SensorContext sensorContext) {
     projectContextImpl.setKustomizationReferencedFiles(kustomizationInfoProvider.kustomizationReferencedFiles());
+    var kustomizationReferencedFiles = kustomizationInfoProvider.kustomizationReferencedFiles();
     LOG.debug("Kubernetes sensor initialized with {} kustomization referenced files: {}",
-      kustomizationInfoProvider.kustomizationReferencedFiles().size(), kustomizationInfoProvider.kustomizationReferencedFiles());
+      kustomizationReferencedFiles.size(), kustomizationReferencedFiles);
     var fileSystemProvider = createFileSystemProvider(sensorContext);
     if (shouldEnableHelmAnalysis(sensorContext) && helmProcessor == null) {
       LOG.debug("Initializing Helm processor");
       var helmFileSystem = new HelmFileSystem(fileSystemProvider);
-      helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem);
+      helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem, kubernetesParserStatistics);
       helmProcessor.initialize();
     } else {
       LOG.debug("Skipping initialization of Helm processor");
@@ -160,9 +161,8 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
 
   @Override
   protected void afterExecute(SensorContext sensorContext) {
+    kubernetesParserStatistics.storeTelemetry(sensorTelemetry);
     super.afterExecute(sensorContext);
-    kubernetesParserStatistics.storeTelemetry(sensorContext);
-    kubernetesParserStatistics.logStatistics();
   }
 
   @Override

@@ -39,7 +39,7 @@ public class TestHelmProcessor extends HelmProcessor {
   }
 
   public TestHelmProcessor(Map<String, String> expectedInputOutputMapping) {
-    super(mock(HelmEvaluator.class), null);
+    super(mock(HelmEvaluator.class), null, mock(KubernetesParserStatistics.class));
     this.expectedInputOutputMapping = expectedInputOutputMapping;
   }
 

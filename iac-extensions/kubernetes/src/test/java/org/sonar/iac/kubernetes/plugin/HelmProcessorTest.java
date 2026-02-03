@@ -111,7 +111,7 @@ class HelmProcessorTest {
   void shouldRaiseExceptionIfEvaluatorIsNotInitialized() throws IOException {
     var uninitializedHelmEvaluator = mock(HelmEvaluator.class);
     doThrow(new IOException()).when(uninitializedHelmEvaluator).initialize();
-    var helmProcessor = new HelmProcessor(uninitializedHelmEvaluator, mock(HelmFileSystem.class));
+    var helmProcessor = new HelmProcessor(uninitializedHelmEvaluator, mock(HelmFileSystem.class), mock(KubernetesParserStatistics.class));
     helmProcessor.initialize();
 
     assertThatThrownBy(() -> helmProcessor.processHelmTemplate("foo", null))
@@ -150,7 +150,7 @@ class HelmProcessorTest {
       .build();
 
     var fileContext = new HelmInputFileContext(context, inputFile, null);
-    var processor = new HelmProcessor(helmEvaluator, helmFileSystem);
+    var processor = new HelmProcessor(helmEvaluator, helmFileSystem, mock(KubernetesParserStatistics.class));
     processor.initialize();
 
     var result = processor.processHelmTemplate(inputFile.contents(), fileContext);
@@ -167,7 +167,7 @@ class HelmProcessorTest {
     var inputFileContext = spy(new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile, null));
     when(inputFileContext.getHelmProjectDirectory()).thenReturn(Path.of("."));
 
-    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class), mock(KubernetesParserStatistics.class));
     helmProcessor.initialize();
 
     assertThatThrownBy(() -> helmProcessor.processHelmTemplate("{{ }}", inputFileContext))
@@ -183,7 +183,7 @@ class HelmProcessorTest {
     when(inputFile.toString()).thenReturn("file.yaml");
     var inputFileContext = new HelmInputFileContext(SensorContextTester.create(tempDir), inputFile, null);
 
-    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    var helmProcessor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class), mock(KubernetesParserStatistics.class));
     helmProcessor.initialize();
 
     assertThatThrownBy(() -> helmProcessor.processHelmTemplate("{{ }}", inputFileContext))
@@ -240,7 +240,7 @@ class HelmProcessorTest {
     FileSystem fileSystem = mock(FileSystem.class);
     when(sensorContext.fileSystem()).thenReturn(fileSystem);
 
-    var processor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class));
+    var processor = new HelmProcessor(helmEvaluator, mock(HelmFileSystem.class), mock(KubernetesParserStatistics.class));
     processor.initialize();
 
     return processor;

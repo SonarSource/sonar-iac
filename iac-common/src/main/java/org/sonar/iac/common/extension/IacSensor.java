@@ -81,10 +81,15 @@ public abstract class IacSensor extends TogglableSensor {
   protected abstract List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics);
 
   @Override
+  public void execute(SensorContext sensorContext) {
+    sensorTelemetry = new SensorTelemetry(sensorContext.config());
+    super.execute(sensorContext);
+  }
+
+  @Override
   public void executeIfActive(SensorContext sensorContext) {
     initContext(sensorContext);
 
-    sensorTelemetry = new SensorTelemetry(sensorContext.config());
     var statistics = new DurationStatistics(sensorContext.config());
     List<InputFile> inputFiles = inputFiles(sensorContext, statistics);
     if (inputFiles.isEmpty()) {

@@ -39,11 +39,13 @@ public class HelmProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(HelmProcessor.class);
   private final HelmEvaluator helmEvaluator;
   private final HelmFileSystem helmFilesystem;
+  private final KubernetesParserStatistics statistics;
   private boolean isEvaluatorInitialized;
 
-  public HelmProcessor(HelmEvaluator helmEvaluator, HelmFileSystem helmFilesystem) {
+  public HelmProcessor(HelmEvaluator helmEvaluator, HelmFileSystem helmFilesystem, KubernetesParserStatistics statistics) {
     this.helmEvaluator = helmEvaluator;
     this.helmFilesystem = helmFilesystem;
+    this.statistics = statistics;
   }
 
   public static boolean isHelmEvaluatorExecutableAvailable() {
@@ -56,6 +58,7 @@ public class HelmProcessor {
       isEvaluatorInitialized = true;
     } catch (IOException e) {
       LOG.debug("Failed to initialize Helm evaluator, analysis of Helm files will be disabled", e);
+      statistics.setHelmInitializationFailed(true);
     }
   }
 

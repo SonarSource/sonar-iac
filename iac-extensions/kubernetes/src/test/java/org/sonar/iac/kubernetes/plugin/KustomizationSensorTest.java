@@ -31,10 +31,12 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics.COUNT_KUSTOMIZE_KEY;
-import static org.sonar.iac.kubernetes.plugin.KubernetesParserStatistics.COUNT_KUSTOMIZE_REFERENCED_KEY;
 
 class KustomizationSensorTest {
+
+  private static final String KUSTOMIZE_PRESENT = "iac.kustomize";
+  private static final String KUSTOMIZE_FILES_COUNT = "iac.kustomize.files.count";
+  private static final String KUSTOMIZE_REFERENCED_FILES_COUNT = "iac.kustomize.referenced.files.count";
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -327,8 +329,9 @@ class KustomizationSensorTest {
     sensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
-      .containsEntry(COUNT_KUSTOMIZE_KEY, "1")
-      .containsEntry(COUNT_KUSTOMIZE_REFERENCED_KEY, "2");
+      .containsEntry(KUSTOMIZE_PRESENT, "1")
+      .containsEntry(KUSTOMIZE_FILES_COUNT, "1")
+      .containsEntry(KUSTOMIZE_REFERENCED_FILES_COUNT, "2");
   }
 
   @Test
@@ -352,8 +355,9 @@ class KustomizationSensorTest {
     sensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
-      .containsEntry(COUNT_KUSTOMIZE_KEY, "2")
-      .containsEntry(COUNT_KUSTOMIZE_REFERENCED_KEY, "3");
+      .containsEntry(KUSTOMIZE_PRESENT, "1")
+      .containsEntry(KUSTOMIZE_FILES_COUNT, "2")
+      .containsEntry(KUSTOMIZE_REFERENCED_FILES_COUNT, "3");
   }
 
   @Test
@@ -361,8 +365,9 @@ class KustomizationSensorTest {
     sensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
-      .containsEntry(COUNT_KUSTOMIZE_KEY, "0")
-      .containsEntry(COUNT_KUSTOMIZE_REFERENCED_KEY, "0");
+      .containsEntry(KUSTOMIZE_PRESENT, "0")
+      .containsEntry(KUSTOMIZE_FILES_COUNT, "0")
+      .containsEntry(KUSTOMIZE_REFERENCED_FILES_COUNT, "0");
   }
 
   @Test
@@ -377,8 +382,9 @@ class KustomizationSensorTest {
     sensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
-      .containsEntry(COUNT_KUSTOMIZE_KEY, "1")
-      .containsEntry(COUNT_KUSTOMIZE_REFERENCED_KEY, "0");
+      .containsEntry(KUSTOMIZE_PRESENT, "1")
+      .containsEntry(KUSTOMIZE_FILES_COUNT, "1")
+      .containsEntry(KUSTOMIZE_REFERENCED_FILES_COUNT, "0");
   }
 
   private org.sonar.api.batch.fs.InputFile createInputFile(String relativePath, String content) {
