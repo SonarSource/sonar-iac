@@ -279,6 +279,7 @@ class KustomizationSensorTest {
 
     var debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs)
+      .anyMatch(log -> log.contains("Extracting referenced files from the file: kustomization.yaml"))
       .anyMatch(log -> log.contains("Kustomization sensor processed 1 kustomization files and collected 2 referenced files: [deployment.yaml, service.yaml]"));
   }
 
@@ -304,6 +305,8 @@ class KustomizationSensorTest {
 
     var debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs)
+      .anyMatch(log -> log.contains("Extracting referenced files from the file: base/kustomization.yaml"))
+      .anyMatch(log -> log.contains("Extracting referenced files from the file: overlay/kustomization.yaml"))
       .anyMatch(log -> log
         .contains("Kustomization sensor processed 2 kustomization files and collected 3 referenced files: [overlay/service.yaml, base/deployment.yaml, overlay/ingress.yaml]"));
   }
