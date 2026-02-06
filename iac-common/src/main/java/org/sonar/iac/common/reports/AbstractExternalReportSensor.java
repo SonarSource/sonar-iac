@@ -22,7 +22,7 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 
-public abstract class AbstractExternalReportSensor<T extends AbstractReportImporter> implements Sensor {
+public abstract class AbstractExternalReportSensor<T extends ReportImporter> implements Sensor {
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
     sensorDescriptor

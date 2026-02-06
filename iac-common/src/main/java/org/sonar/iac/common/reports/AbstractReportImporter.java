@@ -43,7 +43,7 @@ import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseExcepti
  * JSON-base can either be a JSON array or a JSON object containing an array of issues.
  * Subclasses should implement {@link #parseJson(File)} to handle their specific file format.
  */
-public abstract class AbstractReportImporter {
+public abstract class AbstractReportImporter implements ReportImporter {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractReportImporter.class);
   protected static final JSONParser jsonParser = new JSONParser();
   protected final ExternalRuleLoader externalRuleLoader;
