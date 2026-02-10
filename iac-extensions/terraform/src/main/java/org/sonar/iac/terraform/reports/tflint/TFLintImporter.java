@@ -90,12 +90,12 @@ public class TFLintImporter extends AbstractJsonArrayReportImporter {
       String ruleId = (String) rule.get("name");
       severity = (String) rule.get("severity");
 
-      if (externalRuleLoader.ruleKeys().contains(ruleId)) {
-        type = externalRuleLoader.ruleType(ruleId);
-        effortInMinutes = externalRuleLoader.ruleConstantDebtMinutes(ruleId);
-      } else {
-        LOG.trace("{} No rule definition for rule id: {}", MESSAGE_PREFIX, ruleId);
+      if (!externalRuleLoader.ruleKeys().contains(ruleId)) {
+        LOG.trace("{} No rule definition for rule id: {}, using fallback rule", MESSAGE_PREFIX, ruleId);
+        ruleId = "tflint.fallback";
       }
+      type = externalRuleLoader.ruleType(ruleId);
+      effortInMinutes = externalRuleLoader.ruleConstantDebtMinutes(ruleId);
 
       externalIssue = context.newExternalIssue()
         .ruleId(ruleId);

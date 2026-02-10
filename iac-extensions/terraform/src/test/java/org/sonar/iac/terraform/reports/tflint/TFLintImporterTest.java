@@ -169,14 +169,18 @@ class TFLintImporterTest {
   }
 
   @Test
-  void shouldLogTraceWhenRuleDoesntExist() {
+  void shouldUseFallbackRuleWhenRuleDoesntExist() {
     String path = PATH_PREFIX + "/exampleIssueInvalidRuleId.json";
     File reportFile = new File(path);
     TFLintImporter importer = new TFLintImporter(context, tfLintRulesDefinition, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
-    String logMessage = "TFLint report importing:  No rule definition for rule id: id_doesnt_exist";
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    IacCommonAssertions.assertThat(issue).hasRuleId("tflint.fallback");
+    assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+    String logMessage = "TFLint report importing:  No rule definition for rule id: id_doesnt_exist, using fallback rule";
     assertThat(logTester.logs(Level.TRACE)).containsExactly(logMessage);
   }
 
