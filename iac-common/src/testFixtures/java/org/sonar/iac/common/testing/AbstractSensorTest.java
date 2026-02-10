@@ -38,11 +38,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
@@ -71,9 +67,8 @@ public abstract class AbstractSensorTest {
     settings.setProperty(getActivationSettingKey(), true);
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
     settings.setProperty(EXTENDED_LOGGING_PROPERTY_NAME, "true");
-    context = spy(SensorContextTester.create(baseDir).setSettings(settings));
-    context.setSettings(settings);
-    sonarLintContext = spy(SensorContextTester.create(baseDir).setRuntime(SONARLINT_RUNTIME_9_9).setSettings(settings));
+    context = SensorContextTester.create(baseDir).setSettings(settings);
+    sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SONARLINT_RUNTIME_9_9).setSettings(settings);
   }
 
   protected abstract String getActivationSettingKey();
@@ -133,9 +128,9 @@ public abstract class AbstractSensorTest {
 
   protected void verifyLinesOfCodeTelemetry(int expectedLinesOfCode) {
     if (expectedLinesOfCode == 0) {
-      verify(context, never()).addTelemetryProperty(eq(telemetryLoCKey), anyString());
+      assertThat(context.getTelemetryProperties()).doesNotContainKey(telemetryLoCKey);
     } else {
-      verify(context).addTelemetryProperty(telemetryLoCKey, String.valueOf(expectedLinesOfCode));
+      assertThat(context.getTelemetryProperties()).containsEntry(telemetryLoCKey, String.valueOf(expectedLinesOfCode));
     }
   }
 

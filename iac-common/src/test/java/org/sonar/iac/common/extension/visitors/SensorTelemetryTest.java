@@ -28,7 +28,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -36,26 +35,20 @@ import org.sonar.iac.common.testing.IacTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 class SensorTelemetryTest {
 
   @TempDir
   private Path tempDir;
-  private SensorContext context;
+  private SensorContextTester context;
   private SensorTelemetry sensorTelemetry;
 
   @BeforeEach
   public void init() {
-    var contextTest = SensorContextTester.create(tempDir);
+    context = SensorContextTester.create(tempDir);
     var settings = new MapSettings();
     settings.setProperty("sonar.iac.duration.statistics", true);
-    contextTest.setSettings(settings);
-    context = spy(contextTest);
+    context.setSettings(settings);
     sensorTelemetry = new SensorTelemetry(context.config());
   }
 
@@ -71,7 +64,7 @@ class SensorTelemetryTest {
   void shouldNotReportLinesOfCodeWithoutAddingSome() {
     sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
     sensorTelemetry.reportTelemetry(context);
-    verify(context, never()).addTelemetryProperty(any(), any());
+    assertThat(context.getTelemetryProperties()).isEmpty();
   }
 
   @Test
@@ -79,7 +72,7 @@ class SensorTelemetryTest {
     sensorTelemetry.addLinesOfCode(-10);
     sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
     sensorTelemetry.reportTelemetry(context);
-    verify(context, never()).addTelemetryProperty(any(), any());
+    assertThat(context.getTelemetryProperties()).isEmpty();
   }
 
   @Test
@@ -107,7 +100,7 @@ class SensorTelemetryTest {
     sensorTelemetry.addLinesOfCode(10);
 
     sensorTelemetry.reportTelemetry(context);
-    verify(context, never()).addTelemetryProperty(any(), any());
+    assertThat(context.getTelemetryProperties()).isEmpty();
   }
 
   @Test
@@ -119,8 +112,9 @@ class SensorTelemetryTest {
     assertThat(sensorTelemetry.getTelemetry())
       .containsExactly(entry("iac.firstKey", "firstValue"), entry("iac.secondKey", "secondValue"));
 
-    verify(context).addTelemetryProperty("iac.firstKey", "firstValue");
-    verify(context).addTelemetryProperty("iac.secondKey", "secondValue");
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.firstKey", "firstValue")
+      .containsEntry("iac.secondKey", "secondValue");
   }
 
   @Test
@@ -134,12 +128,12 @@ class SensorTelemetryTest {
 
   @Test
   void shouldNotDoAnythingOnUnsupportedRuntimeVersion() {
-    context = spy(SensorContextTester.create(tempDir).setRuntime(IacTestUtils.SONAR_QUBE_9_9));
+    context = SensorContextTester.create(tempDir).setRuntime(IacTestUtils.SONAR_QUBE_9_9);
     sensorTelemetry.addTelemetry("firstKey", "firstValue");
 
     sensorTelemetry.reportTelemetry(context);
     assertThat(sensorTelemetry.getTelemetry()).containsExactly(entry("iac.firstKey", "firstValue"));
-    verify(context, never()).addTelemetryProperty(any(), any());
+    assertThat(context.getTelemetryProperties()).isEmpty();
   }
 
   @ParameterizedTest
@@ -200,12 +194,12 @@ class SensorTelemetryTest {
   private void reportTelemetryAndVerifySingleEntry(String key, String value) {
     sensorTelemetry.reportTelemetry(context);
     assertThat(sensorTelemetry.getTelemetry()).containsEntry(key, value);
-    verify(context).addTelemetryProperty(key, value);
+    assertThat(context.getTelemetryProperties()).containsEntry(key, value);
   }
 
   private void reportTelemetryAndVerifyNotContainEntry(String key) {
     sensorTelemetry.reportTelemetry(context);
-    assertThat(sensorTelemetry.getTelemetry().containsKey(key)).isFalse();
-    verify(context, never()).addTelemetryProperty(eq(key), any());
+    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey(key);
+    assertThat(context.getTelemetryProperties()).doesNotContainKey(key);
   }
 }

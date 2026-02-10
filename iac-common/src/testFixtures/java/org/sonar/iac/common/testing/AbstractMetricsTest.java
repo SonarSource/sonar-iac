@@ -37,11 +37,11 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,10 +63,9 @@ public abstract class AbstractMetricsTest {
   @BeforeEach
   void setUp() {
     sensorContext = spy(SensorContextTester.create(tempFolder));
-    var contextTest = SensorContextTester.create(tempFolder);
     var settings = new MapSettings();
     settings.setProperty("sonar.iac.duration.statistics", true);
-    contextTest.setSettings(settings);
+    sensorContext.setSettings(settings);
 
     fileLinesContext = mock(FileLinesContext.class);
     fileLinesContextFactory = mock(FileLinesContextFactory.class);
@@ -109,7 +108,7 @@ public abstract class AbstractMetricsTest {
 
   protected void verifyLinesOfCodeMetricsAndTelemetry(Integer... linesOfCode) {
     verifyNCLOCDataMetric(linesOfCode);
-    verify(sensorContext, times(2)).newMeasure();
+    assertThat(sensorContext.measures(inputFile.key())).hasSize(2);
     verifyTelemetry(linesOfCode.length);
   }
 
