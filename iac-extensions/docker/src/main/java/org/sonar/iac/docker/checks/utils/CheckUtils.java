@@ -28,6 +28,10 @@ import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
 
 public final class CheckUtils {
+
+  private static final String TAG_SEPARATOR = ":";
+  private static final String DIGEST_SEPARATOR = "@";
+
   private CheckUtils() {
     // utils class
   }
@@ -58,5 +62,29 @@ public final class CheckUtils {
 
   public static boolean isScratchImage(String imageName) {
     return "scratch".equals(imageName);
+  }
+
+  public static Optional<String> getImageTag(String imageName) {
+    int tagSeparatorIndex = imageName.indexOf(TAG_SEPARATOR);
+    int digestSeparatorIndex = imageName.indexOf(DIGEST_SEPARATOR);
+    if (tagSeparatorIndex < 0) {
+      return Optional.empty();
+    }
+    if (digestSeparatorIndex < 0) {
+      return Optional.of(imageName.substring(tagSeparatorIndex + 1));
+    }
+    // Tag is empty if tag separator is after digest separator as tag separator in image name is part of digest
+    if (tagSeparatorIndex > digestSeparatorIndex) {
+      return Optional.empty();
+    }
+    return Optional.of(imageName.substring(tagSeparatorIndex + 1, digestSeparatorIndex));
+  }
+
+  public static Optional<String> getImageDigest(String imageName) {
+    int digestSeparatorIndex = imageName.indexOf(DIGEST_SEPARATOR);
+    if (digestSeparatorIndex < 0) {
+      return Optional.empty();
+    }
+    return Optional.of(imageName.substring(digestSeparatorIndex + 1));
   }
 }

@@ -27,6 +27,8 @@ import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 
+import static org.sonar.iac.docker.checks.utils.CheckUtils.getImageDigest;
+import static org.sonar.iac.docker.checks.utils.CheckUtils.getImageTag;
 import static org.sonar.iac.docker.checks.utils.CheckUtils.isScratchImage;
 
 @Rule(key = "S6596")
@@ -63,15 +65,10 @@ public class SpecificVersionTagCheck implements IacCheck {
   }
 
   private static boolean hasSensitiveVersionTag(String fullImageName) {
-    if (fullImageName.contains("@")) {
+    if (getImageDigest(fullImageName).isPresent()) {
       return false;
-    } else if (fullImageName.contains(":")) {
-      // raise an issue if the version tag is "latest"
-      String[] splitImageName = fullImageName.split(":");
-      return splitImageName.length > 1 && "latest".equals(splitImageName[1]);
-    } else {
-      // no version tag specified, docker assumes "latest"
-      return true;
     }
+    // return true, if image tag is absent or equals to latest
+    return getImageTag(fullImageName).map("latest"::equals).orElse(true);
   }
 }

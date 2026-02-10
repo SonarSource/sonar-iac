@@ -30,6 +30,7 @@ public final class DockerCheckList {
     return Arrays.asList(
       ArgDefinedOutsideOfScopeCheck.class,
       BuilderSandboxCheck.class,
+      CombinedTagAndDigestCheck.class,
       ConsecutiveRunInstructionCheck.class,
       DebugModeCheck.class,
       DeprecatedInstructionCheck.class,

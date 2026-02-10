@@ -1,0 +1,49 @@
+<p>When a Docker image is specified with both a version tag and a digest, Docker uses the digest to determine which image to pull and ignores the
+version tag completely. This creates misleading documentation, as the version tag may not reflect the actual image version being used.</p>
+<h2>Why is this an issue?</h2>
+<p>This creates confusion during code review, debugging, and maintenance. Developers reading the Dockerfile will see the version tag and assume that
+version is being used, when Docker actually ignores it and uses the image specified by the digest instead.</p>
+<h2>How to fix it</h2>
+<p>To avoid this issue, it is recommended to specify either the version tag or the digest of the image. For example, instead of
+<code>my-image:1.2.3@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d</code>, it is better to use <code>my-image:1.2.3</code>
+or <code>my-image@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d</code>.</p>
+<p>For even more control and traceability, the digest can be used instead of the version tag. This will pin the image to a specific immutable version,
+ensuring reproducible builds, but will also prevent automatic security updates that would come from using a version tag. An example would be
+<code>my-image@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d</code>.</p>
+<p>Additional information can be found in the Resources section below. See also a related rule {rule:docker:S7023}.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+FROM my-image:1.2.3@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM my-image:1.2.3
+</pre>
+<p>or:</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM my-image@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d
+</pre>
+<h3>How does this work?</h3>
+<p>This way, the version of the Docker image is pulled using either the digest or the version tag, ensuring that the specified version information
+accurately represents the image that will be pulled.</p>
+<h3>Going the extra mile</h3>
+<p>Additionally, when only the digest is specified, a comment can be added to specify the version of the image to improve readability. For
+example,</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+# my-image-1.2.3
+FROM my-image@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#from">Dockerfile reference - FROM</a> </li>
+  <li> <a href="https://docs.docker.com/develop/dev-best-practices/#how-to-keep-your-images-small">Docker development best practices</a> </li>
+  <li> <a href="https://docs.docker.com/engine/reference/commandline/image_pull/#pull-an-image-by-digest-immutable-identifier">Pull an image by digest
+  (immutable identifier)</a> </li>
+</ul>
+<h3>Articles &amp; blog posts</h3>
+<ul>
+  <li> <a href="https://github.com/moby/moby/issues/37866">The Moby issue</a> </li>
+</ul>
+
