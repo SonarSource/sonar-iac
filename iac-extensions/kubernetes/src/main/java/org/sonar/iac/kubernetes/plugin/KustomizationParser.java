@@ -16,7 +16,6 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -76,7 +75,7 @@ public class KustomizationParser {
       var tree = yamlParser.parse(content, inputFileContext);
       LOG.debug("Extracting referenced files from the file: {}", inputFile);
       return extractReferencedFiles(tree, parentDirPath);
-    } catch (IOException e) {
+    } catch (Exception e) {
       LOG.debug("Failed to parse kustomization file {}: {}", inputFile, e.getMessage());
       return Set.of();
     }

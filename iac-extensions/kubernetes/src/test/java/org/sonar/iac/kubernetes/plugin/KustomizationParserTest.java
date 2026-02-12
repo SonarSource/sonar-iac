@@ -22,12 +22,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -296,5 +299,28 @@ class KustomizationParserTest {
     var debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs)
       .anyMatch(log -> log.contains("Failed to parse kustomization file") && log.contains("Test IO error"));
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"a: b: c"})
+  void shouldNotCrashOnParseException(@Nullable String content) throws IOException {
+    var context = SensorContextTester.create(baseDir);
+    var kustomizationPath = baseDir.resolve("kustomization.yaml");
+
+    var inputFile = mock(InputFile.class);
+    when(inputFile.uri()).thenReturn(kustomizationPath.toUri());
+    when(inputFile.toString()).thenReturn("kustomization.yaml");
+    when(inputFile.filename()).thenReturn("kustomization.yaml");
+    when(inputFile.contents()).thenReturn(content);
+
+    var parser = new KustomizationParser(new YamlParser());
+
+    var result = parser.parse(context, inputFile);
+
+    assertThat(result).isEmpty();
+    var debugLogs = logTester.logs(Level.DEBUG);
+    assertThat(debugLogs)
+      .anyMatch(log -> log.contains("Failed to parse kustomization file"));
   }
 }
