@@ -17,23 +17,31 @@
 package org.sonar.iac.common.predicates;
 
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
-import org.sonar.iac.common.extension.DurationStatistics;
 
-public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
+public class HelmFilePredicate implements FilePredicate {
+
   private final FilePredicate delegate;
 
-  public KubernetesOrHelmFilePredicate(SensorContext sensorContext, boolean enablePredicateDebugLogs, DurationStatistics.Timer timer) {
-    super(timer);
-    delegate = sensorContext.fileSystem().predicates().or(
-      new KubernetesFilePredicate(enablePredicateDebugLogs),
-      new HelmFilePredicate(sensorContext));
+  public HelmFilePredicate(SensorContext sensorContext) {
+    FilePredicates predicates = sensorContext.fileSystem().predicates();
+    var helmProjectMemberPredicate = new HelmProjectMemberPredicate(sensorContext);
+    var helmTemplatePredicate = predicates.and(
+      predicates.matchesPathPattern("**/templates/**"),
+      helmProjectMemberPredicate);
+    var valuesYamlOrChartYamlPredicate = predicates.and(
+      predicates.matchesPathPatterns(new String[] {"**/values.yaml", "**/values.yml", "**/Chart.yaml"}),
+      helmProjectMemberPredicate);
+    var tplHelmFilePredicate = predicates.and(
+      predicates.matchesPathPattern("**/templates/*.tpl"),
+      helmProjectMemberPredicate);
+    delegate = predicates.or(helmTemplatePredicate, valuesYamlOrChartYamlPredicate, tplHelmFilePredicate);
   }
 
   @Override
-  protected boolean accept(InputFile inputFile) {
+  public boolean apply(InputFile inputFile) {
     return delegate.apply(inputFile);
   }
 }

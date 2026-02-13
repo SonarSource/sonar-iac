@@ -16,6 +16,8 @@
  */
 package org.sonar.iac.common.predicates;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -37,6 +40,12 @@ class KubernetesFilePredicateTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   @TempDir
   Path tempDir;
+  private static final String POD_SPEC = """
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: my-pod
+    """;
 
   @ParameterizedTest
   @MethodSource
@@ -49,6 +58,27 @@ class KubernetesFilePredicateTest {
     } else {
       assertThat(logTester.logs(Level.DEBUG)).contains("File without Kubernetes identifier: test.yaml");
     }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"yaml", "kubernetes"})
+  void shouldMatchKubernetesFileWithLanguage(String language) {
+    var predicate = new KubernetesFilePredicate(true);
+
+    var matches = predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, POD_SPEC, language));
+
+    assertThat(matches).isTrue();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"templates/my-pod.yaml", "values.yaml"})
+  void shouldNotMatchHelmYamlFile(String path) throws IOException {
+    var predicate = new KubernetesFilePredicate(true);
+    Files.createFile(tempDir.resolve("Chart.yaml"));
+
+    var matches = predicate.apply(IacTestUtils.inputFile(path, tempDir, "", "yaml"));
+
+    assertThat(matches).isFalse();
   }
 
   static Stream<Arguments> shouldDetectKubernetesFile() {
