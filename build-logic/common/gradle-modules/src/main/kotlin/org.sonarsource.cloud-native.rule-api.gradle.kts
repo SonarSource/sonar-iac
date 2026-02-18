@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    ruleApi("com.sonarsource.rule-api:rule-api:2.17.0.5605")
+    ruleApi("com.sonarsource.rule-api:rule-api:2.19.0.5759")
     ruleApi("org.slf4j:slf4j-nop:1.7.36") {
         because(
             "To get rid of a warning. A logging backend is not needed, because the rule API logs everything important to stdout. " +

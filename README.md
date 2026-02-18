@@ -110,6 +110,8 @@ If your build failed, you can fix the license packaging by running:
 
 Note that this overwrites your current license files in the `resources/licenses` folder.
 
+To update or generate rule descriptions, create a Fine-grained GitHub access token for the RSPEC repository (https://github.com/SonarSource/rspec) with read-only permission and set it as an environment variable named GITHUB_TOKEN.
+
 ### Update rule description
 
 Update all rule descriptions.

@@ -28,25 +28,28 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.ArrayList
 
+private const val APACHE_LICENSE_FILE_NAME: String = "Apache-2.0.txt"
+val LICENSE_TITLE_TO_RESOURCE_FILE: Map<String, String> = buildMap {
+    put("Apache License, Version 2.0", APACHE_LICENSE_FILE_NAME)
+    put("Apache License Version 2.0", APACHE_LICENSE_FILE_NAME)
+    put("The Apache License, Version 2.0", APACHE_LICENSE_FILE_NAME)
+    put("Apache 2", APACHE_LICENSE_FILE_NAME)
+    put("Apache-2.0", APACHE_LICENSE_FILE_NAME)
+    put("Apache 2.0", APACHE_LICENSE_FILE_NAME)
+    put("The Apache Software License, Version 2.0", APACHE_LICENSE_FILE_NAME)
+    put("BSD-3-Clause", "BSD-3.txt")
+    put("BSD", "BSD-2.txt")
+    put("GWT Terms", APACHE_LICENSE_FILE_NAME) // See https://www.gwtproject.org/terms.html
+    put("GNU LGPL 3", "GNU-LGPL-3.txt")
+    put("Go License", "Go.txt")
+    put("MIT License", "MIT.txt")
+    put("MIT", "MIT.txt")
+}
+
 class AnalyzerLicensingPackagingRenderer(
     private val buildOutputDir: Path,
 ) : ReportRenderer {
-    private var apacheLicenseFileName: String = "Apache-2.0.txt"
     private lateinit var generatedLicenseResourcesDirectory: Path
-    private val licenseTitleToResourceFile: Map<String, String> = buildMap {
-        put("Apache License, Version 2.0", apacheLicenseFileName)
-        put("Apache License Version 2.0", apacheLicenseFileName)
-        put("The Apache License, Version 2.0", apacheLicenseFileName)
-        put("Apache 2", apacheLicenseFileName)
-        put("Apache-2.0", apacheLicenseFileName)
-        put("The Apache Software License, Version 2.0", apacheLicenseFileName)
-        put("BSD-3-Clause", "BSD-3.txt")
-        put("BSD", "BSD-2.txt")
-        put("GNU LGPL 3", "GNU-LGPL-3.txt")
-        put("Go License", "Go.txt")
-        put("MIT License", "MIT.txt")
-        put("MIT", "MIT.txt")
-    }
     private val dependenciesWithUnusableLicenseFileInside: Set<String> = setOf(
         "com.fasterxml.jackson.dataformat.jackson-dataformat-smile",
         "com.fasterxml.jackson.dataformat.jackson-dataformat-yaml",
@@ -151,10 +154,8 @@ class AnalyzerLicensingPackagingRenderer(
         data: ModuleData,
         licenseName: String,
     ): Status {
-        val licenseResourceFileName = licenseTitleToResourceFile[licenseName]
-        if (licenseResourceFileName == null) {
-            return Status.failure("License file '$licenseName' could not be found.")
-        }
+        val licenseResourceFileName = LICENSE_TITLE_TO_RESOURCE_FILE[licenseName]
+            ?: return Status.failure("License file '$licenseName' could not be found.")
         val resourceAsStream = AnalyzerLicensingPackagingRenderer::class.java.getResourceAsStream("/licenses/$licenseResourceFileName")
             ?: throw IOException("Resource not found for license: $licenseName")
         Files.copy(resourceAsStream, generateLicensePath(data), StandardCopyOption.REPLACE_EXISTING)
