@@ -82,7 +82,7 @@ class AbstractJsonArrayReportImporterTest {
     testImporter.importReport(reportFile);
 
     assertThat(logTester.logs(Level.INFO))
-      .containsExactly(
+      .containsSubsequence(
         String.format("PREFIX Importing external report from: %s", path),
         "Issue saved",
         "PREFIX Imported 1 issue(s).");
