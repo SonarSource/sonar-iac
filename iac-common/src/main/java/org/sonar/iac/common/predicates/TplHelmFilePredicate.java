@@ -21,20 +21,15 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 
-public class HelmFilePredicate implements FilePredicate {
+public class TplHelmFilePredicate implements FilePredicate {
 
   private final FilePredicate delegate;
 
-  public HelmFilePredicate(SensorContext sensorContext) {
+  public TplHelmFilePredicate(SensorContext sensorContext) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
-    var helmProjectMemberPredicate = new HelmProjectMemberPredicate(sensorContext);
-    var helmTemplatePredicate = predicates.and(
-      predicates.matchesPathPattern("**/templates/**"),
-      helmProjectMemberPredicate);
-    var valuesYamlOrChartYamlPredicate = predicates.and(
-      predicates.matchesPathPatterns(new String[] {"**/values.yaml", "**/values.yml", "**/Chart.yaml"}),
-      helmProjectMemberPredicate);
-    delegate = predicates.or(helmTemplatePredicate, valuesYamlOrChartYamlPredicate);
+    delegate = predicates.and(
+      predicates.matchesPathPattern("**/templates/*.tpl"),
+      new HelmProjectMemberPredicate(sensorContext));
   }
 
   @Override

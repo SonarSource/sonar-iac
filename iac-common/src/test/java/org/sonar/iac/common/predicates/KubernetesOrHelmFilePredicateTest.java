@@ -89,4 +89,13 @@ class KubernetesOrHelmFilePredicateTest {
 
     assertThat(matches).isTrue();
   }
+
+  @Test
+  void shouldNotMatchNonYamlFileWithKubernetesContent() {
+    var predicate = new KubernetesOrHelmFilePredicate(context, false, timer);
+
+    var matches = predicate.apply(IacTestUtils.inputFile("test.txt", tempDir, POD_SPEC, "text"));
+
+    assertThat(matches).isFalse();
+  }
 }

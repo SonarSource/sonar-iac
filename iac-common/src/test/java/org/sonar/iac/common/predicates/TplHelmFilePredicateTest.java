@@ -20,59 +20,50 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class HelmFilePredicateTest {
+class TplHelmFilePredicateTest {
 
   @TempDir
   private Path tempDir;
   private SensorContext context;
-  private static final String POD_SPEC = """
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: my-pod
-    """;
 
   @BeforeEach
   void setUp() {
     context = SensorContextTester.create(tempDir);
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"templates/my-pod.yaml", "values.yaml"})
-  void shouldMatchHelmYamlFile(String path) throws IOException {
-    var predicate = new HelmFilePredicate(context);
+  @Test
+  void shouldMatchHelmTplFile() throws IOException {
+    var predicate = new TplHelmFilePredicate(context);
     Files.createFile(tempDir.resolve("Chart.yaml"));
 
-    var matches = predicate.apply(IacTestUtils.inputFile(path, tempDir, "", "yaml"));
+    var matches = predicate.apply(IacTestUtils.inputFile("templates/utils.tpl", tempDir, "", ""));
 
     assertThat(matches).isTrue();
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"yaml", "kubernetes"})
-  void shouldNotMatchKubernetesFileWithLanguage(String language) {
-    var predicate = new HelmFilePredicate(context);
+  @Test
+  void shouldNotMatchHelmNonProjectMemberTplFile() {
+    var predicate = new TplHelmFilePredicate(context);
 
-    var matches = predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, POD_SPEC, language));
+    var matches = predicate.apply(IacTestUtils.inputFile("templates/utils.tpl", tempDir, "", ""));
 
     assertThat(matches).isFalse();
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"templates/my-pod.yaml", "values.yaml"})
-  void shouldNotMatchHelmNonProjectMember(String path) {
-    var predicate = new HelmFilePredicate(context);
+  @Test
+  void shouldNotMatchHelmNonTplFile() throws IOException {
+    var predicate = new TplHelmFilePredicate(context);
+    Files.createFile(tempDir.resolve("Chart.yaml"));
 
-    var matches = predicate.apply(IacTestUtils.inputFile(path, tempDir, "", "yaml"));
+    var matches = predicate.apply(IacTestUtils.inputFile("templates/utils.tp", tempDir, "", ""));
 
     assertThat(matches).isFalse();
   }
