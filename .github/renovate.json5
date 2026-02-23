@@ -7,7 +7,6 @@
   "schedule": [
     "before 4am on Monday"
   ],
-  "rebaseWhen": "conflicted",
   "enabledManagers": [
     "gradle",
     "gradle-wrapper",

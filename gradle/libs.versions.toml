@@ -1,21 +1,21 @@
 [versions]
-sonarqube = "26.2.0.118776"
+sonarqube = "26.2.0.119303"
 # Before updating the plugin-api version, make sure to check the compatibility matrix and stick to the lowest denominator
 # https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility
 sonar-plugin-api = "12.0.0.2960"
 sonar-commons = "2.21.0.4626"
 sonar-license-api = "3.4"
 sonar-orchestrator = "6.1.0.3962"
-junit = "6.0.2"
+junit = "6.0.3"
 junit-pioneer = "2.3.0"
 assertj = "3.27.7"
 mockito = "5.21.0"
-sonar-lint = "10.44.0.84275"
+sonar-lint = "10.45.0.84373"
 sslr = "1.25.1.3886"
 archunit = "1.4.1"
 snakeyaml = "3.0.1"
 minimaljson = "0.9.5"
-tree-sitter = "0.25.3"
+tree-sitter = "0.26.3.1"
 tree-sitter-bash = "0.23.3"
 sonar-scanner-gradle = "7.1.0.6387"
 google-protobuf = "4.33.5"
@@ -25,7 +25,7 @@ antlr4 = "4.13.2"
 yguard = "4.1.1"
 awaitility = "4.3.0"
 slf4j = "2.0.17"
-logback = "1.5.27"
+logback = "1.5.32"
 
 [libraries]
 sonar-analyzer-commons = { module = "org.sonarsource.analyzer-commons:sonar-analyzer-commons", version.ref = "sonar-commons" }
@@ -47,7 +47,7 @@ sonar-lint-core = { module = "org.sonarsource.sonarlint.core:sonarlint-core", ve
 sonar-lint-plugin-api = { module = "org.sonarsource.sonarlint.core:sonarlint-plugin-api", version.ref = "sonar-lint" }
 sonar-lint-rpc-java-client = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-java-client", version.ref = "sonar-lint" }
 sonar-lint-rpc-impl = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-impl", version.ref = "sonar-lint" }
-sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.23.0.42096" }
+sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.24.0.42567" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
 sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref = "sslr" }
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
@@ -66,4 +66,4 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 
 [plugins]
 google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf-gradle" }
-download = { id = "de.undercouch.download", version = "5.6.0" }
+download = { id = "de.undercouch.download", version = "5.7.0" }
