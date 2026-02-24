@@ -107,13 +107,13 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "spring.data.mongodb.password");
 
   private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
-    "spring.ai.([^.]++.)+password",
-    "spring.ai.([^.]++.)+api-key",
-    "spring.ai.([^.]++.)+api.key",
-    "spring.ai.([^.]++.)+apiKey",
-    "spring.ai.([^.]++.)+secret-key",
-    "spring.ai.([^.]++.)+key-token",
-    "spring.ai.([^.]++.)+passPhrase");
+    "spring\\.ai\\.([^.]++\\.)+password",
+    "spring\\.ai\\.([^.]++\\.)+api-key",
+    "spring\\.ai\\.([^.]++\\.)+api\\.key",
+    "spring\\.ai\\.([^.]++\\.)+apiKey",
+    "spring\\.ai\\.([^.]++\\.)+secret-key",
+    "spring\\.ai\\.([^.]++\\.)+key-token",
+    "spring\\.ai\\.([^.]++\\.)+passPhrase");
 
   @Override
   protected Set<String> sensitiveKeys() {

@@ -99,23 +99,23 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "tracing.jaeger.sender.auth-password",
     "otel.exporter.zipkin.proxy-password");
   private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
-    "micronaut.http.services.[^.]++.proxy-password",
-    "micronaut.http.services.[^.]++.ssl.key.password",
-    "micronaut.http.services.[^.]++.ssl.key-store.password",
-    "micronaut.http.services.[^.]++.ssl.trust-store.password",
-    "micronaut.chatbots.telegram.bots.[^.]++.token",
-    "flyway.datasources.[^.]++.password",
-    "nats.[^.]++.password",
-    "nats.[^.]++.token",
-    "nats.[^.]++.tls.trust-store-password",
-    "r2dbc.datasources.[^.]++.password",
-    "rabbitmq.servers.[^.]++.password",
-    "redis.servers.[^.]++.password",
-    "micronaut.security.token.jwt.encryptions.secret.[^.]++.secret",
-    "micronaut.security.token.jwt.signatures.secret.[^.]++.secret",
-    "micronaut.security.ldap.[^.]++.context.manager-password",
-    "micronaut.security.oauth2.clients.[^.]++.client-secret",
-    "datasources.[^.]++.password");
+    "micronaut\\.http\\.services\\.[^.]++\\.proxy-password",
+    "micronaut\\.http\\.services\\.[^.]++\\.ssl\\.key\\.password",
+    "micronaut\\.http\\.services\\.[^.]++\\.ssl\\.key-store\\.password",
+    "micronaut\\.http\\.services\\.[^.]++\\.ssl\\.trust-store\\.password",
+    "micronaut\\.chatbots\\.telegram\\.bots\\.[^.]++\\.token",
+    "flyway\\.datasources\\.[^.]++\\.password",
+    "nats\\.[^.]++\\.password",
+    "nats\\.[^.]++\\.token",
+    "nats\\.[^.]++\\.tls\\.trust-store-password",
+    "r2dbc\\.datasources\\.[^.]++\\.password",
+    "rabbitmq\\.servers\\.[^.]++\\.password",
+    "redis\\.servers\\.[^.]++\\.password",
+    "micronaut\\.security\\.token\\.jwt\\.encryptions\\.secret\\.[^.]++\\.secret",
+    "micronaut\\.security\\.token\\.jwt\\.signatures\\.secret\\.[^.]++\\.secret",
+    "micronaut\\.security\\.ldap\\.[^.]++\\.context\\.manager-password",
+    "micronaut\\.security\\.oauth2\\.clients\\.[^.]++\\.client-secret",
+    "datasources\\.[^.]++\\.password");
   private static final Pattern PATTERN_PASSWORD_IN_CONNECTION_STRING = Pattern.compile("(?:;|^)AccountKey=(?<password>[a-zA-Z0-9+/=]{60,})(?:;|$)");
   private static final Pattern PATTERN_PASSWORD_IN_URL = Pattern.compile("(?<protocol>[a-zA-Z]++)://(?<username>[^:@]++):(?<password>[^@]++)@.++");
   private static final Map<String, Pattern> SENSITIVE_KEYS_WITH_PATTERN_VALUE = Map.of(
