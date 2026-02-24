@@ -170,7 +170,7 @@ func Test_read_error_handling(t *testing.T) {
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
-	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 1", err.Error())
+	assert.Equal(t, "error reading int from stdin: expecting to read 4 bytes, but got error: unexpected EOF", err.Error())
 	assert.Equal(t, 0, len(loggingTestCollector.GetLogs()))
 }
 
@@ -181,7 +181,7 @@ func Test_read_error_handling_2(t *testing.T) {
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
-	assert.Equal(t, "Error reading from stdin, expecting to read 17 bytes, but got 3", err.Error())
+	assert.Equal(t, "error reading from stdin: expecting to read 17 bytes, but got error: unexpected EOF", err.Error())
 	assert.Equal(t, 0, len(loggingTestCollector.GetLogs()))
 }
 
@@ -192,7 +192,7 @@ func Test_read_error_handling_3(t *testing.T) {
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
-	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 2", err.Error())
+	assert.Equal(t, "error reading int from stdin: expecting to read 4 bytes, but got error: unexpected EOF", err.Error())
 	assert.Equal(t, 0, len(loggingTestCollector.GetLogs()))
 }
 
@@ -203,7 +203,7 @@ func Test_read_error_handling_4(t *testing.T) {
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
-	assert.Equal(t, "Error reading from stdin, expecting to read 14 bytes, but got 8", err.Error())
+	assert.Equal(t, "error reading from stdin: expecting to read 14 bytes, but got error: unexpected EOF", err.Error())
 	assert.Equal(t, 1, len(loggingTestCollector.GetLogs()))
 }
 
@@ -214,7 +214,7 @@ func Test_read_error_handling_5(t *testing.T) {
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
-	assert.Equal(t, "Error reading from stdin, expecting to read 4 bytes, but got 1", err.Error())
+	assert.Equal(t, "error reading int from stdin: expecting to read 4 bytes, but got error: unexpected EOF", err.Error())
 	assert.Equal(t, 1, len(loggingTestCollector.GetLogs()))
 }
 
@@ -225,7 +225,7 @@ func Test_read_error_handling_6(t *testing.T) {
 	loggingTestCollector := NewDefaultLoggingCollector()
 	_, _, err := ReadInput(input, &loggingTestCollector)
 
-	assert.Equal(t, "Error reading from stdin, error: EOF", err.Error())
+	assert.Equal(t, "error reading int from stdin: expecting to read 4 bytes, but got error: EOF", err.Error())
 	assert.Equal(t, 1, len(loggingTestCollector.GetLogs()))
 }
 

@@ -18,19 +18,30 @@ package converters
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 )
 
-// Reads from the given os.File expecting the following format:
-// N (4 bytes) template name length
+// ReadInput reads from the given os.File expecting the following format:
+//
+// # N (4 bytes) template name length
+//
 // <template name>  (N bytes)
-// M (4 bytes) template content length
+//
+// # M (4 bytes) template content length
+//
 // <template content> (M bytes)
-// P (4 bytes) number of help files
-// [P times reapeted:]
-// R (4 bytes) file name length
+//
+// # P (4 bytes) number of help files
+//
+// [P times repeated:]
+//
+// # R (4 bytes) file name length
+//
 // <file name> (R bytes)
-// S (4 bytes) file content length
+//
+// # S (4 bytes) file content length
+//
 // <file content> (S bytes)
 func ReadInput(input *os.File, loggingCollector *LoggingCollector) (string, Files, error) {
 	templateName, contentBytes, err := readSingleFile(input, loggingCollector)
@@ -63,7 +74,7 @@ func readSingleFile(input *os.File, loggingCollector *LoggingCollector) (string,
 		return "", nil, err
 	}
 
-	filenameBytes, _, err := readBytes(input, filenameLength)
+	filenameBytes, err := readBytes(input, filenameLength)
 	if err != nil {
 		return "", nil, err
 	}
@@ -76,7 +87,7 @@ func readSingleFile(input *os.File, loggingCollector *LoggingCollector) (string,
 	}
 
 	(*loggingCollector).AppendLog(fmt.Sprintf("Reading %d bytes of file %s from stdin\n", contentLength, filename))
-	contentBytes, _, err := readBytes(input, contentLength)
+	contentBytes, err := readBytes(input, contentLength)
 	if err != nil {
 		return "", nil, err
 	}
@@ -85,47 +96,21 @@ func readSingleFile(input *os.File, loggingCollector *LoggingCollector) (string,
 
 // Calling File.Read(buf) reads sometimes fewer bytes than it is needed so there is a need to read again
 // and concatenate the results
-func readBytes(input *os.File, contentLength int) ([]byte, int, error) {
-	if contentLength == 0 {
-		return []byte{}, 0, nil
+func readBytes(input io.Reader, contentLength int) ([]byte, error) {
+	buf := make([]byte, contentLength)
+	if _, err := io.ReadFull(input, buf); err != nil {
+		return nil, fmt.Errorf("error reading from stdin: expecting to read %d bytes, but got error: %w", contentLength, err)
 	}
-	contentBytes := make([]byte, contentLength)
-	numberOfBytesRead, err := input.Read(contentBytes)
-	if err != nil {
-		message := fmt.Sprintf("Error reading from stdin, expecting to read %d bytes, but got %d", contentLength, numberOfBytesRead)
-		return nil, numberOfBytesRead, errors.New(message)
-	}
-	sum := numberOfBytesRead
-	if numberOfBytesRead != contentLength {
-		bytes, numberOfBytesReadInRecursion, err := readBytes(input, contentLength-numberOfBytesRead)
-		sum = sum + numberOfBytesReadInRecursion
-		if err != nil {
-			message := fmt.Sprintf("Error reading from stdin, expecting to read %d bytes, but got %d", contentLength, numberOfBytesRead)
-			return nil, sum, errors.New(message)
-		}
-		copy(contentBytes[numberOfBytesRead:], bytes)
-	}
-	return contentBytes, sum, nil
+	return buf, nil
+
 }
 
-func readBytesAsInt(input *os.File) (int, error) {
-	numberBytes := make([]byte, 4)
-	numberOfBytesRead, err := input.Read(numberBytes)
-	if err != nil {
-		message := "Error reading from stdin, error: " + err.Error()
-		fmt.Fprint(os.Stderr, message)
-		return 0, errors.New(message)
+func readBytesAsInt(input io.Reader) (int, error) {
+	buf := make([]byte, 4)
+	if _, err := io.ReadFull(input, buf); err != nil {
+		return 0, fmt.Errorf("error reading int from stdin: expecting to read 4 bytes, but got error: %w", err)
 	}
-	if numberOfBytesRead != 4 {
-		message := fmt.Sprintf("Error reading from stdin, expecting to read 4 bytes, but got %d", numberOfBytesRead)
-		return 0, errors.New(message)
-	}
-	number := (int(numberBytes[0]))<<24 +
-		(int(numberBytes[1]))<<16 +
-		(int(numberBytes[2]))<<8 +
-		(int(numberBytes[3]))
-
-	return number, nil
+	return int(buf[0])<<24 | int(buf[1])<<16 | int(buf[2])<<8 | int(buf[3]), nil
 }
 
 func ReadAndValidateSources(input *os.File, loggingCollector *LoggingCollector) (*TemplateSources, error) {
