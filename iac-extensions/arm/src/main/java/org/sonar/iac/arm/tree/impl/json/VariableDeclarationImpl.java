@@ -17,11 +17,13 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -44,6 +46,12 @@ public class VariableDeclarationImpl extends AbstractArmTreeImpl implements Vari
   @Override
   public Expression value() {
     return value;
+  }
+
+  @CheckForNull
+  @Override
+  public TypeExpressionAble typeExpression() {
+    return null;
   }
 
   @Override

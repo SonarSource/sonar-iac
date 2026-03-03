@@ -16,9 +16,14 @@
  */
 package org.sonar.iac.arm.tree.api;
 
+import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 
 public interface VariableDeclaration extends Declaration, HasSymbol {
 
   Expression value();
+
+  @CheckForNull
+  TypeExpressionAble typeExpression();
 }

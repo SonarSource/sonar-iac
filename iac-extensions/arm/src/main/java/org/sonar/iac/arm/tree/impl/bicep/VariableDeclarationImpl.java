@@ -18,6 +18,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -26,21 +27,32 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.common.api.tree.Tree;
+
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class VariableDeclarationImpl extends AbstractDeclaration implements VariableDeclaration, HasDecorators {
   private final List<Decorator> decorators;
+  @Nullable
+  private final TypeExpressionAble typeExpression;
   private Symbol symbol;
 
-  public VariableDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression) {
+  public VariableDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier identifier, @Nullable TypeExpressionAble typeExpression, SyntaxToken equals,
+    Expression expression) {
     super(keyword, identifier, equals, expression);
     this.decorators = decorators;
+    this.typeExpression = typeExpression;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>(decorators);
-    children.addAll(super.children());
+    children.add(keyword);
+    children.add(identifier);
+    addChildrenIfPresent(children, typeExpression);
+    children.add(equals);
+    children.add(expression);
     return children;
   }
 
@@ -52,6 +64,12 @@ public class VariableDeclarationImpl extends AbstractDeclaration implements Vari
   @Override
   public Expression value() {
     return this.expression;
+  }
+
+  @CheckForNull
+  @Override
+  public TypeExpressionAble typeExpression() {
+    return typeExpression;
   }
 
   @Override

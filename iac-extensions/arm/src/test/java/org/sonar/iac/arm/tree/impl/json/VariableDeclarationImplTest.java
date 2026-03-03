@@ -71,6 +71,13 @@ class VariableDeclarationImplTest {
   }
 
   @Test
+  void shouldReturnNullForTypeExpression() {
+    File tree = (File) parser.parse(parserVariable("var", "\"val\""), null);
+    VariableDeclaration variableDeclaration = (VariableDeclaration) tree.statements().get(0);
+    assertThat(variableDeclaration.typeExpression()).isNull();
+  }
+
+  @Test
   void shouldParseVariableCaseInsensitive() {
     String code = """
       {

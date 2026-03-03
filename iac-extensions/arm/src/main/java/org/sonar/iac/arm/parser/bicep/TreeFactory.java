@@ -252,9 +252,10 @@ public class TreeFactory {
     Optional<List<Decorator>> decorators,
     SyntaxToken keyword,
     Identifier identifier,
+    Optional<TypeExpressionAble> typeExpression,
     SyntaxToken equals,
     Expression expression) {
-    return new VariableDeclarationImpl(decorators.or(emptyList()), keyword, identifier, equals, expression);
+    return new VariableDeclarationImpl(decorators.or(emptyList()), keyword, identifier, typeExpression.orNull(), equals, expression);
   }
 
   public ModuleDeclaration moduleDeclaration(

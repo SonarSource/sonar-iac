@@ -204,6 +204,7 @@ public class BicepGrammar {
         b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.VARIABLE),
         IDENTIFIER(),
+        b.optional(TYPE_EXPRESSION()),
         b.token(Punctuator.EQU),
         EXPRESSION()));
   }
