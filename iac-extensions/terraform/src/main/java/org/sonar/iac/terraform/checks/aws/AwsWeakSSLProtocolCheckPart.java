@@ -46,7 +46,7 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
 
   private static void checkApiGatewayDomainName(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, SECURITY_POLICY, AttributeTree.class)
-      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, STRONG_SSL_PROTOCOL, WEAK_SSL_MESSAGE),
+      .ifPresentOrElse(policy -> reportWeakApiGatewayPolicy(ctx, policy),
         () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, SECURITY_POLICY)));
   }
 
@@ -64,7 +64,7 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
 
   private static void checkDomainNameConfiguration(CheckContext ctx, BlockTree config) {
     PropertyUtils.get(config, SECURITY_POLICY, AttributeTree.class)
-      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, STRONG_SSL_PROTOCOL, WEAK_SSL_MESSAGE),
+      .ifPresentOrElse(policy -> reportWeakApiGatewayPolicy(ctx, policy),
         () -> ctx.reportIssue(config.key(), String.format(OMITTING_WEAK_SSL_MESSAGE, SECURITY_POLICY)));
   }
 
@@ -90,6 +90,16 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
     if (isWeakElbSslPolicy(policy)) {
       ctx.reportIssue(policy, WEAK_SSL_MESSAGE);
     }
+  }
+
+  private static void reportWeakApiGatewayPolicy(CheckContext ctx, AttributeTree policy) {
+    if (TextUtils.matchesValue(policy.value(), AwsWeakSSLProtocolCheckPart::isStrongApiGatewayPolicy).isFalse()) {
+      ctx.reportIssue(policy, WEAK_SSL_MESSAGE);
+    }
+  }
+
+  private static boolean isStrongApiGatewayPolicy(String value) {
+    return value.equalsIgnoreCase(STRONG_SSL_PROTOCOL) || value.contains("TLS13");
   }
 
   private static boolean isWeakElbSslPolicy(Tree policy) {

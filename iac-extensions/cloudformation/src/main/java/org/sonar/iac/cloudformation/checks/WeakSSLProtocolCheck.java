@@ -99,9 +99,13 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   }
 
   private static void checkSecurityPolicy(CheckContext ctx, Tree policy) {
-    if (TextUtils.isValue(policy, STRONG_SSL_PROTOCOL).isFalse()) {
+    if (TextUtils.matchesValue(policy, WeakSSLProtocolCheck::isStrongApiGatewayPolicy).isFalse()) {
       ctx.reportIssue(policy, MESSAGE);
     }
+  }
+
+  private static boolean isStrongApiGatewayPolicy(String value) {
+    return value.equalsIgnoreCase(STRONG_SSL_PROTOCOL) || value.contains("TLS13");
   }
 
   private static void checkDomainEndpointOptions(CheckContext ctx, TupleTree options) {

@@ -16,6 +16,16 @@ Resources:
     Properties:
       SecurityPolicy: "TLS_1_2"
 
+  StrongTls13PolicyV1:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      SecurityPolicy: "SecurityPolicy_TLS13_1_2_PQ_2025_09"
+
+  StrongTls13v1_3PolicyV1:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      SecurityPolicy: "SecurityPolicy_TLS13_1_3_2025_09"
+
   WeakSecurityPolicyV2:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
@@ -49,6 +59,18 @@ Resources:
     Properties:
       DomainNameConfigurations:
         - SecurityPolicy: "TLS_1_2"
+
+  StrongTls13PolicyV2:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations:
+        - SecurityPolicy: "SecurityPolicy_TLS13_1_2_PQ_2025_09"
+
+  StrongTls13v1_3PolicyV2:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations:
+        - SecurityPolicy: "SecurityPolicy_TLS13_1_3_2025_09"
 
   ElasticNoOptions:
     Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Set "DomainEndpointOptions.TLSSecurityPolicy" to disable support of older TLS versions.}}
