@@ -51,6 +51,8 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
         @description('comment')
         @decorator()
         output myOutput resource 'myResource' = myValue""")
+      .matches("output deeplyNestedArrayItemFromEnd string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[^1]")
+      .matches("output deeplyNestedArrayItemFromEndAttempt string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[?^1]")
       .matches("output out1 stringArrayType[*] = 'bar'")
       .matches("output out2 stringArrayType[*]? = 'bar'")
       .matches("output out3 stringArrayType[*][] = ['bar']")

@@ -31,19 +31,24 @@ import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberExpression {
 
   private final SyntaxToken separatingToken;
-  @CheckForNull
-  private final Expression expression;
+
   @CheckForNull
   private final SyntaxToken safeDereference;
+  @CheckForNull
+  private final SyntaxToken reverseIndexAccessorToken;
+  @CheckForNull
+  private final Expression expression;
   @CheckForNull
   private final SyntaxToken closingBracket;
 
   private Expression memberAccess;
 
-  public MemberExpressionImpl(SyntaxToken separatingToken, @Nullable Expression expression, @Nullable SyntaxToken safeDereference, @Nullable SyntaxToken closingBracket) {
+  public MemberExpressionImpl(SyntaxToken separatingToken, @Nullable SyntaxToken safeDereference, @Nullable SyntaxToken reverseIndexAccessorToken, @Nullable Expression expression,
+    @Nullable SyntaxToken closingBracket) {
     this.separatingToken = separatingToken;
-    this.expression = expression;
     this.safeDereference = safeDereference;
+    this.reverseIndexAccessorToken = reverseIndexAccessorToken;
+    this.expression = expression;
     this.closingBracket = closingBracket;
   }
 
@@ -58,6 +63,7 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
     result.add(memberAccess);
     result.add(separatingToken);
     addChildrenIfPresent(result, safeDereference);
+    addChildrenIfPresent(result, reverseIndexAccessorToken);
     addChildrenIfPresent(result, expression);
     addChildrenIfPresent(result, closingBracket);
     return result;
@@ -84,6 +90,7 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
     return memberAccess.toString()
       + separatingToken
       + (safeDereference != null ? safeDereference : "")
+      + (reverseIndexAccessorToken != null ? reverseIndexAccessorToken : "")
       + (expression != null ? expression : "")
       + (closingBracket != null ? closingBracket : "");
   }

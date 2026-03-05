@@ -776,6 +776,7 @@ public class BicepGrammar {
       f.memberExpressionComponent(
         b.token(Punctuator.LBRACKET),
         b.optional(b.token(Punctuator.QUERY)),
+        b.optional(b.token(Punctuator.CARET)),
         EXPRESSION(),
         b.token(Punctuator.RBRACKET)));
   }

@@ -68,6 +68,8 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
       .matches("memberExpression.?identifier123")
       .matches("memberExpression[?stringLiteral]")
       .matches("memberExpression[?stringLiteral].?identifier123")
+      .matches("memberExpression[^2]")
+      .matches("memberExpression[?^2]")
 
       .notMatches("memberExpression[stringLiteral")
       .notMatches("memberExpression!identifier123")
@@ -162,10 +164,43 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
   }
 
   @Test
+  void shouldParseMemberExpressionWithReverseIndexAccessor() {
+    MemberExpression tree = parse("memberExpression[^numericLiteral]", BicepLexicalGrammar.MEMBER_EXPRESSION);
+
+    assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.VARIABLE);
+    assertThat(tree.expression()).hasKind(ArmTree.Kind.VARIABLE);
+
+    assertThat(tree.children()).hasSize(5);
+    assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
+    assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo("[");
+    assertThat(((TextTree) tree.children().get(2)).value()).isEqualTo("^");
+    assertThat(((TextTree) tree.children().get(4)).value()).isEqualTo("]");
+  }
+
+  @Test
+  void shouldParseMemberExpressionWithSafeDereferenceAndReverseIndexAccessor() {
+    MemberExpression tree = parse("memberExpression[?^numericLiteral]", BicepLexicalGrammar.MEMBER_EXPRESSION);
+
+    assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.VARIABLE);
+    assertThat(tree.expression()).hasKind(ArmTree.Kind.VARIABLE);
+
+    assertThat(tree.children()).hasSize(6);
+    assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
+    assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo("[");
+    assertThat(((TextTree) tree.children().get(2)).value()).isEqualTo("?");
+    assertThat(((TextTree) tree.children().get(3)).value()).isEqualTo("^");
+    assertThat(((TextTree) tree.children().get(5)).value()).isEqualTo("]");
+  }
+
+  @Test
   void shouldConvertToString() {
     MemberExpression tree1 = parse("memberExpression[?stringLiteral].?identifier123", BicepLexicalGrammar.MEMBER_EXPRESSION);
     MemberExpression tree2 = parse("memberExpression!", BicepLexicalGrammar.MEMBER_EXPRESSION);
+    MemberExpression tree3 = parse("memberExpression[^2]", BicepLexicalGrammar.MEMBER_EXPRESSION);
     assertThat(tree1).hasToString("memberExpression[?stringLiteral].?identifier123");
     assertThat(tree2).hasToString("memberExpression!");
+    assertThat(tree3).hasToString("memberExpression[^2]");
   }
 }

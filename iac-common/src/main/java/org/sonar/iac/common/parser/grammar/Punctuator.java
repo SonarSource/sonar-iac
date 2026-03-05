@@ -51,6 +51,7 @@ public enum Punctuator implements GrammarRuleKey {
   PERCENT("%"),
   STAR("*"),
   QUERY("?"),
+  CARET("^"),
   EXCLAMATION("!"),
   DOUBLE_QUOTE("\""),
   DOLLAR_LCURLY("${"),
