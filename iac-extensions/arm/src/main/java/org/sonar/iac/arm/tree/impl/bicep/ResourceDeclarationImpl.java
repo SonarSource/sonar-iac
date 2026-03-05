@@ -28,6 +28,9 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.Variable;
+import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
@@ -208,11 +211,23 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private static List<Property> propertiesOrEmpty(List<PropertyTree> properties) {
     return properties.stream()
       .filter(propertyTree -> "properties".equals(((TextTree) propertyTree.key()).value()))
-      // TODO SONARIAC-1036 ARM Bicep: support Expression other than ObjectExpression for resource properties
-      .filter(propertyTree -> ((Property) propertyTree).value().is(Kind.OBJECT_EXPRESSION))
-      .map(p -> (Collections.<Property>unmodifiableList(((ObjectExpression) ((Property) p).value()).properties())))
       .findFirst()
+      .map(p -> extractProperties(((Property) p).value()))
       .orElse(List.of());
+  }
+
+  private static List<Property> extractProperties(Expression value) {
+    if (value.is(Kind.OBJECT_EXPRESSION)) {
+      return Collections.<Property>unmodifiableList(((ObjectExpression) value).properties());
+    }
+    if (value instanceof Variable variable && variable.symbol() != null) {
+      Declaration declaration = variable.symbol().findAssignmentDeclaration();
+      if (declaration instanceof VariableDeclaration variableDeclaration
+        && variableDeclaration.value().is(Kind.OBJECT_EXPRESSION)) {
+        return Collections.<Property>unmodifiableList(((ObjectExpression) variableDeclaration.value()).properties());
+      }
+    }
+    return List.of();
   }
 
   static class TypeOrVersionTreeImpl extends StringLiteralImpl {

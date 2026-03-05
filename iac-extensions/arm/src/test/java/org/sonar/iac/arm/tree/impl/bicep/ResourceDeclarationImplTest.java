@@ -16,20 +16,31 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.List;
+import java.util.stream.Stream;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.HasIdentifier;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
@@ -276,23 +287,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
   }
 
   @Test
-  void shouldProvideEmptyPropertiesForTernaryExpression() {
-    String code = """
-      resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
-        name: myName
-        properties: isPublicCloud ? {
-          semanticSearch: 'standard'
-        } : {
-          semanticSearch: 'private'
-        }
-      }""";
-
-    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
-    assertThat(tree.properties()).isEmpty();
-  }
-
-  @Test
-  void shouldProvideEmptyPropertiesForIdentifier() {
+  void shouldProvideEmptyPropertiesForIdentifierWithoutSymbolVisitor() {
     String code = """
       var myProperties = { property: 'value'}
 
@@ -304,6 +299,99 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     File tree = parse(code, BicepLexicalGrammar.FILE);
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(1);
     assertThat(resource.properties()).isEmpty();
+  }
+
+  static Stream<Arguments> shouldProvideEmptyPropertiesForTernaryExpression() {
+    return Stream.of(
+      Arguments.of("""
+        resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+          name: myName
+          properties: isPublicCloud ? {
+            semanticSearch: 'standard'
+          } : {
+            semanticSearch: 'private'
+          }
+        }""", 0),
+      Arguments.of("""
+        resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+          name: myName
+          properties: true == true ? {
+            semanticSearch: 'standard'
+          } : {
+            semanticSearch: 'private'
+          }
+        }""", 0),
+      Arguments.of("""
+        var privateCloudProperty = { semanticSearch: 'private' }
+        resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+          name: myName
+          properties: isPublicCloud ? {
+            semanticSearch: 'standard'
+          } : privateCloudProperty
+        }""", 1),
+      Arguments.of("""
+        var publicCloudProperty = { semanticSearch: 'standard' }
+        resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+          name: myName
+          properties: isPublicCloud ? publicCloudProperty : {
+            semanticSearch: 'private'
+          }
+        }""", 1));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldProvideEmptyPropertiesForTernaryExpression(String code, int resourceStatementIndex) {
+    File fileTree = parse(code, BicepLexicalGrammar.FILE);
+    ArmSymbolVisitor visitor = new ArmSymbolVisitor();
+    visitor.scan(mock(InputFileContext.class), fileTree);
+
+    ResourceDeclaration tree = (ResourceDeclaration) fileTree.statements().get(resourceStatementIndex);
+    assertThat(tree.properties()).isEmpty();
+  }
+
+  static Stream<Arguments> shouldHandlePropertiesFromVariableReferenceWhenSymbolVisitorRan() {
+    return Stream.of(
+      // Single-level variable reference resolves to an inline object - properties should be resolved
+      Arguments.of(
+        """
+          var myProperties = { prop1: val1 }
+          resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+            name: myName
+            properties: myProperties
+          }""",
+        List.of(tuple("prop1", "val1"))),
+      // Variable referenced in properties is not declared anywhere - properties should remain empty
+      Arguments.of(
+        """
+          resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+            name: myName
+            properties: myProperties
+          }""",
+        List.of()),
+      // Multi-level variable reference (variable assigned to another variable) - only one level is resolved, so properties should remain empty
+      Arguments.of(
+        """
+          var myProperties1 = { prop1: val1 }
+          var myProperties2 = myProperties1
+          resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {
+            name: myName
+            properties: myProperties2
+          }""",
+        List.of()));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldHandlePropertiesFromVariableReferenceWhenSymbolVisitorRan(String code, List<Tuple> expectedProperties) {
+    File fileTree = parse(code, BicepLexicalGrammar.FILE);
+    ArmSymbolVisitor visitor = new ArmSymbolVisitor();
+    visitor.scan(mock(InputFileContext.class), fileTree);
+
+    ResourceDeclaration resource = (ResourceDeclaration) fileTree.statements().get(fileTree.statements().size() - 1);
+    assertThat(resource.properties())
+      .extracting(p -> p.key().value(), p -> ((Identifier) ((HasIdentifier) p.value()).identifier()).value())
+      .containsExactlyElementsOf(expectedProperties);
   }
 
   @ParameterizedTest

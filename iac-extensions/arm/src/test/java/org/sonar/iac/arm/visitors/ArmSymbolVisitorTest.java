@@ -179,6 +179,18 @@ class ArmSymbolVisitorTest {
         }
       }
       """;
+    String resourceWithVariableAsEntirePropertiesValueBicep = """
+      resource aks 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+        name: 'storageAccountName'
+        properties: foo
+      }
+      """;
+    String resourceWithVariableAsOneTernaryBranchPropertiesValueBicep = """
+      resource aks 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+        name: 'storageAccountName'
+        properties: isPublicCloud ? {} : foo
+      }
+      """;
     String resourceWithParameterUsageInResourcePropertyValueJson = """
       {
             "type": "Microsoft.Storage/storageAccounts",
@@ -250,6 +262,8 @@ class ArmSymbolVisitorTest {
       Arguments.of(BICEP, VAR, resourceWithParameterUsageInResourcePropertyObjectValueBicep, RESOURCE),
       Arguments.of(BICEP, VAR, resourceWithParameterUsageInPropertyValueBicep, RESOURCE),
       Arguments.of(BICEP, VAR, resourceWithParameterUsageInChildResourceNameBicep, RESOURCE),
+      Arguments.of(BICEP, VAR, resourceWithVariableAsEntirePropertiesValueBicep, RESOURCE),
+      Arguments.of(BICEP, VAR, resourceWithVariableAsOneTernaryBranchPropertiesValueBicep, RESOURCE),
 
       Arguments.of(JSON, VAR, resourceWithParameterUsageInResourcePropertyValueJson, RESOURCE),
       Arguments.of(JSON, VAR, resourceWithParameterUsageInResourcePropertyObjectValueJson, RESOURCE),
