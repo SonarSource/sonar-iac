@@ -278,9 +278,9 @@ public class BicepGrammar {
         b.token(Punctuator.LCURLYBRACE),
         b.zeroOrMore(
           f.tuple(
-            f.importedSymbolListItem(
-              IDENTIFIER(),
-              b.optional(AS_CLAUSE())),
+            b.firstOf(
+              f.importedSymbolListItem(IDENTIFIER(), b.optional(AS_CLAUSE())),
+              f.importedSymbolListItem(INTERPOLATED_STRING(), b.optional(AS_CLAUSE()))),
             b.optional(b.token(Punctuator.COMMA)))),
         b.token(Punctuator.RCURLYBRACE)));
   }

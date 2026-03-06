@@ -22,6 +22,7 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 class CompileTimeImportDeclarationImplTest extends BicepTreeModelTest {
   @Test
@@ -32,12 +33,16 @@ class CompileTimeImportDeclarationImplTest extends BicepTreeModelTest {
       .matches("import {foo,bar} from 'imports.bicep'")
       .matches("import {foo, bar} from 'imports.bicep'")
       .matches("import {foo, bar,} from 'imports.bicep'")
+      .matches("import * as myImports from 'exports.bicep'")
+      .matches("import {'myObjectType' as foo, sayHello } from 'exports.bicep'")
       .matches("""
         import {
           foo as fizz
           bar as buzz
         } from 'imports.bicep'""")
       .matches("import * as baz from 'imports.bicep'")
+      // invalid bicep syntax but accepted by our parser
+      .matches("import {'myObjectType' as} from 'exports.bicep'")
 
       .notMatches("import *")
       .notMatches("import {foo, *} from 'imports.bicep'")
@@ -65,15 +70,24 @@ class CompileTimeImportDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseSymbolsListInImportStatement() {
     var tree = (CompileTimeImportDeclaration) createParser(BicepLexicalGrammar.COMPILE_TIME_IMPORT_DECLARATION)
-      .parse("import {foo, bar} from 'imports.bicep'");
+      .parse("import {foo, 'bar', 'a' as b, c as d} from 'imports.bicep'");
 
     var softly = new SoftAssertions();
     softly.assertThat(tree.decorators()).isEmpty();
     softly.assertThat(tree.children()).hasSize(3);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.COMPILE_TIME_IMPORT_DECLARATION);
     softly.assertThat(tree.target().getKind()).isEqualTo(ArmTree.Kind.COMPILE_TIME_IMPORT_TARGET);
-    softly.assertThat(tree.target().children()).hasSize(5);
-    softly.assertThat(((ArmTree) tree.target().children().get(1)).getKind()).isEqualTo(ArmTree.Kind.IMPORTED_SYMBOLS_LIST_ITEM);
+    var targetChildren = tree.target().children();
+    softly.assertThat(targetChildren).hasSize(9);
+    softly.assertThat(((SyntaxToken) targetChildren.get(0)).value()).isEqualTo("{");
+    softly.assertThat(((ArmTree) targetChildren.get(1)).getKind()).isEqualTo(ArmTree.Kind.IMPORTED_SYMBOLS_LIST_ITEM);
+    softly.assertThat(((SyntaxToken) targetChildren.get(2)).value()).isEqualTo(",");
+    softly.assertThat(((ArmTree) targetChildren.get(3)).getKind()).isEqualTo(ArmTree.Kind.IMPORTED_SYMBOLS_LIST_ITEM);
+    softly.assertThat(((SyntaxToken) targetChildren.get(4)).value()).isEqualTo(",");
+    softly.assertThat(((ArmTree) targetChildren.get(5)).getKind()).isEqualTo(ArmTree.Kind.IMPORTED_SYMBOLS_LIST_ITEM);
+    softly.assertThat(((SyntaxToken) targetChildren.get(6)).value()).isEqualTo(",");
+    softly.assertThat(((ArmTree) targetChildren.get(7)).getKind()).isEqualTo(ArmTree.Kind.IMPORTED_SYMBOLS_LIST_ITEM);
+    softly.assertThat(((SyntaxToken) targetChildren.get(8)).value()).isEqualTo("}");
     softly.assertAll();
   }
 }

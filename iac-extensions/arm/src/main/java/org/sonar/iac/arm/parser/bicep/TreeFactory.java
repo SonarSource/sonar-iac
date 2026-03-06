@@ -148,8 +148,9 @@ import org.sonar.iac.arm.tree.impl.bicep.expression.RelationalExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.TernaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.UnaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.CompileTimeImportFromClauseImpl;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.IdentifierImportedSymbolsListItem;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportedSymbolsList;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportedSymbolsListItemImpl;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.InterpolatedStringImportedSimbolsListItem;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.WildcardImport;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPieceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePieceImpl;
@@ -459,7 +460,13 @@ public class TreeFactory {
   public ImportedSymbolsListItem importedSymbolListItem(
     Identifier identifier,
     Optional<AsClause> asClause) {
-    return new ImportedSymbolsListItemImpl(identifier, asClause.orNull());
+    return new IdentifierImportedSymbolsListItem(identifier, asClause.orNull());
+  }
+
+  public ImportedSymbolsListItem importedSymbolListItem(
+    InterpolatedString identifier,
+    Optional<AsClause> asClause) {
+    return new InterpolatedStringImportedSimbolsListItem(identifier, asClause.orNull());
   }
 
   public CompileTimeImportTarget wildcardImport(SyntaxToken wildcard, AsClause asClause) {
