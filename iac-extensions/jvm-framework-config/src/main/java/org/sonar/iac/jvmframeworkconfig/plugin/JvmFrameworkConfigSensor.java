@@ -39,6 +39,7 @@ import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
 import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.jvmframeworkconfig.checks.common.CommonConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.checks.micronaut.MicronautConfigCheckList;
+import org.sonar.iac.jvmframeworkconfig.checks.quarkus.QuarkusConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.checks.spring.SpringConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigParser;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigHighlightingVisitor;
@@ -51,6 +52,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   private final Checks<IacCheck> commonConfigChecks;
   private final Checks<IacCheck> springConfigChecks;
   private final Checks<IacCheck> micronautConfigChecks;
+  private final Checks<IacCheck> quarkusConfigChecks;
 
   public JvmFrameworkConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
     CheckFactory checkFactory) {
@@ -73,6 +75,8 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     springConfigChecks.addAnnotatedChecks(SpringConfigCheckList.checks());
     micronautConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
     micronautConfigChecks.addAnnotatedChecks(MicronautConfigCheckList.checks());
+    quarkusConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
+    quarkusConfigChecks.addAnnotatedChecks(QuarkusConfigCheckList.checks());
   }
 
   @Override
@@ -116,6 +120,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
       new ChecksVisitor(commonConfigChecks, statistics),
       new ChecksVisitor(springConfigChecks, statistics),
       new ChecksVisitor(micronautConfigChecks, statistics),
+      new ChecksVisitor(quarkusConfigChecks, statistics),
       new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry),
       new JvmFrameworkConfigHighlightingVisitor());
   }

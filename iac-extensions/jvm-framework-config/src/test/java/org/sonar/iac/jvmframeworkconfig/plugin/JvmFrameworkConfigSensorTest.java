@@ -131,7 +131,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   @Test
   void shouldReturnVisitors() {
     var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
-    assertThat(sensor.visitors(context, null)).hasSize(5);
+    assertThat(sensor.visitors(context, null)).hasSize(6);
   }
 
   @Test
