@@ -26,3 +26,16 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
     publishingPassword: '  '
   }
 }
+
+resource nonCompliant2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+  location: resourceGroup().location
+  properties: condition ? {
+    // Noncompliant@+1
+    administratorLoginPassword: 'password'
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  } : {
+    // Noncompliant@+1
+    password: 'password'
+//  ^^^^^^^^^^^^^^^^^^^^
+  }
+}

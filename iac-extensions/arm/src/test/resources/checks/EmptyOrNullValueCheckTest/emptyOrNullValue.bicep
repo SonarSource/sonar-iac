@@ -138,3 +138,38 @@ resource createAddCertificate 'Microsoft.Resources/deploymentScripts@2020-10-01'
     }
   }
 }
+
+var myProperties = {
+  someKey: 'someValue'
+}
+
+resource compliantVariableProperties 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'Compliant: properties is variable reference'
+  properties: myProperties
+}
+
+resource compliantTernaryProperties 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'Compliant: properties is ternary expression'
+  properties: condition ? { someKey: 'someValue' } : { someKey: 'otherValue' }
+}
+
+resource compliantTernaryProperties 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'Compliant: properties is ternary expression'
+  properties: condition ? { someKey: null } : { someKey: 'otherValue' }
+}
+
+var myPropertiesWithNull = {
+  someKey: null             // Noncompliant {{Remove this null property or complete with real code.}}
+}
+
+resource noncompliantVariablePropertiesContents 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'Noncompliant: variable used in properties contains null values'
+  properties: myPropertiesWithNull
+}
+
+var myPropertiesNull = null // Noncompliant {{Remove this null variable or complete with real code.}}
+
+resource noncompliantVariablePropertiesNull 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'Noncompliant: variable used in properties is null'
+  properties: myPropertiesNull
+}

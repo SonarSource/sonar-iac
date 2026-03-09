@@ -99,3 +99,25 @@ resource compliant2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   properties: {}
 }
 
+var myProperties = {
+  name: publicIPAddresses[0].name
+}
+
+resource nonCompliant4 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+  dependsOn: [
+    publicIPAddresses[0] // Noncompliant{{Remove this explicit dependency as it is already defined implicitly.}}
+  ]
+  properties: myProperties
+}
+
+var emptyProperties = {
+  name: 'foo'
+}
+
+resource compliant3 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+  location: resourceGroup().location
+  dependsOn: [
+    validExplicitDependency
+  ]
+  properties: {}
+}
