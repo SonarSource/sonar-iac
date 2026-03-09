@@ -58,6 +58,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -125,6 +126,7 @@ import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedTypeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ResourceDerivedTypeImpl;
 import org.sonar.iac.arm.tree.impl.bicep.SingularTypeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.SpreadExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
@@ -506,6 +508,10 @@ public class TreeFactory {
 
   public ObjectTypeProperty objectTypeProperty(Optional<List<Decorator>> decorators, TextTree name, SyntaxToken colon, TypeExpressionAble typeExpression) {
     return new ObjectTypePropertyImpl(decorators.or(emptyList()), name, colon, typeExpression);
+  }
+
+  public ResourceDerivedType resourceDerivedType(SyntaxToken keyword, SyntaxToken lessThan, InterpolatedString typeReference, SyntaxToken greaterThan) {
+    return new ResourceDerivedTypeImpl(keyword, lessThan, typeReference, greaterThan);
   }
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {

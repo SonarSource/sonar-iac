@@ -55,6 +55,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -460,9 +461,21 @@ public class BicepGrammar {
     return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.TYPE_REFERENCE).is(
       f.typeReference(
         b.firstOf(
+          RESOURCE_DERIVED_TYPE(),
           AMBIENT_TYPE_REFERENCE(),
           IDENTIFIER()),
         b.zeroOrMore(TYPE_REFERENCE_SUFFIX())));
+  }
+
+  public ResourceDerivedType RESOURCE_DERIVED_TYPE() {
+    return b.<ResourceDerivedType>nonterminal().is(
+      f.resourceDerivedType(
+        b.firstOf(
+          b.token(BicepKeyword.RESOURCE_INPUT),
+          b.token(BicepKeyword.RESOURCE_OUTPUT)),
+        b.token(Punctuator.LESS_THAN),
+        STRING_LITERAL(),
+        b.token(Punctuator.GREATER_THAN)));
   }
 
   public TypeReferenceSuffix TYPE_REFERENCE_SUFFIX() {

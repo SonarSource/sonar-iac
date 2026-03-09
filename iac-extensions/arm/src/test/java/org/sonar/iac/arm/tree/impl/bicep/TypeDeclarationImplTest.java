@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,6 +92,13 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
       .matches("type myTypeA = (basket.*[]?)[]")
       .matches("type myTypeB = (basket.*)[]")
 
+      // resource-derived types
+      .matches("type accountKind = resourceInput<'Microsoft.Storage/storageAccounts@2024-01-01'>.kind")
+      .matches("type storageProps = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.properties")
+      .matches("type endpoints = resourceOutput<'Microsoft.Storage/storageAccounts@2024-01-01'>.properties.primaryEndpoints")
+      .matches("type myType = resourceInput<'Microsoft.Storage/storageAccounts@2024-01-01'>")
+      .matches("type myType = resourceOutput<'Microsoft.Network/virtualNetworks@2023-04-01'>.properties")
+
       .notMatches("type myType")
       .notMatches("type myType=")
       .notMatches("myType=abc")
@@ -102,6 +111,11 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
           quux: int
           saSku: resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
         }""")
+      .notMatches("type invalid = resourceInput<'abc', 'def'>")
+      .notMatches("type invalid = resourceInput<hello>")
+      .notMatches("type invalid = resourceInput<'abc' 'def'>")
+      .notMatches("type invalid = resourceInput<123>")
+      .notMatches("type invalid = resourceInput<resourceGroup()>")
       .notMatches("""
         type myObject = {
           property?: string
@@ -120,5 +134,21 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.decorators()).hasSize(1);
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("@", "description", "(", "my type", ")", "type", "myType", "=", "abc");
+  }
+
+  @Test
+  void shouldParseResourceDerivedTypeWithoutPropertyAccess() {
+    String code = "type myType = resourceOutput<'Microsoft.Network/virtualNetworks@2023-04-01'>";
+    TypeDeclaration tree = parse(code, BicepLexicalGrammar.TYPE_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
+    assertThat(tree.declaratedName().value()).isEqualTo("myType");
+
+    var resourceDerivedType = (ResourceDerivedType) ((SingularTypeExpression) tree.type()).expression();
+    assertThat(resourceDerivedType.keyword().value()).isEqualTo("resourceOutput");
+    assertThat(resourceDerivedType.typeReference().value()).isEqualTo("Microsoft.Network/virtualNetworks@2023-04-01");
+    assertThat(resourceDerivedType.getKind()).isEqualTo(ArmTree.Kind.RESOURCE_DERIVED_TYPE);
+
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("type", "myType", "=", "resourceOutput", "<", "Microsoft.Network/virtualNetworks@2023-04-01", ">");
   }
 }

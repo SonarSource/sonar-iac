@@ -39,6 +39,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -133,6 +134,7 @@ public interface ArmTree extends Tree {
     ARRAY_TYPE_REFERENCE(ArrayTypeReference.class),
     WILDCARD_TYPE_REFERENCE(WildcardTypeReference.class),
     COMPOUND_TYPE_REFERENCE(CompoundTypeReference.class),
+    RESOURCE_DERIVED_TYPE(ResourceDerivedType.class),
     UNARY_OPERATOR(UnaryOperator.class),
     TUPLE_TYPE(TupleType.class),
     TUPLE_ITEM(TupleItem.class),

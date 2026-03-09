@@ -14,40 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+/**
+ * Represents resource-derived type expressions in Bicep.
+ * {@code resourceInput<'Microsoft.Storage/storageAccounts@2024-01-01'>}
+ * {@code resourceOutput<'Microsoft.Storage/storageAccounts@2024-01-01'>}
+ */
+public interface ResourceDerivedType extends TypeExpressionAble {
+  SyntaxToken keyword();
 
-public enum BicepKeyword implements GrammarRuleKey {
-
-  EXISTING("existing"),
-  RESOURCE("resource"),
-  TYPE("type"),
-  OUTPUT("output"),
-  TARGET_SCOPE("targetScope"),
-  FOR("for"),
-  IN("in"),
-  IF("if"),
-  PARAMETER("param"),
-  FUNC("func"),
-  METADATA("metadata"),
-  VARIABLE("var"),
-  EXTENSION("extension"),
-  IMPORT("import"),
-  WITH("with"),
-  AS("as"),
-  FROM("from"),
-  MODULE("module"),
-  RESOURCE_INPUT("resourceInput"),
-  RESOURCE_OUTPUT("resourceOutput");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
+  InterpolatedString typeReference();
 }
