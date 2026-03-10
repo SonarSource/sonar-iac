@@ -74,6 +74,7 @@ tasks.named("validateLicenseFiles") {
  * during 'goLicenseGenerationConfig.generatingGoLicensesGradleTask.' task.
  */
 val generateGoLicenses = tasks.register("generateGoLicenses") {
+    group = "licenses"
     // Generating the licenses with go-license tool is done during 'dockerCompileGo' task
     dependsOn(goLicenseGenerationConfig.generatingGoLicensesGradleTask.get())
     doLast {
@@ -87,6 +88,7 @@ val generateGoLicenses = tasks.register("generateGoLicenses") {
 
 val generateGoLicenseResources = tasks.register("generateGoLicenseResources") {
     description = "Copies generated license files to the resources directory"
+    group = "licenses"
     dependsOn(generateGoLicenses)
 
     doLast {

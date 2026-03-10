@@ -45,6 +45,11 @@ tasks.withType<Javadoc> {
 tasks.withType<Test> {
     useJUnitPlatform()
 
+    // Each module gets its own tree-sitter native library extraction directory.
+    // Without this, parallel Gradle test JVMs race to extract the same .dll to ${user.home}/.tree-sitter/,
+    // which causes LinkageError on Windows due to file locking (SONARIAC-2741).
+    systemProperty("tree-sitter-lib", layout.buildDirectory.dir("tree-sitter-native").get().asFile.absolutePath)
+
     testLogging {
         // log the full stack trace (default is the 1st line of the stack trace)
         exceptionFormat = TestExceptionFormat.FULL

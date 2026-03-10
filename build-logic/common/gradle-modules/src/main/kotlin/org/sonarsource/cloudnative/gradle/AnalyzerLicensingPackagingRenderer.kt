@@ -29,6 +29,8 @@ import java.nio.file.StandardOpenOption
 import java.util.ArrayList
 
 private const val APACHE_LICENSE_FILE_NAME: String = "Apache-2.0.txt"
+private const val MIT_FILE_NAME: String = "MIT.txt"
+
 val LICENSE_TITLE_TO_RESOURCE_FILE: Map<String, String> = buildMap {
     put("Apache License, Version 2.0", APACHE_LICENSE_FILE_NAME)
     put("Apache License Version 2.0", APACHE_LICENSE_FILE_NAME)
@@ -42,8 +44,11 @@ val LICENSE_TITLE_TO_RESOURCE_FILE: Map<String, String> = buildMap {
     put("GWT Terms", APACHE_LICENSE_FILE_NAME) // See https://www.gwtproject.org/terms.html
     put("GNU LGPL 3", "GNU-LGPL-3.txt")
     put("Go License", "Go.txt")
-    put("MIT License", "MIT.txt")
-    put("MIT", "MIT.txt")
+    put("MIT License", MIT_FILE_NAME)
+    put("MIT", MIT_FILE_NAME)
+    put("Bouncy Castle Licence", MIT_FILE_NAME)
+    put("0BSD", "0BSD.txt")
+    put("GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1", "lgpl-2.1.txt")
 }
 
 class AnalyzerLicensingPackagingRenderer(

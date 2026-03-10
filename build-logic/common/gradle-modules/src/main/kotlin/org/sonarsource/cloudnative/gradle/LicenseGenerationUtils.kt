@@ -116,7 +116,7 @@ fun copyDirectory(
     )
 
     if (errors.isEmpty()) {
-        logger.lifecycle("Directory ${sourceDir.name} copied successfully to ${destinationDir.name}")
+        logger.lifecycle("Directory ${sourceDir.absolutePath} copied successfully to ${destinationDir.absolutePath}")
     } else {
         throw GradleException("Failed to copy ${errors.size} files.")
     }
