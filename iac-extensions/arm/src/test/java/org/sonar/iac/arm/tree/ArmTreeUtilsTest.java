@@ -44,4 +44,11 @@ class ArmTreeUtilsTest {
 
     Assertions.assertThat(functionName).isNull();
   }
+
+  @Test
+  void shouldParseCRLFLineSeparator() {
+    var code = "resource sample 'samples/sample1.bicep' = {\r\n  params: {\r\n    location: 'westus'\r\n  }\r\n}\r\n";
+
+    Assertions.assertThatCode(() -> BicepParser.create(BicepLexicalGrammar.FILE).parse(code)).doesNotThrowAnyException();
+  }
 }
