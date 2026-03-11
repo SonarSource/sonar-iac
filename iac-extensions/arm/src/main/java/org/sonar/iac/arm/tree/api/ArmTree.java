@@ -44,6 +44,7 @@ import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TestDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -88,6 +89,7 @@ public interface ArmTree extends Tree {
     RESOURCE_DECLARATION_EXISTING(ResourceDeclaration.class),
     VARIABLE_DECLARATION(VariableDeclaration.class),
     MODULE_DECLARATION(ModuleDeclaration.class),
+    TEST_DECLARATION(TestDeclaration.class),
     IDENTIFIER(Identifier.class),
     PROPERTY(Property.class),
     BOOLEAN_LITERAL(BooleanLiteral.class),

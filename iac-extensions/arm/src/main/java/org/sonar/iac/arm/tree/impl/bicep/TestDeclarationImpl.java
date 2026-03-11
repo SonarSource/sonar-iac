@@ -16,44 +16,29 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
-import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.TestDeclaration;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ModuleDeclarationImpl extends AbstractDeclarationImpl<Expression> implements ModuleDeclaration {
-  private final List<Decorator> decorators;
+public class TestDeclarationImpl extends AbstractDeclarationImpl<ObjectExpression> implements TestDeclaration {
   private final InterpolatedString type;
 
-  public ModuleDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equalsSign, Expression value) {
-    super(keyword, name, equalsSign, value);
-    this.decorators = decorators;
+  public TestDeclarationImpl(SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equalsSign, ObjectExpression body) {
+    super(keyword, name, equalsSign, body);
     this.type = type;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(decorators);
-    children.add(keyword);
-    children.add(name);
-    children.add(type);
-    children.add(equalsSign);
-    children.add(body);
-    return children;
+    return List.of(keyword, name, type, equalsSign, body);
   }
 
   @Override
   public InterpolatedString type() {
     return type;
-  }
-
-  @Override
-  public List<Decorator> decorators() {
-    return decorators;
   }
 }

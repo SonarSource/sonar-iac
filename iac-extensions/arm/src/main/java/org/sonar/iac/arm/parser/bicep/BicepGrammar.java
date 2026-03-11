@@ -61,6 +61,7 @@ import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TestDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -116,6 +117,7 @@ public class BicepGrammar {
         VARIABLE_DECLARATION(),
         RESOURCE_DECLARATION(),
         MODULE_DECLARATION(),
+        TEST_DECLARATION(),
         OUTPUT_DECLARATION(),
         FUNCTION_DECLARATION()));
   }
@@ -312,6 +314,16 @@ public class BicepGrammar {
           IF_CONDITION(),
           OBJECT_EXPRESSION(),
           FOR_EXPRESSION())));
+  }
+
+  public TestDeclaration TEST_DECLARATION() {
+    return b.<TestDeclaration>nonterminal(BicepLexicalGrammar.TEST_DECLARATION).is(
+      f.testDeclaration(
+        b.token(BicepKeyword.TEST),
+        IDENTIFIER(),
+        INTERPOLATED_STRING(),
+        b.token(Punctuator.EQU),
+        OBJECT_EXPRESSION()));
   }
 
   public ObjectExpression OBJECT_EXPRESSION() {

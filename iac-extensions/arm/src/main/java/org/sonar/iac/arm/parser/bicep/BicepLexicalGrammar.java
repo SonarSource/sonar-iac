@@ -56,6 +56,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   IMPORT_DECLARATION,
   COMPILE_TIME_IMPORT_DECLARATION,
   MODULE_DECLARATION,
+  TEST_DECLARATION,
 
   /**
    * Expressions

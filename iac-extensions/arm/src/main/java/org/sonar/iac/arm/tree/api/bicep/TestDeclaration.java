@@ -18,10 +18,10 @@ package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
 
-public interface ModuleDeclaration extends Declaration, HasDecorators, HasKeyword {
+public interface TestDeclaration extends Declaration, HasKeyword {
   @Override
   default Kind getKind() {
-    return Kind.MODULE_DECLARATION;
+    return Kind.TEST_DECLARATION;
   }
 
   InterpolatedString type();

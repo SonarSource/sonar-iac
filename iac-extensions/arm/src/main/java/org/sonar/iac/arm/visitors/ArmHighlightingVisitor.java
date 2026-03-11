@@ -66,9 +66,11 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     register(Declaration.class, (ctx, tree) -> highlight(tree.declaratedName(), KEYWORD_LIGHT));
 
     register(ResourceDeclaration.class, (ctx, tree) -> {
-      var identifier = tree.symbolicName();
-      if (identifier != null) {
-        highlight(identifier, KEYWORD_LIGHT);
+      if (!(tree instanceof Declaration)) {
+        var identifier = tree.symbolicName();
+        if (identifier != null) {
+          highlight(identifier, KEYWORD_LIGHT);
+        }
       }
       SyntaxToken existing = tree.existing();
       if (existing != null) {

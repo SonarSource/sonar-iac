@@ -65,6 +65,7 @@ import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SpreadExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TestDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -136,6 +137,7 @@ import org.sonar.iac.arm.tree.impl.bicep.SingularTypeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.SpreadExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.TestDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TupleItemImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TupleTypeImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
@@ -276,6 +278,15 @@ public class TreeFactory {
     return new ModuleDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equals, value);
   }
 
+  public TestDeclaration testDeclaration(
+    SyntaxToken keyword,
+    Identifier name,
+    InterpolatedString type,
+    SyntaxToken equals,
+    ObjectExpression body) {
+    return new TestDeclarationImpl(keyword, name, type, equals, body);
+  }
+
   public StringLiteral stringLiteral(SyntaxToken value) {
     return new StringLiteralImpl(value);
   }
@@ -318,8 +329,8 @@ public class TreeFactory {
     InterpolatedString type,
     Optional<SyntaxToken> existing,
     SyntaxToken equalsSign,
-    Expression expression) {
-    return new ResourceDeclarationImpl(decorators.or(emptyList()), keyword, identifier, type, existing.orNull(), equalsSign, expression);
+    Expression body) {
+    return new ResourceDeclarationImpl(decorators.or(emptyList()), keyword, identifier, type, existing.orNull(), equalsSign, body);
   }
 
   public Expression functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,

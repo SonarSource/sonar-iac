@@ -38,7 +38,6 @@ import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -48,16 +47,12 @@ import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
-public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration, HasDecorators, HasKeyword {
+public class ResourceDeclarationImpl extends AbstractDeclarationImpl<Expression> implements ResourceDeclaration, HasDecorators, HasKeyword {
 
   private final List<Decorator> decorators;
-  private final SyntaxToken keyword;
-  private final Identifier name;
   private final InterpolatedString typeAndVersion;
   @Nullable
   private final SyntaxToken existing;
-  private final SyntaxToken equalsSign;
-  private final Expression body;
 
   public ResourceDeclarationImpl(
     List<Decorator> decorators,
@@ -67,14 +62,10 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     @Nullable SyntaxToken existing,
     SyntaxToken equalsSign,
     Expression body) {
-
+    super(keyword, name, equalsSign, body);
     this.decorators = decorators;
-    this.keyword = keyword;
-    this.name = name;
     this.typeAndVersion = typeAndVersion;
     this.existing = existing;
-    this.equalsSign = equalsSign;
-    this.body = body;
   }
 
   @Override
@@ -106,7 +97,6 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
       .orElse(null);
   }
 
-  @CheckForNull
   @Override
   public Identifier symbolicName() {
     return name;

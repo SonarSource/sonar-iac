@@ -72,10 +72,10 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
     softly.assertThat(tree.children()).hasSize(6);
     softly.assertThat(tree.children().get(5)).isInstanceOf(Expression.class);
     softly.assertThat(tree.declaratedName().value()).isEqualTo("stgModule");
-    softly.assertThat(tree.value()).isInstanceOf(ObjectExpression.class);
+    softly.assertThat(tree.body()).isInstanceOf(ObjectExpression.class);
     softly.assertThat(tree.type()).extracting(TextTree::value).isEqualTo("../storageAccount.bicep");
     IacCommonAssertions.assertThat(tree.type().textRange()).hasRange(2, 17, 2, 42);
-    IacCommonAssertions.assertThat(tree.value().textRange()).hasRange(2, 45, 4, 1);
+    IacCommonAssertions.assertThat(tree.body().textRange()).hasRange(2, 45, 4, 1);
     softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("@", "batchSize", "(", "4", ")", "module", "stgModule", "../storageAccount.bicep", "=", "{", "name", ":", "storageDeploy", "}");
     softly.assertAll();

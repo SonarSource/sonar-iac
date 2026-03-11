@@ -38,6 +38,7 @@ public enum BicepKeyword implements GrammarRuleKey {
   AS("as"),
   FROM("from"),
   MODULE("module"),
+  TEST("test"),
   RESOURCE_INPUT("resourceInput"),
   RESOURCE_OUTPUT("resourceOutput");
 
