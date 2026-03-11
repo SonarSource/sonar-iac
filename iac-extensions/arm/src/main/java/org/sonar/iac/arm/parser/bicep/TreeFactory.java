@@ -39,6 +39,7 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.AsClause;
+import org.sonar.iac.arm.tree.api.bicep.AssertDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ExtensionDeclaration;
@@ -99,6 +100,7 @@ import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayTypeSuffixImpl;
 import org.sonar.iac.arm.tree.impl.bicep.AsClauseImpl;
+import org.sonar.iac.arm.tree.impl.bicep.AssertDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.CompileTimeImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
@@ -285,6 +287,14 @@ public class TreeFactory {
     SyntaxToken equals,
     ObjectExpression body) {
     return new TestDeclarationImpl(keyword, name, type, equals, body);
+  }
+
+  public AssertDeclaration assertDeclaration(
+    SyntaxToken keyword,
+    Identifier name,
+    SyntaxToken equals,
+    Expression body) {
+    return new AssertDeclarationImpl(keyword, name, equals, body);
   }
 
   public StringLiteral stringLiteral(SyntaxToken value) {

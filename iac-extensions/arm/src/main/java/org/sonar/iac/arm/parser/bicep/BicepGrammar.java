@@ -37,6 +37,7 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.AsClause;
+import org.sonar.iac.arm.tree.api.bicep.AssertDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ExtensionDeclaration;
@@ -118,6 +119,7 @@ public class BicepGrammar {
         RESOURCE_DECLARATION(),
         MODULE_DECLARATION(),
         TEST_DECLARATION(),
+        ASSERT_DECLARATION(),
         OUTPUT_DECLARATION(),
         FUNCTION_DECLARATION()));
   }
@@ -324,6 +326,15 @@ public class BicepGrammar {
         INTERPOLATED_STRING(),
         b.token(Punctuator.EQU),
         OBJECT_EXPRESSION()));
+  }
+
+  public AssertDeclaration ASSERT_DECLARATION() {
+    return b.<AssertDeclaration>nonterminal(BicepLexicalGrammar.ASSERT_DECLARATION).is(
+      f.assertDeclaration(
+        b.token(BicepKeyword.ASSERT),
+        IDENTIFIER(),
+        b.token(Punctuator.EQU),
+        EXPRESSION()));
   }
 
   public ObjectExpression OBJECT_EXPRESSION() {

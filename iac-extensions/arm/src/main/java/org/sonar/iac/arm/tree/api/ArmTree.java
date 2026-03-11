@@ -20,6 +20,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.AsClause;
+import org.sonar.iac.arm.tree.api.bicep.AssertDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.CompileTimeImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.CompoundTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -90,6 +91,7 @@ public interface ArmTree extends Tree {
     VARIABLE_DECLARATION(VariableDeclaration.class),
     MODULE_DECLARATION(ModuleDeclaration.class),
     TEST_DECLARATION(TestDeclaration.class),
+    ASSERT_DECLARATION(AssertDeclaration.class),
     IDENTIFIER(Identifier.class),
     PROPERTY(Property.class),
     BOOLEAN_LITERAL(BooleanLiteral.class),
