@@ -92,6 +92,12 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
       .matches("type myTypeA = (basket.*[]?)[]")
       .matches("type myTypeB = (basket.*)[]")
 
+      // non-null assertion on type references
+      .matches("type nonNullable = nullPrefixedName")
+      .matches("type nonNullable = nullable!")
+      .matches("type t = foo!.a.b!")
+      .matches("type t = foo!.bar")
+
       // resource-derived types
       .matches("type accountKind = resourceInput<'Microsoft.Storage/storageAccounts@2024-01-01'>.kind")
       .matches("type storageProps = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.properties")
@@ -150,5 +156,23 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("type", "myType", "=", "resourceOutput", "<", "Microsoft.Network/virtualNetworks@2023-04-01", ">");
+  }
+
+  @Test
+  void shouldParseNonNullableType() {
+    String code = "type nonNullable = nullable!";
+    TypeDeclaration tree = parse(code, BicepLexicalGrammar.TYPE_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
+    assertThat(tree.declaratedName().value()).isEqualTo("nonNullable");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("type", "nonNullable", "=", "nullable", "!");
+  }
+
+  @Test
+  void shouldParseMemberExpressionType() {
+    String code = "type fooProperty = foo.objectProp.intProp";
+    TypeDeclaration tree = (TypeDeclaration) createParser(BicepLexicalGrammar.TYPE_DECLARATION).parse(code);
+    assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
+    assertThat(tree.declaratedName().value()).isEqualTo("fooProperty");
   }
 }

@@ -53,6 +53,7 @@ import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
+import org.sonar.iac.arm.tree.api.bicep.NonNullTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
@@ -115,6 +116,7 @@ import org.sonar.iac.arm.tree.impl.bicep.MemberExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ModuleDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MultilineStringImpl;
+import org.sonar.iac.arm.tree.impl.bicep.NonNullTypeSuffixImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
@@ -541,6 +543,10 @@ public class TreeFactory {
 
   public WildcardTypeSuffix wildcardTypeSuffix(SyntaxToken dot, SyntaxToken star) {
     return new WildcardTypeSuffixImpl(dot, star);
+  }
+
+  public NonNullTypeSuffix nonNullTypeSuffix(SyntaxToken exclamation) {
+    return new NonNullTypeSuffixImpl(exclamation);
   }
 
   public IdentifierSuffix identifierSuffix(SyntaxToken dot, Identifier identifier) {

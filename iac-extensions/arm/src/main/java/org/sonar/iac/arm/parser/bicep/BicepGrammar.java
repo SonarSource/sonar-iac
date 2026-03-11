@@ -50,6 +50,7 @@ import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
+import org.sonar.iac.arm.tree.api.bicep.NonNullTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
@@ -481,9 +482,15 @@ public class BicepGrammar {
   public TypeReferenceSuffix TYPE_REFERENCE_SUFFIX() {
     return b.<TypeReferenceSuffix>nonterminal(BicepLexicalGrammar.TYPE_REFERENCE_SUFFIX).is(
       b.firstOf(
+        NON_NULL_TYPE_SUFFIX(),
         IDENTIFIER_SUFFIX(),
         ARRAY_TYPE_SUFFIX(),
         WILDCARD_TYPE_SUFFIX()));
+  }
+
+  public NonNullTypeSuffix NON_NULL_TYPE_SUFFIX() {
+    return b.<NonNullTypeSuffix>nonterminal().is(
+      f.nonNullTypeSuffix(b.token(BicepLexicalGrammar.EXCLAMATION_SIGN_ALONE)));
   }
 
   public TypeReferenceSuffix IDENTIFIER_SUFFIX() {
