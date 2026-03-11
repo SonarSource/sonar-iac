@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedMultilineString;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.LambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
@@ -93,6 +94,7 @@ public interface ArmTree extends Tree {
     NUMERIC_LITERAL(NumericLiteral.class),
     NULL_LITERAL(NullLiteral.class),
     INTERPOLATED_STRING(InterpolatedString.class),
+    INTERPOLATED_MULTILINE_STRING(InterpolatedMultilineString.class),
 
     STRING_LITERAL(StringLiteral.class),
     ARRAY_EXPRESSION(ArrayExpression.class),

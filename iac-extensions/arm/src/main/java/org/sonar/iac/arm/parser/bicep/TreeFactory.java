@@ -48,6 +48,7 @@ import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.IdentifierSuffix;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedMultilineString;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
@@ -110,6 +111,8 @@ import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierSuffixImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IfConditionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ImportDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.InterpolatedMultilineEmptyStringImpl;
+import org.sonar.iac.arm.tree.impl.bicep.InterpolatedMultilineStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.LambdaExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MemberExpressionImpl;
@@ -293,6 +296,17 @@ public class TreeFactory {
 
   public InterpolatedStringRightPiece interpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, SyntaxToken stringChars, SyntaxToken rightQuote) {
     return new InterpolatedStringRightPieceImpl(expression, rCurly, stringChars, rightQuote);
+  }
+
+  public InterpolatedMultilineString interpolatedMultilineString(
+    InterpolatedStringLeftPiece leftPiece,
+    Optional<List<InterpolatedStringMiddlePiece>> middlePieces,
+    InterpolatedStringRightPiece rightPiece) {
+    return new InterpolatedMultilineStringImpl(leftPiece, middlePieces.or(List.of()), rightPiece);
+  }
+
+  public InterpolatedMultilineString emptyInterpolatedMultilineString(SyntaxToken start, SyntaxToken closingTripleApostrophe) {
+    return new InterpolatedMultilineEmptyStringImpl(start, closingTripleApostrophe);
   }
 
   // Ignore constructor with 8 parameters, as splitting it doesn't improve readability

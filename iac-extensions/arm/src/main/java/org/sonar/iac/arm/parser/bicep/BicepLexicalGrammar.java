@@ -98,6 +98,11 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   LITERAL_VALUE,
   INTERPOLATED_STRING,
   SINGLE_QUOTED_STRING_CONTENT,
+  INTERPOLATED_MULTILINE_STRING,
+  INTERPOLATED_MULTILINE_STRING_START,
+  INTERPOLATED_MULTILINE_STRING_DOLLAR_LCURLY,
+  MULTILINE_STRING_INTERPOLATED_CONTENT_HEAD,
+  MULTILINE_STRING_INTERPOLATED_CONTENT,
   IDENTIFIER_LITERAL,
 
   STRING_LITERAL,
@@ -163,6 +168,10 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     // This rule applies only to string content, that's why it shouldn't include SPACING.
     b.rule(SINGLE_QUOTED_STRING_CONTENT).is(b.regexp(BicepLexicalConstant.SINGLE_QUOTED_STRING_CONTENT));
     b.rule(REGULAR_STRING_LITERAL).is(SPACING, b.regexp("'" + BicepLexicalConstant.SINGLE_QUOTED_STRING_CONTENT + "'"));
+    b.rule(INTERPOLATED_MULTILINE_STRING_START).is(SPACING, b.regexp("\\$+'''"));
+    b.rule(INTERPOLATED_MULTILINE_STRING_DOLLAR_LCURLY).is(b.regexp("\\$+\\{"));
+    b.rule(MULTILINE_STRING_INTERPOLATED_CONTENT_HEAD).is(SPACING, b.regexp(BicepLexicalConstant.MULTILINE_STRING_INTERPOLATED_CONTENT));
+    b.rule(MULTILINE_STRING_INTERPOLATED_CONTENT).is(b.regexp(BicepLexicalConstant.MULTILINE_STRING_INTERPOLATED_CONTENT));
     b.rule(MULTILINE_STRING_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.MULTILINE_STRING));
     b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));
     b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));

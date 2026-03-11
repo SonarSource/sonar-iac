@@ -27,6 +27,7 @@ import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePie
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 
 class InterpolatedStringImplTest extends BicepTreeModelTest {
+
   @Test
   void shouldMatchValidStrings() {
     ArmAssertions.assertThat(BicepLexicalGrammar.INTERPOLATED_STRING)
@@ -56,20 +57,35 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
   void shouldBuildTreeCorrectly() {
     InterpolatedString tree = parse("'a${123}${456}c'", BicepLexicalGrammar.INTERPOLATED_STRING);
 
-    SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(tree.value()).isEqualTo("ac");
     ArmAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 16);
-    softly.assertThat(tree.children()).hasSize(3);
-    softly.assertThat(tree.children().get(0)).isInstanceOf(InterpolatedStringLeftPiece.class);
-    softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(0)).getKind()).isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("No kind for InterpolatedStringLeftPieceImpl");
-    softly.assertThat(tree.children().get(1)).isInstanceOf(InterpolatedStringMiddlePiece.class);
-    softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(1)).getKind()).isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("No kind for InterpolatedStringMiddlePieceImpl");
-    softly.assertThat(tree.children().get(2)).isInstanceOf(InterpolatedStringRightPiece.class);
-    softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(2)).getKind()).isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("No kind for InterpolatedStringRightPieceImpl");
-    softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
-    softly.assertAll();
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(tree.value()).isEqualTo("ac");
+      softly.assertThat(tree.children()).hasSize(3);
+      softly.assertThat(tree.children().get(0)).isInstanceOf(InterpolatedStringLeftPiece.class);
+      softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(0)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+        .hasMessage("No kind for InterpolatedStringLeftPieceImpl");
+      softly.assertThat(tree.children().get(1)).isInstanceOf(InterpolatedStringMiddlePiece.class);
+      softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(1)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+        .hasMessage("No kind for InterpolatedStringMiddlePieceImpl");
+      softly.assertThat(tree.children().get(2)).isInstanceOf(InterpolatedStringRightPiece.class);
+      softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(2)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+        .hasMessage("No kind for InterpolatedStringRightPieceImpl");
+      softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
+    });
+  }
+
+  @Test
+  void shouldDropExpressionInSingleLineValue() {
+    SoftAssertions.assertSoftly(softly -> {
+      // only right piece: 'text${expr}text'
+      InterpolatedString single = parse("'hello ${name}world'", BicepLexicalGrammar.INTERPOLATED_STRING);
+      softly.assertThat(single.value()).isEqualTo("hello world");
+      // middle and right pieces: 'text${expr}text${expr}text'
+      InterpolatedString withMiddle = parse("'a${123}b${456}c'", BicepLexicalGrammar.INTERPOLATED_STRING);
+      softly.assertThat(withMiddle.value()).isEqualTo("abc");
+      // adjacent expressions — empty text between them
+      InterpolatedString adjacent = parse("'a${123}${456}c'", BicepLexicalGrammar.INTERPOLATED_STRING);
+      softly.assertThat(adjacent.value()).isEqualTo("ac");
+    });
   }
 }

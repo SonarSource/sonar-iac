@@ -16,24 +16,44 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.Tree;
 
-public class InterpolatedStringImpl extends AbstractInterpolatedStringImpl implements InterpolatedString {
+public abstract class AbstractInterpolatedStringImpl extends AbstractArmTreeImpl {
+  protected final InterpolatedStringLeftPiece stringLeftPiece;
+  protected final List<InterpolatedStringMiddlePiece> stringMiddlePieces;
+  protected final InterpolatedStringRightPiece stringRightPiece;
 
-  public InterpolatedStringImpl(
+  protected AbstractInterpolatedStringImpl(
     InterpolatedStringLeftPiece stringLeftPiece,
     List<InterpolatedStringMiddlePiece> stringMiddlePieces,
     InterpolatedStringRightPiece stringRightPiece) {
-    super(stringLeftPiece, stringMiddlePieces, stringRightPiece);
+    this.stringLeftPiece = stringLeftPiece;
+    this.stringMiddlePieces = stringMiddlePieces;
+    this.stringRightPiece = stringRightPiece;
   }
 
   @Override
-  public Kind getKind() {
-    return ArmTree.Kind.INTERPOLATED_STRING;
+  public List<Tree> children() {
+    List<Tree> result = new ArrayList<>();
+    result.add(stringLeftPiece);
+    result.addAll(stringMiddlePieces);
+    result.add(stringRightPiece);
+    return result;
+  }
+
+  public String value() {
+    return stringLeftPiece.value() +
+      stringMiddlePieces.stream()
+        .map(TextTree::value)
+        .collect(Collectors.joining())
+      + stringRightPiece.value();
   }
 }

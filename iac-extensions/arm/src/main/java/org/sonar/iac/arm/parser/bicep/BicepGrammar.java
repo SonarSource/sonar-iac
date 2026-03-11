@@ -353,6 +353,7 @@ public class BicepGrammar {
       b.firstOf(
         FUNCTION_CALL(),
         LITERAL_VALUE(),
+        INTERPOLATED_MULTILINE_STRING(),
         MULTILINE_STRING(),
         INTERPOLATED_STRING(),
         ARRAY_EXPRESSION(),
@@ -403,6 +404,44 @@ public class BicepGrammar {
         b.token(Punctuator.RCURLYBRACE),
         b.token(BicepLexicalGrammar.SINGLE_QUOTED_STRING_CONTENT),
         b.token(Punctuator.APOSTROPHE)));
+  }
+
+  public InterpolatedString INTERPOLATED_MULTILINE_STRING() {
+    return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_MULTILINE_STRING).is(
+      b.firstOf(
+        f.interpolatedMultilineString(
+          INTERPOLATED_MULTILINE_STRING_LEFT_PIECE(),
+          b.zeroOrMore(INTERPOLATED_MULTILINE_STRING_MIDDLE_PIECE()),
+          INTERPOLATED_MULTILINE_STRING_RIGHT_PIECE()),
+        f.emptyInterpolatedMultilineString(
+          b.token(BicepLexicalGrammar.INTERPOLATED_MULTILINE_STRING_START),
+          b.token(Punctuator.TRIPLE_APOSTROPHE))));
+  }
+
+  public InterpolatedStringLeftPiece INTERPOLATED_MULTILINE_STRING_LEFT_PIECE() {
+    return b.<InterpolatedStringLeftPiece>nonterminal().is(
+      f.interpolatedStringLeftPiece(
+        b.token(BicepLexicalGrammar.INTERPOLATED_MULTILINE_STRING_START),
+        b.token(BicepLexicalGrammar.MULTILINE_STRING_INTERPOLATED_CONTENT_HEAD),
+        b.token(BicepLexicalGrammar.INTERPOLATED_MULTILINE_STRING_DOLLAR_LCURLY)));
+  }
+
+  public InterpolatedStringMiddlePiece INTERPOLATED_MULTILINE_STRING_MIDDLE_PIECE() {
+    return b.<InterpolatedStringMiddlePiece>nonterminal().is(
+      f.interpolatedStringMiddlePiece(
+        EXPRESSION(),
+        b.token(Punctuator.RCURLYBRACE),
+        b.token(BicepLexicalGrammar.MULTILINE_STRING_INTERPOLATED_CONTENT),
+        b.token(BicepLexicalGrammar.INTERPOLATED_MULTILINE_STRING_DOLLAR_LCURLY)));
+  }
+
+  public InterpolatedStringRightPiece INTERPOLATED_MULTILINE_STRING_RIGHT_PIECE() {
+    return b.<InterpolatedStringRightPiece>nonterminal().is(
+      f.interpolatedStringRightPiece(
+        EXPRESSION(),
+        b.token(Punctuator.RCURLYBRACE),
+        b.token(BicepLexicalGrammar.MULTILINE_STRING_INTERPOLATED_CONTENT),
+        b.token(Punctuator.TRIPLE_APOSTROPHE)));
   }
 
   public TypedLambdaExpression TYPED_LAMBDA_EXPRESSION() {

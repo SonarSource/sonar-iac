@@ -18,14 +18,14 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedMultilineString;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 
-public class InterpolatedStringImpl extends AbstractInterpolatedStringImpl implements InterpolatedString {
+public class InterpolatedMultilineStringImpl extends AbstractInterpolatedStringImpl implements InterpolatedMultilineString {
 
-  public InterpolatedStringImpl(
+  public InterpolatedMultilineStringImpl(
     InterpolatedStringLeftPiece stringLeftPiece,
     List<InterpolatedStringMiddlePiece> stringMiddlePieces,
     InterpolatedStringRightPiece stringRightPiece) {
@@ -34,6 +34,6 @@ public class InterpolatedStringImpl extends AbstractInterpolatedStringImpl imple
 
   @Override
   public Kind getKind() {
-    return ArmTree.Kind.INTERPOLATED_STRING;
+    return ArmTree.Kind.INTERPOLATED_MULTILINE_STRING;
   }
 }
