@@ -194,6 +194,7 @@ public class ResourceDeclarationImpl extends AbstractDeclarationImpl<Expression>
     return decorators;
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }
