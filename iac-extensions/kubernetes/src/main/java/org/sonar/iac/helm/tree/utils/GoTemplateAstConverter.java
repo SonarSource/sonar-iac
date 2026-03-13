@@ -126,7 +126,7 @@ public final class GoTemplateAstConverter {
     return nodePb.getTypeUrl().substring(nodePb.getTypeUrl().lastIndexOf('/') + 1);
   }
 
-  private record Converter<M extends Message, T extends MessageOrBuilder> (
+  private record Converter<M extends Message, T extends MessageOrBuilder>(
     Class<M> messageType,
     BiFunction<T, String, Node> fromPb) implements AnyToNodeConverter {
 
