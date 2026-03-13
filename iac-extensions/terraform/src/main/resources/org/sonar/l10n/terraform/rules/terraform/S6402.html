@@ -7,14 +7,14 @@ website to a malicious website.</p>
 signing DNS zones.</p>
 <p>The public key of a DNS zone used to validate signatures can be trusted as DNSSEC is based on the following chain of trust:</p>
 <ul>
-  <li> The parent DNS zone adds a "fingerprint" of the public key of the child zone in a "DS record". </li>
-  <li> The parent DNS zone signs it with its own private key. </li>
-  <li> And this process continues until the root zone. </li>
+  <li>The parent DNS zone adds a "fingerprint" of the public key of the child zone in a "DS record".</li>
+  <li>The parent DNS zone signs it with its own private key.</li>
+  <li>And this process continues until the root zone.</li>
 </ul>
 <h2>Ask Yourself Whether</h2>
 <p>The parent DNS zone (likely managed by the DNS registrar of the domain name) supports DNSSEC and</p>
 <ul>
-  <li> The DNS zone is public (contains data such as public reachable IP addresses). </li>
+  <li>The DNS zone is public (contains data such as public reachable IP addresses).</li>
 </ul>
 <p>There is a risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -45,8 +45,8 @@ resource "google_dns_managed_zone" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://cloud.google.com/dns/docs/dnssec-config">GCP Documentation</a> - Manage DNSSEC configuration </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/345">CWE-345 - Insufficient Verification of Data Authenticity</a> </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/353">CWE-353 - Missing Support for Integrity Check</a> </li>
+  <li><a href="https://cloud.google.com/dns/docs/dnssec-config">GCP Documentation</a> - Manage DNSSEC configuration</li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/345">CWE-345 - Insufficient Verification of Data Authenticity</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/353">CWE-353 - Missing Support for Integrity Check</a></li>
 </ul>
 

@@ -8,10 +8,10 @@ agents during the build.</p>
 Docker, when mounting a <code>secret</code>, it is set to <code>0400</code>.</p>
 <p>For <code>ssh</code>, it is set by default to <code>0600</code>:</p>
 <ul>
-  <li> The first digit <code>0</code> stands for special permissions (like setuid, setgid and sticky bit) and in this case means that no special
-  permissions are set. </li>
-  <li> The following <code>6</code> (4+2 in octal format) means that the <code>owner</code> has read (4) and write (2) permissions </li>
-  <li> <code>00</code> means that the <code>group</code> and <code>others</code> have no permissions. </li>
+  <li>The first digit <code>0</code> stands for special permissions (like setuid, setgid and sticky bit) and in this case means that no special
+  permissions are set.</li>
+  <li>The following <code>6</code> (4+2 in octal format) means that the <code>owner</code> has read (4) and write (2) permissions</li>
+  <li><code>00</code> means that the <code>group</code> and <code>others</code> have no permissions.</li>
 </ul>
 <p>If the <code>others</code> bit is set to a value other than 0 at build-time, any other process can access it when the <code>RUN</code> command is
 executed: the secrets are vulnerable to supply chain attacks that aim to siphon secrets from containers.</p>
@@ -41,13 +41,13 @@ parties.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> Dockerfile Reference - <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">RUN --mount=type=secret</a> </li>
-  <li> Red Hat - <a href="https://www.redhat.com/sysadmin/linux-file-permissions-explained">Linux file permissions explained</a> </li>
+  <li>Dockerfile Reference - <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">RUN --mount=type=secret</a></li>
+  <li>Red Hat - <a href="https://www.redhat.com/sysadmin/linux-file-permissions-explained">Linux file permissions explained</a></li>
 </ul>
 <h3>Standards</h3>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a> </li>
-  <li> STIG Viewer - <a href="https://stigviewer.com/stigs/application_security_and_development/2024-12-06/finding/V-222430">Application Security and
-  Development: V-222430</a> - The application must execute without excessive account permissions. </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a></li>
+  <li>STIG Viewer - <a href="https://stigviewer.com/stigs/application_security_and_development/2024-12-06/finding/V-222430">Application Security and
+  Development: V-222430</a> - The application must execute without excessive account permissions.</li>
 </ul>
 

@@ -1,10 +1,15 @@
 <p>Multiplying the number of <code>RUN</code> instructions increases the final image build time and size.</p>
 <h2>Why is this an issue?</h2>
-<p>Each time a <code>RUN</code> instruction is added, a new layer is introduced in the final image.<br> This has a direct impact on the build time and
-image size. Chaining commands in a single <code>RUN</code> instruction using <code>&amp;&amp;</code> will use a single layer, thereby reducing the
-number of layers in the image.<br> This practice can make Docker images more efficient and easier to manage.<br> Each layer in a Docker image is
-essentially a change to the image, like a version control system.<br> So, fewer layers mean fewer changes to track, which simplifies management and
-troubleshooting.</p>
+<p>Each time a <code>RUN</code> instruction is added, a new layer is introduced in the final image.
+  <br>
+  This has a direct impact on the build time and image size. Chaining commands in a single <code>RUN</code> instruction using <code>&amp;&amp;</code>
+  will use a single layer, thereby reducing the number of layers in the image.
+  <br>
+  This practice can make Docker images more efficient and easier to manage.
+  <br>
+  Each layer in a Docker image is essentially a change to the image, like a version control system.
+  <br>
+  So, fewer layers mean fewer changes to track, which simplifies management and troubleshooting.</p>
 <h3>Exceptions</h3>
 <p>In multi-stage builds, the rule only scans instructions that are part of the final image.</p>
 <h2>How to fix it</h2>
@@ -28,7 +33,7 @@ RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-lin
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> Dockerfile Best Practices - <a href="https://github.com/dnaprawa/dockerfile-best-practices?tab=readme-ov-file#limit-image-layers-amount">Limit
-  image layers amount</a> </li>
+  <li>Dockerfile Best Practices - <a href="https://github.com/dnaprawa/dockerfile-best-practices?tab=readme-ov-file#limit-image-layers-amount">Limit
+  image layers amount</a></li>
 </ul>
 

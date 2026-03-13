@@ -9,21 +9,21 @@ artifacts of those values are kept in the final image. The secret information le
 metadata or the build environment logs.</p>
 <p>The concrete impact of such an issue highly depends on the secret’s purpose and the exposure sphere:</p>
 <ul>
-  <li> Financial impact if a paid service API key is disclosed and used. </li>
-  <li> Application compromise if an application’s secret, like a session signing key, is disclosed. </li>
-  <li> Infrastructure component takeover, if a system secret, like a remote access key, is leaked. </li>
+  <li>Financial impact if a paid service API key is disclosed and used.</li>
+  <li>Application compromise if an application’s secret, like a session signing key, is disclosed.</li>
+  <li>Infrastructure component takeover, if a system secret, like a remote access key, is leaked.</li>
 </ul>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The variable contains a value that should be kept confidential. </li>
-  <li> The container image or Dockerfile will be distributed to users who do not need to know the secret value. </li>
+  <li>The variable contains a value that should be kept confidential.</li>
+  <li>The container image or Dockerfile will be distributed to users who do not need to know the secret value.</li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Use Buildkit’s secret mount options when secrets have to be used at build time. </li>
-  <li> For run time secret variables, best practices would recommend only setting them at runtime, for example with the <code>--env</code> option of
-  the <code>docker run</code> command. </li>
+  <li>Use Buildkit’s secret mount options when secrets have to be used at build time.</li>
+  <li>For run time secret variables, best practices would recommend only setting them at runtime, for example with the <code>--env</code> option of
+  the <code>docker run</code> command.</li>
 </ul>
 <p>Note that, in both cases, the files exposing the secrets should be securely stored and not exposed to a large sphere. In most cases, using a secret
 vault or another similar component should be preferred. For example, <strong>Docker Swarm</strong> provides a <strong>secrets</strong> service that
@@ -57,11 +57,11 @@ docker run --env-file .env myImage
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://docs.docker.com/engine/reference/builder/#env">Dockerfile reference</a> - ENV command </li>
-  <li> <a href="https://docs.docker.com/engine/reference/builder/#arg">Dockerfile reference</a> - ARG command </li>
-  <li> <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN command secrets mount points
-  </li>
-  <li> <a href="https://docs.docker.com/engine/swarm/secrets/">Docker documentation</a> - Manage sensitive data with Docker secrets </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/522">CWE-522 - Insufficiently Protected Credentials</a> </li>
+  <li><a href="https://docs.docker.com/engine/reference/builder/#env">Dockerfile reference</a> - ENV command</li>
+  <li><a href="https://docs.docker.com/engine/reference/builder/#arg">Dockerfile reference</a> - ARG command</li>
+  <li><a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN command secrets mount
+  points</li>
+  <li><a href="https://docs.docker.com/engine/swarm/secrets/">Docker documentation</a> - Manage sensitive data with Docker secrets</li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/522">CWE-522 - Insufficiently Protected Credentials</a></li>
 </ul>
 

@@ -8,16 +8,16 @@ management.</p>
 <h2>Ask Yourself Whether</h2>
 <p>The resource:</p>
 <ul>
-  <li> Needs to authenticate to Azure resources that support Azure Active Directory (AAD). </li>
-  <li> Uses a different Access Control system that doesn’t guarantee the same security controls as AAD, or no Access Control system at all. </li>
+  <li>Needs to authenticate to Azure resources that support Azure Active Directory (AAD).</li>
+  <li>Uses a different Access Control system that doesn’t guarantee the same security controls as AAD, or no Access Control system at all.</li>
 </ul>
 <p>There is a risk if you answered yes to all of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>Enable the Managed Identities capabilities of this Azure resource. If supported, use a System-Assigned managed identity, as:</p>
 <ul>
-  <li> It cannot be shared across resources. </li>
-  <li> Its life cycle is deeply tied to the life cycle of its Azure resource. </li>
-  <li> It provides a unique independent identity. </li>
+  <li>It cannot be shared across resources.</li>
+  <li>Its life cycle is deeply tied to the life cycle of its Azure resource.</li>
+  <li>It provides a unique independent identity.</li>
 </ul>
 <p>Alternatively, User-Assigned Managed Identities can also be used but don’t guarantee the properties listed above.</p>
 <h2>Sensitive Code Example</h2>
@@ -56,11 +56,11 @@ resource "azurerm_data_factory_linked_service_kusto" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview">Azure AD Documentation - Managed
-  Identities Overview</a> </li>
-  <li> <a
-  href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/managed-identity-best-practice-recommendations">Azure AD Documentation - Managed Identities Best Practices</a> </li>
-  <li> <a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/services-support-managed-identities">Azure
-  AD Documentation - Services that support managed identities</a> </li>
+  <li><a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview">Azure AD Documentation - Managed
+  Identities Overview</a></li>
+  <li><a
+  href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/managed-identity-best-practice-recommendations">Azure AD Documentation - Managed Identities Best Practices</a></li>
+  <li><a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/services-support-managed-identities">Azure
+  AD Documentation - Services that support managed identities</a></li>
 </ul>
 

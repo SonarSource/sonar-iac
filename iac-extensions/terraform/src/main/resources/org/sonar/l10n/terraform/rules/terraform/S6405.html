@@ -2,24 +2,24 @@
 keys to VM instances.</p>
 <p>Project-level SSH keys can lead to unauthorized access because:</p>
 <ul>
-  <li> Their use prevents fine-grained VM-level access control and makes it difficult to follow <a
-  href="https://en.wikipedia.org/wiki/Principle_of_least_privilege">the principle of least privilege</a>. </li>
-  <li> Unlike managed access control with <a href="https://cloud.google.com/compute/docs/instances/managing-instance-access">OS Login</a>, manual
+  <li>Their use prevents fine-grained VM-level access control and makes it difficult to follow <a
+  href="https://en.wikipedia.org/wiki/Principle_of_least_privilege">the principle of least privilege</a>.</li>
+  <li>Unlike managed access control with <a href="https://cloud.google.com/compute/docs/instances/managing-instance-access">OS Login</a>, manual
   cryptographic key management is error-prone and requires careful attention. For example, if a user leaves a project, their SSH keys should be
-  removed from the metadata to prevent unwanted access. </li>
-  <li> If a project-level SSH key is compromised, all VM instances may be compromised. </li>
+  removed from the metadata to prevent unwanted access.</li>
+  <li>If a project-level SSH key is compromised, all VM instances may be compromised.</li>
 </ul>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> VM instances in a project have different security requirements. </li>
-  <li> Many users with different profiles need access to the VM instances in that project. </li>
+  <li>VM instances in a project have different security requirements.</li>
+  <li>Many users with different profiles need access to the VM instances in that project.</li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Block project-level SSH keys by setting the <code>metadata.block-project-ssh-keys</code> argument to <code>true</code> </li>
-  <li> Use <a href="https://cloud.google.com/compute/docs/instances/access-overview?_ga=2.125788746.-190863609.1642494607#oslogin">OSLogin</a> to
-  benefit from managed access control. </li>
+  <li>Block project-level SSH keys by setting the <code>metadata.block-project-ssh-keys</code> argument to <code>true</code></li>
+  <li>Use <a href="https://cloud.google.com/compute/docs/instances/access-overview?_ga=2.125788746.-190863609.1642494607#oslogin">OSLogin</a> to
+  benefit from managed access control.</li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
@@ -57,11 +57,11 @@ resource "google_compute_instance" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/266">CWE-266 - Incorrect Privilege Assignment</a> </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/269">CWE-269 - Improper Privilege Management</a> </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/272">CWE-272 - Least Privilege Violation</a> </li>
-  <li> <a href="https://cloud.google.com/compute/docs/connect/restrict-ssh-keys#remove-metadata-key">GCP Documentation</a> - Restrict SSH keys from
-  VMs </li>
-  <li> <a href="https://cloud.google.com/compute/docs/instances/access-overview#risks">GCP Documentation</a> - Risks of manual key management </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/266">CWE-266 - Incorrect Privilege Assignment</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/269">CWE-269 - Improper Privilege Management</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/272">CWE-272 - Least Privilege Violation</a></li>
+  <li><a href="https://cloud.google.com/compute/docs/connect/restrict-ssh-keys#remove-metadata-key">GCP Documentation</a> - Restrict SSH keys from
+  VMs</li>
+  <li><a href="https://cloud.google.com/compute/docs/instances/access-overview#risks">GCP Documentation</a> - Risks of manual key management</li>
 </ul>
 

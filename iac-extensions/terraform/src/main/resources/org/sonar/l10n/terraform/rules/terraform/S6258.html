@@ -5,16 +5,17 @@ enables them to quickly react to events, ranging from the most benign bugs to th
 allow investigators to establish a timeline of the actions perpetrated by an attacker.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> This component is essential for the information system infrastructure. </li>
-  <li> This component is essential for mission-critical functions. </li>
-  <li> Compliance policies require this component to be monitored. </li>
+  <li>This component is essential for the information system infrastructure.</li>
+  <li>This component is essential for mission-critical functions.</li>
+  <li>Compliance policies require this component to be monitored.</li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Enable the logging capabilities of this component. Depending on the component, new permissions might be required by the logging storage
-components.<br> You should consult the official documentation to enable logging for the impacted components. For example, AWS Application Load
-Balancer Access Logs <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html">require an additional
-bucket policy</a>.</p>
+<p>Enable the logging capabilities of this component. Depending on the component, new permissions might be required by the logging storage components.
+  <br>
+  You should consult the official documentation to enable logging for the impacted components. For example, AWS Application Load Balancer Access Logs
+  <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html">require an additional bucket
+  policy</a>.</p>
 <h2>Sensitive Code Example</h2>
 <p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket">S3 access requests</a>:</p>
 <pre>
@@ -274,8 +275,8 @@ resource "google_container_cluster" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html">AWS Documentation</a> - Logging requests using server access
-  logging </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/778">CWE-778 - Insufficient Logging</a> </li>
+  <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html">AWS Documentation</a> - Logging requests using server access
+  logging</li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/778">CWE-778 - Insufficient Logging</a></li>
 </ul>
 

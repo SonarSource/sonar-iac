@@ -1,8 +1,10 @@
-<p>Using host operating system namespaces can lead to compromise of the host systems.<br> These attacks would target:</p>
+<p>Using host operating system namespaces can lead to compromise of the host systems.
+  <br>
+  These attacks would target:</p>
 <ul>
-  <li> host processes </li>
-  <li> host inter-process communication (IPC) mechanisms </li>
-  <li> network services of the local host system </li>
+  <li>host processes</li>
+  <li>host inter-process communication (IPC) mechanisms</li>
+  <li>network services of the local host system</li>
 </ul>
 <p>These three items likely include systems that support either the internal operation of the Kubernetes cluster or the enterprise’s internal
 infrastructure.</p>
@@ -13,8 +15,8 @@ the process.</p>
 successful exploitation of this attack vector could have a catastrophic impact on confidentiality within the cluster.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The services of this Pod are accessible to people who are not administrators of the Kubernetes cluster. </li>
-  <li> The cluster’s services performances do <strong>not</strong> rely on operating system namespaces. </li>
+  <li>The services of this Pod are accessible to people who are not administrators of the Kubernetes cluster.</li>
+  <li>The cluster’s services performances do <strong>not</strong> rely on operating system namespaces.</li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -57,6 +59,6 @@ spec:
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/653">CWE-653 - Improper Isolation or Compartmentalization</a> </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/653">CWE-653 - Improper Isolation or Compartmentalization</a></li>
 </ul>
 

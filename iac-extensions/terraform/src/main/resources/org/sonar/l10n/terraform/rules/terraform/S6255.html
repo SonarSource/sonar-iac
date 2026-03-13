@@ -3,16 +3,16 @@ or changing the versioning state of a bucket. It prevents accidental object dele
 has a valid MFA device and a corresponding valid token.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The S3 bucket stores sensitive information that is required to be preserved on the long term. </li>
-  <li> The S3 bucket grants delete permission to many users. </li>
+  <li>The S3 bucket stores sensitive information that is required to be preserved on the long term.</li>
+  <li>The S3 bucket grants delete permission to many users.</li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>It’s recommended to enable S3 MFA delete, note that:</p>
 <ul>
-  <li> MFA delete can only be enabled with the AWS CLI or API and with the root account. </li>
-  <li> To delete an object version, the API should be used with the <code>x-amz-mfa</code> header. </li>
-  <li> The API request, with the <code>x-amz-mfa</code> header, can only be used in HTTPS. </li>
+  <li>MFA delete can only be enabled with the AWS CLI or API and with the root account.</li>
+  <li>To delete an object version, the API should be used with the <code>x-amz-mfa</code> header.</li>
+  <li>The API request, with the <code>x-amz-mfa</code> header, can only be used in HTTPS.</li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <p>A versioned S3 bucket does not have MFA delete enabled for AWS provider version 3 or below:</p>
@@ -67,8 +67,8 @@ resource "aws_s3_bucket_versioning" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiFactorAuthenticationDelete.html">AWS documentation</a> - Configuring MFA
-  delete </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/308">CWE-308 - Use of Single-factor Authentication</a> </li>
+  <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiFactorAuthenticationDelete.html">AWS documentation</a> - Configuring MFA
+  delete</li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/308">CWE-308 - Use of Single-factor Authentication</a></li>
 </ul>
 

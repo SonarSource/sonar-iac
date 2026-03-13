@@ -5,15 +5,15 @@ confidential information.</p>
 be authorized.</p>
 <p>TLS is automatically used when connecting to SQL instances through:</p>
 <ul>
-  <li> The <a href="https://cloud.google.com/sql/docs/mysql/connect-admin-proxy">Cloud SQL Auth proxy</a>. </li>
-  <li> The <a href="https://cloud.google.com/sql/docs/mysql/connect-overview#languages">Java Socket Library</a>. </li>
-  <li> The built-in mechanisms in the <a href="https://cloud.google.com/appengine/docs">App Engine</a> environments. </li>
+  <li>The <a href="https://cloud.google.com/sql/docs/mysql/connect-admin-proxy">Cloud SQL Auth proxy</a>.</li>
+  <li>The <a href="https://cloud.google.com/sql/docs/mysql/connect-overview#languages">Java Socket Library</a>.</li>
+  <li>The built-in mechanisms in the <a href="https://cloud.google.com/appengine/docs">App Engine</a> environments.</li>
 </ul>
 <h2>Ask Yourself Whether</h2>
 <p>Connections are not already automatically encrypted by GCP (eg: SQL Auth proxy) and</p>
 <ul>
-  <li> Connections to the SQL instance are performed on untrusted networks. </li>
-  <li> The data stored in the SQL instance is confidential. </li>
+  <li>Connections to the SQL instance are performed on untrusted networks.</li>
+  <li>The data stored in the SQL instance is confidential.</li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -49,8 +49,8 @@ resource "google_sql_database_instance" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/311">CWE-311 - Missing Encryption of Sensitive Data</a> </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/79">CWE-319 - Cleartext Transmission of Sensitive Information</a> </li>
-  <li> <a href="https://cloud.google.com/sql/docs/mysql/authorize-ssl">GCP Documentation</a> - Cloud SQL: Authorizing with SSL/TLS certificates </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/311">CWE-311 - Missing Encryption of Sensitive Data</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/79">CWE-319 - Cleartext Transmission of Sensitive Information</a></li>
+  <li><a href="https://cloud.google.com/sql/docs/mysql/authorize-ssl">GCP Documentation</a> - Cloud SQL: Authorizing with SSL/TLS certificates</li>
 </ul>
 

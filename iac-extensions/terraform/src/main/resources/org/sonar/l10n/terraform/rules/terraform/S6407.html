@@ -3,13 +3,13 @@ or custom domains. By default, endpoints accept both clear-text and encrypted tr
 attacker could intercept it and read confidential information.</p>
 <p>When creating an App Engine, request handlers can be set with different security level for encryption:</p>
 <ul>
-  <li> <code>SECURE_NEVER</code>: only HTTP requests are allowed (HTTPS requests are redirected to HTTP). </li>
-  <li> <code>SECURE_OPTIONAL</code> and <code>SECURE_DEFAULT</code>: both HTTP and HTTPS requests are allowed. </li>
-  <li> <code>SECURE_ALWAYS</code>: only HTTPS requests are allowed (HTTP requests are redirected to HTTPS). </li>
+  <li><code>SECURE_NEVER</code>: only HTTP requests are allowed (HTTPS requests are redirected to HTTP).</li>
+  <li><code>SECURE_OPTIONAL</code> and <code>SECURE_DEFAULT</code>: both HTTP and HTTPS requests are allowed.</li>
+  <li><code>SECURE_ALWAYS</code>: only HTTPS requests are allowed (HTTP requests are redirected to HTTPS).</li>
 </ul>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The handler serves confidential data in HTTP responses. </li>
+  <li>The handler serves confidential data in HTTP responses.</li>
 </ul>
 <p>There is a risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -53,8 +53,8 @@ resource "google_app_engine_standard_app_version" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/200">CWE-200 - Exposure of Sensitive Information to an Unauthorized Actor</a> </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/319">CWE-319 - Cleartext Transmission of Sensitive Information</a> </li>
-  <li> <a href="https://cloud.google.com/appengine/docs/standard/nodejs/application-security">GCP Documentation</a> - Overview of App Security </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/200">CWE-200 - Exposure of Sensitive Information to an Unauthorized Actor</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/319">CWE-319 - Cleartext Transmission of Sensitive Information</a></li>
+  <li><a href="https://cloud.google.com/appengine/docs/standard/nodejs/application-security">GCP Documentation</a> - Overview of App Security</li>
 </ul>
 

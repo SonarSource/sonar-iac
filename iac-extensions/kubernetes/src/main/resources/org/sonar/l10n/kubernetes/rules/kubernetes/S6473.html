@@ -11,12 +11,12 @@ Kubernetes’s own administrative tools. For example, to execute code inside a c
 service is included to access logs, Kubernetes suggests using a sidecar container with a logging agent.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The pod starts an administrative service. </li>
+  <li>The pod starts an administrative service.</li>
 </ul>
 <p>There is a risk if you answered yes to the question.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Do not start SSH, VNC, RDP or similar administrative services in pods. </li>
+  <li>Do not start SSH, VNC, RDP or similar administrative services in pods.</li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
@@ -48,10 +48,10 @@ spec:
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a> </li>
-  <li> <a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent">Kubernetes</a> - Logging
-  Architecture: Using a sidecar container with the logging agent </li>
-  <li> <a href="https://kubernetes.io/docs/tasks/debug/debug-application/get-shell-running-container/">Kubernetes</a> - Get a Shell to a Running
-  Container </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
+  <li><a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent">Kubernetes</a> - Logging
+  Architecture: Using a sidecar container with the logging agent</li>
+  <li><a href="https://kubernetes.io/docs/tasks/debug/debug-application/get-shell-running-container/">Kubernetes</a> - Get a Shell to a Running
+  Container</li>
 </ul>
 

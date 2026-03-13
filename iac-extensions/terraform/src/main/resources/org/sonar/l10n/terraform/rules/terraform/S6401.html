@@ -3,8 +3,8 @@ recommended to rotate the symmetric keys created with the Google Cloud Key Manag
 possible in GCP KMS to rotate asymmetric keys automatically.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The cryptographic key is a symmetric key. </li>
-  <li> The application requires compliance with some security standards like PCI-DSS. </li>
+  <li>The cryptographic key is a symmetric key.</li>
+  <li>The application requires compliance with some security standards like PCI-DSS.</li>
 </ul>
 <h2>Recommended Secure Coding Practices</h2>
 <p>It’s recommended to rotate keys automatically and regularly. The shorter the key period, the less data can be decrypted by an attacker if a key is
@@ -27,6 +27,6 @@ resource "google_kms_crypto_key" "compliant-key" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://cloud.google.com/kms/docs/key-rotation">GCP Documentation</a> - KMS Key rotation </li>
+  <li><a href="https://cloud.google.com/kms/docs/key-rotation">GCP Documentation</a> - KMS Key rotation</li>
 </ul>
 

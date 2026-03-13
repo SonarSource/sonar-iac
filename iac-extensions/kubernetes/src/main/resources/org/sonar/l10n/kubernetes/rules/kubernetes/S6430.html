@@ -1,15 +1,16 @@
 <p>Allowing process privilege escalations exposes the Pod to attacks that exploit setuid binaries.</p>
-<p>This field directly controls whether the <code>no_new_privs</code> flag is set in the container process.<br> When this flag is enabled, binaries
-configured with setuid or setgid bits cannot change their runtime uid or gid: Potential attackers must rely on other privilege escalation techniques
-to successfully operate as root on the Pod.</p>
+<p>This field directly controls whether the <code>no_new_privs</code> flag is set in the container process.
+  <br>
+  When this flag is enabled, binaries configured with setuid or setgid bits cannot change their runtime uid or gid: Potential attackers must rely on
+  other privilege escalation techniques to successfully operate as root on the Pod.</p>
 <p>Depending on how resilient the Kubernetes cluster and Pods are, attackers can extend their attack to the cluster by compromising the nodes from
 which the cluster started the Pod.</p>
 <p>The <code>allowPrivilegeEscalation</code> field should not be set to true unless the Pod’s risks related to setuid or setgid bits have been
 mitigated.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> This Pod is accessible to people who are not administrators of the Kubernetes cluster. </li>
-  <li> This Pod contains binaries with setuid or setgid capabilities. </li>
+  <li>This Pod is accessible to people who are not administrators of the Kubernetes cluster.</li>
+  <li>This Pod contains binaries with setuid or setgid capabilities.</li>
 </ul>
 <p>There is a risk if you answered yes to all of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -49,7 +50,7 @@ spec:
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a> </li>
-  <li> <a href="https://docs.kernel.org/userspace-api/no_new_privs.html">Linux Kernel Archives, no_new_privs</a> - Official docs </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
+  <li><a href="https://docs.kernel.org/userspace-api/no_new_privs.html">Linux Kernel Archives, no_new_privs</a> - Official docs</li>
 </ul>
 

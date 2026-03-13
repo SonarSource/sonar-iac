@@ -3,9 +3,9 @@ prevents proper segregation of duties and creates potentially critical attack ve
 <p>If elevated access rights are abused or compromised, both the data that the affected resources work with and their access tracking are at risk.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> This GCP resource is essential to the information system infrastructure. </li>
-  <li> This GCP resource is essential to mission-critical functions. </li>
-  <li> Compliance policies require that administrative privileges for this resource be limited to a small group of individuals. </li>
+  <li>This GCP resource is essential to the information system infrastructure.</li>
+  <li>This GCP resource is essential to mission-critical functions.</li>
+  <li>Compliance policies require that administrative privileges for this resource be limited to a small group of individuals.</li>
 </ul>
 <p>There is a risk if you answered yes to any of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -97,6 +97,6 @@ resource "google_cloud_run_service_iam_member" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a> </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>
 

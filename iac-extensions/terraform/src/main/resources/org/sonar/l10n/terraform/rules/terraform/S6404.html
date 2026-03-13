@@ -1,21 +1,22 @@
-<p>Granting public access to GCP resources may reduce an organization’s ability to protect itself against attacks or theft of its GCP resources.<br>
-Security incidents associated with misuse of public access include disruption of critical functions, data theft, and additional costs due to resource
-overload.</p>
+<p>Granting public access to GCP resources may reduce an organization’s ability to protect itself against attacks or theft of its GCP resources.
+  <br>
+  Security incidents associated with misuse of public access include disruption of critical functions, data theft, and additional costs due to
+  resource overload.</p>
 <p>To be as prepared as possible in the event of a security incident, authentication combined with fine-grained permissions helps maintain the
 principle of defense in depth and trace incidents back to the perpetrators.</p>
 <p>GCP also provides the ability to grant access to a large group of people:</p>
 <ul>
-  <li> If public access is granted to all Google users, the impact of a data theft is the same as if public access is granted to all Internet users.
-  </li>
-  <li> If access is granted to a large Google group, the impact of a data theft is limited based on the size of the group. </li>
+  <li>If public access is granted to all Google users, the impact of a data theft is the same as if public access is granted to all Internet
+  users.</li>
+  <li>If access is granted to a large Google group, the impact of a data theft is limited based on the size of the group.</li>
 </ul>
 <p>The only thing that changes in these cases is the ability to track user access in the event of an incident.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> This GCP resource is essential to the information system infrastructure. </li>
-  <li> This GCP resource is essential to mission-critical functions. </li>
-  <li> This GCP resource stores or processes sensitive data. </li>
-  <li> Compliance policies require that access to this resource be authenticated. </li>
+  <li>This GCP resource is essential to the information system infrastructure.</li>
+  <li>This GCP resource is essential to mission-critical functions.</li>
+  <li>This GCP resource stores or processes sensitive data.</li>
+  <li>Compliance policies require that access to this resource be authenticated.</li>
 </ul>
 <p>There is a risk if you answered yes to any of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -94,8 +95,8 @@ resource "google_container_cluster" "example" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a> </li>
-  <li> STIG Viewer - <a href="https://stigviewer.com/stigs/application_security_and_development/2024-12-06/finding/V-222620">Application Security and
-  Development: V-222620</a> - Application web servers must be on a separate network segment from the application and database servers. </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+  <li>STIG Viewer - <a href="https://stigviewer.com/stigs/application_security_and_development/2024-12-06/finding/V-222620">Application Security and
+  Development: V-222620</a> - Application web servers must be on a separate network segment from the application and database servers.</li>
 </ul>
 

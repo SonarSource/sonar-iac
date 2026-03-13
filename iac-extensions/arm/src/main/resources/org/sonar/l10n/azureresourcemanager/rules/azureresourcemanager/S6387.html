@@ -2,21 +2,21 @@
 called "scope".</p>
 <p>The widest scopes a role can be assigned to are:</p>
 <ul>
-  <li> Subscription: a role assigned with this scope grants access to all resources of this Subscription. </li>
-  <li> Management Group: a scope assigned with this scope grants access to all resources of all the Subscriptions in this Management Group. </li>
+  <li>Subscription: a role assigned with this scope grants access to all resources of this Subscription.</li>
+  <li>Management Group: a scope assigned with this scope grants access to all resources of all the Subscriptions in this Management Group.</li>
 </ul>
 <p>In case of security incidents involving a compromised identity (user, group, or service principal), limiting its role assignment to the narrowest
 scope possible helps separate duties and limits what resources are at risk.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The user, group, or service principal doesn’t use the entirety of the resources in the scope to operate on a day-to-day basis. </li>
-  <li> It is possible to follow the Separation of Duties principle and split the scope into multiple role assignments with a narrower scope. </li>
+  <li>The user, group, or service principal doesn’t use the entirety of the resources in the scope to operate on a day-to-day basis.</li>
+  <li>It is possible to follow the Separation of Duties principle and split the scope into multiple role assignments with a narrower scope.</li>
 </ul>
 <p>There is a risk if you answered yes to any of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Limit the scope of the role assignment to a Resource or Resource Group. </li>
-  <li> Apply the least privilege principle by assigning roles granting as few permissions as possible. </li>
+  <li>Limit the scope of the role assignment to a Resource or Resource Group.</li>
+  <li>Apply the least privilege principle by assigning roles granting as few permissions as possible.</li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -64,10 +64,10 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/266">CWE-266 - Incorrect Privilege Assignment</a> </li>
-  <li> <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/scope-overview">Azure Documentation</a> - Understand scope for Azure
-  RBAC </li>
-  <li> <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/best-practices">Azure Documentation</a> - Best practices for Azure
-  RBAC </li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/266">CWE-266 - Incorrect Privilege Assignment</a></li>
+  <li><a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/scope-overview">Azure Documentation</a> - Understand scope for Azure
+  RBAC</li>
+  <li><a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/best-practices">Azure Documentation</a> - Best practices for Azure
+  RBAC</li>
 </ul>
 

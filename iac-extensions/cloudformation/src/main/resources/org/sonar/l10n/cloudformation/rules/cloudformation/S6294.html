@@ -19,10 +19,10 @@ and privacy. Data that is intended to be temporary might inadvertently persist d
 disposal guidelines. The uncontrolled retention of log data could lead to non-compliance issues.</p>
 <p>This rule applies to the following resources:</p>
 <ul>
-  <li> <code>AWS::Lambda::Function</code> </li>
-  <li> <code>AWS::Serverless::Function</code> </li>
-  <li> <code>AWS::ApiGatewayV2::Api</code> </li>
-  <li> <code>AWS::CodeBuild::Project</code> </li>
+  <li><code>AWS::Lambda::Function</code></li>
+  <li><code>AWS::Serverless::Function</code></li>
+  <li><code>AWS::ApiGatewayV2::Api</code></li>
+  <li><code>AWS::CodeBuild::Project</code></li>
 </ul>
 <h2>How to fix it</h2>
 <p>Ensure that you explicitly declare the <code>Log Group</code> resource. Assign it a logical name that aligns with AWS naming conventions and your
@@ -106,7 +106,7 @@ Resources:
 </pre>
 <h2>Resources</h2>
 <ul>
-  <li> AWS Documentation <a
-  href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">AWS::Logs::LogGroup</a> </li>
+  <li>AWS Documentation <a
+  href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">AWS::Logs::LogGroup</a></li>
 </ul>
 
