@@ -533,6 +533,10 @@ public class BicepGrammar {
   public ResourceDerivedType RESOURCE_DERIVED_TYPE() {
     return b.<ResourceDerivedType>nonterminal().is(
       f.resourceDerivedType(
+        b.optional(
+          f.tuple(
+            IDENTIFIER(),
+            b.token(Punctuator.DOT))),
         b.firstOf(
           b.token(BicepKeyword.RESOURCE_INPUT),
           b.token(BicepKeyword.RESOURCE_OUTPUT)),

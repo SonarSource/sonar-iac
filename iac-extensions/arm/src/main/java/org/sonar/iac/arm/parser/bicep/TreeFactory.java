@@ -547,8 +547,11 @@ public class TreeFactory {
     return new ObjectTypePropertyImpl(decorators.or(emptyList()), name, colon, typeExpression);
   }
 
-  public ResourceDerivedType resourceDerivedType(SyntaxToken keyword, SyntaxToken lessThan, InterpolatedString typeReference, SyntaxToken greaterThan) {
-    return new ResourceDerivedTypeImpl(keyword, lessThan, typeReference, greaterThan);
+  public ResourceDerivedType resourceDerivedType(Optional<Tuple<Identifier, SyntaxToken>> sysPrefix, SyntaxToken keyword, SyntaxToken lessThan, InterpolatedString typeReference,
+    SyntaxToken greaterThan) {
+    var namespace = sysPrefix.isPresent() ? sysPrefix.get().first() : null;
+    var dot = sysPrefix.isPresent() ? sysPrefix.get().second() : null;
+    return new ResourceDerivedTypeImpl(namespace, dot, keyword, lessThan, typeReference, greaterThan);
   }
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {

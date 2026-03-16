@@ -16,7 +16,11 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.ArmHelper;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -25,12 +29,19 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class ResourceDerivedTypeImpl extends AbstractArmTreeImpl implements ResourceDerivedType {
 
+  @Nullable
+  private final Identifier namespace;
+  @Nullable
+  private final SyntaxToken dot;
   private final SyntaxToken keyword;
   private final SyntaxToken lessThan;
   private final InterpolatedString typeReference;
   private final SyntaxToken greaterThan;
 
-  public ResourceDerivedTypeImpl(SyntaxToken keyword, SyntaxToken lessThan, InterpolatedString typeReference, SyntaxToken greaterThan) {
+  public ResourceDerivedTypeImpl(@Nullable Identifier namespace, @Nullable SyntaxToken dot,
+    SyntaxToken keyword, SyntaxToken lessThan, InterpolatedString typeReference, SyntaxToken greaterThan) {
+    this.namespace = namespace;
+    this.dot = dot;
     this.keyword = keyword;
     this.lessThan = lessThan;
     this.typeReference = typeReference;
@@ -49,7 +60,14 @@ public class ResourceDerivedTypeImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Tree> children() {
-    return List.of(keyword, lessThan, typeReference, greaterThan);
+    var children = new ArrayList<Tree>();
+    ArmHelper.addChildrenIfPresent(children, namespace);
+    ArmHelper.addChildrenIfPresent(children, dot);
+    children.add(keyword);
+    children.add(lessThan);
+    children.add(typeReference);
+    children.add(greaterThan);
+    return children;
   }
 
   @Override

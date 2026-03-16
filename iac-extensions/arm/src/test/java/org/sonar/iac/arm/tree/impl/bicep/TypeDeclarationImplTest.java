@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.bicep.CompoundTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -104,6 +105,21 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
       .matches("type endpoints = resourceOutput<'Microsoft.Storage/storageAccounts@2024-01-01'>.properties.primaryEndpoints")
       .matches("type myType = resourceInput<'Microsoft.Storage/storageAccounts@2024-01-01'>")
       .matches("type myType = resourceOutput<'Microsoft.Network/virtualNetworks@2023-04-01'>.properties")
+      .matches("type myType = sys.resourceOutput<'Microsoft.Network/virtualNetworks@2023-04-01'>.properties")
+      .matches("type myType = sys.resourceInput<'Microsoft.Storage/storageAccounts@2024-01-01'>")
+      .matches("type myType = notASys.resourceInput<'Microsoft.Storage/storageAccounts@2024-01-01'>")
+
+      // namespace-qualified resource-derived types
+      .matches("type myType = sys.resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name")
+      .matches("type myType = sys.resourceOutput<'Microsoft.Network/virtualNetworks@2023-04-01'>.properties")
+      .matches("type myType = sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name")
+      .matches("""
+        type test = {
+          resA: resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+          resB: sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+          resC: sys.array
+          resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
+        }""")
 
       .notMatches("type myType")
       .notMatches("type myType=")
@@ -122,6 +138,7 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
       .notMatches("type invalid = resourceInput<'abc' 'def'>")
       .notMatches("type invalid = resourceInput<123>")
       .notMatches("type invalid = resourceInput<resourceGroup()>")
+      .notMatches("type myType = sys.sys.resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name")
       .notMatches("""
         type myObject = {
           property?: string
@@ -174,5 +191,24 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
     TypeDeclaration tree = (TypeDeclaration) createParser(BicepLexicalGrammar.TYPE_DECLARATION).parse(code);
     assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
     assertThat(tree.declaratedName().value()).isEqualTo("fooProperty");
+  }
+
+  @Test
+  void shouldParseNamespaceQualifiedResourceDerivedType() {
+    String code = "type myType = sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name";
+
+    TypeDeclaration tree = (TypeDeclaration) createParser(BicepLexicalGrammar.TYPE_DECLARATION).parse(code);
+    assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
+    assertThat(tree.declaratedName().value()).isEqualTo("myType");
+
+    var compoundType = (CompoundTypeReference) ((SingularTypeExpression) tree.type()).expression();
+    assertThat(compoundType.suffix().value()).isEqualTo("name");
+
+    var resourceDerivedType = (ResourceDerivedType) compoundType.baseType();
+    assertThat(resourceDerivedType.keyword().value()).isEqualTo("resourceInput");
+    assertThat(resourceDerivedType.typeReference().value()).isEqualTo("Microsoft.Storage/storageAccounts@2022-09-01");
+    assertThat(resourceDerivedType.getKind()).isEqualTo(ArmTree.Kind.RESOURCE_DERIVED_TYPE);
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(resourceDerivedType))
+      .containsExactly("sys", ".", "resourceInput", "<", "Microsoft.Storage/storageAccounts@2022-09-01", ">");
   }
 }
