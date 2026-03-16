@@ -43,8 +43,9 @@ public class BicepLexicalConstant {
   private static final String ANY_STRING_BUT_NOT_THREE_QUOTES = "(?!''')[\\s\\S]";
   public static final String MULTILINE_STRING = "(?:" + QUOTES_FOLLOWED_BY_THREE_QUOTES + "|" + ANY_STRING_BUT_NOT_THREE_QUOTES + ")*+";
   public static final String EXCLAMATION_SIGN_ALONE = "!(?![=~])";
-  /** Matches text between ${ interpolation expressions in a ''' multiline string, stopping at ''' or ${ boundaries. */
-  public static final String MULTILINE_STRING_INTERPOLATED_CONTENT = "(?:'+?(?=''')|(?!''')(?!\\$+\\{)[\\s\\S])*+";
+  /** Matches text between ${ interpolation expressions in a ''' multiline string, stopping at ''' or ${ boundaries.
+   * Comments are consumed whole so that ''' inside them does not terminate the match. */
+  public static final String MULTILINE_STRING_INTERPOLATED_CONTENT = "(?:" + COMMENT + "|'+?(?=''')|(?!''')(?!\\$+\\{)[\\s\\S])*+";
 
   private BicepLexicalConstant() {
   }

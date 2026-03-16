@@ -47,6 +47,19 @@ class InterpolatedMultilineStringImplTest extends BicepTreeModelTest {
       .matches("$$'''abc$${123}'''")
       .matches("$'''${123}def'''")
       .matches("$''''''")
+      // comments containing ''' between expressions must not terminate the string prematurely
+      .matches("$'''\n// comment with ''' in it\n${expr}suffix'''")
+      .matches("$'''prefix${expr1}\n// comment with ''' in it\n${expr2}suffix'''")
+      .matches("$'''prefix${expr1}/* block comment with ''' in it */${expr2}suffix'''")
+      .matches("$'''prefix${expr1}\n# hash comment with ''' in it\n${expr2}suffix'''")
+      // multiple comments back-to-back (no non-comment content between them)
+      .matches("$'''prefix${expr1}\n// first '''\n// second '''\n${expr2}suffix'''")
+      .matches("$'''prefix${expr1}/* block ''' *//* another ''' */${expr2}suffix'''")
+      // multiple comments with non-comment content in between
+      .matches("$'''prefix${expr1}\n// first '''\nmiddle\n// second '''\n${expr2}suffix'''")
+      .matches("$'''prefix${expr1}/* block ''' */between/* another ''' */${expr2}suffix'''")
+      // multiline block comment containing ''' and newlines
+      .matches("$'''prefix${expr1}/* block \n  comment with ''' \n  and new line in it */${expr2}suffix'''")
 
       .notMatches("'text'")
       .notMatches("${expr}")
