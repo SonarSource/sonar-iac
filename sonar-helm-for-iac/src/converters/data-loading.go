@@ -16,6 +16,7 @@ package converters
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -151,11 +152,21 @@ func getBasePath(filepath string) string {
 	return strings.TrimSuffix(basePathUntrimmed, "/")
 }
 
+var documentSeparator = regexp.MustCompile(`(?m)^---`)
+
 func unmarshalYamlToMap(input string) (map[string]interface{}, error) {
 	values := map[string]interface{}{}
-	err := yaml.Unmarshal([]byte(input), &values)
-	if len(values) == 0 {
-		values = map[string]interface{}{}
+	for _, document := range documentSeparator.Split(input, -1) {
+		if strings.TrimSpace(document) == "" {
+			continue
+		}
+		var doc map[string]interface{}
+		if err := yaml.Unmarshal([]byte(document), &doc); err != nil {
+			return values, err
+		}
+		for k, v := range doc {
+			values[k] = v
+		}
 	}
-	return values, err
+	return values, nil
 }

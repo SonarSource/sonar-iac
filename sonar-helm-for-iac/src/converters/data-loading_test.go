@@ -71,6 +71,95 @@ func Test_chart_data_has_all_fields(t *testing.T) {
 	assert.Equal(t, Template{Name: "test-project/templates/a.yaml", BasePath: "test-project/templates"}, chartData["Template"])
 }
 
+func Test_multidocument_values(t *testing.T) {
+	result, err := LoadValues(`
+foo: bar
+---
+baz: qux`)
+
+	assert.NoError(t, err)
+	assert.Equal(t, Values{"foo": "bar", "baz": "qux"}, *result)
+}
+
+func Test_multidocument_values_last_write_wins(t *testing.T) {
+	result, err := LoadValues(`
+foo: bar
+---
+foo: overridden`)
+
+	assert.NoError(t, err)
+	assert.Equal(t, Values{"foo": "overridden"}, *result)
+}
+
+func Test_multidocument_values_middle_document_whitespace_only(t *testing.T) {
+	result, err := LoadValues(`
+foo: bar
+---
+
+---
+foo: overridden`)
+
+	assert.NoError(t, err)
+	assert.Equal(t, Values{"foo": "overridden"}, *result)
+}
+
+func Test_multidocument_values_nested_key_override(t *testing.T) {
+	result, err := LoadValues(`
+foo:
+  bar:
+    baz: original
+---
+foo:
+  bar:
+    baz: overridden`)
+
+	assert.NoError(t, err)
+	assert.Equal(t, Values{"foo": map[string]interface{}{"bar": map[string]interface{}{"baz": "overridden"}}}, *result)
+}
+
+func Test_multidocument_values_separator_at_beginning(t *testing.T) {
+	result, err := LoadValues(`---
+foo: bar
+---
+baz: qux`)
+
+	assert.NoError(t, err)
+	assert.Equal(t, Values{"foo": "bar", "baz": "qux"}, *result)
+}
+
+func Test_multidocument_values_separator_at_end(t *testing.T) {
+	result, err := LoadValues(`
+foo: bar
+---
+baz: qux
+---`)
+
+	assert.NoError(t, err)
+	assert.Equal(t, Values{"foo": "bar", "baz": "qux"}, *result)
+}
+
+func Test_multidocument_values_separator_at_end_with_newline(t *testing.T) {
+	result, err := LoadValues(`
+foo: bar
+---
+baz: qux
+---
+`)
+
+	assert.NoError(t, err)
+	assert.Equal(t, Values{"foo": "bar", "baz": "qux"}, *result)
+}
+
+func Test_multidocument_values_malformed_document(t *testing.T) {
+	result, err := LoadValues(`
+foo: bar
+---
+foo: bar: baz`)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+}
+
 func Test_malformed_values(t *testing.T) {
 	_, err := LoadValues("foo: bar: baz")
 

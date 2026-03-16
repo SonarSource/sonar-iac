@@ -1,0 +1,4 @@
+capabilities: [""]
+---
+capabilities: ["SYS_ADMIN"]
+---
