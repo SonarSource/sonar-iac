@@ -29,8 +29,8 @@ import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
-import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -42,7 +42,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   private final SyntaxToken keyword;
   private final Identifier name;
   @Nullable
-  private final SingularTypeExpression identifierType;
+  private final TypeExpressionAble identifierType;
   @Nullable
   private final SyntaxToken resource;
   @Nullable
@@ -50,7 +50,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   private final SyntaxToken equ;
   private final Expression expression;
 
-  public OutputDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, SingularTypeExpression identifierType, SyntaxToken equ, Expression expression) {
+  public OutputDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, TypeExpressionAble identifierType, SyntaxToken equ, Expression expression) {
     this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;

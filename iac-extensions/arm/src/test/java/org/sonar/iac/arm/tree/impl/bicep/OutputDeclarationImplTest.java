@@ -24,10 +24,12 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpression;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
 class OutputDeclarationImplTest extends BicepTreeModelTest {
 
@@ -77,6 +79,8 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
       .matches("output outM (basket.*[*]?)[] = []")
       .matches("output outN (basket.*[]?)[] = []")
       .matches("output outO (basket.*)[] = []")
+      .matches("output myOutput typeA | typeB | { type: 'c', value: int } = { type: 'a', value: 'a' }")
+      .matches("output myOutput (typeA | typeB)? = null")
 
       .notMatches("output")
       .notMatches("output myOutput")
@@ -125,5 +129,28 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.condition()).isNull();
     assertThat(tree.copyCount()).isNull();
     assertThat(tree.copyInput()).isNull();
+  }
+
+  @Test
+  void shouldParseOutputDeclarationWithTypeExpressionType() {
+    var code = "output myOutput typeA | typeB | { type: 'c', value: int } = { type: 'a', value: 'a' }";
+    OutputDeclaration tree = parse(code, BicepLexicalGrammar.OUTPUT_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.OUTPUT_DECLARATION)).isTrue();
+    assertThat(tree.declaratedName()).hasValue("myOutput").hasRange(1, 7, 1, 15);
+
+    var typeExpression = (TypeExpression) tree.type();
+    assertThat(typeExpression.getKind()).isEqualTo(ArmTree.Kind.TYPE_EXPRESSION);
+    assertThat(typeExpression.expressions()).hasSize(3);
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(typeExpression.expressions().get(0)))
+      .containsExactly("typeA");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(typeExpression.expressions().get(1)))
+      .containsExactly("typeB");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(typeExpression.expressions().get(2)))
+      .containsExactly("{", "type", ":", "c", ",", "value", ":", "int", "}");
+
+    assertThat(tree.value()).isNotNull();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("output", "myOutput", "typeA", "|", "typeB", "|", "{", "type", ":", "c", ",", "value", ":", "int", "}", "=", "{", "type", ":", "a", ",", "value", ":", "a",
+        "}");
   }
 }

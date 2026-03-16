@@ -141,7 +141,7 @@ public class BicepGrammar {
           b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.OUTPUT),
           IDENTIFIER(),
-          SINGULAR_TYPE_EXPRESSION(),
+          TYPE_EXPRESSION(),
           b.token(Punctuator.EQU),
           EXPRESSION()),
         f.outputDeclaration(

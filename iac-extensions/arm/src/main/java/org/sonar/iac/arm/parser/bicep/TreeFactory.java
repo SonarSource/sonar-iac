@@ -193,7 +193,7 @@ public class TreeFactory {
     Optional<List<Decorator>> decorators,
     SyntaxToken keyword,
     Identifier name,
-    SingularTypeExpression type,
+    TypeExpressionAble type,
     SyntaxToken equ,
     Expression expression) {
     return new OutputDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equ, expression);
