@@ -54,7 +54,7 @@ class BicepTypeExpressionResolutionTest {
   private static TypeExpression createExampleTypeExpression() {
     SyntaxToken syntaxToken = new SyntaxTokenImpl("array", TextRanges.range(1, 0, 1, 5), List.of());
     AmbientTypeReference ambientTypeReference = new AmbientTypeReferenceImpl(syntaxToken);
-    SingularTypeExpression singularTypeExpression = new SingularTypeExpressionImpl(ambientTypeReference, null);
+    SingularTypeExpression singularTypeExpression = new SingularTypeExpressionImpl(ambientTypeReference, null, null);
     SeparatedListImpl<SingularTypeExpression, SyntaxToken> list = SeparatedListImpl.separatedList(singularTypeExpression, List.of());
     TypeExpression typeExpression = new TypeExpressionImpl(list);
     return typeExpression;

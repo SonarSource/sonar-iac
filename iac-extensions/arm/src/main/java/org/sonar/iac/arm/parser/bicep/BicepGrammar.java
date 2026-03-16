@@ -517,7 +517,8 @@ public class BicepGrammar {
         b.optional(
           b.firstOf(
             b.token(Punctuator.BRACKET),
-            b.token(Punctuator.QUERY)))));
+            b.token(Punctuator.QUERY))),
+        b.optional(b.token(BicepLexicalGrammar.EXCLAMATION_SIGN_ALONE))));
   }
 
   public TypeExpressionAble TYPE_REFERENCE() {

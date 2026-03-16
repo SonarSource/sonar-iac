@@ -531,8 +531,8 @@ public class TreeFactory {
     return new TypeExpressionImpl(separatedList(optPipe, firstExpression, listPipeAndExpressions));
   }
 
-  public SingularTypeExpression singularTypeExpression(TypeExpressionAble expression, Optional<SyntaxToken> questionMark) {
-    return new SingularTypeExpressionImpl(expression, questionMark.orNull());
+  public SingularTypeExpression singularTypeExpression(TypeExpressionAble expression, Optional<SyntaxToken> questionMark, Optional<SyntaxToken> nonNullAssertion) {
+    return new SingularTypeExpressionImpl(expression, questionMark.orNull(), nonNullAssertion.orNull());
   }
 
   public ParenthesizedTypeExpression parenthesizedTypeExpression(SyntaxToken openingParenthesis, TypeExpressionAble typeExpression, SyntaxToken closingParenthesis) {

@@ -32,10 +32,13 @@ public class SingularTypeExpressionImpl extends AbstractArmTreeImpl implements S
   private final TypeExpressionAble expression;
   @Nullable
   private final SyntaxToken questionMark;
+  @Nullable
+  private final SyntaxToken nonNullAssertion;
 
-  public SingularTypeExpressionImpl(TypeExpressionAble expression, @Nullable SyntaxToken questionMark) {
+  public SingularTypeExpressionImpl(TypeExpressionAble expression, @Nullable SyntaxToken questionMark, @Nullable SyntaxToken nonNullAssertion) {
     this.expression = expression;
     this.questionMark = questionMark;
+    this.nonNullAssertion = nonNullAssertion;
   }
 
   @Override
@@ -50,10 +53,17 @@ public class SingularTypeExpressionImpl extends AbstractArmTreeImpl implements S
   }
 
   @Override
+  @CheckForNull
+  public SyntaxToken nonNullAssertion() {
+    return nonNullAssertion;
+  }
+
+  @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(expression);
     addChildrenIfPresent(children, questionMark);
+    addChildrenIfPresent(children, nonNullAssertion);
     return children;
   }
 }

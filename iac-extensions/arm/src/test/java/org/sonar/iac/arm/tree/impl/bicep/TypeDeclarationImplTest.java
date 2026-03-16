@@ -21,9 +21,11 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.CompoundTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpression;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
@@ -121,6 +123,14 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
           resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
         }""")
 
+      // non-null assertion on parenthesized union types
+      .matches("type t = (typeA | typeB)!")
+      .matches("type t = (string)!")
+      .matches("type t = (int | string | bool)!")
+      .matches("type myType = bool[]!")
+      .matches("type myType = int?!")
+      .matches("type t = (int | string | bool)!")
+
       .notMatches("type myType")
       .notMatches("type myType=")
       .notMatches("myType=abc")
@@ -210,5 +220,34 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
     assertThat(resourceDerivedType.getKind()).isEqualTo(ArmTree.Kind.RESOURCE_DERIVED_TYPE);
     assertThat(recursiveTransformationOfTreeChildrenToStrings(resourceDerivedType))
       .containsExactly("sys", ".", "resourceInput", "<", "Microsoft.Storage/storageAccounts@2022-09-01", ">");
+  }
+
+  @Test
+  void shouldParseNonNullParenthesizedUnionType() {
+    String code = "type t = (typeA | typeB)!";
+    TypeDeclaration tree = parse(code, BicepLexicalGrammar.TYPE_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
+    assertThat(tree.declaratedName().value()).isEqualTo("t");
+
+    // The outer type is a SingularTypeExpression with the ! suffix
+    var singularType = (SingularTypeExpression) tree.type();
+    assertThat(singularType.questionMark()).isNull();
+    assertThat(singularType.nonNullAssertion()).isNotNull();
+    assertThat(singularType.nonNullAssertion().value()).isEqualTo("!");
+
+    // Inside it is a ParenthesizedTypeExpression wrapping the union
+    var parenthesized = (ParenthesizedTypeExpression) singularType.expression();
+    assertThat(parenthesized.getKind()).isEqualTo(ArmTree.Kind.PARENTHESIZED_TYPE_EXPRESSION);
+
+    // The union has two members: typeA and typeB
+    var unionType = (TypeExpression) parenthesized.typeExpression();
+    assertThat(unionType.expressions()).hasSize(2);
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(unionType.expressions().get(0)))
+      .containsExactly("typeA");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(unionType.expressions().get(1)))
+      .containsExactly("typeB");
+
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("type", "t", "=", "(", "typeA", "|", "typeB", ")", "!");
   }
 }

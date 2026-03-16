@@ -25,4 +25,6 @@ public interface SingularTypeExpression extends TypeExpressionAble {
   TypeExpressionAble expression();
 
   SyntaxToken questionMark();
+
+  SyntaxToken nonNullAssertion();
 }

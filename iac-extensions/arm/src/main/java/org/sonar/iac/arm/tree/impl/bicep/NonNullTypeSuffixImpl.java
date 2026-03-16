@@ -29,6 +29,6 @@ public class NonNullTypeSuffixImpl implements NonNullTypeSuffix {
 
   @Override
   public TypeExpressionAble applyTo(TypeExpressionAble baseType) {
-    return new SingularTypeExpressionImpl(baseType, exclamation);
+    return new SingularTypeExpressionImpl(baseType, null, exclamation);
   }
 }
