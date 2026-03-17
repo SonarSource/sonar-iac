@@ -37,6 +37,8 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
   // instead of the multi-segment variants defined in AbstractHardcodedSecrets (see there for more details).
   private static final String SINGLE_NAMED_SEGMENT_PATTERN = "[\\w-]++\\.";
   private static final String SINGLE_NAMED_SEGMENT_PATTERN_NP = "[\\w-]+\\.";
+  private static final String MICRONAUT_HTTP_SERVICES = "micronaut\\.http\\.services\\.";
+  private static final String NATS = "nats\\.";
 
   private static final Set<String> SENSITIVE_KEYS = Set.of(
     "micronaut.ssl.key.password",
@@ -105,15 +107,15 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "tracing.jaeger.sender.auth-password",
     "otel.exporter.zipkin.proxy-password");
   private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
-    "micronaut\\.http\\.services\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "proxy-password",
-    "micronaut\\.http\\.services\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.key\\.password",
-    "micronaut\\.http\\.services\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.key-store\\.password",
-    "micronaut\\.http\\.services\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.trust-store\\.password",
+    MICRONAUT_HTTP_SERVICES + SINGLE_NAMED_SEGMENT_PATTERN_NP + "proxy-password",
+    MICRONAUT_HTTP_SERVICES + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.key\\.password",
+    MICRONAUT_HTTP_SERVICES + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.key-store\\.password",
+    MICRONAUT_HTTP_SERVICES + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.trust-store\\.password",
     "micronaut\\.chatbots\\.telegram\\.bots\\." + SINGLE_NAMED_SEGMENT_PATTERN + "token",
     "flyway\\.datasources\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
-    "nats\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
-    "nats\\." + SINGLE_NAMED_SEGMENT_PATTERN + "token",
-    "nats\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "tls\\.trust-store-password",
+    NATS + SINGLE_NAMED_SEGMENT_PATTERN + "password",
+    NATS + SINGLE_NAMED_SEGMENT_PATTERN + "token",
+    NATS + SINGLE_NAMED_SEGMENT_PATTERN_NP + "tls\\.trust-store-password",
     "r2dbc\\.datasources\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
     "rabbitmq\\.servers\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
     "redis\\.servers\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
