@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.kubernetes.plugin;
+package org.sonar.iac.kubernetes.plugin.kustomization;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +31,8 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
+import org.sonar.iac.kubernetes.plugin.KubernetesSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

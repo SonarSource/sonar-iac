@@ -46,12 +46,13 @@ import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.filesystem.FileSystemProvider;
 import org.sonar.iac.kubernetes.plugin.filesystem.SonarLintFileSystemProvider;
+import org.sonar.iac.kubernetes.plugin.kustomization.KustomizationInfoProvider;
 import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 
-import static org.sonar.iac.kubernetes.plugin.KustomizationSensor.KUSTOMIZATION_SENSOR_NAME;
+import static org.sonar.iac.kubernetes.plugin.kustomization.KustomizationSensor.KUSTOMIZATION_SENSOR_NAME;
 
 @DependsUpon("KustomizationSensor")
 public class KubernetesSensor extends AbstractYamlLanguageSensor {

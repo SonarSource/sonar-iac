@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.kubernetes.plugin;
+package org.sonar.iac.kubernetes.plugin.kustomization;
 
 import java.net.URI;
 import java.util.Locale;
@@ -31,6 +31,8 @@ import org.sonar.api.resources.Language;
 import org.sonar.iac.common.extension.TogglableSensor;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
+import org.sonar.iac.kubernetes.plugin.KubernetesSettings;
 
 import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
 
@@ -38,16 +40,16 @@ import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE
 public class KustomizationSensor extends TogglableSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KustomizationSensor.class);
   private static final Set<String> KUSTOMIZATION_FILE_NAMES = Set.of("kustomization.yaml", "kustomization.yml");
-  static final String KUSTOMIZATION_SENSOR_NAME = "IaC Kustomization Sensor";
+  public static final String KUSTOMIZATION_SENSOR_NAME = "IaC Kustomization Sensor";
 
-  private final KustomizationParser kustomizationParser;
+  private final KustomizationAnalyzer kustomizationAnalyzer;
   private final Language language;
   private final KustomizationInfoProvider kustomizationInfoProvider;
   private SensorTelemetry sensorTelemetry;
 
   public KustomizationSensor(KustomizationInfoProvider kustomizationInfoProvider, KubernetesLanguage language) {
     this.kustomizationInfoProvider = kustomizationInfoProvider;
-    this.kustomizationParser = new KustomizationParser(new YamlParser());
+    this.kustomizationAnalyzer = new KustomizationAnalyzer(new YamlParser());
     this.language = language;
   }
 
@@ -104,7 +106,7 @@ public class KustomizationSensor extends TogglableSensor {
   }
 
   private void processKustomizationFile(SensorContext context, InputFile inputFile) {
-    var referencedFiles = kustomizationParser.parse(context, inputFile);
+    var referencedFiles = kustomizationAnalyzer.collectKustomizedFiles(context, inputFile);
     kustomizationInfoProvider.addKustomizationReferencedFiles(referencedFiles);
     kustomizationInfoProvider.incrementKustomizationFilesCount();
   }

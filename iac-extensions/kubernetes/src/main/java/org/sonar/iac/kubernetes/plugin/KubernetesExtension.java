@@ -19,6 +19,8 @@ package org.sonar.iac.kubernetes.plugin;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarProduct;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.kubernetes.plugin.kustomization.KustomizationInfoProvider;
+import org.sonar.iac.kubernetes.plugin.kustomization.KustomizationSensor;
 
 public class KubernetesExtension {
 
@@ -32,6 +34,7 @@ public class KubernetesExtension {
       context.addExtension(SonarLintFileListener.class);
     }
     context.addExtensions(
+      // Kustomization support
       KustomizationInfoProvider.class,
       KustomizationSensor.class,
       // Language

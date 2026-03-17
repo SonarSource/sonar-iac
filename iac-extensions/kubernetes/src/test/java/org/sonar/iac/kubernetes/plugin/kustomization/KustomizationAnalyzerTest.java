@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.kubernetes.plugin;
+package org.sonar.iac.kubernetes.plugin.kustomization;
 
 import java.io.IOException;
 import java.net.URI;
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class KustomizationParserTest {
+class KustomizationAnalyzerTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -68,9 +68,9 @@ class KustomizationParserTest {
       .setContents(code)
       .build();
 
-    var parser = new KustomizationParser(new YamlParser());
+    var analyzer = new KustomizationAnalyzer(new YamlParser());
 
-    var result = parser.parse(context, inputFile);
+    var result = analyzer.collectKustomizedFiles(context, inputFile);
 
     // Convert expected paths (relative to baseDir) to absolute URIs
     var expectedAbsoluteUris = new URI[expectedPathsFromBaseDir.length];
@@ -291,9 +291,9 @@ class KustomizationParserTest {
     when(inputFile.toString()).thenReturn("kustomization.yaml");
     when(inputFile.contents()).thenThrow(new IOException("Test IO error"));
 
-    var parser = new KustomizationParser(new YamlParser());
+    var analyzer = new KustomizationAnalyzer(new YamlParser());
 
-    var result = parser.parse(context, inputFile);
+    var result = analyzer.collectKustomizedFiles(context, inputFile);
 
     assertThat(result).isEmpty();
     var debugLogs = logTester.logs(Level.DEBUG);
@@ -314,9 +314,9 @@ class KustomizationParserTest {
     when(inputFile.filename()).thenReturn("kustomization.yaml");
     when(inputFile.contents()).thenReturn(content);
 
-    var parser = new KustomizationParser(new YamlParser());
+    var analyzer = new KustomizationAnalyzer(new YamlParser());
 
-    var result = parser.parse(context, inputFile);
+    var result = analyzer.collectKustomizedFiles(context, inputFile);
 
     assertThat(result).isEmpty();
     var debugLogs = logTester.logs(Level.DEBUG);

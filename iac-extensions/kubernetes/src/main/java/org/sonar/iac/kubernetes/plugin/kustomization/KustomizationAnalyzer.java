@@ -14,8 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.kubernetes.plugin;
+package org.sonar.iac.kubernetes.plugin.kustomization;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -36,8 +37,8 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 
 /**
- * Parser for kustomization.yaml files that extracts referenced resources and patches.
- * This parser handles the following kustomization fields:
+ * Analyzer for kustomization.yaml files that extracts referenced resources and patches.
+ * This analyzer handles the following kustomization fields:
  * - resources: list of resource files or directories
  * - patches: list of patches (with path field)
  * - patchesStrategicMerge: legacy list of patch files
@@ -45,22 +46,22 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
  *
  * Paths are resolved relative to the kustomization file location and returned as URIs.
  */
-public class KustomizationParser {
-  private static final Logger LOG = LoggerFactory.getLogger(KustomizationParser.class);
+public class KustomizationAnalyzer {
+  private static final Logger LOG = LoggerFactory.getLogger(KustomizationAnalyzer.class);
   private final YamlParser yamlParser;
 
-  public KustomizationParser(YamlParser yamlParser) {
+  public KustomizationAnalyzer(YamlParser yamlParser) {
     this.yamlParser = yamlParser;
   }
 
   /**
-   * Parses a kustomization file and collects all referenced files.
+   * Analyses a kustomization file and collects all referenced files.
    *
    * @param sensorContext the sensor context
    * @param inputFile the input file for the kustomization file
    * @return set of URIs referenced in the kustomization
    */
-  public Set<URI> parse(SensorContext sensorContext, InputFile inputFile) {
+  public Set<URI> collectKustomizedFiles(SensorContext sensorContext, InputFile inputFile) {
     try {
       var kustomizationFileUri = inputFile.uri();
       var kustomizationFilePath = Path.of(kustomizationFileUri).toAbsolutePath();
@@ -75,7 +76,7 @@ public class KustomizationParser {
       var tree = yamlParser.parse(content, inputFileContext);
       LOG.debug("Extracting referenced files from the file: {}", inputFile);
       return extractReferencedFiles(tree, parentDirPath);
-    } catch (Exception e) {
+    } catch (IOException | RuntimeException e) {
       LOG.debug("Failed to parse kustomization file {}: {}", inputFile, e.getMessage());
       return Set.of();
     }
@@ -193,7 +194,7 @@ public class KustomizationParser {
         .filter(ScalarTree.class::isInstance)
         .map(ScalarTree.class::cast)
         .map(ScalarTree::value)
-        .filter(KustomizationParser::isLocalPath)
+        .filter(KustomizationAnalyzer::isLocalPath)
         .stream());
   }
 
@@ -207,6 +208,6 @@ public class KustomizationParser {
       .filter(ScalarTree.class::isInstance)
       .map(ScalarTree.class::cast)
       .map(ScalarTree::value)
-      .filter(KustomizationParser::isLocalPath);
+      .filter(KustomizationAnalyzer::isLocalPath);
   }
 }

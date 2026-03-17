@@ -54,6 +54,7 @@ import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.utils.OperatingSystemUtils;
 import org.sonar.iac.kubernetes.checks.RaiseIssue;
+import org.sonar.iac.kubernetes.plugin.kustomization.KustomizationInfoProvider;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
