@@ -16,8 +16,11 @@
  */
 package org.sonar.iac.arm.parser;
 
+import java.util.concurrent.Callable;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.plugin.ArmLanguage;
+import org.sonar.iac.arm.plugin.ArmParserStatistics;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.common.extension.ParseException;
@@ -25,13 +28,23 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.sonar.iac.arm.tests.ArmTelemetryReporter.storeTelemetryAndReport;
+import static org.sonar.iac.arm.tests.ArmTestInputFileContextCreator.bicepFileContext;
+import static org.sonar.iac.arm.tests.ArmTestInputFileContextCreator.jsonFileContext;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ArmParserTest {
 
-  private final ArmParser parser = new ArmParser();
-
   private final InputFileContext inputFileJsonContext = createInputFileContextMock("foo.json");
+
+  private ArmParserStatistics statistics;
+  private ArmParser parser;
+
+  @BeforeEach
+  void setUp() {
+    statistics = new ArmParserStatistics();
+    parser = new ArmParser(statistics);
+  }
 
   @Test
   void shouldParseEmptyJson() {
@@ -65,5 +78,26 @@ class ArmParserTest {
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.children()).hasSize(1).extracting("value").containsExactly("");
     assertThat(tree.parent()).isNull();
+  }
+
+  @Test
+  void shouldNotIncrementParsedCountWhenParsingFails() {
+    ignoreException(() -> parser.parse("#$%", jsonFileContext()));
+    ignoreException(() -> parser.parse("{{{", bicepFileContext()));
+
+    assertThat(storeTelemetryAndReport(statistics))
+      .containsEntry("iac.azureresourcemanager.files.count", "2")
+      .containsEntry("iac.azureresourcemanager.files.json.count", "1")
+      .containsEntry("iac.azureresourcemanager.files.json.parsed", "0")
+      .containsEntry("iac.azureresourcemanager.files.bicep.count", "1")
+      .containsEntry("iac.azureresourcemanager.files.bicep.parsed", "0");
+  }
+
+  private static void ignoreException(Callable<ArmTree> callable) {
+    try {
+      callable.call();
+    } catch (Exception e) {
+      // do nothing
+    }
   }
 }

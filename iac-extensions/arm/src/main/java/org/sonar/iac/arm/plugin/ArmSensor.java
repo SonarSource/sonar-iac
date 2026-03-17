@@ -42,6 +42,8 @@ import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 
 public class ArmSensor extends AbstractYamlLanguageSensor {
 
+  private ArmParserStatistics armParserStatistics;
+
   public ArmSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, ArmLanguage language) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, ArmCheckList.checks());
@@ -84,7 +86,14 @@ public class ArmSensor extends AbstractYamlLanguageSensor {
 
   @Override
   protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new SingleFileAnalyzer(repositoryKey(), new ArmParser(), visitors(sensorContext, statistics), statistics);
+    armParserStatistics = new ArmParserStatistics();
+    return new SingleFileAnalyzer(repositoryKey(), new ArmParser(armParserStatistics), visitors(sensorContext, statistics), statistics);
+  }
+
+  @Override
+  protected void afterExecute(SensorContext sensorContext) {
+    armParserStatistics.storeTelemetry(sensorTelemetry);
+    super.afterExecute(sensorContext);
   }
 
   @Override

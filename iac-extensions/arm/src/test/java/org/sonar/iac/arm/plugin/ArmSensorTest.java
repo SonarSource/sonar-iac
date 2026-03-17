@@ -217,6 +217,26 @@ class ArmSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldReportFileCountTelemetryAfterAnalysis() {
+    InputFile bicepFile = IacTestUtils.inputFile(
+      "telemetry.bicep",
+      baseDir.toPath(),
+      "param environmentName string",
+      "azureresourcemanager");
+    InputFile armJsonFile = inputFile("telemetry.json",
+      "{\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\"}\n");
+
+    analyze(sensor(), bicepFile, armJsonFile);
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.azureresourcemanager.files.count", "2")
+      .containsEntry("iac.azureresourcemanager.files.json.count", "1")
+      .containsEntry("iac.azureresourcemanager.files.json.parsed", "1")
+      .containsEntry("iac.azureresourcemanager.files.bicep.count", "1")
+      .containsEntry("iac.azureresourcemanager.files.bicep.parsed", "1");
+  }
+
+  @Test
   void shouldNotLogWhenExtendedLoggingIsOnDefaultForFileWithoutCorrectIdentifier() {
     context.setSettings(new MapSettings());
     context.settings().setProperty(getActivationSettingKey(), true);
