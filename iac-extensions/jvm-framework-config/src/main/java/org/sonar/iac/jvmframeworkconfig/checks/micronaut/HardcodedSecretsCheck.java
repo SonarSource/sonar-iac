@@ -25,6 +25,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.checks.OptimizedListToPatternBuilder;
 import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractHardcodedSecrets;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
@@ -32,6 +33,11 @@ import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtil
 
 @Rule(key = "S6437")
 public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
+  // Micronaut named config segments are not confirmed to support nesting, so single-segment patterns are used here
+  // instead of the multi-segment variants defined in AbstractHardcodedSecrets (see there for more details).
+  private static final String SINGLE_NAMED_SEGMENT_PATTERN = "[\\w-]++\\.";
+  private static final String SINGLE_NAMED_SEGMENT_PATTERN_NP = "[\\w-]+\\.";
+
   private static final Set<String> SENSITIVE_KEYS = Set.of(
     "micronaut.ssl.key.password",
     "micronaut.ssl.key-store.password",
@@ -99,23 +105,23 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "tracing.jaeger.sender.auth-password",
     "otel.exporter.zipkin.proxy-password");
   private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
-    "micronaut\\.http\\.services\\.[^.]++\\.proxy-password",
-    "micronaut\\.http\\.services\\.[^.]++\\.ssl\\.key\\.password",
-    "micronaut\\.http\\.services\\.[^.]++\\.ssl\\.key-store\\.password",
-    "micronaut\\.http\\.services\\.[^.]++\\.ssl\\.trust-store\\.password",
-    "micronaut\\.chatbots\\.telegram\\.bots\\.[^.]++\\.token",
-    "flyway\\.datasources\\.[^.]++\\.password",
-    "nats\\.[^.]++\\.password",
-    "nats\\.[^.]++\\.token",
-    "nats\\.[^.]++\\.tls\\.trust-store-password",
-    "r2dbc\\.datasources\\.[^.]++\\.password",
-    "rabbitmq\\.servers\\.[^.]++\\.password",
-    "redis\\.servers\\.[^.]++\\.password",
-    "micronaut\\.security\\.token\\.jwt\\.encryptions\\.secret\\.[^.]++\\.secret",
-    "micronaut\\.security\\.token\\.jwt\\.signatures\\.secret\\.[^.]++\\.secret",
-    "micronaut\\.security\\.ldap\\.[^.]++\\.context\\.manager-password",
-    "micronaut\\.security\\.oauth2\\.clients\\.[^.]++\\.client-secret",
-    "datasources\\.[^.]++\\.password");
+    "micronaut\\.http\\.services\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "proxy-password",
+    "micronaut\\.http\\.services\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.key\\.password",
+    "micronaut\\.http\\.services\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.key-store\\.password",
+    "micronaut\\.http\\.services\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "ssl\\.trust-store\\.password",
+    "micronaut\\.chatbots\\.telegram\\.bots\\." + SINGLE_NAMED_SEGMENT_PATTERN + "token",
+    "flyway\\.datasources\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
+    "nats\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
+    "nats\\." + SINGLE_NAMED_SEGMENT_PATTERN + "token",
+    "nats\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "tls\\.trust-store-password",
+    "r2dbc\\.datasources\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
+    "rabbitmq\\.servers\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
+    "redis\\.servers\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password",
+    "micronaut\\.security\\.token\\.jwt\\.encryptions\\.secret\\." + SINGLE_NAMED_SEGMENT_PATTERN + "secret",
+    "micronaut\\.security\\.token\\.jwt\\.signatures\\.secret\\." + SINGLE_NAMED_SEGMENT_PATTERN + "secret",
+    "micronaut\\.security\\.ldap\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "context\\.manager-password",
+    "micronaut\\.security\\.oauth2\\.clients\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "client-secret",
+    "datasources\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password");
   private static final Pattern PATTERN_PASSWORD_IN_CONNECTION_STRING = Pattern.compile("(?:;|^)AccountKey=(?<password>[a-zA-Z0-9+/=]{60,})(?:;|$)");
   private static final Pattern PATTERN_PASSWORD_IN_URL = Pattern.compile("(?<protocol>[a-zA-Z]++)://(?<username>[^:@]++):(?<password>[^@]++)@.++");
   private static final Map<String, Pattern> SENSITIVE_KEYS_WITH_PATTERN_VALUE = Map.of(
@@ -134,7 +140,10 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
 
   @Override
   protected Set<String> sensitiveKeyPatterns() {
-    return SENSITIVE_KEY_PATTERNS;
+    return Set.of(OptimizedListToPatternBuilder
+      .fromCollection(SENSITIVE_KEY_PATTERNS)
+      .optimizeOnPrefix("micronaut\\.")
+      .build());
   }
 
   @Override

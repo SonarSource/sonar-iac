@@ -18,6 +18,7 @@ package org.sonar.iac.jvmframeworkconfig.checks.spring;
 
 import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.checks.OptimizedListToPatternBuilder;
 import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractHardcodedSecrets;
 
 @Rule(key = "S6437")
@@ -106,14 +107,16 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "management.signalfx.metrics.export.access-token",
     "spring.data.mongodb.password");
 
+  private static final String SPRING_AI_LITERAL = "spring\\.ai\\.";
+  private static final String SPRING_AI_PREFIX = SPRING_AI_LITERAL + NAMED_SEGMENT_PATTERN;
   private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
-    "spring\\.ai\\.([^.]++\\.)+password",
-    "spring\\.ai\\.([^.]++\\.)+api-key",
-    "spring\\.ai\\.([^.]++\\.)+api\\.key",
-    "spring\\.ai\\.([^.]++\\.)+apiKey",
-    "spring\\.ai\\.([^.]++\\.)+secret-key",
-    "spring\\.ai\\.([^.]++\\.)+key-token",
-    "spring\\.ai\\.([^.]++\\.)+passPhrase");
+    SPRING_AI_PREFIX + "password",
+    SPRING_AI_PREFIX + "api-key",
+    SPRING_AI_LITERAL + NAMED_SEGMENT_PATTERN_NP + "api\\.key",
+    SPRING_AI_PREFIX + "apiKey",
+    SPRING_AI_PREFIX + "secret-key",
+    SPRING_AI_PREFIX + "key-token",
+    SPRING_AI_PREFIX + "passPhrase");
 
   @Override
   protected Set<String> sensitiveKeys() {
@@ -122,6 +125,8 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
 
   @Override
   protected Set<String> sensitiveKeyPatterns() {
-    return SENSITIVE_KEY_PATTERNS;
+    return Set.of(OptimizedListToPatternBuilder.fromCollection(SENSITIVE_KEY_PATTERNS)
+      .optimizeOnPrefix(SPRING_AI_LITERAL)
+      .build());
   }
 }

@@ -25,10 +25,8 @@ import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 @Rule(key = "S6437")
 public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
-  private static final String NAMED_SEGMENT_PATTERN = "([\\w-]++\\.)++";
 
   // Sensitive keys and key patterns were scraped from https://quarkus.io/guides and its subpages.
-
   private static final Set<String> SENSITIVE_KEYS = Set.of(
     // Core Datasource
     "quarkus.datasource.password",
@@ -103,7 +101,7 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     // Utilities, Networking & Observability (Compressed)
     "quarkus\\.grpc\\.clients\\." + NAMED_SEGMENT_PATTERN + "password",
     "quarkus\\.mailer\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.otel\\.exporter\\.otlp\\.([^.]++\\.)+proxy-options\\.password",
+    "quarkus\\.otel\\.exporter\\.otlp\\." + NAMED_SEGMENT_PATTERN_NP + "proxy-options\\.password",
     "quarkus\\.proxy\\." + NAMED_SEGMENT_PATTERN + "password");
 
   @Override
@@ -111,7 +109,7 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     return SENSITIVE_KEYS;
   }
 
-  // Skip dev/test profile keys before regex evaluation — faster than a negative lookbehind
+  // Skip dev/test profile keys before regex evaluation
   @Override
   protected void checkTuple(CheckContext ctx, Tuple tuple) {
     var key = tuple.key().value().value();

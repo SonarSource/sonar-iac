@@ -23,6 +23,12 @@ import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck {
   protected static final String MESSAGE = "Revoke and change this password, as it is compromised.";
   protected static final Pattern VARIABLE = Pattern.compile("\\$\\{[^}]+}");
+  // Matches one or more dot-terminated named config segments (e.g. "mydb." or "tenant.region.").
+  // Use the possessive variant when the suffix is a plain word (e.g. "password", "secret") — no backtracking needed.
+  // Use the non-possessive variant when the suffix contains hyphens or dots (e.g. "proxy-password", "api.key"),
+  // so the engine can backtrack if it over-consumes segments.
+  protected static final String NAMED_SEGMENT_PATTERN = "([\\w-]++\\.)++";
+  protected static final String NAMED_SEGMENT_PATTERN_NP = "([\\w-]++\\.)+";
 
   @Override
   protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
