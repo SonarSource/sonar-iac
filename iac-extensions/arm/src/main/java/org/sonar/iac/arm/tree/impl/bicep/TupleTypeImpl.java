@@ -22,14 +22,15 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class TupleTypeImpl extends AbstractArmTreeImpl implements TupleType {
   private final SyntaxToken openingBracket;
-  private final List<TupleItem> tupleItems;
+  private final SeparatedList<TupleItem, SyntaxToken> tupleItems;
   private final SyntaxToken closingBracket;
 
-  public TupleTypeImpl(SyntaxToken openingBracket, List<TupleItem> tupleItems, SyntaxToken closingBracket) {
+  public TupleTypeImpl(SyntaxToken openingBracket, SeparatedList<TupleItem, SyntaxToken> tupleItems, SyntaxToken closingBracket) {
     this.openingBracket = openingBracket;
     this.tupleItems = tupleItems;
     this.closingBracket = closingBracket;
@@ -37,14 +38,14 @@ public class TupleTypeImpl extends AbstractArmTreeImpl implements TupleType {
 
   @Override
   public List<TupleItem> items() {
-    return tupleItems;
+    return tupleItems.elements();
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(openingBracket);
-    children.addAll(tupleItems);
+    children.addAll(tupleItems.elementsAndSeparators());
     children.add(closingBracket);
     return children;
   }

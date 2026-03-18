@@ -48,6 +48,15 @@ class TupleTypeImplTest extends BicepTreeModelTest {
       .matches("[typeExpr ]")
       .matches("[ typeExpr ]")
       .matches("[\ntypeExpr\ntypeExpr2]")
+      // comma-separated tuple types
+      .matches("[typeExpr, typeN]")
+      .matches("[typeExpr, typeN, typeM]")
+      .matches("[ typeExpr, typeN ]")
+      .matches("[typeExpr,typeN]")
+      .matches("[@decorator() typeExpr, typeN]")
+      .matches("[@decorator(), typeExpr, typeN]")
+      .matches("[string, int, bool]")
+      .matches("[string, int, bool,]")
 
       .notMatches("[]typeExpr")
       .notMatches("[\ntypeExpr")
@@ -76,5 +85,33 @@ class TupleTypeImplTest extends BicepTreeModelTest {
     assertThat(tree.children().get(1)).isInstanceOf(TupleItem.class);
     assertThat(((SyntaxToken) tree.children().get(2)).value()).isEqualTo("]");
     assertThat(tree.children()).hasSize(3);
+  }
+
+  @Test
+  void shouldParseCommaSeparatedTupleType() {
+    String code = "[ @discriminator('type'), typeA | typeB | { type: 'c', value: object }, string]";
+    TupleType tree = parse(code, BicepLexicalGrammar.TUPLE_TYPE);
+    assertThat(tree.is(ArmTree.Kind.TUPLE_TYPE)).isTrue();
+
+    assertThat(tree.items()).hasSize(2);
+
+    TupleItem firstItem = tree.items().get(0);
+    assertThat(firstItem.decorators())
+      .map(ArmTestUtils::recursiveTransformationOfTreeChildrenToStrings)
+      .containsExactly(List.of("@", "discriminator", "(", "type", ")"));
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(firstItem.typeExpression()))
+      .containsExactly("typeA", "|", "typeB", "|", "{", "type", ":", "c", ",", "value", ":", "object", "}");
+
+    TupleItem secondItem = tree.items().get(1);
+    assertThat(secondItem.decorators()).isEmpty();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(secondItem.typeExpression()))
+      .containsExactly("string");
+
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("[");
+    assertThat(tree.children().get(1)).isInstanceOf(TupleItem.class);
+    assertThat(((SyntaxToken) tree.children().get(2)).value()).isEqualTo(",");
+    assertThat(tree.children().get(3)).isInstanceOf(TupleItem.class);
+    assertThat(((SyntaxToken) tree.children().get(4)).value()).isEqualTo("]");
+    assertThat(tree.children()).hasSize(5);
   }
 }

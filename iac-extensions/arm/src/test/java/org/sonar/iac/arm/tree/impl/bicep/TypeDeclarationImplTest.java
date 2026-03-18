@@ -123,6 +123,13 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
           resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
         }""")
 
+      // comma-separated tuple types
+      .matches("type t = [string, int, bool]")
+      .matches("type t = [@discriminator('type'), typeA | typeB, string]")
+      .matches("type t = [typeA, typeB]")
+      .matches("type t = [typeA, typeB,]")
+      .matches("type t = [typeA, typeB, @discriminator('type'), typeC]")
+
       // non-null assertion on parenthesized union types
       .matches("type t = (typeA | typeB)!")
       .matches("type t = (string)!")
@@ -249,5 +256,38 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("type", "t", "=", "(", "typeA", "|", "typeB", ")", "!");
+  }
+
+  @Test
+  void shouldParseTupleTypeDeclaration() {
+    String code = "type t = [@discriminator('type'), typeA | typeB | { type: 'c', value: object }, string]";
+    TypeDeclaration tree = parse(code, BicepLexicalGrammar.TYPE_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
+    assertThat(tree.declaratedName().value()).isEqualTo("t");
+
+    // The outer type is a SingularTypeExpression wrapping a TupleType
+    var singularType = (SingularTypeExpression) tree.type();
+    assertThat(singularType.questionMark()).isNull();
+    assertThat(singularType.nonNullAssertion()).isNull();
+
+    var tupleType = (org.sonar.iac.arm.tree.api.bicep.TupleType) singularType.expression();
+    assertThat(tupleType.getKind()).isEqualTo(ArmTree.Kind.TUPLE_TYPE);
+    assertThat(tupleType.items()).hasSize(2);
+
+    // First item has a decorator and a union type expression
+    var firstItem = tupleType.items().get(0);
+    assertThat(firstItem.decorators()).hasSize(1);
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(firstItem.decorators().get(0)))
+      .containsExactly("@", "discriminator", "(", "type", ")");
+
+    // Second item is plain string type
+    var secondItem = tupleType.items().get(1);
+    assertThat(secondItem.decorators()).isEmpty();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(secondItem.typeExpression()))
+      .containsExactly("string");
+
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("type", "t", "=", "[", "@", "discriminator", "(", "type", ")", ",",
+        "typeA", "|", "typeB", "|", "{", "type", ":", "c", ",", "value", ":", "object", "}", ",", "string", "]");
   }
 }

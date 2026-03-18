@@ -595,12 +595,12 @@ public class TreeFactory {
     return new UnaryOperatorImpl(token);
   }
 
-  public TupleItem tupleItem(Optional<List<Decorator>> decorators, TypeExpressionAble typeExpression) {
-    return new TupleItemImpl(decorators.or(List.of()), typeExpression);
+  public TupleItem tupleItem(Optional<List<Tuple<Decorator, Optional<SyntaxToken>>>> decoratorsWithCommas, TypeExpressionAble typeExpression) {
+    return new TupleItemImpl(toSeparatedList(decoratorsWithCommas), typeExpression);
   }
 
-  public TupleType tupleType(SyntaxToken openingBracket, Optional<List<TupleItem>> tupleItems, SyntaxToken closingBracket) {
-    return new TupleTypeImpl(openingBracket, tupleItems.or(List.of()), closingBracket);
+  public TupleType tupleType(SyntaxToken openingBracket, Optional<List<Tuple<TupleItem, Optional<SyntaxToken>>>> tupleItemsWithComas, SyntaxToken closingBracket) {
+    return new TupleTypeImpl(openingBracket, toSeparatedList(tupleItemsWithComas), closingBracket);
   }
 
   public MultilineString multilineString(SyntaxToken openingTripleApostrophe, SyntaxToken text, SyntaxToken closingTripleApostrophe) {

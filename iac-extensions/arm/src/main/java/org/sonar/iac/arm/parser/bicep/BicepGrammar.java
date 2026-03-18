@@ -694,14 +694,19 @@ public class BicepGrammar {
       f.tupleType(
         b.token(Punctuator.LBRACKET),
         b.zeroOrMore(
-          TUPLE_ITEM()),
+          f.tuple(
+            TUPLE_ITEM(),
+            b.optional(b.token(Punctuator.COMMA)))),
         b.token(Punctuator.RBRACKET)));
   }
 
   public TupleItem TUPLE_ITEM() {
     return b.<TupleItem>nonterminal(BicepLexicalGrammar.TUPLE_ITEM).is(
       f.tupleItem(
-        b.zeroOrMore(DECORATOR()),
+        b.zeroOrMore(
+          f.tuple(
+            DECORATOR(),
+            b.optional(b.token(Punctuator.COMMA)))),
         TYPE_EXPRESSION()));
   }
 
