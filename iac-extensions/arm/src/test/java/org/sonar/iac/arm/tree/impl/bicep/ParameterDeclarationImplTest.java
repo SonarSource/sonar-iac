@@ -221,4 +221,32 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
     assertThatThrownBy(tree::maxValue).isInstanceOf(ClassCastException.class);
     assertThatThrownBy(tree::minValue).isInstanceOf(ClassCastException.class);
   }
+
+  @Test
+  void parsingTypedParameterDeclaration() {
+    String code = """
+      param inlineObjectParam {
+        foo: string
+        bar: 100 | 200 | 300 | 400 | 500
+        baz: sys.bool
+      } = {
+        foo: 'foo'
+        bar: 300
+        baz: false
+      }
+      """;
+    ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
+    assertThat(tree.declaratedName().value()).isEqualTo("inlineObjectParam");
+    assertThat(tree.type()).isNull();
+    assertThat(tree.typeExpression()).isNotNull();
+    assertThat(tree.defaultValue()).isNotNull();
+    assertThat(tree.resourceType()).isNull();
+    assertThat(tree.decorators()).isEmpty();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("param", "inlineObjectParam",
+        "{", "foo", ":", "string", "bar", ":", "100", "|", "200", "|", "300", "|", "400", "|", "500", "baz", ":", "sys", ".", "bool", "}",
+        "=",
+        "{", "foo", ":", "foo", "bar", ":", "300", "baz", ":", "false", "}");
+  }
 }

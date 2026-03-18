@@ -123,6 +123,10 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
           resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
         }""")
 
+      // object type with compound type references
+      .matches("type t = { foo: sys.bool }")
+      .matches("type t = { foo: string, bar: 100 | 200, baz: sys.bool }")
+
       // comma-separated tuple types
       .matches("type t = [string, int, bool]")
       .matches("type t = [@discriminator('type'), typeA | typeB, string]")

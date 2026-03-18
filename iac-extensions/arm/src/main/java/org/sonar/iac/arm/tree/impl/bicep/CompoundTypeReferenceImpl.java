@@ -19,16 +19,19 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.CompoundTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class CompoundTypeReferenceImpl extends AbstractArmTreeImpl implements CompoundTypeReference {
   private final TypeExpressionAble baseType;
+  private final SyntaxToken dot;
   private final Identifier suffix;
 
-  public CompoundTypeReferenceImpl(TypeExpressionAble baseType, Identifier suffix) {
+  public CompoundTypeReferenceImpl(TypeExpressionAble baseType, SyntaxToken dot, Identifier suffix) {
     this.baseType = baseType;
+    this.dot = dot;
     this.suffix = suffix;
   }
 
@@ -44,6 +47,6 @@ public class CompoundTypeReferenceImpl extends AbstractArmTreeImpl implements Co
 
   @Override
   public List<Tree> children() {
-    return List.of(baseType, suffix);
+    return List.of(baseType, dot, suffix);
   }
 }

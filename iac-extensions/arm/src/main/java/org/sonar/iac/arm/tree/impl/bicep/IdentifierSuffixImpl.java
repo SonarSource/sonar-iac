@@ -18,17 +18,20 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.IdentifierSuffix;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 
 public class IdentifierSuffixImpl implements IdentifierSuffix {
+  private final SyntaxToken dot;
   private final Identifier identifier;
 
-  public IdentifierSuffixImpl(Identifier identifier) {
+  public IdentifierSuffixImpl(SyntaxToken dot, Identifier identifier) {
+    this.dot = dot;
     this.identifier = identifier;
   }
 
   @Override
   public TypeExpressionAble applyTo(TypeExpressionAble baseType) {
-    return new CompoundTypeReferenceImpl(baseType, identifier);
+    return new CompoundTypeReferenceImpl(baseType, dot, identifier);
   }
 }

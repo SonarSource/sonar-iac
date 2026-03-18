@@ -588,7 +588,7 @@ public class TreeFactory {
   }
 
   public IdentifierSuffix identifierSuffix(SyntaxToken dot, Identifier identifier) {
-    return new IdentifierSuffixImpl(identifier);
+    return new IdentifierSuffixImpl(dot, identifier);
   }
 
   public UnaryOperator unaryOperator(SyntaxToken token) {

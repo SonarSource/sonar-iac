@@ -37,13 +37,13 @@ class CompoundTypeReferenceImplTest extends BicepTreeModelTest {
       .isInstanceOf(CompoundTypeReference.class)
       .returns(ArmTree.Kind.COMPOUND_TYPE_REFERENCE, from(ArmTree::getKind))
       .extracting(ArmTree::children, InstanceOfAssertFactories.list(ArmTree.class))
-      .hasSize(2);
+      .hasSize(3);
 
     var expression = (CompoundTypeReference) tree.expression();
     assertThat(expression.baseType())
       .isInstanceOf(CompoundTypeReference.class)
       .extracting(ArmTree::children, InstanceOfAssertFactories.list(ArmTree.class))
-      .hasSize(2);
+      .hasSize(3);
     assertThat(expression.suffix())
       .isInstanceOf(Identifier.class)
       .returns("subtype2", from(TextTree::value));
