@@ -66,7 +66,7 @@ class PrivilegedUserCheckTest {
   @ParameterizedTest
   @MethodSource
   void testCustomSafeListCompliant(String testFile) {
-    check.safeImages = "custom_image1, custom_image2, golang";
+    check.safeImages = "custom_image1, custom_image2, golang, customHost:8080/custom/dotnet/aspnet/8.0";
     DockerVerifier.verifyNoIssue(testFile, check);
   }
 

@@ -124,7 +124,14 @@ public class PrivilegedUserCheck implements IacCheck {
     if (resolvedImage.isUnresolved()) {
       return null;
     } else if (fullImageName.contains(":")) {
-      return fullImageName.split(":")[0];
+      var lastColonIndex = fullImageName.lastIndexOf(":");
+      var afterColonPart = fullImageName.substring(lastColonIndex);
+      if (afterColonPart.contains("/")) {
+        // Here it means that the last colon is just a port of the docker repo,
+        // example: customHost:8080/custom/dotnet
+        return fullImageName;
+      }
+      return fullImageName.substring(0, lastColonIndex);
     } else if (fullImageName.contains("@")) {
       return fullImageName.split("@")[0];
     } else {
