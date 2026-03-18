@@ -51,3 +51,63 @@ Optionally, run this command with `--global` to apply this configuration globall
 * Go-related tasks are automatically linked to `test`, `assemble`, `check`, and `build` tasks
 * A configuration `goBinaries` is created, and it can be used to depend on the Go binaries like
   `implementation(projects(":go-subprojcet", "goBinaries"))`
+
+## Generating license files for a plugin
+
+The `license-file-generator` plugin generates license files for third-party runtime dependencies and bundles them into the plugin's resources folder.
+
+### Setup
+
+Apply the plugin to the subproject that packages the plugin (usually `sonar-<language>-plugin`):
+```kotlin
+plugins {
+    id("org.sonarsource.cloud-native.license-file-generator")
+}
+```
+
+### Configuration
+
+The plugin exposes a `licenseGenerationConfig` extension with the following options:
+
+| Property                     | Type                | Default                                                         | Description                                                              |
+|------------------------------|---------------------|-----------------------------------------------------------------|--------------------------------------------------------------------------|
+| `projectLicenseFile`         | `File`              | `../LICENSE.txt` (one level above the plugin project directory) | The project's own license file.                                          |
+| `dependencyLicenseOverrides` | `Map<String, File>` | empty                                                           | Per-dependency license file overrides. Keys use the `group:name` format. |
+
+Example configuration (Groovy DSL):
+```groovy
+licenseGenerationConfig {
+    projectLicenseFile.set(file("../LICENSE.txt"))
+    dependencyLicenseOverrides.put("com.salesforce:apex-jorje-lsp-minimized", file("../build-logic/common/gradle-modules/src/main/resources/licenses/BSD-3.txt"))
+}
+```
+
+Example configuration (Kotlin DSL):
+```kotlin
+licenseGenerationConfig {
+    projectLicenseFile.set(file("../LICENSE.txt"))
+    dependencyLicenseOverrides.put("com.salesforce:apex-jorje-lsp-minimized", file("../build-logic/common/gradle-modules/src/main/resources/licenses/BSD-3.txt"))
+}
+```
+
+Use `dependencyLicenseOverrides` when the plugin cannot automatically resolve the correct license for a dependency (e.g., the dependency jar does not include a license file and its POM license title is not recognized).
+
+### Available bundled license files
+
+The following license files are bundled in this module and can be referenced in overrides:
+`0BSD.txt`, `Apache-2.0.txt`, `BSD-2.txt`, `BSD-3.txt`, `GNU-LGPL-3.txt`, `Go.txt`, `lgpl-2.1.txt`, `MIT.txt`
+
+### Tasks
+
+| Task                       | Description                                                                                                   |
+|----------------------------|---------------------------------------------------------------------------------------------------------------|
+| `generateLicenseReport`    | Generates license files into the build directory.                                                             |
+| `generateLicenseResources` | Copies generated license files to `src/main/resources/licenses/`. Run this to update committed license files. |
+| `validateLicenseFiles`     | Validates that committed license files match the generated ones. Runs as part of `check`.                     |
+
+### Workflow
+
+1. Apply the plugin and configure `licenseGenerationConfig` if needed
+2. Run `./gradlew generateLicenseResources` to generate and copy license files into `src/main/resources/licenses/`
+3. Commit the generated files
+4. The `check` task will automatically validate that committed license files are up-to-date via `validateLicenseFiles`

@@ -20,6 +20,7 @@ import com.github.jk1.license.LicenseFileDetails
 import com.github.jk1.license.ModuleData
 import com.github.jk1.license.ProjectData
 import com.github.jk1.license.render.ReportRenderer
+import java.io.File
 import java.io.IOException
 import java.net.URISyntaxException
 import java.nio.file.Files
@@ -27,6 +28,8 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.ArrayList
+import org.gradle.api.logging.Logging
+import org.gradle.api.provider.Provider
 
 private const val APACHE_LICENSE_FILE_NAME: String = "Apache-2.0.txt"
 private const val MIT_FILE_NAME: String = "MIT.txt"
@@ -53,21 +56,27 @@ val LICENSE_TITLE_TO_RESOURCE_FILE: Map<String, String> = buildMap {
 
 class AnalyzerLicensingPackagingRenderer(
     private val buildOutputDir: Path,
+    private val dependencyLicenseOverrides: Provider<Map<String, File>>,
 ) : ReportRenderer {
+    private val logger = Logging.getLogger(AnalyzerLicensingPackagingRenderer::class.java)
     private lateinit var generatedLicenseResourcesDirectory: Path
-    private val dependenciesWithUnusableLicenseFileInside: Set<String> = setOf(
-        "com.fasterxml.jackson.dataformat.jackson-dataformat-smile",
-        "com.fasterxml.jackson.dataformat.jackson-dataformat-yaml",
-        "com.fasterxml.woodstox.woodstox-core",
-        "org.codehaus.woodstox.stax2-api"
+    private val defaultDependencyLicenseOverrides = mapOf(
+        "com.fasterxml.jackson.dataformat:jackson-dataformat-smile" to APACHE_LICENSE_FILE_NAME,
+        "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" to APACHE_LICENSE_FILE_NAME,
+        "com.fasterxml.woodstox:woodstox-core" to APACHE_LICENSE_FILE_NAME,
+        "com.salesforce:apex-jorje-lsp-minimized" to "BSD-3.txt",
+        "org.codehaus.woodstox:stax2-api" to "BSD-2.txt"
     )
+
     private val exceptions: ArrayList<String> = ArrayList()
 
     // Generate license files for all dependencies in the licenses folder
     override fun render(data: ProjectData) {
+        logger.info("Generating licenses report started")
         generatedLicenseResourcesDirectory = buildOutputDir.resolve("licenses")
         try {
             generateDependencyFiles(data)
+            logger.info("Generating licenses report finished successfully")
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
@@ -86,14 +95,25 @@ class AnalyzerLicensingPackagingRenderer(
 
     /**
      * Generate a license file for a given dependency.
-     * First we try to copy the license file included in the dependency itself in `copyIncludedLicenseFromDependency`
-     * If there is no License file, or the dependency contains an unusable license file,
-     * we try to derive the license from the pom in `findLicenseIdentifierInPomAndCopyFromResources`.
-     * In this method we're looking for the identifier of the license, and we copy the corresponding license file from our resources.
-     * The mapping (license identifier to resource file) is derived from the map `licenseTitleToResourceFile`.
+     * First we try to copy a configured override in `copyOverriddenLicense`.
+     * If there is no override, we try to copy the license file included in the dependency itself
+     * in `copyIncludedLicenseFromDependency`.
+     * If there is no included license file, or the dependency contains an unusable one,
+     * we derive the license from the pom in `findLicenseIdentifierInPomAndCopyFromResources`.
+     * That method looks up the license identifier and copies the corresponding file from our resources,
+     * using the mapping defined in `LICENSE_TITLE_TO_RESOURCE_FILE`.
      */
     @Throws(IOException::class, URISyntaxException::class)
     private fun generateDependencyFile(data: ModuleData) {
+        val copyOverrideLicenseFile = copyOverriddenLicense(data)
+        if (copyOverrideLicenseFile.success) {
+            return
+        }
+        val copyDefaultOverrideLicenseFile = copyDefaultOverriddenLicense(data)
+        if (copyDefaultOverrideLicenseFile.success) {
+            return
+        }
+
         val copyIncludedLicenseFile = copyIncludedLicenseFromDependency(data)
         if (copyIncludedLicenseFile.success) {
             return
@@ -104,16 +124,33 @@ class AnalyzerLicensingPackagingRenderer(
             return
         }
 
+        exceptions.add("${data.group}.${data.name}: ${copyOverrideLicenseFile.message}")
         exceptions.add("${data.group}.${data.name}: ${copyIncludedLicenseFile.message}")
         exceptions.add("${data.group}.${data.name}: ${copyFromResources.message}")
     }
 
     @Throws(IOException::class)
-    private fun copyIncludedLicenseFromDependency(data: ModuleData): Status {
-        if (dependenciesWithUnusableLicenseFileInside.contains("${data.group}.${data.name}")) {
-            return Status.failure("Excluded copying license from dependency as it's not the right one.")
-        }
+    private fun copyOverriddenLicense(data: ModuleData): Status {
+        val dependencyKey = data.dependencyKey()
+        val overrideFile = dependencyLicenseOverrides.getOrElse(emptyMap())[dependencyKey]
+            ?: return Status.failure("No override configured.")
+        copyLicenseFile(data, overrideFile.toPath())
+        logger.info("For the dependency {}: used configured override '{}'", dependencyKey, overrideFile.name)
+        return Status.success
+    }
 
+    @Throws(IOException::class)
+    private fun copyDefaultOverriddenLicense(data: ModuleData): Status {
+        val dependencyKey = data.dependencyKey()
+        val overrideFile = defaultDependencyLicenseOverrides[dependencyKey]
+            ?: return Status.failure("No default override.")
+        copyLicenseResourceByFileName(data, overrideFile)
+        logger.info("For the dependency {}: used default override '{}'", dependencyKey, overrideFile)
+        return Status.success
+    }
+
+    @Throws(IOException::class)
+    private fun copyIncludedLicenseFromDependency(data: ModuleData): Status {
         val licenseFileDetails = data.licenseFiles.stream().flatMap { licenseFile -> licenseFile.fileDetails.stream() }
             .filter { file: LicenseFileDetails -> file.file.contains("LICENSE") }
             .findFirst()
@@ -123,19 +160,32 @@ class AnalyzerLicensingPackagingRenderer(
         }
 
         copyLicenseFile(data, buildOutputDir.resolve(licenseFileDetails.get().file))
+        logger.info(
+            "For the dependency {}: copied packaged license from '{}'",
+            data.dependencyKey(),
+            licenseFileDetails.get().file
+        )
         return Status.success
     }
 
     @Throws(IOException::class, URISyntaxException::class)
     private fun findLicenseIdentifierInPomAndCopyFromResources(data: ModuleData): Status {
-        val pomLicense = data.poms.stream().flatMap { pomData -> pomData.licenses.stream() }
-            .findFirst()
-
-        if (pomLicense.isEmpty) {
+        val licenses = data.poms.stream().flatMap { pomData -> pomData.licenses.stream() }.toList()
+        if (licenses.isEmpty()) {
             return Status.failure("No license found in pom data.")
         }
+        val pomLicense = licenses[0]
+        if (licenses.size > 1) {
+            logger.warn(
+                "The dependency: {}: contains multiple licenses in pom data: [{}]. The '{}' was taken. " +
+                    "Please review if it is the correct one, if not define it in licenseGenerationConfig.dependencyLicenseOverrides",
+                data.dependencyKey(),
+                licenses.joinToString { it.name },
+                pomLicense.name
+            )
+        }
 
-        return copyLicenseFromResources(data, pomLicense.get().name)
+        return copyLicenseFromResources(data, pomLicense.name)
     }
 
     @Throws(IOException::class)
@@ -161,8 +211,23 @@ class AnalyzerLicensingPackagingRenderer(
     ): Status {
         val licenseResourceFileName = LICENSE_TITLE_TO_RESOURCE_FILE[licenseName]
             ?: return Status.failure("License file '$licenseName' could not be found.")
-        val resourceAsStream = AnalyzerLicensingPackagingRenderer::class.java.getResourceAsStream("/licenses/$licenseResourceFileName")
-            ?: throw IOException("Resource not found for license: $licenseName")
+        copyLicenseResourceByFileName(data, licenseResourceFileName)
+        logger.info(
+            "For the dependency {}: used bundled resource '{}' for POM license '{}'",
+            "${data.group}:${data.name}",
+            licenseResourceFileName,
+            licenseName
+        )
+        return Status.success
+    }
+
+    @Throws(IOException::class)
+    private fun copyLicenseResourceByFileName(
+        data: ModuleData,
+        resourceFileName: String,
+    ): Status {
+        val resourceAsStream = AnalyzerLicensingPackagingRenderer::class.java.getResourceAsStream("/licenses/$resourceFileName")
+            ?: throw IOException("Resource not found for license: $resourceFileName")
         Files.copy(resourceAsStream, generateLicensePath(data), StandardCopyOption.REPLACE_EXISTING)
         return Status.success
     }
@@ -180,4 +245,6 @@ class AnalyzerLicensingPackagingRenderer(
             fun failure(message: String?): Status = Status(false, message)
         }
     }
+
+    fun ModuleData.dependencyKey() = "$group:$name"
 }

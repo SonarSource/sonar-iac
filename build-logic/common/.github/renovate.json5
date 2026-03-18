@@ -9,11 +9,26 @@
   "rebaseWhen": "conflicted",
   "enabledManagers": [
     "gradle",
-    "gradle-wrapper"
+    "gradle-wrapper",
+    "regex"
   ],
   "gradle": {
     "enabled": true
   },
+  "regexManagers": [
+    {
+      // Tracks the Eclipse JDT Formatter version used by Spotless (e.g. eclipse("4.22")).
+      // The version string follows Eclipse release numbering (4.x), matched against
+      // org.eclipse.platform:org.eclipse.platform on Maven Central (which publishes as 4.x.0).
+      // extractVersion in packageRules below strips the trailing .0 to align the formats.
+      "fileMatch": ["\\.gradle\\.kts$"],
+      "matchStrings": [
+        "eclipse\\(\"(?<currentValue>[^\"]+)\"\\)"
+      ],
+      "depNameTemplate": "org.eclipse.platform:org.eclipse.platform",
+      "datasourceTemplate": "maven"
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": [
@@ -25,6 +40,14 @@
       ],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
+    },
+    {
+      "matchPackageNames": [
+        "org.eclipse.platform:org.eclipse.platform"
+      ],
+      // Spotless accepts "4.22.0" but deprecates it in favour of "4.22", printing a warning.
+      // Strip the patch segment to keep the format consistent with what is already in the code.
+      "extractVersion": "^(?<version>\\d+\\.\\d+)" // 4.22.0 → 4.22
     },
     {
       "matchPackageNames": [

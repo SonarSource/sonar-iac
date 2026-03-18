@@ -39,6 +39,7 @@ val licenseGenerationConfig =
 licenseGenerationConfig.projectLicenseFile.convention(
     project.layout.projectDirectory.asFile.parentFile.resolve("LICENSE.txt")
 )
+licenseGenerationConfig.dependencyLicenseOverrides.convention(emptyMap())
 
 var buildLicenseReportDirectory = project.layout.buildDirectory.dir("reports/dependency-license")
 var buildLicenseOutputToCopyDir = buildLicenseReportDirectory.get().dir("licenses")
@@ -46,7 +47,12 @@ var resourceLicenseDir = project.layout.projectDirectory.dir("src/main/resources
 var resourceThirdPartyDir = resourceLicenseDir.dir("THIRD_PARTY_LICENSES")
 
 licenseReport {
-    renderers = arrayOf<ReportRenderer>(AnalyzerLicensingPackagingRenderer(buildLicenseReportDirectory.get().asFile.toPath()))
+    renderers = arrayOf<ReportRenderer>(
+        AnalyzerLicensingPackagingRenderer(
+            buildLicenseReportDirectory.get().asFile.toPath(),
+            licenseGenerationConfig.dependencyLicenseOverrides
+        )
+    )
     excludeGroups = arrayOf(project.group.toString(), project.group.toString().replace("com.sonarsource", "org.sonarsource"))
 }
 

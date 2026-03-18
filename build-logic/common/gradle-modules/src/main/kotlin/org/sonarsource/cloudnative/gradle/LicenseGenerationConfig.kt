@@ -17,9 +17,16 @@
 package org.sonarsource.cloudnative.gradle
 
 import java.io.File
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 
 interface LicenseGenerationConfig {
     /** The project's own license file (defaults to LICENSE.txt one level above the project directory). */
     val projectLicenseFile: Property<File>
+
+    /**
+     * Per-dependency override of the license file to copy.
+     * Keys use the "group:name" format and values are files provided by the consuming project.
+     */
+    val dependencyLicenseOverrides: MapProperty<String, File>
 }
