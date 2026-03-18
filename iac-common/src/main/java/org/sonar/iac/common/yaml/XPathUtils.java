@@ -23,6 +23,7 @@ import java.util.StringTokenizer;
 import java.util.stream.Stream;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -32,6 +33,10 @@ public class XPathUtils {
   private final List<YamlTree> result = new ArrayList<>();
 
   private XPathUtils() {
+  }
+
+  public static Optional<String> getValueOfScalar(YamlTree root, String expression) {
+    return getSingleTreeOfType(root, expression, ScalarTree.class).map(ScalarTree::value);
   }
 
   public static <T extends YamlTree> Optional<T> getSingleTreeOfType(YamlTree root, String expression, Class<T> type) {
