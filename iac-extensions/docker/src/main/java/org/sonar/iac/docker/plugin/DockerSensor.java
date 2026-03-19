@@ -112,7 +112,9 @@ public class DockerSensor extends IacSensor {
         // Equivalent to p.doesNotMatchPathPattern("*.j2", "*.md"), but more efficient as the scanner has an extension cache
         p.not(p.or(
           p.hasExtension("md"),
-          p.hasExtension("j2"))),
+          p.hasExtension("j2"),
+          // will match on Jenkinsfile and jenkinsfile
+          p.matchesPathPattern("*enkinsfile"))),
         dockerLanguageOrPathPattern);
     }
 

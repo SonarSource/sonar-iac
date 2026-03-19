@@ -98,8 +98,15 @@ class DockerSensorTest extends ExtensionSensorTest {
       // should be excluded because of .j2 extension and default file pattern used
       inputFile("Dockerfile.j2", ""),
       inputFile("Dockerfile.md", ""),
+      inputFile("Dockerfile.Jenkinsfile", ""),
+      inputFile("Dockerfile.jenkinsfile", ""),
+      inputFile("Dockerfile-Jenkinsfile", ""),
+      inputFile("Dockerfile-jenkinsfile", ""),
+      inputFile("Dockerfile_Jenkinsfile", ""),
+      inputFile("Dockerfile_jenkinsfile", ""),
       // should be included because .j2 is not the extension
-      inputFile("Dockerfile.j2.bar", ""));
+      inputFile("Dockerfile.j2.bar", ""),
+      inputFile("Dockerfile-Jenkinsfile.bar", ""));
 
     FileSystem fileSystem = context.fileSystem();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context, new DurationStatistics(mock(Configuration.class))));
@@ -129,6 +136,7 @@ class DockerSensorTest extends ExtensionSensorTest {
         "Foo.dockerfile",
 
         // .j2 is not the extension
+        "Dockerfile-Jenkinsfile.bar",
         "Dockerfile.j2.bar");
 
     verifyLinesOfCodeTelemetry(0);
