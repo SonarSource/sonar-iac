@@ -21,6 +21,7 @@ import org.sonarsource.cloudnative.gradle.GoBuild
 import org.sonarsource.cloudnative.gradle.allGoSourcesAndMakeScripts
 import org.sonarsource.cloudnative.gradle.callMake
 import org.sonarsource.cloudnative.gradle.crossCompileEnv
+import org.sonarsource.cloudnative.gradle.findExecutable
 import org.sonarsource.cloudnative.gradle.getArchitecture
 import org.sonarsource.cloudnative.gradle.getPlatform
 import org.sonarsource.cloudnative.gradle.goLangCiLintVersion
@@ -50,6 +51,8 @@ goBuildExtension.dockerCommands.convention(
 )
 
 if (isCi()) {
+    val goLangCiLintExecutable = findExecutable("golangci-lint")
+
     val cleanGoCode by tasks.registering(Exec::class) {
         description = "Clean all compiled version of the go code."
         group = "build"
@@ -92,7 +95,7 @@ if (isCi()) {
         outputs.cacheIf { true }
 
         commandLine(
-            "golangci-lint",
+            goLangCiLintExecutable,
             "run",
             // Don't limit the number of issues in the report
             "--max-issues-per-linter=0",
