@@ -15,6 +15,7 @@ build/
 .run/
 
 # ---- Eclipse
+bin/
 .classpath
 .project
 .settings
