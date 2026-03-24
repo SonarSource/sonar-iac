@@ -16,13 +16,12 @@
  */
 package org.sonar.iac.jvmframeworkconfig.checks.common;
 
-import java.util.regex.Pattern;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.checks.CommonExcludedPatterns;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck {
   protected static final String MESSAGE = "Revoke and change this password, as it is compromised.";
-  protected static final Pattern VARIABLE = Pattern.compile("\\$\\{[^}]+}");
   // Matches one or more dot-terminated named config segments (e.g. "mydb." or "tenant.region.").
   // Use the possessive variant when the suffix is a plain word (e.g. "password", "secret") — no backtracking needed.
   // Use the non-possessive variant when the suffix contains hyphens or dots (e.g. "proxy-password", "api.key"),
@@ -38,6 +37,6 @@ public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck
   }
 
   private static boolean isHardcoded(String value) {
-    return !(value.isEmpty() || VARIABLE.matcher(value).find());
+    return !(value.isEmpty() || CommonExcludedPatterns.isCommonExcludedPattern(value));
   }
 }

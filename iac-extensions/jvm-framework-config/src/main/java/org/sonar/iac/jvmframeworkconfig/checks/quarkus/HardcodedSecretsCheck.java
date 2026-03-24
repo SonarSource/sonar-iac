@@ -91,7 +91,6 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "quarkus\\.hibernate-search-orm\\." + NAMED_SEGMENT_PATTERN + "password",
     "quarkus\\.hibernate-search-standalone\\." + NAMED_SEGMENT_PATTERN + "password",
     "quarkus\\.infinispan-client\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.mongodb\\." + NAMED_SEGMENT_PATTERN + "connection-string",
     "quarkus\\.mongodb\\." + NAMED_SEGMENT_PATTERN + "password",
     "quarkus\\.redis\\." + NAMED_SEGMENT_PATTERN + "password",
 
