@@ -65,19 +65,7 @@ fun areDirectoriesEqual(
             val file1 = files1[relativePath]!!
             val file2 = files2[relativePath]!!
 
-            // Quick check: compare file sizes first
-            if (file1.length() != file2.length()) {
-                logger.warn("File size mismatch: $relativePath")
-                return false
-            }
-
-            // Full check: compare byte content
-            val checksum1 = getFileChecksum(file1)
-            val checksum2 = getFileChecksum(file2)
-            if (checksum1 != checksum2) {
-                logger.warn("File content mismatch: $relativePath")
-                return false
-            }
+            return areFilesEqual(file1, file2, relativePath, logger)
         }
 
         // If all checks pass, the directories are equal
@@ -86,6 +74,28 @@ fun areDirectoriesEqual(
         logger.error("An error occurred during comparison: ${e.message}")
         return false
     }
+}
+
+fun areFilesEqual(
+    file1: File,
+    file2: File,
+    relativePath: File,
+    logger: Logger,
+): Boolean {
+    // Quick check: compare file sizes first
+    if (file1.length() != file2.length()) {
+        logger.warn("File size mismatch: $relativePath")
+        return false
+    }
+
+    // Full check: compare byte content
+    val checksum1 = getFileChecksum(file1)
+    val checksum2 = getFileChecksum(file2)
+    if (checksum1 != checksum2) {
+        logger.warn("File content mismatch: $relativePath")
+        return false
+    }
+    return true
 }
 
 fun getFileChecksum(file: File): String {

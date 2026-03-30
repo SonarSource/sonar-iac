@@ -16,6 +16,7 @@
  */
 package org.sonarsource.cloudnative.gradle
 
+import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFile
@@ -72,3 +73,14 @@ fun Project.goSources(): FileTree =
         include("**/*.go")
         exclude("build/**", "**/*_generated.go")
     }
+
+fun convertLicenseHeaderToGoCommentStyle(inputFile: File): String {
+    val lines = inputFile.readLines()
+
+    if (lines.size <= 2) return ""
+
+    // drop(1) removes the first, dropLast(1) removes the last
+    return lines.drop(1).dropLast(1).joinToString("\n") { line ->
+        line.replace(" *", "//")
+    }.plus("\n\n")
+}
