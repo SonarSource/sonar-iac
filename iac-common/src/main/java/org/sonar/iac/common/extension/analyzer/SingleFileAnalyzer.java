@@ -47,7 +47,7 @@ public class SingleFileAnalyzer extends AbstractAnalyzer {
         progressReport.cancel();
         return false;
       }
-      var inputFileContext = createInputFileContext(sensorContext, inputFile);
+      var inputFileContext = createInputFileContext(sensorContext, inputFile, languageName);
       try {
         analyseFile(inputFileContext);
       } catch (ParseException e) {

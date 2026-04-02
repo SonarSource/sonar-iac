@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
@@ -38,7 +39,7 @@ class CloudformationParserTest {
   @BeforeEach
   void setup() {
     inputFile = mock(InputFile.class);
-    inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile, IacLanguage.CLOUDFORMATION);
   }
 
   @Test

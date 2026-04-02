@@ -24,6 +24,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigParser;
@@ -57,7 +58,7 @@ public final class JvmFrameworkConfigVerifier {
     }
     var file = IacTestUtils.inputFile(filename, BASE_DIR, language);
     sensorContext.fileSystem().add(file);
-    return new InputFileContext(sensorContext, file);
+    return new InputFileContext(sensorContext, file, IacLanguage.createFromLanguage(language));
   }
 
   private static Tree parseJvmFrameworkConfig(Path path) {

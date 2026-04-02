@@ -19,11 +19,12 @@ package org.sonar.iac.terraform.plugin;
 import java.util.Arrays;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public class TerraformLanguage extends AbstractLanguage {
 
-  public static final String KEY = "terraform";
-  public static final String NAME = "Terraform";
+  public static final String KEY = IacLanguage.TERRAFORM.getKey();
+  public static final String NAME = IacLanguage.TERRAFORM.getName();
 
   private final Configuration configuration;
 

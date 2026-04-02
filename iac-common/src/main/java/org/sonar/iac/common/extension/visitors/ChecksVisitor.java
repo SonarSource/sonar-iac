@@ -32,6 +32,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
@@ -111,6 +112,11 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
         e.setStackTrace(new StackTraceElement[0]);
         throw e;
       }
+    }
+
+    @Override
+    public IacLanguage language() {
+      return currentCtx != null ? currentCtx.language : IacLanguage.UNKNOWN;
     }
   }
 }

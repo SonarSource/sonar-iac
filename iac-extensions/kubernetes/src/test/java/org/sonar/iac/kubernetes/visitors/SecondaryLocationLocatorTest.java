@@ -161,7 +161,7 @@ class SecondaryLocationLocatorTest {
 
   @Test
   void shouldReturnEmptyForInputFileContext() {
-    var inputFileContext = new InputFileContext(null, null);
+    var inputFileContext = new InputFileContext(null, null, null);
 
     var secondaryLocations = SecondaryLocationLocator.findSecondaryLocationsInAdditionalFiles(inputFileContext, null);
 

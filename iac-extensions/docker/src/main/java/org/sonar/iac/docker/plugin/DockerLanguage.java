@@ -19,12 +19,13 @@ package org.sonar.iac.docker.plugin;
 import java.util.Arrays;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.iac.common.languages.IacLanguage;
 
 // AbstractLanguage#equals() should still be used
 @SuppressWarnings("java:S2160")
 public class DockerLanguage extends AbstractLanguage {
-  public static final String KEY = "docker";
-  static final String NAME = "Docker";
+  public static final String KEY = IacLanguage.DOCKER.getKey();
+  static final String NAME = IacLanguage.DOCKER.getName();
   private final Configuration settings;
 
   public DockerLanguage(Configuration settings) {

@@ -47,7 +47,7 @@ public class ArmTestUtils {
 
   public static File parseBicep(String code) {
     InputFile mockedFile = mock(InputFile.class);
-    InputFileContext inputFileContext = new InputFileContext(null, mockedFile);
+    InputFileContext inputFileContext = new InputFileContext(null, mockedFile, null);
     when(mockedFile.language()).thenReturn(ArmLanguage.KEY);
     return (File) PARSER.parse(code, inputFileContext);
   }

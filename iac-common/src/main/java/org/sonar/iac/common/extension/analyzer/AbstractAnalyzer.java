@@ -31,6 +31,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.languages.IacLanguage;
 
 import static org.sonar.iac.common.extension.ExceptionUtils.getStackTrace;
 
@@ -49,8 +50,8 @@ public abstract class AbstractAnalyzer implements Analyzer {
     this.statistics = statistics;
   }
 
-  protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
-    return new InputFileContext(sensorContext, inputFile);
+  protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile, String languageName) {
+    return new InputFileContext(sensorContext, inputFile, IacLanguage.createFromLanguage(languageName));
   }
 
   protected static String readContent(InputFileContext inputFileContext) {

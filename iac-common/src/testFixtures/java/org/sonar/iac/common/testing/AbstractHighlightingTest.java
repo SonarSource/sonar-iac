@@ -30,6 +30,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.languages.IacLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,7 +74,7 @@ public abstract class AbstractHighlightingTest {
 
     inputFile = inputFileBuilder.build();
     this.code = code;
-    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
+    InputFileContext ctx = new InputFileContext(sensorContext, inputFile, IacLanguage.createFromLanguage(languageKey));
     highlightingVisitor.scan(ctx, parser.parse(code, ctx));
   }
 
@@ -82,7 +83,7 @@ public abstract class AbstractHighlightingTest {
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata("dummy")
       .build();
-    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
+    InputFileContext ctx = new InputFileContext(sensorContext, inputFile, IacLanguage.UNKNOWN);
     highlightingVisitor.scan(ctx, root);
   }
 

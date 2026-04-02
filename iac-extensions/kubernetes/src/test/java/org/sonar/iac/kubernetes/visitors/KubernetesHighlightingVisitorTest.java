@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.AbstractHighlightingTest;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
@@ -352,7 +353,7 @@ class KubernetesHighlightingVisitorTest extends AbstractHighlightingTest {
     InputFile inputFile = mock(DefaultInputFile.class);
     when(inputFile.contents()).thenThrow(new IOException("boom"));
     when(inputFile.toString()).thenReturn("foo.yaml");
-    var inputFileContext = new InputFileContext(sensorContext, inputFile);
+    var inputFileContext = new InputFileContext(sensorContext, inputFile, IacLanguage.KUBERNETES);
     var root = mock(FileTree.class);
     var kubernetesHighlightingVisitor = new KubernetesHighlightingVisitor();
 

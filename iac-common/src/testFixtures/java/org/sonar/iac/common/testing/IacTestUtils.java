@@ -33,6 +33,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -107,7 +108,7 @@ public final class IacTestUtils {
 
   public static InputFileContext createInputFileContextMock(String filename, String languageKey) {
     var inputFile = mock(InputFile.class);
-    var inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    var inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile, IacLanguage.createFromLanguage(languageKey));
     when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.language()).thenReturn(languageKey);

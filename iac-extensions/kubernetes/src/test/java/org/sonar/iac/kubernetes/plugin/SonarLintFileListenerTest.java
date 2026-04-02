@@ -31,6 +31,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.kubernetes.model.LimitRange;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
@@ -100,7 +101,7 @@ class SonarLintFileListenerTest {
 
     sonarLintFileListener.process(event);
 
-    var inputFileContext2 = new InputFileContext(context, inputFile2);
+    var inputFileContext2 = new InputFileContext(context, inputFile2, IacLanguage.KUBERNETES);
     var projectResources = sonarLintFileListener.getProjectContext().getNamespaceProjectResources(
       "with-global-limit", inputFileContext2, LimitRange.class);
     assertThat(projectResources).isEmpty();
@@ -139,7 +140,7 @@ class SonarLintFileListenerTest {
 
     sonarLintFileListener.process(event);
 
-    var inputFileContext2 = new InputFileContext(context, inputFile2);
+    var inputFileContext2 = new InputFileContext(context, inputFile2, IacLanguage.KUBERNETES);
     var projectResources = sonarLintFileListener.getProjectContext().getNamespaceProjectResources(
       "with-global-limit", inputFileContext2, LimitRange.class);
     assertThat(projectResources).isNotEmpty();

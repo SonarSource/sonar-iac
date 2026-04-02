@@ -29,6 +29,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.analyzer.CrossFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
 import static org.sonar.iac.common.yaml.YamlFileUtils.splitLines;
@@ -61,11 +62,11 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
   }
 
   @Override
-  protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile) {
+  protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile, String languageName) {
     if (isHelmFile(inputFile)) {
       return new HelmInputFileContext(sensorContext, inputFile, sonarLintFileListener);
     }
-    return new InputFileContext(sensorContext, inputFile);
+    return new InputFileContext(sensorContext, inputFile, IacLanguage.KUBERNETES);
   }
 
   @Override

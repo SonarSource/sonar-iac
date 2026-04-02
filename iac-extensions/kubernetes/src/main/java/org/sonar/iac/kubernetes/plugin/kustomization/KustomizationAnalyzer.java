@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
@@ -71,7 +72,7 @@ public class KustomizationAnalyzer {
         return Set.of();
       }
 
-      var inputFileContext = new InputFileContext(sensorContext, inputFile);
+      var inputFileContext = new InputFileContext(sensorContext, inputFile, IacLanguage.KUBERNETES);
       var content = inputFile.contents();
       var tree = yamlParser.parse(content, inputFileContext);
       LOG.debug("Extracting referenced files from the file: {}", inputFile);

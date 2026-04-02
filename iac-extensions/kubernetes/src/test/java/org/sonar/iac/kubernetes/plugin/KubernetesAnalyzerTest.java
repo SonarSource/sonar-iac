@@ -45,6 +45,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.filesystem.FileSystemUtils;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
@@ -128,7 +129,7 @@ class KubernetesAnalyzerTest {
 
   @Test
   void shouldParseAsPureK8sFileWhenNoNormalInputFileContext() {
-    FileTree file = (FileTree) analyzer.parse("foo: {bar: 1234}", new InputFileContext(sensorContext, inputFile));
+    FileTree file = (FileTree) analyzer.parse("foo: {bar: 1234}", new InputFileContext(sensorContext, inputFile, IacLanguage.KUBERNETES));
     assertThat(file.documents()).hasSize(1);
     assertThat(file.documents().get(0).children()).isNotEmpty();
 
@@ -463,7 +464,7 @@ class KubernetesAnalyzerTest {
       when(helmFile.contents()).thenReturn("foo: {{ .Values.foo }}");
       when(helmFile.uri()).thenReturn(new URI("file:///chart/templates/foo.yaml"));
       when(sensorContext.fileSystem().inputFile(any())).thenReturn(helmFile);
-      var ctx = analyzer.createInputFileContext(sensorContext, helmFile);
+      var ctx = analyzer.createInputFileContext(sensorContext, helmFile, KubernetesLanguage.NAME);
 
       assertThat(ctx).isInstanceOf(HelmInputFileContext.class);
       assertThat(((HelmInputFileContext) ctx).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));
@@ -485,7 +486,7 @@ class KubernetesAnalyzerTest {
         new DurationStatistics(mock(Configuration.class)),
         helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), sonarLintFileListener);
 
-      var ctx = analyzerSonarLint.createInputFileContext(sensorContext, helmFile);
+      var ctx = analyzerSonarLint.createInputFileContext(sensorContext, helmFile, KubernetesLanguage.NAME);
 
       assertThat(ctx).isInstanceOf(HelmInputFileContext.class);
       assertThat(((HelmInputFileContext) ctx).getHelmProjectDirectory()).isEqualTo(Path.of("/chart"));

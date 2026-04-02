@@ -29,6 +29,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 import org.sonar.iac.common.yaml.YamlParser;
 
@@ -162,7 +163,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
     Tree tree = mock(Tree.class);
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.inputStream()).thenThrow(new IOException("File not found"));
-    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
+    InputFileContext ctx = new InputFileContext(sensorContext, inputFile, IacLanguage.YAML);
 
     ParseException thrown = assertThrows(ParseException.class, () -> visitor.scan(ctx, tree));
     assertThat(thrown.getMessage()).isEqualTo("Can not read file for metric calculation");

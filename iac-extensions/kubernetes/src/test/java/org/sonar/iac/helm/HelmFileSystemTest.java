@@ -36,6 +36,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.kubernetes.plugin.SonarLintFileListener;
 import org.sonar.iac.kubernetes.plugin.filesystem.DefaultFileSystemProvider;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
@@ -196,7 +197,7 @@ class HelmFileSystemTest {
     var helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     addToFilesystem(context, helmTemplate);
 
-    var templateInputFileContext = new InputFileContext(context, helmTemplate);
+    var templateInputFileContext = new InputFileContext(context, helmTemplate, IacLanguage.KUBERNETES);
     var inputFiles = Map.of(chartPath.toAbsolutePath().toUri().toString(), "",
       helmTemplate.uri().toString(), "");
     var sonarLintFileListener = mock(SonarLintFileListener.class);
@@ -215,7 +216,7 @@ class HelmFileSystemTest {
     var helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     addToFilesystem(context, helmTemplate);
 
-    var templateInputFileContext = new InputFileContext(context, helmTemplate);
+    var templateInputFileContext = new InputFileContext(context, helmTemplate, IacLanguage.KUBERNETES);
     var inputFiles = Map.of(chartYaml.uri().toString(), "",
       helmTemplate.uri().toString(), "");
     var sonarLintFileListener = mock(SonarLintFileListener.class);

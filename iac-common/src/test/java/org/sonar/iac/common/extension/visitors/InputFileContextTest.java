@@ -38,6 +38,7 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +69,7 @@ class InputFileContextTest {
       .build();
 
     sensorContext = SensorContextTester.create(tempDir);
-    inputFileContext = new InputFileContext(sensorContext, inputFile);
+    inputFileContext = new InputFileContext(sensorContext, inputFile, IacLanguage.YAML);
   }
 
   @Test
@@ -223,7 +224,7 @@ class InputFileContextTest {
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata("\n\n\n\n\n\n\n\n\nLine 10 content\n\n\nLine 13 content")
       .build();
-    inputFileContext = new InputFileContext(sensorContext, inputFile);
+    inputFileContext = new InputFileContext(sensorContext, inputFile, IacLanguage.KUBERNETES);
 
     inputFileContext.reportIssue(rule1, textRange1, "message 1", List.of());
     inputFileContext.reportIssue(rule2, textRange2, "message 2", List.of());

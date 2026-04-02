@@ -23,6 +23,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
@@ -77,7 +78,7 @@ class DockerParserTest {
       unknown""";
     InputFile inputFile = mock(InputFile.class);
     Mockito.when(inputFile.toString()).thenReturn("filename.abc");
-    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile, IacLanguage.DOCKER);
     ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION, inputFileContext));
     assertThat(exception.getMessage()).isEqualTo("Cannot parse 'filename.abc'");
     assertThat(exception.getDetails()).startsWith("Parse error at line 3 column 1");

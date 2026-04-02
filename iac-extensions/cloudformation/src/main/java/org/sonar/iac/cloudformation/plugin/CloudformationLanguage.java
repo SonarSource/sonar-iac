@@ -17,11 +17,12 @@
 package org.sonar.iac.cloudformation.plugin;
 
 import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public class CloudformationLanguage extends AbstractLanguage {
 
-  public static final String KEY = "cloudformation";
-  public static final String NAME = "CloudFormation";
+  public static final String KEY = IacLanguage.CLOUDFORMATION.getKey();
+  public static final String NAME = IacLanguage.CLOUDFORMATION.getName();
 
   public CloudformationLanguage() {
     super(KEY, NAME);

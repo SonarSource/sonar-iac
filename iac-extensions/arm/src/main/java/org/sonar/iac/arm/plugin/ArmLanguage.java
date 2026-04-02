@@ -19,11 +19,12 @@ package org.sonar.iac.arm.plugin;
 import java.util.Arrays;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public class ArmLanguage extends AbstractLanguage {
 
-  public static final String KEY = "azureresourcemanager";
-  public static final String NAME = "Azure Resource Manager";
+  public static final String KEY = IacLanguage.ARM.getKey();
+  public static final String NAME = IacLanguage.ARM.getName();
 
   private final Configuration configuration;
 

@@ -32,6 +32,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.jvmframeworkconfig.tree.api.File;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
@@ -51,7 +52,7 @@ class JvmFrameworkConfigYamlParserTest {
 
   @BeforeEach
   void setup() {
-    inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile, IacLanguage.YAML);
     when(inputFile.filename()).thenReturn("foo.yaml");
   }
 

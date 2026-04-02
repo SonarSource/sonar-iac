@@ -22,6 +22,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.arm.plugin.ArmLanguage;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public class ArmTestInputFileContextCreator {
 
@@ -29,13 +30,13 @@ public class ArmTestInputFileContextCreator {
     InputFile inputFile = new TestInputFileBuilder("moduleKey", "file.json")
       .setLanguage("json")
       .build();
-    return new InputFileContext(SensorContextTester.create(new File(".")), inputFile);
+    return new InputFileContext(SensorContextTester.create(new File(".")), inputFile, IacLanguage.ARM);
   }
 
   public static InputFileContext bicepFileContext() {
     InputFile inputFile = new TestInputFileBuilder("moduleKey", "file.bicep")
       .setLanguage(ArmLanguage.KEY)
       .build();
-    return new InputFileContext(SensorContextTester.create(new File(".")), inputFile);
+    return new InputFileContext(SensorContextTester.create(new File(".")), inputFile, IacLanguage.ARM);
   }
 }

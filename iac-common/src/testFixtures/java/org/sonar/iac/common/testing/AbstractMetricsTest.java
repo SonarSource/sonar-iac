@@ -36,6 +36,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
+import org.sonar.iac.common.languages.IacLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -97,7 +98,7 @@ public abstract class AbstractMetricsTest {
 
   protected MetricsVisitor scan(InputFile inputFile) {
     this.inputFile = inputFile;
-    var inputFileContext = new InputFileContext(sensorContext, inputFile);
+    var inputFileContext = new InputFileContext(sensorContext, inputFile, IacLanguage.UNKNOWN);
     try {
       visitor.scan(inputFileContext, parser.parse(inputFile.contents(), inputFileContext));
     } catch (IOException e) {

@@ -21,8 +21,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.languages.IacLanguage;
 
-import static org.sonar.iac.common.languages.IacLanguages.KUBERNETES;
 import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
 
 public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
@@ -39,7 +39,7 @@ public class KubernetesOrHelmFilePredicate extends AbstractTimedFilePredicate {
   private static FilePredicate yamlK8sOrHelmFilePredicate(SensorContext sensorContext, boolean enablePredicateDebugLogs) {
     var predicates = sensorContext.fileSystem().predicates();
     return predicates.and(
-      predicates.hasLanguages(YAML_LANGUAGE_KEY, KUBERNETES.key()),
+      predicates.hasLanguages(YAML_LANGUAGE_KEY, IacLanguage.KUBERNETES.getKey()),
       predicates.or(
         new KubernetesFilePredicate(enablePredicateDebugLogs),
         new HelmFilePredicate(sensorContext)));

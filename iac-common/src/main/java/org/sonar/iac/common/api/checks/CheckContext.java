@@ -19,8 +19,16 @@ package org.sonar.iac.common.api.checks;
 import java.util.List;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public interface CheckContext {
+
+  /**
+   * Returns the language of the file currently being checked, or {@link IacLanguage#UNKNOWN} if unknown.
+   */
+  default IacLanguage language() {
+    return IacLanguage.UNKNOWN;
+  }
 
   /**
    * Report an issue with a primary location.

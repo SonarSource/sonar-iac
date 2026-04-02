@@ -29,6 +29,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
@@ -154,7 +155,7 @@ class ParseExceptionTest {
     Exception exception = mock(Exception.class);
     when(exception.getMessage()).thenReturn("message");
 
-    ParseException e = ParseException.toParseException("action", new InputFileContext(null, null), exception);
+    ParseException e = ParseException.toParseException("action", new InputFileContext(null, null, null), exception);
     assertThat(e)
       .hasMessage("Cannot action 'null'")
       .extracting(ParseException::getPosition)
@@ -186,7 +187,7 @@ class ParseExceptionTest {
     when(inputFile.toString()).thenReturn("TestFile");
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
     var sensorContext = createSensorContextFailFast();
-    inputFileContext = new InputFileContext(sensorContext, inputFile);
+    inputFileContext = new InputFileContext(sensorContext, inputFile, IacLanguage.UNKNOWN);
     when(inputFile.newPointer(anyInt(), anyInt())).thenThrow(IllegalArgumentException.class);
 
     var e = catchException(() -> ParseException.toParseException("action", inputFileContext, yamlEngineException));

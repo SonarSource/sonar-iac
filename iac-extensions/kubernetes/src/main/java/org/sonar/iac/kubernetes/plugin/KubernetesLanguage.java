@@ -17,11 +17,12 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public class KubernetesLanguage extends AbstractLanguage {
 
-  public static final String KEY = "kubernetes";
-  public static final String NAME = "Kubernetes";
+  public static final String KEY = IacLanguage.KUBERNETES.getKey();
+  public static final String NAME = IacLanguage.KUBERNETES.getName();
 
   public KubernetesLanguage() {
     super(KEY, NAME);

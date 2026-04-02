@@ -50,6 +50,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.helm.HelmEvaluator;
@@ -168,7 +169,7 @@ public class KubernetesVerifier {
       var inputFileContext = HelmVerifier.prepareHelmContext(templateFileName);
       return new Tuple<>(inputFileContext, HelmVerifier.commentsWithShiftedTextRangeVisitor(inputFileContext));
     } else {
-      var inputFileContext = new InputFileContext(SENSOR_CONTEXT, inputFile(templateFileName, BASE_DIR));
+      var inputFileContext = new InputFileContext(SENSOR_CONTEXT, inputFile(templateFileName, BASE_DIR), IacLanguage.KUBERNETES);
       return new Tuple<>(inputFileContext, Verifier.commentsVisitor());
     }
   }
@@ -229,7 +230,7 @@ public class KubernetesVerifier {
         if (KubernetesAnalyzer.hasHelmContent(additionalContent)) {
           additionalInputFileContext = new HelmInputFileContext(SENSOR_CONTEXT, additionalFile, null);
         } else {
-          additionalInputFileContext = new InputFileContext(SENSOR_CONTEXT, additionalFile);
+          additionalInputFileContext = new InputFileContext(SENSOR_CONTEXT, additionalFile, IacLanguage.KUBERNETES);
         }
         var tree = PARSER.parse(additionalContent, additionalInputFileContext);
         projectContextEnricherVisitor.scan(additionalInputFileContext, tree);

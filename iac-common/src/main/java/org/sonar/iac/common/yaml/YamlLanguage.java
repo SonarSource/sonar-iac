@@ -20,14 +20,15 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.iac.common.ConfigurationLanguage;
+import org.sonar.iac.common.languages.IacLanguage;
 
 /**
  * This class defines the YAML language.
  */
 public class YamlLanguage extends ConfigurationLanguage {
 
-  public static final String KEY = "yaml";
-  public static final String NAME = "YAML";
+  public static final String KEY = IacLanguage.YAML.getKey();
+  public static final String NAME = IacLanguage.YAML.getName();
   public static final String YAML_CATEGORY = "YAML";
   public static final String FILE_SUFFIXES_KEY = "sonar.yaml.file.suffixes";
   public static final String DEFAULT_FILE_SUFFIXES = ".yaml,.yml";

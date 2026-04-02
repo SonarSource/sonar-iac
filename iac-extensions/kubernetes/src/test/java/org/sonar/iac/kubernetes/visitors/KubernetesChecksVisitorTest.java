@@ -41,6 +41,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.filesystem.FileSystemUtils;
+import org.sonar.iac.common.languages.IacLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -186,7 +187,7 @@ class KubernetesChecksVisitorTest {
   void shouldNotCalculateLineShiftingIfNotHelmInputFileContext() {
     var inputFile = createInputFileMock("foo.yaml");
     var sensorContext = createSensorContextMock(inputFile);
-    var inputFileContext = spy(new InputFileContext(sensorContext, inputFile));
+    var inputFileContext = spy(new InputFileContext(sensorContext, inputFile, IacLanguage.KUBERNETES));
     doNothing().when(inputFileContext).reportIssue(any(), any(), any(), any());
     var customVisitor = prepareVisitorToRaise("message", List.of());
 

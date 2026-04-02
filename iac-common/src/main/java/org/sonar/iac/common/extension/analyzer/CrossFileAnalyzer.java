@@ -52,7 +52,7 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
     progressReportParser.start(filenames);
 
     List<InputFileContext> inputFileContextList = inputFiles.stream()
-      .map(inputFile -> createInputFileContext(sensorContext, inputFile))
+      .map(inputFile -> createInputFileContext(sensorContext, inputFile, languageName))
       .toList();
 
     // Parse files

@@ -27,6 +27,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,7 +97,7 @@ class FileSystemUtilsTest {
     Files.createFile(tmpDir.toPath().toRealPath().resolve("Chart.yaml"));
     FileUtils.forceMkdir(baseDir.resolve("templates/sub1/sub2/sub3/sub4").toFile());
     var helmTemplate = inputFile("templates/sub1/sub2/sub3/sub4/pod.yaml", baseDir, "", "kubernetes");
-    var templateInputFileContext = new InputFileContext(context, helmTemplate);
+    var templateInputFileContext = new InputFileContext(context, helmTemplate, IacLanguage.KUBERNETES);
 
     var result = retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem());
 

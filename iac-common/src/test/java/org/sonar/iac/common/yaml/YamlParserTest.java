@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +47,7 @@ class YamlParserTest {
 
   @BeforeEach
   void setup() {
-    inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile, IacLanguage.YAML);
     when(inputFile.filename()).thenReturn("foo.yaml");
   }
 

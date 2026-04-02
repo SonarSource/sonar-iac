@@ -20,14 +20,15 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.iac.common.ConfigurationLanguage;
+import org.sonar.iac.common.languages.IacLanguage;
 
 /**
  * This class defines the JSON language.
  */
 public class JsonLanguage extends ConfigurationLanguage {
 
-  public static final String KEY = "json";
-  public static final String NAME = "JSON";
+  public static final String KEY = IacLanguage.JSON.getKey();
+  public static final String NAME = IacLanguage.JSON.getName();
   public static final String JSON_CATEGORY = "JSON";
   public static final String FILE_SUFFIXES_KEY = "sonar.json.file.suffixes";
   public static final String DEFAULT_FILE_SUFFIXES = ".json";

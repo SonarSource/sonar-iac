@@ -35,6 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.languages.IacLanguage;
 
 import static org.sonar.iac.common.extension.IacSensor.isFailFast;
 
@@ -45,12 +46,14 @@ public class InputFileContext extends TreeContext {
 
   public final SensorContext sensorContext;
   public final InputFile inputFile;
+  public final IacLanguage language;
 
   private final Set<RaisedIssue> raisedIssues = new HashSet<>();
 
-  public InputFileContext(SensorContext sensorContext, InputFile inputFile) {
+  public InputFileContext(SensorContext sensorContext, InputFile inputFile, IacLanguage language) {
     this.sensorContext = sensorContext;
     this.inputFile = inputFile;
+    this.language = language;
   }
 
   public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
