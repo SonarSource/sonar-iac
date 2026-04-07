@@ -18,18 +18,12 @@ package org.sonar.iac.jvmframeworkconfig.checks.micronaut;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.checks.OptimizedListToPatternBuilder;
 import org.sonar.iac.jvmframeworkconfig.checks.common.AbstractHardcodedSecrets;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
-
-import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
 
 @Rule(key = "S6437")
 public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
@@ -124,14 +118,15 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "micronaut\\.security\\.ldap\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "context\\.manager-password",
     "micronaut\\.security\\.oauth2\\.clients\\." + SINGLE_NAMED_SEGMENT_PATTERN_NP + "client-secret",
     "datasources\\." + SINGLE_NAMED_SEGMENT_PATTERN + "password");
-  private static final Pattern PATTERN_PASSWORD_IN_CONNECTION_STRING = Pattern.compile("(?:;|^)AccountKey=(?<password>[a-zA-Z0-9+/=]{60,})(?:;|$)");
-  private static final Pattern PATTERN_PASSWORD_IN_URL = Pattern.compile("(?<protocol>[a-zA-Z]++)://(?<username>[^:@]++):(?<password>[^@]++)@.++");
+  // Intentionally letters-only scheme: Micronaut broker URIs (amqp://, mqtt://, tcp://) never use
+  // compound schemes like jdbc:postgresql://, which are handled by the base-class PATTERN_PASSWORD_IN_URL.
+  private static final Pattern PATTERN_PASSWORD_IN_SIMPLE_URL = Pattern.compile("[a-zA-Z]++://(?<username>[^:@]++):(?<password>[^@]++)@.++");
   private static final Map<String, Pattern> SENSITIVE_KEYS_WITH_PATTERN_VALUE = Map.of(
     "azure.credential.storage-shared-key.connection-string", PATTERN_PASSWORD_IN_CONNECTION_STRING,
-    "micronaut.jms.activemq.artemis.connection-string", PATTERN_PASSWORD_IN_URL,
-    "micronaut.jms.activemq.classic.connection-string", PATTERN_PASSWORD_IN_URL,
-    "mqtt.client.server-uri", PATTERN_PASSWORD_IN_URL,
-    "rabbitmq.uri", PATTERN_PASSWORD_IN_URL);
+    "micronaut.jms.activemq.artemis.connection-string", PATTERN_PASSWORD_IN_SIMPLE_URL,
+    "micronaut.jms.activemq.classic.connection-string", PATTERN_PASSWORD_IN_SIMPLE_URL,
+    "mqtt.client.server-uri", PATTERN_PASSWORD_IN_SIMPLE_URL,
+    "rabbitmq.uri", PATTERN_PASSWORD_IN_SIMPLE_URL);
   // Extra use case: combine both wildcard in the key and URL with password in value
   private static final Pattern PATTERN_SENSITIVE_RABBITMQ_PROPERTY = Pattern.compile("rabbitmq.servers.[^.]++.uri");
 
@@ -151,38 +146,16 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
   @Override
   protected void checkTupleWithAdditionalPatterns(CheckContext ctx, Tuple tuple) {
     var key = tuple.key().value().value();
-    if (SENSITIVE_KEYS_WITH_PATTERN_VALUE.containsKey(key)) {
-      var pattern = SENSITIVE_KEYS_WITH_PATTERN_VALUE.get(key);
+    var pattern = SENSITIVE_KEYS_WITH_PATTERN_VALUE.get(key);
+    if (pattern != null) {
       checkValueWithPattern(ctx, pattern, tuple);
-    } else {
-      var matcher = PATTERN_SENSITIVE_RABBITMQ_PROPERTY.matcher(key);
-      if (matcher.matches()) {
-        checkValueWithPattern(ctx, PATTERN_PASSWORD_IN_URL, tuple);
-      }
+      return;
+    }
+
+    var matcher = PATTERN_SENSITIVE_RABBITMQ_PROPERTY.matcher(key);
+    if (matcher.matches()) {
+      checkValueWithPattern(ctx, PATTERN_PASSWORD_IN_SIMPLE_URL, tuple);
     }
   }
 
-  private static void checkValueWithPattern(CheckContext ctx, Pattern pattern, Tuple tuple) {
-    var valueString = getStringValue(tuple);
-    if (valueString != null) {
-      var matcher = pattern.matcher(valueString);
-      if (matcher.find()) {
-        ctx.reportIssue(computePasswordTextRange(matcher, tuple.value()), MESSAGE);
-      }
-    }
-  }
-
-  private static TextRange computePasswordTextRange(Matcher matcher, HasTextRange hasTextRange) {
-    // If the value is split on multiple lines, we cannot recover the exact password location, so we just highlight the whole string
-    if (hasTextRange.textRange().start().line() != hasTextRange.textRange().end().line()) {
-      return hasTextRange.textRange();
-    }
-    int startPassword = matcher.start("password");
-    int endPassword = matcher.end("password");
-    int startLine = hasTextRange.textRange().start().line();
-    int startLineOffset = hasTextRange.textRange().start().lineOffset() + startPassword;
-    int endLine = hasTextRange.textRange().start().line();
-    int endLineOffset = hasTextRange.textRange().start().lineOffset() + endPassword;
-    return TextRanges.range(startLine, startLineOffset, endLine, endLineOffset);
-  }
 }

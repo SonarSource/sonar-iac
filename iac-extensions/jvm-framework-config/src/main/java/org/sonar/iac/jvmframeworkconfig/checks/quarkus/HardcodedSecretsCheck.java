@@ -16,7 +16,9 @@
  */
 package org.sonar.iac.jvmframeworkconfig.checks.quarkus;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.OptimizedListToPatternBuilder;
@@ -103,6 +105,21 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "quarkus\\.otel\\.exporter\\.otlp\\." + NAMED_SEGMENT_PATTERN_NP + "proxy-options\\.password",
     "quarkus\\.proxy\\." + NAMED_SEGMENT_PATTERN + "password");
 
+  private static final Map<String, Pattern> SENSITIVE_KEYS_WITH_PATTERN_VALUE = Map.of(
+    "quarkus.datasource.reactive.url", PATTERN_PASSWORD_IN_URL,
+    "quarkus.security.ldap.dir-context.url", PATTERN_PASSWORD_IN_URL,
+    "quarkus.mongodb.connection-string", PATTERN_PASSWORD_IN_URL,
+    "quarkus.rest-client.url", PATTERN_PASSWORD_IN_URL,
+    "quarkus.rest-client.uri", PATTERN_PASSWORD_IN_URL,
+    "quarkus.smallrye-graphql-client.url", PATTERN_PASSWORD_IN_URL);
+  private static final Pattern NAMED_JDBC_URL_PATTERN = Pattern.compile("quarkus\\.datasource\\." + NAMED_SEGMENT_PATTERN_NP + "jdbc\\.url");
+  private static final Map<Pattern, Pattern> SENSITIVE_KEY_PATTERNS_WITH_PATTERN_VALUE = Map.of(
+    Pattern.compile("quarkus\\.datasource\\." + NAMED_SEGMENT_PATTERN_NP + "reactive\\.url"), PATTERN_PASSWORD_IN_URL,
+    Pattern.compile("quarkus\\.mongodb\\." + NAMED_SEGMENT_PATTERN + "connection-string"), PATTERN_PASSWORD_IN_URL,
+    Pattern.compile("quarkus\\.rest-client\\." + NAMED_SEGMENT_PATTERN + "url"), PATTERN_PASSWORD_IN_URL,
+    Pattern.compile("quarkus\\.rest-client\\." + NAMED_SEGMENT_PATTERN + "uri"), PATTERN_PASSWORD_IN_URL,
+    Pattern.compile("quarkus\\.smallrye-graphql-client\\." + NAMED_SEGMENT_PATTERN + "url"), PATTERN_PASSWORD_IN_URL);
+
   @Override
   protected Set<String> sensitiveKeys() {
     return SENSITIVE_KEYS;
@@ -137,5 +154,29 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
       .build();
 
     return Set.of(optimizedLiterals, optimizedPatterns);
+  }
+
+  @Override
+  protected void checkTupleWithAdditionalPatterns(CheckContext ctx, Tuple tuple) {
+    var key = tuple.key().value().value();
+
+    // JDBC URLs support both embedded credentials (user:pass@host) and query-param (?password=value) formats
+    if ("quarkus.datasource.jdbc.url".equals(key) || NAMED_JDBC_URL_PATTERN.matcher(key).matches()) {
+      if (!checkValueWithPattern(ctx, PATTERN_PASSWORD_IN_URL, tuple)) {
+        checkValueWithPattern(ctx, PATTERN_PASSWORD_IN_JDBC_URL, tuple);
+      }
+      return;
+    }
+
+    var pattern = SENSITIVE_KEYS_WITH_PATTERN_VALUE.get(key);
+    if (pattern != null) {
+      checkValueWithPattern(ctx, pattern, tuple);
+      return;
+    }
+
+    SENSITIVE_KEY_PATTERNS_WITH_PATTERN_VALUE.entrySet().stream()
+      .filter(e -> e.getKey().matcher(key).matches())
+      .findFirst()
+      .ifPresent(e -> checkValueWithPattern(ctx, e.getValue(), tuple));
   }
 }
