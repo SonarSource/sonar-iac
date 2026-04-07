@@ -42,6 +42,7 @@ public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck
     "[a-zA-Z][a-zA-Z0-9+.-]*+(?::[a-zA-Z][a-zA-Z0-9+.-]*+)*+://(?<username>[^:@]++):(?<password>.+)@.++");
   // Handles JDBC URLs with password as a query parameter (e.g. ?password=secret or &password=secret).
   protected static final Pattern PATTERN_PASSWORD_IN_JDBC_URL = Pattern.compile("[?&]password=(?<password>[^&\\s]++)");
+  protected static final String PASSWORD_GROUP = "password";
 
   @Override
   protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
@@ -65,7 +66,7 @@ public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck
       return false;
     }
 
-    String password = matcher.group("password");
+    String password = matcher.group(PASSWORD_GROUP);
     if (password == null || CommonExcludedPatterns.isCommonExcludedPattern(password)) {
       return false;
     }
@@ -88,8 +89,8 @@ public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck
     if (hasTextRange.textRange().start().line() != hasTextRange.textRange().end().line()) {
       return hasTextRange.textRange();
     }
-    int startPassword = matcher.start("password");
-    int endPassword = matcher.end("password");
+    int startPassword = matcher.start(PASSWORD_GROUP);
+    int endPassword = matcher.end(PASSWORD_GROUP);
     int startLine = hasTextRange.textRange().start().line();
     int startLineOffset = hasTextRange.textRange().start().lineOffset() + startPassword;
     int endLine = hasTextRange.textRange().start().line();

@@ -27,6 +27,7 @@ import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 @Rule(key = "S6437")
 public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
+  private static final String QUARKUS_DATASOURCE = "quarkus\\.datasource\\.";
 
   // Sensitive keys and key patterns were scraped from https://quarkus.io/guides and its subpages.
   private static final Set<String> SENSITIVE_KEYS = Set.of(
@@ -81,29 +82,29 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
 
   private static final Set<String> SENSITIVE_KEY_PATTERNS = Set.of(
     // Core Datasource
-    "quarkus\\.datasource\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.flyway\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.liquibase\\." + NAMED_SEGMENT_PATTERN + "password",
+    QUARKUS_DATASOURCE + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
+    "quarkus\\.flyway\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
+    "quarkus\\.liquibase\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
 
     // OIDC Multi-Tenant & Named Clients (Compressed)
     "quarkus\\.oidc\\." + NAMED_SEGMENT_PATTERN + "secret",
     "quarkus\\.oidc-client\\." + NAMED_SEGMENT_PATTERN + "secret",
 
     // Infrastructure & DBs (Compressed)
-    "quarkus\\.hibernate-search-orm\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.hibernate-search-standalone\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.infinispan-client\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.mongodb\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.redis\\." + NAMED_SEGMENT_PATTERN + "password",
+    "quarkus\\.hibernate-search-orm\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
+    "quarkus\\.hibernate-search-standalone\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
+    "quarkus\\.infinispan-client\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
+    "quarkus\\.mongodb\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
+    "quarkus\\.redis\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
 
     // TLS Registry & KeyStores (Compressed)
-    "quarkus\\.tls\\." + NAMED_SEGMENT_PATTERN + "password",
+    "quarkus\\.tls\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
 
     // Utilities, Networking & Observability (Compressed)
-    "quarkus\\.grpc\\.clients\\." + NAMED_SEGMENT_PATTERN + "password",
-    "quarkus\\.mailer\\." + NAMED_SEGMENT_PATTERN + "password",
+    "quarkus\\.grpc\\.clients\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
+    "quarkus\\.mailer\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP,
     "quarkus\\.otel\\.exporter\\.otlp\\." + NAMED_SEGMENT_PATTERN_NP + "proxy-options\\.password",
-    "quarkus\\.proxy\\." + NAMED_SEGMENT_PATTERN + "password");
+    "quarkus\\.proxy\\." + NAMED_SEGMENT_PATTERN + PASSWORD_GROUP);
 
   private static final Map<String, Pattern> SENSITIVE_KEYS_WITH_PATTERN_VALUE = Map.of(
     "quarkus.datasource.reactive.url", PATTERN_PASSWORD_IN_URL,
@@ -112,9 +113,9 @@ public class HardcodedSecretsCheck extends AbstractHardcodedSecrets {
     "quarkus.rest-client.url", PATTERN_PASSWORD_IN_URL,
     "quarkus.rest-client.uri", PATTERN_PASSWORD_IN_URL,
     "quarkus.smallrye-graphql-client.url", PATTERN_PASSWORD_IN_URL);
-  private static final Pattern NAMED_JDBC_URL_PATTERN = Pattern.compile("quarkus\\.datasource\\." + NAMED_SEGMENT_PATTERN_NP + "jdbc\\.url");
+  private static final Pattern NAMED_JDBC_URL_PATTERN = Pattern.compile(QUARKUS_DATASOURCE + NAMED_SEGMENT_PATTERN_NP + "jdbc\\.url");
   private static final Map<Pattern, Pattern> SENSITIVE_KEY_PATTERNS_WITH_PATTERN_VALUE = Map.of(
-    Pattern.compile("quarkus\\.datasource\\." + NAMED_SEGMENT_PATTERN_NP + "reactive\\.url"), PATTERN_PASSWORD_IN_URL,
+    Pattern.compile(QUARKUS_DATASOURCE + NAMED_SEGMENT_PATTERN_NP + "reactive\\.url"), PATTERN_PASSWORD_IN_URL,
     Pattern.compile("quarkus\\.mongodb\\." + NAMED_SEGMENT_PATTERN + "connection-string"), PATTERN_PASSWORD_IN_URL,
     Pattern.compile("quarkus\\.rest-client\\." + NAMED_SEGMENT_PATTERN + "url"), PATTERN_PASSWORD_IN_URL,
     Pattern.compile("quarkus\\.rest-client\\." + NAMED_SEGMENT_PATTERN + "uri"), PATTERN_PASSWORD_IN_URL,
