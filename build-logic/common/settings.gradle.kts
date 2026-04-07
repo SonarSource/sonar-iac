@@ -1,12 +1,10 @@
-import java.net.URI
-
 /*
  * SonarSource Cloud Native Gradle Modules
- * Copyright (C) 2024-2026 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,6 +14,8 @@ import java.net.URI
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import java.net.URI
+
 pluginManagement {
     // Note: because of the way how settings are initialized, we cannot reuse functions defined later in this file.
     val artifactoryUsername = providers.environmentVariable("ARTIFACTORY_PRIVATE_USERNAME")
