@@ -1,10 +1,10 @@
 /*
  * SonarQube IaC Plugin
- * Copyright (C) 2021-2026 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,6 +17,7 @@
 import com.google.protobuf.gradle.id
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.sonarsource.cloudnative.gradle.convertLicenseHeaderToGoCommentStyle
 
 plugins {
     id("org.sonarsource.cloud-native.code-style-conventions")
@@ -122,6 +123,7 @@ if (isCi) {
             gofmt("go$goVersion")
             target("**/*.go")
             targetExclude("**/*.pb.go")
+            licenseHeader(convertLicenseHeaderToGoCommentStyle(rootProject.file("LICENSE_HEADER")), "package")
         }
     }
     tasks.named("check") {
