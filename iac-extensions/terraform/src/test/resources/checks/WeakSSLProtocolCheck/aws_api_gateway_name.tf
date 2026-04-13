@@ -25,5 +25,15 @@ resource "aws_api_gateway_domain_name" "strong_tls13_1_3" {
   security_policy = "SecurityPolicy_TLS13_1_3_2025_09"
 }
 
+resource "aws_api_gateway_domain_name" "strong_tls12_pfs" {
+  domain_name = "api.example.com"
+  security_policy = "SecurityPolicy_TLS12_PFS_2025_EDGE"
+}
+
+resource "aws_api_gateway_domain_name" "strong_tls12_2018" {
+  domain_name = "api.example.com"
+  security_policy = "SecurityPolicy_TLS12_2018_EDGE"
+}
+
 resource "random_resource" "example" {
 }

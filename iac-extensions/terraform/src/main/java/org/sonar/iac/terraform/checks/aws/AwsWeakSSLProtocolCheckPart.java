@@ -99,7 +99,7 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
   }
 
   private static boolean isStrongApiGatewayPolicy(String value) {
-    return value.equalsIgnoreCase(STRONG_SSL_PROTOCOL) || value.contains("TLS13");
+    return value.equalsIgnoreCase(STRONG_SSL_PROTOCOL) || value.contains("TLS13") || value.contains("TLS12");
   }
 
   private static boolean isWeakElbSslPolicy(Tree policy) {

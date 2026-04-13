@@ -40,5 +40,19 @@ resource "aws_apigatewayv2_domain_name" "strong_tls13_1_3" {
   }
 }
 
+resource "aws_apigatewayv2_domain_name" "strong_tls12_pfs" {
+  domain_name = "api.example.com"
+  domain_name_configuration {
+    security_policy = "SecurityPolicy_TLS12_PFS_2025_EDGE"
+  }
+}
+
+resource "aws_apigatewayv2_domain_name" "strong_tls12_2018" {
+  domain_name = "api.example.com"
+  domain_name_configuration {
+    security_policy = "SecurityPolicy_TLS12_2018_EDGE"
+  }
+}
+
 resource "random_resource" "example" {
 }
