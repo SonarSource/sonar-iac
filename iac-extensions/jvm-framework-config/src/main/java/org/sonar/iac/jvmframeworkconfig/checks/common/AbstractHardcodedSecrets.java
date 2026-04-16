@@ -29,7 +29,7 @@ import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
 
 public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck {
-  protected static final String MESSAGE = "Revoke and change this password, as it is compromised.";
+  protected static final String MESSAGE = "Revoke and change this secret, as it is compromised.";
   // Matches one or more dot-terminated named config segments (e.g. "mydb." or "tenant.region.").
   // Use the possessive variant NAMED_SEGMENT_PATTERN when the suffix is a plain word (e.g. "password", "secret") — no backtracking needed.
   protected static final String NAMED_SEGMENT_PATTERN = "([\\w-]++\\.)++";

@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.jvmframeworkconfig.plugin;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -28,6 +29,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -44,6 +46,7 @@ import org.sonar.iac.jvmframeworkconfig.checks.spring.SpringConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigParser;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigHighlightingVisitor;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigMetricsVisitor;
+import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigTelemetryVisitor;
 
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY;
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension.SENSOR_NAME;
@@ -53,6 +56,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   private final Checks<IacCheck> springConfigChecks;
   private final Checks<IacCheck> micronautConfigChecks;
   private final Checks<IacCheck> quarkusConfigChecks;
+  final JvmFrameworkConfigTelemetryVisitor telemetryVisitor;
 
   public JvmFrameworkConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
     CheckFactory checkFactory) {
@@ -77,6 +81,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     micronautConfigChecks.addAnnotatedChecks(MicronautConfigCheckList.checks());
     quarkusConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
     quarkusConfigChecks.addAnnotatedChecks(QuarkusConfigCheckList.checks());
+    telemetryVisitor = new JvmFrameworkConfigTelemetryVisitor();
   }
 
   @Override
@@ -116,13 +121,20 @@ public class JvmFrameworkConfigSensor extends IacSensor {
 
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-    return List.of(
-      new ChecksVisitor(commonConfigChecks, statistics),
-      new ChecksVisitor(springConfigChecks, statistics),
-      new ChecksVisitor(micronautConfigChecks, statistics),
-      new ChecksVisitor(quarkusConfigChecks, statistics),
-      new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry),
-      new JvmFrameworkConfigHighlightingVisitor());
+    var visitors = new ArrayList<TreeVisitor<InputFileContext>>();
+
+    visitors.add(new ChecksVisitor(commonConfigChecks, statistics));
+    visitors.add(new ChecksVisitor(springConfigChecks, statistics));
+    visitors.add(new ChecksVisitor(micronautConfigChecks, statistics));
+    visitors.add(new ChecksVisitor(quarkusConfigChecks, statistics));
+
+    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
+      visitors.add(telemetryVisitor);
+      visitors.add(new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
+      visitors.add(new JvmFrameworkConfigHighlightingVisitor());
+    }
+
+    return visitors;
   }
 
   @Override
@@ -147,5 +159,11 @@ public class JvmFrameworkConfigSensor extends IacSensor {
 
   public static boolean isPropertiesFile(InputFileContext inputFileContext) {
     return inputFileContext.inputFile.filename().endsWith(".properties");
+  }
+
+  @Override
+  protected void afterExecute(SensorContext context) {
+    telemetryVisitor.storeTelemetry(sensorTelemetry);
+    super.afterExecute(context);
   }
 }

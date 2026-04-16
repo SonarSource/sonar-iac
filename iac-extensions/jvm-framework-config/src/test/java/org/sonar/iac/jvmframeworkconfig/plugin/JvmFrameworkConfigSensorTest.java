@@ -120,6 +120,28 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldAddFrameworkTelemetryToSensorContext() {
+    analyze(sensor(checkFactory()), inputFile(PATH_PREFIX + "application.yaml",
+      // language=yaml
+      """
+        spring:
+          datasource:
+            url: jdbc:h2:mem:db
+        quarkus:
+          datasource:
+            username: sa
+        micronaut:
+          application:
+            name: myapp
+        """));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.java.spring", "1")
+      .containsEntry("iac.java.quarkus", "1")
+      .containsEntry("iac.java.micronaut", "1");
+  }
+
+  @Test
   void shouldReturnJvmFrameworkConfigDescriptor() {
     var descriptor = new DefaultSensorDescriptor();
     sensor(checkFactory()).describe(descriptor);
@@ -131,7 +153,13 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   @Test
   void shouldReturnVisitors() {
     var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
-    assertThat(sensor.visitors(context, null)).hasSize(6);
+    assertThat(sensor.visitors(context, null)).hasSize(7);
+  }
+
+  @Test
+  void shouldReturnFewerVisitorsInSonarLintContext() {
+    var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
+    assertThat(sensor.visitors(sonarLintContext, null)).hasSize(4);
   }
 
   @Test
