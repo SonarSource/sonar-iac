@@ -30,6 +30,7 @@ import org.sonarsource.cloudnative.gradle.goVersion
 import org.sonarsource.cloudnative.gradle.isCi
 
 plugins {
+    id("org.sonarsource.cloud-native.base")
     id("org.sonarsource.cloud-native.go-docker-environment")
 }
 

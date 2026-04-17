@@ -18,6 +18,7 @@ import com.diffplug.blowdryer.Blowdryer
 import org.sonarsource.cloudnative.gradle.CodeStyleConvention
 
 plugins {
+    id("org.sonarsource.cloud-native.base")
     id("com.diffplug.spotless")
 }
 

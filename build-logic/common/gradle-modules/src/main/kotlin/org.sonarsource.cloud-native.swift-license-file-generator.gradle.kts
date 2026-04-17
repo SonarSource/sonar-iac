@@ -24,6 +24,10 @@ import org.sonarsource.cloudnative.gradle.SwiftLicenseGenerationConfig
 import org.sonarsource.cloudnative.gradle.areDirectoriesEqual
 import org.sonarsource.cloudnative.gradle.copyDirectory
 
+plugins {
+    id("org.sonarsource.cloud-native.base")
+}
+
 /**
  * This plugin collects license files from third-party Swift runtime dependencies and places them
  * into a resources folder. It provides:

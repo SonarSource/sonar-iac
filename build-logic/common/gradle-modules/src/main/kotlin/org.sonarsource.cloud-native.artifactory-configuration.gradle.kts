@@ -17,6 +17,7 @@
 import org.sonarsource.cloudnative.gradle.ArtifactoryConfiguration
 
 plugins {
+    id("org.sonarsource.cloud-native.base")
     // `maven-publish` is required for the `artifactory` plugin (or the root project shoudn't be published)
     `maven-publish`
     id("com.jfrog.artifactory")

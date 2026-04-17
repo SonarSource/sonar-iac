@@ -24,6 +24,7 @@ import org.sonarsource.cloudnative.gradle.IntegrationTestExtension
 // Inspiration: https://docs.gradle.org/current/samples/sample_jvm_multi_project_with_additional_test_types.html
 
 plugins {
+    id("org.sonarsource.cloud-native.base")
     java
     id("org.sonarsource.cloud-native.java-conventions")
 }

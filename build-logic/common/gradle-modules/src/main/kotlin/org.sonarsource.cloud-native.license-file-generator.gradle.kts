@@ -24,6 +24,7 @@ import org.sonarsource.cloudnative.gradle.areFilesEqual
 import org.sonarsource.cloudnative.gradle.copyDirectory
 
 plugins {
+    id("org.sonarsource.cloud-native.base")
     id("com.github.jk1.dependency-license-report")
 }
 
@@ -68,7 +69,11 @@ tasks.register("validateLicenseFiles") {
     dependsOn("generateLicenseReport")
 
     doLast {
-        val thirdPartyLicenseEquality = areDirectoriesEqual(buildLicenseOutputToCopyDir.asFile, resourceThirdPartyDir.asFile, logger)
+        val noThirdPartyLicenses = !resourceThirdPartyDir.asFile.exists() && (buildLicenseOutputToCopyDir.asFile.list()?.size == 0)
+        // Projects that do not have third-party licenses cannot commit an empty third-party licenses folder.
+        // As there are no third-party licenses to bundle, validation can simply bypass the equality check.
+        val thirdPartyLicenseEquality =
+            noThirdPartyLicenses || areDirectoriesEqual(buildLicenseOutputToCopyDir.asFile, resourceThirdPartyDir.asFile, logger)
         val sonarLicenseFile = licenseGenerationConfig.projectLicenseFile.get()
         val sonarLicenseFileEquality =
             areFilesEqual(sonarLicenseFile, resourceLicenseDir.file("LICENSE.txt").asFile, File("LICENSE.txt"), logger)

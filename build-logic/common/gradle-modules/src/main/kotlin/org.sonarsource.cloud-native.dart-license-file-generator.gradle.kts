@@ -25,6 +25,10 @@ import org.sonarsource.cloudnative.gradle.DartLicenseGenerationConfig
 import org.sonarsource.cloudnative.gradle.areDirectoriesEqual
 import org.sonarsource.cloudnative.gradle.copyDirectory
 
+plugins {
+    id("org.sonarsource.cloud-native.base")
+}
+
 /**
  * This plugin collects license files from third-party Dart runtime dependencies and places them
  * into a resources folder. It provides:

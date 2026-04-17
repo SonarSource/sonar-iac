@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 plugins {
+    id("org.sonarsource.cloud-native.base")
     id("org.sonarsource.cloud-native.java-conventions")
     id("org.sonarsource.cloud-native.code-style-conventions")
     id("org.sonarsource.cloud-native.publishing-configuration")

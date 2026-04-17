@@ -25,6 +25,10 @@ import org.sonarsource.cloudnative.gradle.goLangCiLintVersion
 import org.sonarsource.cloudnative.gradle.goVersion
 import org.sonarsource.cloudnative.gradle.isCi
 
+plugins {
+    id("org.sonarsource.cloud-native.base")
+}
+
 val dockerExecutable = findExecutable("docker")
 
 val goBuildExtension = extensions.findByType<GoBuild>() ?: extensions.create<GoBuild>("goBuild")

@@ -28,3 +28,9 @@ Desktop.ini
 *.ipr
 .idea/
 .run/
+
+# ---- Eclipse
+bin/
+.classpath
+.project
+.settings

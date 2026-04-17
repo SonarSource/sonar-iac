@@ -19,6 +19,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 
 plugins {
+    id("org.sonarsource.cloud-native.base")
     `java-library`
     jacoco
 }

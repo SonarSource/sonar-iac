@@ -20,6 +20,7 @@ import org.sonarsource.cloudnative.gradle.PublishingConfiguration
 import org.sonarsource.cloudnative.gradle.signingCondition
 
 plugins {
+    id("org.sonarsource.cloud-native.base")
     signing
     `maven-publish`
     // Connection to artifactory is configured from the root project; applying it here enables publishing of this project

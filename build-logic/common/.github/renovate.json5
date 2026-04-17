@@ -56,6 +56,5 @@
       ],
       "allowedVersions": "<4.1" // Develocity plugin >=4.1 requires Develocity Server >=2025.2
     }
-  ],
-  "reviewers": ["team:security-cloud-squad"]
+  ]
 }

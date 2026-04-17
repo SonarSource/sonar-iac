@@ -25,6 +25,10 @@ import org.sonarsource.cloudnative.gradle.GoLicenseGenerationConfig
 import org.sonarsource.cloudnative.gradle.areDirectoriesEqual
 import org.sonarsource.cloudnative.gradle.copyDirectory
 
+plugins {
+    id("org.sonarsource.cloud-native.base")
+}
+
 /**
  * This plugin is used for generating license files for third-party GO runtime-dependencies into the resources folder.
  * It provides a validation task to ensure that the license files in the resource folder are up-to-date.
