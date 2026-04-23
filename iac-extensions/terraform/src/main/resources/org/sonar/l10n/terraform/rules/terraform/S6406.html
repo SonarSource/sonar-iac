@@ -1,59 +1,23 @@
-<p>Excessive granting of GCP IAM permissions can allow attackers to exploit an organization’s cloud resources with malicious intent.</p>
-<p>To prevent improper creation or deletion of resources after an account is compromised, proactive measures include both following GCP Security
-Insights and ensuring custom roles contain as few privileges as possible.</p>
-<p>After gaining a foothold in the target infrastructure, sophisticated attacks typically consist of two major parts.
-  <br>
-  First, attackers must deploy new resources to carry out their malicious intent. To guard against this, operations teams must control what
-  unexpectedly appears in the infrastructure, such as what is:</p>
-<ul>
-  <li>added</li>
-  <li>written down</li>
-  <li>updated</li>
-  <li>started</li>
-  <li>appended</li>
-  <li>applied</li>
-  <li>accessed.</li>
-</ul>
-<p>Once the malicious intent is executed, attackers must avoid detection at all costs.
-  <br>
-  To counter attackers' attempts to remove their fingerprints, operations teams must control what unexpectedly disappears from the infrastructure,
-  such as what is:</p>
-<ul>
-  <li>stopped</li>
-  <li>disabled</li>
-  <li>canceled</li>
-  <li>deleted</li>
-  <li>destroyed</li>
-  <li>detached</li>
-  <li>disconnected</li>
-  <li>suspended</li>
-  <li>rejected</li>
-  <li>removed.</li>
-</ul>
-<p>For operations teams to be resilient in this scenario, their organization must apply both:</p>
-<ul>
-  <li>Detection security: log these actions to better detect malicious actions.</li>
-  <li>Preventive security: review and limit granted permissions.</li>
-</ul>
-<p>This rule raises an issue when a custom role grants a number of sensitive permissions (read-write or destructive permission) that is greater than a
-given parameter.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This custom role will be mostly used for read-only purposes.</li>
-  <li>Compliance policies require read-only access.</li>
-</ul>
-<p>There is a risk if you answered yes to any of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>To reduce the risks associated with this role after a compromise:</p>
-<ul>
-  <li>Reduce the list of permissions to grant only those that are actually needed.</li>
-  <li>Favor read-only over read-write.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
-<p>This custom role grants more than 5 sensitive permissions:</p>
-<pre>
+<p>GCP IAM custom roles should not grant excessive sensitive permissions to reduce the potential impact of a compromised account.</p>
+<h2>Why is this an issue?</h2>
+<p>Granting excessive sensitive permissions in a GCP IAM custom role increases the potential impact of a compromised account. Sensitive permissions
+include read-write and destructive operations such as creating, modifying, deleting, disabling, or canceling resources. When an account is
+compromised, attackers use these permissions to deploy malicious resources or remove evidence of their activity. This rule raises an issue when a
+custom role grants more than a configurable number of sensitive permissions.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unauthorized access and resource manipulation</h4>
+<p>If a GCP account with excessive sensitive permissions is compromised, an attacker can create, modify, or delete resources across the affected
+projects. This can lead to deployment of malicious infrastructure, data exfiltration, disruption of services, and removal of audit evidence.</p>
+<h2>How to fix it</h2>
+<p>Reduce the permissions granted by the custom role to only those that are strictly necessary. Prefer read-only over read-write permissions, and
+avoid granting destructive permissions unless required.</p>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the custom role grants more than 5 sensitive permissions, including destructive operations such as
+deleting projects and setting IAM policies.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "google_project_iam_custom_role" "example" {
-  permissions = [ # Sensitive
+  permissions = [ # Noncompliant
     "resourcemanager.projects.create", # Sensitive permission
     "resourcemanager.projects.delete", # Sensitive permission
     "resourcemanager.projects.get",
@@ -68,26 +32,30 @@ resource "google_project_iam_custom_role" "example" {
   ]
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>This custom role grants less than 5 sensitive permissions:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "google_project_iam_custom_role" "example" {
   permissions = [
     "resourcemanager.projects.get",
     "resourcemanager.projects.list",
-    "run.services.create",
-    "run.services.delete",
+    "run.services.create", # Sensitive permission
+    "run.services.delete", # Sensitive permission
     "run.services.get",
     "run.services.getIamPolicy",
     "run.services.list",
-    "run.services.update",
+    "run.services.update",  # Sensitive permission
   ]
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li><a href="https://cloud.google.com/iam/docs/recommender-overview">GCP Docs</a> - Enforce least privilege with role recommendations</li>
-  <li><a href="https://cloud.google.com/iam/docs/manage-policy-insights">GCP Docs</a> - Security Insights</li>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+  <li><a href="https://cloud.google.com/iam/docs/recommender-overview">Google Cloud Documentation</a> - Enforce least privilege with role
+  recommendations</li>
+  <li><a href="https://cloud.google.com/iam/docs/manage-policy-insights">Google Cloud Documentation</a> - Security Insights</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>
 

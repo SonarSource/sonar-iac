@@ -1,6 +1,6 @@
 {
-  "title": "Using host operating system namespaces is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Containers should not share the host operating system namespaces",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -14,12 +14,14 @@
   },
   "tags": [
     "docker",
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6431",
   "sqKey": "S6431",
   "scope": "Main",
+  "quickfix": "unknown",
   "securityStandards": {
     "CWE": [
       653

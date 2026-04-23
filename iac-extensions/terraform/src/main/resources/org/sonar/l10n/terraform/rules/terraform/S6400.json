@@ -1,6 +1,6 @@
 {
-  "title": "Granting highly privileged GCP resource rights is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "GCP IAM policies should not grant highly privileged roles",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,8 +13,9 @@
     "constantCost": "5min"
   },
   "tags": [
-    "gcp",
-    "cwe"
+    "cwe",
+    "former-hotspot",
+    "gcp"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6400",

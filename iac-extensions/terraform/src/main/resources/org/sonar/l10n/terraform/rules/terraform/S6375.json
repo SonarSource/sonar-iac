@@ -1,6 +1,6 @@
 {
-  "title": "Assigning high privileges Azure Active Directory built-in roles is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "High-privilege Microsoft Entra ID built-in roles should not be assigned",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,7 +13,8 @@
     "constantCost": "30min"
   },
   "tags": [
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6375",

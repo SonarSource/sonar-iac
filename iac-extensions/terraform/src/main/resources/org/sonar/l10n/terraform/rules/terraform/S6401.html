@@ -1,32 +1,40 @@
-<p>The likelihood of security incidents increases when cryptographic keys are used for a long time. Thus, to strengthen the data protection it’s
-recommended to rotate the symmetric keys created with the Google Cloud Key Management Service (KMS) automatically and periodically. Note that it’s not
-possible in GCP KMS to rotate asymmetric keys automatically.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The cryptographic key is a symmetric key.</li>
-  <li>The application requires compliance with some security standards like PCI-DSS.</li>
-</ul>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to rotate keys automatically and regularly. The shorter the key period, the less data can be decrypted by an attacker if a key is
-compromised. So the key rotation period usually depends on the amount of data encrypted with a key or other requirements such as compliance with
-security standards. In general, a period of time of 90 days can be used.</p>
-<h2>Sensitive Code Example</h2>
-<pre>
-resource "google_kms_crypto_key" "noncompliant-key" { # Sensitive: no rotation period is defined
-  name            = "example"
-  key_ring        = google_kms_key_ring.keyring.id
+<p>Cryptographic keys should be rotated periodically to limit the impact of a compromised key.</p>
+<h2>Why is this an issue?</h2>
+<p>The likelihood of security incidents increases when cryptographic keys are used for a long time without rotation. Symmetric keys created with the
+Google Cloud Key Management Service (KMS) support automatic rotation, which limits the amount of data that can be decrypted by an attacker if a key is
+compromised. This rule raises an issue when a <code>google_kms_crypto_key</code> resource is created without a <code>rotation_period</code>
+configured. Note that it is not possible in GCP KMS to rotate asymmetric keys automatically.</p>
+<h3>What is the potential impact?</h3>
+<h4>Exposure of sensitive data</h4>
+<p>If a symmetric key is compromised and no rotation period is configured, all data encrypted with that key remains vulnerable indefinitely. An
+attacker who obtains the key material can decrypt historical data until the key is manually revoked or replaced. Automatic rotation limits this
+exposure to only the data encrypted during the current key version’s validity period.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the KMS crypto key is created without a <code>rotation_period</code>, meaning the key is never
+automatically rotated.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "google_kms_crypto_key" "example-key" { # Noncompliant: no rotation period is defined
+  name     = "example"
+  key_ring = google_kms_key_ring.keyring.id
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
-resource "google_kms_crypto_key" "compliant-key" {
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+resource "google_kms_crypto_key" "example-key" {
   name            = "example"
   key_ring        = google_kms_key_ring.keyring.id
   rotation_period = "7776000s" # 90 days
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li><a href="https://cloud.google.com/kms/docs/key-rotation">GCP Documentation</a> - KMS Key rotation</li>
+  <li><a href="https://cloud.google.com/kms/docs/key-rotation">Google Cloud Documentation</a> - KMS Key rotation</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/324">CWE-324 - Use of a Key Past its Expiration Date</a></li>
 </ul>
 

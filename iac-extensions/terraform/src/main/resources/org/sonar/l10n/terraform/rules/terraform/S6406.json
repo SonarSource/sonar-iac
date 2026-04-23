@@ -1,6 +1,6 @@
 {
-  "title": "Excessive granting of GCP IAM permissions is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "GCP IAM custom roles should not grant excessive sensitive permissions",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,8 +13,9 @@
     "constantCost": "15min"
   },
   "tags": [
-    "gcp",
-    "cwe"
+    "cwe",
+    "former-hotspot",
+    "gcp"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6406",

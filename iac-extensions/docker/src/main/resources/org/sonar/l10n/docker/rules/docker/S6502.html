@@ -1,48 +1,43 @@
-<p>Disabling builder sandboxes can lead to unauthorized access of the host system by malicious programs.</p>
+<p>Disabling the builder sandbox removes the default capability restrictions placed on RUN statements, potentially allowing malicious programs to
+escape the container and access the host system.</p>
+<h2>Why is this an issue?</h2>
 <p>By default, programs executed by a <code>RUN</code> statement use only a subset of <a
-href="https://man7.org/linux/man-pages/man7/capabilities.7.html">capabilities</a> which are considered safe: this is called <code>sandbox</code>
-mode.</p>
-<p>If you disable the sandbox with the <code>--security=insecure</code> option, the executed command can use the full set of Linux capabilities.
-  <br>
-  This can lead to a container escape. For example, an attacker with the <code>SYS_ADMIN</code> capability is able to mount devices from the host
-  system.</p>
-<p>This vulnerability allows an attacker who controls the behavior of the ran command to access the host system, break out of the container and
-penetrate the infrastructure.</p>
-<p>After a successful intrusion, the underlying systems are exposed to:</p>
-<ul>
-  <li>theft of intellectual property and/or personal data</li>
-  <li>extortion</li>
-  <li>denial of service</li>
-</ul>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The program is controlled by an external entity.</li>
-  <li>The program is part of a supply chain that could be a victim of a supply chain attack.</li>
-</ul>
-<p>There is a risk if you answered yes to either of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li>Whenever possible, the sandbox should stay enabled to reduce unnecessary risk.</li>
-  <li>If elevated capabilities are absolutely necessary, make sure to verify the integrity of the program before executing it.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
-<pre>
+href="https://man7.org/linux/man-pages/man7/capabilities.7.html">capabilities</a> which are considered safe: this is called <code>sandbox</code> mode.
+Using the <code>--security=insecure</code> option disables this sandbox and allows the executed command to use the full set of Linux capabilities.</p>
+<h3>What is the potential impact?</h3>
+<h4>Container escape</h4>
+<p>An attacker who controls the behavior of the executed command can use unrestricted capabilities to break out of the container. For example, a
+program with access to <code>SYS_ADMIN</code> can mount devices from the host system.</p>
+<h4>Infrastructure compromise</h4>
+<p>After a successful container escape, the attacker gains access to the host system and can compromise the broader infrastructure, leading to theft
+of intellectual property or personal data, extortion, or denial of service.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>The following code example is vulnerable because the <code>--security=insecure</code> option disables the default sandbox, granting the executed
+program the full set of Linux capabilities.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 # syntax=docker/dockerfile:1-labs
 FROM ubuntu:22.04
-# Sensitive
-RUN --security=insecure ./example.sh
+RUN --security=insecure ./example.sh # Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 # syntax=docker/dockerfile:1-labs
 FROM ubuntu:22.04
-RUN ./example.sh
 RUN --security=sandbox ./example.sh
 </pre>
-<h2>See</h2>
+<p>If elevated capabilities are absolutely necessary for the build to succeed, verify the integrity of the program before executing it with
+<code>--security=insecure</code>. For example, validate the program’s checksum or cryptographic signature in a preceding <code>RUN</code> statement
+before allowing the insecure execution.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://docs.docker.com/reference/dockerfile#run---security">Dockerfile reference</a> - RUN</li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/250">CWE-250 - Execution with Unnecessary Privileges</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
-  <li><a href="https://docs.docker.com/engine/reference/builder/#run---security">Dockerfile reference</a> - RUN</li>
 </ul>
 

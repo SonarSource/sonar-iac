@@ -1,65 +1,29 @@
-<p>Granting public access to GCP resources may reduce an organization’s ability to protect itself against attacks or theft of its GCP resources.
-  <br>
-  Security incidents associated with misuse of public access include disruption of critical functions, data theft, and additional costs due to
-  resource overload.</p>
-<p>To be as prepared as possible in the event of a security incident, authentication combined with fine-grained permissions helps maintain the
-principle of defense in depth and trace incidents back to the perpetrators.</p>
-<p>GCP also provides the ability to grant access to a large group of people:</p>
-<ul>
-  <li>If public access is granted to all Google users, the impact of a data theft is the same as if public access is granted to all Internet
-  users.</li>
-  <li>If access is granted to a large Google group, the impact of a data theft is limited based on the size of the group.</li>
-</ul>
-<p>The only thing that changes in these cases is the ability to track user access in the event of an incident.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This GCP resource is essential to the information system infrastructure.</li>
-  <li>This GCP resource is essential to mission-critical functions.</li>
-  <li>This GCP resource stores or processes sensitive data.</li>
-  <li>Compliance policies require that access to this resource be authenticated.</li>
-</ul>
-<p>There is a risk if you answered yes to any of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Explicitly set access to this resource or function as private.</p>
-<h2>Sensitive Code Example</h2>
-<p>For IAM resources:</p>
-<pre>
+<p>GCP resources should not be publicly accessible to all users or all authenticated users.</p>
+<h2>Why is this an issue?</h2>
+<p>Granting public access to GCP resources using <code>allUsers</code> or <code>allAuthenticatedUsers</code> allows anyone on the internet to access
+them. This removes the ability to enforce authentication, fine-grained permissions, or audit who is accessing the resource. This rule detects IAM
+bindings, ACL configurations, and container cluster network settings that grant access to all users or all authenticated users.</p>
+<h3>What is the potential impact?</h3>
+<p>Security incidents involving publicly accessible resources can result in data theft, disruption of critical functions, and unexpected costs due to
+resource overload. When access is granted to <code>allUsers</code> or <code>allAuthenticatedUsers</code>, the ability to trace and attribute access in
+the event of an incident is severely limited.</p>
+<h2>How to fix it in GCP Identity and Access Management</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "google_cloudfunctions_function_iam_binding" "example" {
   members = [
-    "allUsers",              # Sensitive
-    "allAuthenticatedUsers", # Sensitive
+    "allUsers",              # Noncompliant
+    "allAuthenticatedUsers", # Noncompliant
   ]
 }
 
 resource "google_cloudfunctions_function_iam_member" "example" {
-  member = "allAuthenticatedUsers" # Sensitive
+  member = "allAuthenticatedUsers" # Noncompliant
 }
 </pre>
-<p>For ACL resources:</p>
-<pre>
-resource "google_storage_bucket_access_control" "example" {
-  entity = "allUsers" # Sensitive
-}
-
-resource "google_storage_bucket_acl" "example" {
-  role_entity = [
-    "READER:allUsers",              # Sensitive
-    "READER:allAuthenticatedUsers", # Sensitive
-  ]
-}
-</pre>
-<p>For container clusters:</p>
-<pre>
-resource "google_container_cluster" "example" {
-  private_cluster_config {
-    enable_private_nodes    = false # Sensitive
-    enable_private_endpoint = false # Sensitive
-  }
-}
-</pre>
-<h2>Compliant Solution</h2>
-<p>For IAM resources:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "google_cloudfunctions_function_iam_binding" "example" {
   members = [
     "serviceAccount:${google_service_account.example.email}",
@@ -68,13 +32,28 @@ resource "google_cloudfunctions_function_iam_binding" "example" {
 }
 
 resource "google_cloudfunctions_function_iam_member" "example" {
-  member = "user:${var.example_user}" # Sensitive
+  member = "user:${var.example_user}"
 }
 </pre>
-<p>For ACL resources:</p>
-<pre>
+<h2>How to fix it in GCP Cloud Storage</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 resource "google_storage_bucket_access_control" "example" {
-  entity = "user-${var.example_user]"
+  entity = "allUsers" # Noncompliant
+}
+
+resource "google_storage_bucket_acl" "example" {
+  role_entity = [
+    "READER:allUsers",              # Noncompliant
+    "READER:allAuthenticatedUsers", # Noncompliant
+  ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource "google_storage_bucket_access_control" "example" {
+  entity = "user-${var.example_user}"
 }
 
 resource "google_storage_bucket_acl" "example" {
@@ -84,8 +63,19 @@ resource "google_storage_bucket_acl" "example" {
   ]
 }
 </pre>
-<p>For container clusters:</p>
-<pre>
+<h2>How to fix it in GCP Kubernetes Engine</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+resource "google_container_cluster" "example" {
+  private_cluster_config {
+    enable_private_nodes    = false # Noncompliant
+    enable_private_endpoint = false # Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="3" data-diff-type="compliant">
 resource "google_container_cluster" "example" {
   private_cluster_config {
     enable_private_nodes    = true
@@ -93,9 +83,10 @@ resource "google_container_cluster" "example" {
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Standards</h3>
 <ul>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a></li>
   <li>STIG Viewer - <a href="https://stigviewer.com/stigs/application_security_and_development/2024-12-06/finding/V-222620">Application Security and
   Development: V-222620</a> - Application web servers must be on a separate network segment from the application and database servers.</li>
 </ul>

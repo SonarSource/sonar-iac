@@ -1,18 +1,16 @@
-<p>Reducing the backup retention duration can reduce an organization’s ability to re-establish service in case of a security incident.</p>
-<p>Data backups allow to overcome corruption or unavailability of data by recovering as efficiently as possible from a security incident.</p>
-<p>Backup retention duration, coverage, and backup locations are essential criteria regarding functional continuity.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This component is essential for the information system infrastructure.</li>
-  <li>This component is essential for mission-critical functions.</li>
-  <li>Compliance policies require this component to be backed up for a specific amount of time.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Increase the backup retention period to an amount of time sufficient enough to be able to restore service in case of an incident.</p>
-<h2>Sensitive Code Example</h2>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-backup?pivots=deployment-language-arm-template">Azure App
-Service</a>:</p>
+<p>A short backup retention period can limit an organization’s ability to recover data after a security incident.</p>
+<h2>Why is this an issue?</h2>
+<p>Backups allow an organization to recover data after corruption, deletion, or a security incident. When the backup retention period is too short, no
+usable backup may be available at the time recovery is needed.</p>
+<h3>What is the potential impact?</h3>
+<h4>Insufficient recovery window</h4>
+<p>If data is corrupted or deleted and the issue goes undetected until after the retention period expires, the organization may be unable to restore
+the affected data. This can result in permanent data loss, extended service outages, and failure to meet regulatory or compliance obligations.</p>
+<h2>How to fix it in Azure App Service</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the backup retention period is set too short, leaving insufficient time to detect and recover from a
+security incident or data loss event.</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: 'webApp'
@@ -26,7 +24,7 @@ resource backup 'config@2022-03-01' = {
       frequencyInterval: 1
       frequencyUnit: 'Day'
       keepAtLeastOneBackup: true
-      retentionPeriodInDays: 2  // Sensitive
+      retentionPeriodInDays: 5  // Noncompliant
     }
   }
 }
@@ -39,7 +37,7 @@ resource backup 'config@2022-03-01' = {
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-03-01",
-      "name": "webApp",
+      "name": "webApp"
     },
     {
       "type": "Microsoft.Web/sites/config",
@@ -50,7 +48,7 @@ resource backup 'config@2022-03-01' = {
           "frequencyInterval": 1,
           "frequencyUnit": "Day",
           "keepAtLeastOneBackup": true,
-          "retentionPeriodInDays": 2
+          "retentionPeriodInDays": 5
         }
       },
       "dependsOn": [
@@ -60,98 +58,7 @@ resource backup 'config@2022-03-01' = {
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts?pivots=deployment-language-arm-template">Azure
-Cosmos DB</a> accounts:</p>
-<pre data-diff-id="3" data-diff-type="noncompliant">
-resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
-    properties: {
-        backupPolicy: {
-            type: 'Periodic'
-            periodicModeProperties: {
-                backupIntervalInMinutes: 1440
-                backupRetentionIntervalInHours: 8  // Sensitive
-            }
-        }
-    }
-}
-</pre>
-<pre data-diff-id="4" data-diff-type="noncompliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "name": "example",
-      "type": "Microsoft.DocumentDB/databaseAccounts",
-      "apiVersion": "2023-04-15",
-      "properties": {
-        "backupPolicy": {
-          "type": "Periodic",
-          "periodicModeProperties": {
-            "backupIntervalInMinutes": 1440,
-            "backupRetentionIntervalInHours": 8
-          }
-        }
-      }
-    }
-  ]
-}
-</pre>
-<p>For <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults/backuppolicies?pivots=deployment-language-arm-template">Azure
-Backup</a> vault policies:</p>
-<pre data-diff-id="5" data-diff-type="noncompliant">
-resource vault 'Microsoft.RecoveryServices/vaults@2023-01-01' = {
-    name: 'testVault'
-
-    resource backupPolicy 'backupPolicies@2023-01-01' = {
-        name: 'backupPolicy'
-        properties: {
-            backupManagementType: 'AzureSql'
-            retentionPolicy: {
-                retentionPolicyType: 'SimpleRetentionPolicy'
-                retentionDuration: {
-                    count: 2  // Sensitive
-                    durationType: 'Days'
-                }
-            }
-        }
-    }
-}
-</pre>
-<pre data-diff-id="6" data-diff-type="noncompliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.RecoveryServices/vaults",
-      "apiVersion": "2023-01-01",
-      "name": "testVault",
-      "resources": [
-        {
-          "type": "backupPolicies",
-          "apiVersion": "2023-01-01",
-          "name": "testVault/backupPolicy",
-          "properties": {
-            "backupManagementType": "AzureSql",
-            "retentionPolicy": {
-              "retentionPolicyType": "SimpleRetentionPolicy",
-              "retentionDuration": {
-                "count": 2,
-                "durationType": "Days"
-              }
-            }
-          }
-        }
-      ]
-    }
-  ]
-}
-</pre>
-<h2>Compliant Solution</h2>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-backup?pivots=deployment-language-arm-template">Azure App
-Service</a>:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: 'webApp'
@@ -165,7 +72,7 @@ resource backup 'config@2022-03-01' = {
       frequencyInterval: 1
       frequencyUnit: 'Day'
       keepAtLeastOneBackup: true
-      retentionPeriodInDays: 8
+      retentionPeriodInDays: 30
     }
   }
 }
@@ -178,7 +85,7 @@ resource backup 'config@2022-03-01' = {
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-03-01",
-      "name": "webApp",
+      "name": "webApp"
     },
     {
       "type": "Microsoft.Web/sites/config",
@@ -199,8 +106,47 @@ resource backup 'config@2022-03-01' = {
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts?pivots=deployment-language-arm-template">Azure
-Cosmos DB</a> accounts:</p>
+<h2>How to fix it in Azure Cosmos DB</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the backup retention period is set too short, leaving insufficient time to detect and recover from a
+security incident or data loss event.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
+    properties: {
+        backupPolicy: {
+            type: 'Periodic'
+            periodicModeProperties: {
+                backupIntervalInMinutes: 1440
+                backupRetentionIntervalInHours: 120  // Noncompliant
+            }
+        }
+    }
+}
+</pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "example",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 1440,
+            "backupRetentionIntervalInHours": 120
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="3" data-diff-type="compliant">
 resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
     properties: {
@@ -208,7 +154,7 @@ resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
             type: 'Periodic'
             periodicModeProperties: {
                 backupIntervalInMinutes: 1440
-                backupRetentionIntervalInHours: 192
+                backupRetentionIntervalInHours: 720
             }
         }
     }
@@ -236,9 +182,61 @@ resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
   ]
 }
 </pre>
-<p>For <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults/backuppolicies?pivots=deployment-language-arm-template">Azure
-Backup</a> vault policies:</p>
+<h2>How to fix it in Azure Backup</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the backup retention period is set too short, leaving insufficient time to detect and recover from a
+security incident or data loss event.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="5" data-diff-type="noncompliant">
+resource vault 'Microsoft.RecoveryServices/vaults@2023-01-01' = {
+    name: 'testVault'
+
+    resource backupPolicy 'backupPolicies@2023-01-01' = {
+        name: 'backupPolicy'
+        properties: {
+            backupManagementType: 'AzureSql'
+            retentionPolicy: {
+                retentionPolicyType: 'SimpleRetentionPolicy'
+                retentionDuration: {
+                    count: 5  // Noncompliant
+                    durationType: 'Days'
+                }
+            }
+        }
+    }
+}
+</pre>
+<pre data-diff-id="6" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2023-01-01",
+      "name": "testVault",
+      "resources": [
+        {
+          "type": "backupPolicies",
+          "apiVersion": "2023-01-01",
+          "name": "backupPolicy",
+          "properties": {
+            "backupManagementType": "AzureSql",
+            "retentionPolicy": {
+              "retentionPolicyType": "SimpleRetentionPolicy",
+              "retentionDuration": {
+                "count": 5,
+                "durationType": "Days"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="5" data-diff-type="compliant">
 resource vault 'Microsoft.RecoveryServices/vaults@2023-01-01' = {
     name: 'testVault'
@@ -250,7 +248,7 @@ resource vault 'Microsoft.RecoveryServices/vaults@2023-01-01' = {
             retentionPolicy: {
                 retentionPolicyType: 'SimpleRetentionPolicy'
                 retentionDuration: {
-                    count: 8
+                    count: 30
                     durationType: 'Days'
                 }
             }
@@ -271,7 +269,7 @@ resource vault 'Microsoft.RecoveryServices/vaults@2023-01-01' = {
         {
           "type": "backupPolicies",
           "apiVersion": "2023-01-01",
-          "name": "testVault/backupPolicy",
+          "name": "backupPolicy",
           "properties": {
             "backupManagementType": "AzureSql",
             "retentionPolicy": {
@@ -288,4 +286,14 @@ resource vault 'Microsoft.RecoveryServices/vaults@2023-01-01' = {
   ]
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-backup?pivots=deployment-language-arm-template">Azure App
+  Service</a> - Backup configuration resource</li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts?pivots=deployment-language-arm-template">Azure
+  Cosmos DB</a> - Database accounts</li>
+  <li><a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults/backuppolicies?pivots=deployment-language-arm-template">Azure Backup</a> - Vault backup policies</li>
+</ul>
 

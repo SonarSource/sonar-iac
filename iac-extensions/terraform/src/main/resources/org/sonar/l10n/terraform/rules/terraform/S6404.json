@@ -1,6 +1,6 @@
 {
-  "title": "Granting public access to GCP resources is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "GCP resources should not be publicly accessible",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -14,7 +14,8 @@
   },
   "tags": [
     "gcp",
-    "cwe-284"
+    "cwe-732",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6404",
@@ -22,7 +23,7 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      284
+      732
     ],
     "PCI DSS 3.2": [
       "6.5.8"

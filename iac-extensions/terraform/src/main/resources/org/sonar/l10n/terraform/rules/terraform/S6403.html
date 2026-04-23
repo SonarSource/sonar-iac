@@ -1,28 +1,17 @@
-<p>By default, GCP SQL instances offer encryption in transit, with support for TLS, but insecure connections are still accepted. On an unsecured
-network, such as a public network, the risk of traffic being intercepted is high. When the data isn’t encrypted, an attacker can intercept it and read
-confidential information.</p>
-<p>When creating a GCP SQL instance, a public IP address is automatically assigned to it and connections to the SQL instance from public networks can
-be authorized.</p>
-<p>TLS is automatically used when connecting to SQL instances through:</p>
-<ul>
-  <li>The <a href="https://cloud.google.com/sql/docs/mysql/connect-admin-proxy">Cloud SQL Auth proxy</a>.</li>
-  <li>The <a href="https://cloud.google.com/sql/docs/mysql/connect-overview#languages">Java Socket Library</a>.</li>
-  <li>The built-in mechanisms in the <a href="https://cloud.google.com/appengine/docs">App Engine</a> environments.</li>
-</ul>
-<h2>Ask Yourself Whether</h2>
-<p>Connections are not already automatically encrypted by GCP (eg: SQL Auth proxy) and</p>
-<ul>
-  <li>Connections to the SQL instance are performed on untrusted networks.</li>
-  <li>The data stored in the SQL instance is confidential.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to encrypt all connections to the SQL instance, whether using public or private IP addresses. However, since private networks can
-be considered trusted, requiring TLS in this situation is usually a lower priority task.</p>
-<h2>Sensitive Code Example</h2>
-<pre>
-resource "google_sql_database_instance" "example" { # Sensitive: tls is not required
-  name             = "noncompliant-master-instance"
+<p>GCP SQL instances should require TLS to protect data in transit.</p>
+<h2>Why is this an issue?</h2>
+<p>By default, GCP SQL instances accept both encrypted and unencrypted connections. On unsecured networks, such as public networks, unencrypted
+traffic can be intercepted by an attacker who can then read confidential data. This rule detects <code>google_sql_database_instance</code> resources
+that do not enforce <code>require_ssl = true</code> in their <code>ip_configuration</code> block.</p>
+<h3>What is the potential impact?</h3>
+<p>Unencrypted connections between clients and the SQL instance expose sensitive data to interception. An attacker on the same network can capture
+database traffic and read or modify confidential information in transit.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "google_sql_database_instance" "example" { # Noncompliant: TLS is not required
+  name             = "example-master-instance"
   database_version = "POSTGRES_11"
   region           = "us-central1"
 
@@ -31,10 +20,10 @@ resource "google_sql_database_instance" "example" { # Sensitive: tls is not requ
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "google_sql_database_instance" "example" {
-  name             = "compliant-master-instance"
+  name             = "example-master-instance"
   database_version = "POSTGRES_11"
   region           = "us-central1"
 
@@ -47,10 +36,20 @@ resource "google_sql_database_instance" "example" {
   }
 }
 </pre>
-<h2>See</h2>
+<h3>Pitfalls</h3>
+<p>Some connection methods automatically encrypt traffic without requiring <code>require_ssl = true</code>: the <a
+href="https://cloud.google.com/sql/docs/mysql/connect-admin-proxy">Cloud SQL Auth proxy</a>, the <a
+href="https://cloud.google.com/sql/docs/mysql/connect-overview#languages">Java Socket Library</a>, and built-in mechanisms in <a
+href="https://cloud.google.com/appengine/docs">App Engine</a> environments. Even when using these methods, enforcing <code>require_ssl = true</code>
+adds an extra layer of defense in depth by rejecting any unencrypted connection attempts that bypass these mechanisms.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://cloud.google.com/sql/docs/mysql/authorize-ssl">GCP Documentation</a> - Cloud SQL: Authorizing with SSL/TLS certificates</li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/311">CWE-311 - Missing Encryption of Sensitive Data</a></li>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/79">CWE-319 - Cleartext Transmission of Sensitive Information</a></li>
-  <li><a href="https://cloud.google.com/sql/docs/mysql/authorize-ssl">GCP Documentation</a> - Cloud SQL: Authorizing with SSL/TLS certificates</li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/319">CWE-319 - Cleartext Transmission of Sensitive Information</a></li>
 </ul>
 

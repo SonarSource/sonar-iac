@@ -1,18 +1,17 @@
-<p>Enabling Azure resource-specific admin accounts can reduce an organization’s ability to protect itself against account or service account
-thefts.</p>
-<p>Full Administrator permissions fail to correctly separate duties and create potentially critical attack vectors on the impacted resources.</p>
-<p>In case of abuse of elevated permissions, both the data on which impacted resources operate and their access traceability are at risk.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This Azure resource is essential for the information system infrastructure.</li>
-  <li>This Azure resource is essential for mission-critical functions.</li>
-  <li>Compliance policies require this resource to disable its administrative accounts or permissions.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Disable the administrative accounts or permissions in this Azure resource.</p>
-<h2>Sensitive Code Example</h2>
-<p>For <a href="https://docs.microsoft.com/en-us/azure/batch/nodes-and-pools#pools">Azure Batch Pools</a>:</p>
+<p>Enabling Azure resource-specific admin accounts can reduce an organization’s ability to protect itself against account thefts.</p>
+<h2>Why is this an issue?</h2>
+<p>Azure resources such as Azure Batch and Azure Container Registry offer built-in administrative accounts or elevated-privilege identities that grant
+full administrator access. Enabling these accounts bypasses the principle of least privilege and fails to properly separate duties, creating
+potentially critical attack vectors on the affected resources. In case of an account compromise, an attacker with full administrator permissions can
+access, modify, or delete sensitive data, and can manipulate access logs to cover their tracks.</p>
+<h3>What is the potential impact?</h3>
+<p>If an administrative account is compromised, an attacker gains unrestricted access to the affected Azure resource and all the data it manages. Both
+the data operated on by the resource and the audit trail required to detect and investigate a breach are at risk.</p>
+<h2>How to fix it in Azure Batch</h2>
+<h3>Code examples</h3>
+<p>The following code enables an administrative account or elevated-privilege identity on an Azure resource, granting full administrator
+permissions.</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -35,45 +34,20 @@ thefts.</p>
   ]
 }
 </pre>
-<pre data-diff-id="3" data-diff-type="noncompliant">
+<pre data-diff-id="2" data-diff-type="noncompliant">
 resource AdminBatchPool 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
   properties: {
     startTask: {
       userIdentity: {
         autoUser: {
-          elevationLevel: 'Admin' // Sensitive
+          elevationLevel: 'Admin' // Noncompliant
         }
       }
     }
   }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/container-registry/">Azure Container Registries</a>:</p>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "name": "example",
-      "type": "Microsoft.ContainerRegistry/registries",
-      "apiVersion": "2023-01-01-preview",
-      "properties": {
-        "adminUserEnabled": true
-      }
-    }
-  ]
-}
-</pre>
-<pre data-diff-id="4" data-diff-type="noncompliant">
-resource acrAdminUserDisabled 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
-  properties: {
-    adminUserEnabled: true // Sensitive
-  }
-}
-</pre>
-<h2>Compliant Solution</h2>
-<p>For <a href="https://docs.microsoft.com/en-us/azure/batch/nodes-and-pools#pools">Azure Batch Pools</a>:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -96,7 +70,7 @@ resource acrAdminUserDisabled 'Microsoft.ContainerRegistry/registries@2021-09-01
   ]
 }
 </pre>
-<pre data-diff-id="3" data-diff-type="compliant">
+<pre data-diff-id="2" data-diff-type="compliant">
 resource AdminBatchPool 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
   properties: {
     startTask: {
@@ -109,8 +83,36 @@ resource AdminBatchPool 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
   }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/container-registry/">Azure Container Registries</a>:</p>
-<pre data-diff-id="2" data-diff-type="compliant">
+<h2>How to fix it in Azure Container Registry</h2>
+<h3>Code examples</h3>
+<p>The following code enables an administrative account or elevated-privilege identity on an Azure resource, granting full administrator
+permissions.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "example",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2023-01-01-preview",
+      "properties": {
+        "adminUserEnabled": true
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+resource acrAdminUserDisabled 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
+  properties: {
+    adminUserEnabled: true // Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="3" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -133,7 +135,13 @@ resource acrAdminUserDisabled 'Microsoft.ContainerRegistry/registries@2021-09-01
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://docs.microsoft.com/en-us/azure/batch/nodes-and-pools#pools">Azure documentation</a> - Batch Pools</li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/container-registry/">Azure documentation</a> - Container Registries</li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>

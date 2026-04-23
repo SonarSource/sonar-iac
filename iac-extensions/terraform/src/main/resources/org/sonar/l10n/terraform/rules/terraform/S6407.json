@@ -1,6 +1,6 @@
 {
-  "title": "Creating App Engine handlers without requiring TLS is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "GCP App Engine handlers should require TLS",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,6 +13,8 @@
     "constantCost": "30min"
   },
   "tags": [
+    "cwe",
+    "former-hotspot",
     "gcp"
   ],
   "defaultSeverity": "Major",

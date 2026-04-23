@@ -1,6 +1,6 @@
 {
-  "title": "Enabling project-wide SSH keys to access VM instances is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Project-wide SSH keys should not be used to access GCP VM instances",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,7 +13,8 @@
     "constantCost": "30min"
   },
   "tags": [
-    "gcp"
+    "gcp",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6405",

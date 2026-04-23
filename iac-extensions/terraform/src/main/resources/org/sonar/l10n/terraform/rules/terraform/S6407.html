@@ -1,23 +1,20 @@
-<p>App Engine supports encryption in transit through TLS. As soon as the app is deployed, it can be requested using <code>appspot.com</code> domains
-or custom domains. By default, endpoints accept both clear-text and encrypted traffic. When communication isn’t encrypted, there is a risk that an
-attacker could intercept it and read confidential information.</p>
-<p>When creating an App Engine, request handlers can be set with different security level for encryption:</p>
-<ul>
-  <li><code>SECURE_NEVER</code>: only HTTP requests are allowed (HTTPS requests are redirected to HTTP).</li>
-  <li><code>SECURE_OPTIONAL</code> and <code>SECURE_DEFAULT</code>: both HTTP and HTTPS requests are allowed.</li>
-  <li><code>SECURE_ALWAYS</code>: only HTTPS requests are allowed (HTTP requests are redirected to HTTPS).</li>
-</ul>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The handler serves confidential data in HTTP responses.</li>
-</ul>
-<p>There is a risk if you answered yes to this question.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended for App Engine handlers to require TLS for all traffic. It can be achieved by setting the security level to
-<code>SECURE_ALWAYS</code>.</p>
-<h2>Sensitive Code Example</h2>
-<p><code>SECURE_DEFAULT</code>, <code>SECURE_NEVER</code> and <code>SECURE_OPTIONAL</code> are sensitive TLS security level:</p>
-<pre>
+<p>App Engine handlers should require TLS to ensure that traffic between clients and the application is encrypted in transit.</p>
+<h2>Why is this an issue?</h2>
+<p>App Engine supports encryption in transit through TLS. By default, App Engine handlers accept both plain HTTP and encrypted HTTPS traffic. When
+communication is not encrypted, an attacker with access to network traffic can intercept requests and responses, potentially reading or modifying
+confidential information. This rule raises an issue when an App Engine handler is configured with a <code>security_level</code> that allows
+unencrypted HTTP traffic, such as <code>SECURE_NEVER</code>, <code>SECURE_OPTIONAL</code>, or <code>SECURE_DEFAULT</code>.</p>
+<h3>What is the potential impact?</h3>
+<h4>Exposure of sensitive data</h4>
+<p>If an App Engine handler does not require TLS, an attacker with access to the network can intercept unencrypted HTTP traffic. This can expose
+confidential data such as authentication tokens, personal information, or API keys transmitted in requests or responses.</p>
+<h2>How to fix it</h2>
+<p>Set the <code>security_level</code> to <code>SECURE_ALWAYS</code> to redirect all HTTP requests to HTTPS.</p>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the App Engine handler uses <code>SECURE_OPTIONAL</code>, which allows both unencrypted HTTP and encrypted
+HTTPS requests.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "google_app_engine_standard_app_version" "example" {
   version_id = "v1"
   service    = "default"
@@ -26,16 +23,15 @@ resource "google_app_engine_standard_app_version" "example" {
   handlers {
     url_regex                   = ".*"
     redirect_http_response_code = "REDIRECT_HTTP_RESPONSE_CODE_301"
-    security_level              = "SECURE_OPTIONAL" # Sensitive
+    security_level              = "SECURE_OPTIONAL" # Noncompliant
     script {
       script_path = "auto"
     }
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>Force the use of TLS for the handler by setting the security level on <code>SECURE_ALWAYS</code>:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "google_app_engine_standard_app_version" "example" {
   version_id = "v1"
   service    = "default"
@@ -51,10 +47,15 @@ resource "google_app_engine_standard_app_version" "example" {
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://cloud.google.com/appengine/docs/standard/nodejs/application-security">Google Cloud Documentation</a> - Overview of App
+  Security</li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/200">CWE-200 - Exposure of Sensitive Information to an Unauthorized Actor</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/319">CWE-319 - Cleartext Transmission of Sensitive Information</a></li>
-  <li><a href="https://cloud.google.com/appengine/docs/standard/nodejs/application-security">GCP Documentation</a> - Overview of App Security</li>
 </ul>
 

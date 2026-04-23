@@ -1,6 +1,6 @@
 {
-  "title": "Exposing Docker sockets is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Docker sockets should not be exposed",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,7 +13,8 @@
     "constantCost": "60min"
   },
   "tags": [
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6429",

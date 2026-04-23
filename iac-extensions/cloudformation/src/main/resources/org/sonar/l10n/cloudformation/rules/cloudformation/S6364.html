@@ -1,35 +1,38 @@
-<p>Reducing the backup retention duration can reduce an organization’s ability to re-establish service in case of a security incident.</p>
-<p>Data backups allow to overcome corruption or unavailability of data by recovering as efficiently as possible from a security incident.</p>
-<p>Backup retention duration, coverage, and backup locations are essential criteria regarding functional continuity.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This component is essential for the information system infrastructure.</li>
-  <li>This component is essential for mission-critical functions.</li>
-  <li>Compliance policies require this component to be backed up for a specific amount of time.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Increase the backup retention period to an amount of time sufficient enough to be able to restore service in case of an incident.</p>
-<h2>Sensitive Code Example</h2>
-<p>For <a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> clusters and instances:</p>
-<pre>
+<p>A short backup retention period can limit an organization’s ability to recover data after a security incident.</p>
+<h2>Why is this an issue?</h2>
+<p>Backups allow an organization to recover data after corruption, deletion, or a security incident. When the backup retention period is too short, no
+usable backup may be available at the time recovery is needed.</p>
+<h3>What is the potential impact?</h3>
+<h4>Insufficient recovery window</h4>
+<p>If data is corrupted or deleted and the issue goes undetected until after the retention period expires, the organization may be unable to restore
+the affected data. This can result in permanent data loss, extended service outages, and failure to meet regulatory or compliance obligations.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the backup retention period is set too short, leaving insufficient time to detect and recover from a
+security incident or data loss event.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   relationaldatabase:
     Type: 'AWS::RDS::DBInstance'
     Properties:
       DBName: NonCompliantDatabase
-      BackupRetentionPeriod: 2 # Sensitive
+      BackupRetentionPeriod: 5 # Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
-<p>For <a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> clusters and instances:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   relationaldatabase:
     Type: 'AWS::RDS::DBInstance'
     Properties:
       DBName: CompliantDatabase
-      BackupRetentionPeriod: 5
+      BackupRetentionPeriod: 30
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> - Backup and restore for Amazon RDS</li>
+</ul>
 

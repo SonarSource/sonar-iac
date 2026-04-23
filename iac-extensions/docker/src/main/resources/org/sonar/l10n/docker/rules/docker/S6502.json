@@ -1,6 +1,6 @@
 {
-  "title": "Disabling builder sandboxes is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Builder sandboxes should not be disabled",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "HIGH"
@@ -14,7 +14,8 @@
   },
   "tags": [
     "dockerfile",
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6502",

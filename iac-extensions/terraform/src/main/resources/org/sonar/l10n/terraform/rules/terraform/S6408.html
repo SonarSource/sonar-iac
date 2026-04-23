@@ -1,81 +1,42 @@
-<p>Creating custom roles that allow privilege escalation can allow attackers to maliciously exploit an organization’s cloud resources.</p>
-<p>Certain GCP permissions allow impersonation of one or more privileged principals within a GCP infrastructure.
-  <br>
-  To prevent privilege escalation after an account has been compromised, proactively follow GCP Security Insights and ensure that custom roles contain
-  as few privileges as possible that allow direct or indirect impersonation.</p>
-<p>For example, privileges like <code>deploymentmanager.deployments.create</code> allow impersonation of service accounts, even if the name does not
-sound like it.
-  <br>
-  Other privileges like <code>setIamPolicy</code>, which are more explicit, directly allow their holder to extend their privileges.</p>
-<p>After gaining a foothold in the target infrastructure, sophisticated attackers typically map their newfound roles to understand what is
-exploitable.</p>
-<p>The riskiest privileges are either:</p>
-<ul>
-  <li>At the infrastructure level: privileges to perform project, folder, or organization-wide administrative tasks.</li>
-  <li>At the resource level: privileges to perform resource-wide administrative tasks.</li>
-</ul>
-<p>In either case, the following privileges should be avoided or granted only with caution:</p>
-<ul>
-  <li><code><strong>.</strong>.setIamPolicy</code></li>
-  <li><code>cloudbuilds.builds.create</code></li>
-  <li><code>cloudfunctions.functions.create</code></li>
-  <li><code>cloudfunctions.functions.update</code></li>
-  <li><code>cloudscheduler.jobs.create</code></li>
-  <li><code>composer.environments.create</code></li>
-  <li><code>compute.instances.create</code></li>
-  <li><code>dataflow.jobs.create</code></li>
-  <li><code>dataproc.clusters.create</code></li>
-  <li><code>deploymentmanager.deployments.create</code></li>
-  <li><code>iam.roles.update</code></li>
-  <li><code>iam.serviceAccountKeys.create</code></li>
-  <li><code>iam.serviceAccounts.actAs</code></li>
-  <li><code>iam.serviceAccounts.getAccessToken</code></li>
-  <li><code>iam.serviceAccounts.getOpenIdToken</code></li>
-  <li><code>iam.serviceAccounts.implicitDelegation</code></li>
-  <li><code>iam.serviceAccounts.signBlob</code></li>
-  <li><code>iam.serviceAccounts.signJwt</code></li>
-  <li><code>orgpolicy.policy.set</code></li>
-  <li><code>run.services.create</code></li>
-  <li><code>serviceusage.apiKeys.create</code></li>
-  <li><code>serviceusage.apiKeys.list</code></li>
-  <li><code>storage.hmacKeys.create</code></li>
-</ul>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This role requires impersonation to perform specific tasks with different privileges.</li>
-  <li>This custom role is intended for a small group of administrators.</li>
-</ul>
-<p>There is a risk if you answered no to these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Use a permission that does not allow privilege escalation.</p>
-<h2>Sensitive Code Example</h2>
-<p>Lightweight custom role intended for a developer:</p>
-<pre>
+<p>GCP IAM custom roles should not include permissions that allow privilege escalation to limit the impact of a compromised account.</p>
+<h2>Why is this an issue?</h2>
+<p>Certain GCP IAM permissions allow the holder to impersonate other principals or extend their own privileges, enabling privilege escalation. These
+include permissions such as <code>iam.serviceAccounts.actAs</code>, <code>iam.serviceAccountKeys.create</code>, and
+<code>deploymentmanager.deployments.create</code>, which can grant access to resources or credentials beyond the role’s intended scope. When a custom
+role includes such permissions, a compromised account can be used to gain access to more privileged accounts or resources. This rule raises an issue
+when a custom role grants one or more permissions that are known to enable privilege escalation.</p>
+<h3>What is the potential impact?</h3>
+<h4>Privilege escalation and account takeover</h4>
+<p>If a GCP account with privilege escalation permissions is compromised, an attacker can impersonate more privileged service accounts or extend their
+own access rights. This can lead to full administrative control over GCP resources, data exfiltration, and the ability to cover tracks by modifying or
+deleting audit logs.</p>
+<h2>How to fix it</h2>
+<p>Replace privilege-escalation permissions with the minimum permissions necessary for the role’s intended purpose. If no predefined GCP role matches,
+create a custom role that omits any permission that enables impersonation or access delegation.</p>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the custom roles grant permissions that allow privilege escalation, such as
+<code>iam.serviceAccounts.actAs</code> and <code>iam.serviceAccountKeys.create</code>.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "google_organization_iam_custom_role" "example" {
   permissions = [
-    "iam.serviceAccounts.getAccessToken",     # Sensitive
-    "iam.serviceAccounts.getOpenIdToken",     # Sensitive
-    "iam.serviceAccounts.actAs",              # Sensitive
-    "iam.serviceAccounts.implicitDelegation", # Sensitive
+    "iam.serviceAccounts.getAccessToken",     # Noncompliant
+    "iam.serviceAccounts.getOpenIdToken",     # Noncompliant
+    "iam.serviceAccounts.actAs",              # Noncompliant
+    "iam.serviceAccounts.implicitDelegation", # Noncompliant
     "resourcemanager.projects.get",
     "resourcemanager.projects.list",
-    "run.services.create",
-    "run.services.delete",
     "run.services.get",
-    "run.services.getIamPolicy",
     "run.services.list",
-    "run.services.update",
   ]
 }
 </pre>
-<p>Lightweight custom role intended for a read-only user:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 resource "google_project_iam_custom_role" "example" {
   permissions = [
-    "iam.serviceAccountKeys.create",        # Sensitive
-    "iam.serviceAccountKeys.get",           # Sensitive
-    "deploymentmanager.deployments.create", # Sensitive
-    "cloudbuild.builds.create",             # Sensitive
+    "iam.serviceAccountKeys.create",        # Noncompliant
+    "deploymentmanager.deployments.create", # Noncompliant
+    "cloudbuild.builds.create",             # Noncompliant
     "resourcemanager.projects.get",
     "resourcemanager.projects.list",
     "run.services.get",
@@ -84,24 +45,18 @@ resource "google_project_iam_custom_role" "example" {
   ]
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>Lightweight custom role intended for a developer:</p>
-<pre>
-resource "google_project_iam_custom_role" "example" {
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+resource "google_organization_iam_custom_role" "example" {
   permissions = [
     "resourcemanager.projects.get",
     "resourcemanager.projects.list",
-    "run.services.create",
-    "run.services.delete",
     "run.services.get",
-    "run.services.getIamPolicy",
     "run.services.list",
-    "run.services.update",
   ]
 }
 </pre>
-<p>Lightweight custom role intended for a read-only user:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 resource "google_project_iam_custom_role" "example" {
   permissions = [
     "resourcemanager.projects.get",
@@ -112,20 +67,27 @@ resource "google_project_iam_custom_role" "example" {
   ]
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li><a href="https://cloud.google.com/iam/docs/custom-roles-permissions-support">GCP IAM Docs</a> - Support levels for permissions in custom
-  roles</li>
-  <li><a href="https://cloud.google.com/iam/docs/understanding-custom-roles">GCP IAM Docs</a> - Understanding IAM custom roles</li>
-  <li><a href="https://www.youtube.com/watch?v=Z-JFVJZ-HDA">DEFONConference Youtube Video</a> - DEF CON Safe Mode - Dylan Ayrey and Allison Donovan -
-  Lateral Movement &amp; Privilege Escalation in GCP</li>
+  <li><a href="https://cloud.google.com/iam/docs/custom-roles-permissions-support">Google Cloud Documentation</a> - Support levels for permissions in
+  custom roles</li>
+  <li><a href="https://cloud.google.com/iam/docs/understanding-custom-roles">Google Cloud Documentation</a> - Understanding IAM custom roles</li>
+  <li><a href="https://cloud.google.com/iam/docs/manage-policy-insights">Google Cloud Documentation</a> - Security Insights</li>
+</ul>
+<h3>Articles &amp; blog posts</h3>
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=Z-JFVJZ-HDA">DEF CON Safe Mode</a> - Dylan Ayrey and Allison Donovan - Lateral Movement &amp; Privilege
+  Escalation in GCP</li>
   <li><a href="https://rhinosecuritylabs.com/gcp/privilege-escalation-google-cloud-platform-part-1/">Rhino Security Labs</a> - Privilege Escalation in
   Google Cloud Platform - Part 1 (IAM)</li>
   <li><a href="https://rhinosecuritylabs.com/cloud-security/privilege-escalation-google-cloud-platform-part-2/">Rhino Security Labs</a> - Privilege
   Escalation in Google Cloud Platform - Part 2 (Non-IAM)</li>
   <li><a href="https://www.praetorian.com/blog/google-cloud-platform-gcp-service-account-based-privilege-escalation-paths/">Praetorian</a> - Google
   Cloud Platform (GCP) Service Account-based Privilege Escalation paths</li>
-  <li><a href="https://cloud.google.com/iam/docs/manage-policy-insights">GCP Docs</a> - Security Insights</li>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>
 

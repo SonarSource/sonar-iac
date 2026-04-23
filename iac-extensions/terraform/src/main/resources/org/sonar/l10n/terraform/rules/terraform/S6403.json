@@ -1,6 +1,6 @@
 {
-  "title": "Creating GCP SQL instances without requiring TLS is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "GCP SQL instances should require TLS",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,7 +13,8 @@
     "constantCost": "30min"
   },
   "tags": [
-    "gcp"
+    "gcp",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6403",

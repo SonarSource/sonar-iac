@@ -1,51 +1,48 @@
-<p>Domain Name Systems (DNS) are vulnerable by default to various types of attacks.</p>
-<p>One of the biggest risks is DNS cache poisoning, which occurs when a DNS accepts spoofed DNS data, caches the malicious records, and potentially
-sends them later in response to legitimate DNS request lookups. This attack typically relies on the attacker’s <a
-href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">MITM</a> ability on the network and can be used to redirect users from an intended
-website to a malicious website.</p>
-<p>To prevent these vulnerabilities, Domain Name System Security Extensions (DNSSEC) ensure the integrity and authenticity of DNS data by digitally
-signing DNS zones.</p>
-<p>The public key of a DNS zone used to validate signatures can be trusted as DNSSEC is based on the following chain of trust:</p>
-<ul>
-  <li>The parent DNS zone adds a "fingerprint" of the public key of the child zone in a "DS record".</li>
-  <li>The parent DNS zone signs it with its own private key.</li>
-  <li>And this process continues until the root zone.</li>
-</ul>
-<h2>Ask Yourself Whether</h2>
-<p>The parent DNS zone (likely managed by the DNS registrar of the domain name) supports DNSSEC and</p>
-<ul>
-  <li>The DNS zone is public (contains data such as public reachable IP addresses).</li>
-</ul>
-<p>There is a risk if you answered yes to this question.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to use DNSSEC when creating private and public DNS zones.</p>
-<p>Private DNS zones cannot be queried on the Internet and provide DNS name resolution for private networks. The risk of MITM attacks might be
-considered low on these networks and therefore implementing DNSSEC is still recommended but not with a high priority.</p>
-<p>Note: Choose a robust signing algorithm when setting up DNSSEC, such as <code>rsasha256</code>. The <a
-href="https://en.wikipedia.org/wiki/SHA-1">insecure</a> <code>rsasha1</code> algorithm should no longer be used.</p>
-<h2>Sensitive Code Example</h2>
-<pre>
-resource "google_dns_managed_zone" "example" { # Sensitive: dnssec_config is missing
+<p>DNS zones should have DNSSEC enabled to protect against DNS cache poisoning and man-in-the-middle attacks.</p>
+<h2>Why is this an issue?</h2>
+<p>Domain Name System Security Extensions (DNSSEC) protect against DNS cache poisoning by ensuring the integrity and authenticity of DNS data through
+digital signatures. Without DNSSEC, an attacker with man-in-the-middle capability on the network can inject spoofed DNS records, causing users to be
+redirected from intended websites to malicious ones. DNSSEC is based on a chain of trust: each parent DNS zone signs a fingerprint of the child zone’s
+public key, continuing up to the root zone. This rule raises an issue when a <code>google_dns_managed_zone</code> resource is created without a
+<code>dnssec_config</code> block.</p>
+<h3>What is the potential impact?</h3>
+<h4>User redirection and data interception</h4>
+<p>An attacker who can poison a DNS cache may redirect users from legitimate websites to malicious ones, enabling phishing attacks or interception of
+sensitive data such as login credentials. This attack can affect any user whose DNS resolver has cached the spoofed record, potentially at a large
+scale.</p>
+<h2>How to fix it</h2>
+<p>Enable DNSSEC by adding a <code>dnssec_config</code> block to the DNS managed zone resource. Choose a robust signing algorithm such as
+<code>rsasha256</code>; the insecure <code>rsasha1</code> algorithm should no longer be used.</p>
+<h3>Code examples</h3>
+<p>The following code does not configure DNSSEC, leaving DNS records unsigned and exposed to spoofing.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "google_dns_managed_zone" "example" { # Noncompliant: dnssec_config is missing
   name     = "foobar"
-  dns_name = "foo.bar."
+  dns_name = "foo.example.com."
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "google_dns_managed_zone" "example" {
   name     = "foobar"
-  dns_name = "foo.bar."
+  dns_name = "foo.example.com."
 
   dnssec_config {
+    state = "on"
     default_key_specs {
       algorithm = "rsasha256"
     }
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li><a href="https://cloud.google.com/dns/docs/dnssec-config">GCP Documentation</a> - Manage DNSSEC configuration</li>
+  <li><a href="https://cloud.google.com/dns/docs/dnssec-config">Google Cloud Documentation</a> - Manage DNSSEC configuration</li>
+</ul>
+<h3>Standards</h3>
+<ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/345">CWE-345 - Insufficient Verification of Data Authenticity</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/353">CWE-353 - Missing Support for Integrity Check</a></li>
 </ul>

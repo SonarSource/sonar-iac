@@ -1,6 +1,6 @@
 {
-  "title": "Enabling Azure resource-specific admin accounts is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Azure resource-specific admin accounts should not be enabled",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,8 +13,10 @@
     "constantCost": "5min"
   },
   "tags": [
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
+  "quickfix": "unknown",
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6379",
   "sqKey": "S6379",

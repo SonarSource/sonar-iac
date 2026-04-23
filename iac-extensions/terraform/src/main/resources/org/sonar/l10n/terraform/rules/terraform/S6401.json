@@ -1,6 +1,6 @@
 {
-  "title": "Creating keys without a rotation period is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "GCP KMS symmetric keys should have a rotation period",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,6 +13,8 @@
     "constantCost": "30min"
   },
   "tags": [
+    "cwe",
+    "former-hotspot",
     "gcp"
   ],
   "defaultSeverity": "Major",
@@ -27,8 +29,6 @@
       "3.7.4"
     ],
     "CWE": [
-      320,
-      321,
       324
     ]
   },

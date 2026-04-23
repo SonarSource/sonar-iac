@@ -1,16 +1,17 @@
-<p>Exposing Docker sockets can lead to compromise of the host systems.</p>
-<p>The Docker daemon provides an API to access its functionality, for example through a UNIX domain socket. Mounting the Docker socket into a
-container allows the container to control the Docker daemon of the host system, resulting in full access over the whole system. A compromised or rogue
-container with access to the Docker socket could endanger the integrity of the whole Kubernetes cluster.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The Pod is untrusted or might contain vulnerabilities.</li>
-</ul>
-<p>There is a risk if you answered yes to this question.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It is recommended to never add a Docker socket as a volume to a Pod.</p>
-<h2>Sensitive Code Example</h2>
-<pre>
+<h2>Why is this an issue?</h2>
+<p>The Docker daemon provides an API to control its functionality through a UNIX domain socket at <code>/var/run/docker.sock</code>. Mounting this
+socket into a container allows the container to control the Docker daemon of the host system, including the ability to start new privileged
+containers, access other running containers, and mount the host filesystem — resulting in full control over the entire system.</p>
+<h3>What is the potential impact?</h3>
+<p>A compromised or rogue container with access to the Docker socket can control the host’s Docker daemon, giving an attacker full access to the host
+system. This can endanger the integrity of the entire Kubernetes cluster.</p>
+<h2>How to fix it</h2>
+<p>Never mount the Docker socket (<code>/var/run/docker.sock</code>) as a volume in a container. If container management is required from within a
+pod, use the Kubernetes API instead.</p>
+<h3>Code examples</h3>
+<p>The following code mounts the Docker socket into a container, giving it full control over the host’s Docker daemon.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -25,11 +26,11 @@ spec:
   volumes:
   - name: test-volume
     hostPath:
-      path: /var/run/docker.sock # Sensitive
+      path: /var/run/docker.sock # Noncompliant
       type: Socket
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -39,10 +40,14 @@ spec:
   - image: k8s.gcr.io/test-webserver
     name: test-container
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://kubernetes.io/docs/concepts/storage/volumes/#hostpath">Kubernetes Documentation</a> - Volumes</li>
-  <li><a href="https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-socket-option">Docker Documention</a> - Daemon socket option</li>
+  <li><a href="https://docs.docker.com/reference/cli/dockerd/#daemon-socket-option">Docker Documentation</a> - Daemon socket option</li>
+</ul>
+<h3>Standards</h3>
+<ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>
 

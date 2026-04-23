@@ -1,6 +1,6 @@
 {
-  "title": "Defining a short backup retention duration is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Backup retention period should be sufficient",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -14,8 +14,10 @@
   },
   "tags": [
     "aws",
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
+  "quickfix": "unknown",
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6364",
   "sqKey": "S6364",

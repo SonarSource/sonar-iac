@@ -1,6 +1,6 @@
 {
-  "title": "Setting capabilities is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Excessive Linux capabilities should not be granted",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,9 +13,11 @@
     "constantCost": "30min"
   },
   "tags": [
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
+  "quickfix": "unknown",
   "ruleSpecification": "RSPEC-5849",
   "sqKey": "S5849",
   "scope": "Main",
@@ -23,6 +25,12 @@
     "CWE": [
       250,
       266
+    ],
+    "OWASP": [
+      "A5"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
     ],
     "PCI DSS 3.2": [
       "6.5.8"

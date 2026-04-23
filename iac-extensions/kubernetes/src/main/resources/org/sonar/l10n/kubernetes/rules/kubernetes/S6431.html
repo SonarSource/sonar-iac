@@ -1,27 +1,15 @@
-<p>Using host operating system namespaces can lead to compromise of the host systems.
-  <br>
-  These attacks would target:</p>
-<ul>
-  <li>host processes</li>
-  <li>host inter-process communication (IPC) mechanisms</li>
-  <li>network services of the local host system</li>
-</ul>
-<p>These three items likely include systems that support either the internal operation of the Kubernetes cluster or the enterprise’s internal
-infrastructure.</p>
-<p>Opening these points to containers opens new attack surfaces for attackers who have already successfully exploited services exposed by containers.
-Depending on how resilient the cluster is, attackers can extend their attack to the cluster by compromising the nodes from which the cluster started
-the process.</p>
-<p>Host network sharing could provide a significant performance advantage for workloads that require critical network performance. However, the
-successful exploitation of this attack vector could have a catastrophic impact on confidentiality within the cluster.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The services of this Pod are accessible to people who are not administrators of the Kubernetes cluster.</li>
-  <li>The cluster’s services performances do <strong>not</strong> rely on operating system namespaces.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Do not use host operating system namespaces.</p>
-<h2>Sensitive Code Example</h2>
+<p>Using host operating system namespaces breaks container isolation and can lead to compromise of the host system.</p>
+<h2>Why is this an issue?</h2>
+<p>Sharing host operating system namespaces (PID, IPC, or network) with containers opens new attack surfaces for attackers who have already exploited
+services exposed by containers. These namespaces expose host processes, inter-process communication mechanisms, and network services of the local host
+system. Host network sharing could provide a performance advantage for workloads that require critical network performance, but the successful
+exploitation of this attack vector could have a catastrophic impact on the confidentiality, integrity, and availability of the host or cluster.</p>
+<h3>What is the potential impact?</h3>
+<p>An attacker who compromises a container with host namespace access can extend their attack to the host system. They may be able to view or interact
+with sensitive host processes, intercept inter-process communications, or reach network services that are only intended to be accessible locally.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
@@ -35,11 +23,11 @@ spec:
         - name: web
           containerPort: 80
           protocol: TCP
-  hostPID: true     # Sensitive
-  hostIPC: true     # Sensitive
-  hostNetwork: true # Sensitive
+  hostPID: true     # Noncompliant
+  hostIPC: true     # Noncompliant
+  hostNetwork: true # Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 apiVersion: v1
 kind: Pod
@@ -57,7 +45,8 @@ spec:
   hostIPC: false
   hostNetwork: false
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/653">CWE-653 - Improper Isolation or Compartmentalization</a></li>
 </ul>

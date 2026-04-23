@@ -1,43 +1,48 @@
 <p>Predefined permissions, also known as <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl">canned ACLs</a>,
-are an easy way to grant large privileges to predefined groups or users.</p>
+are an easy way to grant broad privileges to predefined groups or users.</p>
 <p>The following canned ACLs are security-sensitive:</p>
 <ul>
   <li><code>PublicRead</code>, <code>PublicReadWrite</code> grant respectively "read" and "read and write" privileges to everyone in the world
   (<code>AllUsers</code> group).</li>
   <li><code>AuthenticatedRead</code> grants "read" privilege to all authenticated users (<code>AuthenticatedUsers</code> group).</li>
 </ul>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The S3 bucket stores sensitive data.</li>
-  <li>The S3 bucket is not used to store static resources of websites (images, css …​).</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to implement the least privilege policy, ie to grant necessary permissions only to users for their required tasks. In the context
-of canned ACL, set it to <code>private</code> (the default one) and if needed more granularity then use an appropriate S3 policy.</p>
-<h2>Sensitive Code Example</h2>
-<p>All users (ie: anyone in the world authenticated or not) have read and write permissions with the <code>public-read-write</code> access
-control:</p>
-<pre>
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
+<h2>Why is this an issue?</h2>
+<p>When an S3 bucket is configured with a canned ACL such as <code>PublicRead</code>, <code>PublicReadWrite</code>, or <code>AuthenticatedRead</code>,
+it grants broad read or write access to either all internet users or all authenticated AWS users, far beyond what is typically required.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unauthorized data access</h4>
+<p>When an S3 bucket is publicly readable, any user on the internet can enumerate and download its contents. This can expose sensitive business data,
+personally identifiable information (PII), credentials, or configuration files to unauthorized parties.</p>
+<h4>Data tampering</h4>
+<p>When an S3 bucket is publicly writable (e.g., <code>PublicReadWrite</code>), attackers can upload malicious files, overwrite existing objects, or
+delete bucket content, leading to data integrity loss or supply chain attacks if the bucket serves application assets.</p>
+<h2>How to fix it</h2>
+<p>Set the <code>acl</code> argument to <code>private</code> (the default) to restrict bucket access to the owner only.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "aws_s3_bucket" "mynoncompliantbucket" {
   bucket = "mynoncompliantbucketname"
-  acl    = "public-read-write"
+  acl    = "public-read-write" # Noncompliant
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>With the <code>private</code> access control (default), only the bucket owner has the read/write permissions on the buckets and its ACL.</p>
-<pre>
-resource "aws_s3_bucket" "mycompliantbucket" { # Compliant
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+resource "aws_s3_bucket" "mycompliantbucket" {
   bucket = "mycompliantbucketname"
   acl    = "private"
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl">AWS Documentation</a> - Access control list (ACL)
   overview (canned ACLs)</li>
   <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/walkthrough1.html">AWS Documentation</a> - Controlling access to a bucket with
   user policies</li>
+</ul>
+<h3>Standards</h3>
+<ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>

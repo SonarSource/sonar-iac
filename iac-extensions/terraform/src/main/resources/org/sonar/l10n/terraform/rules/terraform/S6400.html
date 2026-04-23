@@ -1,62 +1,45 @@
-<p>Granting highly privileged resource rights to users or groups can reduce an organization’s ability to protect against account or service theft. It
-prevents proper segregation of duties and creates potentially critical attack vectors on affected resources.</p>
-<p>If elevated access rights are abused or compromised, both the data that the affected resources work with and their access tracking are at risk.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This GCP resource is essential to the information system infrastructure.</li>
-  <li>This GCP resource is essential to mission-critical functions.</li>
-  <li>Compliance policies require that administrative privileges for this resource be limited to a small group of individuals.</li>
-</ul>
-<p>There is a risk if you answered yes to any of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Grant IAM policies or members a less permissive role: In most cases, granting them read-only privileges is sufficient.</p>
-<p>Separate tasks by creating multiple roles that do not use a full access role for day-to-day work.</p>
-<p>If the predefined GCP roles do not include the specific permissions you need, create <a
-href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam_custom_role">custom IAM roles</a>.</p>
-<h2>Sensitive Code Example</h2>
-<p>For an IAM policy setup:</p>
-<pre>
+<p>Granting highly privileged IAM roles on GCP resources reduces an organization’s ability to protect against account compromise and violates the
+principle of least privilege.</p>
+<h2>Why is this an issue?</h2>
+<p>When a GCP IAM policy, binding, or member assignment uses a highly privileged role such as <code>roles/run.admin</code>, it grants full
+administrative control over the resource to the assigned principal. If elevated access rights are abused or compromised, both the data that the
+affected resources work with and their access tracking are at risk. Overly broad permissions also prevent proper segregation of duties and create
+potentially critical attack vectors on affected resources. This rule raises an issue when an IAM role with broad administrative access is assigned to
+a GCP resource.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unauthorized access and data breach</h4>
+<p>If an account with highly privileged access to a GCP resource is compromised, an attacker gains full administrative control over that resource.
+This can lead to data exfiltration, unauthorized configuration changes, disruption of business-critical services, and loss of audit trail
+integrity.</p>
+<h2>How to fix it</h2>
+<p>Grant IAM policies or members the least permissive role necessary — in most cases, read-only privileges are sufficient. Separate tasks by creating
+multiple roles that do not use a full-access role for day-to-day work. If the predefined GCP roles do not include the specific permissions you need,
+create <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam_custom_role">custom IAM
+roles</a>.</p>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because it grants the <code>roles/run.admin</code> role via an IAM policy data source and an IAM member resource,
+both of which provide full administrative access to the Cloud Run service.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 data "google_iam_policy" "admin" {
   binding {
-    role = "roles/run.admin" # Sensitive
+    role = "roles/run.admin" # Noncompliant
     members = [
       "user:name@example.com",
     ]
   }
 }
 
-resource "google_cloud_run_service_iam_policy" "policy" {
+resource "google_cloud_run_service_iam_member" "member" {
   location = google_cloud_run_service.default.location
-  project = google_cloud_run_service.default.project
-  service = google_cloud_run_service.default.name
-  policy_data = data.google_iam_policy.admin.policy_data
+  project  = google_cloud_run_service.default.project
+  service  = google_cloud_run_service.default.name
+  role     = "roles/run.admin" # Noncompliant
+  member   = "user:name@example.com"
 }
 </pre>
-<p>For an IAM policy binding:</p>
-<pre>
-resource "google_cloud_run_service_iam_binding" "example" {
-  location = google_cloud_run_service.default.location
-  project = google_cloud_run_service.default.project
-  service = google_cloud_run_service.default.name
-  role = "roles/run.admin" # Sensitive
-  members = [
-    "user:name@example.com",
-  ]
-}
-</pre>
-<p>For adding a member to a policy:</p>
-<pre>
-resource "google_cloud_run_service_iam_member" "example" {
-  location = google_cloud_run_service.default.location
-  project = google_cloud_run_service.default.project
-  service = google_cloud_run_service.default.name
-  role = "roles/run.admin" # Sensitive
-  member = "user:name@example.com"
-}
-</pre>
-<h2>Compliant Solution</h2>
-<p>For an IAM policy setup:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 data "google_iam_policy" "admin" {
   binding {
     role = "roles/viewer"
@@ -66,36 +49,21 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_cloud_run_service_iam_policy" "example" {
+resource "google_cloud_run_service_iam_member" "member" {
   location = google_cloud_run_service.default.location
-  project = google_cloud_run_service.default.project
-  service = google_cloud_run_service.default.name
-  policy_data = data.google_iam_policy.admin.policy_data
+  project  = google_cloud_run_service.default.project
+  service  = google_cloud_run_service.default.name
+  role     = "roles/viewer"
+  member   = "user:name@example.com"
 }
 </pre>
-<p>For an IAM policy binding:</p>
-<pre>
-resource "google_cloud_run_service_iam_binding" "example" {
-  location = google_cloud_run_service.default.location
-  project = google_cloud_run_service.default.project
-  service = google_cloud_run_service.default.name
-  role = "roles/viewer"
-  members = [
-    "user:name@example.com",
-  ]
-}
-</pre>
-<p>For adding a member to a policy:</p>
-<pre>
-resource "google_cloud_run_service_iam_member" "example" {
-  location = google_cloud_run_service.default.location
-  project = google_cloud_run_service.default.project
-  service = google_cloud_run_service.default.name
-  role = "roles/viewer"
-  member = "user:name@example.com"
-}
-</pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam_custom_role">GCP - Custom IAM roles -
+  Terraform Registry</a></li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>

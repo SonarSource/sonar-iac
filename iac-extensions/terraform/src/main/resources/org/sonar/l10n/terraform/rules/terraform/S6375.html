@@ -1,6 +1,7 @@
-<p>Azure Active Directory offers built-in roles that can be assigned to users, groups, or service principals. Some of these roles should be carefully
-assigned as they grant sensitive permissions like the ability to reset passwords for all users.</p>
-<p>An Azure account that fails to limit the use of such roles has a higher risk of being breached by a compromised owner.</p>
+<p>Microsoft Entra ID offers built-in roles that can be assigned to users, groups, or service principals. Some of these roles grant sensitive
+permissions like the ability to reset passwords for all users.</p>
+<h2>Why is this an issue?</h2>
+<p>A Microsoft Entra ID account that fails to limit the use of high-privilege roles has a higher risk of being breached by a compromised owner.</p>
 <p>This rule raises an issue when one of the following roles is assigned:</p>
 <ul>
   <li>Application Administrator</li>
@@ -14,46 +15,45 @@ assigned as they grant sensitive permissions like the ability to reset passwords
   <li>Privileged Role Administrator</li>
   <li>User Administrator</li>
 </ul>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The user, group, or service principal doesn’t use the entirety of this extensive set of permissions to operate on a day-to-day basis.</li>
-  <li>It is possible to follow the Separation of Duties principle and split permissions between multiple users, but it’s not enforced.</li>
-</ul>
-<p>There is a risk if you answered yes to any of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li>Limit the assignment of Global Administrator roles to less than five people or service principals.</li>
-  <li>Apply the least privilege principle by choosing a role with a limited set of permissions.</li>
-  <li>If no built-in role meets your needs, create a custom role with as few permissions as possible.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
-<pre>
+<h3>What is the potential impact?</h3>
+<p>If a user, group, or service principal is granted a high-privilege role that it does not need, it violates the least privilege principle. A
+compromised account with such a role could be used to reset passwords, manage applications, or escalate privileges across the entire directory.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>Limit the assignment of Global Administrator roles to less than five people or service principals. Apply the least privilege principle by choosing
+a role with a limited set of permissions. If no built-in role meets your needs, create a custom role with as few permissions as possible.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "azuread_directory_role" "example" {
-  display_name = "Privileged Role Administrator" # Sensitive
+  display_name = "Privileged Role Administrator" # Noncompliant
 }
 
-resource "azuread_directory_role_member" "example" {
-  role_object_id   = azuread_directory_role.example.object_id
-  member_object_id = data.azuread_user.example.object_id
+resource "azuread_directory_role_assignment" "example" {
+  role_id             = azuread_directory_role.example.template_id
+  principal_object_id = data.azuread_user.example.object_id
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "azuread_directory_role" "example" {
   display_name = "Usage Summary Reports Reader"
 }
 
-resource "azuread_directory_role_member" "example" {
-  role_object_id   = azuread_directory_role.example.object_id
-  member_object_id = data.azuread_user.example.object_id
+resource "azuread_directory_role_assignment" "example" {
+  role_id             = azuread_directory_role.example.template_id
+  principal_object_id = data.azuread_user.example.object_id
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/79">CWE-266 - Incorrect Privilege Assignment</a></li>
-  <li><a href="https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference">Azure AD Documentation</a> - Azure AD built-in
-  roles</li>
-  <li><a href="https://docs.microsoft.com/en-us/azure/active-directory/roles/best-practices">Azure AD Documentation</a> - Best practices for Azure AD
-  roles</li>
+  <li><a href="https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference">Microsoft Entra ID Documentation</a>
+  - Microsoft Entra built-in roles</li>
+  <li><a href="https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/best-practices">Microsoft Entra ID Documentation</a> - Best
+  practices for Microsoft Entra roles</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/266">CWE-266 - Incorrect Privilege Assignment</a></li>
 </ul>
 
