@@ -42,6 +42,7 @@ public final class ArmCheckList {
       LogicAppBasicAuthCheck.class,
       LogicAppConnectionUserAccountCheck.class,
       LogicAppErrorHandlingCheck.class,
+      LogicAppHardCodedSecretCheck.class,
       LogicAppNestingDepthCheck.class,
       LogicAppSecureDataCheck.class,
       LogRetentionCheck.class,

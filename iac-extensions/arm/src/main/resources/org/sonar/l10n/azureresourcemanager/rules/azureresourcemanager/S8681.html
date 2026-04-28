@@ -1,0 +1,109 @@
+<p>Hard-coding secrets -- passwords, API keys, tokens, connection strings, client secrets -- directly inside Azure Logic Apps workflow
+definitions is a security risk. Secrets embedded in the definition are exposed through source control, the Azure Portal, ARM template exports,
+and run history.</p>
+<h2>Why is this an issue?</h2>
+<p>Secrets must be stored in <strong>Azure Key Vault</strong> and referenced at runtime, or passed securely via <strong>Logic App
+parameters</strong> whose values are kept in a separate, non-exported parameters file.</p>
+<h2>Noncompliant Code Example</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "hardcoded-secret",
+  "properties": {
+    "definition": {
+      "actions": {
+        "Call_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.example.com/data",
+            "headers": {
+              "Authorization": "Bearer abc123-secret-token"
+            }
+          }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'hardcoded-secret'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'POST'
+            uri: 'https://api.example.com/data'
+            headers: {
+              Authorization: 'Bearer abc123-secret-token' // Noncompliant
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "parameterized-secret",
+  "properties": {
+    "definition": {
+      "actions": {
+        "Call_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.example.com/data",
+            "headers": {
+              "Authorization": "@{concat('Bearer ', parameters('ApiToken'))}"
+            }
+          }
+        }
+      },
+      "triggers": {},
+      "parameters": { "ApiToken": { "type": "securestring" } }
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'parameterized-secret'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'POST'
+            uri: 'https://api.example.com/data'
+            headers: {
+              Authorization: '@{concat(\'Bearer \', parameters(\'ApiToken\'))}'
+            }
+          }
+        }
+      }
+      triggers: {}
+      parameters: { ApiToken: { type: 'securestring' } }
+    }
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/798">CWE-798 - Use of Hard-coded Credentials</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app">Secure access and data in Azure Logic Apps</a></li>
+</ul>

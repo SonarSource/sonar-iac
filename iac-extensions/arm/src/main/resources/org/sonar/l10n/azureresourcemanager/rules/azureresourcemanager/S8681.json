@@ -1,0 +1,34 @@
+{
+  "title": "Azure Logic Apps hard-coded secrets are security-sensitive",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "azure",
+    "cwe"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-8681",
+  "sqKey": "S8681",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      798
+    ],
+    "OWASP": [
+      "A3"
+    ],
+    "OWASP Top 10 2021": [
+      "A7"
+    ]
+  }
+}
