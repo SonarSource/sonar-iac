@@ -1,0 +1,89 @@
+<p>Azure Logic Apps execute multi-step workflows that interact with external APIs, databases, and services. Any of these steps can fail at
+runtime. Without structured error handling, failures go undetected, error context is lost, and retry policies cannot work correctly.</p>
+<h2>Why is this an issue?</h2>
+<p>The recommended pattern is to wrap actions inside a <strong>Scope</strong> action (the "Try" block) and follow it with a second
+<strong>Scope</strong> (the "Catch" block) that runs on failure, using the <code>runAfter</code> configuration with <code>"Failed"</code>,
+<code>"TimedOut"</code>, or <code>"Skipped"</code> statuses.</p>
+<h2>Noncompliant Code Example</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "no-error-handling",
+  "properties": {
+    "definition": {
+      "actions": {
+        "Get_items": {
+          "type": "ApiConnection",
+          "inputs": { "method": "get", "path": "/items" },
+          "runAfter": {}
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'no-error-handling'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      actions: {  // Noncompliant
+        Get_items: {
+          type: 'ApiConnection'
+          inputs: { method: 'get', path: '/items' }
+          runAfter: {}
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "with-error-handling",
+  "properties": {
+    "definition": {
+      "actions": {
+        "Try": {
+          "type": "Scope",
+          "actions": {},
+          "runAfter": {}
+        },
+        "Catch": {
+          "type": "Scope",
+          "actions": {},
+          "runAfter": { "Try": ["Failed", "TimedOut", "Skipped"] }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'with-error-handling'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      actions: {
+        Try: { type: 'Scope', actions: {}, runAfter: {} }
+        Catch: { type: 'Scope', actions: {}, runAfter: { Try: ['Failed', 'TimedOut', 'Skipped'] } }
+      }
+      triggers: {}
+    }
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling">Handle errors and exceptions in Azure Logic Apps</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes">Scope action in Azure Logic Apps</a></li>
+</ul>

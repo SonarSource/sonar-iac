@@ -1,0 +1,233 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-no-scopes",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Get_items": {
+              "type": "ApiConnection",
+              "inputs": {
+                "method": "get",
+                "path": "/items"
+              },
+              "runAfter": {}
+            },
+            "Process_items": {
+              "type": "Foreach",
+              "foreach": "@body('Get_items')?['value']",
+              "actions": {},
+              "runAfter": {
+                "Get_items": ["Succeeded"]
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-scope-without-catch",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Try": {
+              "type": "Scope",
+              "actions": {
+                "HTTP_call": {
+                  "type": "Http",
+                  "inputs": { "uri": "https://example.com", "method": "GET" }
+                }
+              },
+              "runAfter": {}
+            },
+            "Next_step": {
+              "type": "Http",
+              "inputs": { "uri": "https://example.com/next", "method": "GET" },
+              "runAfter": {
+                "Try": ["Succeeded"]
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-try-catch",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Try": {
+              "type": "Scope",
+              "actions": {
+                "HTTP_1": {
+                  "type": "Http",
+                  "inputs": { "uri": "https://example.com", "method": "GET" }
+                }
+              },
+              "runAfter": {}
+            },
+            "Catch": {
+              "type": "Scope",
+              "actions": {
+                "Log_error": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "method": "post",
+                    "body": "Error occurred",
+                    "path": "/log"
+                  }
+                }
+              },
+              "runAfter": {
+                "Try": ["Failed", "TimedOut"]
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-catch-with-failed-only",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Main_Logic": {
+              "type": "Scope",
+              "actions": {},
+              "runAfter": {}
+            },
+            "Error_Handler": {
+              "type": "Scope",
+              "actions": {},
+              "runAfter": {
+                "Main_Logic": ["Failed"]
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-empty-actions",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {},
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-empty-definition",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {}
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-skipped-only",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Try": {
+              "type": "Scope",
+              "actions": {},
+              "runAfter": {}
+            },
+            "Catch": {
+              "type": "Scope",
+              "actions": {},
+              "runAfter": {
+                "Try": ["Skipped"]
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-timed-out-only",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Try": {
+              "type": "Scope",
+              "actions": {},
+              "runAfter": {}
+            },
+            "Catch": {
+              "type": "Scope",
+              "actions": {},
+              "runAfter": {
+                "Try": ["TimedOut"]
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-not-a-scope-type",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Try": {
+              "type": "Not-A-Scope",
+              "actions": {},
+              "runAfter": {}
+            },
+            "Catch": {
+              "type": "Not-A-Scope",
+              "actions": {},
+              "runAfter": {
+                "Try": ["Failed"]
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    }
+  ]
+}
