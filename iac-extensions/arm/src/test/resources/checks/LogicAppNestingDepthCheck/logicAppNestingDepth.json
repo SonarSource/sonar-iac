@@ -1,0 +1,397 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-depth-4",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Check_condition": {
+              "type": "If",
+              "expression": "@equals(triggerBody()?['status'], 'active')",
+              "actions": {
+                "Loop_items": {
+                  "type": "Foreach",
+                  "foreach": "@triggerBody()?['items']",
+                  "actions": {
+                    "Check_item": {
+                      "type": "If",
+                      "expression": "@greater(items('Loop_items')?['value'], 0)",
+                      "actions": {
+                        "Retry_until_done": {
+                          "type": "Until",
+                          "expression": "@equals(body('Process')?['done'], true)",
+                          "limit": { "count": 10 },
+                          "actions": {
+                            "Process": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "https://api.example.com/process"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-switch-depth-4",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Outer_Scope": {
+              "type": "Scope",
+              "actions": {
+                "Loop": {
+                  "type": "Foreach",
+                  "foreach": "@triggerBody()?['records']",
+                  "actions": {
+                    "Check_Type": {
+                      "type": "If",
+                      "expression": "@not(empty(items('Loop')?['type']))",
+                      "actions": {
+                        "Route_By_Type": {
+                          "type": "Switch",
+                          "expression": "@items('Loop')?['type']",
+                          "cases": {
+                            "TypeA": {
+                              "case": "A",
+                              "actions": {
+                                "Handle_A": { "type": "Http", "inputs": { "method": "POST", "uri": "https://api.example.com/a" } }
+                              }
+                            }
+                          },
+                          "default": {
+                            "actions": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-inside-switch-case",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Outer_If": {
+              "type": "If",
+              "expression": "@true",
+              "actions": {
+                "Route": {
+                  "type": "Switch",
+                  "expression": "@triggerBody()?['type']",
+                  "cases": {
+                    "CaseA": {
+                      "case": "A",
+                      "actions": {
+                        "Inner_Loop": {
+                          "type": "Foreach",
+                          "foreach": "@triggerBody()?['items']",
+                          "actions": {
+                            "Deep_Scope": {
+                              "type": "Scope",
+                              "actions": {}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "default": {
+                    "actions": {}
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-inside-switch-default",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Scope1": {
+              "type": "Scope",
+              "actions": {
+                "Route": {
+                  "type": "Switch",
+                  "expression": "@triggerBody()?['type']",
+                  "cases": {},
+                  "default": {
+                    "actions": {
+                      "Default_Loop": {
+                        "type": "Foreach",
+                        "foreach": "@triggerBody()?['items']",
+                        "actions": {
+                          "Too_Deep": {
+                            "type": "Until",
+                            "expression": "@true",
+                            "limit": { "count": 5 },
+                            "actions": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-inside-if-else",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Check1": {
+              "type": "If",
+              "expression": "@true",
+              "actions": {},
+              "else": {
+                "actions": {
+                  "Check2": {
+                    "type": "If",
+                    "expression": "@true",
+                    "actions": {
+                      "Loop": {
+                        "type": "Foreach",
+                        "foreach": "@triggerBody()?['items']",
+                        "actions": {
+                          "Nested_Scope": {
+                            "type": "Scope",
+                            "actions": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-depth-3",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Check_condition": {
+              "type": "If",
+              "expression": "@equals(triggerBody()?['status'], 'active')",
+              "actions": {
+                "Loop_items": {
+                  "type": "Foreach",
+                  "foreach": "@triggerBody()?['items']",
+                  "actions": {
+                    "Inner_Scope": {
+                      "type": "Scope",
+                      "actions": {
+                        "Send_email": {
+                          "type": "ApiConnection",
+                          "inputs": { "method": "post", "path": "/v2/Mail" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-flat",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Get_Data": {
+              "type": "Http",
+              "inputs": { "method": "GET", "uri": "https://api.example.com/data" },
+              "runAfter": {}
+            },
+            "Send_Notification": {
+              "type": "ApiConnection",
+              "inputs": { "method": "post", "body": "@body('Get_Data')", "path": "/v2/Mail" },
+              "runAfter": { "Get_Data": ["Succeeded"] }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-no-definition",
+      "location": "[resourceGroup().location]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-empty-definition",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {}
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-no-actions",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-empty-actions",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {},
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-parameterized-type",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Action1": {
+              "type": "[parameters('actType')]",
+              "actions": {
+                "Action2": {
+                  "type": "[parameters('actType')]",
+                  "actions": {
+                    "Action3": {
+                      "type": "[parameters('actType')]",
+                      "actions": {
+                        "Action4": {
+                          "type": "[parameters('actType')]",
+                          "actions": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-sibling-violations-in-if",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Outer_Scope": {
+              "type": "Scope",
+              "actions": {
+                "Loop": {
+                  "type": "Foreach",
+                  "foreach": "@triggerBody()",
+                  "actions": {
+                    "Branch": {
+                      "type": "If",
+                      "expression": "@true",
+                      "actions": {
+                        "Then_Scope": {
+                          "type": "Scope",
+                          "actions": {}
+                        }
+                      },
+                      "else": {
+                        "actions": {
+                          "Else_Scope": {
+                            "type": "Scope",
+                            "actions": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    }
+  ]
+}

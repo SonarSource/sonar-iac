@@ -1,0 +1,77 @@
+<p>Control actions such as <code>If</code>, <code>Switch</code>, <code>Foreach</code>, <code>Until</code>, and <code>Scope</code> are
+building blocks of Logic Apps workflows. When they are nested deeply inside one another the workflow becomes hard to read, maintain, debug, and
+test.</p>
+<h2>Why is this an issue?</h2>
+<p>Deeply nested control actions create "spaghetti workflows" where reviewers must mentally track many levels of branching and looping. Small
+changes at deep levels have unpredictable effects, and run history tools flatten the action tree making failures hard to trace.</p>
+<p>The recommended remediation is to extract deeply nested logic into a <strong>child Logic App</strong> or to flatten the structure by
+rethinking the control flow.</p>
+<h2>Noncompliant Code Example</h2>
+<p>With the default threshold of 3:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "deeply-nested",
+  "properties": {
+    "definition": {
+      "actions": {
+        "Check": {
+          "type": "If",
+          "actions": {
+            "Loop": {
+              "type": "Foreach",
+              "actions": {
+                "Inner_Check": {
+                  "type": "If",
+                  "actions": {
+                    "Retry": {
+                      "type": "Until",
+                      "actions": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "flat-with-child",
+  "properties": {
+    "definition": {
+      "actions": {
+        "Check": {
+          "type": "If",
+          "actions": {
+            "Loop": {
+              "type": "Foreach",
+              "actions": {
+                "Call_Child": {
+                  "type": "Workflow",
+                  "inputs": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-conditional-statement">Control workflow actions in Azure Logic Apps</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-http-endpoint">Call nested Logic Apps</a></li>
+</ul>

@@ -1,0 +1,23 @@
+{
+  "title": "Azure Logic Apps control actions should not be excessively nested",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "azure"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8684",
+  "sqKey": "S8684",
+  "scope": "Main",
+  "securityStandards": {}
+}
