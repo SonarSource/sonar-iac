@@ -1,0 +1,210 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "noncompliant-sql-user-account",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+        },
+        "parameterValues": {
+          "server": "myserver.database.windows.net",
+          "database": "mydb",
+          "username": "john.doe@company.com",
+          "password": "[parameters('sqlPassword')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "noncompliant-servicebus-user-email",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'servicebus')]"
+        },
+        "parameterValues": {
+          "connectionString": "Endpoint=sb://mybus.servicebus.windows.net/",
+          "authenticatedUser": "jane.smith@company.com"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "noncompliant-literal-api-id",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "/subscriptions/sub1/providers/Microsoft.Web/locations/eastus/managedApis/sql"
+        },
+        "parameterValues": {
+          "username": "admin@corp.example.com"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-literal-api-id-allowed",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "/subscriptions/sub1/providers/Microsoft.Web/locations/eastus/managedApis/office365"
+        },
+        "parameterValues": {
+          "authenticatedUser": "user@corp.example.com"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-managed-identity",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+        },
+        "parameterValueType": "Alternative",
+        "alternativeParameterValues": {}
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-no-email",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'servicebus')]"
+        },
+        "parameterValues": {
+          "connectionString": "[parameters('serviceBusConnectionString')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-office365-allowed-connector",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'office365')]"
+        },
+        "parameterValues": {
+          "token:clientId": "...",
+          "authenticatedUser": "john.doe@company.com"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-filesystem-allowed-connector",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'filesystem')]"
+        },
+        "parameterValues": {
+          "rootfolder": "\\\\server\\share",
+          "username": "admin@company.com",
+          "password": "[parameters('fileSharePassword')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-literal-id-filesystem",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "/subscriptions/sub1/providers/Microsoft.Web/locations/eastus/managedApis/filesystem"
+        },
+        "parameterValues": {
+          "rootfolder": "\\\\server\\share",
+          "username": "admin@corp.example.com"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-alternative-with-email",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+        },
+        "parameterValueType": "Alternative",
+        "alternativeParameterValues": {
+          "authenticatedUser": "john.doe@company.com"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-empty-parameter-values",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+        },
+        "parameterValues": {}
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-concat-allowed",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[concat('/subscriptions/sub1/providers/Microsoft.Web/locations/eastus/managedApis/', 'office365')]"
+        },
+        "parameterValues": {
+          "authenticatedUser": "user@corp.example.com"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-email-in-description",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+        },
+        "parameterValues": {
+          "description": "owner: jane@x.com",
+          "server": "myserver.database.windows.net"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "compliant-sensitive-param-without-email",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+        },
+        "parameterValues": {
+          "username": "svc-app-runner",
+          "password": "[parameters('sqlPassword')]"
+        }
+      }
+    }
+  ]
+}

@@ -39,6 +39,7 @@ public final class ArmCheckList {
       HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,
       LocationParameterAllowedValuesCheck.class,
+      LogicAppConnectionUserAccountCheck.class,
       LogRetentionCheck.class,
       ManagedIdentityCheck.class,
       ParameterAndVariableNameConventionCheck.class,

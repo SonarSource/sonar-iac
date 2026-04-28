@@ -1,0 +1,82 @@
+<p>Azure Logic Apps rely on API connections (<code>Microsoft.Web/connections</code>) to authenticate against external services. When these
+connections are created using a personal or corporate user account, several risks arise.</p>
+<h2>Why is this an issue?</h2>
+<ul>
+  <li><strong>Access loss</strong> -- when the user leaves the organization or their account is disabled, all Logic Apps depending on that
+  connection break silently</li>
+  <li><strong>Credential sharing</strong> -- the user's credentials are embedded in a shared resource, violating the principle of least
+  privilege</li>
+  <li><strong>Audit and compliance gaps</strong> -- actions performed through the connection are attributed to an individual rather than a
+  service identity</li>
+</ul>
+<p>API connections should instead use <strong>service principals</strong> or <strong>managed identities</strong>.</p>
+<h2>Noncompliant Code Example</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "type": "Microsoft.Web/connections",
+  "apiVersion": "2016-06-01",
+  "name": "sql-connection",
+  "properties": {
+    "api": {
+      "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+    },
+    "parameterValues": {
+      "server": "myserver.database.windows.net",
+      "database": "mydb",
+      "username": "john.doe@company.com",
+      "password": "[parameters('sqlPassword')]"
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource sqlConnection 'Microsoft.Web/connections@2016-06-01' = {
+  name: 'sql-connection'
+  location: resourceGroup().location
+  properties: {
+    api: {
+      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')
+    }
+    parameterValues: {
+      server: 'myserver.database.windows.net'
+      database: 'mydb'
+      username: 'john.doe@company.com' // Noncompliant
+      password: sqlPassword
+    }
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Web/connections",
+  "apiVersion": "2016-06-01",
+  "name": "sql-connection-mi",
+  "properties": {
+    "api": {
+      "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+    },
+    "parameterValueType": "Alternative",
+    "alternativeParameterValues": {}
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource sqlConnectionMi 'Microsoft.Web/connections@2016-06-01' = {
+  name: 'sql-connection-mi'
+  location: resourceGroup().location
+  properties: {
+    api: {
+      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')
+    }
+    parameterValueType: 'Alternative'
+    alternativeParameterValues: {}
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/798">CWE-798 - Use of Hard-coded Credentials</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity">Authenticate API connection with managed identity</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/connectors/managed">Managed connectors in Azure Logic Apps</a></li>
+</ul>
