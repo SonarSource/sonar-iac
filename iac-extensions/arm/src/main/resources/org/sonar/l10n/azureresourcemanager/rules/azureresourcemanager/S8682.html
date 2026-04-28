@@ -1,0 +1,102 @@
+<p>Azure Logic Apps store the inputs and outputs of every action in the workflow run history by default. If Secure Inputs and Secure Outputs
+are not enabled, sensitive payloads -- tokens, credentials, PII, API keys -- are logged in plain text and visible to anyone with access to
+the run history.</p>
+<h2>Why is this an issue?</h2>
+<p>Without enabling <code>secureData</code> properties for both <code>"inputs"</code> and <code>"outputs"</code>, sensitive information can be
+exposed through:</p>
+<ul>
+  <li>Unintentional exposure of secrets and credentials in run history</li>
+  <li>Compliance violations (GDPR, ISO 27001, SOC 2)</li>
+  <li>Lateral movement opportunities if an attacker gains read access to run history</li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "no-secure-data",
+  "properties": {
+    "definition": {
+      "actions": {
+        "HTTP_Call": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.example.com/sensitive"
+          }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'no-secure-data'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      actions: {
+        HTTP_Call: { // Noncompliant
+          type: 'Http'
+          inputs: { method: 'POST', uri: 'https://api.example.com/sensitive' }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "fully-secured",
+  "properties": {
+    "definition": {
+      "actions": {
+        "HTTP_Call": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.example.com/sensitive"
+          },
+          "runtimeConfiguration": {
+            "secureData": {
+              "properties": ["inputs", "outputs"]
+            }
+          }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'fully-secured'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      actions: {
+        HTTP_Call: {
+          type: 'Http'
+          inputs: { method: 'POST', uri: 'https://api.example.com/sensitive' }
+          runtimeConfiguration: {
+            secureData: { properties: ['inputs', 'outputs'] }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/532">CWE-532 - Insertion of Sensitive Information into Log File</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app#secure-data-in-run-history-by-using-obfuscation">Secure data in run history by using obfuscation</a></li>
+</ul>

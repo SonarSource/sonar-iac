@@ -1,0 +1,28 @@
+{
+  "title": "Azure Logic Apps actions should enable Secure Inputs and Secure Outputs",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "azure",
+    "cwe"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-8682",
+  "sqKey": "S8682",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      532
+    ]
+  }
+}

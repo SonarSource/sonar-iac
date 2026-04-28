@@ -1,0 +1,326 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-no-runtime-config",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://api.example.com/sensitive",
+                "body": "@triggerBody()"
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-missing-outputs",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://api.example.com/sensitive",
+                "body": "@triggerBody()"
+              },
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": ["inputs"]
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-fully-secured",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://api.example.com/sensitive",
+                "body": "@triggerBody()"
+              },
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": ["inputs", "outputs"]
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-multiple-actions-all-secured",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Get_Secret": {
+              "type": "ApiConnection",
+              "inputs": {
+                "method": "get",
+                "path": "/secrets/my-secret"
+              },
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": ["inputs", "outputs"]
+                }
+              }
+            },
+            "Send_Email": {
+              "type": "ApiConnection",
+              "inputs": {
+                "method": "post",
+                "body": "@body('Get_Secret')"
+              },
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": ["inputs", "outputs"]
+                }
+              },
+              "runAfter": {
+                "Get_Secret": ["Succeeded"]
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-only-outputs",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": ["outputs"]
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-extra-property",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": ["inputs", "outputs", "something_else"]
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-empty-properties",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": []
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-properties-not-array",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": "foo"
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-no-properties-key",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "runtimeConfiguration": {
+                "secureData": {}
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-no-secure-data-key",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP_Call": {
+              "type": "Http",
+              "runtimeConfiguration": {
+                "staticResult": {
+                  "name": "foo",
+                  "staticResultOptions": "Enabled"
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-mixed-actions",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Get_Secret": {
+              "type": "ApiConnection",
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": ["inputs", "outputs"]
+                }
+              }
+            },
+            "Send_Email": {
+              "type": "ApiConnection"
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-trigger-not-secured",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {},
+          "triggers": {
+            "Recurrence": {
+              "type": "Recurrence",
+              "recurrence": {
+                "frequency": "Hour",
+                "interval": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-trigger-secured",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {},
+          "triggers": {
+            "Recurrence": {
+              "type": "Recurrence",
+              "recurrence": {
+                "frequency": "Hour",
+                "interval": 1
+              },
+              "runtimeConfiguration": {
+                "secureData": {
+                  "properties": ["inputs", "outputs"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
