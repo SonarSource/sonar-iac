@@ -1,0 +1,28 @@
+{
+  "title": "Basic authentication should not be used for Azure Logic Apps API connections",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "azure",
+    "cwe"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-8680",
+  "sqKey": "S8680",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      522
+    ]
+  }
+}

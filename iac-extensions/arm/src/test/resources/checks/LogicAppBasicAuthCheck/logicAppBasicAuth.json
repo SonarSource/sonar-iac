@@ -1,0 +1,456 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-basic-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Call_API": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.example.com/data",
+                "authentication": {
+                  "type": "Basic",
+                  "username": "apiuser",
+                  "password": "P@ssw0rd!"
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-raw-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Call_API": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://api.example.com/data",
+                "authentication": {
+                  "type": "Raw",
+                  "value": "Bearer sk-live-abc123def456"
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-managed-identity",
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Call_API": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.example.com/data",
+                "authentication": {
+                  "type": "ManagedServiceIdentity",
+                  "audience": "https://api.example.com"
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-oauth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Call_API": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://api.example.com/data",
+                "authentication": {
+                  "type": "ActiveDirectoryOAuth",
+                  "tenant": "@parameters('TenantId')",
+                  "audience": "https://api.example.com",
+                  "clientId": "@parameters('ClientId')",
+                  "secret": "@parameters('ClientSecret')"
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-client-certificate",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Call_API": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.example.com/data",
+                "authentication": {
+                  "type": "ClientCertificate",
+                  "pfx": "@parameters('CertificatePfx')",
+                  "password": "@parameters('CertificatePassword')"
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-no-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Get_Public_Data": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.example.com/public"
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-scope-with-basic-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "My_Scope": {
+              "type": "Scope",
+              "actions": {
+                "Call_API": {
+                  "type": "Http",
+                  "inputs": {
+                    "uri": "https://api.example.com/data",
+                    "authentication": {
+                      "type": "Basic",
+                      "username": "apiuser",
+                      "password": "P@ssw0rd!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-if-with-bad-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Branch": {
+              "type": "If",
+              "expression": "@equals(1, 1)",
+              "actions": {
+                "Then_Call": {
+                  "type": "Http",
+                  "inputs": {
+                    "uri": "https://api.example.com/then",
+                    "authentication": {
+                      "type": "Basic",
+                      "username": "u",
+                      "password": "p"
+                    }
+                  }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Else_Call": {
+                    "type": "Http",
+                    "inputs": {
+                      "uri": "https://api.example.com/else",
+                      "authentication": {
+                        "type": "Raw",
+                        "value": "Bearer xyz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-switch-with-bad-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Pick": {
+              "type": "Switch",
+              "expression": "@variables('mode')",
+              "cases": {
+                "CaseA": {
+                  "case": "a",
+                  "actions": {
+                    "Call_A": {
+                      "type": "Http",
+                      "inputs": {
+                        "uri": "https://api.example.com/a",
+                        "authentication": {
+                          "type": "Basic",
+                          "username": "u",
+                          "password": "p"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "default": {
+                "actions": {
+                  "Default_Call": {
+                    "type": "Http",
+                    "inputs": {
+                      "uri": "https://api.example.com/default",
+                      "authentication": {
+                        "type": "Raw",
+                        "value": "Bearer xyz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-deeply-nested-bad-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Loop_All": {
+              "type": "Foreach",
+              "foreach": "@variables('items')",
+              "actions": {
+                "Retry_Until_Done": {
+                  "type": "Until",
+                  "expression": "@equals(1, 1)",
+                  "limit": { "count": 3, "timeout": "PT1H" },
+                  "actions": {
+                    "Call_API": {
+                      "type": "Http",
+                      "inputs": {
+                        "uri": "https://api.example.com/data",
+                        "authentication": {
+                          "type": "Basic",
+                          "username": "u",
+                          "password": "p"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-trigger-basic-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {},
+          "triggers": {
+            "Poll_API": {
+              "type": "Http",
+              "recurrence": { "frequency": "Hour", "interval": 1 },
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.example.com/data",
+                "authentication": {
+                  "type": "Basic",
+                  "username": "u",
+                  "password": "p"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "noncompliant-parallel-with-bad-auth",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Fan_Out": {
+              "type": "Parallel",
+              "branches": {
+                "Branch1": {
+                  "actions": {
+                    "Http_1": {
+                      "type": "Http",
+                      "inputs": {
+                        "uri": "https://api.example.com/branch1",
+                        "authentication": {
+                          "type": "Basic",
+                          "username": "u",
+                          "password": "p"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Branch2": {
+                  "actions": {
+                    "Http_2": {
+                      "type": "Http",
+                      "inputs": {
+                        "uri": "https://api.example.com/branch2",
+                        "authentication": {
+                          "type": "Raw",
+                          "value": "Bearer xyz"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-inputs-without-authentication",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Call_API": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.example.com/data"
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-authentication-without-type",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Call_API": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.example.com/data",
+                "authentication": {
+                  "username": "u"
+                }
+              }
+            }
+          },
+          "triggers": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "compliant-actions-not-an-object",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": "foo",
+          "triggers": {}
+        }
+      }
+    }
+  ]
+}

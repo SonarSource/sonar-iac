@@ -1,0 +1,121 @@
+<p>Basic Authentication transmits a username and password (often base64-encoded, not encrypted) with every request. In Azure Logic Apps,
+using Basic auth for HTTP actions is insecure.</p>
+<h2>Why is this an issue?</h2>
+<ul>
+  <li><strong>Long-lived credentials</strong> -- passwords do not expire automatically and are difficult to rotate</li>
+  <li><strong>No central revocation</strong> -- a compromised password cannot be invalidated from a single place</li>
+  <li><strong>Replay attacks</strong> -- captured credentials can be reused indefinitely</li>
+  <li><strong>Secrets in the definition</strong> -- the password ends up in the workflow definition, ARM exports, and run history</li>
+</ul>
+<p>Azure Logic Apps should instead use <strong>Managed Identity</strong> or <strong>OAuth 2.0 / Entra ID</strong>
+(<code>ActiveDirectoryOAuth</code>).</p>
+<h2>Noncompliant Code Example</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "basic-auth-workflow",
+  "properties": {
+    "definition": {
+      "actions": {
+        "Call_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.example.com/data",
+            "authentication": {
+              "type": "Basic",
+              "username": "apiuser",
+              "password": "P@ssw0rd!"
+            }
+          }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'basic-auth-workflow'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'GET'
+            uri: 'https://api.example.com/data'
+            authentication: { // Noncompliant
+              type: 'Basic'
+              username: 'apiuser'
+              password: 'P@ssw0rd!'
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "managed-identity-workflow",
+  "identity": { "type": "SystemAssigned" },
+  "properties": {
+    "definition": {
+      "actions": {
+        "Call_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.example.com/data",
+            "authentication": {
+              "type": "ManagedServiceIdentity",
+              "audience": "https://api.example.com"
+            }
+          }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'managed-identity-workflow'
+  location: resourceGroup().location
+  identity: { type: 'SystemAssigned' }
+  properties: {
+    definition: {
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'GET'
+            uri: 'https://api.example.com/data'
+            authentication: {
+              type: 'ManagedServiceIdentity'
+              audience: 'https://api.example.com'
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/522">CWE-522 - Insufficiently Protected Credentials</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity">Authenticate with Managed Identity in Logic Apps</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/connectors/connectors-native-http#authentication-types">HTTP action authentication types</a></li>
+</ul>
