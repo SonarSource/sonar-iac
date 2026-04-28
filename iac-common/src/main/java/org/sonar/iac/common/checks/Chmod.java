@@ -42,7 +42,7 @@ public class Chmod {
 
   private static Permission parsePermissions(String permissions) {
     Matcher matcher = PERMISSIONS_PATTERN.matcher(permissions);
-    if (matcher.find()) {
+    if (matcher.matches()) {
       if (matcher.group("numeric") != null) {
         return Permission.fromNumeric(matcher.group("numeric"));
       } else {

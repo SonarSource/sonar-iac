@@ -185,7 +185,12 @@ class ChmodTest {
         "1000", "1111", "1777",
         "4000", "4111", "4777",
         "5000", "5111", "5777",
-        "g-s", "g=w", "g=x", "g=r", "g+r,g+w", "g+w,g+r", "u+s,g+w", "g+rw", "g+rwx", "g+rX", "", "a+rwx")),
+        "g-s", "g=w", "g=x", "g=r", "g+r,g+w", "g+w,g+r", "u+s,g+w", "g+rw", "g+rwx", "g+rX", "", "a+rwx",
+        // File path containing "2024" should not be parsed as chmod mode 2024 (which has g+s)
+        "/etc/ssl/certs/selfsigned2024.crt",
+        "something-something",
+        "2000.txt",
+        "foo2000.crt")),
       Arguments.arguments("u+s", List.of(
         "1000", "1111", "1777",
         "2000", "2111", "2777",
