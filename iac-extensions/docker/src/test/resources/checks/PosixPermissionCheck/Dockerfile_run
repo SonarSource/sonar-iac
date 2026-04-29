@@ -160,6 +160,8 @@ RUN ["chmod", "u-w,o+w"]
 RUN ["chmod", "chmod", "o+w", "resource"]
 # Noncompliant@+1
 RUN ["chmod", "g=u,o+w", "resource"]
+# Noncompliant@+1
+RUN ["chmod", "g=-w,o=rwx", "resource"]
 RUN ["sh", "-c", "chmod +st"]
 
 # Compliant

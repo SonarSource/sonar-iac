@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  */
 public class Chmod {
   private static final String NUMERIC = "(?<numeric>[0-7]{1,4})";
-  private static final String ALPHANUMERIC = "[ugoa]*+[=+-][rwxXstugo]++";
+  private static final String ALPHANUMERIC = "[ugoa]*+(=[+-]?|[+-])[rwxXstugo]++";
   private static final String ALPHANUMERICS = "(?<alphanumeric>(?:" + ALPHANUMERIC + ",?+)++)";
   private static final Pattern PERMISSIONS_PATTERN = Pattern.compile(NUMERIC + "|" + ALPHANUMERICS);
 
@@ -84,7 +84,8 @@ public class Chmod {
         if (alphanumeric.contains("-")) {
           continue;
         }
-        String[] split = alphanumeric.split("[+=]");
+        // Normalize "=+" to "=" so that split("[+=]") produces [target, rights] rather than [target, "", rights]
+        String[] split = alphanumeric.replace("=+", "=").split("[+=]");
         chmodRight.addRights(split[0], split[1]);
       }
       return chmodRight;
