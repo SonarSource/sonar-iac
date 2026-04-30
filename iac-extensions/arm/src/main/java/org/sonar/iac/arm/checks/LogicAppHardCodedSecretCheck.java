@@ -44,9 +44,8 @@ public class LogicAppHardCodedSecretCheck extends AbstractArmResourceCheck {
     "pfx",
     "value");
 
-  private static final Set<String> SAFE_EXPRESSION_MARKERS = Set.of(
-    "@parameters(",
-    "@{",
+  // ARM template-language expression prefixes — used when the workflow JSON is parameterized at deployment time.
+  private static final Set<String> ARM_EXPRESSION_MARKERS = Set.of(
     "[parameters(",
     "[variables(",
     "[concat(",
@@ -154,7 +153,21 @@ public class LogicAppHardCodedSecretCheck extends AbstractArmResourceCheck {
 
   private static boolean isHardCodedLiteral(Property property) {
     return TextUtils.getValue(property.value())
-      .map(value -> SAFE_EXPRESSION_MARKERS.stream().noneMatch(value::contains))
+      .map(LogicAppHardCodedSecretCheck::isLiteralSecret)
       .orElse(false);
+  }
+
+  private static boolean isLiteralSecret(String value) {
+    // Logic App workflow expression at the start of the value: @<func>(...) or @<identifier>.
+    // `@@` is the escape sequence for a literal `@`, so it does not denote an expression.
+    String trimmed = value.stripLeading();
+    if (trimmed.startsWith("@") && !trimmed.startsWith("@@")) {
+      return false;
+    }
+    // Logic App interpolated expression embedded inside a string: @{...}.
+    if (value.contains("@{")) {
+      return false;
+    }
+    return ARM_EXPRESSION_MARKERS.stream().noneMatch(value::contains);
   }
 }

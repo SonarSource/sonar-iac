@@ -406,3 +406,100 @@ resource workflow13 'Microsoft.Logic/workflows@2019-05-01' = {
     }
   }
 }
+
+// Compliant - secret read from a workflow variable via @variables() expression
+resource workflowVariablesExpression 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'variables-expression'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'POST'
+            uri: 'https://api.example.com/data'
+            headers: {
+              Authorization: '@variables(\'MISPKey\')'
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+
+// Compliant - secret pulled from a Get_secret action body via @body() expression
+resource workflowBodyExpression 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'body-expression'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'GET'
+            uri: 'https://api.example.com/data'
+            authentication: {
+              type: 'Raw'
+              secret: '@body(\'Get_secret\')?[\'value\']'
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+
+// `@@` is the Logic App escape for a literal `@`, so the value is a hard-coded secret string starting with `@`.
+resource workflowEscapedAtLiteral 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'escaped-at-literal'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'POST'
+            uri: 'https://api.example.com/data'
+            headers: {
+              Authorization: '@@Bearer literal-at-token' // Noncompliant
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+
+// Compliant - value does not start with `@` but embeds a `@{...}` Logic App interpolation
+resource workflowEmbeddedInterpolation 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'embedded-interpolation'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'POST'
+            uri: 'https://api.example.com/data'
+            headers: {
+              Authorization: 'Bearer @{variables(\'Token\')}'
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}

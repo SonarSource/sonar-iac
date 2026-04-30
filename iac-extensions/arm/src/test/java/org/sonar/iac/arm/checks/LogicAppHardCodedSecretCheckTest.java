@@ -40,6 +40,7 @@ class LogicAppHardCodedSecretCheckTest {
       issue(222, 10, 222, 36),
       issue(265, 26, 265, 62),
       issue(302, 24, 302, 58),
-      issue(336, 26, 336, 52));
+      issue(336, 26, 336, 52),
+      issue(424, 18, 424, 62));
   }
 }
