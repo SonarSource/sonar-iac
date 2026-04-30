@@ -202,3 +202,18 @@ resource sensitiveParamWithoutEmail 'Microsoft.Web/connections@2016-06-01' = {
     }
   }
 }
+
+// Compliant - existing connection without properties (e.g. referencing a pre-created connection); must not throw
+resource existingConnection 'Microsoft.Web/connections@2016-06-01' existing = {
+  name: 'existing-connection'
+}
+
+resource noParamConnection 'Microsoft.Web/connections@2016-06-01' = {
+  name: 'no-param-connection'
+  location: resourceGroup().location
+  properties: {
+    api: {
+      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')
+    }
+  }
+}

@@ -111,6 +111,6 @@ public class LogicAppConnectionUserAccountCheck extends AbstractArmResourceCheck
     ContextualProperty apiId = resource.object("api").property("id");
 
     // For ARM/Bicep expressions (function calls), check if the expression tree contains any allowed connector name
-    return cachedAllowedConnectors.stream().anyMatch(connectorName -> apiId.is(CheckUtils.containsRecursively(connectorName)));
+    return apiId.tree != null && cachedAllowedConnectors.stream().anyMatch(connectorName -> apiId.is(CheckUtils.containsRecursively(connectorName)));
   }
 }
