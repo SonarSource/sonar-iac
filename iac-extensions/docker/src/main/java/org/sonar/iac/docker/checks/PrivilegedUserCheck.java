@@ -48,7 +48,7 @@ public class PrivilegedUserCheck implements IacCheck {
     "sl", "spiped", "swipl", "telegraf", "tomcat", "tomee", "traefik", "ubuntu", "xwiki", "yourls", "bonita", "cassandra", "centos", "chronograf",
     "convertigo", "couchbase", "docker", "eclipse-mosquitto", "eggdrop", "ghost", "gradle", "mariadb", "mongo", "mongo-express", "mysql", "node",
     "postgres", "rabbitmq", "rakudo-star", "redis", "sonarqube", "storm", "swift", "teamspeak", "zookeeper");
-  private static final Set<String> UNSAFE_USERS = Set.of("root", "containerAdministrator");
+  private static final Set<String> UNSAFE_USERS = Set.of("root", "containerAdministrator", "0");
   private static final Set<String> SAFE_IMAGES = Set.of("adminer", "api-firewall", "elasticsearch", "emqx", "flink", "fluentd", "geonetwork", "groovy", "haproxy",
     "ibm-semeru-runtimes", "irssi", "jetty", "jobber", "kibana", "kong", "lightstreamer", "logstash", "memcached", "neo4j", "odoo", "open-liberty", "percona",
     "rocket.chat", "solr", "swift", "varnish", "vault", "websphere-liberty", "znc", "nginxinc/nginx-unprivileged");
@@ -95,7 +95,10 @@ public class PrivilegedUserCheck implements IacCheck {
       return;
     }
     Argument user = userInstruction.arguments().get(0);
-    String userName = ArgumentResolution.of(user).value();
+    String resolvedValue = ArgumentResolution.of(user).value();
+    // USER can be specified as user:group; extract only the user part for the privilege check
+    int colonIndex = resolvedValue.indexOf(':');
+    String userName = colonIndex >= 0 ? resolvedValue.substring(0, colonIndex) : resolvedValue;
     if (UNSAFE_USERS.contains(userName)) {
       ctx.reportIssue(userInstruction, String.format(MESSAGE_ROOT_USER, userName));
     }
