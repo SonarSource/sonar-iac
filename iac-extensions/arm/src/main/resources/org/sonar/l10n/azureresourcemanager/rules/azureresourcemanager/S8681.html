@@ -1,17 +1,25 @@
-<p>Hard-coding secrets -- passwords, API keys, tokens, connection strings, client secrets -- directly inside Azure Logic Apps workflow
-definitions is a security risk. Secrets embedded in the definition are exposed through source control, the Azure Portal, ARM template exports,
-and run history.</p>
+<p>Hard-coding secrets directly inside Azure Logic Apps workflow definitions is a security risk. Secrets embedded in the definition are exposed
+through source control, the Azure Portal, ARM template exports, and run history.</p>
 <h2>Why is this an issue?</h2>
-<p>Secrets must be stored in <strong>Azure Key Vault</strong> and referenced at runtime, or passed securely via <strong>Logic App
-parameters</strong> whose values are kept in a separate, non-exported parameters file.</p>
-<h2>Noncompliant Code Example</h2>
+<p>Secrets such as passwords, API keys, tokens, connection strings, and client secrets should never be hard-coded in workflow definitions. When they
+are, they become visible to anyone with access to the repository, the Azure Portal workflow designer, ARM exports, or run history logs.</p>
+<h3>What is the potential impact?</h3>
+<p>If hard-coded secrets are exposed, an attacker can use them to gain unauthorized access to the target services. The secrets cannot be rotated
+without modifying the workflow definition, increasing the window of exposure.</p>
+<h2>How to fix it in JSON templates</h2>
+<p>Store secrets in Azure Key Vault and reference them at runtime via Logic App parameters with the <code>securestring</code> type, or pass them via
+ARM template parameters.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
   "type": "Microsoft.Logic/workflows",
   "apiVersion": "2019-05-01",
   "name": "hardcoded-secret",
+  "location": "[resourceGroup().location]",
   "properties": {
     "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "actions": {
         "Call_API": {
           "type": "Http",
@@ -29,12 +37,54 @@ parameters</strong> whose values are kept in a separate, non-exported parameters
   }
 }
 </pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "parameterized-secret",
+  "location": "[resourceGroup().location]",
+  "properties": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "actions": {
+        "Call_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.example.com/data",
+            "headers": {
+              "Authorization": "@{concat('Bearer ', parameters('ApiToken'))}"
+            }
+          }
+        }
+      },
+      "triggers": {},
+      "parameters": {
+        "ApiToken": {
+          "type": "securestring"
+        }
+      }
+    },
+    "parameters": {
+      "ApiToken": {
+        "value": "[parameters('apiToken')]"
+      }
+    }
+  }
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<p>Store secrets in Azure Key Vault and reference them at runtime via secure Bicep parameters and Logic App workflow parameters.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'hardcoded-secret'
   location: resourceGroup().location
   properties: {
     definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
       actions: {
         Call_API: {
           type: 'Http'
@@ -52,38 +102,17 @@ resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre data-diff-id="1" data-diff-type="compliant">
-{
-  "type": "Microsoft.Logic/workflows",
-  "apiVersion": "2019-05-01",
-  "name": "parameterized-secret",
-  "properties": {
-    "definition": {
-      "actions": {
-        "Call_API": {
-          "type": "Http",
-          "inputs": {
-            "method": "POST",
-            "uri": "https://api.example.com/data",
-            "headers": {
-              "Authorization": "@{concat('Bearer ', parameters('ApiToken'))}"
-            }
-          }
-        }
-      },
-      "triggers": {},
-      "parameters": { "ApiToken": { "type": "securestring" } }
-    }
-  }
-}
-</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
+@secure()
+param apiToken string
+
 resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'parameterized-secret'
   location: resourceGroup().location
   properties: {
     definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
       actions: {
         Call_API: {
           type: 'Http'
@@ -97,13 +126,34 @@ resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
         }
       }
       triggers: {}
-      parameters: { ApiToken: { type: 'securestring' } }
+      parameters: {
+        ApiToken: {
+          type: 'securestring'
+        }
+      }
+    }
+    parameters: {
+      ApiToken: {
+        value: apiToken
+      }
     }
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app">Secure access and data in Azure Logic
+  Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity?tabs=consumption">Authenticate with
+  managed identity in Azure Logic Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/key-vault-parameter">Reference secrets from Azure Key
+  Vault</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/connectors/connectors-native-http#authentication">HTTP action authentication</a></li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/798">CWE-798 - Use of Hard-coded Credentials</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app">Secure access and data in Azure Logic Apps</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/259">CWE-259 - Use of Hard-coded Password</a></li>
 </ul>
+

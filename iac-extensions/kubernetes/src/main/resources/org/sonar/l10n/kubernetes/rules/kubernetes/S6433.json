@@ -1,6 +1,6 @@
 {
-  "title": "Mounting sensitive file system paths is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Sensitive file system paths should not be mounted in containers",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,7 +13,8 @@
     "constantCost": "60min"
   },
   "tags": [
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6433",

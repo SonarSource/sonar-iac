@@ -1,21 +1,18 @@
-<p>Allowing process privilege escalations exposes the Pod to attacks that exploit setuid binaries.</p>
-<p>This field directly controls whether the <code>no_new_privs</code> flag is set in the container process.
-  <br>
-  When this flag is enabled, binaries configured with setuid or setgid bits cannot change their runtime uid or gid: Potential attackers must rely on
-  other privilege escalation techniques to successfully operate as root on the Pod.</p>
-<p>Depending on how resilient the Kubernetes cluster and Pods are, attackers can extend their attack to the cluster by compromising the nodes from
-which the cluster started the Pod.</p>
-<p>The <code>allowPrivilegeEscalation</code> field should not be set to true unless the Pod’s risks related to setuid or setgid bits have been
-mitigated.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This Pod is accessible to people who are not administrators of the Kubernetes cluster.</li>
-  <li>This Pod contains binaries with setuid or setgid capabilities.</li>
-</ul>
-<p>There is a risk if you answered yes to all of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<h2>Sensitive Code Example</h2>
-<pre>
+<p>The <code>allowPrivilegeEscalation</code> field controls whether a container process can gain more privileges than its parent process. When
+enabled, SUID (Set User ID) and SGID (Set Group ID) binaries within the container can escalate to root, potentially allowing an attacker to escape the
+container and compromise the underlying host.</p>
+<h2>Why is this an issue?</h2>
+<p>When <code>allowPrivilegeEscalation</code> is set to <code>true</code>, the <code>no_new_privs</code> flag is not applied to the container process.
+This allows binaries configured with SUID or SGID bits to change their runtime uid or gid, enabling privilege escalation within the container. This
+rule flags <code>allowPrivilegeEscalation: true</code> in a container’s <code>securityContext</code>.</p>
+<h3>What is the potential impact?</h3>
+<p>An attacker with code execution in the container can leverage SUID/SGID executables in the image to increase their effective privileges in ways
+that are not possible when <code>no_new_privs</code> is applied, which can broaden what data and services they can reach and simplify further
+compromise steps—the exact level of privilege depends on the binaries present in the image.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -29,10 +26,10 @@ spec:
           containerPort: 80
           protocol: TCP
       securityContext:
-        allowPrivilegeEscalation: true # Sensitive
+        allowPrivilegeEscalation: true # Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -48,9 +45,13 @@ spec:
       securityContext:
         allowPrivilegeEscalation: false
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://docs.kernel.org/userspace-api/no_new_privs.html">Linux Kernel Archives</a> - no_new_privs</li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
-  <li><a href="https://docs.kernel.org/userspace-api/no_new_privs.html">Linux Kernel Archives, no_new_privs</a> - Official docs</li>
 </ul>
 

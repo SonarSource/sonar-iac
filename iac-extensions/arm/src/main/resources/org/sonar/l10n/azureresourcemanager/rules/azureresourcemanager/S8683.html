@@ -1,21 +1,36 @@
-<p>Azure Logic Apps execute multi-step workflows that interact with external APIs, databases, and services. Any of these steps can fail at
-runtime. Without structured error handling, failures go undetected, error context is lost, and retry policies cannot work correctly.</p>
+<p>Azure Logic Apps execute multi-step workflows that interact with external APIs, databases, and services. Without structured error handling, you
+can’t react to failures, error context is lost, and retry policies cannot work correctly.</p>
 <h2>Why is this an issue?</h2>
-<p>The recommended pattern is to wrap actions inside a <strong>Scope</strong> action (the "Try" block) and follow it with a second
-<strong>Scope</strong> (the "Catch" block) that runs on failure, using the <code>runAfter</code> configuration with <code>"Failed"</code>,
+<p>Any step in a Logic App workflow can fail at runtime. The recommended pattern is to wrap actions inside a Scope action (the "Try" block) and follow
+it with a second Scope (the "Catch" block) that runs on failure, using the <code>runAfter</code> configuration with <code>"Failed"</code>,
 <code>"TimedOut"</code>, or <code>"Skipped"</code> statuses.</p>
-<h2>Noncompliant Code Example</h2>
+<p>Without this pattern:</p>
+<ul>
+  <li>Failures may go unnoticed, leading to silent data loss or inconsistent state.</li>
+  <li>There is no centralized place to log errors or send alerts.</li>
+  <li>Retry and compensation logic cannot be cleanly organized.</li>
+</ul>
+<h2>How to fix it in JSON templates</h2>
+<p>Wrap the business logic actions inside a Scope action (the "Try" block) and add a second Scope action (the "Catch" block) with a
+<code>runAfter</code> referencing the Try scope with at least one error status.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
   "type": "Microsoft.Logic/workflows",
   "apiVersion": "2019-05-01",
   "name": "no-error-handling",
+  "location": "[resourceGroup().location]",
   "properties": {
     "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "actions": {
         "Get_items": {
           "type": "ApiConnection",
-          "inputs": { "method": "get", "path": "/items" },
+          "inputs": {
+            "method": "get",
+            "path": "/items"
+          },
           "runAfter": {}
         }
       },
@@ -24,16 +39,71 @@ runtime. Without structured error handling, failures go undetected, error contex
   }
 }
 </pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Logic/workflows",
+  "apiVersion": "2019-05-01",
+  "name": "with-error-handling",
+  "location": "[resourceGroup().location]",
+  "properties": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "actions": {
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "Get_items": {
+              "type": "ApiConnection",
+              "inputs": {
+                "method": "get",
+                "path": "/items"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Catch": {
+          "type": "Scope",
+          "actions": {
+            "Log_error": {
+              "type": "ApiConnection",
+              "inputs": {
+                "method": "post",
+                "body": "Error occurred",
+                "path": "/log"
+              }
+            }
+          },
+          "runAfter": {
+            "Try": ["Failed", "TimedOut"]
+          }
+        }
+      },
+      "triggers": {}
+    }
+  }
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<p>Wrap the business logic actions inside a Scope action (the "Try" block) and add a second Scope action (the "Catch" block) with a
+<code>runAfter</code> referencing the Try scope with at least one error status.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'no-error-handling'
   location: resourceGroup().location
   properties: {
     definition: {
-      actions: {  // Noncompliant
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: { // Noncompliant
         Get_items: {
           type: 'ApiConnection'
-          inputs: { method: 'get', path: '/items' }
+          inputs: {
+            method: 'get'
+            path: '/items'
+          }
           runAfter: {}
         }
       }
@@ -42,48 +112,61 @@ resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre data-diff-id="1" data-diff-type="compliant">
-{
-  "type": "Microsoft.Logic/workflows",
-  "apiVersion": "2019-05-01",
-  "name": "with-error-handling",
-  "properties": {
-    "definition": {
-      "actions": {
-        "Try": {
-          "type": "Scope",
-          "actions": {},
-          "runAfter": {}
-        },
-        "Catch": {
-          "type": "Scope",
-          "actions": {},
-          "runAfter": { "Try": ["Failed", "TimedOut", "Skipped"] }
-        }
-      },
-      "triggers": {}
-    }
-  }
-}
-</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
 resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'with-error-handling'
   location: resourceGroup().location
   properties: {
     definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
       actions: {
-        Try: { type: 'Scope', actions: {}, runAfter: {} }
-        Catch: { type: 'Scope', actions: {}, runAfter: { Try: ['Failed', 'TimedOut', 'Skipped'] } }
+        Try: {
+          type: 'Scope'
+          actions: {
+            Get_items: {
+              type: 'ApiConnection'
+              inputs: {
+                method: 'get'
+                path: '/items'
+              }
+            }
+          }
+          runAfter: {}
+        }
+        Catch: {
+          type: 'Scope'
+          actions: {
+            Log_error: {
+              type: 'ApiConnection'
+              inputs: {
+                method: 'post'
+                body: 'Error occurred'
+                path: '/log'
+              }
+            }
+          }
+          runAfter: {
+            Try: [
+              'Failed'
+              'TimedOut'
+            ]
+          }
+        }
       }
       triggers: {}
     }
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling">Handle errors and exceptions in Azure Logic Apps</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes">Scope action in Azure Logic Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling">Handle errors and exceptions in Azure Logic
+  Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes">Scope action in Azure Logic
+  Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers#run-after-property">runAfter
+  configuration</a></li>
 </ul>
+

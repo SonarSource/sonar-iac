@@ -1,6 +1,6 @@
 {
-  "title": "Unversioned Google Cloud Storage buckets are security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "GCP Cloud Storage buckets should have object versioning enabled",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "LOW"
@@ -13,6 +13,7 @@
     "constantCost": "5min"
   },
   "tags": [
+    "former-hotspot",
     "gcp"
   ],
   "defaultSeverity": "Minor",
@@ -30,5 +31,6 @@
       16,
       693
     ]
-  }
+  },
+  "quickfix": "unknown"
 }

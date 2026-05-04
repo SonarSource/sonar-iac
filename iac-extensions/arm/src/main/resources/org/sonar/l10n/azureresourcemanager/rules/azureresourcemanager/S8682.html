@@ -1,28 +1,37 @@
-<p>Azure Logic Apps store the inputs and outputs of every action in the workflow run history by default. If Secure Inputs and Secure Outputs
-are not enabled, sensitive payloads -- tokens, credentials, PII, API keys -- are logged in plain text and visible to anyone with access to
-the run history.</p>
+<p>Azure Logic Apps store the inputs and outputs of every action in the workflow run history by default. If Secure Inputs and Secure Outputs are not
+enabled, sensitive payloads are logged in plain text and visible to anyone with access to the run history.</p>
 <h2>Why is this an issue?</h2>
-<p>Without enabling <code>secureData</code> properties for both <code>"inputs"</code> and <code>"outputs"</code>, sensitive information can be
-exposed through:</p>
+<p>When Secure Inputs and Secure Outputs are not enabled on Logic App actions, sensitive data such as tokens, credentials, Personally Identifiable
+Information (PII), and API keys are stored in the run history in plain text. This can lead to:</p>
 <ul>
-  <li>Unintentional exposure of secrets and credentials in run history</li>
-  <li>Compliance violations (GDPR, ISO 27001, SOC 2)</li>
-  <li>Lateral movement opportunities if an attacker gains read access to run history</li>
+  <li>Unintentional exposure of secrets and credentials.</li>
+  <li>Compliance violations (GDPR, ISO 27001, SOC 2, etc.).</li>
+  <li>Lateral movement opportunities if an attacker gains read access to run history.</li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>What is the potential impact?</h3>
+<p>If sensitive data is exposed in run history, anyone with read access to the Logic App can view credentials, tokens, and Personally Identifiable
+Information (PII). This significantly increases the risk of credential theft and data breaches.</p>
+<h2>How to fix it in JSON templates</h2>
+<p>Set <code>runtimeConfiguration.secureData.properties</code> to include both <code>"inputs"</code> and <code>"outputs"</code> on each action that
+handles sensitive data.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
   "type": "Microsoft.Logic/workflows",
   "apiVersion": "2019-05-01",
-  "name": "no-secure-data",
+  "name": "example-workflow",
+  "location": "[resourceGroup().location]",
   "properties": {
     "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "actions": {
         "HTTP_Call": {
           "type": "Http",
           "inputs": {
             "method": "POST",
-            "uri": "https://api.example.com/sensitive"
+            "uri": "https://api.example.com/sensitive",
+            "body": "@triggerBody()"
           }
         }
       },
@@ -31,37 +40,23 @@ exposed through:</p>
   }
 }
 </pre>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
-  name: 'no-secure-data'
-  location: resourceGroup().location
-  properties: {
-    definition: {
-      actions: {
-        HTTP_Call: { // Noncompliant
-          type: 'Http'
-          inputs: { method: 'POST', uri: 'https://api.example.com/sensitive' }
-        }
-      }
-      triggers: {}
-    }
-  }
-}
-</pre>
-<h2>Compliant Solution</h2>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
   "type": "Microsoft.Logic/workflows",
   "apiVersion": "2019-05-01",
-  "name": "fully-secured",
+  "name": "example-workflow",
+  "location": "[resourceGroup().location]",
   "properties": {
     "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "actions": {
         "HTTP_Call": {
           "type": "Http",
           "inputs": {
             "method": "POST",
-            "uri": "https://api.example.com/sensitive"
+            "uri": "https://api.example.com/sensitive",
+            "body": "@triggerBody()"
           },
           "runtimeConfiguration": {
             "secureData": {
@@ -75,18 +70,25 @@ resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
   }
 }
 </pre>
-<pre data-diff-id="2" data-diff-type="compliant">
+<h2>How to fix it in Bicep</h2>
+<p>Set <code>runtimeConfiguration.secureData.properties</code> to include both <code>'inputs'</code> and <code>'outputs'</code> on each action that
+handles sensitive data.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
-  name: 'fully-secured'
+  name: 'example-workflow'
   location: resourceGroup().location
   properties: {
     definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
       actions: {
-        HTTP_Call: {
+        HTTP_Call: { // Noncompliant
           type: 'Http'
-          inputs: { method: 'POST', uri: 'https://api.example.com/sensitive' }
-          runtimeConfiguration: {
-            secureData: { properties: ['inputs', 'outputs'] }
+          inputs: {
+            method: 'POST'
+            uri: 'https://api.example.com/sensitive'
+            body: '@triggerBody()'
           }
         }
       }
@@ -95,8 +97,51 @@ resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
   }
 }
 </pre>
-<h2>See</h2>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'example-workflow'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        HTTP_Call: {
+          type: 'Http'
+          inputs: {
+            method: 'POST'
+            uri: 'https://api.example.com/sensitive'
+            body: '@triggerBody()'
+          }
+          runtimeConfiguration: {
+            secureData: {
+              properties: [
+                'inputs'
+                'outputs'
+              ]
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/532">CWE-532 - Insertion of Sensitive Information into Log File</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app#secure-data-in-run-history-by-using-obfuscation">Secure data in run history by using obfuscation</a></li>
+  <li>Azure - <a
+  href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app#secure-data-in-run-history-by-using-obfuscation">Secure
+  data in run history by using obfuscation</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app">Secure access and data in Azure Logic
+  Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers#runtime-configuration">Runtime
+  configuration for workflow actions</a></li>
 </ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/200">CWE-200 — Exposure of Sensitive Information to an Unauthorized Actor</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/532">CWE-532 — Insertion of Sensitive Information into Log File</a></li>
+</ul>
+

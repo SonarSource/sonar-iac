@@ -1,24 +1,23 @@
 {
   "title": "Azure Logic Apps should use structured error handling",
   "type": "CODE_SMELL",
-  "code": {
-    "impacts": {
-      "RELIABILITY": "MEDIUM"
-    },
-    "attribute": "COMPLETE"
-  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "15min"
+    "constantCost": "30min"
   },
   "tags": [
-    "azure",
-    "error-handling"
+    "azure"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8683",
   "sqKey": "S8683",
-  "scope": "Main",
-  "securityStandards": {}
+  "scope": "All",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  }
 }

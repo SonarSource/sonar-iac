@@ -1,6 +1,6 @@
 {
-  "title": "Enabling Attribute-Based Access Control for Kubernetes is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Legacy Attribute-Based Access Control should not be enabled for GKE clusters",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -14,6 +14,7 @@
   },
   "tags": [
     "cwe",
+    "former-hotspot",
     "gcp"
   ],
   "defaultSeverity": "Major",
@@ -30,5 +31,6 @@
     "PCI DSS 4.0": [
       "6.2.4"
     ]
-  }
+  },
+  "quickfix": "unknown"
 }

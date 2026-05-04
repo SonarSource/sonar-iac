@@ -1,31 +1,29 @@
-<p>The Google Cloud audit logs service records administrative activities and accesses to Google Cloud resources of the project. It is important to
-enable audit logs to be able to investigate malicious activities in the event of a security incident.</p>
-<p>Some project members may be exempted from having their activities recorded in the Google Cloud audit log service, creating a blind spot and
-reducing the capacity to investigate future security events.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The members exempted from having their activity logged have high privileges.</li>
-  <li>Compliance rules require that audit log should be activated for all members.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It is recommended to have a consistent audit logging policy for all project members and therefore not to create logging exemptions for certain
-members.</p>
-<h2>Sensitive Code Example</h2>
-<pre>
+<p>The Google Cloud Audit Logs service records administrative activities and accesses to project resources, but individual project members can be
+exempted from having their activities logged.</p>
+<h2>Why is this an issue?</h2>
+<p>Creating audit log exemptions for project members creates blind spots in the audit trail. Activities performed by exempted members are not
+recorded, reducing the ability to detect and investigate security incidents. This rule raises an issue when a
+<code>google_project_iam_audit_config</code> resource defines a non-empty <code>exempted_members</code> list.</p>
+<h3>What is the potential impact?</h3>
+<p>If a privileged account is exempted from audit logging and is later compromised, its malicious activities will not appear in audit logs. This
+delays detection and incident response, and may allow an attacker to persist undetected for an extended period.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "google_project_iam_audit_config" "example" {
   project = data.google_project.project.id
   service = "allServices"
   audit_log_config {
     log_type = "ADMIN_READ"
-    exempted_members = [ # Sensitive
-      "user:rogue.administrator@gmail.com",
+    exempted_members = [ # Noncompliant
+      "user:rogue.administrator@example.com",
     ]
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "google_project_iam_audit_config" "example" {
   project = data.google_project.project.id
   service = "allServices"
@@ -34,8 +32,13 @@ resource "google_project_iam_audit_config" "example" {
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://cloud.google.com/logging/docs/audit">GCP Documentation</a> - Cloud Audit Logs overview</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/778">CWE-778 - Insufficient Logging</a></li>
 </ul>
 

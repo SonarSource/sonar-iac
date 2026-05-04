@@ -4,6 +4,11 @@ terminated. This type of storage is typically used for storing temporary files t
 storage include the container’s writable layer, emptyDir volumes, and log files.</p>
 <p>The issue arises when a container is created without any defined limits for its ephemeral storage usage. Without these limits, the container can
 potentially consume all available ephemeral storage on the node where it is running.</p>
+<p>Setting a <code>sizeLimit</code> on an individual <code>emptyDir</code> volume is not a substitute for setting
+<code>resources.limits.ephemeral-storage</code> on the container. The container-level ephemeral storage limit covers all ephemeral storage consumed by
+the container — including its writable layer, log files, and all emptyDir volumes combined — while a volume’s <code>sizeLimit</code> only constrains
+that single volume. A container without a <code>resources.limits.ephemeral-storage</code> limit can still exhaust node storage through other sources
+even if individual volumes are capped.</p>
 <h3>What is the potential impact?</h3>
 <h4>Resource exhaustion</h4>
 <p>Without a defined limit, a container can consume all available ephemeral storage on a node. This can lead to resource exhaustion, where no more

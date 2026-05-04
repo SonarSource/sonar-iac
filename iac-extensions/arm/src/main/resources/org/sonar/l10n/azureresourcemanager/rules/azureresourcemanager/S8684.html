@@ -1,33 +1,55 @@
-<p>Control actions such as <code>If</code>, <code>Switch</code>, <code>Foreach</code>, <code>Until</code>, and <code>Scope</code> are
-building blocks of Logic Apps workflows. When they are nested deeply inside one another the workflow becomes hard to read, maintain, debug, and
-test.</p>
+<p>This rule raises an issue when the nesting depth of control actions in an Azure Logic Apps workflow exceeds a given threshold.</p>
 <h2>Why is this an issue?</h2>
-<p>Deeply nested control actions create "spaghetti workflows" where reviewers must mentally track many levels of branching and looping. Small
-changes at deep levels have unpredictable effects, and run history tools flatten the action tree making failures hard to trace.</p>
-<p>The recommended remediation is to extract deeply nested logic into a <strong>child Logic App</strong> or to flatten the structure by
-rethinking the control flow.</p>
-<h2>Noncompliant Code Example</h2>
+<p>Control actions such as <code>If</code>, <code>Switch</code>, <code>Foreach</code>, <code>Until</code>, and <code>Scope</code> are building blocks
+of Logic Apps workflows. When they are nested deeply inside one another the workflow becomes a tangled structure that is:</p>
+<ul>
+  <li><strong>Hard to read</strong>: reviewers must mentally track many levels of branching and looping.</li>
+  <li><strong>Hard to maintain</strong>: small changes at deep levels have unpredictable effects on surrounding logic.</li>
+  <li><strong>Hard to debug</strong>: run history and monitoring tools flatten the action tree, making deeply nested failures difficult to trace.</li>
+  <li><strong>Hard to test</strong>: reproducing the exact conditions that reach a deeply nested branch requires complex setups.</li>
+</ul>
+<p>The recommended remediation is to extract deeply nested logic into a child Logic App (called via the built-in HTTP or Logic Apps connector), or to
+flatten the structure by rethinking the control flow.</p>
+<h2>How to fix it in JSON templates</h2>
+<p>Reduce the nesting depth by extracting inner logic into child workflows or by flattening the control flow.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <p>With the default threshold of 3:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
   "type": "Microsoft.Logic/workflows",
   "apiVersion": "2019-05-01",
-  "name": "deeply-nested",
+  "name": "deeply-nested-workflow",
+  "location": "[resourceGroup().location]",
   "properties": {
     "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "actions": {
-        "Check": {
+        "Check_condition": {
           "type": "If",
+          "expression": "@equals(triggerBody()?['status'], 'active')",
           "actions": {
-            "Loop": {
+            "Loop_items": {
               "type": "Foreach",
+              "foreach": "@triggerBody()?['items']",
               "actions": {
-                "Inner_Check": {
+                "Check_item": {
                   "type": "If",
+                  "expression": "@greater(items('Loop_items')?['value'], 0)",
                   "actions": {
-                    "Retry": {
+                    "Retry_until_done": {
                       "type": "Until",
-                      "actions": {}
+                      "expression": "@equals(body('Process')?['done'], true)",
+                      "limit": { "count": 10 },
+                      "actions": {
+                        "Process": {
+                          "type": "Http",
+                          "inputs": {
+                            "method": "POST",
+                            "uri": "https://api.example.com/process"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -35,43 +57,146 @@ rethinking the control flow.</p>
             }
           }
         }
-      },
-      "triggers": {}
+      }
     }
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<p>Nesting path: <code>If</code> (1) → <code>Foreach</code> (2) → <code>If</code> (3) → <code>Until</code> (4) — depth 4 exceeds the default max of
+3.</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
   "type": "Microsoft.Logic/workflows",
   "apiVersion": "2019-05-01",
   "name": "flat-with-child",
+  "location": "[resourceGroup().location]",
   "properties": {
     "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "actions": {
-        "Check": {
+        "Check_condition": {
           "type": "If",
+          "expression": "@equals(triggerBody()?['status'], 'active')",
           "actions": {
-            "Loop": {
+            "Loop_items": {
               "type": "Foreach",
+              "foreach": "@triggerBody()?['items']",
               "actions": {
-                "Call_Child": {
+                "Call_Child_Workflow": {
                   "type": "Workflow",
-                  "inputs": {}
+                  "inputs": {
+                    "host": {
+                      "workflow": { "id": "/subscriptions/.../workflows/child-processor" }
+                    },
+                    "body": "@items('Loop_items')"
+                  }
                 }
               }
             }
           }
         }
-      },
-      "triggers": {}
+      }
     }
   }
 }
 </pre>
-<h2>See</h2>
+<p>The complex inner logic is extracted into a child workflow, reducing nesting depth to 2.</p>
+<h2>How to fix it in Bicep</h2>
+<p>Reduce the nesting depth by extracting inner logic into child workflows or by flattening the control flow.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<p>With the default threshold of 3:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'deeply-nested-workflow'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        Check_condition: {                          // depth 1
+          type: 'If'
+          expression: '@equals(triggerBody()?[\'status\'], \'active\')'
+          actions: {
+            Loop_items: {                           // depth 2
+              type: 'Foreach'
+              foreach: '@triggerBody()?[\'items\']'
+              actions: {
+                Check_item: {                       // depth 3
+                  type: 'If'
+                  expression: '@greater(items(\'Loop_items\')?[\'value\'], 0)'
+                  actions: {
+                    Retry_until_done: {             // Noncompliant: depth 4
+                      type: 'Until'
+                      expression: '@equals(body(\'Process\')?[\'done\'], true)'
+                      limit: { count: 10 }
+                      actions: {
+                        Process: {
+                          type: 'Http'
+                          inputs: {
+                            method: 'POST'
+                            uri: 'https://api.example.com/process'
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+</pre>
+<p>Nesting path: <code>If</code> (1) → <code>Foreach</code> (2) → <code>If</code> (3) → <code>Until</code> (4) — depth 4 exceeds the default max of
+3.</p>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'flat-with-child'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        Check_condition: {                          // depth 1
+          type: 'If'
+          expression: '@equals(triggerBody()?[\'status\'], \'active\')'
+          actions: {
+            Loop_items: {                           // depth 2
+              type: 'Foreach'
+              foreach: '@triggerBody()?[\'items\']'
+              actions: {
+                Call_Child_Workflow: {
+                  type: 'Workflow'
+                  inputs: {
+                    host: {
+                      workflow: { id: childWorkflow.id }
+                    }
+                    body: '@items(\'Loop_items\')'
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-conditional-statement">Control workflow actions in Azure Logic Apps</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-http-endpoint">Call nested Logic Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-conditional-statement">Control workflow actions in
+  Azure Logic Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-loops">Create loops in Azure Logic Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes">Group actions with
+  Scopes</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-http-endpoint">Call nested Logic Apps</a></li>
 </ul>
+

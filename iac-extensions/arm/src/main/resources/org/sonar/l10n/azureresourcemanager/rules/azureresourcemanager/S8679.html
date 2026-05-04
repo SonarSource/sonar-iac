@@ -1,21 +1,33 @@
-<p>Azure Logic Apps rely on API connections (<code>Microsoft.Web/connections</code>) to authenticate against external services. When these
-connections are created using a personal or corporate user account, several risks arise.</p>
+<p>Azure Logic Apps rely on API connections (<code>Microsoft.Web/connections</code>) to authenticate against external services such as SQL Server,
+SharePoint, Service Bus, and others. When these connections are created using a personal or corporate user account, the connection is tied to that
+individual rather than the application.</p>
 <h2>Why is this an issue?</h2>
+<p>Using personal or corporate user accounts for API connections introduces several risks:</p>
 <ul>
-  <li><strong>Access loss</strong> -- when the user leaves the organization or their account is disabled, all Logic Apps depending on that
-  connection break silently</li>
-  <li><strong>Credential sharing</strong> -- the user's credentials are embedded in a shared resource, violating the principle of least
-  privilege</li>
-  <li><strong>Audit and compliance gaps</strong> -- actions performed through the connection are attributed to an individual rather than a
-  service identity</li>
+  <li><strong>Access loss</strong>: when the user leaves the organization or their account is disabled, all Logic Apps depending on that connection
+  break silently.</li>
+  <li><strong>Credential sharing</strong>: the user’s credentials are embedded in a shared resource, violating the principle of least privilege.</li>
+  <li><strong>Audit and compliance gaps</strong>: actions performed through the connection are attributed to an individual rather than to a service
+  identity, making audits unreliable.</li>
+  <li><strong>Privilege abuse</strong>: the connection inherits all permissions of the user account, which typically exceed what the workflow
+  needs.</li>
 </ul>
-<p>API connections should instead use <strong>service principals</strong> or <strong>managed identities</strong>.</p>
-<h2>Noncompliant Code Example</h2>
+<p>API connections should instead use service principals or managed identities, which provide scoped, rotatable, centrally managed credentials tied to
+the application rather than a person.</p>
+<h3>What is the potential impact?</h3>
+<p>If the user account is disabled or deleted, all dependent Logic Apps will fail. Additionally, the embedded credentials may be over-privileged and
+difficult to rotate, increasing the blast radius of a compromise.</p>
+<h2>How to fix it in JSON templates</h2>
+<p>Use managed identity authentication by setting <code>parameterValueType</code> to <code>"Alternative"</code> instead of embedding user credentials
+in <code>parameterValues</code>.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
   "type": "Microsoft.Web/connections",
   "apiVersion": "2016-06-01",
   "name": "sql-connection",
+  "location": "[resourceGroup().location]",
   "properties": {
     "api": {
       "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
@@ -29,6 +41,30 @@ connections are created using a personal or corporate user account, several risk
   }
 }
 </pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "type": "Microsoft.Web/connections",
+  "apiVersion": "2016-06-01",
+  "name": "sql-connection-mi",
+  "location": "[resourceGroup().location]",
+  "properties": {
+    "api": {
+      "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
+    },
+    "parameterValueType": "Alternative",
+    "alternativeParameterValues": {
+      "server": "myserver.database.windows.net",
+      "database": "mydb"
+    }
+  }
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<p>Use managed identity authentication by setting <code>parameterValueType</code> to <code>'Alternative'</code> instead of embedding user credentials
+in <code>parameterValues</code>.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 resource sqlConnection 'Microsoft.Web/connections@2016-06-01' = {
   name: 'sql-connection'
@@ -46,21 +82,7 @@ resource sqlConnection 'Microsoft.Web/connections@2016-06-01' = {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre data-diff-id="1" data-diff-type="compliant">
-{
-  "type": "Microsoft.Web/connections",
-  "apiVersion": "2016-06-01",
-  "name": "sql-connection-mi",
-  "properties": {
-    "api": {
-      "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')]"
-    },
-    "parameterValueType": "Alternative",
-    "alternativeParameterValues": {}
-  }
-}
-</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
 resource sqlConnectionMi 'Microsoft.Web/connections@2016-06-01' = {
   name: 'sql-connection-mi'
@@ -70,13 +92,23 @@ resource sqlConnectionMi 'Microsoft.Web/connections@2016-06-01' = {
       id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'sql')
     }
     parameterValueType: 'Alternative'
-    alternativeParameterValues: {}
+    alternativeParameterValues: {
+      server: 'myserver.database.windows.net'
+      database: 'mydb'
+    }
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/798">CWE-798 - Use of Hard-coded Credentials</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity">Authenticate API connection with managed identity</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/connectors/managed">Managed connectors in Azure Logic Apps</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/connectors/managed">Managed connectors in Azure Logic Apps</a></li>
+  <li>Azure - <a
+  href="https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity#authenticate-access-with-managed-identity">Authenticate
+  API connection with managed identity</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/connections">Microsoft.Web/connections ARM template
+  reference</a></li>
+  <li>Azure - <a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app">Secure access and data in Azure Logic
+  Apps</a></li>
 </ul>
+

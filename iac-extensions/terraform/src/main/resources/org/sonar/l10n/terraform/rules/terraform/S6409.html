@@ -1,34 +1,35 @@
-<p>Enabling Legacy Authorization, Attribute-Based Access Control (ABAC), on Google Kubernetes Engine resources can reduce an organization’s ability to
-protect itself against access controls being compromised.</p>
-<p>For Kubernetes, Attribute-Based Access Control has been superseded by Role-Based Access Control. ABAC is not under active development anymore and
-thus should be avoided.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This resource is essential for the information system infrastructure.</li>
-  <li>This resource is essential for mission-critical functions.</li>
-  <li>Compliance policies require access to this resource to be enforced through the use of Role-Based Access Control.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Unless you are relying on ABAC, leave it disabled.</p>
-<h2>Sensitive Code Example</h2>
-<p>For <a href="https://cloud.google.com/kubernetes-engine">Google Kubernetes Engine</a>:</p>
-<pre>
+<p>Enabling legacy Attribute-Based Access Control (ABAC) on Google Kubernetes Engine (GKE) clusters weakens the security of access controls.</p>
+<h2>Why is this an issue?</h2>
+<p>For Kubernetes, ABAC has been superseded by Role-Based Access Control (RBAC) and is no longer under active development. ABAC grants permissions
+based on attributes defined in a policy file, which is harder to audit and maintain than RBAC policies. Enabling ABAC on a GKE cluster increases the
+attack surface and can lead to unintended access if the legacy policy file is misconfigured.</p>
+<h3>What is the potential impact?</h3>
+<p>If ABAC is enabled and a cluster is compromised, an attacker may be able to perform actions that would have been denied under a correctly
+configured RBAC policy. This can lead to unauthorized access to sensitive workloads, data exfiltration, or privilege escalation within the
+cluster.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "google_container_cluster" "example" {
-  enable_legacy_abac = true # Sensitive
+  enable_legacy_abac = true # Noncompliant
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>For <a href="https://cloud.google.com/kubernetes-engine">Google Kubernetes Engine</a>:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "google_container_cluster" "example" {
   enable_legacy_abac = false
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+  <li><a href="https://cloud.google.com/kubernetes-engine">Google Cloud Documentation</a> - Google Kubernetes Engine</li>
   <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#leave_abac_disabled">Google Cloud Documentation</a> -
   Hardening your cluster’s security</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
 </ul>
 

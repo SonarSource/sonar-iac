@@ -1,6 +1,6 @@
 {
-  "title": "Excluding users or groups activities from audit logs is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "GCP Cloud Audit Logs exemptions should not be configured for project members",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,6 +13,7 @@
     "constantCost": "30min"
   },
   "tags": [
+    "former-hotspot",
     "gcp"
   ],
   "defaultSeverity": "Major",

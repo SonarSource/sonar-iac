@@ -1,28 +1,29 @@
 {
   "title": "Personal or corporate user accounts should not be used for API connections",
   "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "azure"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8679",
+  "sqKey": "S8679",
+  "scope": "All",
+  "quickfix": "unknown",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
     },
     "attribute": "TRUSTWORTHY"
   },
-  "status": "ready",
-  "remediation": {
-    "func": "Constant\/Issue",
-    "constantCost": "15min"
-  },
-  "tags": [
-    "azure",
-    "cwe"
-  ],
-  "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-8679",
-  "sqKey": "S8679",
-  "scope": "Main",
   "securityStandards": {
     "CWE": [
-      798
+      250,
+      287
     ]
   }
 }

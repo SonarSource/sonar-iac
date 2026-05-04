@@ -1,37 +1,41 @@
-<p>When object versioning for Google Cloud Storage (GCS) buckets is enabled, different versions of an object are stored in the bucket, preventing
-accidental deletion. A specific version can always be deleted when the generation number of an object version is specified in the request.</p>
-<p>Object versioning cannot be enabled on a bucket with a retention policy. A retention policy ensures that an object is retained for a specific
-period of time even if a request is made to delete or replace it. Thus, a retention policy locks the single current version of an object in the
-bucket, which differs from object versioning where different versions of an object are retained.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The bucket stores information that require high availability.</li>
-</ul>
-<p>There is a risk if you answered yes to this question.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to enable GCS bucket versioning and thus to have the possibility to retrieve and restore different versions of an object.</p>
-<h2>Sensitive Code Example</h2>
-<p>Versioning is disabled by default:</p>
-<pre>
-resource "google_storage_bucket" "example" { # Sensitive
+<p>Google Cloud Storage (GCS) object versioning retains previous versions of an object in a bucket, enabling recovery from accidental deletions or
+overwrites, but it is disabled by default.</p>
+<h2>Why is this an issue?</h2>
+<p>When object versioning is disabled, any write or delete operation on a GCS bucket is permanent. There is no way to recover a previous version of an
+object, or an object that was deleted, without an external backup. This rule raises an issue when a <code>google_storage_bucket</code> resource is
+created without a <code>versioning</code> block that sets <code>enabled</code> to <code>true</code>.</p>
+<h3>What is the potential impact?</h3>
+<p>Without versioning, a single accidental or malicious write or delete operation can result in permanent data loss. Recovery is impossible without a
+separately maintained backup, and the impact may not be noticed until it is too late.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because no <code>versioning</code> block is present, so object versioning is disabled by default.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "google_storage_bucket" "example" { # Noncompliant
   name          = "example"
   location      = "US"
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>Versioning is enabled:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "google_storage_bucket" "example" {
   name          = "example"
   location      = "US"
 
   versioning {
-    enabled = "true"
+    enabled = true
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://cloud.google.com/storage/docs/object-versioning?hl=en">GCP documentation</a> - Object Versioning</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/16">CWE-16 - Configuration</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/693">CWE-693 - Protection Mechanism Failure</a></li>
 </ul>
 
