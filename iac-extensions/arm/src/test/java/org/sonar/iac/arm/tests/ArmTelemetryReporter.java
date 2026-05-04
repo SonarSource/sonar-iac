@@ -16,15 +16,12 @@
  */
 package org.sonar.iac.arm.tests;
 
-import java.io.File;
 import java.util.Map;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.arm.plugin.ArmParserStatistics;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 
 public class ArmTelemetryReporter {
   public static Map<String, String> addArmStatistics(ArmParserStatistics statistics) {
-    var sensorContext = SensorContextTester.create(new File("."));
     var telemetry = new SensorTelemetry();
     statistics.storeTelemetry(telemetry);
     return telemetry.getTelemetry();
