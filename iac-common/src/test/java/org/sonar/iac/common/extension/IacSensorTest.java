@@ -553,7 +553,7 @@ class IacSensorTest extends AbstractSensorTest {
       TreeParser<Tree> treeParser,
       CheckFactory checkFactory) {
 
-      super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
+      super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language, projectSensor);
       this.treeParser = treeParser;
       this.checkFactory = checkFactory;
     }

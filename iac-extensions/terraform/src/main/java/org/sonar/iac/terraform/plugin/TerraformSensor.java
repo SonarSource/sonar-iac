@@ -26,6 +26,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
@@ -43,8 +44,8 @@ public class TerraformSensor extends IacSensor {
   private final TerraformProviders providerVersions;
 
   public TerraformSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions) {
-    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
+    NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions, IacProjectSensor projectSensor) {
+    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language, projectSensor);
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(TerraformCheckList.checks());
     this.providerVersions = providerVersions;

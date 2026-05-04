@@ -113,7 +113,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
   @Override
   protected TerraformSensor sensor(CheckFactory checkFactory) {
     return new TerraformSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
-      new TerraformLanguage(new MapSettings().asConfig()), providerVersions());
+      new TerraformLanguage(new MapSettings().asConfig()), providerVersions(), projectSensor);
   }
 
   private TerraformProviders providerVersions() {

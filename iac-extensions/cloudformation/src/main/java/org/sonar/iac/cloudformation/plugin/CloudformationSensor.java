@@ -25,6 +25,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
 import org.sonar.iac.common.predicates.GithubActionsFilePredicate;
@@ -37,8 +38,9 @@ public class CloudformationSensor extends AbstractYamlLanguageSensor {
     FileLinesContextFactory fileLinesContextFactory,
     CheckFactory checkFactory,
     NoSonarFilter noSonarFilter,
-    CloudformationLanguage language) {
-    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks());
+    CloudformationLanguage language,
+    IacProjectSensor projectSensor) {
+    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks(), projectSensor);
   }
 
   @Override

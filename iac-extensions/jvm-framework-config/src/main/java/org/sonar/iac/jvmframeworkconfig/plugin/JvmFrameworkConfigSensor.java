@@ -28,6 +28,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
@@ -59,15 +60,13 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   final JvmFrameworkConfigTelemetryVisitor telemetryVisitor;
 
   public JvmFrameworkConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
-    CheckFactory checkFactory) {
+    CheckFactory checkFactory, IacProjectSensor projectSensor) {
     // The Java language is registered by the sonar-java plugin. However, for the sensor we only need language key and name, and don't
-    // need to
-    // rely on the SQ extension.
+    // need to rely on the SQ extension.
     // Mechanisms of dependency injection between SQ and SL can differ, and the `org.sonar.plugins.java.Java` language is available only
-    // in the
-    // `sonar-java` plugin, so it's not possible to inject it here.
-    // That's why the sensor is hardcoding key and name and not providing a `Language` object.
-    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, null);
+    // in the `sonar-java` plugin, so it's not possible to inject it here.
+    // That's why the sensor is overriding languageName() and repositoryKey() and not providing a `Language` object.
+    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, null, projectSensor);
 
     // Will instantiate all active java rules that are also in SpringConfigCheckList.checks()
     // We don't create our own repository, as we want to raise all rules in the "java" repository for now

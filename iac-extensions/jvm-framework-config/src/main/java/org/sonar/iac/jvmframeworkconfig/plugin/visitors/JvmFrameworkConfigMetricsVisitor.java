@@ -21,14 +21,16 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
+import org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
 import org.sonar.iac.jvmframeworkconfig.tree.api.SyntaxToken;
 
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigSensor.isPropertiesFile;
 
 public class JvmFrameworkConfigMetricsVisitor extends YamlMetricsVisitor {
-  public JvmFrameworkConfigMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry) {
-    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
+  public JvmFrameworkConfigMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
+    SensorTelemetry sensorTelemetry) {
+    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry, JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
   }
 
   @Override

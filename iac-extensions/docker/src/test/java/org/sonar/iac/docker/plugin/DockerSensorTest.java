@@ -250,7 +250,8 @@ class DockerSensorTest extends ExtensionSensorTest {
       fileLinesContextFactory,
       checkFactory,
       noSonarFilter,
-      new DockerLanguage(settings.asConfig()));
+      new DockerLanguage(settings.asConfig()),
+      projectSensor);
   }
 
   @Override
@@ -334,6 +335,7 @@ class DockerSensorTest extends ExtensionSensorTest {
       fileLinesContextFactory,
       checkFactory(sonarLintContext, rules),
       noSonarFilter,
-      new DockerLanguage(new MapSettings().asConfig()));
+      new DockerLanguage(new MapSettings().asConfig()),
+      projectSensor);
   }
 }

@@ -31,8 +31,9 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class YamlMetricsVisitor extends MetricsVisitor {
 
-  public YamlMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry) {
-    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
+  public YamlMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry,
+    String language) {
+    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry, language);
   }
 
   @Override

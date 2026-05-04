@@ -45,16 +45,13 @@ public class ArmParserStatistics {
   }
 
   public void storeTelemetry(SensorTelemetry sensorTelemetry) {
-    if (hasFiles()) {
-      sensorTelemetry.addTelemetry("azureresourcemanager.files.count", String.valueOf(jsonFileCount + bicepFileCount));
-      sensorTelemetry.addTelemetry("azureresourcemanager.files.json.count", String.valueOf(jsonFileCount));
-      sensorTelemetry.addTelemetry("azureresourcemanager.files.bicep.count", String.valueOf(bicepFileCount));
-      sensorTelemetry.addTelemetry("azureresourcemanager.files.json.parsed", String.valueOf(jsonParsedFileCount));
-      sensorTelemetry.addTelemetry("azureresourcemanager.files.bicep.parsed", String.valueOf(bicepParsedFileCount));
+    if (jsonFileCount + bicepFileCount == 0) {
+      return;
     }
-  }
-
-  private boolean hasFiles() {
-    return jsonFileCount != 0 || bicepFileCount != 0;
+    sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.count", (long) jsonFileCount + bicepFileCount);
+    sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.json.count", jsonFileCount);
+    sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.bicep.count", bicepFileCount);
+    sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.json.parsed", jsonParsedFileCount);
+    sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.bicep.parsed", bicepParsedFileCount);
   }
 }

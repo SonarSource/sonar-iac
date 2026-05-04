@@ -22,7 +22,6 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 public class JvmFrameworkConfigTelemetryVisitor extends TreeVisitor<InputFileContext> {
-  private static final String TELEMETRY_PREFIX = "java.";
   protected boolean springRecorded = false;
   protected boolean quarkusRecorded = false;
   protected boolean micronautRecorded = false;
@@ -36,9 +35,9 @@ public class JvmFrameworkConfigTelemetryVisitor extends TreeVisitor<InputFileCon
   }
 
   public void storeTelemetry(SensorTelemetry sensorTelemetry) {
-    sensorTelemetry.addTelemetry(TELEMETRY_PREFIX + "spring", springRecorded ? "1" : "0");
-    sensorTelemetry.addTelemetry(TELEMETRY_PREFIX + "quarkus", quarkusRecorded ? "1" : "0");
-    sensorTelemetry.addTelemetry(TELEMETRY_PREFIX + "micronaut", micronautRecorded ? "1" : "0");
+    sensorTelemetry.setBooleanMeasure("java.spring", springRecorded);
+    sensorTelemetry.setBooleanMeasure("java.quarkus", quarkusRecorded);
+    sensorTelemetry.setBooleanMeasure("java.micronaut", micronautRecorded);
   }
 
   private void findFramework(InputFileContext ctx, Tuple tuple) {

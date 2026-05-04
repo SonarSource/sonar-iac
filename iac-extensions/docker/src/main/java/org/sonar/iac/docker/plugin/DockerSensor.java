@@ -32,6 +32,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
@@ -52,8 +53,9 @@ public class DockerSensor extends IacSensor {
     FileLinesContextFactory fileLinesContextFactory,
     CheckFactory checkFactory,
     NoSonarFilter noSonarFilter,
-    DockerLanguage language) {
-    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
+    DockerLanguage language,
+    IacProjectSensor projectSensor) {
+    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language, projectSensor);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(getChecks());
   }
@@ -66,7 +68,7 @@ public class DockerSensor extends IacSensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .processesFilesIndependently()
-      .name("IaC " + language.getName() + " Sensor");
+      .name("IaC " + languageName() + " Sensor");
     SonarRuntimeUtils.activateHiddenFilesProcessing(sonarRuntime, descriptor);
   }
 

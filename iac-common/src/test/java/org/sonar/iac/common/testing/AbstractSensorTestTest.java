@@ -44,6 +44,7 @@ class AbstractSensorTestTest {
   void setup() {
     SENSOR.context = SensorContextTester.create(baseDir);
     SENSOR.baseDir = baseDir;
+    SENSOR.projectSensor = new org.sonar.iac.common.extension.IacProjectSensor(SENSOR.context.config());
   }
 
   private static final SensorTester SENSOR = new SensorTester();

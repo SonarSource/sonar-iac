@@ -27,7 +27,7 @@ import static org.sonar.iac.arm.plugin.ArmSensor.isBicepFile;
 
 public class ArmMetricsVisitor extends YamlMetricsVisitor {
   protected ArmMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry) {
-    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
+    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry, ArmExtension.REPOSITORY_KEY);
   }
 
   @Override

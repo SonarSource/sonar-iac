@@ -706,12 +706,12 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
     return new KubernetesSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
-      mock(HelmEvaluator.class), new KustomizationInfoProvider());
+      mock(HelmEvaluator.class), new KustomizationInfoProvider(), projectSensor);
   }
 
   protected KubernetesSensor sensorSonarLint() {
     return new KubernetesSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory(), noSonarFilter, new KubernetesLanguage(),
-      mock(HelmEvaluator.class), sonarLintFileListener, new KustomizationInfoProvider());
+      mock(HelmEvaluator.class), sonarLintFileListener, new KustomizationInfoProvider(), projectSensor);
   }
 
   protected KubernetesSensor sensor(HelmProcessor helmProcessor, CheckFactory checkFactory) {
@@ -787,6 +787,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       new KubernetesLanguage(),
       mock(HelmEvaluator.class),
       slfl,
-      new KustomizationInfoProvider());
+      new KustomizationInfoProvider(),
+      projectSensor);
   }
 }

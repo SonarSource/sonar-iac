@@ -48,7 +48,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
+    return new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry, languageKey());
   }
 
   @Override

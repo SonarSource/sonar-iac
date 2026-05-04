@@ -37,6 +37,7 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.extension.IacProjectSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
@@ -58,6 +59,7 @@ public abstract class AbstractSensorTest {
   protected SensorContextTester context;
   protected MapSettings settings;
   protected SensorContextTester sonarLintContext;
+  protected IacProjectSensor projectSensor;
 
   @BeforeEach
   void setup() {
@@ -69,6 +71,7 @@ public abstract class AbstractSensorTest {
     settings.setProperty(EXTENDED_LOGGING_PROPERTY_NAME, "true");
     context = SensorContextTester.create(baseDir).setSettings(settings);
     sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SONARLINT_RUNTIME_9_9).setSettings(settings);
+    projectSensor = new IacProjectSensor(context.config());
   }
 
   protected abstract String getActivationSettingKey();
@@ -90,6 +93,8 @@ public abstract class AbstractSensorTest {
       sensorContext.fileSystem().add(inputFile);
     }
     sensor.execute(sensorContext);
+    // Flush telemetry collected by IacSensor instances to the SensorContext
+    projectSensor.execute(sensorContext);
   }
 
   protected InputFile inputFile(String relativePath, String content) {

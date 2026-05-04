@@ -53,25 +53,20 @@ public class KubernetesParserStatistics {
   }
 
   public void storeTelemetry(SensorTelemetry sensorTelemetry) {
-    if (isKubernetesProject()) {
-      sensorTelemetry.addTelemetry("kubernetes.pure.files.count", String.valueOf(pureKubernetesFileCount));
-      sensorTelemetry.addTelemetry("kubernetes.pure.files.parsed", String.valueOf(pureKubernetesParsedFileCount));
-      sensorTelemetry.addTelemetry("kubernetes.helm.files.count", String.valueOf(helmFileCount));
-      sensorTelemetry.addTelemetry("kubernetes.helm.files.parsed", String.valueOf(helmParsedFileCount));
-
-      sensorTelemetry.addTelemetry("helm", helmFileCount == 0 ? "0" : "1");
-
-      if (helmInitializationFailed) {
-        sensorTelemetry.addTelemetry("helm.initialization.failed", "1");
-      }
+    if (pureKubernetesFileCount + helmFileCount == 0) {
+      return;
+    }
+    sensorTelemetry.addNumericalMeasure("kubernetes.pure.files.count", pureKubernetesFileCount);
+    sensorTelemetry.addNumericalMeasure("kubernetes.pure.files.parsed", pureKubernetesParsedFileCount);
+    sensorTelemetry.addNumericalMeasure("kubernetes.helm.files.count", helmFileCount);
+    sensorTelemetry.addNumericalMeasure("kubernetes.helm.files.parsed", helmParsedFileCount);
+    sensorTelemetry.setBooleanMeasure("helm", helmFileCount > 0);
+    if (helmInitializationFailed) {
+      sensorTelemetry.setBooleanMeasure("helm.initialization.failed", true);
     }
   }
 
   public void setHelmInitializationFailed(boolean failed) {
     this.helmInitializationFailed = failed;
-  }
-
-  private boolean isKubernetesProject() {
-    return pureKubernetesFileCount != 0 || helmFileCount != 0;
   }
 }

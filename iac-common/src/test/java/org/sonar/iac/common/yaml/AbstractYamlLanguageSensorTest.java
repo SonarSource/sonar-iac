@@ -96,7 +96,7 @@ class AbstractYamlLanguageSensorTest extends AbstractSensorTest {
   @Override
   protected AbstractYamlLanguageSensor sensor(CheckFactory checkFactory) {
     return new AbstractYamlLanguageSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter, YamlLanguage.YAML,
-      Collections.emptyList()) {
+      Collections.emptyList(), projectSensor) {
       @Override
       protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
         FilePredicate customPredicate = mock(FilePredicate.class);

@@ -46,6 +46,11 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
     return ArmLanguage.KEY;
   }
 
+  @Override
+  protected String telemetryLanguage() {
+    return ArmExtension.REPOSITORY_KEY;
+  }
+
   @Test
   void shouldCalculateLoc() {
     scan("""

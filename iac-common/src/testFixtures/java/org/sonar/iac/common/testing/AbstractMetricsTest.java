@@ -71,7 +71,7 @@ public abstract class AbstractMetricsTest {
     fileLinesContext = mock(FileLinesContext.class);
     fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    sensorTelemetry = spy(new SensorTelemetry(sensorContext.config()));
+    sensorTelemetry = spy(new SensorTelemetry());
 
     parser = treeParser();
     visitor = metricsVisitor(fileLinesContextFactory);
@@ -114,7 +114,13 @@ public abstract class AbstractMetricsTest {
   }
 
   protected void verifyTelemetry(Integer linesOfCode) {
-    verify(sensorTelemetry).addLinesOfCode(linesOfCode);
+    // Verify against the language that the visitor reports telemetry under, which may differ from the
+    // language set on the input file (overridden via telemetryLanguage() when they don't match).
+    verify(sensorTelemetry).addLinesOfCode(telemetryLanguage(), linesOfCode);
+  }
+
+  protected String telemetryLanguage() {
+    return languageKey();
   }
 
   protected void verifyNCLOCDataMetric(Integer... linesOfCode) {

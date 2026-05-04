@@ -23,11 +23,10 @@ import org.sonar.iac.arm.plugin.ArmParserStatistics;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 
 public class ArmTelemetryReporter {
-  public static Map<String, String> storeTelemetryAndReport(ArmParserStatistics statistics) {
+  public static Map<String, String> addArmStatistics(ArmParserStatistics statistics) {
     var sensorContext = SensorContextTester.create(new File("."));
-    var telemetry = new SensorTelemetry(sensorContext.config());
+    var telemetry = new SensorTelemetry();
     statistics.storeTelemetry(telemetry);
-    telemetry.reportTelemetry(sensorContext);
-    return sensorContext.getTelemetryProperties();
+    return telemetry.getTelemetry();
   }
 }

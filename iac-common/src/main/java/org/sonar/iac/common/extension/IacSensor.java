@@ -44,15 +44,16 @@ public abstract class IacSensor extends TogglableSensor {
   protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
   protected final NoSonarFilter noSonarFilter;
+  protected final SensorTelemetry sensorTelemetry;
   protected final Language language;
-  protected SensorTelemetry sensorTelemetry;
 
   protected IacSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
-    Language language) {
+    Language language, IacProjectSensor projectSensor) {
     this.sonarRuntime = sonarRuntime;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.noSonarFilter = noSonarFilter;
     this.language = language;
+    this.sensorTelemetry = projectSensor.getSensorTelemetry();
   }
 
   @Override
@@ -79,12 +80,6 @@ public abstract class IacSensor extends TogglableSensor {
   protected abstract String repositoryKey();
 
   protected abstract List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics);
-
-  @Override
-  public void execute(SensorContext sensorContext) {
-    sensorTelemetry = new SensorTelemetry(sensorContext.config());
-    super.execute(sensorContext);
-  }
 
   @Override
   public void executeIfActive(SensorContext sensorContext) {
@@ -126,9 +121,10 @@ public abstract class IacSensor extends TogglableSensor {
     return sensorContext.config().getBoolean(EXTENDED_LOGGING_PROPERTY_NAME).orElse(false);
   }
 
+  // sensorContext param is needed in subclasses
+  @SuppressWarnings("java:S1172")
   protected void afterExecute(SensorContext sensorContext) {
-    sensorTelemetry.addAggregatedLinesOfCodeTelemetry(repositoryKey());
-    sensorTelemetry.reportTelemetry(sensorContext);
+    // do nothing by default
   }
 
   public static boolean isFailFast(SensorContext context) {

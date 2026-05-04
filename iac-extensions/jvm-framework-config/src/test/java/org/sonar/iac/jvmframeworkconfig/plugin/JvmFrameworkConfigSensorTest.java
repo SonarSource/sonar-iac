@@ -52,7 +52,8 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
       SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
       fileLinesContextFactory,
       noSonarFilter,
-      checkFactory);
+      checkFactory,
+      projectSensor);
   }
 
   // This property determines the repository key for all rules created in the AbstractSensorTest.checkFactory method

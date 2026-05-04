@@ -33,6 +33,7 @@ import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.visitors.ArmHighlightingVisitor;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
@@ -45,16 +46,16 @@ public class ArmSensor extends AbstractYamlLanguageSensor {
   private ArmParserStatistics armParserStatistics;
 
   public ArmSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, ArmLanguage language) {
-    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, ArmCheckList.checks());
+    NoSonarFilter noSonarFilter, ArmLanguage language, IacProjectSensor projectSensor) {
+    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, ArmCheckList.checks(), projectSensor);
   }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguages(JSON_LANGUAGE_KEY, language.getKey())
+      .onlyOnLanguages(JSON_LANGUAGE_KEY, languageKey())
       .processesFilesIndependently()
-      .name("IaC " + language.getName() + " Sensor");
+      .name("IaC " + languageName() + " Sensor");
   }
 
   @Override

@@ -31,6 +31,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
@@ -48,8 +49,8 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
   protected final Checks<IacCheck> checks;
 
   protected AbstractYamlLanguageSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, Language language, List<Class<?>> checks) {
-    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
+    NoSonarFilter noSonarFilter, Language language, List<Class<?>> checks, IacProjectSensor projectSensor) {
+    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language, projectSensor);
     this.checks = checkFactory.create(repositoryKey());
     this.checks.addAnnotatedChecks(checks);
   }
@@ -57,8 +58,8 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY, language.getKey())
-      .name("IaC " + language.getName() + " Sensor");
+      .onlyOnLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY, languageKey())
+      .name("IaC " + languageName() + " Sensor");
   }
 
   @Override
@@ -66,7 +67,7 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new YamlHighlightingVisitor());
-      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
+      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry, repositoryKey()));
     }
     visitors.addAll(preChecksVisitors());
     visitors.add(new ChecksVisitor(checks, statistics));
@@ -81,7 +82,7 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
   protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     FileSystem fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(
-      fileSystem.predicates().hasLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY, language.getKey()),
+      fileSystem.predicates().hasLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY, languageKey()),
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       customFilePredicate(sensorContext, statistics));
   }

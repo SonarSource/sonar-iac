@@ -28,7 +28,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.sonar.iac.arm.tests.ArmTelemetryReporter.storeTelemetryAndReport;
+import static org.sonar.iac.arm.tests.ArmTelemetryReporter.addArmStatistics;
 import static org.sonar.iac.arm.tests.ArmTestInputFileContextCreator.bicepFileContext;
 import static org.sonar.iac.arm.tests.ArmTestInputFileContextCreator.jsonFileContext;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
@@ -85,7 +85,7 @@ class ArmParserTest {
     ignoreException(() -> parser.parse("#$%", jsonFileContext()));
     ignoreException(() -> parser.parse("{{{", bicepFileContext()));
 
-    assertThat(storeTelemetryAndReport(statistics))
+    assertThat(addArmStatistics(statistics))
       .containsEntry("iac.azureresourcemanager.files.count", "2")
       .containsEntry("iac.azureresourcemanager.files.json.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.parsed", "0")

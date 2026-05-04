@@ -42,6 +42,11 @@ class JsonMetricsVisitorTest extends AbstractMetricsTest {
     return "json";
   }
 
+  @Override
+  protected String telemetryLanguage() {
+    return ArmExtension.REPOSITORY_KEY;
+  }
+
   @Test
   void shouldCalculateLoc() {
     scan("""

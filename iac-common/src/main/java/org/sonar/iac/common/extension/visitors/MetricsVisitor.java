@@ -36,15 +36,18 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
   private final FileLinesContextFactory fileLinesContextFactory;
   private final NoSonarFilter noSonarFilter;
   private final SensorTelemetry sensorTelemetry;
+  protected final String language;
 
   private Set<Integer> linesOfCode;
   private Set<Integer> commentLines;
   private Set<Integer> noSonarLines;
 
-  protected MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry) {
+  protected MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry,
+    String language) {
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.noSonarFilter = noSonarFilter;
     this.sensorTelemetry = sensorTelemetry;
+    this.language = language;
     languageSpecificMetrics();
   }
 
@@ -62,7 +65,7 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
   @Override
   protected void after(InputFileContext ctx, Tree root) {
     sendMetricsToServer(ctx);
-    addLoCTelemetry();
+    addLoCTelemetry(language);
   }
 
   protected void sendMetricsToServer(InputFileContext ctx) {
@@ -75,12 +78,12 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
     noSonarFilter.noSonarInFile(ctx.inputFile, noSonarLines);
   }
 
-  protected void addLoCTelemetry() {
-    sensorTelemetry.addLinesOfCode(linesOfCode.size());
+  protected void addLoCTelemetry(String language) {
+    sensorTelemetry.addLinesOfCode(language, linesOfCode.size());
   }
 
-  protected void addFileSize(long filesize) {
-    sensorTelemetry.addFileSize(filesize);
+  protected void addFileSize(String language, long filesize) {
+    sensorTelemetry.addFileSize(language, filesize);
   }
 
   protected void addCommentLines(List<Comment> comments) {

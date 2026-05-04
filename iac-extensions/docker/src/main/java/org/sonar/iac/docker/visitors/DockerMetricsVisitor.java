@@ -20,10 +20,11 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
+import org.sonar.iac.docker.plugin.DockerExtension;
 
 public class DockerMetricsVisitor extends MetricsVisitor {
 
   public DockerMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry) {
-    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
+    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry, DockerExtension.REPOSITORY_KEY);
   }
 }

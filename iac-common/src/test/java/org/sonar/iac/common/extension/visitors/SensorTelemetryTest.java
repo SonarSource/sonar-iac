@@ -30,11 +30,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.entry;
 
 class SensorTelemetryTest {
 
@@ -49,101 +46,64 @@ class SensorTelemetryTest {
     var settings = new MapSettings();
     settings.setProperty("sonar.iac.duration.statistics", true);
     context.setSettings(settings);
-    sensorTelemetry = new SensorTelemetry(context.config());
+    sensorTelemetry = new SensorTelemetry();
   }
 
   @Test
   void shouldReportCorrectLinesOfCodeForOneAddition() {
-    sensorTelemetry.addLinesOfCode(10);
-    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
+    sensorTelemetry.addLinesOfCode("language", 10);
 
-    reportTelemetryAndVerifySingleEntry("iac.language.loc", "10");
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.language.loc", "10");
   }
 
   @Test
   void shouldNotReportLinesOfCodeWithoutAddingSome() {
-    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
-    sensorTelemetry.reportTelemetry(context);
-    assertThat(context.getTelemetryProperties()).isEmpty();
+    assertThat(sensorTelemetry.getTelemetry()).isEmpty();
   }
 
   @Test
   void shouldNotReportLinesOfCodeWhenAddingNegativeLines() {
-    sensorTelemetry.addLinesOfCode(-10);
-    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
-    sensorTelemetry.reportTelemetry(context);
-    assertThat(context.getTelemetryProperties()).isEmpty();
+    sensorTelemetry.addLinesOfCode("language", -10);
+
+    assertThat(sensorTelemetry.getTelemetry()).isEmpty();
   }
 
   @Test
-  void addingLinesOfCodeAfterAddingTelemetryShouldNotChangeIt() {
-    sensorTelemetry.addLinesOfCode(10);
-    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
-    sensorTelemetry.addLinesOfCode(10);
-    reportTelemetryAndVerifySingleEntry("iac.language.loc", "10");
+  void shouldAccumulateLinesOfCodeAcrossMultipleCalls() {
+    sensorTelemetry.addLinesOfCode("language", 10);
+    sensorTelemetry.addLinesOfCode("language", 10);
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.language.loc", "20");
   }
 
   @Test
   void shouldReportCorrectLinesOfCodeWhenAddingMultipleLines() {
-    sensorTelemetry.addLinesOfCode(1000);
-    sensorTelemetry.addLinesOfCode(9991123);
-    sensorTelemetry.addLinesOfCode(5);
-    sensorTelemetry.addLinesOfCode(1123);
-    sensorTelemetry.addLinesOfCode(22);
-    sensorTelemetry.addAggregatedLinesOfCodeTelemetry("language");
+    sensorTelemetry.addLinesOfCode("language", 1000);
+    sensorTelemetry.addLinesOfCode("language", 9991123);
+    sensorTelemetry.addLinesOfCode("language", 5);
+    sensorTelemetry.addLinesOfCode("language", 1123);
+    sensorTelemetry.addLinesOfCode("language", 22);
 
-    reportTelemetryAndVerifySingleEntry("iac.language.loc", "9993273");
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.language.loc", "9993273");
   }
 
   @Test
-  void shouldNotAddTelemetryPropertyWhenTelemetryNotAdded() {
-    sensorTelemetry.addLinesOfCode(10);
+  void shouldKeepPerLanguageLinesOfCodeIndependent() {
+    sensorTelemetry.addLinesOfCode("languageA", 10);
+    sensorTelemetry.addLinesOfCode("languageB", 5);
+    sensorTelemetry.addLinesOfCode("languageA", 7);
 
-    sensorTelemetry.reportTelemetry(context);
-    assertThat(context.getTelemetryProperties()).isEmpty();
-  }
-
-  @Test
-  void shouldCorrectlyReportMultipleTelemetries() {
-    sensorTelemetry.addTelemetry("firstKey", "firstValue");
-    sensorTelemetry.addTelemetry("secondKey", "secondValue");
-
-    sensorTelemetry.reportTelemetry(context);
     assertThat(sensorTelemetry.getTelemetry())
-      .containsExactly(entry("iac.firstKey", "firstValue"), entry("iac.secondKey", "secondValue"));
-
-    assertThat(context.getTelemetryProperties())
-      .containsEntry("iac.firstKey", "firstValue")
-      .containsEntry("iac.secondKey", "secondValue");
-  }
-
-  @Test
-  void shouldThrowWhenTryingToAddMultipleTelemetryWithSameKey() {
-    sensorTelemetry.addTelemetry("firstKey", "firstValue");
-
-    assertThatThrownBy(() -> sensorTelemetry.addTelemetry("firstKey", "anotherValue"))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("telemetry key is reported more than once: iac.firstKey");
-  }
-
-  @Test
-  void shouldNotDoAnythingOnUnsupportedRuntimeVersion() {
-    context = SensorContextTester.create(tempDir).setRuntime(IacTestUtils.SONAR_QUBE_9_9);
-    sensorTelemetry.addTelemetry("firstKey", "firstValue");
-
-    sensorTelemetry.reportTelemetry(context);
-    assertThat(sensorTelemetry.getTelemetry()).containsExactly(entry("iac.firstKey", "firstValue"));
-    assertThat(context.getTelemetryProperties()).isEmpty();
+      .containsEntry("iac.languageA.loc", "17")
+      .containsEntry("iac.languageB.loc", "5");
   }
 
   @ParameterizedTest
   @MethodSource("provideFileSizeMetricTestData")
   void shouldVerifyFileSizeMetricEntry(List<Long> fileSizeList, String entryKey, String entryValue) {
-    fileSizeList.forEach(fileSize -> sensorTelemetry.addFileSize(fileSize));
+    fileSizeList.forEach(fileSize -> sensorTelemetry.addFileSize("language", fileSize));
 
-    sensorTelemetry.addAggregatedFileSizeTelemetry("language");
-
-    reportTelemetryAndVerifySingleEntry(entryKey, entryValue);
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry(entryKey, entryValue);
   }
 
   static Stream<Arguments> provideFileSizeMetricTestData() {
@@ -151,6 +111,17 @@ class SensorTelemetryTest {
       Arguments.of(Arrays.asList(10L, 3L, 7L, 11L), "iac.language.files.count", "4"),
       Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), "iac.language.files.medianSize", "8"),
       Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), "iac.language.files.largestFiles", "[11, 10, 8, 7, 3]"));
+  }
+
+  @Test
+  void shouldAccumulateFileSizesAcrossMultipleCallsForSameLanguage() {
+    sensorTelemetry.addFileSize("language", 10L);
+    sensorTelemetry.addFileSize("language", 20L);
+    sensorTelemetry.addFileSize("language", 5L);
+
+    assertThat(sensorTelemetry.getTelemetry())
+      .containsEntry("iac.language.files.count", "3")
+      .containsEntry("iac.language.files.medianSize", "10");
   }
 
   @ParameterizedTest
@@ -184,22 +155,59 @@ class SensorTelemetryTest {
 
   @Test
   void shouldNotReportFilesMetricWhenFilesIsEmpty() {
-    sensorTelemetry.addAggregatedFileSizeTelemetry("language");
-
-    reportTelemetryAndVerifyNotContainEntry("iac.language.files.count");
-    reportTelemetryAndVerifyNotContainEntry("iac.language.files.medianSize");
-    reportTelemetryAndVerifyNotContainEntry("iac.language.files.largestFiles");
+    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey("iac.language.files.count");
+    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey("iac.language.files.medianSize");
+    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey("iac.language.files.largestFiles");
   }
 
-  private void reportTelemetryAndVerifySingleEntry(String key, String value) {
-    sensorTelemetry.reportTelemetry(context);
-    assertThat(sensorTelemetry.getTelemetry()).containsEntry(key, value);
-    assertThat(context.getTelemetryProperties()).containsEntry(key, value);
+  @Test
+  void shouldStoreNumericalMeasureWithIacPrefix() {
+    sensorTelemetry.addNumericalMeasure("foo.bar", 5);
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.foo.bar", "5");
   }
 
-  private void reportTelemetryAndVerifyNotContainEntry(String key) {
-    sensorTelemetry.reportTelemetry(context);
-    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey(key);
-    assertThat(context.getTelemetryProperties()).doesNotContainKey(key);
+  @Test
+  void shouldSumNumericalMeasureAcrossCalls() {
+    sensorTelemetry.addNumericalMeasure("foo.bar", 5);
+    sensorTelemetry.addNumericalMeasure("foo.bar", 7);
+    sensorTelemetry.addNumericalMeasure("foo.bar", 0);
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.foo.bar", "12");
+  }
+
+  @Test
+  void shouldNotEmitNumericalMeasureWhenNeverCalled() {
+    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey("iac.foo.bar");
+  }
+
+  @Test
+  void shouldOverwriteNumericalMeasureWhenSet() {
+    sensorTelemetry.addNumericalMeasure("foo.bar", 5);
+    sensorTelemetry.setNumericalMeasure("foo.bar", 3);
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.foo.bar", "3");
+  }
+
+  @Test
+  void shouldEmitOneWhenAnyBooleanMeasureCallIsTrue() {
+    sensorTelemetry.setBooleanMeasure("foo.bar", false);
+    sensorTelemetry.setBooleanMeasure("foo.bar", true);
+    sensorTelemetry.setBooleanMeasure("foo.bar", false);
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.foo.bar", "1");
+  }
+
+  @Test
+  void shouldEmitZeroWhenAllBooleanMeasureCallsAreFalse() {
+    sensorTelemetry.setBooleanMeasure("foo.bar", false);
+    sensorTelemetry.setBooleanMeasure("foo.bar", false);
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.foo.bar", "0");
+  }
+
+  @Test
+  void shouldNotEmitBooleanMeasureWhenNeverCalled() {
+    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey("iac.foo.bar");
   }
 }

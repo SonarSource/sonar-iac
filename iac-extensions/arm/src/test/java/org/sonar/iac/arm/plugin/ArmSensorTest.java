@@ -98,7 +98,7 @@ class ArmSensorTest extends ExtensionSensorTest {
   @Override
   protected ArmSensor sensor(CheckFactory checkFactory) {
     return new ArmSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
-      new ArmLanguage(new MapSettings().asConfig()));
+      new ArmLanguage(new MapSettings().asConfig()), projectSensor);
   }
 
   private ArmSensor sensor(String... rules) {

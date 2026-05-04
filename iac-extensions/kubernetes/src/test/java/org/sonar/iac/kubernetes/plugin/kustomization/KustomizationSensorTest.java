@@ -49,6 +49,7 @@ class KustomizationSensorTest {
   private SensorContextTester context;
   private KustomizationInfoProvider kustomizationInfoProvider;
   private KustomizationSensor sensor;
+  private org.sonar.iac.common.extension.IacProjectSensor projectSensor;
 
   @BeforeEach
   void setUp() {
@@ -57,7 +58,8 @@ class KustomizationSensorTest {
     context = SensorContextTester.create(BASE_DIR);
     context.setSettings(settings);
     kustomizationInfoProvider = new KustomizationInfoProvider();
-    sensor = new KustomizationSensor(kustomizationInfoProvider, new KubernetesLanguage());
+    projectSensor = new org.sonar.iac.common.extension.IacProjectSensor(context.config());
+    sensor = new KustomizationSensor(kustomizationInfoProvider, new KubernetesLanguage(), projectSensor);
   }
 
   @Test
@@ -335,6 +337,7 @@ class KustomizationSensorTest {
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);
+    projectSensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
       .containsEntry(KUSTOMIZE_PRESENT, "1")
@@ -361,6 +364,7 @@ class KustomizationSensorTest {
     context.fileSystem().add(kustomization2);
 
     sensor.execute(context);
+    projectSensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
       .containsEntry(KUSTOMIZE_PRESENT, "1")
@@ -371,6 +375,7 @@ class KustomizationSensorTest {
   @Test
   void shouldAddTelemetryPropertiesWhenNoKustomizationFiles() {
     sensor.execute(context);
+    projectSensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
       .containsEntry(KUSTOMIZE_PRESENT, "0")
@@ -388,6 +393,7 @@ class KustomizationSensorTest {
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);
+    projectSensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
       .containsEntry(KUSTOMIZE_PRESENT, "1")

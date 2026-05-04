@@ -19,7 +19,7 @@ package org.sonar.iac.arm.plugin;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.arm.tests.ArmTelemetryReporter.storeTelemetryAndReport;
+import static org.sonar.iac.arm.tests.ArmTelemetryReporter.addArmStatistics;
 import static org.sonar.iac.arm.tests.ArmTestInputFileContextCreator.bicepFileContext;
 import static org.sonar.iac.arm.tests.ArmTestInputFileContextCreator.jsonFileContext;
 
@@ -29,7 +29,7 @@ class ArmParserStatisticsTest {
 
   @Test
   void shouldNotReportTelemetryWhenNoFiles() {
-    var telemetryProperties = storeTelemetryAndReport(statistics);
+    var telemetryProperties = addArmStatistics(statistics);
 
     assertThat(telemetryProperties).doesNotContainKey("iac.azureresourcemanager.files.count");
   }
@@ -39,7 +39,7 @@ class ArmParserStatisticsTest {
     statistics.recordFileStart(jsonFileContext());
     statistics.recordFileEnd(jsonFileContext());
 
-    assertThat(storeTelemetryAndReport(statistics))
+    assertThat(addArmStatistics(statistics))
       .containsEntry("iac.azureresourcemanager.files.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.parsed", "1")
@@ -52,7 +52,7 @@ class ArmParserStatisticsTest {
     statistics.recordFileStart(bicepFileContext());
     statistics.recordFileEnd(bicepFileContext());
 
-    assertThat(storeTelemetryAndReport(statistics))
+    assertThat(addArmStatistics(statistics))
       .containsEntry("iac.azureresourcemanager.files.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.count", "0")
       .containsEntry("iac.azureresourcemanager.files.json.parsed", "0")
@@ -66,7 +66,7 @@ class ArmParserStatisticsTest {
     statistics.recordFileStart(bicepFileContext());
     statistics.recordFileStart(jsonFileContext());
 
-    assertThat(storeTelemetryAndReport(statistics))
+    assertThat(addArmStatistics(statistics))
       .containsEntry("iac.azureresourcemanager.files.count", "3")
       .containsEntry("iac.azureresourcemanager.files.json.count", "2")
       .containsEntry("iac.azureresourcemanager.files.bicep.count", "1");

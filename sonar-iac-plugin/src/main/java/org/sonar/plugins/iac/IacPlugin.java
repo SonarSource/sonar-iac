@@ -19,6 +19,7 @@ package org.sonar.plugins.iac;
 import org.sonar.api.Plugin;
 import org.sonar.iac.arm.plugin.ArmExtension;
 import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
+import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.json.JsonEmptyBuiltInProfileDefinition;
 import org.sonar.iac.common.json.JsonFileFilter;
 import org.sonar.iac.common.json.JsonLanguage;
@@ -34,6 +35,8 @@ public class IacPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
+    context.addExtension(IacProjectSensor.class);
+
     TerraformExtension.define(context);
     CloudformationExtension.define(context);
     KubernetesExtension.define(context);
