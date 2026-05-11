@@ -1,0 +1,29 @@
+# Intermediate stage - should NOT raise, even for sensitive paths
+FROM ubuntu:22.04 AS builder
+ADD . /app
+ADD / /example
+ADD ./ /example
+ADD a* /example
+ADD /a* /example
+
+# Intermediate stage that serves as a dependency for the final stage
+# Should not raise, even for sensitive paths
+FROM ubuntu:22.04 AS stageDep
+ADD . /app
+ADD / /example
+ADD ./ /example
+ADD a* /example
+ADD /a* /example
+
+# Final stage - SHOULD raise
+FROM stageDep
+# Noncompliant@+1 {{Adding files recursively might inadvertently add sensitive data to the container. Make sure it is safe here.}}
+ADD . /example
+# Noncompliant@+1
+ADD / /example
+# Noncompliant@+1 {{Adding files using a glob pattern might inadvertently add sensitive data to the container. Make sure it is safe here.}}
+ADD a* /example
+
+# URLs are still safe regardless of stage
+ADD http://example.com/file.tar /example
+ADD https://example.com/file.tar /example

@@ -28,7 +28,7 @@ import org.sonar.iac.docker.tree.api.Body;
 
 public abstract class AbstractFinalImageCheck implements IacCheck {
 
-  private final TreeVisitor<FinalImageContext> visitor = new TreeVisitor<>();
+  private final TreeVisitor<FinalImageContext> finalImageVisitors = new TreeVisitor<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -38,18 +38,28 @@ public abstract class AbstractFinalImageCheck implements IacCheck {
 
   protected abstract void initializeOnFinalImage();
 
-  protected <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
-    visitor.register(cls, (ctx, node) -> consumer.accept(ctx.checkContext, node));
+  protected boolean shouldAnalyzeDependentStagesOfFinalImage() {
+    return true;
+  }
+
+  protected <T extends Tree> void registerOnFinalImage(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
+    finalImageVisitors.register(cls, (ctx, node) -> consumer.accept(ctx.checkContext, node));
   }
 
   private void processBody(CheckContext checkContext, Body body) {
-    var multiStageBuildInspector = MultiStageBuildInspector.of(body);
-    var stages = body.dockerImages();
     var finalImageContext = new FinalImageContext(checkContext);
+    var allStages = body.dockerImages();
 
-    stages.stream()
-      .filter(multiStageBuildInspector::isStageInFinalImage)
-      .forEach(stage -> visitor.scan(finalImageContext, stage));
+    if (shouldAnalyzeDependentStagesOfFinalImage()) {
+      var multiStageBuildInspector = MultiStageBuildInspector.of(body);
+      allStages.stream()
+        .filter(multiStageBuildInspector::isStageInFinalImage)
+        .forEach(stage -> finalImageVisitors.scan(finalImageContext, stage));
+    } else {
+      allStages.stream()
+        .filter(MultiStageBuildInspector::isLastStage)
+        .forEach(stage -> finalImageVisitors.scan(finalImageContext, stage));
+    }
   }
 
   static class FinalImageContext extends TreeContext {

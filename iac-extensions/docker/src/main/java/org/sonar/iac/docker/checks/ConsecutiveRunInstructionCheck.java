@@ -36,7 +36,7 @@ public class ConsecutiveRunInstructionCheck extends AbstractFinalImageCheck {
 
   @Override
   protected void initializeOnFinalImage() {
-    register(DockerImage.class, this::checkStageFromFinalImage);
+    registerOnFinalImage(DockerImage.class, this::checkStageFromFinalImage);
   }
 
   protected void checkStageFromFinalImage(CheckContext ctx, DockerImage stage) {

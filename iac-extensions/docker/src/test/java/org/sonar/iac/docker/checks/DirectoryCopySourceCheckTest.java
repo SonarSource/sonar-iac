@@ -36,6 +36,16 @@ class DirectoryCopySourceCheckTest {
     DockerVerifier.verify("DirectoryCopySourceCheck/Dockerfile_copy", new DirectoryCopySourceCheck());
   }
 
+  @Test
+  void shouldNotRaiseOnIntermediateStageForCopyInstruction() {
+    DockerVerifier.verify("DirectoryCopySourceCheck/Dockerfile_copy_multistage", new DirectoryCopySourceCheck());
+  }
+
+  @Test
+  void shouldNotRaiseOnIntermediateStageForAddInstruction() {
+    DockerVerifier.verify("DirectoryCopySourceCheck/Dockerfile_add_multistage", new DirectoryCopySourceCheck());
+  }
+
   @MethodSource
   @ParameterizedTest(name = "Should normalize \"{0}\"")
   void shouldNormalizePath(String path, String[] expectedNormalizedResult) {

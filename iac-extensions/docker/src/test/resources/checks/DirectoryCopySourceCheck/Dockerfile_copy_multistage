@@ -1,0 +1,28 @@
+# Intermediate stage - should NOT raise, even for sensitive paths
+FROM ubuntu:22.04 AS builder
+COPY . /app
+COPY / /example
+COPY ./ /example
+COPY a* /example
+COPY /a* /example
+
+# Intermediate stage that serves as a dependency for the final stage
+# Should not raise, even for sensitive paths
+FROM ubuntu:22.04 AS stageDep
+COPY . /app
+COPY / /example
+COPY ./ /example
+COPY a* /example
+COPY /a* /example
+
+# Final stage - SHOULD raise
+FROM stageDep
+# Noncompliant@+1 {{Copying recursively might inadvertently add sensitive data to the container. Make sure it is safe here.}}
+COPY . /example
+# Noncompliant@+1
+COPY / /example
+# Noncompliant@+1 {{Copying using a glob pattern might inadvertently add sensitive data to the container. Make sure it is safe here.}}
+COPY a* /example
+
+# --from skipped regardless of stage
+COPY --from=builder /app /example

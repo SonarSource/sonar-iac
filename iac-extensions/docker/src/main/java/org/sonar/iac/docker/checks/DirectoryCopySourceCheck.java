@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -33,16 +31,23 @@ import org.sonar.iac.docker.tree.api.Flag;
 import static org.sonar.iac.docker.checks.utils.CheckUtils.ignoringHeredoc;
 
 @Rule(key = "S6470")
-public class DirectoryCopySourceCheck implements IacCheck {
+public class DirectoryCopySourceCheck extends AbstractFinalImageCheck {
 
   private static final String MESSAGE_CURRENT_OR_ROOT = "%s recursively might inadvertently add sensitive data to the container. Make sure it is safe here.";
   private static final String MESSAGE_GLOBBING = "%s using a glob pattern might inadvertently add sensitive data to the container. Make sure it is safe here.";
   private static final Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[a-zA-Z]:$");
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(AddInstruction.class, DirectoryCopySourceCheck::checkAdd);
-    init.register(CopyInstruction.class, ignoringHeredoc(DirectoryCopySourceCheck::checkCopy));
+  protected void initializeOnFinalImage() {
+    registerOnFinalImage(AddInstruction.class, DirectoryCopySourceCheck::checkAdd);
+    registerOnFinalImage(CopyInstruction.class, ignoringHeredoc(DirectoryCopySourceCheck::checkCopy));
+  }
+
+  @Override
+  protected boolean shouldAnalyzeDependentStagesOfFinalImage() {
+    // Deliberate design-decision, as the current logic lacks some feature required to analyze dependent stages
+    // See SONARIAC-2875 for more information
+    return false;
   }
 
   private static void checkAdd(CheckContext ctx, AddInstruction add) {
@@ -59,7 +64,6 @@ public class DirectoryCopySourceCheck implements IacCheck {
     if (hasFromOption(copyInstruction.options())) {
       return;
     }
-
     for (Argument src : copyInstruction.srcs()) {
       var resolution = ArgumentResolution.of(src);
       String path = resolution.value();
