@@ -50,7 +50,7 @@ public class SecretsHandlingCheck implements IacCheck {
     "SECRET", "TOKEN");
 
   private static final Set<String> EXCLUSIONS = Set.of("ALLOW", "DIR", "EXPIRE", "EXPIRY", "FILE", "ID",
-    "LOCATION", "NAME", "OWNER", "PATH", "URL", "SIZE");
+    "LOCATION", "NAME", "OWNER", "PATH", "PUBLIC", "URL", "SIZE");
 
   // Patterns to split the identifier of a variable into separate words
   private static final Pattern UNDERSCORE_NAME_PATTERN = Pattern.compile("^\\w+$");

@@ -59,3 +59,16 @@ ENV WEBHOOK_CREDENTIALS=$FOO
 ENV Oauth2Pass=AAAA
 
 ENV API_KEY=
+
+# Variables containing PUBLIC in the name are not flagged
+ENV NEXT_PUBLIC_ACCESS_TOKEN_KEY=AAAA
+ENV NEXT_PUBLIC_API_KEY=AAAA
+ENV PUBLIC_TOKEN=AAAA
+
+# Variable that contains PUBLIC but only as a substring of a different word
+# Noncompliant@+1
+ENV PUBLICATION_SECRET_KEY=AAAA
+
+# Variable where PUBLIC appears as a suffix — still flagged
+# Noncompliant@+1
+ENV NONPUBLIC_SECRET_KEY=AAAA
