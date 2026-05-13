@@ -4,15 +4,15 @@ metadata:
   name: example
 spec:
   ports:
-    - port: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+    - port: 22  # Noncompliant {{Administration services should not be exposed.}}
           # ^^
       targetPort: 8022
     - port: 8022
-      targetPort: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+      targetPort: 22  # Noncompliant {{Administration services should not be exposed.}}
                 # ^^
     - port: 22
-          # ^^> {{Make sure that exposing administration services is safe here.}}
-      targetPort: 22 # Noncompliant {{Make sure that exposing administration services is safe here.}}
+          # ^^> {{Administration services should not be exposed.}}
+      targetPort: 22 # Noncompliant {{Administration services should not be exposed.}}
                 # ^^
     - port:
       targetPort: 22 # Noncompliant
@@ -54,5 +54,19 @@ spec:
     - protocol: abc
       port: 22
       targetPort: 22
+  selector:
+    app: example_app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: example_lb
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 22
+          # ^^> {{Administration services should not be exposed.}}
+      targetPort: 22 # Noncompliant {{Administration services should not be exposed.}}
+                # ^^
   selector:
     app: example_app

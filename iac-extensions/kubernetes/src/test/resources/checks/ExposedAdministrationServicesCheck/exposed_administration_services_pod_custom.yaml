@@ -10,12 +10,12 @@ spec:
       ports:
         - hostPort: 22
           containerPort: 8022
-        - hostPort: 100  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+        - hostPort: 100  # Noncompliant {{Administration services should not be exposed.}}
                   # ^^^
           containerPort: 8022
-        - hostPort: 200  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+        - hostPort: 200  # Noncompliant {{Administration services should not be exposed.}}
                   # ^^^
           containerPort: 8022
-        - hostPort: 300  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+        - hostPort: 300  # Noncompliant {{Administration services should not be exposed.}}
                   # ^^^
           containerPort: 8022

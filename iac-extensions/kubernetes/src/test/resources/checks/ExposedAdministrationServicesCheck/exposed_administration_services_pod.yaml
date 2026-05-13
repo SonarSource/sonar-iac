@@ -8,15 +8,15 @@ spec:
     - name: applications
       image: my_image_with_ssh
       ports:
-        - hostPort: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+        - hostPort: 22  # Noncompliant {{Administration services should not be exposed.}}
                   # ^^
           containerPort: 8022
         - hostPort: 8022
-          containerPort: 22  # Noncompliant {{Make sure that exposing administration services is safe here.}}
+          containerPort: 22  # Noncompliant {{Administration services should not be exposed.}}
                        # ^^
         - hostPort: 22
-                  # ^^> {{Make sure that exposing administration services is safe here.}}
-          containerPort: 22 # Noncompliant {{Make sure that exposing administration services is safe here.}}
+                  # ^^> {{Administration services should not be exposed.}}
+          containerPort: 22 # Noncompliant {{Administration services should not be exposed.}}
                        # ^^
         - hostPort:
           containerPort: 22 # Noncompliant

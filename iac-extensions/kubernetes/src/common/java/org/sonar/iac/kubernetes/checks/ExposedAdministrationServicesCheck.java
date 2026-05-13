@@ -33,7 +33,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 public class ExposedAdministrationServicesCheck extends AbstractKubernetesObjectCheck {
 
   private static final Logger LOG = LoggerFactory.getLogger(ExposedAdministrationServicesCheck.class);
-  private static final String MESSAGE = "Make sure that exposing administration services is safe here.";
+  private static final String MESSAGE = "Administration services should not be exposed.";
   private static final String KIND_POD = "Pod";
   private static final String KIND_SERVICE = "Service";
   private static final List<String> KIND_WITH_TEMPLATE = List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet", "CronJob");

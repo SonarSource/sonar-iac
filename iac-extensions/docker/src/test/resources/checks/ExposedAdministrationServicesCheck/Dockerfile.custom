@@ -3,6 +3,6 @@ FROM foo
 
 EXPOSE 22
 
-# Noncompliant@+1 {{Make sure that exposing administration services is safe here.}}
+# Noncompliant@+1 {{Administration services should not be exposed.}}
 EXPOSE 100
 #      ^^^

@@ -33,7 +33,7 @@ import org.sonar.iac.docker.tree.api.ExposeInstruction;
 public class ExposedAdministrationServicesCheck implements IacCheck {
 
   private static final Logger LOG = LoggerFactory.getLogger(ExposedAdministrationServicesCheck.class);
-  private static final String MESSAGE = "Make sure that exposing administration services is safe here.";
+  private static final String MESSAGE = "Administration services should not be exposed.";
   private static final String DEFAULT_SENSITIVE_PORTS = "22, 23, 3389, 5800, 5900";
 
   private List<Integer> sensitivePorts;

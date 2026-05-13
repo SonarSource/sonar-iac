@@ -5,11 +5,11 @@ FROM foo
 
 ARG GLOBAL_PORT_1
 
-# Noncompliant@+1 {{Make sure that exposing administration services is safe here.}}
+# Noncompliant@+1 {{Administration services should not be exposed.}}
 EXPOSE 22
 #      ^^
 
-# Noncompliant@+1 {{Make sure that exposing administration services is safe here.}}
+# Noncompliant@+1 {{Administration services should not be exposed.}}
 EXPOSE 22/tcp
 #      ^^^^^^
 
