@@ -35,8 +35,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 class AbstractArmResourceCheckTest {
 
-  final static ArmParser parser = new ArmParser();
-  final static Verifier.TestContext ctx = new Verifier.TestContext(null);
+  static final ArmParser parser = new ArmParser();
+  static final Verifier.TestContext ctx = new Verifier.TestContext(null);
 
   final Consumer<ContextualResource> contextualConsumer = mock(Consumer.class);
   final BiConsumer<CheckContext, ResourceDeclaration> treeConsumer = mock(BiConsumer.class);

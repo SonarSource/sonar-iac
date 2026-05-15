@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
  */
 public class TestHelmProcessor extends HelmProcessor {
 
-  static String SINGLE_INPUT = "SingleInputKey";
+  static final String SINGLE_INPUT = "SingleInputKey";
 
   final Map<String, String> expectedInputOutputMapping;
 

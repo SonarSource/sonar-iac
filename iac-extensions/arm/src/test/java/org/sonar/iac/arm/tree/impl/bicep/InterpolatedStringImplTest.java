@@ -68,7 +68,8 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
       softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(1)).getKind()).isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("No kind for InterpolatedStringMiddlePieceImpl");
       softly.assertThat(tree.children().get(2)).isInstanceOf(InterpolatedStringRightPiece.class);
-      softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(2)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+      ArmTree rightPiece = (ArmTree) tree.children().get(2);
+      softly.assertThatThrownBy(rightPiece::getKind).isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("No kind for InterpolatedStringRightPieceImpl");
       softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
     });

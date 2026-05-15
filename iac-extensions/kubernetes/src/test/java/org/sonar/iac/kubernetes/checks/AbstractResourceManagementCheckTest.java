@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.iac.kubernetes.checks.AbstractResourceManagementCheck.getFirstChildElement;
 
 class AbstractResourceManagementCheckTest {
-  static MappingTree CONTAINER_TREE;
+  static final MappingTree CONTAINER_TREE;
 
   static {
     var parser = new YamlParser();
