@@ -32,15 +32,15 @@ import static org.sonar.iac.arm.ArmTestUtils.CTX;
 
 class ContextualResourceTest {
 
-  static ResourceDeclaration SIMPLE_RESOURCE_DECL = ArmTestUtils.parseResource("""
+  static final ResourceDeclaration SIMPLE_RESOURCE_DECL = ArmTestUtils.parseResource("""
     {
       "type": "Microsoft.Kusto/clusters",
       "apiVersion": "2022-12-29",
       "name": "myResource"
     }""");
-  static ResourceDeclaration RESOURCE_DECL_NO_VERSION = (ResourceDeclaration) BicepParser.create(BicepLexicalGrammar.RESOURCE_DECLARATION)
+  static final ResourceDeclaration RESOURCE_DECL_NO_VERSION = (ResourceDeclaration) BicepParser.create(BicepLexicalGrammar.RESOURCE_DECLARATION)
     .parse("resource mySymbolicName 'type' = { name : 'myName' }", null);
-  static ResourceDeclaration RESOURCE_DECL_WITH_NESTED = ArmTestUtils.parseResource("""
+  static final ResourceDeclaration RESOURCE_DECL_WITH_NESTED = ArmTestUtils.parseResource("""
     {
       "type": "Microsoft.Kusto/clusters",
       "apiVersion": "2022-12-29",

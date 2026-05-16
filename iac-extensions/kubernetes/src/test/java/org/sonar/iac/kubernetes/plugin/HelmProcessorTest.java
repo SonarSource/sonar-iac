@@ -64,7 +64,7 @@ class HelmProcessorTest {
 
   @TempDir
   static Path tempDir;
-  private final InputFile DEFAULT_INPUT_FILE = IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
+  private final InputFile defaultInputFile = IacTestUtils.inputFile("helm/templates/pod.yaml", tempDir, "", "kubernetes");
   private HelmInputFileContext defaultInputFileContext;
 
   @RegisterExtension
@@ -74,7 +74,7 @@ class HelmProcessorTest {
   void setUp() {
     try (var ignored = mockStatic(FileSystemUtils.class)) {
       when(retrieveHelmProjectFolder(any(), any())).thenReturn(tempDir);
-      defaultInputFileContext = new HelmInputFileContext(mock(SensorContext.class), DEFAULT_INPUT_FILE, null);
+      defaultInputFileContext = new HelmInputFileContext(mock(SensorContext.class), defaultInputFile, null);
     }
   }
 

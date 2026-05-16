@@ -184,15 +184,15 @@ final class LocationShifterTest {
     LocationShifter.addShiftedLine(ctx, 1, 3, 3);
     LocationShifter.addShiftedLine(differentCtx, 2, 4, 4);
 
-    TextRange shiftedRangeCtx1_1 = LocationShifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
-    assertThat(shiftedRangeCtx1_1).hasRange(3, 0, 3, 15);
-    TextRange shiftedRangeCtx1_2 = LocationShifter.computeShiftedLocation(ctx, range(2, 1, 2, 3));
-    assertThat(shiftedRangeCtx1_2).hasRange(3, 0, 3, 15);
+    TextRange shiftedRangeCtx1Line1 = LocationShifter.computeShiftedLocation(ctx, range(1, 1, 1, 3));
+    assertThat(shiftedRangeCtx1Line1).hasRange(3, 0, 3, 15);
+    TextRange shiftedRangeCtx1Line2 = LocationShifter.computeShiftedLocation(ctx, range(2, 1, 2, 3));
+    assertThat(shiftedRangeCtx1Line2).hasRange(3, 0, 3, 15);
 
-    TextRange shiftedRangeCtx2_1 = LocationShifter.computeShiftedLocation(differentCtx, range(1, 1, 1, 3));
-    assertThat(shiftedRangeCtx2_1).hasRange(4, 0, 4, 21);
-    TextRange shiftedRangeCtx2_2 = LocationShifter.computeShiftedLocation(differentCtx, range(2, 1, 2, 3));
-    assertThat(shiftedRangeCtx2_2).hasRange(4, 0, 4, 21);
+    TextRange shiftedRangeCtx2Line1 = LocationShifter.computeShiftedLocation(differentCtx, range(1, 1, 1, 3));
+    assertThat(shiftedRangeCtx2Line1).hasRange(4, 0, 4, 21);
+    TextRange shiftedRangeCtx2Line2 = LocationShifter.computeShiftedLocation(differentCtx, range(2, 1, 2, 3));
+    assertThat(shiftedRangeCtx2Line2).hasRange(4, 0, 4, 21);
   }
 
   @Test
