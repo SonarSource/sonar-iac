@@ -62,5 +62,4 @@ iac-extensions/jvm-framework-config/src/main/antlr/gen
 iac-extensions/jvm-framework-config/src/main/antlr/PropertiesLexer.tokens
 
 # AIs
-.claude
 CLAUDE.local.md
