@@ -30,8 +30,9 @@ class DisabledLoggingCheckTest {
 
   @Test
   void shouldValidateAwsS3BucketNoProviderVersion() {
-    // If version is not provided it should behave as version < 4
-    TerraformVerifier.verify("DisabledLoggingCheck/aws_S3_bucket_provider_version3.tf", check);
+    // If version is not provided, it should behave more conservatively than v4+:
+    // inline logging blocks and log-delivery-write ACL are also accepted as compliant
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_S3_bucket_no_provider_version.tf", check);
   }
 
   @Test

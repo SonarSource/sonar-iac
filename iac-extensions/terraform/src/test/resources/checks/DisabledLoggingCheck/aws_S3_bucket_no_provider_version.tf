@@ -5,10 +5,21 @@ resource "aws_s3_bucket" "bucket_with_unrelated_acl" {
   acl    = "xxx"
 }
 
-# Noncompliant@+1
+resource "aws_s3_bucket" "bucket_with_log_delivery_name_acl" {
+  bucket = "bucket_with_log_delivery_name_acl"
+  acl    = "log-delivery-write"
+}
+
+resource "aws_s3_bucket" "bucket_with_non_literal_acl" {
+  bucket = "bucket_with_non_literal_acl"
+  # limitation: non-literal values assigned to `acl` are not resolved
+  acl    = var.acl 
+}
+
 resource "aws_s3_bucket" "mycompliantbuckets6258" {
   bucket = "mycompliantbuckets6258name"
 
+  # Pre v4, configuring logging is done usingthe `logging` block
   logging {
       target_bucket = "mycompliantloggingbuckets6258name"
       target_prefix = "log/"
@@ -24,7 +35,7 @@ resource "aws_s3_bucket" "noncompliant_bucket" {
 # -------
 
 resource "aws_s3_bucket" "bucket_with_bucket_logging" {
-  bucket = "example"  # Compliant: aws_s3_bucket_logging resource exists
+  bucket = "example"  # Compliant: aws_s3_bucket_logging resource 'bucket_logging_1' 
 }
 
 resource "aws_s3_bucket_logging" "bucket_logging_1" {

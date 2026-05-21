@@ -59,6 +59,7 @@ import static org.sonar.iac.terraform.plugin.TerraformProviders.Provider.Identif
 public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
 
   private static final Version AWS_V_4 = Version.create(4, 0);
+  private static final String LOGGING = "logging";
 
   private Map<String, List<BlockTree>> typeToTree = new HashMap<>();
   private Map<String, BlockTree> iamPolicyDocuments = new HashMap<>();
@@ -145,7 +146,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
     });
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/redshift_cluster
-    register("aws_redshift_cluster", resource -> resource.block("logging")
+    register("aws_redshift_cluster", resource -> resource.block(LOGGING)
       .reportIfAbsent(String.format(MESSAGE_OMITTING, "logging.enable"))
       .attribute("enable")
       .reportIf(isFalse(), MESSAGE)
@@ -186,16 +187,27 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
 
   private void s3BucketConsumer(ResourceSymbol resource) {
     BlockTree resourceBlock = resource.tree;
-    if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4) || resource.provider(AWS).isUnknown()) {
-      if (!isMaybeLoggingBucket(resourceBlock) && PropertyUtils.isMissing(resourceBlock, "logging")) {
+    if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4)) {
+      if (!hasPreV4Logging(resourceBlock)) {
         resource.report(String.format(MESSAGE_OMITTING, "logging\" or acl=\"log-delivery-write"));
       }
+    } else if (resource.provider(AWS).isUnknown()) {
+      if (!hasPreV4Logging(resourceBlock) && !hasV4Logging(resource)) {
+        resource.report(MESSAGE);
+      }
     } else {
-      var resourceName = resource.name;
-      if (!hasBucketLogging(resourceName) && !hasBucketPolicy(resource)) {
+      if (!hasV4Logging(resource)) {
         resource.report(MESSAGE);
       }
     }
+  }
+
+  private static boolean hasPreV4Logging(BlockTree resourceBlock) {
+    return isMaybeLoggingBucket(resourceBlock) || !PropertyUtils.isMissing(resourceBlock, LOGGING);
+  }
+
+  private boolean hasV4Logging(ResourceSymbol resource) {
+    return hasBucketLogging(resource.name) || hasBucketPolicy(resource);
   }
 
   private boolean hasBucketLogging(String resourceName) {
