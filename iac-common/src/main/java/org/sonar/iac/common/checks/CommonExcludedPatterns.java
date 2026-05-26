@@ -75,6 +75,8 @@ public final class CommonExcludedPatterns {
     "^[a-z0-9_]++\\.[a-z]{2,3}+$",
     // Combinations of words tied together with pipes, like crypt3|md5|sha512, can have surrounding quotes
     "^(?<optquote>'?)(?:[a-z0-9]++\\|)++[a-z0-9]++\\k<optquote>$",
+    // Azure Logic Apps bare runtime expression, e.g. @variables('name') or @body('action').
+    "^@(?!@)\\w++\\(.*\\)$",
     // Bicep json expressions and Azure Pipelines/template expressions like [$(VAR)] or [parameters('name')]
     "^\\[[^\\]]*+\\]$",
     // Look like sentences (at least 3 words).

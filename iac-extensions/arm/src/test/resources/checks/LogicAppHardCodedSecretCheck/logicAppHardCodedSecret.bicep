@@ -503,3 +503,27 @@ resource workflowEmbeddedInterpolation 'Microsoft.Logic/workflows@2019-05-01' = 
     }
   }
 }
+
+// Plain value starting with @ is not a Logic App expression (no parens); must still be flagged.
+resource workflowAtPrefixPlain 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'at-prefix-plain'
+  location: resourceGroup().location
+  properties: {
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        Call_API: {
+          type: 'Http'
+          inputs: {
+            method: 'POST'
+            uri: 'https://api.example.com/data'
+            headers: {
+              Authorization: '@password123' // Noncompliant
+            }
+          }
+        }
+      }
+      triggers: {}
+    }
+  }
+}

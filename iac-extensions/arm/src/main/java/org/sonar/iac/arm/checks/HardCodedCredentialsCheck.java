@@ -58,6 +58,6 @@ public class HardCodedCredentialsCheck implements IacCheck {
 
   /** TODO SONARIAC-1420: S6437 should raise when credential is not defined via parameter */
   private static boolean isHardcoded(Tree tree) {
-    return TextUtils.matchesValue(tree, String::isBlank).isFalse();
+    return TextUtils.matchesValue(tree, v -> !v.isBlank() && LogicAppHardCodedSecretCheck.isLiteralSecret(v)).isTrue();
   }
 }

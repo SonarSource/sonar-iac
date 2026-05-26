@@ -37,7 +37,10 @@ class HardCodedCredentialsCheckTest {
       issue(14, 8, 14, 30, "Revoke and change this secret, as it might be compromised."),
       issue(15, 8, 15, 27, "Revoke and change this secret, as it might be compromised."),
       issue(16, 8, 16, 36, "Revoke and change this secret, as it might be compromised."),
-      issue(39, 10, 39, 32, "Revoke and change this secret, as it might be compromised."));
+      issue(39, 10, 39, 32, "Revoke and change this secret, as it might be compromised."),
+      issue(73, 8, 73, 52, "Revoke and change this secret, as it might be compromised."),
+      issue(74, 8, 74, 31, "Revoke and change this secret, as it might be compromised."),
+      issue(75, 8, 75, 26, "Revoke and change this secret, as it might be compromised."));
   }
 
 }

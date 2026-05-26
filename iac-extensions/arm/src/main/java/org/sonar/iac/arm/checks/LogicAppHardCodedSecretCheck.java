@@ -18,6 +18,7 @@ package org.sonar.iac.arm.checks;
 
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
@@ -51,6 +52,9 @@ public class LogicAppHardCodedSecretCheck extends AbstractArmResourceCheck {
     "[concat(",
     "[reference(",
     "[listKeys(");
+
+  // Bare Logic App expression: @<func>(...). Requires parens to avoid matching plain values like @password123.
+  private static final Pattern LOGIC_APP_BARE_EXPRESSION = Pattern.compile("^@(?!@)\\w++\\(");
 
   @Override
   protected void registerResourceConsumer() {
@@ -157,11 +161,9 @@ public class LogicAppHardCodedSecretCheck extends AbstractArmResourceCheck {
       .orElse(false);
   }
 
-  private static boolean isLiteralSecret(String value) {
-    // Logic App workflow expression at the start of the value: @<func>(...) or @<identifier>.
-    // `@@` is the escape sequence for a literal `@`, so it does not denote an expression.
-    String trimmed = value.stripLeading();
-    if (trimmed.startsWith("@") && !trimmed.startsWith("@@")) {
+  static boolean isLiteralSecret(String value) {
+    // Bare Logic App workflow expression at the start of the value: @<func>(...).
+    if (LOGIC_APP_BARE_EXPRESSION.matcher(value.stripLeading()).find()) {
       return false;
     }
     // Logic App interpolated expression embedded inside a string: @{...}.
