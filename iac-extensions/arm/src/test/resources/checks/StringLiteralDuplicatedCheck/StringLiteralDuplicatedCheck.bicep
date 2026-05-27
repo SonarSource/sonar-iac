@@ -75,3 +75,23 @@ module moduleName_tree 'dir/dosomething.bicep' = {}
 module moduleName_four 'dir/dosomething.bicep' = {}
 module moduleName_five 'dir/dosomething.bicep' = {}
 module moduleName_five 'dir/dosomething.bicep' = {}
+
+// Compliant: resource derived type references should not be flagged
+type foo = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+
+type test = {
+  resA: resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+  resB: sys.resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+  resC: sys.array
+  resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
+}
+
+type strangeFormatting = {
+  test: resourceInput<
+
+  'Astronomer.Astro/organizations@2023-08-01-preview'
+
+>.name
+  test2: resourceInput    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+  test3: resourceInput</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
+}

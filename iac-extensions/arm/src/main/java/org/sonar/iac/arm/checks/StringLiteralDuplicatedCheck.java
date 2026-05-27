@@ -30,6 +30,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ResourceDerivedType;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -102,6 +103,7 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
       var value = stringLiteral.value();
       return value.length() < minimalLiteralLength
         || isResourceTypeAndApiVersionField(stringLiteral)
+        || isResourceDerivedTypeReference(stringLiteral)
         || isResourceId(stringLiteral)
         || isSchemaProperty(stringLiteral)
         || isTypeProperty(stringLiteral)
@@ -152,6 +154,10 @@ public class StringLiteralDuplicatedCheck implements IacCheck {
     private static boolean isModulePath(StringLiteral stringLiteral) {
       return stringLiteral.parent() instanceof ModuleDeclaration moduleDeclaration &&
         moduleDeclaration.type().equals(stringLiteral);
+    }
+
+    private static boolean isResourceDerivedTypeReference(StringLiteral stringLiteral) {
+      return stringLiteral.parent() instanceof ResourceDerivedType;
     }
 
     private void reportDuplicates(CheckContext ctx) {
