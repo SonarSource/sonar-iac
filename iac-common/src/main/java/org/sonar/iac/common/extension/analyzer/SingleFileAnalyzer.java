@@ -25,6 +25,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
@@ -32,8 +33,9 @@ public class SingleFileAnalyzer extends AbstractAnalyzer {
 
   private final List<TreeVisitor<InputFileContext>> visitors;
 
-  public SingleFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
-    super(repositoryKey, parser, statistics);
+  public SingleFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics,
+    SensorTelemetry sensorTelemetry) {
+    super(repositoryKey, parser, statistics, sensorTelemetry);
     this.visitors = visitors;
   }
 

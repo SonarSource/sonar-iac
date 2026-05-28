@@ -66,6 +66,6 @@ public class CloudformationSensor extends AbstractYamlLanguageSensor {
 
   @Override
   protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new SingleFileAnalyzer(repositoryKey(), new CloudformationParser(), visitors(sensorContext, statistics), statistics);
+    return new SingleFileAnalyzer(repositoryKey(), new CloudformationParser(), visitors(sensorContext, statistics), statistics, sensorTelemetry);
   }
 }

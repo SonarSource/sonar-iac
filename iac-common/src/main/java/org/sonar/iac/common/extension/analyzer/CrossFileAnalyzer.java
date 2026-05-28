@@ -26,6 +26,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
@@ -40,8 +41,8 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
    * This implies to not provide the checks visitor in the {@code visitors} parameters but separately as the last parameter.
    */
   public CrossFileAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, List<TreeVisitor<InputFileContext>> visitors, TreeVisitor<InputFileContext> checksVisitor,
-    DurationStatistics statistics) {
-    super(repositoryKey, parser, statistics);
+    DurationStatistics statistics, SensorTelemetry sensorTelemetry) {
+    super(repositoryKey, parser, statistics, sensorTelemetry);
     this.visitors = visitors;
     this.checksVisitor = checksVisitor;
   }

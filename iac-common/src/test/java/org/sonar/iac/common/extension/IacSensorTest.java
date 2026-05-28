@@ -560,7 +560,7 @@ class IacSensorTest extends AbstractSensorTest {
 
     @Override
     protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-      return new SingleFileAnalyzer(repositoryKey(), treeParser, visitors(sensorContext, statistics), statistics);
+      return new SingleFileAnalyzer(repositoryKey(), treeParser, visitors(sensorContext, statistics), statistics, sensorTelemetry);
     }
 
     @Override

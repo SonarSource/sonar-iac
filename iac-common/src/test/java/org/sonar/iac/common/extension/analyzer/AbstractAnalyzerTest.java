@@ -37,6 +37,7 @@ import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.IacTestUtils;
 
@@ -57,6 +58,7 @@ abstract class AbstractAnalyzerTest {
   protected SensorContextTester context;
   protected TreeParser parser;
   protected DurationStatistics durationStatistics;
+  protected SensorTelemetry sensorTelemetry;
 
   protected InputFile emptyFile;
   protected InputFile fileWithContent;
@@ -69,6 +71,7 @@ abstract class AbstractAnalyzerTest {
   void init() throws IOException {
     parser = parser();
     durationStatistics = new DurationStatistics(mock(Configuration.class));
+    sensorTelemetry = new SensorTelemetry();
     baseDir = tmpDir.toPath().toRealPath().resolve("test-project").toFile();
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
@@ -118,6 +121,16 @@ abstract class AbstractAnalyzerTest {
     List<String> debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs).hasSize(1);
     assertThat(debugLogs.get(0)).startsWith("org.sonar.iac.common.extension.ParseException: Custom parse exception");
+  }
+
+  @Test
+  void shouldCountParseFailuresInTelemetry() {
+    when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new ParseException("Parse error", null, null));
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
+
+    analyzer.analyseFiles(context, List.of(fileWithContent, fileWithContent), "terraform");
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.terraform.parse_failures_count", "2");
   }
 
   @Test

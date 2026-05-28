@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
@@ -49,7 +50,9 @@ public class KubernetesAnalyzerFactory {
       helmProcessor,
       new KubernetesParserStatistics(),
       new EmptyChecksVisitor(),
-      sonarLintFileListener);
+      sonarLintFileListener,
+      // SonarLint does not report telemetry; this instance is discarded
+      new SensorTelemetry());
   }
 
   public static Analyzer createAnalyzer(
@@ -58,7 +61,8 @@ public class KubernetesAnalyzerFactory {
     @Nullable HelmProcessor helmProcessor,
     KubernetesParserStatistics kubernetesParserStatistics,
     TreeVisitor<InputFileContext> checksVisitor,
-    @Nullable SonarLintFileListener sonarLintFileListener) {
+    @Nullable SonarLintFileListener sonarLintFileListener,
+    SensorTelemetry sensorTelemetry) {
 
     return new KubernetesAnalyzer(
       KubernetesExtension.REPOSITORY_KEY,
@@ -68,6 +72,7 @@ public class KubernetesAnalyzerFactory {
       new HelmParser(helmProcessor),
       kubernetesParserStatistics,
       checksVisitor,
-      sonarLintFileListener);
+      sonarLintFileListener,
+      sensorTelemetry);
   }
 }

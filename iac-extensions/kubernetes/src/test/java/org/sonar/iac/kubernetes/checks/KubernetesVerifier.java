@@ -48,6 +48,7 @@ import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.languages.IacLanguage;
@@ -209,7 +210,7 @@ public class KubernetesVerifier {
       durationStatistics,
       helmParser,
       new KubernetesParserStatistics(),
-      new TreeVisitor<>(), null);
+      new TreeVisitor<>(), null, new SensorTelemetry());
   }
 
   public static ProjectContextImpl prepareProjectContext(InputFileContext inputFileContext, String... additionalFiles) {

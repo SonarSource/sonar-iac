@@ -43,6 +43,7 @@ import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.common.languages.IacLanguage;
@@ -77,7 +78,7 @@ class KubernetesAnalyzerTest {
   private final HelmParser helmParser = new HelmParser(helmProcessor);
   private final KubernetesAnalyzer analyzer = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
     new DurationStatistics(mock(Configuration.class)),
-    helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), null);
+    helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), null, new SensorTelemetry());
 
   @BeforeEach
   void setup() throws URISyntaxException {
@@ -105,7 +106,7 @@ class KubernetesAnalyzerTest {
     var helmParserLocal = new HelmParser(processor);
     KubernetesAnalyzer analyzerLocal = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
       new DurationStatistics(mock(Configuration.class)), helmParserLocal,
-      new KubernetesParserStatistics(), mock(TreeVisitor.class), null);
+      new KubernetesParserStatistics(), mock(TreeVisitor.class), null, new SensorTelemetry());
     return (FileTree) analyzerLocal.parse(originalCode, inputFileContext);
   }
 
@@ -484,7 +485,7 @@ class KubernetesAnalyzerTest {
 
       var analyzerSonarLint = new KubernetesAnalyzer("", new YamlParser(), Collections.emptyList(),
         new DurationStatistics(mock(Configuration.class)),
-        helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), sonarLintFileListener);
+        helmParser, new KubernetesParserStatistics(), mock(TreeVisitor.class), sonarLintFileListener, new SensorTelemetry());
 
       var ctx = analyzerSonarLint.createInputFileContext(sensorContext, helmFile, KubernetesLanguage.NAME);
 

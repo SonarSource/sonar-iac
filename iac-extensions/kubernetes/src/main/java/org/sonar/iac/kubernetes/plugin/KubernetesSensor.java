@@ -178,7 +178,8 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
       helmProcessor,
       kubernetesParserStatistics,
       new KubernetesChecksVisitor(checks, statistics, projectContextImpl),
-      sonarLintFileListener);
+      sonarLintFileListener,
+      sensorTelemetry);
   }
 
   void setHelmProcessorForTesting(HelmProcessor helmProcessor) {

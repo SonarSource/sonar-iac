@@ -28,6 +28,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.analyzer.CrossFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
@@ -54,8 +55,9 @@ public class KubernetesAnalyzer extends CrossFileAnalyzer {
     HelmParser helmParser,
     KubernetesParserStatistics kubernetesParserStatistics,
     TreeVisitor<InputFileContext> checksVisitor,
-    @Nullable SonarLintFileListener sonarLintFileListener) {
-    super(repositoryKey, parser, visitors, checksVisitor, statistics);
+    @Nullable SonarLintFileListener sonarLintFileListener,
+    SensorTelemetry sensorTelemetry) {
+    super(repositoryKey, parser, visitors, checksVisitor, statistics, sensorTelemetry);
     this.helmParser = helmParser;
     this.kubernetesParserStatistics = kubernetesParserStatistics;
     this.sonarLintFileListener = sonarLintFileListener;

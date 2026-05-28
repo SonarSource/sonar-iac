@@ -106,7 +106,7 @@ class AbstractYamlLanguageSensorTest extends AbstractSensorTest {
 
       @Override
       protected Analyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-        return new SingleFileAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics);
+        return new SingleFileAnalyzer(repositoryKey(), new YamlParser(), visitors(sensorContext, statistics), statistics, sensorTelemetry);
       }
 
       @Override

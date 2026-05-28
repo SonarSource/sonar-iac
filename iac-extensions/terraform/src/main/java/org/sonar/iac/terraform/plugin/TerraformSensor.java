@@ -53,7 +53,7 @@ public class TerraformSensor extends IacSensor {
 
   @Override
   protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new SingleFileAnalyzer(repositoryKey(), new HclParser(), visitors(sensorContext, statistics), statistics);
+    return new SingleFileAnalyzer(repositoryKey(), new HclParser(), visitors(sensorContext, statistics), statistics, sensorTelemetry);
   }
 
   @Override

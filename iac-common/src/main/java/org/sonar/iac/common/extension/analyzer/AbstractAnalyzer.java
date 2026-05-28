@@ -30,6 +30,7 @@ import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.languages.IacLanguage;
 
@@ -43,11 +44,13 @@ public abstract class AbstractAnalyzer implements Analyzer {
   private final String repositoryKey;
   protected final TreeParser<? extends Tree> parser;
   protected final DurationStatistics statistics;
+  private final SensorTelemetry sensorTelemetry;
 
-  protected AbstractAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, DurationStatistics statistics) {
+  protected AbstractAnalyzer(String repositoryKey, TreeParser<? extends Tree> parser, DurationStatistics statistics, SensorTelemetry sensorTelemetry) {
     this.repositoryKey = repositoryKey;
     this.parser = parser;
     this.statistics = statistics;
+    this.sensorTelemetry = sensorTelemetry;
   }
 
   protected InputFileContext createInputFileContext(SensorContext sensorContext, InputFile inputFile, String languageName) {
@@ -81,6 +84,7 @@ public abstract class AbstractAnalyzer implements Analyzer {
   public void reportParseError(ParseException exception, InputFileContext inputFileContext) {
     logParsingError(exception);
     inputFileContext.reportParseError(repositoryKey, exception.getPosition());
+    sensorTelemetry.addNumericalMeasure(inputFileContext.language.getKey() + ".parse_failures_count", 1);
   }
 
   protected void visit(List<TreeVisitor<InputFileContext>> visitors, InputFileContext inputFileContext, Tree tree) {

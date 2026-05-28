@@ -39,7 +39,7 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
 
   @Override
   Analyzer analyzer(List<TreeVisitor<InputFileContext>> visitors, TreeVisitor<InputFileContext> checksVisitor) {
-    return new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
+    return new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics, sensorTelemetry);
   }
 
   @Test
@@ -55,7 +55,7 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     TreeVisitor<InputFileContext> visitor1 = mock(TreeVisitor.class);
     TreeVisitor<InputFileContext> visitor2 = mock(TreeVisitor.class);
     List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2);
-    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
+    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics, sensorTelemetry);
 
     List<InputFile> files = List.of(file1, file2);
     assertThat(analyzer.analyseFiles(context, files, "iac")).isTrue();
@@ -81,7 +81,7 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     })).when(visitor1).scan(any(), any());
 
     List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2);
-    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
+    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics, sensorTelemetry);
 
     List<InputFile> files = List.of(fileWithContent, fileWithContent);
     assertThat(analyzer.analyseFiles(context, files, "iac")).isFalse();
@@ -96,7 +96,7 @@ class CrossFileAnalyzerTest extends AbstractAnalyzerTest {
     })).when(visitor1).scan(any(), any());
 
     List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1);
-    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics);
+    CrossFileAnalyzer analyzer = new CrossFileAnalyzer("iac", parser, visitors, checksVisitor, durationStatistics, sensorTelemetry);
 
     List<InputFile> files = List.of(fileWithContent);
     assertThat(analyzer.analyseFiles(context, files, "iac")).isFalse();

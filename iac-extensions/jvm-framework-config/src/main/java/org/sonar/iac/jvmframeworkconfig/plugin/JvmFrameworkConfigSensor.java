@@ -107,7 +107,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
 
   @Override
   protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
-    return new SingleFileAnalyzer(repositoryKey(), new JvmFrameworkConfigParser(), visitors(sensorContext, statistics), statistics);
+    return new SingleFileAnalyzer(repositoryKey(), new JvmFrameworkConfigParser(), visitors(sensorContext, statistics), statistics, sensorTelemetry);
   }
 
   @Override

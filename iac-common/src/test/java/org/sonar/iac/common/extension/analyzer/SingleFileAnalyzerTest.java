@@ -42,7 +42,7 @@ class SingleFileAnalyzerTest extends AbstractAnalyzerTest {
     List<TreeVisitor<InputFileContext>> allVisitors = new ArrayList<>();
     allVisitors.addAll(visitors);
     allVisitors.add(checksVisitor);
-    return new SingleFileAnalyzer("iac", parser, allVisitors, durationStatistics);
+    return new SingleFileAnalyzer("iac", parser, allVisitors, durationStatistics, sensorTelemetry);
   }
 
   @Test
@@ -57,7 +57,7 @@ class SingleFileAnalyzerTest extends AbstractAnalyzerTest {
     TreeVisitor<InputFileContext> visitor1 = mock(TreeVisitor.class);
     TreeVisitor<InputFileContext> visitor2 = mock(TreeVisitor.class);
     List<TreeVisitor<InputFileContext>> visitors = List.of(visitor1, visitor2, checksVisitor);
-    SingleFileAnalyzer analyzer = new SingleFileAnalyzer("iac", parser, visitors, durationStatistics);
+    SingleFileAnalyzer analyzer = new SingleFileAnalyzer("iac", parser, visitors, durationStatistics, sensorTelemetry);
 
     List<InputFile> files = List.of(file1, file2);
     assertThat(analyzer.analyseFiles(context, files, "iac")).isTrue();

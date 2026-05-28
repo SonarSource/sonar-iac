@@ -88,7 +88,7 @@ public class ArmSensor extends AbstractYamlLanguageSensor {
   @Override
   protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
     armParserStatistics = new ArmParserStatistics();
-    return new SingleFileAnalyzer(repositoryKey(), new ArmParser(armParserStatistics), visitors(sensorContext, statistics), statistics);
+    return new SingleFileAnalyzer(repositoryKey(), new ArmParser(armParserStatistics), visitors(sensorContext, statistics), statistics, sensorTelemetry);
   }
 
   @Override
