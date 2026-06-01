@@ -32,6 +32,7 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isArrayWithValues;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyArray;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isTrue;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.skipReferencingResources;
 
@@ -40,13 +41,11 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
   private static final String CLIENT_CERTIFICATE_ENABLED_PROPERTY = "clientCertEnabled";
 
-  private static final String MISSING_CERTIFICATE_MESSAGE = "Omitting \"%s\" disables certificate-based authentication. Make sure it is safe here.";
-  private static final String DISABLED_CERTIFICATE_MESSAGE = "Make sure that disabling certificate-based authentication is safe here.";
-  private static final String ALLOWING_NO_CERTIFICATE_MESSAGE = "Connections without client certificates will be permitted. Make sure it is safe here.";
-  private static final String PASSWORD_USE_MESSAGE = "This authentication method is not certificate-based. Make sure it is safe here.";
-  private static final String NO_CERTIFICATE_LIST_MESSAGE = "Omitting \"%s\" disables certificate-based authentication. Make sure it is safe here.";
-  private static final String EMPTY_CERTIFICATE_LIST_MESSAGE = "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.";
-  private static final String WRONG_AUTHENTICATION_METHOD_MESSAGE = "This authentication method is not certificate-based. Make sure it is safe here.";
+  private static final String MESSAGE_ENABLE_CERT_AUTH = "Enable client certificate authentication for this resource.";
+  private static final String MESSAGE_REQUIRE_CLIENT_CERTS = "Require client certificates for this resource.";
+  private static final String MESSAGE_SET_CERT_PROPERTY = "Set \"%s\" to enable client certificate authentication.";
+  private static final String MESSAGE_USE_CERT_AUTH = "Use client certificate authentication for this resource.";
+  private static final String MESSAGE_PROVIDE_CERT_LIST = "Provide a list of certificates to enable client certificate authentication.";
 
   private static final Set<String> SENSITIVE_LINKED_SERVICES_TYPE = Set.of("Web", "HttpServer");
   private static final Set<String> SENSITIVE_PIPELINES_TYPE = Set.of("WebActivity", "WebHook");
@@ -55,41 +54,50 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.ApiManagement/service/gateways/hostnameConfigurations", resource -> resource.property("negotiateClientCertificate")
-      .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE)
-      .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE));
+      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY));
     register("Microsoft.App/containerApps", CertificateBasedAuthenticationCheck::checkContainerApps);
     register("Microsoft.ContainerRegistry/registries/tokens", CertificateBasedAuthenticationCheck::checkRegistriesTokens);
     register("Microsoft.DataFactory/factories/linkedservices", CertificateBasedAuthenticationCheck::checkLinkedServices);
     register("Microsoft.DocumentDB/cassandraClusters", CertificateBasedAuthenticationCheck::checkCassandraClusters);
-    register("Microsoft.Scheduler/jobCollections/jobs", CertificateBasedAuthenticationCheck::checkJobCollections);
     register("Microsoft.ServiceFabric/clusters", skipReferencingResources(CertificateBasedAuthenticationCheck::checkServiceFabric));
     register("Microsoft.Web/sites", CertificateBasedAuthenticationCheck::checkWebSites);
     register("Microsoft.Web/sites/slots", CertificateBasedAuthenticationCheck::checkWebSitesSlots);
     register("Microsoft.DataFactory/factories/pipelines", CertificateBasedAuthenticationCheck::checkPipelines);
-    register("Microsoft.Network/applicationGateways", CertificateBasedAuthenticationCheck::checkApplicationGateways);
     register(List.of("Microsoft.SignalRService/signalR", "Microsoft.SignalRService/webPubSub"), CertificateBasedAuthenticationCheck::checkSignalRService);
   }
 
+  private static boolean isPublicNetworkAccessDisabled(ContextualResource resource) {
+    return resource.property("publicNetworkAccess").is(isValue("Disabled"::equals));
+  }
+
   private static void checkContainerApps(ContextualResource resource) {
-    if (isResourceVersionEqualsOrAfter(resource, "2022-10-01")) {
-      ContextualMap<ContextualObject, ObjectExpression> ingress = resource.object("configuration").object("ingress");
-      if (ingress.isPresent()) {
-        ingress.property("clientCertificateMode")
-          .reportIf(isValue("accept"::equals), ALLOWING_NO_CERTIFICATE_MESSAGE)
-          .reportIf(isValue("ignore"::equals), DISABLED_CERTIFICATE_MESSAGE)
-          .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
-      }
+    if (!isResourceVersionEqualsOrAfter(resource, "2022-10-01")) {
+      return;
     }
+    ContextualMap<ContextualObject, ObjectExpression> ingress = resource.object("configuration").object("ingress");
+    if (!ingress.isPresent()) {
+      return;
+    }
+    // external: true means the ingress is reachable beyond the Container App Environment — out of scope.
+    ContextualProperty external = ingress.property("external");
+    if (external.isPresent() && external.is(isTrue())) {
+      return;
+    }
+    ingress.property("clientCertificateMode")
+      .reportIf(isValue("accept"::equals), MESSAGE_REQUIRE_CLIENT_CERTS)
+      .reportIf(isValue("ignore"::equals), MESSAGE_ENABLE_CERT_AUTH)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
   }
 
   private static void checkRegistriesTokens(ContextualResource resource) {
     ContextualMap<ContextualObject, ObjectExpression> credentials = resource.object("credentials");
     if (credentials.isPresent()) {
       credentials.property("certificates")
-        .reportIf(isEmptyArray(), EMPTY_CERTIFICATE_LIST_MESSAGE)
-        .reportIfAbsent(NO_CERTIFICATE_LIST_MESSAGE);
+        .reportIf(isEmptyArray(), MESSAGE_PROVIDE_CERT_LIST)
+        .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
       credentials.property("passwords")
-        .reportIf(isArrayWithValues(), PASSWORD_USE_MESSAGE);
+        .reportIf(isArrayWithValues(), MESSAGE_USE_CERT_AUTH);
     }
   }
 
@@ -99,33 +107,14 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
     if (type.is(isValue(SENSITIVE_LINKED_SERVICES_TYPE::contains))
       && authenticationType.is(isValue(str -> !"ClientCertificate".equals(str)))) {
-      authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Service type"));
+      authenticationType.report(MESSAGE_USE_CERT_AUTH, type.toSecondary("Service type"));
     }
   }
 
   private static void checkCassandraClusters(ContextualResource resource) {
     resource.property("clientCertificates")
-      .reportIf(isEmptyArray(), EMPTY_CERTIFICATE_LIST_MESSAGE)
-      .reportIfAbsent(NO_CERTIFICATE_LIST_MESSAGE);
-  }
-
-  private static void checkApplicationGateways(ContextualResource resource) {
-    resource.property("trustedRootCertificates")
-      .reportIf(isEmptyArray(), EMPTY_CERTIFICATE_LIST_MESSAGE)
-      .reportIfAbsent(NO_CERTIFICATE_LIST_MESSAGE);
-  }
-
-  private static void checkJobCollections(ContextualResource resource) {
-    checkRequestAuthenticationType(resource.object("action"));
-    checkRequestAuthenticationType(resource.object("action").object("errorAction"));
-  }
-
-  private static void checkRequestAuthenticationType(ContextualObject action) {
-    action
-      .object("request")
-      .object("authentication")
-      .property("type")
-      .reportIf(isValue(str -> !"ClientCertificate".equals(str)), WRONG_AUTHENTICATION_METHOD_MESSAGE);
+      .reportIf(isEmptyArray(), MESSAGE_PROVIDE_CERT_LIST)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
   }
 
   private static void checkServiceFabric(ContextualResource resource) {
@@ -133,7 +122,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     ContextualProperty clientCertificateThumbprints = resource.property("clientCertificateThumbprints");
 
     if (clientCertificateCommonNames.isAbsent() && clientCertificateThumbprints.isAbsent()) {
-      resource.report(String.format(NO_CERTIFICATE_LIST_MESSAGE, "clientCertificateCommonNames/clientCertificateThumbprints"));
+      resource.report(String.format(MESSAGE_SET_CERT_PROPERTY, "clientCertificateCommonNames/clientCertificateThumbprints"));
     } else {
       boolean isCommonNamesCertProvided = clientCertificateCommonNames.isPresent() && clientCertificateCommonNames.is(isArrayWithValues());
       boolean isThumbprintsCertProvided = clientCertificateThumbprints.isPresent() && clientCertificateThumbprints.is(isArrayWithValues());
@@ -141,25 +130,31 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
         List<SecondaryLocation> secondaries = new ArrayList<>();
         clientCertificateCommonNames.ifPresent(tree -> secondaries.add(clientCertificateCommonNames.toSecondary("Empty certificate list")));
         clientCertificateThumbprints.ifPresent(tree -> secondaries.add(clientCertificateThumbprints.toSecondary("Empty certificate list")));
-        resource.report(EMPTY_CERTIFICATE_LIST_MESSAGE, secondaries);
+        resource.report(MESSAGE_PROVIDE_CERT_LIST, secondaries);
       }
     }
   }
 
   private static void checkWebSites(ContextualResource resource) {
+    if (!isPublicNetworkAccessDisabled(resource)) {
+      return;
+    }
     resource.property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
-      .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE)
-      .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
+      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
     resource.property("clientCertMode")
-      .reportIf(isValue(str -> !"Required".equals(str)), ALLOWING_NO_CERTIFICATE_MESSAGE)
-      .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
+      .reportIf(isValue(str -> !"Required".equals(str)), MESSAGE_REQUIRE_CLIENT_CERTS)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
   }
 
   private static void checkWebSitesSlots(ContextualResource resource) {
+    if (!isPublicNetworkAccessDisabled(resource)) {
+      return;
+    }
     resource.property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
-      .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE);
+      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH);
     resource.property("clientCertMode")
-      .reportIf(isValue(str -> !"Required".equals(str)), ALLOWING_NO_CERTIFICATE_MESSAGE);
+      .reportIf(isValue(str -> !"Required".equals(str)), MESSAGE_REQUIRE_CLIENT_CERTS);
   }
 
   private static void checkPipelines(ContextualResource resource) {
@@ -169,15 +164,18 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
       if (type.is(isValue(SENSITIVE_PIPELINES_TYPE::contains))
         && authenticationType.is(isValue(SENSITIVE_PIPELINES_AUTHENTICATION_TYPE::contains))) {
-        authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Pipeline type"));
+        authenticationType.report(MESSAGE_USE_CERT_AUTH, type.toSecondary("Pipeline type"));
       }
     });
   }
 
   private static void checkSignalRService(ContextualResource resource) {
+    if (!isPublicNetworkAccessDisabled(resource)) {
+      return;
+    }
     resource.object("tls").property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
-      .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE)
-      .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
+      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
   }
 
   private static boolean isResourceVersionEqualsOrAfter(ContextualResource resource, String version) {

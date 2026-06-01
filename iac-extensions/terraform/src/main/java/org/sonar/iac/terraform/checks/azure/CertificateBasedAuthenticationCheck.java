@@ -17,7 +17,6 @@
 package org.sonar.iac.terraform.checks.azure;
 
 import java.util.Set;
-import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -26,14 +25,13 @@ import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
-
 @Rule(key = "S6382")
 public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE_WHEN_DISABLED = "Make sure that disabling certificate-based authentication is safe here.";
-  private static final String TEMPLATE_WHEN_MISSING = "Omitting \"%s\" disables certificate-based authentication. Make sure it is safe here.";
+  private static final String MESSAGE_ENABLE_CERT_AUTH = "Enable client certificate authentication for this resource.";
+  private static final String MESSAGE_REQUIRE_CLIENT_CERTS = "Require client certificates for this resource.";
+  private static final String MESSAGE_SET_CERT_PROPERTY = "Set \"%s\" to enable client certificate authentication.";
+  private static final String MESSAGE_USE_CERT_AUTH = "Use client certificate authentication for this resource.";
 
   private static final String DEFAULT_CLIENT_CERT_MODE = "client_certificate_mode";
   private static final String DEFAULT_CLIENT_CERT_ENABLED = "client_certificate_enabled";
@@ -42,62 +40,81 @@ public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
   private static final Set<String> CLIENT_CERT_MODE = Set.of(DEFAULT_CLIENT_CERT_MODE, OLD_CLIENT_CERT_MODE);
   private static final Set<String> CLIENT_CERT_ENABLED = Set.of(DEFAULT_CLIENT_CERT_ENABLED, OLD_CLIENT_CERT_ENABLED);
 
-  private static String messageWhenMissing(String propName) {
-    return String.format(TEMPLATE_WHEN_MISSING, propName);
-  }
-
   @Override
   protected void registerResourceChecks() {
-    register(CertificateBasedAuthenticationCheck::checkAppService, "azurerm_app_service");
-    register(CertificateBasedAuthenticationCheck::checkApps, "azurerm_function_app", "azurerm_linux_function_app", "azurerm_linux_function_app_slot",
-      "azurerm_windows_function_app", "azurerm_windows_function_app_slot", "azurerm_logic_app_standard");
-    register(CertificateBasedAuthenticationCheck::checkWebApps, "azurerm_linux_web_app", "azurerm_windows_web_app");
-    register(CertificateBasedAuthenticationCheck::checkApiManagement, "azurerm_api_management");
+    // azurerm_app_service has no public_network_access_enabled property, so the rule fires unconditionally.
+    register(CertificateBasedAuthenticationCheck::checkCertEnabledAndMode, "azurerm_app_service");
+    // these expose only the mode, so we gate with public_network_access_enabled=false
+    register(CertificateBasedAuthenticationCheck::checkModeOnlyWithPnaGate, "azurerm_logic_app_standard", "azurerm_function_app");
+    // check for authentication_mode
     register(CertificateBasedAuthenticationCheck::checkLinkedServices, "azurerm_data_factory_linked_service_sftp", "azurerm_data_factory_linked_service_web");
+
+    // The remaining web/function-app variants only fire when public_network_access_enabled is explicitly set to false.
+    register(CertificateBasedAuthenticationCheck::checkWebOrFunctionApp, "azurerm_linux_web_app", "azurerm_windows_web_app",
+      "azurerm_linux_web_app_slot", "azurerm_windows_web_app_slot",
+      "azurerm_linux_function_app", "azurerm_linux_function_app_slot",
+      "azurerm_windows_function_app", "azurerm_windows_function_app_slot");
+    // Container App ingress: skip when external_enabled = true, mirroring the ARM Microsoft.App/containerApps narrowing.
+    register(CertificateBasedAuthenticationCheck::checkContainerApp, "azurerm_container_app");
   }
 
-  private static void checkAppService(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, CLIENT_CERT_ENABLED, AttributeTree.class)
-      .ifPresentOrElse(
-        m -> reportOnFalse(ctx, m, MESSAGE_WHEN_DISABLED),
-        () -> reportResource(ctx, resource, messageWhenMissing(DEFAULT_CLIENT_CERT_ENABLED)));
+  private static boolean isPublicNetworkAccessDisabled(BlockTree resource) {
+    return PropertyUtils.get(resource, "public_network_access_enabled", AttributeTree.class)
+      .map(attr -> TextUtils.isValueFalse(attr.value()))
+      .orElse(false);
   }
 
-  private static void checkApps(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, CLIENT_CERT_MODE, AttributeTree.class)
-      .ifPresentOrElse(
-        m -> reportSensitiveValue(ctx, m, "Optional", MESSAGE_WHEN_DISABLED),
-        () -> reportResource(ctx, resource, messageWhenMissing(DEFAULT_CLIENT_CERT_MODE)));
+  private static void checkWebOrFunctionApp(CheckContext ctx, BlockTree resource) {
+    if (!isPublicNetworkAccessDisabled(resource)) {
+      return;
+    }
+    checkCertEnabledAndMode(ctx, resource);
   }
 
-  private static void checkWebApps(CheckContext ctx, BlockTree resource) {
+  private static void checkModeOnlyWithPnaGate(CheckContext ctx, BlockTree resource) {
+    if (!isPublicNetworkAccessDisabled(resource)) {
+      return;
+    }
+    checkCertMode(ctx, resource);
+  }
+
+  // enabled=false overrides any mode setting, so it is reported first; the mode is only meaningful when enabled is true.
+  private static void checkCertEnabledAndMode(CheckContext ctx, BlockTree resource) {
     var optCertEnabled = PropertyUtils.get(resource, CLIENT_CERT_ENABLED, AttributeTree.class);
     if (optCertEnabled.isEmpty()) {
-      reportResource(ctx, resource, messageWhenMissing(DEFAULT_CLIENT_CERT_ENABLED));
+      reportResource(ctx, resource, MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_ENABLED));
     } else if (TextUtils.isValueFalse(optCertEnabled.get().value())) {
-      ctx.reportIssue(optCertEnabled.get(), MESSAGE_WHEN_DISABLED);
+      ctx.reportIssue(optCertEnabled.get(), MESSAGE_ENABLE_CERT_AUTH);
     } else {
-      PropertyUtils.get(resource, CLIENT_CERT_MODE, AttributeTree.class)
-        .ifPresentOrElse(
-          m -> reportSensitiveValue(ctx, m, "Optional", MESSAGE_WHEN_DISABLED),
-          () -> reportResource(ctx, resource, messageWhenMissing(DEFAULT_CLIENT_CERT_MODE)));
+      checkCertMode(ctx, resource);
     }
   }
 
-  private static final Predicate<String> CONSUMPTION_PATTERN = exactMatchStringPredicate("Consumption_[0-9]+", CASE_INSENSITIVE);
-
-  private static void checkApiManagement(CheckContext ctx, BlockTree resource) {
-    var optSkuName = PropertyUtils.value(resource, "sku_name");
-    if (optSkuName.isPresent() && TextUtils.matchesValue(optSkuName.get(), CONSUMPTION_PATTERN).isTrue()) {
-      PropertyUtils.get(resource, DEFAULT_CLIENT_CERT_ENABLED, AttributeTree.class)
-        .ifPresentOrElse(
-          m -> reportOnFalse(ctx, m, MESSAGE_WHEN_DISABLED),
-          () -> reportResource(ctx, resource, messageWhenMissing(DEFAULT_CLIENT_CERT_ENABLED)));
-    }
+  private static void checkCertMode(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, CLIENT_CERT_MODE, AttributeTree.class)
+      .ifPresentOrElse(
+        m -> reportSensitiveValue(ctx, m, "Optional", MESSAGE_REQUIRE_CLIENT_CERTS),
+        () -> reportResource(ctx, resource, MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_MODE)));
   }
 
   private static void checkLinkedServices(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "authentication_type", AttributeTree.class)
-      .ifPresent(m -> reportSensitiveValue(ctx, m, "Basic", MESSAGE_WHEN_DISABLED));
+      .ifPresent(m -> reportSensitiveValue(ctx, m, "Basic", MESSAGE_USE_CERT_AUTH));
+  }
+
+  private static void checkContainerApp(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "ingress", BlockTree.class).ifPresent(ingress -> {
+      var external = PropertyUtils.get(ingress, "external_enabled", AttributeTree.class);
+      if (external.isPresent() && TextUtils.isValueTrue(external.get().value())) {
+        return;
+      }
+      PropertyUtils.get(ingress, DEFAULT_CLIENT_CERT_MODE, AttributeTree.class)
+        .ifPresentOrElse(
+          mode -> {
+            reportSensitiveValue(ctx, mode, "ignore", MESSAGE_ENABLE_CERT_AUTH);
+            reportSensitiveValue(ctx, mode, "accept", MESSAGE_REQUIRE_CLIENT_CERTS);
+          },
+          () -> ctx.reportIssue(ingress.key(), MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_MODE)));
+    });
   }
 }

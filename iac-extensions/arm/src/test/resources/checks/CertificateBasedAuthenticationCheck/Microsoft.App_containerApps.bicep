@@ -3,7 +3,7 @@ resource Raise_an_issue_value_is_ignore 'Microsoft.App/containerApps@2022-10-01'
   properties: {
     configuration: {
       ingress: {
-        clientCertificateMode: 'ignore' // Noncompliant{{Make sure that disabling certificate-based authentication is safe here.}}
+        clientCertificateMode: 'ignore' // Noncompliant{{Enable client certificate authentication for this resource.}}
 //      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       }
     }
@@ -15,7 +15,7 @@ resource Raise_an_issue_value_is_accept 'Microsoft.App/containerApps@2022-10-01'
   properties: {
     configuration: {
       ingress: {
-        clientCertificateMode: 'accept' // Noncompliant{{Connections without client certificates will be permitted. Make sure it is safe here.}}
+        clientCertificateMode: 'accept' // Noncompliant{{Require client certificates for this resource.}}
       }
     }
   }
@@ -36,7 +36,7 @@ resource Raise_an_issue_property_is_missing 'Microsoft.App/containerApps@2022-10
   name: 'Raise an issue: property is missing'
   properties: {
     configuration: {
-      // Noncompliant@+1{{Omitting "clientCertificateMode" disables certificate-based authentication. Make sure it is safe here.}}
+      // Noncompliant@+1{{Set "clientCertificateMode" to enable client certificate authentication.}}
       ingress: {
         another_attr: 'value'
       }
@@ -96,5 +96,78 @@ resource Do_not_raise_an_issue_parent_propery_ingress_is_not_event_present 'Micr
   name: 'Do not raise an issue: parent propery \'ingress\' is not event present'
   properties: {
     configuration: {}
+  }
+}
+
+resource Compliant_external_ingress_ignore 'Microsoft.App/containerApps@2022-10-01' = {
+  name: 'Compliant: external ingress with clientCertificateMode=ignore is skipped'
+  properties: {
+    configuration: {
+      ingress: {
+        external: true
+        clientCertificateMode: 'ignore'
+      }
+    }
+  }
+}
+
+resource Compliant_external_ingress_accept 'Microsoft.App/containerApps@2022-10-01' = {
+  name: 'Compliant: external ingress with clientCertificateMode=accept is skipped'
+  properties: {
+    configuration: {
+      ingress: {
+        external: true
+        clientCertificateMode: 'accept'
+      }
+    }
+  }
+}
+
+resource Compliant_external_ingress_missing_mode 'Microsoft.App/containerApps@2022-10-01' = {
+  name: 'Compliant: external ingress without clientCertificateMode is skipped'
+  properties: {
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 80
+      }
+    }
+  }
+}
+
+resource Raise_an_issue_internal_ingress_ignore 'Microsoft.App/containerApps@2022-10-01' = {
+  name: 'Raise an issue: internal ingress with clientCertificateMode=ignore'
+  properties: {
+    configuration: {
+      ingress: {
+        external: false
+        clientCertificateMode: 'ignore' // Noncompliant{{Enable client certificate authentication for this resource.}}
+      }
+    }
+  }
+}
+
+resource Raise_an_issue_internal_ingress_missing_mode 'Microsoft.App/containerApps@2022-10-01' = {
+  name: 'Raise an issue: internal ingress without clientCertificateMode'
+  properties: {
+    configuration: {
+      // Noncompliant@+1{{Set "clientCertificateMode" to enable client certificate authentication.}}
+      ingress: {
+        external: false
+        targetPort: 80
+      }
+    }
+  }
+}
+
+resource Raise_an_issue_external_unknown_value_ingress_ignore 'Microsoft.App/containerApps@2022-10-01' = {
+  name: 'Raise an issue: external set to a non-boolean falls through to existing checks'
+  properties: {
+    configuration: {
+      ingress: {
+        external: 'true'
+        clientCertificateMode: 'ignore' // Noncompliant
+      }
+    }
   }
 }

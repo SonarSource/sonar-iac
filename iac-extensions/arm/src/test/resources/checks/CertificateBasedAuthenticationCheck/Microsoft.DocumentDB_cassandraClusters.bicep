@@ -1,4 +1,4 @@
-// Noncompliant@+1{{Omitting "clientCertificates" disables certificate-based authentication. Make sure it is safe here.}}
+// Noncompliant@+1{{Set "clientCertificates" to enable client certificate authentication.}}
 resource noncompliant1 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
   name: 'Sensitive: property \'clientCertificates\' is missing'
   properties: {}
@@ -11,7 +11,7 @@ resource compliant_existing 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' 
 resource noncompliant2 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
   name: 'Sensitive: property \'clientCertificates\' array is empty'
   properties: {
-    clientCertificates: [] // Noncompliant{{Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.}}
+    clientCertificates: [] // Noncompliant{{Provide a list of certificates to enable client certificate authentication.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^
   }
 }

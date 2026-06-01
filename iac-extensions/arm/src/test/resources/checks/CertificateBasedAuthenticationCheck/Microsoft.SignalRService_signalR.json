@@ -7,6 +7,7 @@
       "type": "Microsoft.SignalRService/signalR",
       "apiVersion": "2021-10-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "tls": {
         }
       }
@@ -16,17 +17,19 @@
       "type": "Microsoft.SignalRService/signalR",
       "apiVersion": "2021-10-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "tls": {
           "clientCertEnabled": false
         }
       }
     },
-    
+
     {
       "name": "Compliant: clientCertEnabled is set to true",
       "type": "Microsoft.SignalRService/signalR",
       "apiVersion": "2021-10-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "tls": {
           "clientCertEnabled": true
         }
@@ -35,6 +38,16 @@
     {
       "name": "Compliant: the resource type is not concerned by this rule",
       "type": "another type",
+      "apiVersion": "2021-10-01",
+      "properties": {
+        "tls": {
+          "clientCertEnabled": false
+        }
+      }
+    },
+    {
+      "name": "Compliant: publicNetworkAccess not Disabled",
+      "type": "Microsoft.SignalRService/signalR",
       "apiVersion": "2021-10-01",
       "properties": {
         "tls": {

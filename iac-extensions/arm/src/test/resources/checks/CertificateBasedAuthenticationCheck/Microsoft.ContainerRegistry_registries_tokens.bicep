@@ -7,7 +7,7 @@ resource Sensitive_password_are_mentionned 'Microsoft.ContainerRegistry/registri
           '...': 'certificate details'
         }
       ]
-      passwords: [ // Noncompliant{{This authentication method is not certificate-based. Make sure it is safe here.}}
+      passwords: [ // Noncompliant{{Use client certificate authentication for this resource.}}
         {
           '...': 'password details'
         }
@@ -20,7 +20,7 @@ resource Sensitive_certificates_is_empty 'Microsoft.ContainerRegistry/registries
   name: 'Sensitive: certificates is empty'
   properties: {
     credentials: {
-      certificates: [] // Noncompliant{{Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.}}
+      certificates: [] // Noncompliant{{Provide a list of certificates to enable client certificate authentication.}}
       passwords: []
     }
   }
@@ -29,7 +29,7 @@ resource Sensitive_certificates_is_empty 'Microsoft.ContainerRegistry/registries
 resource Sensitive_certificates_property_is_missing 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
   name: 'Sensitive: certificates property is missing'
   properties: {
-    credentials: { // Noncompliant{{Omitting "certificates" disables certificate-based authentication. Make sure it is safe here.}}
+    credentials: { // Noncompliant{{Set "certificates" to enable client certificate authentication.}}
       passwords: []
     }
   }

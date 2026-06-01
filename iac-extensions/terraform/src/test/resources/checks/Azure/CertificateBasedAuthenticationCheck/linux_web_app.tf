@@ -1,108 +1,65 @@
-# Noncompliant@+1 {{Omitting "client_certificate_mode" disables certificate-based authentication. Make sure it is safe here.}}
-resource "azurerm_linux_web_app" "sensitive1" {
-  client_cert_enabled = true # Compliant
+# Web apps fire only when public_network_access_enabled = false (intentionally private / M2M).
+
+# Noncompliant@+1 {{Set "client_certificate_enabled" to enable client certificate authentication.}}
+resource "azurerm_linux_web_app" "private_missing_enabled" {
+  public_network_access_enabled = false
 }
 
-# Noncompliant@+1 {{Omitting "client_certificate_mode" disables certificate-based authentication. Make sure it is safe here.}}
-resource "azurerm_linux_web_app" "sensitive1" {
-  client_certificate_enabled = true # Compliant
+resource "azurerm_linux_web_app" "private_disabled" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = false # Noncompliant {{Enable client certificate authentication for this resource.}}
 }
 
-resource "azurerm_linux_web_app" "sensitive2" {
-  client_cert_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Noncompliant@+1 {{Set "client_certificate_mode" to enable client certificate authentication.}}
+resource "azurerm_linux_web_app" "private_enabled_missing_mode" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = true
 }
 
-resource "azurerm_linux_web_app" "sensitive2" {
-  client_certificate_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource "azurerm_linux_web_app" "private_enabled_optional" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = true
+  client_certificate_mode       = "Optional" # Noncompliant {{Require client certificates for this resource.}}
 }
 
-# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
-resource "azurerm_linux_web_app" "sensitive3" {
+resource "azurerm_linux_web_app" "private_compliant" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = true
+  client_certificate_mode       = "Required"
 }
 
+# Default (public_network_access_enabled absent or true) — skip.
 
-
-resource "azurerm_linux_web_app" "sensitive4" {
-  client_cert_enabled = true # Compliant
-  client_cert_mode = "Optional" # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+resource "azurerm_linux_web_app" "public_default" {
+  # no public_network_access_enabled → defaults to true → skipped
 }
 
-resource "azurerm_linux_web_app" "sensitive4" {
-  client_certificate_enabled = true # Compliant
-  client_certificate_mode = "Optional" # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+resource "azurerm_linux_web_app" "public_explicit" {
+  public_network_access_enabled = true
+  client_certificate_enabled    = false
 }
 
-resource "azurerm_linux_web_app" "sensitive5" {
-  client_cert_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
-  client_cert_mode = "Optional" # Compliant
+resource "azurerm_windows_web_app" "private_disabled" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = false # Noncompliant
 }
 
-resource "azurerm_linux_web_app" "sensitive5" {
-  client_certificate_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
-  client_certificate_mode = "Optional" # Compliant
+resource "azurerm_linux_web_app_slot" "private_disabled" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = false # Noncompliant
 }
 
-# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
-resource "azurerm_linux_web_app" "sensitive6" {
-  client_cert_mode = "Optional" # Compliant
+# Noncompliant@+1 {{Set "client_certificate_enabled" to enable client certificate authentication.}}
+resource "azurerm_linux_web_app_slot" "private_missing_enabled" {
+  public_network_access_enabled = false
 }
 
-# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
-resource "azurerm_linux_web_app" "sensitive6" {
-  client_certificate_mode = "Optional" # Compliant
+resource "azurerm_windows_web_app_slot" "private_disabled" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = false # Noncompliant
 }
 
-
-
-resource "azurerm_linux_web_app" "compliant1" {
-  client_cert_enabled = true # Compliant
-  client_cert_mode = "SomeMode" # Compliant
-}
-
-resource "azurerm_linux_web_app" "compliant1" {
-  client_certificate_enabled = true # Compliant
-  client_certificate_mode = "SomeMode" # Compliant
-}
-
-resource "azurerm_linux_web_app" "sensitive7" {
-  client_cert_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
-  client_cert_mode = "SomeMode" # Compliant
-}
-
-resource "azurerm_linux_web_app" "sensitive7" {
-  client_certificate_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
-  client_certificate_mode = "SomeMode" # Compliant
-}
-
-# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
-resource "azurerm_linux_web_app" "sensitive8" {
-  client_cert_mode = "SomeMode" # Compliant
-}
-
-# Noncompliant@+1 {{Omitting "client_certificate_enabled" disables certificate-based authentication. Make sure it is safe here.}}
-resource "azurerm_linux_web_app" "sensitive8" {
-  client_certificate_mode = "SomeMode" # Compliant
-}
-
-
-resource "other_resource_type" "compliant2" {
-  client_cert_enabled = false # Compliant
-  client_cert_mode = "Optional" # Compliant
-}
-
-resource "other_resource_type" "compliant2" {
-  client_certificate_enabled = false # Compliant
-  client_certificate_mode = "Optional" # Compliant
-}
-
-
-# also check for windows_web_app
-resource "azurerm_windows_web_app" "sensitive2" {
-  client_cert_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
-}
-
-resource "azurerm_windows_web_app" "sensitive2" {
-  client_certificate_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+# Noncompliant@+1 {{Set "client_certificate_enabled" to enable client certificate authentication.}}
+resource "azurerm_windows_web_app_slot" "private_missing_enabled" {
+  public_network_access_enabled = false
 }

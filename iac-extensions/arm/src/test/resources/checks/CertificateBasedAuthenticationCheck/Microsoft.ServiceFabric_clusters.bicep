@@ -1,4 +1,4 @@
-// Noncompliant@+1{{Omitting "clientCertificateCommonNames/clientCertificateThumbprints" disables certificate-based authentication. Make sure it is safe here.}}
+// Noncompliant@+1{{Set "clientCertificateCommonNames/clientCertificateThumbprints" to enable client certificate authentication.}}
 resource noncompliant1 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
   name: 'Sensitive: both properties are not defined'
   properties: {}
@@ -8,7 +8,7 @@ resource compliant_existing 'Microsoft.ServiceFabric/clusters@2016-03-01' existi
   name: 'Compliant: existing'
 }
 
-// Noncompliant@+1{{Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.}}
+// Noncompliant@+1{{Provide a list of certificates to enable client certificate authentication.}}
 resource noncompliant2 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
 //       ^^^^^^^^^^^^^
   name: 'Sensitive: both properties are defined but empty'

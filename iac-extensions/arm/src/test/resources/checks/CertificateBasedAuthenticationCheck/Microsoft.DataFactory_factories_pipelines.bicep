@@ -6,7 +6,7 @@ resource noncompliant1 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
         type: 'WebActivity'
 //      ^^^^^^^^^^^^^^^^^^^> {{Pipeline type}}
         typeProperties: {
-          authenticationType: 'Basic' // Noncompliant{{This authentication method is not certificate-based. Make sure it is safe here.}}
+          authenticationType: 'Basic' // Noncompliant{{Use client certificate authentication for this resource.}}
 //        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         }
       }

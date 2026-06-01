@@ -107,6 +107,84 @@
         "configuration": {
         }
       }
+    },
+    {
+      "name": "Compliant: external ingress with clientCertificateMode=ignore is skipped",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "clientCertificateMode": "ignore"
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: external ingress with clientCertificateMode=accept is skipped",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "clientCertificateMode": "accept"
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: external ingress without clientCertificateMode is skipped",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "targetPort": 80
+          }
+        }
+      }
+    },
+    {
+      "name": "Raise an issue: internal ingress with clientCertificateMode=ignore",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "external": false,
+            "clientCertificateMode": "ignore"
+          }
+        }
+      }
+    },
+    {
+      "name": "Raise an issue: internal ingress without clientCertificateMode",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "external": false,
+            "targetPort": 80
+          }
+        }
+      }
+    },
+    {
+      "name": "Raise an issue: external set to a non-boolean falls through to existing checks",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "external": "true",
+            "clientCertificateMode": "ignore"
+          }
+        }
+      }
     }
   ]
 }

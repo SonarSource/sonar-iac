@@ -1,7 +1,8 @@
 resource noncompliant1 'Microsoft.SignalRService/webPubSub@2021-10-01' = {
   name: 'Sensitive: clientCertEnabled is not set'
   properties: {
-    tls: {} // Noncompliant{{Omitting "clientCertEnabled" disables certificate-based authentication. Make sure it is safe here.}}
+    publicNetworkAccess: 'Disabled'
+    tls: {} // Noncompliant{{Set "clientCertEnabled" to enable client certificate authentication.}}
 //       ^^
   }
 }
@@ -13,8 +14,9 @@ resource compliant_existing 'Microsoft.SignalRService/webPubSub@2021-10-01' exis
 resource noncompliant2 'Microsoft.SignalRService/webPubSub@2021-10-01' = {
   name: 'Sensitive: clientCertEnabled is set to false'
   properties: {
+    publicNetworkAccess: 'Disabled'
     tls: {
-      clientCertEnabled: false // Noncompliant{{Make sure that disabling certificate-based authentication is safe here.}}
+      clientCertEnabled: false // Noncompliant{{Enable client certificate authentication for this resource.}}
 //    ^^^^^^^^^^^^^^^^^^^^^^^^
     }
   }
@@ -23,8 +25,18 @@ resource noncompliant2 'Microsoft.SignalRService/webPubSub@2021-10-01' = {
 resource compliant1 'Microsoft.SignalRService/webPubSub@2021-10-01' = {
   name: 'Compliant: clientCertEnabled is set to true'
   properties: {
+    publicNetworkAccess: 'Disabled'
     tls: {
       clientCertEnabled: true
+    }
+  }
+}
+
+resource compliant2 'Microsoft.SignalRService/webPubSub@2021-10-01' = {
+  name: 'Compliant: publicNetworkAccess not Disabled'
+  properties: {
+    tls: {
+      clientCertEnabled: false
     }
   }
 }

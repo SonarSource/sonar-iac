@@ -37,13 +37,18 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void test_api_management() {
-    TerraformVerifier.verify("Azure/CertificateBasedAuthenticationCheck/api_management.tf", new CertificateBasedAuthenticationCheck());
+  void test_linked_services() {
+    TerraformVerifier.verify("Azure/CertificateBasedAuthenticationCheck/linked_services.tf", new CertificateBasedAuthenticationCheck());
   }
 
   @Test
-  void test_linked_services() {
-    TerraformVerifier.verify("Azure/CertificateBasedAuthenticationCheck/linked_services.tf", new CertificateBasedAuthenticationCheck());
+  void test_container_app() {
+    TerraformVerifier.verify("Azure/CertificateBasedAuthenticationCheck/container_app.tf", new CertificateBasedAuthenticationCheck());
+  }
+
+  @Test
+  void test_logic_app_standard() {
+    TerraformVerifier.verify("Azure/CertificateBasedAuthenticationCheck/logic_app_standard.tf", new CertificateBasedAuthenticationCheck());
   }
 
 }

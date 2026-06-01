@@ -3,7 +3,7 @@ resource noncompliant1 'Microsoft.DataFactory/factories/linkedservices@2018-06-0
   properties: {
     type: 'Web'
     typeProperties: {
-      authenticationType: 'Basic' // Noncompliant{{This authentication method is not certificate-based. Make sure it is safe here.}}
+      authenticationType: 'Basic' // Noncompliant{{Use client certificate authentication for this resource.}}
 //    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     }
   }

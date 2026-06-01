@@ -7,6 +7,7 @@
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertEnabled": false
       }
     },
@@ -15,6 +16,7 @@
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertMode": "Optional"
       }
     },
@@ -23,6 +25,7 @@
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertEnabled": true,
         "clientCertMode": "Optional"
       }
@@ -32,6 +35,7 @@
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertEnabled": false,
         "clientCertMode": "Required"
       }
@@ -41,6 +45,7 @@
       "type": "Microsoft.Web/sites",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertEnabled": true,
         "clientCertMode": "Required"
       },
@@ -50,6 +55,7 @@
           "type": "slots",
           "apiVersion": "2015-08-01",
           "properties": {
+            "publicNetworkAccess": "Disabled",
             "clientCertEnabled": false
           }
         },
@@ -58,6 +64,7 @@
           "type": "slots",
           "apiVersion": "2015-08-01",
           "properties": {
+            "publicNetworkAccess": "Disabled",
             "clientCertMode": "Optional"
           }
         }
@@ -68,6 +75,7 @@
       "type": "Microsoft.Web/sites",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertEnabled": false,
         "clientCertMode": "Required"
       },
@@ -77,17 +85,19 @@
           "type": "slots",
           "apiVersion": "2015-08-01",
           "properties": {
+            "publicNetworkAccess": "Disabled",
             "clientCertEnabled": true
           }
         }
       ]
     },
-    
+
     {
       "name": "Compliant: clientCertEnabled is missing and clientCertMode is defined and is 'Required'",
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertMode": "Required"
       }
     },
@@ -96,6 +106,7 @@
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertEnabled": true
       }
     },
@@ -104,6 +115,7 @@
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertEnabled": true,
         "clientCertMode": "Required"
       }
@@ -113,6 +125,7 @@
       "type": "Microsoft.Web/sites",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "clientCertEnabled": true,
         "clientCertMode": "Required"
       },
@@ -122,6 +135,7 @@
           "type": "slots",
           "apiVersion": "2015-08-01",
           "properties": {
+            "publicNetworkAccess": "Disabled",
             "clientCertEnabled": true
           }
         }
@@ -132,6 +146,7 @@
       "type": "Microsoft.Web/sites/slots",
       "apiVersion": "2015-08-01",
       "properties": {
+        "publicNetworkAccess": "Disabled"
       }
     },
     {
@@ -140,6 +155,15 @@
       "apiVersion": "2015-08-01",
       "properties": {
         "clientCertEnabled": false
+      }
+    },
+    {
+      "name": "Compliant: publicNetworkAccess not Disabled",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": false,
+        "clientCertMode": "Optional"
       }
     }
   ]
