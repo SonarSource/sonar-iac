@@ -276,3 +276,53 @@ resource "aws_s3_bucket_policy" "mycompliantrefpolicys62498" {
     Statement = [data.aws_iam_policy_document.s3_bucket_policy.statement]
   })
 }
+
+resource "aws_s3_bucket" "compliant_multi_statement" {
+  bucket = "compliant_multi_statement"
+}
+resource "aws_s3_bucket_policy" "compliant_multi_statement" {
+  bucket = aws_s3_bucket.compliant_multi_statement.id
+  # Valid Deny-HTTPS enforcement plus a legitimate Allow (e.g. S3 log delivery)
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = ["${aws_s3_bucket.compliant_multi_statement.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      },
+      {
+        Effect    = "Allow"
+        Principal = { Service = "logging.s3.amazonaws.com" }
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.compliant_multi_statement.arn}/*"
+      },
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_multi_statement" { # Noncompliant
+  bucket = "noncompliant_multi_statement"
+}
+resource "aws_s3_bucket_policy" "noncompliant_multi_statement" {
+  bucket = aws_s3_bucket.noncompliant_multi_statement.id
+  # Deny statement has wrong condition — should still be flagged despite Allow sibling
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = ["${aws_s3_bucket.noncompliant_multi_statement.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "true" } }
+      },
+      {
+        Effect    = "Allow"
+        Principal = { Service = "logging.s3.amazonaws.com" }
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.noncompliant_multi_statement.arn}/*"
+      },
+    ]
+  })
+}

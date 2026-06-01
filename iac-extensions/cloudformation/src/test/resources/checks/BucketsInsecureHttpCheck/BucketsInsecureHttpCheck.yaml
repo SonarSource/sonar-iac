@@ -436,3 +436,145 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": false
+
+  # !Sub in Resource ARNs
+  S3BucketCompliantSubResource:
+    Type: AWS::S3::Bucket # Compliant
+    Properties:
+      BucketName: "S3BucketCompliantSubResource"
+  S3BucketPolicyCompliantSubResource:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketCompliantSubResource
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource: !Sub 'arn:aws:s3:::${S3BucketCompliantSubResource}/*'
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketCompliantSubResourceList:
+    Type: AWS::S3::Bucket # Compliant
+    Properties:
+      BucketName: "S3BucketCompliantSubResourceList"
+  S3BucketPolicyCompliantSubResourceList:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketCompliantSubResourceList
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub 'arn:aws:s3:::${S3BucketCompliantSubResourceList}'
+              - !Sub 'arn:aws:s3:::${S3BucketCompliantSubResourceList}/*'
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketCompliantGetAttAndSubResourceList:
+    Type: AWS::S3::Bucket # Compliant
+    Properties:
+      BucketName: "S3BucketCompliantGetAttAndSubResourceList"
+  S3BucketPolicyCompliantGetAttAndSubResourceList:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketCompliantGetAttAndSubResourceList
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "*"
+            Resource:
+              - !GetAtt S3BucketCompliantGetAttAndSubResourceList.Arn
+              - !Sub '${S3BucketCompliantGetAttAndSubResourceList.Arn}/*'
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketNonCompliantSubResource:
+    Type: AWS::S3::Bucket # Noncompliant
+    #     ^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "S3BucketNonCompliantSubResource"
+  S3BucketPolicyNonCompliantSubResource:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketNonCompliantSubResource
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource: !Sub 'arn:aws:s3:::${S3BucketNonCompliantSubResource}/foo'
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketNonCompliantSubMultipleStatements:
+    Type: AWS::S3::Bucket # Noncompliant
+    #     ^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "s3-bucket-noncompliant-sub-multiple-statements"
+  S3BucketPolicyNonCompliantSubMultipleStatements:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketNonCompliantSubMultipleStatements
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # Neither statement covers /*, so neither is sufficient on its own
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub 'arn:aws:s3:::${S3BucketNonCompliantSubMultipleStatements}'
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub 'arn:aws:s3:::${S3BucketNonCompliantSubMultipleStatements}'
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  S3BucketCompliantSubMultipleStatements:
+    Type: AWS::S3::Bucket # Compliant
+    Properties:
+      BucketName: "s3-bucket-compliant-sub-multiple-statements"
+  S3BucketPolicyCompliantSubMultipleStatements:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketCompliantSubMultipleStatements
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # This makes it compliant
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub 'arn:aws:s3:::${S3BucketCompliantSubMultipleStatements}/*'
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+          # This would not be enough to make it compliant on its own
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub 'arn:aws:s3:::${S3BucketCompliantSubMultipleStatements}'
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"

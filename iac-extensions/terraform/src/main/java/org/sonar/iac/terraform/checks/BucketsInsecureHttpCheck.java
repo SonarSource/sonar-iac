@@ -151,8 +151,23 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static class PolicyValidator {
 
     public static Map<ExpressionTree, String> getInsecureValues(Policy policy) {
+      // Short-circuit: if any statement fully enforces HTTPS, the policy is secure
+      if (policy.statement().stream().anyMatch(PolicyValidator::isSecureStatement)) {
+        return Map.of();
+      }
+
       Map<ExpressionTree, String> result = new HashMap<>();
-      policy.statement().forEach(statement -> {
+
+      // Only Deny statements can be HTTPS enforcement — ignore Allow statements
+      List<Policy.Statement> denyStatements = policy.statement().stream()
+        .filter(s -> s.effect().map(e -> !isInsecureEffect(e)).orElse(false))
+        .toList();
+
+      // If no Deny statements exist, fall back to checking all statements (preserves
+      // existing behavior for Allow-only or effectless policies)
+      List<Policy.Statement> statementsToCheck = denyStatements.isEmpty() ? policy.statement() : denyStatements;
+
+      statementsToCheck.forEach(statement -> {
         statement.effect().filter(PolicyValidator::isInsecureEffect)
           .ifPresent(effect -> result.put((ExpressionTree) effect, MESSAGE_SECONDARY_EFFECT));
 
@@ -170,6 +185,14 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       });
 
       return result;
+    }
+
+    private static boolean isSecureStatement(Policy.Statement statement) {
+      return statement.effect().filter(e -> !isInsecureEffect(e)).isPresent()
+        && statement.condition().filter(e -> !isInsecureCondition(e)).isPresent()
+        && statement.action().filter(e -> !isInsecureAction(e)).isPresent()
+        && statement.principal().filter(e -> !isInsecurePrincipal(e)).isPresent()
+        && statement.resource().filter(e -> !isInsecureResource(e)).isPresent();
     }
 
     private static boolean isInsecureResource(Tree resource) {
