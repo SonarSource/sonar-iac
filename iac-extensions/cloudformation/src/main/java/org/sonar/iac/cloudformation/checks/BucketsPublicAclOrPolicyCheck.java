@@ -31,8 +31,8 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure allowing public ACL/policies to be set is safe here.";
-  private static final String OMITTING_MESSAGE = "Omitting \"PublicAccessBlockConfiguration\" allows public ACL/policies to be set on this S3 bucket. Make sure it is safe here.";
+  private static final String MESSAGE = "Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.";
+  private static final String MISSING_MESSAGE = "Omitting a public access block setting defaults it to false, allowing public ACL/policies to be set on this S3 bucket.";
   private static final String SECONDARY_MSG_PROPERTY = "Set this property to true";
   private static final String SECONDARY_MSG_BUCKET = "Related bucket";
   private static final List<String> ATTRIBUTES_TO_CHECK = Arrays.asList(
@@ -48,20 +48,18 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
     }
 
     Optional<YamlTree> accessConfiguration = PropertyUtils.value(resource.properties(), "PublicAccessBlockConfiguration", YamlTree.class);
-    if (accessConfiguration.isPresent()) {
-      checkConfiguration(ctx, resource, accessConfiguration.get());
-    } else {
-      ctx.reportIssue(resource.type(), OMITTING_MESSAGE);
-    }
+    accessConfiguration.ifPresent(configuration -> checkConfiguration(ctx, resource, configuration));
   }
 
   private static void checkConfiguration(CheckContext ctx, Resource resource, YamlTree configuration) {
     List<SecondaryLocation> problemsAsSecondaryLocations = configurationProblemsAsSecondaryLocations(configuration);
     Tree primaryLocationTree = PropertyUtils.key(resource.properties(), "PublicAccessBlockConfiguration").orElse(configuration);
 
-    if (!problemsAsSecondaryLocations.isEmpty() || hasMissingSetting(configuration)) {
+    if (!problemsAsSecondaryLocations.isEmpty()) {
       problemsAsSecondaryLocations.add(new SecondaryLocation(resource.type(), SECONDARY_MSG_BUCKET));
       ctx.reportIssue(primaryLocationTree, MESSAGE, problemsAsSecondaryLocations);
+    } else if (hasMissingSetting(configuration)) {
+      ctx.reportIssue(primaryLocationTree, MISSING_MESSAGE, List.of(new SecondaryLocation(resource.type(), SECONDARY_MSG_BUCKET)));
     }
   }
 

@@ -11,9 +11,9 @@ resource "aws_s3_bucket_public_access_block" "mycompliants6281_publicaccess" {
   restrict_public_buckets = true
 }
 
-# Noncompliant@+1 {{No Public Access Block configuration prevents public ACL/policies to be set on this S3 bucket. Make sure it is safe here.}}
-resource "aws_s3_bucket" "mynoncompliantfirstbuckets6281default" {
-  bucket = "mynoncompliantfirstbuckets6281defaultname"
+# Compliant - omitting the aws_s3_bucket_public_access_block resource defaults all four attributes to true (AWS default since 2023)
+resource "aws_s3_bucket" "mycompliantfirstbuckets6281default" {
+  bucket = "mycompliantfirstbuckets6281defaultname"
 }
 
 resource "aws_s3_bucket" "mynoncompliantfirstbuckets6281" {
@@ -21,7 +21,7 @@ resource "aws_s3_bucket" "mynoncompliantfirstbuckets6281" {
   bucket = "mynoncompliantfirstbuckets6281name"
 }
 
-# Noncompliant@+1 {{Make sure allowing public ACL/policies to be set is safe here.}}
+# Noncompliant@+1 {{Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.}}
 resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_publicaccess_1" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   bucket = aws_s3_bucket.mynoncompliantfirstbuckets6281.id
@@ -77,7 +77,7 @@ resource "aws_s3_bucket" "mynoncompliantmissingbuckets6234" {
   bucket = "mynoncompliantmissingbuckets6234name"
 }
 
-# Noncompliant@+1 {{Make sure allowing public ACL/policies to be set is safe here.}}
+# Noncompliant@+1 {{Omitting a public access block setting defaults it to false, allowing public ACL/policies to be set on this S3 bucket.}}
 resource "aws_s3_bucket_public_access_block" "mynoncompliants6234_missing" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   bucket = "mynoncompliantmissingbuckets6234name"
@@ -92,7 +92,7 @@ resource "aws_s3_bucket" "mynoncompliantmultimissingbuckets61234" {
   bucket = "mynoncompliantmultimissingbuckets61234name"
 }
 
-# Noncompliant@+1 {{Make sure allowing public ACL/policies to be set is safe here.}}
+# Noncompliant@+1 {{Omitting a public access block setting defaults it to false, allowing public ACL/policies to be set on this S3 bucket.}}
 resource "aws_s3_bucket_public_access_block" "mynoncompliants6231_multiple_missing" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   bucket = "mynoncompliantmultimissingbuckets61234name"
@@ -119,12 +119,13 @@ resource "aws_s3_bucket_public_access_block" "invalid_bucket_identifier" { # Non
 
 resource {}
 
-resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_invalid_attr_access" { # Noncompliant
+resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_invalid_attr_access" { # Noncompliant {{Omitting a public access block setting defaults it to false, allowing public ACL/policies to be set on this S3 bucket.}}
   bucket = aws_s3_bucket.mynoncompliantthirdbuckets6281
 }
 
-resource "aws_s3_bucket" {  # Noncompliant
-  bucket = "mynoncompliantmissing6212name"
+# Compliant - omitting the aws_s3_bucket_public_access_block resource defaults all four attributes to true
+resource "aws_s3_bucket" {
+  bucket = "mycompliantmissing6212name"
 }
 
 # Example with `count` meta-argument and indexing with `count.index`
@@ -143,14 +144,13 @@ resource "aws_s3_bucket_public_access_block" "mycompliants6281_publicaccess" {
   restrict_public_buckets = true
 }
 
-# Non compliant example with `count` meta-argument and indexing with `count.index`
 resource "aws_s3_bucket" "mynoncompliants6281" {
 #        ^^^^^^^^^^^^^^^>
   count = 2
   bucket = "mycompliants6281myname"
 }
 
-resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_publicaccess" { # Noncompliant
+resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_publicaccess" { # Noncompliant {{Omitting a public access block setting defaults it to false, allowing public ACL/policies to be set on this S3 bucket.}}
 #        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   count = 2
   bucket = aws_s3_bucket.mynoncompliants6281[count.index].id
@@ -189,4 +189,36 @@ resource "aws_s3_bucket_public_access_block" "mycompliants6281_publicaccess" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket" "mynoncompliant_block_acls" {
+  #      ^^^^^^^^^^^^^^^> {{Related bucket}}
+  bucket = "mynoncompliant-block-acls-name"
+}
+
+# Noncompliant@+1 {{Omitting a public access block setting defaults it to false, allowing public ACL/policies to be set on this S3 bucket.}}
+resource "aws_s3_bucket_public_access_block" "mynoncompliant_block_acls_pab" {
+  #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  bucket = aws_s3_bucket.mynoncompliant_block_acls.id
+
+  block_public_acls  = true
+  ignore_public_acls = true
+}
+
+resource "aws_s3_bucket" "mynoncompliant_block_acls_only" {
+  #      ^^^^^^^^^^^^^^^> {{Related bucket}}
+  bucket = "mynoncompliant-block-acls-only-name"
+}
+
+# Noncompliant@+1 {{Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.}}
+resource "aws_s3_bucket_public_access_block" "mynoncompliant_block_acls_only_pab" {
+  #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  bucket = aws_s3_bucket.mynoncompliant_block_acls_only.id
+
+  block_public_acls       = true
+  block_public_policy     = false
+  #                         ^^^^^< {{Set this property to true}}
+  ignore_public_acls      = true
+  restrict_public_buckets = false
+  #                         ^^^^^< {{Set this property to true}}
 }

@@ -51,8 +51,8 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketRes
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
-  private static final String MESSAGE = "Make sure allowing public ACL/policies to be set is safe here.";
-  private static final String OMITTING_MESSAGE = "No Public Access Block configuration prevents public ACL/policies to be set on this S3 bucket. Make sure it is safe here.";
+  private static final String MESSAGE = "Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.";
+  private static final String MISSING_MESSAGE = "Omitting a public access block setting defaults it to false, allowing public ACL/policies to be set on this S3 bucket.";
   private static final String SECONDARY_MSG_PROPERTY = "Set this property to true";
   private static final String SECONDARY_MSG_BUCKET = "Related bucket";
   private static final String PAB = "aws_s3_bucket_public_access_block";
@@ -78,19 +78,24 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
       BlockTree pab = publicAccessBlock.get();
       publicAccessBlocks.remove(pab);
       checkPublicAccessBlocks(ctx, pab, bucket);
-    } else {
-      ctx.reportIssue(bucket.label(), OMITTING_MESSAGE);
     }
   }
 
   private static void checkPublicAccessBlocks(CheckContext ctx, BlockTree pab, @Nullable S3Bucket s3Bucket) {
     var secondaryLocations = checkWrongConfiguration(pab);
-    if (!secondaryLocations.isEmpty() || hasMissingStatement(pab)) {
+    if (!secondaryLocations.isEmpty()) {
       if (s3Bucket != null) {
         secondaryLocations.add(new SecondaryLocation(s3Bucket.label(), SECONDARY_MSG_BUCKET));
       }
       ctx.reportIssue(pab.labels().get(0), MESSAGE, secondaryLocations);
+    } else if (hasMissingStatement(pab)) {
+      var missingSecondaries = s3Bucket != null ? List.of(new SecondaryLocation(s3Bucket.label(), SECONDARY_MSG_BUCKET)) : List.<SecondaryLocation>of();
+      ctx.reportIssue(pab.labels().get(0), MISSING_MESSAGE, missingSecondaries);
     }
+  }
+
+  private static boolean hasMissingStatement(BlockTree publicAccessBlock) {
+    return PAB_STATEMENTS.stream().anyMatch(e -> PropertyUtils.isMissing(publicAccessBlock, e));
   }
 
   private static List<SecondaryLocation> checkWrongConfiguration(BlockTree publicAccessBlock) {
@@ -100,10 +105,6 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
       .filter(TextUtils::isValueFalse)
       .map(value -> new SecondaryLocation(value, SECONDARY_MSG_PROPERTY))
       .collect(Collectors.toList());
-  }
-
-  private static boolean hasMissingStatement(BlockTree publicAccessBlock) {
-    return PAB_STATEMENTS.stream().anyMatch(e -> PropertyUtils.isMissing(publicAccessBlock, e));
   }
 
   private static class S3Bucket {
