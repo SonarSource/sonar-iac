@@ -1,0 +1,73 @@
+name: Setup Claude Code
+description: Fetch Claude API secrets, install Claude Code if not present, configure permissions, set Portkey env vars, and record pre-run SHA
+
+outputs:
+  portkey-api-key:
+    description: Portkey API key extracted from Vault
+    value: ${{ fromJSON(steps.secrets.outputs.vault).PORTKEY_API_KEY }}
+  pre-claude-sha:
+    description: Git SHA recorded immediately before Claude Code runs
+    value: ${{ steps.pre-claude.outputs.sha }}
+
+runs:
+  using: composite
+  steps:
+    - id: secrets
+      uses: SonarSource/vault-action-wrapper@v3
+      with:
+        secrets: |
+          development/kv/data/code-security-claude-code portkey-api-key | PORTKEY_API_KEY;
+
+    - name: Install Claude Code
+      shell: bash
+      run: |
+        curl -fsSL https://claude.ai/install.sh -o /tmp/claude-install.sh
+        actual_sum=$(sha256sum /tmp/claude-install.sh | cut -d' ' -f1)
+        expected_sum="005ec1a937f32dfbb74f9e810287bcb12cba2d5cae4c9277aa8c6364adbf1787"
+        if [ "$actual_sum" != "$expected_sum" ]; then
+          echo "The install script sha256sum doesn't match, please verify if the script is correct."
+          echo "Actual:   $actual_sum"
+          echo "Expected: $expected_sum"
+          exit 1
+        fi
+        bash /tmp/claude-install.sh stable
+        echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
+
+    - name: Configure Claude Code permissions (full)
+      shell: bash
+      run: |
+        cat > .claude/settings.json << 'EOF'
+        {
+          "permissions": {
+            "allow": [
+              "Bash(find *)",
+              "Bash(ls *)",
+              "Bash(ls)",
+              "Bash(grep *)",
+              "Bash(mkdir *)",
+              "Bash(cat *)",
+              "Bash(cp *)",
+              "Bash(mv *)",
+              "Bash(sort *)",
+              "Bash(head *)",
+              "Bash(tail *)",
+              "Bash(wc *)",
+              "Bash(./gradlew *)",
+              "Bash(python3 *)",
+              "Bash(git log *)",
+              "Bash(git status *)",
+              "Bash(git diff *)",
+              "Bash(jq *)",
+              "Write(**)",
+              "Edit(**)",
+              "WebFetch(*)"
+            ]
+          }
+        }
+        EOF
+
+    - name: Record pre-Claude SHA
+      id: pre-claude
+      shell: bash
+      run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
