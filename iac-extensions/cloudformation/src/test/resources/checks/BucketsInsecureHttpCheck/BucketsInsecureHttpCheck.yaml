@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   S3BucketWithoutPolicy:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.}}
+    Type: 'AWS::S3::Bucket' # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket.}}
     #     ^^^^^^^^^^^^^^^^^
     Properties:
       BucketName: "mynoncompliantbuckets6249"
@@ -575,6 +575,132 @@ Resources:
             Action: "s3:*"
             Resource:
               - !Sub 'arn:aws:s3:::${S3BucketCompliantSubMultipleStatements}'
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  S3BucketNonCompliantActionSequence:
+    Type: AWS::S3::Bucket # Noncompliant
+    Properties:
+      BucketName: "s3-bucket-noncompliant-action-sequence"
+  S3BucketPolicyNonCompliantActionSequence:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketNonCompliantActionSequence
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action:
+              - "s3:GetObject"
+            Resource: "arn:aws:s3:::s3-bucket-noncompliant-action-sequence/*"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  S3BucketCompliantActionSequence:
+    Type: AWS::S3::Bucket # Compliant
+    Properties:
+      BucketName: "s3-bucket-compliant-action-sequence"
+  S3BucketPolicyCompliantActionSequence:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketCompliantActionSequence
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*"
+            Action:
+              - "s3:*"
+            Resource:
+              - !Join
+                - ''
+                - - !GetAtt S3BucketCompliantActionSequence.Arn
+                  - '/*'
+              - !GetAtt S3BucketCompliantActionSequence.Arn
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  S3BucketNonCompliantPrincipalSequence:
+    Type: AWS::S3::Bucket # Noncompliant
+    Properties:
+      BucketName: "s3-bucket-noncompliant-principal-sequence"
+  S3BucketPolicyNonCompliantPrincipalSequence:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketNonCompliantPrincipalSequence
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS:
+                - 'arn:aws:iam::123456789012:root'
+            Action: "s3:*"
+            Resource: "arn:aws:s3:::s3-bucket-noncompliant-principal-sequence/*"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  S3BucketCompliantPrincipalSequence:
+    Type: AWS::S3::Bucket # Compliant
+    Properties:
+      BucketName: "s3-bucket-compliant-principal-sequence"
+  S3BucketPolicyCompliantPrincipalSequence:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketCompliantPrincipalSequence
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS:
+                - "*"
+            Action: "s3:*"
+            Resource: "arn:aws:s3:::s3-bucket-compliant-principal-sequence/*"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  S3BucketNonCompliantEmptyResource:
+    Type: AWS::S3::Bucket # Noncompliant
+    Properties:
+      BucketName: "s3-bucket-noncompliant-empty-resource"
+  S3BucketPolicyNonCompliantEmptyResource:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketNonCompliantEmptyResource
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource: []
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  S3BucketNonCompliantEmptyAction:
+    Type: AWS::S3::Bucket # Noncompliant
+    Properties:
+      BucketName: "s3-bucket-noncompliant-empty-action"
+  S3BucketPolicyNonCompliantEmptyAction:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketNonCompliantEmptyAction
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: []
+            Resource: "arn:aws:s3:::s3-bucket-noncompliant-empty-action/*"
             Condition:
               Bool:
                 "aws:SecureTransport": "false"

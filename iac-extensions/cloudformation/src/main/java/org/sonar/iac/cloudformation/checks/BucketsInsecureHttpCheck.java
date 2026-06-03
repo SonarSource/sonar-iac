@@ -44,7 +44,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
-  private static final String MESSAGE = "No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.";
+  private static final String MESSAGE = "No bucket policy enforces HTTPS-only access to this bucket.";
   private static final String MESSAGE_SECONDARY_EFFECT = "Non-conforming requests should be denied.";
   private static final String MESSAGE_SECONDARY_CONDITION = "HTTPS requests are denied.";
   private static final String MESSAGE_SECONDARY_PRINCIPAL = "All principals should be restricted.";
@@ -214,10 +214,16 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       if (principal instanceof MappingTree) {
         valueToCheck = PropertyUtils.valueOrNull(principal, "AWS");
       }
+      if (valueToCheck instanceof SequenceTree sequenceTree) {
+        return sequenceTree.elements().stream().allMatch(PolicyValidator::isInsecurePrincipal);
+      }
       return !TextUtils.isValue(valueToCheck, "*").isTrue();
     }
 
     private static boolean isInsecureAction(YamlTree action) {
+      if (action instanceof SequenceTree sequenceTree) {
+        return sequenceTree.elements().stream().allMatch(PolicyValidator::isInsecureAction);
+      }
       return !(TextUtils.isValue(action, "*").isTrue() || TextUtils.isValue(action, "s3:*").isTrue());
     }
 

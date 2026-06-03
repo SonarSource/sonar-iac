@@ -39,7 +39,6 @@ import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 
@@ -48,7 +47,7 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketRes
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
-  private static final String MESSAGE = "No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.";
+  private static final String MESSAGE = "No bucket policy enforces HTTPS-only access to this bucket.";
   private static final String MESSAGE_SECONDARY_CONDITION = "HTTPS requests are denied.";
   private static final String MESSAGE_SECONDARY_EFFECT = "Non-conforming requests should be denied.";
   private static final String MESSAGE_SECONDARY_ACTION = "All S3 actions should be restricted.";
@@ -196,21 +195,13 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isInsecureResource(Tree resource) {
-      List<Tree> resourceIdentifiers = new ArrayList<>();
-
+      if (resource instanceof TupleTree tuple) {
+        return tuple.elements().trees().stream().allMatch(PolicyValidator::isInsecureResource);
+      }
       if (resource instanceof LiteralExprTree || resource instanceof TemplateExpressionTree) {
-        resourceIdentifiers.add(resource);
-      } else if (resource instanceof TupleTree tuple) {
-        resourceIdentifiers.addAll(tuple.elements().trees());
+        return !isResourceIdentifierSecure(resource);
       }
-
-      for (Tree resourceIdentifier : resourceIdentifiers) {
-        if (isResourceIdentifierSecure(resourceIdentifier)) {
-          return false;
-        }
-      }
-
-      return !resourceIdentifiers.isEmpty();
+      return true;
     }
 
     private static boolean isResourceIdentifierSecure(Tree resourceIdentifier) {
@@ -225,11 +216,22 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
     private static boolean isInsecurePrincipal(Tree principal) {
       return PropertyUtils.value(principal, "AWS", ExpressionTree.class)
-        .filter(awsPrincipal -> awsPrincipal.is(Kind.TUPLE) || TextUtils.isValue(awsPrincipal, "*").isFalse())
+        .filter(PolicyValidator::isInsecureAwsPrincipal)
         .isPresent();
     }
 
+    private static boolean isInsecureAwsPrincipal(ExpressionTree awsPrincipal) {
+      if (awsPrincipal instanceof TupleTree tuple) {
+        return tuple.elements().trees().stream()
+          .allMatch(e -> !TextUtils.isValue(e, "*").isTrue());
+      }
+      return TextUtils.isValue(awsPrincipal, "*").isFalse();
+    }
+
     private static boolean isInsecureAction(Tree action) {
+      if (action instanceof TupleTree tuple) {
+        return tuple.elements().trees().stream().allMatch(PolicyValidator::isInsecureAction);
+      }
       return TextUtils.isValue(action, "*").isFalse() && TextUtils.isValue(action, "s3:*").isFalse();
     }
 

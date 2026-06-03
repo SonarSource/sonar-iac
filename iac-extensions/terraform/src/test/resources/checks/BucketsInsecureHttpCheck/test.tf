@@ -1,8 +1,8 @@
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.}}
+resource "aws_s3_bucket" "mynoncompliantbucket" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket.}}
   bucket = "mynoncompliantbucketname"
 }
 
-resource "aws_s3_bucket" "mynoncompliantallowbuckets6245" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket. Make sure it is safe here.}}
+resource "aws_s3_bucket" "mynoncompliantallowbuckets6245" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket.}}
        # ^^^^^^^^^^^^^^^
   bucket = "mynoncompliantallowbucketrspecs6245myname"
 }
@@ -274,6 +274,190 @@ resource "aws_s3_bucket_policy" "mycompliantrefpolicys62498" {
     Version = "2012-10-17"
     Id      = "mycompliantrefpolicys6249"
     Statement = [data.aws_iam_policy_document.s3_bucket_policy.statement]
+  })
+}
+
+resource "aws_s3_bucket" "compliant_action_list" {
+  bucket = "compliant-action-list"
+}
+resource "aws_s3_bucket_policy" "compliant_action_list" {
+  bucket = aws_s3_bucket.compliant_action_list.id
+  # Compliant, action as a list containing s3:*
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = "*" }
+        Action    = ["s3:*"]
+        Resource  = ["${aws_s3_bucket.compliant_action_list.arn}/*", aws_s3_bucket.compliant_action_list.arn]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_action_list" { # Noncompliant
+  bucket = "noncompliant-action-list"
+}
+resource "aws_s3_bucket_policy" "noncompliant_action_list" {
+  bucket = aws_s3_bucket.noncompliant_action_list.id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = "*" }
+        Action    = ["s3:GetObject"]
+        Resource  = [aws_s3_bucket.noncompliant_action_list.arn, "${aws_s3_bucket.noncompliant_action_list.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "compliant_principal_list" {
+  bucket = "compliant-principal-list"
+}
+resource "aws_s3_bucket_policy" "compliant_principal_list" {
+  bucket = aws_s3_bucket.compliant_principal_list.id
+  # Compliant, Principal.AWS as a list containing *
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = ["*"] }
+        Action    = "s3:*"
+        Resource  = ["${aws_s3_bucket.compliant_principal_list.arn}/*", aws_s3_bucket.compliant_principal_list.arn]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_principal_list_arn" { # Noncompliant
+  bucket = "noncompliant-principal-list-arn"
+}
+resource "aws_s3_bucket_policy" "noncompliant_principal_list_arn" {
+  bucket = aws_s3_bucket.noncompliant_principal_list_arn.id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = ["arn:aws:iam::123456789012:root"] }
+        Action    = "s3:*"
+        Resource  = [aws_s3_bucket.noncompliant_principal_list_arn.arn, "${aws_s3_bucket.noncompliant_principal_list_arn.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_empty_resource" { # Noncompliant
+  bucket = "noncompliant-empty-resource"
+}
+resource "aws_s3_bucket_policy" "noncompliant_empty_resource" {
+  bucket = aws_s3_bucket.noncompliant_empty_resource.id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = "*" }
+        Action    = "s3:*"
+        Resource  = []
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_empty_action" { # Noncompliant
+  bucket = "noncompliant-empty-action"
+}
+resource "aws_s3_bucket_policy" "noncompliant_empty_action" {
+  bucket = aws_s3_bucket.noncompliant_empty_action.id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = "*" }
+        Action    = []
+        Resource  = [aws_s3_bucket.noncompliant_empty_action.arn, "${aws_s3_bucket.noncompliant_empty_action.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "compliant_template_action" {
+  bucket = "compliant-template-action"
+}
+resource "aws_s3_bucket_policy" "compliant_template_action" {
+  bucket = aws_s3_bucket.compliant_template_action.id
+  # Compliant, Action value cannot be resolved at analysis time
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = "*" }
+        Action    = "${var.action}"
+        Resource  = [aws_s3_bucket.compliant_template_action.arn, "${aws_s3_bucket.compliant_template_action.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "compliant_template_principal" {
+  bucket = "compliant-template-principal"
+}
+resource "aws_s3_bucket_policy" "compliant_template_principal" {
+  bucket = aws_s3_bucket.compliant_template_principal.id
+  # Compliant, Principal.AWS value cannot be resolved at analysis time
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = "${var.principal}" }
+        Action    = "s3:*"
+        Resource  = [aws_s3_bucket.compliant_template_principal.arn, "${aws_s3_bucket.compliant_template_principal.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_resource_no_wildcard" { # Noncompliant
+  bucket = "noncompliant-resource-no-wildcard"
+}
+resource "aws_s3_bucket_policy" "noncompliant_resource_no_wildcard" {
+  bucket = aws_s3_bucket.noncompliant_resource_no_wildcard.id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = "*" }
+        Action    = "s3:*"
+        Resource  = aws_s3_bucket.noncompliant_resource_no_wildcard.arn
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_principal_list_template" { # Noncompliant
+  bucket = "noncompliant-principal-list-template"
+}
+resource "aws_s3_bucket_policy" "noncompliant_principal_list_template" {
+  bucket = aws_s3_bucket.noncompliant_principal_list_template.id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = { "AWS" = ["${var.principal}"] }
+        Action    = "s3:*"
+        Resource  = [aws_s3_bucket.noncompliant_principal_list_template.arn, "${aws_s3_bucket.noncompliant_principal_list_template.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
   })
 }
 
