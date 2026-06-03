@@ -18,20 +18,11 @@ runs:
         secrets: |
           development/kv/data/code-security-claude-code portkey-api-key | PORTKEY_API_KEY;
 
-    - name: Install Claude Code
-      shell: bash
-      run: |
-        curl -fsSL https://claude.ai/install.sh -o /tmp/claude-install.sh
-        actual_sum=$(sha256sum /tmp/claude-install.sh | cut -d' ' -f1)
-        expected_sum="005ec1a937f32dfbb74f9e810287bcb12cba2d5cae4c9277aa8c6364adbf1787"
-        if [ "$actual_sum" != "$expected_sum" ]; then
-          echo "The install script sha256sum doesn't match, please verify if the script is correct."
-          echo "Actual:   $actual_sum"
-          echo "Expected: $expected_sum"
-          exit 1
-        fi
-        bash /tmp/claude-install.sh stable
-        echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
+    - uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+      with:
+        version: 2026.2.24
+        tool_versions: |
+          claude-code latest
 
     - name: Configure Claude Code permissions (full)
       shell: bash
