@@ -65,8 +65,8 @@ public final class CommonExcludedPatterns {
     // Angle-bracketed placeholders, e.g. "<password>"
     "^<[\\w\\.\\t -]{1,10}+>",
     "^<[^>]++>$",
-    // Versions look-alike strings, e.g. "v1.0", "2.3.4", "v1.2.3-alpha"
-    "^v?+[0-9]{1,3}+(?:\\.[0-9]{1,3}+)++",
+    // Versions look-alike strings, e.g. "v1.0", "2.3.4", "v1.2.3-alpha", "^2.3.2", "~1.4.5", ">=1.0.0"
+    "^(?:>=?|<=?|[~^])?v?+[0-9]{1,3}+(?:\\.[0-9]{1,3}+)++",
     // Encrypted string
     "^ENC\\([^)]*+\\)$",
     "^%ENC\\{[^}]*+\\}$",
