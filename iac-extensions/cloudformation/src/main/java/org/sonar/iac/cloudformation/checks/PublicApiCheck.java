@@ -17,6 +17,7 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -28,16 +29,25 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.sonar.iac.common.checks.PropertyUtils.value;
+import static org.sonar.iac.common.checks.PublicApiCheckHelper.extractMethodFromRouteKey;
+import static org.sonar.iac.common.checks.PublicApiCheckHelper.hasSensitiveName;
+import static org.sonar.iac.common.checks.PublicApiCheckHelper.hasSensitiveRouteKeyValue;
+import static org.sonar.iac.common.checks.PublicApiCheckHelper.isBootstrapName;
+import static org.sonar.iac.common.checks.PublicApiCheckHelper.isDangerousMethod;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6333")
 public class PublicApiCheck extends AbstractCrossResourceCheck {
 
   private static final String MESSAGE = "Make sure creating a public API is safe here.";
+  private static final String RELATED_METHOD_MESSAGE = "Related method";
   private static final String RELATED_API_MESSAGE = "Related API";
+
+  private static final String ROUTE_KEY = "RouteKey";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -55,10 +65,14 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
   private void checkApiGatewayV2Api(CheckContext ctx, Resource resource) {
     checkAuthorizationTypeIsNone(resource)
       .ifPresent((Tree routeTree) -> {
-        var apiIdRefs = getApiIdRefs(resource);
-        apiIdRefs.ifPresent(refList -> checkReferencedResourceForProtocolTypeHttp(ctx, routeTree, refList));
+        if (isBootstrapName(resource.name().value()) && !hasSensitiveName(resource.name().value())) {
+          return;
+        }
 
-        value(resource.properties(), "RouteKey")
+        var apiIdRefs = getApiIdRefs(resource);
+        apiIdRefs.ifPresent(refList -> checkReferencedResourceForProtocolTypeHttp(ctx, resource, routeTree, refList));
+
+        value(resource.properties(), ROUTE_KEY)
           .filter(routeKey -> isValue(routeKey, "$connect").isTrue())
           .ifPresent(routeKey -> apiIdRefs
             .ifPresent(refList -> checkReferencedResourceForProtocolTypeWebsocket(ctx, routeTree, refList, routeKey)));
@@ -76,9 +90,37 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
       .filter(routeTree -> isValue(routeTree, "NONE").isTrue());
   }
 
-  private void checkReferencedResourceForProtocolTypeHttp(CheckContext ctx, Tree routeTree, List<YamlTree> refList) {
+  private void checkReferencedResourceForProtocolTypeHttp(CheckContext ctx, Resource route, Tree routeTree, List<YamlTree> refList) {
+    String resourceName = route.name().value();
     checkReferencedResourceForProtocolType(refList, "HTTP")
-      .forEach(protocolType -> ctx.reportIssue(routeTree, MESSAGE, new SecondaryLocation(protocolType, RELATED_API_MESSAGE)));
+      .forEach(protocolType -> {
+        Optional<String> method = extractRouteKeyMethod(route);
+        if (method.isPresent()) {
+          String upperMethod = method.get().toUpperCase(Locale.ROOT);
+          if (isDangerousMethod(upperMethod) || isSensitiveResource(resourceName, route)) {
+            ctx.reportIssue(routeTree, MESSAGE, new SecondaryLocation(protocolType, RELATED_API_MESSAGE));
+          }
+        } else if (isSensitiveResource(resourceName, route)) {
+          ctx.reportIssue(routeTree, MESSAGE, new SecondaryLocation(protocolType, RELATED_API_MESSAGE));
+        }
+      });
+  }
+
+  private static boolean isSensitiveResource(String resourceName, Resource route) {
+    return hasSensitiveName(resourceName) || hasSensitiveRouteKey(route);
+  }
+
+  private static boolean hasSensitiveRouteKey(Resource route) {
+    return value(route.properties(), ROUTE_KEY)
+      .flatMap(TextUtils::getValue)
+      .map(key -> hasSensitiveRouteKeyValue(key))
+      .orElse(false);
+  }
+
+  private static Optional<String> extractRouteKeyMethod(Resource route) {
+    return value(route.properties(), ROUTE_KEY)
+      .flatMap(TextUtils::getValue)
+      .flatMap(key -> extractMethodFromRouteKey(key));
   }
 
   private void checkReferencedResourceForProtocolTypeWebsocket(CheckContext ctx, Tree routeTree, List<YamlTree> refList, Tree routeKey) {
@@ -105,11 +147,48 @@ public class PublicApiCheck extends AbstractCrossResourceCheck {
   }
 
   private static void checkApiGatewayMethod(CheckContext ctx, Resource resource) {
-    checkAuthorizationTypeIsNone(resource)
-      .ifPresent(typeTree -> ctx.reportIssue(typeTree, MESSAGE, new SecondaryLocation(resource.type(), "Related method")));
+    checkAuthorizationTypeIsNone(resource).ifPresent(typeTree -> {
+      String name = resource.name().value();
+      if (isBootstrapName(name) && !hasSensitiveName(name)) {
+        return;
+      }
+
+      Optional<String> httpMethod = value(resource.properties(), "HttpMethod")
+        .flatMap(TextUtils::getValue);
+
+      if (httpMethod.isPresent()) {
+        String method = httpMethod.get().toUpperCase(Locale.ROOT);
+        if (isDangerousMethod(method) || hasSensitiveName(name)) {
+          ctx.reportIssue(typeTree, MESSAGE, new SecondaryLocation(resource.type(), RELATED_METHOD_MESSAGE));
+        }
+      } else if (hasSensitiveName(name)) {
+        ctx.reportIssue(typeTree, MESSAGE, new SecondaryLocation(resource.type(), RELATED_METHOD_MESSAGE));
+      }
+    });
+  }
+
+  private static boolean isPrivateEndpoint(Resource resource) {
+    return value(resource.properties(), "EndpointConfiguration")
+      .map(ec -> {
+        // SAM style: EndpointConfiguration: Type: PRIVATE
+        if (value(ec, "Type").filter(t -> isValue(t, "PRIVATE").isTrue()).isPresent()) {
+          return true;
+        }
+        // Native CFN style: EndpointConfiguration: Types: [PRIVATE]
+        return value(ec, "Types")
+          .filter(SequenceTree.class::isInstance)
+          .map(SequenceTree.class::cast)
+          .map(seq -> seq.elements().stream().anyMatch(item -> isValue(item, "PRIVATE").isTrue()))
+          .orElse(false);
+      })
+      .orElse(false);
   }
 
   private static void checkServerlessApi(CheckContext ctx, Resource resource) {
+    if (isPrivateEndpoint(resource)) {
+      return;
+    }
+
     Optional<Tree> optionalAuthProperty = value(resource.properties(), "Auth");
     if (optionalAuthProperty.isEmpty()) {
       ctx.reportIssue(resource.type(), MESSAGE);

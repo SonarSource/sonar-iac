@@ -6,11 +6,150 @@ Resources:
     Properties:
       AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
       #                  ^^^^
+      HttpMethod: POST
 
   MyApiGatewayMethodSafe:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: AWS_IAM # Compliant
+
+  # Gate 1: dangerous methods raise
+  Gate1PutNoncompliant:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      HttpMethod: PUT
+
+  Gate1DeleteNoncompliant:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      HttpMethod: DELETE
+
+  Gate1PatchNoncompliant:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      HttpMethod: PATCH
+
+  Gate1AnyNoncompliant:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      HttpMethod: ANY
+
+  # Gate 1: GET suppresses
+  Gate1GetCompliant:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE # Compliant: read-only method
+      HttpMethod: GET
+
+  # Gate 1: HEAD suppresses
+  Gate1HeadCompliant:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE # Compliant: read-only method
+      HttpMethod: HEAD
+
+  # Gate 1: dynamic method suppresses
+  Gate1DynamicCompliant:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE # Compliant: method not a literal
+      HttpMethod: !Ref UserInputMethod
+
+  # Gate 1: missing HttpMethod suppresses
+  Gate1AbsentCompliant:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE # Compliant: method absent
+
+  # Stage 2 exclusion: bootstrap name suppresses even with dangerous method
+  LoginMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE # Compliant: name matches bootstrap exclusion
+      HttpMethod: POST
+
+  HealthcheckEndpoint:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE # Compliant: name matches bootstrap exclusion
+      HttpMethod: POST
+
+  StatusCheck:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE # Compliant: name matches bootstrap exclusion
+      HttpMethod: DELETE
+
+  # Stage 2: sensitive name overrides bootstrap exclusion
+  AdminLoginMethod:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      HttpMethod: GET
+
+  # Gate 2: sensitive name raises even with GET
+  AdminApiMethod:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      HttpMethod: GET
+
+  InternalEndpoint:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      HttpMethod: GET
+
+  # Gate 2: neutral name + GET suppresses
+  NeutralGetCompliant:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE # Compliant: GET method, neutral name
+      HttpMethod: GET
+
+  # Gate 2: management keyword raises even with GET
+  ManagementApiMethod:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      HttpMethod: GET
+
+  # Compliant: PRIVATE endpoint type (singular)
+  PrivateEndpointApiSingular:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      EndpointConfiguration:
+        Type: PRIVATE
+
+  # Compliant: PRIVATE endpoint type (plural list)
+  PrivateEndpointApiPlural:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      EndpointConfiguration:
+        Types:
+          - PRIVATE
 
   OpenApiDefault:
     Type: AWS::Serverless::Api # Noncompliant
@@ -61,6 +200,7 @@ Resources:
   NoneOfThisChecksBusiness:
     Type: AWS::NoneOfThisChecksBusiness
 
+  # Gate 1 fires: POST route with NONE auth
   S6333Route:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -68,7 +208,7 @@ Resources:
         Ref: S6333Api
       AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
       #                  ^^^^
-      RouteKey: GET /no-auth
+      RouteKey: POST /items
 
   S6333Api:
     Type: AWS::ApiGatewayV2::Api
@@ -76,6 +216,62 @@ Resources:
       Name: S6333API-name
       ProtocolType: HTTP
 #                   ^^^^< {{Related API}}
+
+  # Gate 1: GET suppresses
+  S6333RouteGetCompliant:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333Api
+      AuthorizationType: NONE # Compliant: read-only method
+      RouteKey: GET /items
+
+  # Gate 1: $default suppresses
+  S6333RouteDefaultCompliant:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333Api
+      RouteKey: $default # Compliant: no statically known method
+
+  # Stage 2 exclusion: bootstrap name suppresses on v2 HTTP route
+  LoginV2Route:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333Api
+      AuthorizationType: NONE # Compliant: name matches bootstrap exclusion
+      RouteKey: POST /login
+
+  # Gate 2: sensitive name raises on v2 HTTP route with GET
+  AdminV2Route:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333Api
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      RouteKey: GET /items
+
+  # Gate 2: sensitive path segment in route key raises with neutral resource name
+  RouteWithSensitivePath:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333Api
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      RouteKey: GET /management/data
+
+  # Gate 2: admin-portal splits on hyphen, matching admin
+  AdminPortalRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333Api
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+      RouteKey: GET /admin-portal/data
 
   S6333ApiWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -93,6 +289,21 @@ Resources:
       #                  ^^^^
       RouteKey: $connect
       #         ^^^^^^^^< {{Related RouteKey}}
+
+  # Stage 2 exclusion: bootstrap name suppresses WebSocket $connect
+  S6333ApiWebSocketLogin:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: S6333APIWebSocket-login
+      ProtocolType: WEBSOCKET
+
+  LoginWebsocketConnect:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: S6333ApiWebSocketLogin
+      AuthorizationType: NONE # Compliant: name matches bootstrap exclusion
+      RouteKey: $connect
 
   S6333ApiCompliantHttp:
     Type: AWS::ApiGatewayV2::Api
