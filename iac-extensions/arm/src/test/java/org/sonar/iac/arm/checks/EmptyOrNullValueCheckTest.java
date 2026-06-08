@@ -81,23 +81,67 @@ class EmptyOrNullValueCheckTest {
   @Test
   void shouldAllowKeyVaultEmptyAccessPoliciesJson() {
     // SONARIAC-2046: KeyVault accessPolicies is commonly empty when using RBAC-based access control
+    // SONARIAC-2688: exemption is version-agnostic, applies to all API versions of Microsoft.KeyVault/vaults
     ArmVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue-keyVaultException.json", CHECK,
-      // KeyVault with empty API version - the empty string itself raises
-      issue(24, 6, 24, 22, "Remove this empty string or complete with real code."),
-      // KeyVault with empty API version - accessPolicies raises (version doesn't match exception)
-      issue(34, 8, 34, 28, "Remove this empty array or complete with real code."),
-      // KeyVault with different API version (2022-07-01) should still raise
-      issue(49, 8, 49, 28, "Remove this empty array or complete with real code."),
       // KeyVault with other empty properties should still raise
       issue(64, 8, 64, 25, "Remove this empty object or complete with real code."),
       // Other resource types should still raise for empty arrays
-      issue(78, 10, 78, 23, "Remove this empty array or complete with real code."));
+      issue(78, 10, 78, 23, "Remove this empty array or complete with real code."),
+      // KeyVault with empty API version - the empty string itself raises
+      issue(99, 6, 99, 22, "Remove this empty string or complete with real code."));
   }
 
   @Test
   void shouldAllowKeyVaultEmptyAccessPoliciesBicep() {
     // SONARIAC-2046: KeyVault accessPolicies is commonly empty when using RBAC-based access control
+    // SONARIAC-2688: exemption is version-agnostic, applies to all API versions of Microsoft.KeyVault/vaults
     BicepVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue-keyVaultException.bicep", CHECK);
+  }
+
+  @Test
+  void shouldAllowKeyVaultEmptyAccessPoliciesAllVersionsBicep() {
+    // SONARIAC-2688: exemption applies to all API versions (no version, 2022-07-01, 2021-06-01-preview)
+    BicepVerifier.verifyContentNoIssue("""
+      resource kv1 'Microsoft.KeyVault/vaults' = {
+        name: 'kv1'
+        location: 'eastus'
+        properties: {
+          tenantId: subscription().tenantId
+          sku: {
+            family: 'A'
+            name: 'standard'
+          }
+          enableRbacAuthorization: true
+          accessPolicies: []
+        }
+      }
+      resource kv2 'Microsoft.KeyVault/vaults@2022-07-01' = {
+        name: 'kv2'
+        location: 'eastus'
+        properties: {
+          tenantId: subscription().tenantId
+          sku: {
+            family: 'A'
+            name: 'standard'
+          }
+          enableRbacAuthorization: true
+          accessPolicies: []
+        }
+      }
+      resource kv3 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
+        name: 'kv3'
+        location: 'eastus'
+        properties: {
+          tenantId: subscription().tenantId
+          sku: {
+            family: 'A'
+            name: 'standard'
+          }
+          enableRbacAuthorization: true
+          accessPolicies: []
+        }
+      }
+      """, CHECK);
   }
 
   @Test
@@ -108,11 +152,7 @@ class EmptyOrNullValueCheckTest {
     emptyOrNullValueCheck.ignoredProperties = "networkAcls";
     ArmVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue-keyVaultException.json", emptyOrNullValueCheck,
       // KeyVault with empty API version - the empty string itself raises
-      issue(24, 6, 24, 22, "Remove this empty string or complete with real code."),
-      // KeyVault with empty API version - accessPolicies raises (version doesn't match exception)
-      issue(34, 8, 34, 28, "Remove this empty array or complete with real code."),
-      // KeyVault with different API version (2022-07-01) should still raise
-      issue(49, 8, 49, 28, "Remove this empty array or complete with real code."));
+      issue(99, 6, 99, 22, "Remove this empty string or complete with real code."));
     // networkAcls is ignored via ignoredProperties config, so no issue for line 64
     // ipRules (line 78) is also not checked because it's inside networkAcls which is skipped
   }

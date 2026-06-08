@@ -57,10 +57,10 @@ public class EmptyOrNullValueCheck implements IacCheck {
   /**
    * Map of resource types to properties that should be ignored when empty.
    * These are properties that are commonly empty by design (e.g., when using RBAC instead of access policies).
-   * Resource type comparison is case-insensitive.
+   * Resource type comparison is case-insensitive and version-agnostic.
    */
   private static final Map<String, Set<String>> IGNORED_EMPTY_PROPERTIES_BY_RESOURCE_TYPE = Map.of(
-    "microsoft.keyvault/vaults@2023-07-01", Set.of("accessPolicies"));
+    "microsoft.keyvault/vaults", Set.of("accessPolicies"));
 
   @RuleProperty(
     key = "ignoredProperties",
@@ -144,8 +144,8 @@ public class EmptyOrNullValueCheck implements IacCheck {
       return false;
     }
 
-    String fullResourceType = getFullResourceType(resource);
-    Set<String> ignoredProperties = IGNORED_EMPTY_PROPERTIES_BY_RESOURCE_TYPE.get(fullResourceType.toLowerCase(Locale.ROOT));
+    String resourceType = resource.type().value().toLowerCase(Locale.ROOT);
+    Set<String> ignoredProperties = IGNORED_EMPTY_PROPERTIES_BY_RESOURCE_TYPE.get(resourceType);
 
     if (ignoredProperties == null) {
       return false;
@@ -153,17 +153,6 @@ public class EmptyOrNullValueCheck implements IacCheck {
 
     String propertyName = property.key().value();
     return ignoredProperties.contains(propertyName);
-  }
-
-  /**
-   * Returns the full resource type including API version (e.g., "Microsoft.KeyVault/vaults@2023-07-01").
-   */
-  private static String getFullResourceType(ResourceDeclaration resource) {
-    String type = resource.type().value();
-    return TextUtils.getValue(resource.version())
-      .filter(v -> !v.isEmpty())
-      .map(v -> type + "@" + v)
-      .orElse(type);
   }
 
   private void checkExpression(CheckContext ctx, HasTextRange propertyToReport, Expression expression, String kind, @Nullable ResourceDeclaration resource) {

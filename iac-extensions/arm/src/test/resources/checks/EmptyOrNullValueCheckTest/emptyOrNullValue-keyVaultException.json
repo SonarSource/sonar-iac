@@ -21,8 +21,8 @@
     },
     {
       "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "",
-      "name": "noncompliantKeyVaultEmptyVersion",
+      "apiVersion": "2020-04-01-preview",
+      "name": "compliantKeyVaultLegacyVersion",
       "location": "[resourceGroup().location]",
       "properties": {
         "tenantId": "[subscription().tenantId]",
@@ -37,7 +37,7 @@
     {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2022-07-01",
-      "name": "noncompliantKeyVault2",
+      "name": "compliantKeyVault2",
       "location": "[resourceGroup().location]",
       "properties": {
         "tenantId": "[subscription().tenantId]",
@@ -77,6 +77,36 @@
         "networkAcls": {
           "ipRules": []
         }
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2021-06-01-preview",
+      "name": "compliantKeyVaultPreviewVersion",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "enableRbacAuthorization": true,
+        "accessPolicies": []
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "",
+      "name": "noncompliantKeyVaultEmptyApiVersion",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "enableRbacAuthorization": true,
+        "accessPolicies": []
       }
     }
   ],
