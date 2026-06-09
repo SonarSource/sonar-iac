@@ -40,7 +40,6 @@ class TerraformProfileDefinitionTest extends AbstractProfileDefinitionTest {
   protected Consumer<List<? extends BuiltInQualityProfilesDefinition.BuiltInActiveRule>> additionalRulesAssert() {
     return rules -> assertThat(rules)
       .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .doesNotContain("S6245") // DisabledS3EncryptionCheck - deprecated
       .doesNotContain("S2260"); // ParsingErrorCheck
   }
 }

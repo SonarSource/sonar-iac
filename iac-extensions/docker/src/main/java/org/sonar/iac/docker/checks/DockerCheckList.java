@@ -38,7 +38,6 @@ public final class DockerCheckList {
       ExecutableNotOwnedByRootCheck.class,
       ExposedAdministrationServicesCheck.class,
       HostNetworkNamespaceCheck.class,
-      ImageWithDigestCheck.class,
       InstructionFormatCheck.class,
       LongRunInstructionCheck.class,
       MalformedJsonInExecCheck.class,

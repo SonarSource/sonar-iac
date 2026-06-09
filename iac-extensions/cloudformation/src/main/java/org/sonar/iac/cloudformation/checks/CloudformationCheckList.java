@@ -40,7 +40,6 @@ public class CloudformationCheckList {
       DisabledEFSEncryptionCheck.class,
       DisabledOSDomainEncryptionCheck.class,
       DisabledDBEncryptionCheck.class,
-      DisabledS3EncryptionCheck.class,
       DisabledLoggingCheck.class,
       DisabledSNSTopicEncryptionCheck.class,
       LogGroupDeclarationCheck.class,

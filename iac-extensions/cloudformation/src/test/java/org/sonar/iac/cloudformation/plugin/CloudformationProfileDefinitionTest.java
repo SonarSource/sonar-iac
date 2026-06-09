@@ -40,7 +40,6 @@ class CloudformationProfileDefinitionTest extends AbstractProfileDefinitionTest 
   protected Consumer<List<? extends BuiltInActiveRule>> additionalRulesAssert() {
     return rules -> assertThat(rules)
       .extracting(BuiltInActiveRule::ruleKey)
-      .doesNotContain("S6245") // DisabledS3EncryptionCheck - deprecated
       .doesNotContain("S2260"); // ParsingErrorCheck
   }
 }
