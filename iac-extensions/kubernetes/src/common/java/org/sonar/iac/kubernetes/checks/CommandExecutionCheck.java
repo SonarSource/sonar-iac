@@ -37,9 +37,15 @@ public class CommandExecutionCheck extends AbstractKubernetesObjectCheck {
   @Override
   protected void registerObjectCheck() {
     register(SENSITIVE_KINDS, document -> document.blocks("rules")
+      .filter(CommandExecutionCheck::ruleAppliesToCoreApiGroup)
       .filter(CommandExecutionCheck::ruleContainsSensitiveVerb)
       .filter(CommandExecutionCheck::ruleContainsSensitiveResource)
       .forEach(rule -> rule.attribute("resources").reportOnKey(MESSAGE)));
+  }
+
+  // `pods/exec` lives only in the core ("") API group, so the rule must list "" or the "*" wildcard to actually grant exec access.
+  private static boolean ruleAppliesToCoreApiGroup(BlockObject rule) {
+    return containsSensitiveItemOrWildCard(rule, "apiGroups", "");
   }
 
   private static boolean ruleContainsSensitiveVerb(BlockObject rule) {

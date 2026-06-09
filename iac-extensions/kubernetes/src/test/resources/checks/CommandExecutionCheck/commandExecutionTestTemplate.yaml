@@ -53,3 +53,24 @@ rules:
 
   - apiGroups: [""]
     verbs: ["create"] # Compliant
+
+  - apiGroups: ["apps"]
+    resources: ["*"] # Compliant - wildcard resource outside core API group cannot grant pods/exec
+    verbs: ["*"]
+
+  - apiGroups: ["custom.example.com"]
+    resources: ["pods/exec"] # Compliant - pods/exec only exists in the core API group
+    verbs: ["create"]
+
+  - apiGroups: ["*"]
+    resources: ["*"] # Noncompliant
+#   ^^^^^^^^^
+    verbs: ["*"]
+
+  - apiGroups: ["", "apps"]
+    resources: ["pods/exec"] # Noncompliant
+#   ^^^^^^^^^
+    verbs: ["create"]
+
+  - resources: ["pods/exec"] # Compliant - missing apiGroups is structurally invalid
+    verbs: ["create"]
