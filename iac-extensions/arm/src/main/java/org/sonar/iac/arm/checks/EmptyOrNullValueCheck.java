@@ -60,7 +60,8 @@ public class EmptyOrNullValueCheck implements IacCheck {
    * Resource type comparison is case-insensitive and version-agnostic.
    */
   private static final Map<String, Set<String>> IGNORED_EMPTY_PROPERTIES_BY_RESOURCE_TYPE = Map.of(
-    "microsoft.keyvault/vaults", Set.of("accessPolicies"));
+    "microsoft.keyvault/vaults", Set.of("accessPolicies"),
+    "microsoft.network/networksecuritygroups", Set.of("securityRules"));
 
   @RuleProperty(
     key = "ignoredProperties",

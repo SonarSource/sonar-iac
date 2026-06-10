@@ -145,6 +145,19 @@ class EmptyOrNullValueCheckTest {
   }
 
   @Test
+  void shouldAllowNsgEmptySecurityRulesJson() {
+    // Network Security Groups (NSG) securityRules is intentionally empty when no rules are defined
+    ArmVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue-nsgException.json", CHECK,
+      issue(36, 10, 36, 23, "Remove this empty array or complete with real code."));
+  }
+
+  @Test
+  void shouldAllowNsgEmptySecurityRulesBicep() {
+    // Network Security Groups (NSG) securityRules is intentionally empty when no rules are defined
+    BicepVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue-nsgException.bicep", CHECK);
+  }
+
+  @Test
   void shouldAllowKeyVaultWithIgnoredPropertiesJson() {
     // SONARIAC-2046: Test combining resource type exception with user-configured ignored properties
     // This covers the branch where isPropertyException=false but ignoredPropertiesSet.contains=true
