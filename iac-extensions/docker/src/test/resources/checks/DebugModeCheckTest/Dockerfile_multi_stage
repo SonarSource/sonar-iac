@@ -1,0 +1,13 @@
+## Intermediate stage that is NOT a dependency of the final image
+FROM ubuntu:latest AS intermediate-only
+ENV APP_DEBUG=true
+ENV ENVIRONMENT=development
+
+## Intermediate stage that IS a dependency of the final image
+FROM ubuntu:latest AS base-for-final
+# Noncompliant@+1
+ENV debug=true
+
+## Final stage inherits from base-for-final
+FROM base-for-final
+ENV debug=false

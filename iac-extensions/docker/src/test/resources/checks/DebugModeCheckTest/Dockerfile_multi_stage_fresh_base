@@ -1,0 +1,17 @@
+## Ruling pattern: multiple stages derive from a debug-env base, but the final
+## production stage uses a completely different base and does not extend any of
+## the debug-containing stages. The debug ENV should NOT raise because the base
+## stage is not in the final image's FROM chain.
+
+FROM rust:buster AS base
+ENV ROCKET_ENV=development
+
+FROM base AS development
+EXPOSE 8000
+
+FROM base AS builder
+RUN echo build
+
+FROM debian:buster-slim
+ENV ROCKET_ENV=production
+COPY --from=builder /build /app

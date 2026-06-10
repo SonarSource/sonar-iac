@@ -24,4 +24,26 @@ class DebugModeCheckTest {
   void test() {
     DockerVerifier.verify("DebugModeCheckTest/Dockerfile", new DebugModeCheck());
   }
+
+  @Test
+  void shouldVerifyCleanDockerfileHasNoIssues() {
+    DockerVerifier.verifyContentNoIssue("FROM ubuntu:22.04\n", new DebugModeCheck());
+  }
+
+  @Test
+  void shouldOnlyFlagStagesInFinalImage() {
+    DockerVerifier.verify("DebugModeCheckTest/Dockerfile_multi_stage", new DebugModeCheck());
+  }
+
+  @Test
+  void shouldNotRaiseForDebugEnvInStagesOutsideFinalImageFromChain() {
+    DockerVerifier.verifyNoIssue("DebugModeCheckTest/Dockerfile_multi_stage_fresh_base", new DebugModeCheck());
+  }
+
+  @Test
+  void shouldNotRaiseForDebugEnvInStageCopiedIntoFinalImage() {
+    // ENV does not propagate through COPY --from; only the FROM chain matters
+    DockerVerifier.verifyNoIssue("DebugModeCheckTest/Dockerfile_multi_stage_copy_from_debug", new DebugModeCheck());
+  }
+
 }

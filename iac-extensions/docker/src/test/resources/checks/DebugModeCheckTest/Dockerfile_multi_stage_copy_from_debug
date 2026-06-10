@@ -1,0 +1,8 @@
+## A debug build stage sets a debug ENV; the final stage copies artifacts from it
+## via COPY --from. ENV variables do not propagate through COPY, so no issue should
+## be raised on the debug-builder stage.
+FROM ubuntu:latest AS debug-builder
+ENV APP_DEBUG=true
+
+FROM ubuntu:latest
+COPY --from=debug-builder /build /app

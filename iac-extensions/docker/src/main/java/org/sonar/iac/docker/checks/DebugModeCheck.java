@@ -19,14 +19,12 @@ package org.sonar.iac.docker.checks;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 
 @Rule(key = "S4507")
-public class DebugModeCheck implements IacCheck {
+public class DebugModeCheck extends AbstractFinalImageCheck {
 
   private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
 
@@ -37,8 +35,8 @@ public class DebugModeCheck implements IacCheck {
   private static final Pattern PHPX_DEBUG_ENABLED_NAME_PATTERN = Pattern.compile("^([_A-Z]+)?XDEBUG_MODE$", Pattern.CASE_INSENSITIVE);
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(EnvInstruction.class, DebugModeCheck::checkEnvDebug);
+  protected void initializeOnFinalImage() {
+    registerOnFinalImage(EnvInstruction.class, DebugModeCheck::checkEnvDebug);
   }
 
   private static void checkEnvDebug(CheckContext ctx, EnvInstruction envInstruction) {
