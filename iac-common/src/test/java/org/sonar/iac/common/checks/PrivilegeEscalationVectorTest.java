@@ -168,6 +168,6 @@ class PrivilegeEscalationVectorTest {
       .map(e -> attribute(e.getKey(), text(e.getValue())))
       .toArray(PropertyTree[]::new);
     CommonTestUtils.TestPropertiesTree statement = properties(propertyTrees);
-    return new Policy(null, tree -> List.of(statement)).statement().get(0);
+    return new Policy.Statement(statement);
   }
 }

@@ -76,7 +76,7 @@ class PolicyValidatorTest {
       properties(attribute("Action", "sns:Publish"), attribute("Resource", "*")),
       properties(attribute("Action", "sns:Publish"), attribute("NotResource", "*")));
 
-    Policy policy = new Policy(null, tree -> statements);
+    Policy policy = new Policy(null, null, statements.stream().map(Policy.Statement::new).toList());
     assertThat(PolicyValidator.findInsecureStatements(policy)).hasSize(2);
   }
 }

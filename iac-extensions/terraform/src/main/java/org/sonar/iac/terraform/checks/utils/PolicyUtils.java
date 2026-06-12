@@ -23,10 +23,13 @@ import java.util.Optional;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.policy.Policy;
+import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FunctionCallTree;
+import org.sonar.iac.terraform.api.tree.HeredocLiteralTree;
+import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
@@ -37,7 +40,7 @@ public class PolicyUtils {
     // Utility class
   }
 
-  public static final Policy UNKNOWN_POLCY = new Policy(null, t -> Collections.emptyList());
+  public static final Policy UNKNOWN_POLICY = new Policy(null, null, Collections.emptyList());
 
   public static List<Policy> getPolicies(Tree root) {
     PolicyCollector collector = new PolicyCollector();
@@ -75,21 +78,41 @@ public class PolicyUtils {
      */
     private void collectPolicy(BlockTree tree) {
       Optional<Tree> policyDocument = findPolicyDocument(tree);
-      if (policyDocument.isPresent()) {
-        Tree policyExpr = policyDocument.get();
-        // For now we only handle policy expressions if they are wrapped by a function call
-        if (!(policyExpr instanceof FunctionCallTree policyFunctionCall) || policyFunctionCall.arguments().trees().isEmpty()) {
-          policies.add(UNKNOWN_POLCY);
-          return;
-        }
-        TerraformTree policyArgument = policyFunctionCall.arguments().trees().get(0);
-        policies.add(new Policy(
-          policyArgument,
-          policy -> PropertyUtils.value(policy, "Statement", TupleTree.class)
-            .map(TupleTree::elements)
-            .map(SeparatedTrees::treesAndSeparators)
-            .orElse(Collections.emptyList())));
+      if (policyDocument.isEmpty()) {
+        return;
       }
+      Tree policyExpr = policyDocument.get();
+      TerraformTree policyRoot = policyRoot(policyExpr);
+      if (policyRoot == null) {
+        // Unknown shape (file(...), data references, raw string literal, non-JSON heredoc, etc.) — fail safe
+        policies.add(UNKNOWN_POLICY);
+        return;
+      }
+      List<Statement> statements = PropertyUtils.value(policyRoot, "Statement", TupleTree.class)
+        .map(TupleTree::elements)
+        .map(SeparatedTrees::trees)
+        .orElse(Collections.emptyList())
+        .stream().map(Statement::new).toList();
+      policies.add(new Policy(
+        PropertyUtils.valueOrNull(policyRoot, "Version"),
+        PropertyUtils.valueOrNull(policyRoot, "Id"),
+        statements));
+    }
+
+    /**
+     * Resolve the root object expression of a policy attribute. Both {@code jsonencode({...})} and
+     * heredoc-with-JSON now expose an {@code ObjectTree} at the top — the former via the parser
+     * (HCL native object literal), the latter via {@link HeredocLiteralTree#content()} produced at
+     * parse time. Returns {@code null} when the attribute does not resolve to a structured object.
+     */
+    private static TerraformTree policyRoot(Tree policyExpr) {
+      if (policyExpr instanceof FunctionCallTree policyFunctionCall && !policyFunctionCall.arguments().trees().isEmpty()) {
+        return policyFunctionCall.arguments().trees().get(0);
+      }
+      if (policyExpr instanceof HeredocLiteralTree heredoc && heredoc.content() instanceof ObjectTree object) {
+        return object;
+      }
+      return null;
     }
 
     private static Optional<Tree> findPolicyDocument(BlockTree tree) {

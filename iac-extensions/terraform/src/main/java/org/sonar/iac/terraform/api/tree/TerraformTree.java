@@ -61,7 +61,7 @@ public interface TerraformTree extends Tree {
 
     NUMERIC_LITERAL(LiteralExprTree.class),
 
-    HEREDOC_LITERAL(LiteralExprTree.class),
+    HEREDOC_LITERAL(HeredocLiteralTree.class),
 
     STRING_LITERAL(LiteralExprTree.class),
 

@@ -36,9 +36,7 @@ class PolicyTest {
 
   @Test
   void empty_policy() {
-    Tree tree = new TestTree();
-
-    Policy policy = new Policy(tree, t -> Collections.emptyList());
+    Policy policy = new Policy(null, null, Collections.emptyList());
 
     assertThat(policy).isNotNull();
     assertThat(policy.id()).isNotPresent();
@@ -50,11 +48,8 @@ class PolicyTest {
   void policy_without_statement() {
     TextTree id = text("666");
     TextTree version = text("12.12.12");
-    Tree tree = new TestTree(
-      new TestPropertyTree("Id", id),
-      new TestPropertyTree("Version", version));
 
-    Policy policy = new Policy(tree, t -> Collections.emptyList());
+    Policy policy = new Policy(version, id, Collections.emptyList());
 
     assertThat(policy).isNotNull();
     assertThat(policy.id())
@@ -71,9 +66,8 @@ class PolicyTest {
   @Test
   void empty_statement() {
     TextTree statementTree = text("...");
-    Tree tree = new TestTree(statementTree);
 
-    Policy policy = new Policy(tree, Tree::children);
+    Policy policy = new Policy(null, null, List.of(new Statement(statementTree)));
 
     assertThat(policy).isNotNull();
     assertThat(policy.id()).isNotPresent();
@@ -105,9 +99,8 @@ class PolicyTest {
       new TestPropertyTree("Resource", text("resource")),
       new TestPropertyTree("NotResource", text("notResource")),
       new TestPropertyTree("Condition", text("condition")));
-    Tree tree = new TestTree(statementTree);
 
-    Policy policy = new Policy(tree, Tree::children);
+    Policy policy = new Policy(null, null, List.of(new Statement(statementTree)));
 
     assertThat(policy).isNotNull();
     assertThat(policy.id()).isNotPresent();

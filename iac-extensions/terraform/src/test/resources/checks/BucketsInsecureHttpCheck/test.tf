@@ -22,7 +22,8 @@ resource "aws_s3_bucket_policy" "mynoncompliantallowpolicys6249" {
         Action    = "s3:*"
         Resource = [aws_s3_bucket.mynoncompliantallowbuckets6245.arn, "${aws_s3_bucket.mynoncompliantallowbuckets6245.arn}/*",]
         Condition = { Bool = { "aws:SecureTransport" = "true" } }
-      #             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{HTTPS requests are denied.}}
+        # SONARIAC-1803: condition value "true" inverts the protection — statement is no longer an HTTPS-only attempt;
+        # only the primary issue is raised, with no per-field secondaries.
       },
     ]
   })
@@ -509,4 +510,320 @@ resource "aws_s3_bucket_policy" "noncompliant_multi_statement" {
       },
     ]
   })
+}
+
+# === SONARIAC-1804: consistency with CloudFormation ===
+
+resource "aws_s3_bucket" "compliant_effect_unusual_value" {
+  bucket = "compliant-effect-unusual-value"
+}
+resource "aws_s3_bucket_policy" "compliant_effect_unusual_value" {
+  bucket = aws_s3_bucket.compliant_effect_unusual_value.id
+  # SONARIAC-1804: an Effect with an unresolved/unusual value (here a Terraform variable interpolation)
+  # is no longer flagged as insecure. With CFN-aligned semantics, only the explicit literal "Allow" is.
+  # Before SONARIAC-1804 the Terraform check would have flagged this (effect != "Deny" → insecure).
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "${var.effect}"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = ["${aws_s3_bucket.compliant_effect_unusual_value.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+# === SONARIAC-1803: no contradictory secondary messages ===
+
+resource "aws_s3_bucket" "noncompliant_unrelated_condition" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket.}}
+  bucket = "noncompliant-unrelated-condition"
+}
+resource "aws_s3_bucket_policy" "noncompliant_unrelated_condition" {
+  bucket = aws_s3_bucket.noncompliant_unrelated_condition.id
+  # Deny statement with a Condition that has nothing to do with aws:SecureTransport — not an HTTPS-only attempt.
+  # The bucket is still Noncompliant (no HTTPS-only enforcement) but NO per-field secondaries (e.g. "All S3 actions
+  # should be restricted") should be raised — that would contradict the actual intent of the statement.
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = ["${aws_s3_bucket.noncompliant_unrelated_condition.arn}/sensitive"]
+        Condition = { IpAddress = { "aws:SourceIp" = "1.2.3.4/32" } }
+      }
+    ]
+  })
+}
+
+# === SONARIAC-1801: non-explicit AWS principal ===
+
+resource "aws_s3_bucket" "compliant_string_principal_wildcard" {
+  bucket = "compliant-string-principal-wildcard"
+}
+resource "aws_s3_bucket_policy" "compliant_string_principal_wildcard" {
+  bucket = aws_s3_bucket.compliant_string_principal_wildcard.id
+  # Compliant: Principal as a bare string "*" (covers all principals — equivalent to { AWS = "*" })
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = ["${aws_s3_bucket.compliant_string_principal_wildcard.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_string_principal_arn" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket.}}
+  bucket = "noncompliant-string-principal-arn"
+}
+resource "aws_s3_bucket_policy" "noncompliant_string_principal_arn" {
+  bucket = aws_s3_bucket.noncompliant_string_principal_arn.id
+  # Principal as a bare ARN string — does not cover all principals (FN before SONARIAC-1801)
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = "arn:aws:iam::123456789012:root"
+        Action    = "s3:*"
+        Resource  = ["${aws_s3_bucket.noncompliant_string_principal_arn.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "compliant_string_principal_list_wildcard" {
+  bucket = "compliant-string-principal-list-wildcard"
+}
+resource "aws_s3_bucket_policy" "compliant_string_principal_list_wildcard" {
+  bucket = aws_s3_bucket.compliant_string_principal_list_wildcard.id
+  # Compliant: Principal as a list-of-strings containing "*"
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = ["*"]
+        Action    = "s3:*"
+        Resource  = ["${aws_s3_bucket.compliant_string_principal_list_wildcard.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket" "noncompliant_string_principal_list_arn" { # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket.}}
+  bucket = "noncompliant-string-principal-list-arn"
+}
+resource "aws_s3_bucket_policy" "noncompliant_string_principal_list_arn" {
+  bucket = aws_s3_bucket.noncompliant_string_principal_list_arn.id
+  # Principal as a list-of-ARN-strings (no wildcard) — does not cover all principals
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = ["arn:aws:iam::123456789012:root"]
+        Action    = "s3:*"
+        Resource  = ["${aws_s3_bucket.noncompliant_string_principal_list_arn.arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      }
+    ]
+  })
+}
+
+# === SONARIAC-1800: POLICY heredoc ===
+
+resource "aws_s3_bucket" "compliant_heredoc_policy" {
+  bucket = "compliant-heredoc-policy"
+}
+resource "aws_s3_bucket_policy" "compliant_heredoc_policy" {
+  bucket = aws_s3_bucket.compliant_heredoc_policy.id
+  # Compliant: full HTTPS-only Deny policy expressed via <<POLICY heredoc
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "HTTPSOnly",
+  "Statement": [
+    {
+      "Sid": "HTTPSOnly",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::compliant-heredoc-policy/*"],
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket" "compliant_heredoc_eof_marker" {
+  bucket = "compliant-heredoc-eof-marker"
+}
+resource "aws_s3_bucket_policy" "compliant_heredoc_eof_marker" {
+  bucket = aws_s3_bucket.compliant_heredoc_eof_marker.id
+  # Compliant: same body but with the alternative <<EOF marker — verifies marker-agnostic stripping
+  policy = <<EOF
+{
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::compliant-heredoc-eof-marker/*"],
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_s3_bucket" "noncompliant_heredoc_wrong_effect" { # Noncompliant
+  bucket = "noncompliant-heredoc-wrong-effect"
+}
+resource "aws_s3_bucket_policy" "noncompliant_heredoc_wrong_effect" {
+  bucket = aws_s3_bucket.noncompliant_heredoc_wrong_effect.id
+  # Effect = Allow on what otherwise looks like an HTTPS-only Deny policy
+  policy = <<POLICY
+{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::noncompliant-heredoc-wrong-effect/*"],
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket" "noncompliant_heredoc_narrow_action" { # Noncompliant
+  bucket = "noncompliant-heredoc-narrow-action"
+}
+resource "aws_s3_bucket_policy" "noncompliant_heredoc_narrow_action" {
+  bucket = aws_s3_bucket.noncompliant_heredoc_narrow_action.id
+  # Action narrowed to s3:GetObject — does not cover all S3 actions
+  policy = <<POLICY
+{
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": ["arn:aws:s3:::noncompliant-heredoc-narrow-action/*"],
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket" "heredoc_malformed_json" {
+  bucket = "heredoc-malformed-json"
+}
+resource "aws_s3_bucket_policy" "heredoc_malformed_json" {
+  bucket = aws_s3_bucket.heredoc_malformed_json.id
+  # Malformed JSON — falls back to UNKNOWN_POLICY (safe-by-default), so no issue is raised
+  policy = <<POLICY
+{ not valid json
+POLICY
+}
+
+resource "aws_s3_bucket" "compliant_indented_heredoc_policy" {
+  bucket = "compliant-indented-heredoc-policy"
+}
+resource "aws_s3_bucket_policy" "compliant_indented_heredoc_policy" {
+  bucket = aws_s3_bucket.compliant_indented_heredoc_policy.id
+  # Compliant: indented <<- form. Closing marker may be indented, leading whitespace inside the body
+  # is irrelevant to JSON parsing.
+  policy = <<-POLICY
+    {
+      "Statement": [
+        {
+          "Effect": "Deny",
+          "Principal": "*",
+          "Action": "s3:*",
+          "Resource": ["arn:aws:s3:::compliant-indented-heredoc-policy/*"],
+          "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+        }
+      ]
+    }
+  POLICY
+}
+
+resource "aws_s3_bucket" "noncompliant_indented_heredoc_policy" { # Noncompliant
+  bucket = "noncompliant-indented-heredoc-policy"
+}
+resource "aws_s3_bucket_policy" "noncompliant_indented_heredoc_policy" {
+  bucket = aws_s3_bucket.noncompliant_indented_heredoc_policy.id
+  # Indented <<- heredoc with Action narrowed to a single operation — does not cover all S3 actions
+  policy = <<-POLICY
+    {
+      "Statement": [
+        {
+          "Effect": "Deny",
+          "Principal": "*",
+          "Action": "s3:GetObject",
+          "Resource": ["arn:aws:s3:::noncompliant-indented-heredoc-policy/*"],
+          "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+        }
+      ]
+    }
+  POLICY
+}
+
+resource "aws_s3_bucket" "compliant_heredoc_multiple_resources" {
+  bucket = "compliant-heredoc-multiple-resources"
+}
+resource "aws_s3_bucket_policy" "compliant_heredoc_multiple_resources" {
+  bucket = aws_s3_bucket.compliant_heredoc_multiple_resources.id
+  # Compliant: the Resource list covers both the bucket ARN and all its objects (the "/*" entry),
+  # so every relevant resource is restricted.
+  policy = <<POLICY
+{
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::compliant-heredoc-multiple-resources",
+        "arn:aws:s3:::compliant-heredoc-multiple-resources/*"
+      ],
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket" "noncompliant_heredoc_multiple_resources" { # Noncompliant
+  bucket = "noncompliant-heredoc-multiple-resources"
+}
+resource "aws_s3_bucket_policy" "noncompliant_heredoc_multiple_resources" {
+  bucket = aws_s3_bucket.noncompliant_heredoc_multiple_resources.id
+  # None of the listed resources ends with "*", so the bucket's objects are not covered.
+  policy = <<POLICY
+{
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::noncompliant-heredoc-multiple-resources",
+        "arn:aws:s3:::noncompliant-heredoc-multiple-resources/object"
+      ],
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}
+POLICY
 }

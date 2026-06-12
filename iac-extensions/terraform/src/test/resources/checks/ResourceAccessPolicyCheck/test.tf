@@ -261,3 +261,53 @@ resource "aws_iam_policy" "step_function" {
     ]
   })
 }
+
+# === SONARIAC-1800: POLICY heredoc — verify rule still sees policies passed through HeredocLiteralTree ===
+# JSON nodes inside the heredoc body have precise text ranges, so the issue lands on the Resource value's
+# line inside the body. The `# Noncompliant@+N` markers count forward from where they sit to that body line.
+
+resource "aws_iam_policy" "noncompliant_heredoc_wildcard_resource" {
+  # Noncompliant@+7 {{Make sure granting access to all resources is safe here.}}
+  policy = <<POLICY
+{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iam:CreatePolicyVersion",
+      "Resource": "*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_policy" "noncompliant_indented_heredoc_not_resource" {
+  # Indented <<- form with NotResource = "*" + Deny — exercises the second insecure branch
+  # Noncompliant@+7 {{Make sure granting access to all resources is safe here.}}
+  policy = <<-POLICY
+    {
+      "Statement": [
+        {
+          "Effect": "Deny",
+          "Action": "iam:CreatePolicyVersion",
+          "NotResource": "*"
+        }
+      ]
+    }
+  POLICY
+}
+
+resource "aws_iam_policy" "compliant_heredoc_specific_resource" {
+  # Compliant: a non-wildcard Resource keeps the policy safe
+  policy = <<POLICY
+{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iam:CreatePolicyVersion",
+      "Resource": "arn:aws:iam::123456789012:policy/MyPolicy"
+    }
+  ]
+}
+POLICY
+}

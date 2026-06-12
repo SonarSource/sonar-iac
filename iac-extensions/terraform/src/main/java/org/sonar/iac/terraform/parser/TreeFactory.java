@@ -60,6 +60,7 @@ import org.sonar.iac.terraform.tree.impl.FileTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ForObjectTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ForTupleTreeImpl;
 import org.sonar.iac.terraform.tree.impl.FunctionCallTreeImpl;
+import org.sonar.iac.terraform.tree.impl.HeredocLiteralTreeImpl;
 import org.sonar.iac.terraform.tree.impl.IndexAccessExprTreeImpl;
 import org.sonar.iac.terraform.tree.impl.IndexSplatAccessTreeImpl;
 import org.sonar.iac.terraform.tree.impl.LabelTreeImpl;
@@ -130,8 +131,9 @@ public class TreeFactory {
     return new LiteralExprTreeImpl(Kind.TEMPLATE_STRING_PART_LITERAL, token);
   }
 
-  public LiteralExprTreeImpl heredocLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(Kind.HEREDOC_LITERAL, token);
+  public HeredocLiteralTreeImpl heredocLiteral(SyntaxToken token) {
+    // Parse the body lazily: only heredocs whose structured content is actually inspected pay the cost.
+    return new HeredocLiteralTreeImpl(token, () -> HeredocContentParser.parse(token));
   }
 
   public AttributeTree attribute(SyntaxToken key, SyntaxToken equalSign, ExpressionTree value) {

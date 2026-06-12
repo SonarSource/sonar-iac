@@ -21,14 +21,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.policy.BucketsInsecureHttpPolicyValidator;
 import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -37,9 +40,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
-import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
@@ -47,12 +48,8 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketRes
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
-  private static final String MESSAGE = "No bucket policy enforces HTTPS-only access to this bucket.";
-  private static final String MESSAGE_SECONDARY_CONDITION = "HTTPS requests are denied.";
-  private static final String MESSAGE_SECONDARY_EFFECT = "Non-conforming requests should be denied.";
-  private static final String MESSAGE_SECONDARY_ACTION = "All S3 actions should be restricted.";
-  private static final String MESSAGE_SECONDARY_PRINCIPAL = "All principals should be restricted.";
-  private static final String MESSAGE_SECONDARY_RESOURCE = "All resources should be restricted.";
+
+  private static final BucketsInsecureHttpPolicyValidator VALIDATOR = new BucketsInsecureHttpPolicyValidator(BucketsInsecureHttpCheck::isInsecureResource);
 
   @Override
   public void initialize(InitContext init) {
@@ -67,7 +64,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     for (Map.Entry<BlockTree, Policy> entry : bucketsToPolicies.entrySet()) {
       if (entry.getValue() == null) {
         // no policy found for the bucket
-        ctx.reportIssue(entry.getKey().labels().get(0), MESSAGE);
+        ctx.reportIssue(entry.getKey().labels().get(0), BucketsInsecureHttpPolicyValidator.MESSAGE);
       } else {
         checkBucketPolicy(ctx, entry.getKey(), entry.getValue());
       }
@@ -75,18 +72,15 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static void checkBucketPolicy(CheckContext ctx, BlockTree bucket, Policy policy) {
-    Map<ExpressionTree, String> insecureValues = PolicyValidator.getInsecureValues(policy);
-
-    if (insecureValues.isEmpty()) {
+    if (VALIDATOR.isPolicySecure(policy)) {
       return;
     }
 
-    List<SecondaryLocation> secondaryLocations = insecureValues.entrySet().stream()
-      .filter(e -> e.getKey() != null)
+    List<SecondaryLocation> secondaryLocations = VALIDATOR.findInsecureFields(policy).entrySet().stream()
       .map(e -> new SecondaryLocation(e.getKey(), e.getValue()))
       .toList();
 
-    ctx.reportIssue(bucket.labels().get(0), MESSAGE, secondaryLocations);
+    ctx.reportIssue(bucket.labels().get(0), BucketsInsecureHttpPolicyValidator.MESSAGE, secondaryLocations);
   }
 
   private static Map<BlockTree, Policy> bucketsToPolicies(List<BlockTree> buckets, List<BlockTree> policies) {
@@ -147,107 +141,35 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
   }
 
-  private static class PolicyValidator {
-
-    public static Map<ExpressionTree, String> getInsecureValues(Policy policy) {
-      // Short-circuit: if any statement fully enforces HTTPS, the policy is secure
-      if (policy.statement().stream().anyMatch(PolicyValidator::isSecureStatement)) {
-        return Map.of();
-      }
-
-      Map<ExpressionTree, String> result = new HashMap<>();
-
-      // Only Deny statements can be HTTPS enforcement — ignore Allow statements
-      List<Policy.Statement> denyStatements = policy.statement().stream()
-        .filter(s -> s.effect().map(e -> !isInsecureEffect(e)).orElse(false))
-        .toList();
-
-      // If no Deny statements exist, fall back to checking all statements (preserves
-      // existing behavior for Allow-only or effectless policies)
-      List<Policy.Statement> statementsToCheck = denyStatements.isEmpty() ? policy.statement() : denyStatements;
-
-      statementsToCheck.forEach(statement -> {
-        statement.effect().filter(PolicyValidator::isInsecureEffect)
-          .ifPresent(effect -> result.put((ExpressionTree) effect, MESSAGE_SECONDARY_EFFECT));
-
-        statement.condition().filter(PolicyValidator::isInsecureCondition)
-          .ifPresent(condition -> result.put((ExpressionTree) condition, MESSAGE_SECONDARY_CONDITION));
-
-        statement.action().filter(PolicyValidator::isInsecureAction)
-          .ifPresent(action -> result.put((ExpressionTree) action, MESSAGE_SECONDARY_ACTION));
-
-        statement.principal().filter(PolicyValidator::isInsecurePrincipal)
-          .ifPresent(principal -> result.put((ExpressionTree) principal, MESSAGE_SECONDARY_PRINCIPAL));
-
-        statement.resource().filter(PolicyValidator::isInsecureResource)
-          .ifPresent(resource -> result.put((ExpressionTree) resource, MESSAGE_SECONDARY_RESOURCE));
-      });
-
-      return result;
+  /**
+   * Terraform-specific resource value handling: a {@code TupleTree} of resources is insecure when every
+   * element is insecure; a {@code TemplateExpressionTree} is secure when its last part ends with {@code "*"};
+   * a plain {@code TextTree} is secure when its value ends with {@code "*"}. Other shapes are conservatively insecure.
+   *
+   * <p>{@code TupleTree} satisfies {@code Iterable<?>}, so the iterable branch handles both native
+   * Terraform tuples and the JSON-derived tuples produced by {@link org.sonar.iac.terraform.api.tree.HeredocLiteralTree}.
+   */
+  private static boolean isInsecureResource(Tree resource) {
+    if (resource instanceof Iterable<?> iterable) {
+      // empty list does not cover any resource → insecure; non-empty list is insecure only if every element is insecure
+      return StreamSupport.stream(iterable.spliterator(), false)
+        .allMatch(element -> element instanceof Tree tree && isInsecureResource(tree));
     }
-
-    private static boolean isSecureStatement(Policy.Statement statement) {
-      return statement.effect().filter(e -> !isInsecureEffect(e)).isPresent()
-        && statement.condition().filter(e -> !isInsecureCondition(e)).isPresent()
-        && statement.action().filter(e -> !isInsecureAction(e)).isPresent()
-        && statement.principal().filter(e -> !isInsecurePrincipal(e)).isPresent()
-        && statement.resource().filter(e -> !isInsecureResource(e)).isPresent();
+    if (resource instanceof TextTree || resource instanceof TemplateExpressionTree) {
+      return !isResourceIdentifierSecure(resource);
     }
+    return true;
+  }
 
-    private static boolean isInsecureResource(Tree resource) {
-      if (resource instanceof TupleTree tuple) {
-        return tuple.elements().trees().stream().allMatch(PolicyValidator::isInsecureResource);
-      }
-      if (resource instanceof LiteralExprTree || resource instanceof TemplateExpressionTree) {
-        return !isResourceIdentifierSecure(resource);
-      }
-      return true;
+  private static boolean isResourceIdentifierSecure(Tree resourceIdentifier) {
+    if (resourceIdentifier instanceof TemplateExpressionTree templateExpression) {
+      List<ExpressionTree> parts = templateExpression.parts();
+      return !parts.isEmpty() && isResourceIdentifierSecure(parts.get(parts.size() - 1));
     }
-
-    private static boolean isResourceIdentifierSecure(Tree resourceIdentifier) {
-      if (resourceIdentifier instanceof LiteralExprTree literalExpr) {
-        return literalExpr.value().endsWith("*");
-      } else if (resourceIdentifier instanceof TemplateExpressionTree templateExpression) {
-        List<ExpressionTree> parts = templateExpression.parts();
-        return !parts.isEmpty() && isResourceIdentifierSecure(parts.get(parts.size() - 1));
-      }
-      return true;
+    if (resourceIdentifier instanceof TextTree textTree) {
+      return textTree.value().endsWith("*");
     }
-
-    private static boolean isInsecurePrincipal(Tree principal) {
-      return PropertyUtils.value(principal, "AWS", ExpressionTree.class)
-        .filter(PolicyValidator::isInsecureAwsPrincipal)
-        .isPresent();
-    }
-
-    private static boolean isInsecureAwsPrincipal(ExpressionTree awsPrincipal) {
-      if (awsPrincipal instanceof TupleTree tuple) {
-        return tuple.elements().trees().stream()
-          .allMatch(e -> !TextUtils.isValue(e, "*").isTrue());
-      }
-      return TextUtils.isValue(awsPrincipal, "*").isFalse();
-    }
-
-    private static boolean isInsecureAction(Tree action) {
-      if (action instanceof TupleTree tuple) {
-        return tuple.elements().trees().stream().allMatch(PolicyValidator::isInsecureAction);
-      }
-      return TextUtils.isValue(action, "*").isFalse() && TextUtils.isValue(action, "s3:*").isFalse();
-    }
-
-    private static boolean isInsecureEffect(Tree effect) {
-      return TextUtils.isValue(effect, "Deny").isFalse();
-    }
-
-    private static boolean isInsecureCondition(Tree condition) {
-      Optional<Tree> bool = PropertyUtils.value(condition, "Bool");
-      if (!(bool.isPresent() && bool.get() instanceof ObjectTree)) {
-        return false;
-      }
-
-      return PropertyUtils.value(bool.get(), "aws:SecureTransport")
-        .filter(e -> !TextUtils.isValueFalse(e)).isPresent();
-    }
+    return true;
   }
 
 }

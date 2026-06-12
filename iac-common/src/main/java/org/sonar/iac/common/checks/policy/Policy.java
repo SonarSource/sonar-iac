@@ -18,7 +18,7 @@ package org.sonar.iac.common.checks.policy;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 
@@ -28,10 +28,16 @@ public class Policy {
   private final Tree id;
   private final List<Statement> statement;
 
-  public <T extends Tree> Policy(T policyDocument, Function<T, List<T>> statementsProvider) {
-    this.version = PropertyUtils.valueOrNull(policyDocument, "Version");
-    this.id = PropertyUtils.valueOrNull(policyDocument, "Id");
-    this.statement = statementsProvider.apply(policyDocument).stream().map(Statement::new).toList();
+  /**
+   * @param version the {@code Version} tree of the policy document, or {@code null} when absent/unresolved
+   * @param id the {@code Id} tree of the policy document, or {@code null} when absent/unresolved
+   * @param statement the statements the caller extracted from the policy document; pass an empty list for an
+   *                  unresolved/unknown policy (the validators then treat it as compliant)
+   */
+  public Policy(@Nullable Tree version, @Nullable Tree id, List<Statement> statement) {
+    this.version = version;
+    this.id = id;
+    this.statement = statement;
   }
 
   public Optional<Tree> version() {
@@ -57,7 +63,7 @@ public class Policy {
     private final Tree notResource;
     private final Tree condition;
 
-    private Statement(Tree statement) {
+    public Statement(Tree statement) {
       this.sid = PropertyUtils.valueOrNull(statement, "Sid");
       this.effect = PropertyUtils.valueOrNull(statement, "Effect");
       this.principal = PropertyUtils.valueOrNull(statement, "Principal");

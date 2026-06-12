@@ -26,7 +26,8 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": true
-#                                      ^^^^< {{HTTPS requests are denied.}}
+            # SONARIAC-1803: condition value "true" inverts the protection — statement is no longer an HTTPS-only attempt,
+            # so the primary issue is raised with no per-field secondaries.
   S3BucketWrongPrincipal:
     Type: 'AWS::S3::Bucket' # Noncompliant
     #     ^^^^^^^^^^^^^^^^^
@@ -704,3 +705,26 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": "false"
+
+  # SONARIAC-1803: a Deny statement whose Condition is unrelated to aws:SecureTransport is
+  # NOT an HTTPS-only enforcement attempt. The bucket is still Noncompliant (no HTTPS-only
+  # policy), but no per-field secondaries should be raised — those would contradict the
+  # actual intent of the statement.
+  S3BucketNonCompliantUnrelatedCondition:
+    Type: AWS::S3::Bucket # Noncompliant {{No bucket policy enforces HTTPS-only access to this bucket.}}
+    Properties:
+      BucketName: "s3-bucket-noncompliant-unrelated-condition"
+  S3BucketPolicyNonCompliantUnrelatedCondition:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketNonCompliantUnrelatedCondition
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: "arn:aws:s3:::s3-bucket-noncompliant-unrelated-condition/sensitive"
+            Condition:
+              IpAddress:
+                "aws:SourceIp": "1.2.3.4/32"

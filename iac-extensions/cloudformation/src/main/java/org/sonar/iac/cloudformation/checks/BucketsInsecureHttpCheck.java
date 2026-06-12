@@ -18,6 +18,7 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,22 +35,20 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.policy.BucketsInsecureHttpPolicyValidator;
+import org.sonar.iac.common.checks.policy.Policy;
+import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.common.yaml.XPathUtils;
 import org.sonar.iac.common.yaml.YamlTreeUtils;
 import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
-  private static final String MESSAGE = "No bucket policy enforces HTTPS-only access to this bucket.";
-  private static final String MESSAGE_SECONDARY_EFFECT = "Non-conforming requests should be denied.";
-  private static final String MESSAGE_SECONDARY_CONDITION = "HTTPS requests are denied.";
-  private static final String MESSAGE_SECONDARY_PRINCIPAL = "All principals should be restricted.";
-  private static final String MESSAGE_SECONDARY_ACTION = "All S3 actions should be restricted.";
-  private static final String MESSAGE_SECONDARY_RESOURCE = "All resources should be restricted.";
+
+  private static final BucketsInsecureHttpPolicyValidator VALIDATOR = new BucketsInsecureHttpPolicyValidator(BucketsInsecureHttpCheck::isInsecureResource);
 
   @Override
   public void initialize(InitContext init) {
@@ -70,21 +69,39 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static void checkBucketsAndPolicies(CheckContext ctx, Map<Resource, Resource> bucketsToPolicies) {
     for (Map.Entry<Resource, Resource> bucketToPolicy : bucketsToPolicies.entrySet()) {
       if (bucketToPolicy.getValue() == null) {
-        ctx.reportIssue(bucketToPolicy.getKey().type(), MESSAGE);
+        ctx.reportIssue(bucketToPolicy.getKey().type(), BucketsInsecureHttpPolicyValidator.MESSAGE);
       } else {
         checkBucketPolicy(ctx, bucketToPolicy.getKey(), bucketToPolicy.getValue());
       }
     }
   }
 
-  private static void checkBucketPolicy(CheckContext ctx, Resource bucket, Resource policy) {
-    Map<YamlTree, String> insecureValues = PolicyValidator.getInsecureValues(policy);
-    if (!insecureValues.isEmpty()) {
-      List<SecondaryLocation> secondaryLocations = insecureValues.entrySet().stream()
-        .map(e -> new SecondaryLocation(e.getKey(), e.getValue()))
-        .toList();
-      ctx.reportIssue(bucket.type(), MESSAGE, secondaryLocations);
+  private static void checkBucketPolicy(CheckContext ctx, Resource bucket, Resource policyResource) {
+    Policy policy = buildPolicy(policyResource);
+    if (VALIDATOR.isPolicySecure(policy)) {
+      return;
     }
+    List<SecondaryLocation> secondaryLocations = VALIDATOR.findInsecureFields(policy).entrySet().stream()
+      .map(e -> new SecondaryLocation(e.getKey(), e.getValue()))
+      .toList();
+    ctx.reportIssue(bucket.type(), BucketsInsecureHttpPolicyValidator.MESSAGE, secondaryLocations);
+  }
+
+  /**
+   * Build a common {@link Policy} from a CloudFormation {@code AWS::S3::BucketPolicy} resource by extracting
+   * the {@code /PolicyDocument/Statement[]} subtree. Returns an empty {@link Policy} (no statements) when the
+   * resource has no parseable properties — the common validator then treats that as compliant.
+   */
+  private static Policy buildPolicy(Resource policyResource) {
+    YamlTree properties = policyResource.properties();
+    if (properties == null) {
+      return new Policy(null, null, Collections.emptyList());
+    }
+    List<Statement> statements = XPathUtils.getTrees(properties, "/PolicyDocument/Statement[]").stream().map(Statement::new).toList();
+    return new Policy(
+      PropertyUtils.valueOrNull(properties, "Version"),
+      PropertyUtils.valueOrNull(properties, "Id"),
+      statements);
   }
 
   private static Map<Resource, Resource> bucketsToPolicies(List<Resource> buckets, List<Resource> policies) {
@@ -142,97 +159,26 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       .orElse("");
   }
 
-  private static class PolicyValidator {
-
-    private static Map<YamlTree, String> getInsecureValues(Resource policy) {
-      HashMap<YamlTree, String> result = new HashMap<>();
-
-      YamlTree properties = policy.properties();
-      if (properties != null) {
-        List<YamlTree> statements = XPathUtils.getTrees(properties, "/PolicyDocument/Statement[]");
-
-        // Short-circuit: if any statement fully enforces HTTPS, the policy is secure
-        if (statements.stream().anyMatch(PolicyValidator::isSecureStatement)) {
-          return result;
-        }
-
-        // Only Deny statements can be HTTPS enforcement — ignore Allow statements
-        List<YamlTree> denyStatements = statements.stream()
-          .filter(s -> XPathUtils.getSingleTree(s, "/Effect").filter(e -> !isInsecureEffect(e)).isPresent())
-          .toList();
-
-        // If no Deny statements exist, fall back to checking all statements (preserves
-        // existing behavior for Allow-only or effectless policies)
-        List<YamlTree> statementsToCheck = denyStatements.isEmpty() ? statements : denyStatements;
-
-        statementsToCheck.forEach(statement -> {
-          XPathUtils.getSingleTree(statement, "/Effect")
-            .filter(PolicyValidator::isInsecureEffect).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_EFFECT));
-          XPathUtils.getSingleTree(statement, "/Condition/Bool/aws:SecureTransport")
-            .filter(PolicyValidator::isInsecureCondition).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_CONDITION));
-          XPathUtils.getSingleTree(statement, "/Action")
-            .filter(PolicyValidator::isInsecureAction).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_ACTION));
-          XPathUtils.getSingleTree(statement, "/Principal")
-            .filter(PolicyValidator::isInsecurePrincipal).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_PRINCIPAL));
-          XPathUtils.getSingleTree(statement, "/Resource")
-            .filter(PolicyValidator::isInsecureResource).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_RESOURCE));
-        });
+  /**
+   * CloudFormation-specific resource value handling: supports {@code !Join} and {@code !Sub} intrinsic functions,
+   * {@code SequenceTree}, and plain {@code ScalarTree}. Any other shape is conservatively treated as insecure.
+   */
+  private static boolean isInsecureResource(Tree resource) {
+    if (resource instanceof FunctionCallTree functionCall && "Join".equals(functionCall.name()) && functionCall.arguments().size() == 2) {
+      YamlTree listOfValues = functionCall.arguments().get(1);
+      if (listOfValues instanceof SequenceTree sequence) {
+        // The Join's effective suffix is the last element of its values list — that decides whether it ends with "*".
+        return sequence.elements().isEmpty() || isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
       }
-
-      return result;
+    } else if (resource instanceof FunctionCallTree functionCall && "Sub".equals(functionCall.name())) {
+      // !Sub "arn:aws:s3:::${Bucket}/*" is secure if the template string ends with "*".
+      return functionCall.arguments().stream()
+        .map(TextUtils::getValue)
+        .flatMap(Optional::stream)
+        .noneMatch(arg -> arg.endsWith("*"));
+    } else if (resource instanceof SequenceTree sequenceTree) {
+      return sequenceTree.elements().stream().allMatch(BucketsInsecureHttpCheck::isInsecureResource);
     }
-
-    private static boolean isSecureStatement(YamlTree statement) {
-      return XPathUtils.getSingleTree(statement, "/Effect").filter(e -> !isInsecureEffect(e)).isPresent()
-        && XPathUtils.getSingleTree(statement, "/Condition/Bool/aws:SecureTransport").filter(e -> !isInsecureCondition(e)).isPresent()
-        && XPathUtils.getSingleTree(statement, "/Action").filter(e -> !isInsecureAction(e)).isPresent()
-        && XPathUtils.getSingleTree(statement, "/Principal").filter(e -> !isInsecurePrincipal(e)).isPresent()
-        && XPathUtils.getSingleTree(statement, "/Resource").filter(e -> !isInsecureResource(e)).isPresent();
-    }
-
-    private static boolean isInsecureResource(YamlTree resource) {
-      if (resource instanceof FunctionCallTree functionCall && "Join".equals(functionCall.name()) && functionCall.arguments().size() == 2) {
-        YamlTree listOfValues = functionCall.arguments().get(1);
-        if (listOfValues instanceof SequenceTree sequence) {
-          // Extract last element of Join value list to be checked if it's insecure
-          return sequence.elements().isEmpty() || isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
-        }
-      } else if (resource instanceof FunctionCallTree functionCall && "Sub".equals(functionCall.name())) {
-        // !Sub "arn:aws:s3:::${Bucket}/*" is secure if the template string ends with *
-        return functionCall.arguments().stream()
-          .map(TextUtils::getValue)
-          .flatMap(Optional::stream)
-          .noneMatch(arg -> arg.endsWith("*"));
-      } else if (resource instanceof SequenceTree sequenceTree) {
-        return sequenceTree.elements().stream().allMatch(PolicyValidator::isInsecureResource);
-      }
-      return !(resource instanceof ScalarTree scalar && scalar.value().endsWith("*"));
-    }
-
-    private static boolean isInsecurePrincipal(YamlTree principal) {
-      Tree valueToCheck = principal;
-      if (principal instanceof MappingTree) {
-        valueToCheck = PropertyUtils.valueOrNull(principal, "AWS");
-      }
-      if (valueToCheck instanceof SequenceTree sequenceTree) {
-        return sequenceTree.elements().stream().allMatch(PolicyValidator::isInsecurePrincipal);
-      }
-      return !TextUtils.isValue(valueToCheck, "*").isTrue();
-    }
-
-    private static boolean isInsecureAction(YamlTree action) {
-      if (action instanceof SequenceTree sequenceTree) {
-        return sequenceTree.elements().stream().allMatch(PolicyValidator::isInsecureAction);
-      }
-      return !(TextUtils.isValue(action, "*").isTrue() || TextUtils.isValue(action, "s3:*").isTrue());
-    }
-
-    private static boolean isInsecureCondition(YamlTree condition) {
-      return TextUtils.isValue(condition, "true").isTrue();
-    }
-
-    private static boolean isInsecureEffect(YamlTree effect) {
-      return TextUtils.isValue(effect, "Allow").isTrue();
-    }
+    return !(resource instanceof ScalarTree scalar && scalar.value().endsWith("*"));
   }
 }

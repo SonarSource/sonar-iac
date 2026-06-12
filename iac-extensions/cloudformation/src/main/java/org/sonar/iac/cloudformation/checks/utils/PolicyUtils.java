@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.Locale;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.policy.Policy;
+import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.XPathUtils;
@@ -51,7 +53,11 @@ public class PolicyUtils {
     private void collectPolicy(TupleTree tree) {
       if (isPolicyDocument(tree)) {
         YamlTree treeValue = tree.value();
-        policies.add(new Policy(treeValue, policy -> XPathUtils.getTrees(policy, "/Statement[]")));
+        List<Statement> statements = XPathUtils.getTrees(treeValue, "/Statement[]").stream().map(Statement::new).toList();
+        policies.add(new Policy(
+          PropertyUtils.valueOrNull(treeValue, "Version"),
+          PropertyUtils.valueOrNull(treeValue, "Id"),
+          statements));
       }
     }
 
